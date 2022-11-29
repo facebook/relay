@@ -80,6 +80,16 @@ fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
     assert!(completion_labels.is_empty());
 }
 
+fn assert_no_typename_label(items: Option<Vec<CompletionItem>>) {
+    assert!(
+        items
+            .unwrap()
+            .into_iter()
+            .all(|item| item.label != "__typename"),
+        "__typename is invalid on root types"
+    );
+}
+
 #[test]
 fn scalar_field() {
     let items = parse_and_resolve_completion_items(
@@ -92,7 +102,10 @@ fn scalar_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["uri", "width", "height", "test_enums", "__typename"],
+    );
 }
 
 #[test]
@@ -108,7 +121,7 @@ fn linked_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["location", "categories"]);
+    assert_labels(items.unwrap(), vec!["location", "categories", "__typename"]);
 }
 
 #[test]
@@ -124,7 +137,10 @@ fn whitespace_in_linked_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["uri", "test_enums", "width", "height", "__typename"],
+    );
 }
 
 #[test]
@@ -137,7 +153,10 @@ fn whitespace_in_fragment() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["uri", "width", "height", "test_enums", "__typename"],
+    );
 }
 
 #[test]
@@ -152,20 +171,201 @@ fn whitespace_in_inline_fragment() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["uri", "width", "height", "test_enums", "__typename"],
+    );
 }
 
 #[test]
-fn inline_fragment() {
+fn whitespace_in_object_type() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+          fragment Test on CommentsEdge {
+            |
+          }
+        "#,
+        Some(build_test_program(
+            r#"
+            fragment ObjectTypeFragment on CommentsEdge {
+              __typename
+            }
+
+            fragment InterfaceFragment on CommentsEdgeInterface {
+              __typename
+            }
+
+            fragment UnrelatedFragment on Task {
+              __typename
+            }
+        "#,
+        )),
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "cursor",
+            "node",
+            "__typename",
+            "...ObjectTypeFragment",
+            "...InterfaceFragment",
+        ],
+    )
+}
+
+#[test]
+fn whitespace_in_interface() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+          fragment Test on CommentsEdgeInterface {
+            |
+          }
+        "#,
+        Some(build_test_program(
+            r#"
+            fragment ImplementingFragment on CommentsEdge {
+              __typename
+            }
+
+            fragment InterfaceFragment on CommentsEdgeInterface {
+              __typename
+            }
+
+            fragment UnrelatedFragment on Task {
+              __typename
+            }
+        "#,
+        )),
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "cursor",
+            "source",
+            "node",
+            "__typename",
+            "... on CommentsEdgeInterface",
+            "... on CommentsEdge",
+            "...ImplementingFragment",
+            "...InterfaceFragment",
+        ],
+    )
+}
+
+#[test]
+fn whitespace_in_union() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+          fragment Test on CommentBody {
+            |
+          }
+        "#,
+        Some(build_test_program(
+            r#"
+                fragment UnionFragment on CommentBody {
+                  __typename
+                }
+    
+                fragment UnionVariantFragment on PlainCommentBody {
+                  __typename
+                }
+    
+                fragment UnrelatedFragment on Task {
+                  __typename
+                }
+            "#,
+        )),
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "__typename",
+            "... on CommentBody",
+            "... on PlainCommentBody",
+            "... on MarkdownCommentBody",
+            "...UnionFragment",
+            "...UnionVariantFragment",
+        ],
+    )
+}
+
+#[test]
+fn inline_fragment_on_object() {
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on Viewer {
-                ... on a|
+                ... on |a
             }
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["Viewer"]);
+    assert_labels(items.unwrap(), vec![]);
+}
+
+#[test]
+fn inline_fragment_on_interface() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Named {
+                ... on |a
+            }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec!["... on Named", "... on User", "... on SimpleNamed"],
+    );
+}
+
+#[test]
+fn inline_fragment_on_interface_with_existing_inline_fragment() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Named {
+                ... on |a {}
+            }
+        "#,
+        None,
+    );
+    assert_labels(items.unwrap(), vec!["Named", "User", "SimpleNamed"]);
+}
+
+#[test]
+fn inline_fragment_on_union() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on MaybeNode {
+                ... on |a
+            }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "... on MaybeNode",
+            "... on Story",
+            "... on FakeNode",
+            "... on NonNode",
+        ],
+    );
+}
+
+#[test]
+fn inline_fragment_on_union_with_existing_inline_fragment() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on MaybeNode {
+                ... on |a {}
+            }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec!["MaybeNode", "Story", "FakeNode", "NonNode"],
+    );
 }
 
 #[test]
@@ -316,7 +516,7 @@ fn fragment_spread_on_the_same_type() {
         fragment TestFragment2 on Viewer {
             __typename
          }
-    "#,
+      "#,
         )),
     );
     assert_labels(items.unwrap(), vec!["TestFragment", "TestFragment2"]);
@@ -400,6 +600,45 @@ fn argument_value_between_names() {
 }
 
 #[test]
+fn no_typename_on_query() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Query {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
+}
+
+#[test]
+fn no_typename_on_mutation() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
+}
+
+#[test]
+fn no_typename_on_subscription() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Subscription {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
+}
+
+#[test]
 fn empty_directive() {
     let items = parse_and_resolve_completion_items(
         r#"
@@ -455,7 +694,7 @@ fn field_documentation() {
         .map(|item| (item.label, item.documentation))
         .collect::<HashMap<String, Option<Documentation>>>();
 
-    assert_eq!(docs.len(), 4);
+    assert_eq!(docs.len(), 5);
     assert_eq!(
         *docs.get("uri").unwrap(),
         Some(make_markdown_table_documentation(

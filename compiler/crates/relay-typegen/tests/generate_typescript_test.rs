@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0272f227c5a17995059ba281b1176557>>
+ * @generated SignedSource<<c12cbcb2699b05580be1a62dde8a3bcf>>
  */
 
 mod generate_typescript;
@@ -241,6 +241,13 @@ fn relay_client_id_field() {
     let input = include_str!("generate_typescript/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("generate_typescript/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, "relay-client-id-field.graphql", "generate_typescript/fixtures/relay-client-id-field.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_client_interface() {
+    let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-client-interface.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-client-interface.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-client-interface.graphql", "generate_typescript/fixtures/relay-resolver-with-output-type-client-interface.expected", input, expected);
 }
 
 #[test]

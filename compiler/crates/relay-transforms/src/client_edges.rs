@@ -38,12 +38,14 @@ use intern::string_key::StringKeyMap;
 use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
+use schema::DirectiveValue;
 use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessageWithData;
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use crate::RequiredMetadataDirective;
 use crate::ValidationMessage;
@@ -356,10 +358,12 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
             match edge_to_type {
                 Type::Interface(_) => {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::ClientEdgeToClientInterface,
-                        field.alias_or_name_location(),
-                    ));
+                    if !has_output_type(resolver_directive) {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::ClientEdgeToClientInterface,
+                            field.alias_or_name_location(),
+                        ));
+                    }
                     return self.default_transform_linked_field(field);
                 }
                 Type::Union(_) => {
@@ -545,5 +549,17 @@ impl Transformer for ClientEdgesCleanupTransform {
             }
             None => self.default_transform_inline_fragment(fragment),
         }
+    }
+}
+
+// We should restructure the calling code so that this function does not
+// accept an option.
+fn has_output_type(directive: Option<&DirectiveValue>) -> bool {
+    match directive {
+        Some(directive) => get_bool_argument_is_true(
+            &directive.arguments,
+            *crate::relay_resolvers::RELAY_RESOLVER_HAS_OUTPUT_TYPE,
+        ),
+        None => false,
     }
 }

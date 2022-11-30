@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<44a0bdc90ddfedf3dcbdb6e26d09ce8d>>
+ * @generated SignedSource<<905ebd71110679c262b41e411ebc3fe4>>
  */
 
 mod generate_relay_resolvers_operations_for_nested_objects;
@@ -41,10 +41,24 @@ fn output_type_with_arguments() {
 }
 
 #[test]
-fn output_type_with_client_interface_invalid() {
-    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.invalid.graphql");
-    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.invalid.expected");
-    test_fixture(transform_fixture, "output-type-with-client-interface.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.invalid.expected", input, expected);
+fn output_type_with_client_interface() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.expected");
+    test_fixture(transform_fixture, "output-type-with-client-interface.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_client_interface_and_object_recursion_invalid() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-and-object-recursion.invalid.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-and-object-recursion.invalid.expected");
+    test_fixture(transform_fixture, "output-type-with-client-interface-and-object-recursion.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-and-object-recursion.invalid.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_client_interface_recursion_invalid() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-recursion.invalid.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-recursion.invalid.expected");
+    test_fixture(transform_fixture, "output-type-with-client-interface-recursion.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-recursion.invalid.expected", input, expected);
 }
 
 #[test]
@@ -52,6 +66,13 @@ fn output_type_with_id() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-id.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-id.expected");
     test_fixture(transform_fixture, "output-type-with-id.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-id.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_interface_recursion_but_lying_client_type() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface-recursion-but-lying-client-type.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface-recursion-but-lying-client-type.expected");
+    test_fixture(transform_fixture, "output-type-with-interface-recursion-but-lying-client-type.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface-recursion-but-lying-client-type.expected", input, expected);
 }
 
 #[test]
@@ -83,6 +104,13 @@ fn output_type_with_relay_resolver_fields() {
 }
 
 #[test]
+fn output_type_with_server_interface_invalid() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-interface.invalid.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-interface.invalid.expected");
+    test_fixture(transform_fixture, "output-type-with-server-interface.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-interface.invalid.expected", input, expected);
+}
+
+#[test]
 fn output_type_with_server_object() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-object.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-object.expected");
@@ -94,4 +122,11 @@ fn output_type_with_type_with_id() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.expected");
     test_fixture(transform_fixture, "output-type-with-type-with-id.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_unimplemented_interface_invalid() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-unimplemented-interface.invalid.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-unimplemented-interface.invalid.expected");
+    test_fixture(transform_fixture, "output-type-with-unimplemented-interface.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-unimplemented-interface.invalid.expected", input, expected);
 }

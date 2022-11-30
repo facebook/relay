@@ -8,6 +8,8 @@
 use common::ArgumentName;
 use common::DiagnosticDisplay;
 use common::DirectiveName;
+use common::InterfaceName;
+use common::ObjectName;
 use common::WithDiagnosticData;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::VariableName;
@@ -184,6 +186,19 @@ pub enum ValidationMessage {
         type_kind: StringKey,
         field_name: StringKey,
         type_name: StringKey,
+    },
+
+    #[error(
+        "No types implement the client interface {interface_name}. For a client interface to be used as a @RelayResolver @outputType, at least one Object type must implement the interface."
+    )]
+    RelayResolverClientInterfaceMustBeImplemented { interface_name: InterfaceName },
+
+    #[error(
+        "The interface {interface_name} is being used as an @outputType of a @RelayResolver. For this to be valid, all Object types that implement the interface must be client types. However, the {object_name}, which implements {interface_name}, is a server type."
+    )]
+    RelayResolverClientInterfaceImplementingTypeMustBeClientTypes {
+        interface_name: InterfaceName,
+        object_name: ObjectName,
     },
 
     #[error(

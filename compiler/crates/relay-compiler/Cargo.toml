@@ -60,7 +60,7 @@ thiserror = "1.0.36"
 tokio = { version = "1.21.2", features = ["full", "test-util", "tracing"] }
 walkdir = "2.3"
 watchman_client = "0.8.0"
-zstd = "0.11.1+zstd.1.5.2"
+zstd = { version = "0.11.2+zstd.1.5.2", features = ["zstdmt"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

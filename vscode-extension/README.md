@@ -20,29 +20,55 @@ Search for "Relay GraphQL" in the VS Code extensions panel or install through [t
 
 ## Configuration
 
-- `relay.autoStartCompiler` (default: `false`) Whether or not we should automatically start the Relay Compiler in watch mode when you open a project.
+Some of the configuration options for this extension only apply depending on whether you have a single or multiple Relay configs in your project.
 
-- `relay.compilerOutputLevel` (default: `verbose`) Specify the output level of the Relay compiler. The available options are
+### Common Configuration Options
 
-  - quiet
-  - quiet-with-errors
-  - verbose
-  - debug
+#### `relay.autoStartCompiler` (default: `false`)
 
-- `relay.lspOutputLevel` (default: `quiet-with-errors`) Specify the output level of the Relay language server. The available options are
+Whether or not we should automatically start the Relay Compiler in watch mode when you open a project.
 
-  - quiet
-  - quiet-with-errors
-  - verbose
-  - debug
+#### `relay.compilerOutputLevel` (default: `verbose`)
 
-- `relay.pathToBinary` (default: `null`) A path relative to the Relay binary relative to the root of your project. If this is not specified, we will try to find one in your `node_modules` folder.
+Specify the output level of the Relay compiler. The available options are
 
-- `relay.projects` (default: `null`) An array of project configuration in the form `{name: string, rootDirectory: string, pathToConfig: string}`. If omitted, it is assumed your workspace uses a single Relay config and the compiler will search for your config file. But you can also use this configuration if your Relay config is in a nested directory. This configuration must be used if your workspace has multiple Relay projects, each with their own config file.
+- quiet
+- quiet-with-errors
+- verbose
+- debug
 
-  - `name`: The name of the project. This will be used to display messages related to the project's output.
-  - `rootDirectory`: A path relative to the root of your VSCode project for the extension to work from. The default value is the root of your project. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the relay config is found. This is helpful if your project is in a nested directory.
-  - `pathToConfig`: Path to a relay config relative to the `rootDirectory`. Without this, the compiler will search for your config. This is helpful if your relay project is in a nested directory.
+#### `relay.lspOutputLevel` (default: `quiet-with-errors`)
+
+Specify the output level of the Relay language server. The available options are
+
+- quiet
+- quiet-with-errors
+- verbose
+- debug
+
+#### `relay.pathToBinary` (default: `null`)
+
+A path to the Relay binary relative to the root of your project. If this is not specified, we will try to find one in your `node_modules` folder.
+
+### Single Relay Config Options
+
+#### `relay.name` (default: `default`)
+
+The name of the project. This will be used to display messages related to the project's output.
+
+#### `relay.rootDirectory` (default: Root of project)
+
+A path relative to the root of your VSCode project for the extension to work from. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the Relay config is found. This is helpful if your project is in a nested directory.
+
+#### `relay.pathToConfig` (default: `null`)
+
+Path to a Relay config relative to the `rootDirectory`. Without this, the compiler will search for your config. This is helpful if your Relay project is in a nested directory.
+
+### Multiple Relay Config Options
+
+#### `relay.projects` (default: `null`)
+
+An array of project configuration in the form `{name: string, rootDirectory: string, pathToConfig: string}`. If omitted, it is assumed your workspace uses a single Relay config and the compiler will search for your config file. But you can also use this configuration if your Relay config is in a nested directory. This configuration must be used if your workspace has multiple Relay projects, each with their own config file.
 
 ## Features
 

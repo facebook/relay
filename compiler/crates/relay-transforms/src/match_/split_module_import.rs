@@ -138,7 +138,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                             derived_from: Some(module_metadata.fragment_name),
                             location: module_metadata.fragment_source_location,
                             parent_documents: Default::default(),
-                            raw_response_type: false,
+                            raw_response_type_generation_mode: None,
                         },
                         OperationDefinition {
                             name: WithLocation::new(

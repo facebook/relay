@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7b007c9666060ed3db53a0e0dccab34a>>
+ * @generated SignedSource<<905ebd71110679c262b41e411ebc3fe4>>
  */
 
 mod generate_relay_resolvers_operations_for_nested_objects;
@@ -13,10 +13,10 @@ use generate_relay_resolvers_operations_for_nested_objects::transform_fixture;
 use fixture_tests::test_fixture;
 
 #[test]
-fn output_type() {
-    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type.graphql");
-    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type.expected");
-    test_fixture(transform_fixture, "output-type.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type.expected", input, expected);
+fn output_type_client_type() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-client-type.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-client-type.expected");
+    test_fixture(transform_fixture, "output-type-client-type.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-client-type.expected", input, expected);
 }
 
 #[test]
@@ -27,10 +27,10 @@ fn output_type_input_invalid() {
 }
 
 #[test]
-fn output_type_scalar_invalid() {
-    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.graphql");
-    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.expected");
-    test_fixture(transform_fixture, "output-type-scalar.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.expected", input, expected);
+fn output_type_scalar() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.expected");
+    test_fixture(transform_fixture, "output-type-scalar.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.expected", input, expected);
 }
 
 #[test]
@@ -41,6 +41,27 @@ fn output_type_with_arguments() {
 }
 
 #[test]
+fn output_type_with_client_interface() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.expected");
+    test_fixture(transform_fixture, "output-type-with-client-interface.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_client_interface_and_object_recursion_invalid() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-and-object-recursion.invalid.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-and-object-recursion.invalid.expected");
+    test_fixture(transform_fixture, "output-type-with-client-interface-and-object-recursion.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-and-object-recursion.invalid.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_client_interface_recursion_invalid() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-recursion.invalid.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-recursion.invalid.expected");
+    test_fixture(transform_fixture, "output-type-with-client-interface-recursion.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-client-interface-recursion.invalid.expected", input, expected);
+}
+
+#[test]
 fn output_type_with_id() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-id.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-id.expected");
@@ -48,10 +69,10 @@ fn output_type_with_id() {
 }
 
 #[test]
-fn output_type_with_interface_invalid() {
-    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface.invalid.graphql");
-    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface.invalid.expected");
-    test_fixture(transform_fixture, "output-type-with-interface.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface.invalid.expected", input, expected);
+fn output_type_with_interface_recursion_but_lying_client_type() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface-recursion-but-lying-client-type.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface-recursion-but-lying-client-type.expected");
+    test_fixture(transform_fixture, "output-type-with-interface-recursion-but-lying-client-type.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface-recursion-but-lying-client-type.expected", input, expected);
 }
 
 #[test]
@@ -62,10 +83,10 @@ fn output_type_with_nested_recursion() {
 }
 
 #[test]
-fn output_type_with_nested_server_type() {
-    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-server-type.graphql");
-    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-server-type.expected");
-    test_fixture(transform_fixture, "output-type-with-nested-server-type.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-server-type.expected", input, expected);
+fn output_type_with_nested_server_object() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-server-object.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-server-object.expected");
+    test_fixture(transform_fixture, "output-type-with-nested-server-object.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-server-object.expected", input, expected);
 }
 
 #[test]
@@ -83,10 +104,17 @@ fn output_type_with_relay_resolver_fields() {
 }
 
 #[test]
-fn output_type_with_server_type() {
-    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-type.graphql");
-    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-type.expected");
-    test_fixture(transform_fixture, "output-type-with-server-type.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-type.expected", input, expected);
+fn output_type_with_server_interface_invalid() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-interface.invalid.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-interface.invalid.expected");
+    test_fixture(transform_fixture, "output-type-with-server-interface.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-interface.invalid.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_server_object() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-object.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-object.expected");
+    test_fixture(transform_fixture, "output-type-with-server-object.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-object.expected", input, expected);
 }
 
 #[test]
@@ -94,4 +122,11 @@ fn output_type_with_type_with_id() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.expected");
     test_fixture(transform_fixture, "output-type-with-type-with-id.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_unimplemented_interface_invalid() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-unimplemented-interface.invalid.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-unimplemented-interface.invalid.expected");
+    test_fixture(transform_fixture, "output-type-with-unimplemented-interface.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-unimplemented-interface.invalid.expected", input, expected);
 }

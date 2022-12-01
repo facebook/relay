@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9a034d24958408bc7f4c0585eec52070>>
+ * @generated SignedSource<<e639023ec2be3cc544b265fed4603ecf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { QueryResourceClientEdgesTestUser1Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser1Fragment.graphql";
 import type { QueryResourceClientEdgesTestUser2Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser2Fragment.graphql";
 import type { UserClientEdgeResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserClientEdgeResolver.graphql";
-import userClientEdgeResolver from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver.js";
+import {client_edge as userClientEdgeResolver} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolver: (
@@ -71,7 +71,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver'),
+              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -118,10 +118,23 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "client_edge",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

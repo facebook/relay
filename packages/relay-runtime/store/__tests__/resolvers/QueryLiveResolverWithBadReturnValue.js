@@ -21,9 +21,11 @@
  */
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 
-function liveResolverWithBadReturnValue(): LiveState<string> {
+function live_resolver_with_bad_return_value(): LiveState<string> {
   // $FlowFixMe The purpose of this resolver is to test a bad return value.
   return 'Oops!';
 }
 
-module.exports = liveResolverWithBadReturnValue;
+module.exports = {
+  live_resolver_with_bad_return_value,
+};

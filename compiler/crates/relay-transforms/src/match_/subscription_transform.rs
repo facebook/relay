@@ -26,6 +26,7 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
+use intern::Lookup;
 use schema::FieldID;
 use schema::Schema;
 use schema::Type;
@@ -128,7 +129,7 @@ impl<'program> SubscriptionTransform<'program> {
         }
     }
 
-    fn is_valid_js_dependency(&self, type_: &TypeReference) -> bool {
+    fn is_valid_js_dependency(&self, type_: &TypeReference<Type>) -> bool {
         match type_ {
             TypeReference::Named(Type::Scalar(scalar_id)) => {
                 let scalar = self.program.schema.scalar(*scalar_id);

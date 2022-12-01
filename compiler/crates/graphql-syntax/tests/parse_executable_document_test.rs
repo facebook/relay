@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2b61edcff722746739812dd3e570f280>>
+ * @generated SignedSource<<b70fa52f45e6f2055a9ac5e1350398a6>>
  */
 
 mod parse_executable_document;
@@ -17,6 +17,13 @@ fn block_string() {
     let input = include_str!("parse_executable_document/fixtures/block_string.graphql");
     let expected = include_str!("parse_executable_document/fixtures/block_string.expected");
     test_fixture(transform_fixture, "block_string.graphql", "parse_executable_document/fixtures/block_string.expected", input, expected);
+}
+
+#[test]
+fn incomplete_field_alias() {
+    let input = include_str!("parse_executable_document/fixtures/incomplete_field_alias.graphql");
+    let expected = include_str!("parse_executable_document/fixtures/incomplete_field_alias.expected");
+    test_fixture(transform_fixture, "incomplete_field_alias.graphql", "parse_executable_document/fixtures/incomplete_field_alias.expected", input, expected);
 }
 
 #[test]

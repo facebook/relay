@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0bc90bfb76b6cff6728a587e8d943ad4>>
+ * @generated SignedSource<<dd4b7390651f7620b9f476138d87c484>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UndefinedFieldResolver$key } from "./../resolvers/__generated__/UndefinedFieldResolver.graphql";
-import queryUndefinedFieldResolver from "../resolvers/UndefinedFieldResolver.js";
+import {undefined_field as queryUndefinedFieldResolver} from "../resolvers/UndefinedFieldResolver.js";
 // Type assertion validating that `queryUndefinedFieldResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryUndefinedFieldResolver: (
@@ -52,7 +52,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "undefined_field",
-        "resolverModule": require('./../resolvers/UndefinedFieldResolver'),
+        "resolverModule": require('./../resolvers/UndefinedFieldResolver').undefined_field,
         "path": "undefined_field"
       }
     ],
@@ -66,33 +66,46 @@ var node/*: ConcreteRequest*/ = {
     "name": "RelayReaderResolverTest15Query",
     "selections": [
       {
-        "alias": null,
+        "name": "undefined_field",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
+                {
+                  "kind": "ClientExtension",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "__id",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
         "storageKey": null
       }
     ]

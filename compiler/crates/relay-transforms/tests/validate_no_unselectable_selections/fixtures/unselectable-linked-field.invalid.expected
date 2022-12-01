@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+#expected-to-throw
+
+fragment User_fragment on User {
+  id
+  sensitiveUserInfo {
+    id
+    sensitiveName
+    sensitiveNickname
+  }
+}
+
+# %extensions%
+
+type SensitiveUserInfo {
+  id: ID!
+  sensitiveName: String
+  sensitiveNickname: String
+}
+
+extend type User {
+  sensitiveUserInfo: SensitiveUserInfo @unselectable(reason: "This data has been disabled per our policy.")
+}
+==================================== ERROR ====================================
+✖︎ Disallowed selection of field `User.sensitiveUserInfo`. Reason: "This data has been disabled per our policy."
+
+  unselectable-linked-field.invalid.graphql:5:3
+    4 │   id
+    5 │   sensitiveUserInfo {
+      │   ^^^^^^^^^^^^^^^^^
+    6 │     id

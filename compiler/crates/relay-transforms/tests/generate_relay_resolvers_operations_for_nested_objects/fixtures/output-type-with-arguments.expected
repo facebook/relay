@@ -14,7 +14,7 @@ type MyThing {
 }
 
 extend type User {
-  my_things: [MyThing] @relay_resolver(import_path: "MyThingResolver", is_output_type: true)
+  my_things: [MyThing] @relay_resolver(import_path: "MyThingResolver", has_output_type: true)
 }
 ==================================== ERROR ====================================
 ✖︎ Arguments are not supported in the fields on the @outputType in @RelayResolvers. You'll need to expose these fields using @RelayResolver for them.

@@ -64,7 +64,7 @@ function getMissingClientEdges(
   } else if (state.kind === 'singular') {
     return state.snapshot.missingClientEdges ?? null;
   } else {
-    let edges = null;
+    let edges: null | Array<MissingClientEdgeRequestInfo> = null;
     for (const snapshot of state.snapshots) {
       if (snapshot.missingClientEdges) {
         edges = edges ?? [];
@@ -223,7 +223,7 @@ function readFragmentInternal_REACT_CACHE(
   if (fragmentNode.metadata?.hasClientEdges === true) {
     const missingClientEdges = getMissingClientEdges(state);
     if (missingClientEdges?.length) {
-      clientEdgeQueries = [];
+      clientEdgeQueries = ([]: Array<QueryResult>);
       for (const edge of missingClientEdges) {
         clientEdgeQueries.push(
           handleMissingClientEdge(

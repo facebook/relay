@@ -9,6 +9,7 @@ use std::collections::HashMap;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::ScalarName;
 use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use intern::string_key::Intern;
@@ -24,8 +25,11 @@ use schema::Type;
 
 lazy_static! {
     static ref DEFAULT_CONFIG: NonNodeIdFieldsConfig = NonNodeIdFieldsConfig::default();
-    static ref NON_STRING_SCALARS: [StringKey; 3] =
-        ["Int".intern(), "Float".intern(), "Boolean".intern()];
+    static ref NON_STRING_SCALARS: [ScalarName; 3] = [
+        ScalarName("Int".intern()),
+        ScalarName("Float".intern()),
+        ScalarName("Boolean".intern())
+    ];
 }
 
 pub fn disallow_non_node_id_fields(
@@ -58,8 +62,8 @@ enum FieldSelectableType<'a> {
 impl<'a> FieldSelectableType<'a> {
     fn name(&'a self) -> StringKey {
         match *self {
-            Self::Interface(i) => i.name.item,
-            Self::Object(o) => o.name.item,
+            Self::Interface(i) => i.name.item.0,
+            Self::Object(o) => o.name.item.0,
         }
     }
 }

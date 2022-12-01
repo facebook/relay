@@ -80,6 +80,18 @@ fn get_references_response(
                         On::Type(type_) => type_.value.item,
                         On::Interface(interface) => interface.value.item,
                     },
+                    DocblockIr::TerseRelayResolver(_) => {
+                        // TODO: Implement support for terse relay resolvers.
+                        return Err(LSPRuntimeError::ExpectedError);
+                    }
+                    DocblockIr::StrongObjectResolver(_) => {
+                        // TODO: Implement support for strong object.
+                        return Err(LSPRuntimeError::ExpectedError);
+                    }
+                    DocblockIr::WeakObjectType(_) => {
+                        // TODO: Implement support for weak object.
+                        return Err(LSPRuntimeError::ExpectedError);
+                    }
                 };
 
                 let references = find_field_locations(program, field_name, type_name)

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {fbContent} = require('internaldocs-fb-helpers');
+const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 const Guides = fbContent({
   internal: [

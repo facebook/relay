@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e81133c0a91b0ef10cb9222e2af7b59a>>
+ * @generated SignedSource<<846368fe42ae432edfecc1f7f81e0575>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveUserResolverAlwaysSuspendResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver.js";
+import {live_user_resolver_always_suspend as queryLiveUserResolverAlwaysSuspendResolver} from "../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver.js";
 // Type assertion validating that `queryLiveUserResolverAlwaysSuspendResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveUserResolverAlwaysSuspendResolver: () => LiveState<any>);
@@ -53,7 +53,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_user_resolver_always_suspend",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver').live_user_resolver_always_suspend,
           "path": "live_user_resolver_always_suspend"
         },
         "linkedField": {
@@ -89,10 +89,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "live_user_resolver_always_suspend",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

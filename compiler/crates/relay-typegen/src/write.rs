@@ -12,6 +12,8 @@ use std::path::PathBuf;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
+use ::intern::Lookup;
+use common::InputObjectName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -34,6 +36,7 @@ use crate::typegen_state::EncounteredEnums;
 use crate::typegen_state::EncounteredFragment;
 use crate::typegen_state::EncounteredFragments;
 use crate::typegen_state::ImportedRawResponseTypes;
+use crate::typegen_state::ImportedResolverName;
 use crate::typegen_state::ImportedResolvers;
 use crate::typegen_state::InputObjectTypes;
 use crate::typegen_state::MatchFields;
@@ -85,12 +88,14 @@ pub(crate) fn write_operation_type_exports_section(
     let mut runtime_imports = RuntimeImports::default();
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
+    let mut imported_raw_response_types = Default::default();
 
     let type_selections = visit_selections(
         typegen_context,
         &typegen_operation.selections,
         &mut input_object_types,
         &mut encountered_enums,
+        &mut imported_raw_response_types,
         &mut encountered_fragments,
         &mut imported_resolvers,
         &mut actor_change_status,
@@ -99,7 +104,6 @@ pub(crate) fn write_operation_type_exports_section(
         None,
     );
 
-    let mut imported_raw_response_types = Default::default();
     let data_type = get_data_type(
         typegen_context,
         type_selections.into_iter(),
@@ -160,7 +164,7 @@ pub(crate) fn write_operation_type_exports_section(
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
-    write_relay_resolver_imports(imported_resolvers, writer)?;
+    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();
@@ -311,11 +315,14 @@ pub(crate) fn write_fragment_type_exports_section(
         generic_fragment_type_should_be_imported: true,
         ..Default::default()
     };
+    let mut imported_raw_response_types = Default::default();
+
     let mut type_selections = visit_selections(
         typegen_context,
         &fragment_definition.selections,
         &mut input_object_types,
         &mut encountered_enums,
+        &mut imported_raw_response_types,
         &mut encountered_fragments,
         &mut imported_resolvers,
         &mut actor_change_status,
@@ -401,12 +408,13 @@ pub(crate) fn write_fragment_type_exports_section(
         encountered_fragments,
         writer,
     )?;
+    write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     write_enum_definitions(typegen_context, encountered_enums, writer)?;
     write_custom_scalar_imports(custom_scalars, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
-    write_relay_resolver_imports(imported_resolvers, writer)?;
+    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
     let fragment_type_name = format!("{}$fragmentType", fragment_name);
@@ -456,6 +464,10 @@ fn write_fragment_imports(
             EncounteredFragment::Spread(current_referenced_fragment) => (
                 current_referenced_fragment,
                 format!("{}$fragmentType", current_referenced_fragment),
+            ),
+            EncounteredFragment::Data(current_referenced_fragment) => (
+                current_referenced_fragment,
+                format!("{}$data", current_referenced_fragment),
             ),
         };
 
@@ -527,12 +539,33 @@ fn write_import_actor_change_point(
 }
 
 fn write_relay_resolver_imports(
+    typegen_context: &'_ TypegenContext<'_>,
     mut imported_resolvers: ImportedResolvers,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
+    // We don't need to import resolver modules in the type-generation
+    // they should be imported in the codegen.
+    if matches!(
+        typegen_context.project_config.typegen_config.language,
+        TypegenLanguage::TypeScript
+    ) {
+        return Ok(());
+    }
+
     imported_resolvers.0.sort_keys();
-    for (from, resolver) in imported_resolvers.0 {
-        writer.write_import_module_default(resolver.resolver_name.lookup(), from.lookup())?;
+    for resolver in imported_resolvers.0.values() {
+        match resolver.resolver_name {
+            ImportedResolverName::Default(name) => {
+                writer.write_import_module_default(name.lookup(), resolver.import_path.lookup())?;
+            }
+            ImportedResolverName::Named { name, import_as } => {
+                writer.write_import_module_named(
+                    name.lookup(),
+                    Some(import_as.lookup()),
+                    resolver.import_path.lookup(),
+                )?;
+            }
+        }
         writer.write(&resolver.resolver_type)?;
     }
     Ok(())
@@ -547,14 +580,35 @@ fn write_split_raw_response_type_imports(
         return Ok(());
     }
 
-    imported_raw_response_types.0.sort();
-    for imported_raw_response_type in imported_raw_response_types.0 {
+    imported_raw_response_types.0.sort_keys();
+    for (imported_raw_response_type, imported_raw_response_document_location) in
+        imported_raw_response_types.0
+    {
         match typegen_context.project_config.js_module_format {
             JsModuleFormat::CommonJS => {
                 if typegen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
                         &format!("./{}.graphql", imported_raw_response_type),
+                    )?;
+                } else if let Some(imported_raw_response_document_location) =
+                    imported_raw_response_document_location
+                {
+                    let path_for_artifact =
+                        typegen_context.project_config.create_path_for_artifact(
+                            imported_raw_response_document_location.source_location(),
+                            imported_raw_response_type.to_string(),
+                        );
+
+                    let artifact_import_path =
+                        typegen_context.project_config.js_module_import_path(
+                            typegen_context.definition_source_location,
+                            path_for_artifact.to_str().unwrap().intern(),
+                        );
+
+                    writer.write_import_fragment_type(
+                        &[imported_raw_response_type.lookup()],
+                        &format!("./{}.graphql", artifact_import_path),
                     )?;
                 } else {
                     writer.write_any_type_definition(imported_raw_response_type.lookup())?;
@@ -657,7 +711,7 @@ fn generate_provided_variables_type(
 }
 
 fn write_input_object_types(
-    input_object_types: impl Iterator<Item = (StringKey, ExactObject)>,
+    input_object_types: impl Iterator<Item = (InputObjectName, ExactObject)>,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     for (type_identifier, input_object_type) in input_object_types {

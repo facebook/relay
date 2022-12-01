@@ -169,12 +169,19 @@ const builds = [
     package: 'relay-runtime',
     exports: {
       index: 'index.js',
+      experimental: 'experimental.js',
     },
     bundles: [
       {
         entry: 'index.js',
         output: 'relay-runtime',
         libraryName: 'RelayRuntime',
+        libraryTarget: 'umd',
+      },
+      {
+        entry: 'experimental.js',
+        output: 'relay-runtime-experimental',
+        libraryName: 'ReactRelayExperimental',
         libraryTarget: 'umd',
       },
     ],

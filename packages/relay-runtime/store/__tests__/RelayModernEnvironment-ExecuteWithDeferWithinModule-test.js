@@ -40,7 +40,15 @@ const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
 disallowWarnings();
 
 function createOperationLoader() {
-  const cache = new Map();
+  const cache = new Map<
+    mixed,
+    | {kind: 'value', operation: NormalizationSplitOperation}
+    | {
+        kind: 'promise',
+        promise: Promise<empty>,
+        resolve: (_x: NormalizationSplitOperation) => void,
+      },
+  >();
   const resolve = (operation: NormalizationSplitOperation) => {
     const moduleName = `${operation.name}.graphql`;
     const entry = cache.get(moduleName);
@@ -460,7 +468,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         beforeEach(() => {
           taskID = 0;
-          tasks = new Map();
+          tasks = new Map<string, () => void>();
           scheduler = {
             cancel: (id: string) => {
               tasks.delete(id);

@@ -6,6 +6,7 @@
  */
 
 use common::DiagnosticDisplay;
+use common::InterfaceName;
 use common::WithDiagnosticData;
 use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
@@ -75,6 +76,14 @@ pub enum ErrorMessages {
     },
 
     #[error(
+        "The type specified in the fragment (`{fragment_type_condition}`) and the parent type (`{type_name}`) are different. Please make sure these are exactly the same."
+    )]
+    MismatchRootFragmentTypeConditionTerseSyntax {
+        fragment_type_condition: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
         "Unexpected plural server type in `@edgeTo` field. Currently Relay Resolvers only support plural `@edgeTo` if the type is defined via Client Schema Extensions."
     )]
     ClientEdgeToPluralServerType,
@@ -83,12 +92,30 @@ pub enum ErrorMessages {
     ArgumentDefaultValuesNoSupported,
 
     #[error(
-        "Unexpected Relay Resolver for a field which is defined in parent interface. The field `{field_name}` is defined by `{interface_name}`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concreete types."
+        "Unexpected Relay Resolver for a field which is defined in parent interface. The field `{field_name}` is defined by `{interface_name}`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concrete types."
     )]
     ResolverImplementingInterfaceField {
         field_name: StringKey,
-        interface_name: StringKey,
+        interface_name: InterfaceName,
     },
+
+    #[error(
+        "Unexpected character `{found}`. Expected @RelayResolver field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
+    )]
+    UnexpectedNonDot { found: char },
+
+    #[error(
+        "Unexpected character `{found}`. Terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand, is not enabled in your project's config."
+    )]
+    UnexpectedTerseSyntax { found: char },
+
+    #[error(
+        "Unexpected docblock field `{field_name}`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand."
+    )]
+    UnexpectedFieldInTerseSyntax { field_name: StringKey },
+
+    #[error("Relay Resolvers may not be used to implement the `{id_field_name}` field.")]
+    ResolversCantImplementId { id_field_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -121,6 +148,12 @@ pub enum ErrorMessagesWithData {
         fragment_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
+    #[error("The \"{type_name}\" is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
+    TypeNotFound {
+        type_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
 }
 
 impl WithDiagnosticData for ErrorMessagesWithData {
@@ -134,6 +167,10 @@ impl WithDiagnosticData for ErrorMessagesWithData {
                 .collect::<_>(),
             ErrorMessagesWithData::OnTypeForInterface => vec![into_box(*ON_INTERFACE_FIELD)],
             ErrorMessagesWithData::OnInterfaceForType => vec![into_box(*ON_TYPE_FIELD)],
+            ErrorMessagesWithData::TypeNotFound { suggestions, .. } => suggestions
+                .iter()
+                .map(|suggestion| into_box(*suggestion))
+                .collect::<_>(),
         }
     }
 }

@@ -36,8 +36,8 @@ type RequestCacheEntry = {
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 
 const requestCachesByEnvironment = WEAKMAP_SUPPORTED
-  ? new WeakMap()
-  : new Map();
+  ? new WeakMap<IEnvironment, Map<RequestIdentifier, RequestCacheEntry>>()
+  : new Map<IEnvironment, Map<RequestIdentifier, RequestCacheEntry>>();
 
 /**
  * Fetches the given query and variables on the provided environment,
@@ -256,7 +256,7 @@ function getPromiseForActiveRequest(
       return existing;
     }
   }
-  const promise = new Promise((resolve, reject) => {
+  const promise = new Promise<void>((resolve, reject) => {
     let resolveOnNext = false;
     getActiveStatusObservableForCachedRequest(
       environment,

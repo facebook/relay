@@ -22,6 +22,8 @@
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 
 // $FlowFixMe - this resolver returns undefined, but should return LiveState
-function liveResolverReturnUndefined(): LiveState<> {}
+function live_resolver_return_undefined(): LiveState<> {}
 
-module.exports = liveResolverReturnUndefined;
+module.exports = {
+  live_resolver_return_undefined,
+};

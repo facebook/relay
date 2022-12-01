@@ -60,6 +60,7 @@ use crate::no_inline::is_raw_response_type_enabled;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use crate::no_inline::PARENT_DOCUMENTS_ARG;
 use crate::util::get_normalization_operation_name;
+use crate::RawResponseGenerationMode;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -454,7 +455,8 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             derived_from: Some(fragment.name.item),
             location: fragment.name.location,
             parent_documents: Default::default(),
-            raw_response_type: is_raw_response_type_enabled(directive),
+            raw_response_type_generation_mode: is_raw_response_type_enabled(directive)
+                .then_some(RawResponseGenerationMode::AllFieldsOptional),
         };
         // - A fragment with user defined @no_inline always produces a $normalization file. The `parent_document` of
         // that file is the fragment itself as it gets deleted iff that fragment is deleted or no longer

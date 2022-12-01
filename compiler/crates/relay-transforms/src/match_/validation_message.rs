@@ -6,6 +6,7 @@
  */
 
 use common::ArgumentName;
+use common::ScalarName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
@@ -19,7 +20,7 @@ pub enum ValidationMessage {
     MissingServerSchemaDefinition { name: StringKey },
 
     #[error("Using @module requires the schema to define a scalar '{js_field_type}' type.")]
-    InvalidModuleNonScalarJSField { js_field_type: StringKey },
+    InvalidModuleNonScalarJSField { js_field_type: ScalarName },
 
     #[error(
         "@module used on invalid fragment spread '...{spread_name}'. @module requires the fragment type '{type_string}' to have a '{js_field_name}({js_field_module_arg}: String!, {js_field_id_arg}: String): {js_field_type}' field (your schema may choose to omit the 'id'  argument but if present it must accept a 'String')."
@@ -30,7 +31,7 @@ pub enum ValidationMessage {
         js_field_name: StringKey,
         js_field_module_arg: ArgumentName,
         js_field_id_arg: ArgumentName,
-        js_field_type: StringKey,
+        js_field_type: ScalarName,
     },
 
     #[error(

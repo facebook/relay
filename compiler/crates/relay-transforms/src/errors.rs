@@ -8,24 +8,17 @@
 use common::ArgumentName;
 use common::DiagnosticDisplay;
 use common::DirectiveName;
+use common::InterfaceName;
+use common::ObjectName;
 use common::WithDiagnosticData;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::VariableName;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessage {
-    #[error(
-        "Invalid use of @relay_client_component on an inline fragment, @relay_client_component is only supported on fragment spreads."
-    )]
-    InvalidRelayClientComponentOnInlineFragment,
-
-    #[error(
-        "Invalid use of @relay_client_component on a scalar field, @relay_client_component is only supported on fragment spreads."
-    )]
-    InvalidRelayClientComponentOnScalarField,
-
     #[error("@relay_client_component is not compatible with these {}: `{}`",
          if incompatible_directives.len() > 1 { "directives" } else { "directive" },
          incompatible_directives
@@ -62,7 +55,7 @@ pub enum ValidationMessage {
     #[error(
         "Unexpected directive on Relay Resolver field. Relay Resolver fields do not currently support directives."
     )]
-    RelayResolverUnexpectedDirective {},
+    RelayResolverUnexpectedDirective,
 
     #[error(
         "The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named '{fragment_name}'."
@@ -97,7 +90,7 @@ pub enum ValidationMessage {
     #[error(
         "Unexpected Relay Resolver field. The Relay Resolvers feature flag is not currently enabled for this project."
     )]
-    RelayResolversDisabled {},
+    RelayResolversDisabled,
 
     #[error(
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
@@ -196,6 +189,19 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "No types implement the client interface {interface_name}. For a client interface to be used as a @RelayResolver @outputType, at least one Object type must implement the interface."
+    )]
+    RelayResolverClientInterfaceMustBeImplemented { interface_name: InterfaceName },
+
+    #[error(
+        "The interface {interface_name} is being used as an @outputType of a @RelayResolver. For this to be valid, all Object types that implement the interface must be client types. However, the {object_name}, which implements {interface_name}, is a server type."
+    )]
+    RelayResolverClientInterfaceImplementingTypeMustBeClientTypes {
+        interface_name: InterfaceName,
+        object_name: ObjectName,
+    },
+
+    #[error(
         "@RelayResolver type recursion detected for the output type `{type_name}`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation."
     )]
     RelayResolverTypeRecursionDetected { type_name: StringKey },
@@ -217,6 +223,17 @@ pub enum ValidationMessage {
         "Arguments are not supported in the fields on the @outputType in @RelayResolvers. You'll need to expose these fields using @RelayResolver for them."
     )]
     RelayResolverArgumentsNotSupported,
+
+    #[error(
+        "Disallowed selection of field `{}{field_name}`.{}",
+        parent_name.map_or("".to_string(), |name| format!("{}.", name)),
+        reason.map_or("".to_string(), |reason| format!(" Reason: \"{}\"", reason)),
+    )]
+    UnselectableField {
+        field_name: StringKey,
+        parent_name: Option<StringKey>,
+        reason: Option<StringKey>,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

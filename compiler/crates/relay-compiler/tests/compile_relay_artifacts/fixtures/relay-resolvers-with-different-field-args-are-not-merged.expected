@@ -122,11 +122,56 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
+                "name": "pop_star_name",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "some_arg",
+                    "value": 10
+                  }
+                ],
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": "pop_star_name(some_arg:10)"
+              },
+              {
+                "name": "pop_star_name",
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "some_arg",
+                    "value": 20
+                  }
+                ],
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": "pop_star_name(some_arg:20)"
               }
             ],
             "type": "User",

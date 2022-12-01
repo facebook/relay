@@ -148,15 +148,19 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
 
   switch (fetchPolicy) {
     case 'network-only': {
-      return getNetworkObservable(environment, operation).map(readData);
+      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
+        readData,
+      );
     }
     case 'store-or-network': {
       if (environment.check(operation).status === 'available') {
-        return RelayObservable.from(environment.lookup(operation.fragment)).map(
-          readData,
-        );
+        return RelayObservable.from<Snapshot>(
+          environment.lookup(operation.fragment),
+        ).map(readData);
       }
-      return getNetworkObservable(environment, operation).map(readData);
+      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
+        readData,
+      );
     }
     default:
       (fetchPolicy: empty);

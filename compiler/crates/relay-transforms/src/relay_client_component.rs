@@ -13,6 +13,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::FeatureFlag;
 use common::FeatureFlags;
+use common::InterfaceName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -55,7 +56,7 @@ lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("relay_client_component".intern());
     static ref STRING_TYPE: StringKey = "String".intern();
-    static ref NODE_TYPE_NAME: StringKey = "Node".intern();
+    static ref NODE_TYPE_NAME: InterfaceName = InterfaceName("Node".intern());
     static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
 }
 
@@ -79,7 +80,7 @@ pub fn relay_client_component(
     }
     let node_interface_id = program
         .schema
-        .get_type(*NODE_TYPE_NAME)
+        .get_type(NODE_TYPE_NAME.0)
         .and_then(|type_| {
             if let Type::Interface(id) = type_ {
                 Some(id)
@@ -257,7 +258,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                                 .name
                                 .location,
                             parent_documents: Default::default(),
-                            raw_response_type: false,
+                            raw_response_type_generation_mode: None,
                         },
                         OperationDefinition {
                             name: WithLocation::new(

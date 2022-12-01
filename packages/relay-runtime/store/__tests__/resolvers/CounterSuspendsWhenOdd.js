@@ -31,7 +31,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * A Relay Resolver that returns an object implementing the External State
  * Resolver interface.
  */
-function CounterSuspendsWhenOdd(
+function counter_suspends_when_odd(
   rootKey: CounterSuspendsWhenOdd$key,
 ): LiveState<number> {
   readFragment(
@@ -61,4 +61,6 @@ function CounterSuspendsWhenOdd(
   };
 }
 
-module.exports = CounterSuspendsWhenOdd;
+module.exports = {
+  counter_suspends_when_odd,
+};

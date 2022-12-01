@@ -9,6 +9,7 @@
  * @oncall relay
  */
 
+import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 import type {
   DataChunk,
   GraphModeResponse,
@@ -98,7 +99,7 @@ class GraphModeHandler {
             } else if (value.hasOwnProperty('__ids')) {
               // Plural
               const streamIDs = ((value.__ids: any): Array<number | null>);
-              const ids = streamIDs.map(sID => {
+              const ids = streamIDs.map((sID): ?DataID => {
                 return sID == null ? null : this._lookupCacheKey(sID);
               });
               RelayModernRecord.setLinkedRecordIDs(parentRecord, key, ids);

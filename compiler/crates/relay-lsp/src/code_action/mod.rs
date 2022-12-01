@@ -17,6 +17,7 @@ use create_name_suggestion::create_impactful_name;
 use create_name_suggestion::create_name_wrapper;
 use create_name_suggestion::DefinitionNameSuffix;
 use graphql_syntax::ExecutableDefinition;
+use intern::Lookup;
 use lsp_types::request::CodeActionRequest;
 use lsp_types::request::Request;
 use lsp_types::CodeAction;

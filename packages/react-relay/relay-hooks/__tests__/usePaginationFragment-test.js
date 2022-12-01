@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {
   usePaginationFragmentTestStoryFragmentRefetchQuery$data,
   usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
@@ -133,7 +134,7 @@ describe.each([
   }
 
   function usePaginationFragment(fragmentNode: any, fragmentRef: any) {
-    const {data, ...result} = usePaginationFragmentOriginal(
+    const {data, ...result} = usePaginationFragmentOriginal<any, any>(
       fragmentNode,
       fragmentRef,
     );

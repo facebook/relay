@@ -41,6 +41,7 @@ use graphql_ir::Value;
 use indexmap::IndexSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use relay_config::ModuleImportConfig;
 use schema::FieldID;
 use schema::ScalarID;
@@ -150,7 +151,11 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
     // Validate that `JSDependency` is a server scalar type in the schema
     fn validate_js_module_type(&self, spread_location: Location) -> Result<(), Diagnostic> {
-        match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
+        match self
+            .program
+            .schema
+            .get_type(MATCH_CONSTANTS.js_field_type.0)
+        {
             Some(js_module_type) => match js_module_type {
                 Type::Scalar(id) => {
                     if self.program.schema.scalar(id).is_extension {
@@ -838,7 +843,11 @@ impl Transformer for MatchTransform<'_, '_> {
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
         if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
-            match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
+            match self
+                .program
+                .schema
+                .get_type(MATCH_CONSTANTS.js_field_type.0)
+            {
                 None => self.errors.push(Diagnostic::error(
                     ValidationMessage::MissingServerSchemaDefinition {
                         name: MATCH_CONSTANTS.js_field_name,

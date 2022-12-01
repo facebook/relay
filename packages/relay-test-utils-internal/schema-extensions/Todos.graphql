@@ -1,0 +1,35 @@
+type Todo {
+  todo_id: ID!
+}
+
+type TodoEdge {
+  cursor: String
+  node: Todo
+}
+
+type TodoConnection {
+  edges: [TodoEdge]
+  pageInfo: TodoConnectionPageInfo!
+  count: Int!
+}
+
+type TodoConnectionPageInfo {
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+  endCursor: ID
+  startCursor: ID
+}
+
+type TodoText {
+  style: TodoTextStyle
+  content: String!
+}
+
+type TodoTextStyle {
+  font_style: String
+  color: TodoTextColor
+}
+
+type TodoTextColor {
+  hex: String
+}

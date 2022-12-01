@@ -99,7 +99,7 @@ pub fn validate_required_no_inline_directive(
     validator.validate_program(program)
 }
 
-fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
+pub(crate) fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
     Argument {
         name: WithLocation::generated(*PARENT_DOCUMENTS_ARG),
         value: WithLocation::generated(Value::Constant(ConstantValue::List(

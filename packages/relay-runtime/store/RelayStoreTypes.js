@@ -36,6 +36,7 @@ import type {
 import type {
   ReaderClientEdgeToServerObject,
   ReaderFragment,
+  ReaderLinkedField,
 } from '../util/ReaderNode';
 import type {
   ConcreteRequest,
@@ -431,6 +432,14 @@ export interface StoreSubscriptions {
 export type Scheduler = (() => void) => void;
 
 /**
+ * A type that can schedule callbacks and also cancel them.
+ */
+export type TaskScheduler = {
+  +cancel: (id: string) => void,
+  +schedule: (fn: () => void) => string,
+};
+
+/**
  * An interface for imperatively getting/setting properties of a `Record`. This interface
  * is designed to allow the appearance of direct Record manipulation while
  * allowing different implementations that may e.g. create a changeset of
@@ -563,6 +572,16 @@ export type LogEvent =
       +resourceID: number,
       // value from ProfilerContext
       +profilerContext: mixed,
+    }
+  | {
+      // Indicates FragmentResource is going to return a result that is missing
+      // data.
+      +name: 'fragmentresource.missing_data',
+      +data: mixed,
+      +fragment: ReaderFragment,
+      +isRelayHooks: boolean,
+      // Are we reading this result from the fragment resource cache?
+      +cached: boolean,
     }
   | {
       +name: 'network.info',
@@ -753,19 +772,24 @@ export interface IEnvironment {
   ): void;
 
   /**
-   * Get the environment's internal Network.
+   * Returns the environment's Network.
    */
   getNetwork(): INetwork;
 
   /**
-   * Get the environment's internal Store.
+   * Returns the environment's Store.
    */
   getStore(): Store;
 
   /**
-   * Returns the environment specific OperationTracker.
+   * Returns the environment's OperationTracker.
    */
   getOperationTracker(): RelayOperationTracker;
+
+  /**
+   * Returns the environment's TaskScheduler if one has been configured.
+   */
+  getScheduler(): ?TaskScheduler;
 
   /**
    * EXPERIMENTAL
@@ -1072,7 +1096,7 @@ export type MissingFieldHandler =
       kind: 'scalar',
       handle: (
         field: NormalizationScalarField,
-        record: ?Record,
+        parentRecord: ?ReadOnlyRecordProxy,
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => mixed,
@@ -1080,8 +1104,8 @@ export type MissingFieldHandler =
   | {
       kind: 'linked',
       handle: (
-        field: NormalizationLinkedField,
-        record: ?Record,
+        field: NormalizationLinkedField | ReaderLinkedField,
+        parentRecord: ?ReadOnlyRecordProxy,
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?DataID,
@@ -1089,8 +1113,8 @@ export type MissingFieldHandler =
   | {
       kind: 'pluralLinked',
       handle: (
-        field: NormalizationLinkedField,
-        record: ?Record,
+        field: NormalizationLinkedField | ReaderLinkedField,
+        parentRecord: ?ReadOnlyRecordProxy,
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,

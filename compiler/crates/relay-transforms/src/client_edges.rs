@@ -13,6 +13,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
+use common::ObjectName;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -34,15 +35,17 @@ use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
+use schema::DirectiveValue;
 use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessageWithData;
-use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use crate::RequiredMetadataDirective;
 use crate::ValidationMessage;
@@ -56,7 +59,6 @@ lazy_static! {
     // This gets attached to fragment which defines the selection in the generated query
     pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
-    pub static ref RELAY_RESOLVER_IS_OUTPUT_TYPE: ArgumentName  = ArgumentName("is_output_type".intern());
 }
 
 /// Directive added to inline fragments created by the transform. The inline
@@ -73,9 +75,8 @@ pub enum ClientEdgeMetadataDirective {
         unique_id: u32,
     },
     ClientObject {
-        type_name: StringKey,
+        type_name: ObjectName,
         unique_id: u32,
-        normalization_operation: Option<WithLocation<OperationDefinitionName>>,
     },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
@@ -355,25 +356,14 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 ));
             }
 
-            let is_resolver_with_output_type = resolver_directive
-                .and_then(|directive| directive.arguments.named(*RELAY_RESOLVER_IS_OUTPUT_TYPE))
-                .is_some();
-
-            let normalization_operation_name = if is_resolver_with_output_type {
-                Some(generate_name_for_nested_object_operation(
-                    &self.program.schema,
-                    self.program.schema.field(field.definition().item),
-                ))
-            } else {
-                None
-            };
-
             match edge_to_type {
                 Type::Interface(_) => {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::ClientEdgeToClientInterface,
-                        field.alias_or_name_location(),
-                    ));
+                    if !has_output_type(resolver_directive) {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::ClientEdgeToClientInterface,
+                            field.alias_or_name_location(),
+                        ));
+                    }
                     return self.default_transform_linked_field(field);
                 }
                 Type::Union(_) => {
@@ -386,7 +376,6 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
                     type_name: schema.object(object_id).name.item,
                     unique_id: self.get_key(),
-                    normalization_operation: normalization_operation_name,
                 },
                 _ => {
                     panic!(
@@ -560,5 +549,17 @@ impl Transformer for ClientEdgesCleanupTransform {
             }
             None => self.default_transform_inline_fragment(fragment),
         }
+    }
+}
+
+// We should restructure the calling code so that this function does not
+// accept an option.
+fn has_output_type(directive: Option<&DirectiveValue>) -> bool {
+    match directive {
+        Some(directive) => get_bool_argument_is_true(
+            &directive.arguments,
+            *crate::relay_resolvers::RELAY_RESOLVER_HAS_OUTPUT_TYPE,
+        ),
+        None => false,
     }
 }

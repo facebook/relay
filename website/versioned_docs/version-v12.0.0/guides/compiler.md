@@ -8,7 +8,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
+import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbRunningCompiler from './fb/FbRunningCompiler.md';
 import FbGraphQLSchema from './fb/FbGraphQLSchema.md';
 import FbImportingGeneratedDefinitions from './fb/FbImportingGeneratedDefinitions.md';

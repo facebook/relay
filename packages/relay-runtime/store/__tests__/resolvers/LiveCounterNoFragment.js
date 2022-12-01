@@ -24,20 +24,22 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
  * A Relay Resolver that returns an object implementing the External State
  * Resolver interface.
  */
-function counter(): LiveState<number> {
-  counter.callCount += 1;
+function counter_no_fragment(): LiveState<number> {
+  counter_no_fragment.callCount += 1;
   return {
     read() {
       return Selectors.getNumber(GLOBAL_STORE.getState());
     },
     subscribe(cb): () => void {
-      // Here we could try to run the selector and short-circut if the value has
+      // Here we could try to run the selector and short-circuit if the value has
       // not changed, but for now we'll over-notify.
       return GLOBAL_STORE.subscribe(cb);
     },
   };
 }
 
-counter.callCount = 0;
+counter_no_fragment.callCount = 0;
 
-module.exports = counter;
+module.exports = {
+  counter_no_fragment,
+};

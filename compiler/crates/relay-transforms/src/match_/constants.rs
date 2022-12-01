@@ -7,12 +7,13 @@
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::ScalarName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 pub struct MatchConstants {
-    pub js_field_type: StringKey,
+    pub js_field_type: ScalarName,
     pub js_field_id_arg: ArgumentName,
     pub js_field_branch_arg: ArgumentName,
     pub js_field_module_arg: ArgumentName,
@@ -26,7 +27,7 @@ pub struct MatchConstants {
 
 lazy_static! {
     pub static ref MATCH_CONSTANTS: MatchConstants = MatchConstants {
-        js_field_type: "JSDependency".intern(),
+        js_field_type: ScalarName("JSDependency".intern()),
         js_field_id_arg: ArgumentName("id".intern()),
         js_field_branch_arg: ArgumentName("branch".intern()),
         js_field_module_arg: ArgumentName("module".intern()),

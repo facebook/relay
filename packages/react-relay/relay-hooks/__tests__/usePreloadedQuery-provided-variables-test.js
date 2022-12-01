@@ -43,19 +43,19 @@ const fragmentPV = graphql`
   @argumentDefinitions(
     includeName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsTrue.relayprovider"
+      provider: "./RelayProvider_returnsTrue.relayprovider"
     }
     includeFirstName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsFalse.relayprovider"
+      provider: "./RelayProvider_returnsFalse.relayprovider"
     }
     skipLastName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsFalse.relayprovider"
+      provider: "./RelayProvider_returnsFalse.relayprovider"
     }
     skipUsername: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsTrue.relayprovider"
+      provider: "./RelayProvider_returnsTrue.relayprovider"
     }
   ) {
     name @include(if: $includeName)
@@ -128,7 +128,7 @@ describe.each([
     let environment;
     let fetch;
     const Component = function (props: any) {
-      const queryData = usePreloadedQuery(queryPV, props.prefetched);
+      const queryData = usePreloadedQuery<any>(queryPV, props.prefetched);
       data = useFragment(fragmentPV, queryData.node);
       return [
         data?.name ?? 'MISSING NAME',
@@ -156,7 +156,7 @@ describe.each([
 
     describe('using preloadQuery_DEPRECATED', () => {
       it('renders synchronously with provided variables', () => {
-        const prefetched = preloadQuery_DEPRECATED(
+        const prefetched = preloadQuery_DEPRECATED<any, empty>(
           environment,
           preloadableConcreteRequestPV,
           {
@@ -188,7 +188,7 @@ describe.each([
     });
     describe('using loadQuery', () => {
       it('renders synchronously when passed a preloadableConcreteRequest', () => {
-        const prefetched = loadQuery(
+        const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequestPV,
           {
@@ -223,7 +223,7 @@ describe.each([
       });
 
       it('renders synchronously when passed a query AST', () => {
-        const prefetched = loadQuery(environment, queryPV, {
+        const prefetched = loadQuery<any, _>(environment, queryPV, {
           id: '4',
         });
         expect(dataSource).toBeDefined();
@@ -256,7 +256,7 @@ describe.each([
         @argumentDefinitions(
           impureProvider: {
             type: "Float!"
-            provider: "../RelayProvider_impure.relayprovider"
+            provider: "./RelayProvider_impure.relayprovider"
           }
         ) {
           profile_picture(scale: $impureProvider) {
@@ -273,7 +273,7 @@ describe.each([
       `;
 
       const preloadWithFetchKey = (fetchKey: string | number) => {
-        return preloadQuery_DEPRECATED(
+        return preloadQuery_DEPRECATED<any, empty>(
           environment,
           {
             kind: 'PreloadableConcreteRequest',

@@ -11,6 +11,9 @@
 
 'use strict';
 
+import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {Options} from './useRefetchableFragmentInternal_REACT_CACHE';
+
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentInternal_REACT_CACHE';
 import type {
@@ -30,6 +33,7 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
+const useRelayEnvironment = require('../useRelayEnvironment');
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
   data: TFragmentData,
@@ -112,7 +116,7 @@ function usePaginationFragment<
     });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
-    (variables, options) => {
+    (variables: VariablesOf<TQuery>, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
       return refetch(variables, {...options, __environment: undefined});
@@ -153,14 +157,28 @@ function useLoadMore<TQuery: OperationType>(
     },
   >,
 ): [LoadMoreFn<TQuery>, boolean, boolean, () => void] {
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const environment = useRelayEnvironment();
+  const [isLoadingMore, reallySetIsLoadingMore] = useState(false);
+  // Schedule this update since it must be observed by components at the same
+  // batch as when hasNext changes. hasNext is read from the store and store
+  // updates are scheduled, so this must be scheduled too.
+  const setIsLoadingMore = (value: boolean) => {
+    const schedule = environment.getScheduler()?.schedule;
+    if (schedule) {
+      schedule(() => {
+        reallySetIsLoadingMore(value);
+      });
+    } else {
+      reallySetIsLoadingMore(value);
+    }
+  };
   const observer = {
     start: () => setIsLoadingMore(true),
     complete: () => setIsLoadingMore(false),
     error: () => setIsLoadingMore(false),
   };
   const handleReset = () => setIsLoadingMore(false);
-  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction({
+  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TQuery>({
     ...args,
     observer,
     onReset: handleReset,

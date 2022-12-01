@@ -11,7 +11,9 @@
 
 'use strict';
 
-const UserConstantDependentResolver = require('./resolvers/UserConstantDependentResolver');
+const {
+  constant_dependent: UserConstantDependentResolver,
+} = require('./resolvers/UserConstantDependentResolver');
 const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');

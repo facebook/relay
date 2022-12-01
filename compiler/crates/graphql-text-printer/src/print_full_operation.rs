@@ -18,9 +18,14 @@ use graphql_ir::Visitor;
 
 use crate::print_fragment;
 use crate::print_operation;
+use crate::PrinterOptions;
 
-pub fn print_full_operation(program: &Program, operation: &OperationDefinition) -> String {
-    let mut printer = OperationPrinter::new(program);
+pub fn print_full_operation(
+    program: &Program,
+    operation: &OperationDefinition,
+    options: PrinterOptions,
+) -> String {
+    let mut printer = OperationPrinter::new(program, options);
     printer.print(operation)
 }
 
@@ -28,28 +33,34 @@ pub struct OperationPrinter<'s> {
     fragment_result: FnvHashMap<FragmentDefinitionName, String>,
     reachable_fragments: FnvHashMap<FragmentDefinitionName, Arc<FragmentDefinition>>,
     program: &'s Program,
+    options: PrinterOptions,
 }
 
 impl<'s> OperationPrinter<'s> {
-    pub fn new(program: &'s Program) -> Self {
+    pub fn new(program: &'s Program, options: PrinterOptions) -> Self {
         Self {
             fragment_result: Default::default(),
             reachable_fragments: Default::default(),
             program,
+            options,
         }
     }
 
     pub fn print(&mut self, operation: &OperationDefinition) -> String {
-        let mut result = print_operation(&self.program.schema, operation, Default::default());
+        let mut result = print_operation(&self.program.schema, operation, self.options);
         self.visit_operation(operation);
         let mut fragments: Vec<(FragmentDefinitionName, Arc<FragmentDefinition>)> =
             self.reachable_fragments.drain().collect();
         fragments.sort_unstable_by_key(|(name, _)| *name);
         for (_, fragment) in fragments {
-            result.push_str("\n\n");
+            if !self.options.compact {
+                result.push_str("\n\n");
+            }
             result.push_str(self.print_fragment(&fragment));
         }
-        result.push('\n');
+        if !self.options.compact {
+            result.push('\n');
+        }
         result
     }
 
@@ -57,7 +68,7 @@ impl<'s> OperationPrinter<'s> {
         let schema = &self.program.schema;
         self.fragment_result
             .entry(fragment.name.item)
-            .or_insert_with(|| print_fragment(schema, fragment, Default::default()))
+            .or_insert_with(|| print_fragment(schema, fragment, self.options))
     }
 }
 

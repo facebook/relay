@@ -2,7 +2,6 @@
 
 exports[`\`development\` option does not test the hash when \`development\` is not set 1`] = `
 "var _TestFrag;
-
 _TestFrag !== void 0
   ? _TestFrag
   : (_TestFrag = require('./__generated__/TestFrag.graphql'));
@@ -11,7 +10,6 @@ _TestFrag !== void 0
 
 exports[`\`development\` option tests the hash when \`development\` is set 1`] = `
 "var _TestFrag;
-
 _TestFrag !== void 0
   ? _TestFrag
   : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
@@ -26,7 +24,6 @@ _TestFrag !== void 0
 
 exports[`\`development\` option tests the hash when \`isDevVariableName\` is set 1`] = `
 "var _TestFrag;
-
 _TestFrag !== void 0
   ? _TestFrag
   : IS_DEV
@@ -43,7 +40,6 @@ _TestFrag !== void 0
 
 exports[`\`development\` option uses a custom build command in message 1`] = `
 "var _TestFrag;
-
 _TestFrag !== void 0
   ? _TestFrag
   : ((_TestFrag = require('./__generated__/TestFrag.graphql')),

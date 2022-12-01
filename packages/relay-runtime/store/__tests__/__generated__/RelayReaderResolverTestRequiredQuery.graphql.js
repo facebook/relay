@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c887f753158b7e518e9b36d310303a48>>
+ * @generated SignedSource<<01e18da9c79f1f18e53e167b802c8d2f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserRequiredNameResolver$key } from "./../resolvers/__generated__/UserRequiredNameResolver.graphql";
-import userRequiredNameResolver from "../resolvers/UserRequiredNameResolver.js";
+import {required_name as userRequiredNameResolver} from "../resolvers/UserRequiredNameResolver.js";
 // Type assertion validating that `userRequiredNameResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userRequiredNameResolver: (
@@ -62,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "required_name",
-            "resolverModule": require('./../resolvers/UserRequiredNameResolver'),
+            "resolverModule": require('./../resolvers/UserRequiredNameResolver').required_name,
             "path": "me.required_name"
           }
         ],
@@ -87,10 +87,23 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "required_name",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

@@ -37,6 +37,7 @@ use lsp_types::Url;
 use relay_compiler::config::Config;
 use relay_compiler::FileCategorizer;
 use relay_docblock::parse_docblock_ast;
+use relay_docblock::ParseOptions;
 use relay_transforms::deprecated_fields_for_executable_definition;
 use schema::SDLSchema;
 use schema_documentation::CombinedSchemaDocumentation;
@@ -279,12 +280,29 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
+        let project_config = self.config.projects.get(&project_name).unwrap();
         for (index, docblock_source) in docblock_sources.iter().enumerate() {
             let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
             let text_source = docblock_source.text_source();
             let text = &text_source.text;
-            let result = parse_docblock(text, source_location_key)
-                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions)));
+            let result = parse_docblock(text, source_location_key).and_then(|ast| {
+                parse_docblock_ast(
+                    &ast,
+                    Some(&executable_definitions),
+                    ParseOptions {
+                        use_named_imports: project_config
+                            .feature_flags
+                            .use_named_imports_for_relay_resolvers,
+                        relay_resolver_model_syntax_enabled: project_config
+                            .feature_flags
+                            .relay_resolver_model_syntax_enabled,
+                        relay_resolver_enable_terse_syntax: project_config
+                            .feature_flags
+                            .relay_resolver_enable_terse_syntax,
+                        id_field_name: project_config.schema_config.node_interface_id_field,
+                    },
+                )
+            });
 
             if let Err(errors) = result {
                 diagnostics.extend(errors.iter().map(|diagnostic| {
@@ -394,7 +412,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 create_node_resolution_info(executable_document, position_span)?,
             ),
             Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
-                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)?,
+                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                    .ok_or(LSPRuntimeError::ExpectedError)?,
                 ir: docblock_ir,
             }),
         };
@@ -422,7 +441,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(Feature, Span)> {
-        extract_feature_from_text(&self.synced_javascript_features, position, index_offset)
+        let project_name = self.extract_project_name_from_url(&position.text_document.uri)?;
+        let project_config = self.config.projects.get(&project_name).unwrap();
+
+        extract_feature_from_text(
+            project_config,
+            &self.synced_javascript_features,
+            position,
+            index_offset,
+        )
     }
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation {

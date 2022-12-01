@@ -5,7 +5,7 @@ slug: /guides/testing-relay-components/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
+import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 ## Abstract
 

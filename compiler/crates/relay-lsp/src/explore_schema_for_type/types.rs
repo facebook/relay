@@ -6,6 +6,7 @@
  */
 
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::DirectiveValue;
 use schema::EnumID;
 use schema::FieldID;

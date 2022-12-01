@@ -70,5 +70,8 @@ module.exports = {
     // These rules are not required with hermes-eslint
     'ft-flow/define-flow-type': 0,
     'ft-flow/use-flow-type': 0,
+
+    // depreciated rules
+    'no-spaced-func': 0,
   },
 };

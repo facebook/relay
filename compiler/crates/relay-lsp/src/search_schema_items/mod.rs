@@ -7,6 +7,7 @@
 
 use graphql_ir::reexport::StringKey;
 use intern::string_key::Intern;
+use intern::Lookup;
 use lsp_types::request::Request;
 use schema::Schema;
 use schema_documentation::SchemaDocumentation;
@@ -56,17 +57,17 @@ pub(crate) fn on_search_schema_items(
     let schema_documentation = state.get_schema_documentation(schema_name);
 
     let objects = filter_and_transform_items(
-        schema.objects().map(|o| o.name.item),
+        schema.objects().map(|o| o.name.item.0),
         &schema_documentation,
         &filter,
     );
     let interfaces = filter_and_transform_items(
-        schema.interfaces().map(|i| i.name.item),
+        schema.interfaces().map(|i| i.name.item.0),
         &schema_documentation,
         &filter,
     );
     let enums = filter_and_transform_items(
-        schema.enums().map(|e| e.name.item),
+        schema.enums().map(|e| e.name.item.0),
         &schema_documentation,
         &filter,
     );
@@ -76,12 +77,12 @@ pub(crate) fn on_search_schema_items(
         &filter,
     );
     let input_objects = filter_and_transform_items(
-        schema.input_objects().map(|io| io.name.item),
+        schema.input_objects().map(|io| io.name.item.0),
         &schema_documentation,
         &filter,
     );
     let scalars = filter_and_transform_items(
-        schema.scalars().map(|s| s.name.item),
+        schema.scalars().map(|s| s.name.item.0),
         &schema_documentation,
         &filter,
     );

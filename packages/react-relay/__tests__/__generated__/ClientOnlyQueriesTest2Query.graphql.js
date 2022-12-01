@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e63ea6e19d11fc1a909e34952ed7c5f8>>
+ * @generated SignedSource<<b6aca68c869d2a77edba925302158048>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import queryHelloResolver from "../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolver.js";
+import {hello as queryHelloResolver} from "../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolver.js";
 // Type assertion validating that `queryHelloResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloResolver: (
@@ -36,7 +36,15 @@ export type ClientOnlyQueriesTest2Query = {|
 |};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = [
+  {
+    "kind": "Literal",
+    "name": "world",
+    "value": "World"
+  }
+];
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -48,17 +56,11 @@ var node/*: ClientRequest*/ = {
         "selections": [
           {
             "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "world",
-                "value": "World"
-              }
-            ],
+            "args": (v0/*: any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolver'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolver').hello,
             "path": "hello"
           }
         ]
@@ -77,11 +79,11 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
+            "name": "hello",
+            "args": (v0/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": "hello(world:\"World\")"
           }
         ]
       }
@@ -96,6 +98,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "42a67a5a5af91776ffbd2e05505b5001";

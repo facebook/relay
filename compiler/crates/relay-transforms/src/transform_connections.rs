@@ -24,6 +24,7 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::Schema;
 
 use crate::connections::assert_connection_selections;

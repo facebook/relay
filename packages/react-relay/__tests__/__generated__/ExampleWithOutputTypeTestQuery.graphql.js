@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c5e7bab0bf96f34fdd3faa3e6ef35b19>>
+ * @generated SignedSource<<918f907dc1b5afb2cdd180e69f75c012>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,10 +18,11 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import queryExampleClientObjectResolver from "../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver.js";
+import {example_client_object as queryExampleClientObjectResolver} from "../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver.js";
 // Type assertion validating that `queryExampleClientObjectResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryExampleClientObjectResolver: () => mixed);
+(queryExampleClientObjectResolver: () => ?Query__example_client_object$normalization);
+import type { Query__example_client_object$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql";
 export type ExampleWithOutputTypeTestQuery$variables = {||};
 export type ExampleWithOutputTypeTestQuery$data = {|
   +example_client_object: ?{|
@@ -52,8 +53,13 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "example_client_object",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver'),
-          "path": "example_client_object"
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver').example_client_object,
+          "path": "example_client_object",
+          "normalizationInfo": {
+            "concreteType": "ClientObject",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -72,8 +78,7 @@ var node/*: ClientRequest*/ = {
             }
           ],
           "storageKey": null
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql')
+        }
       }
     ],
     "type": "Query",
@@ -89,10 +94,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "example_client_object",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

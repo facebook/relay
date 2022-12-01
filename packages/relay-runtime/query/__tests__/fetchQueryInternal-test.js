@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {Observer} from '../../network/RelayObservable';
 import type {
@@ -886,7 +887,7 @@ describe('getObservableForActiveRequest', () => {
   let observer: Observer<void>;
   let events;
   beforeEach(() => {
-    events = [];
+    events = ([]: Array<$FlowFixMe | Error | string>);
     observer = {
       complete: jest.fn(() => events.push('complete')),
       error: jest.fn(error => events.push('error', error)),

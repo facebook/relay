@@ -47,6 +47,7 @@ impl Writer for TypeScriptPrinter {
     fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
+            AST::Mixed => write!(&mut self.result, "unknown"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
@@ -79,6 +80,14 @@ impl Writer for TypeScriptPrinter {
                 // TODO: Implement type generation for typescript
                 Ok(())
             }
+            AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
+            AST::PropertyType {
+                type_,
+                property_name,
+            } => {
+                self.write(type_)?;
+                write!(&mut self.result, "['{}']", property_name)
+            }
         }
     }
 
@@ -101,6 +110,20 @@ impl Writer for TypeScriptPrinter {
             "import {} from \"{}\";",
             name, from_without_extension
         )
+    }
+
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult {
+        let import_type = if let Some(import_as) = import_as {
+            format!("{} as {}", name, import_as)
+        } else {
+            name.to_string()
+        };
+        self.write_import_type(&[&import_type], from)
     }
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
@@ -305,6 +328,12 @@ impl TypeScriptPrinter {
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
         write!(&mut self.result, "() => ")?;
         self.write(return_type)
+    }
+
+    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
+        write!(&mut self.result, "{}<", outer)?;
+        self.write(inner)?;
+        write!(&mut self.result, ">")
     }
 }
 

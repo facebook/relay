@@ -19,11 +19,13 @@ import type {DataID} from 'relay-runtime';
  * @edgeTo ClientObject
  * @onType User
  */
-function UserClientEdgeClientObjectResolver(args: {id: string}): ?DataID {
+function client_object(args: {id: string}): ?DataID {
   if (args.id === '0') {
     return null;
   }
   return args.id;
 }
 
-module.exports = UserClientEdgeClientObjectResolver;
+module.exports = {
+  client_object,
+};

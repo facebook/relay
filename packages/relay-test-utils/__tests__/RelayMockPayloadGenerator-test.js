@@ -1667,4 +1667,25 @@ describe('with @relay_test_operation', () => {
       });
     });
   });
+  describe('with Relay Resolver having fragment', () => {
+    const clientExtensionsQuery = graphql`
+      query RelayMockPayloadGeneratorTest57Query @relay_test_operation {
+        me {
+          # Should mock out the user's 'name' field, since that field is used by this resolver's fragment
+          name_passthrough
+        }
+      }
+    `;
+    test('generate mock for client extensions with client generation disabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: false,
+      });
+    });
+
+    test('generate mock for client extensions with client generation enabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: true,
+      });
+    });
+  });
 });

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a80aacb471977b1ce70e648265623b1c>>
+ * @generated SignedSource<<4082c51e2a4c2d8d036f76ac969ab53f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { CounterSuspendsWhenOdd$key } from "./CounterSuspendsWhenOdd.graphql";
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
-import queryCounterSuspendsWhenOddResolver from "../CounterSuspendsWhenOdd.js";
+import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolver} from "../CounterSuspendsWhenOdd.js";
 // Type assertion validating that `queryCounterSuspendsWhenOddResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolver: (
@@ -76,7 +76,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayLiveResolver",
       "name": "counter_suspends_when_odd",
-      "resolverModule": require('./../CounterSuspendsWhenOdd'),
+      "resolverModule": require('./../CounterSuspendsWhenOdd').counter_suspends_when_odd,
       "path": "counter_suspends_when_odd"
     }
   ],

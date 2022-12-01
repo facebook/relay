@@ -64,7 +64,7 @@ function useLazyLoadQuery<TVariables: Variables, TData>(
       ? options.networkCacheConfig
       : {force: true},
   );
-  const data = useLazyLoadQueryNode({
+  const data = useLazyLoadQueryNode<$FlowFixMe>({
     componentDisplayName: 'useLazyLoadQuery()',
     fetchKey: options?.fetchKey,
     fetchObservable: fetchQuery(environment, query),

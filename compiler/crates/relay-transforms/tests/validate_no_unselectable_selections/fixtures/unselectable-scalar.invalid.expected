@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+#expected-to-throw
+
+fragment User_fragment on User {
+  __typename
+  __relay_model_instance
+  id
+}
+
+# %extensions%
+
+extend type User {
+  __relay_model_instance: Int! @unselectable(reason: "This test requires so.")
+}
+==================================== ERROR ====================================
+✖︎ Disallowed selection of field `User.__relay_model_instance`. Reason: "This test requires so."
+
+  unselectable-scalar.invalid.graphql:5:3
+    4 │   __typename
+    5 │   __relay_model_instance
+      │   ^^^^^^^^^^^^^^^^^^^^^^
+    6 │   id

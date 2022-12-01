@@ -182,7 +182,7 @@ impl Schema for SDLSchema {
     /// have a type to instantiate the argument.
     ///
     /// TODO: we probably want to replace this with a proper `Unknown` type.
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type> {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.unchecked_argument_type_sentinel(),
             SDLSchema::InMemory(schema) => schema.unchecked_argument_type_sentinel(),
@@ -280,12 +280,11 @@ impl SDLSchema {
         &mut self,
         object_extension: ObjectTypeExtension,
         location_key: SourceLocationKey,
-        is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match self {
             SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
             SDLSchema::InMemory(schema) => {
-                schema.add_object_type_extension(object_extension, location_key, is_extension)
+                schema.add_object_type_extension(object_extension, location_key)
             }
         }
     }
@@ -294,13 +293,34 @@ impl SDLSchema {
         &mut self,
         interface_extension: InterfaceTypeExtension,
         location_key: SourceLocationKey,
-        is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match self {
             SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
             SDLSchema::InMemory(schema) => {
-                schema.add_interface_type_extension(interface_extension, location_key, is_extension)
+                schema.add_interface_type_extension(interface_extension, location_key)
             }
+        }
+    }
+
+    pub fn add_extension_scalar(
+        &mut self,
+        scalar: ScalarTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => schema.add_extension_scalar(scalar, location_key),
+        }
+    }
+
+    pub fn add_extension_object(
+        &mut self,
+        object: ObjectTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => schema.add_extension_object(object, location_key),
         }
     }
 

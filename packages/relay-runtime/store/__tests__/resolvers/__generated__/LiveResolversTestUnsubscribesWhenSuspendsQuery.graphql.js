@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<acc0b418b84078eaae37b92b2a3a6cf1>>
+ * @generated SignedSource<<d9873989937ddb818cbe87b8839b2549>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,13 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
-import queryLiveExternalGreetingResolver from "../LiveExternalGreeting.js";
+import {live_external_greeting as queryLiveExternalGreetingResolver} from "../LiveExternalGreeting.js";
 // Type assertion validating that `queryLiveExternalGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolver: (
   rootKey: LiveExternalGreetingFragment$key, 
 ) => LiveState<any>);
-import queryLiveUserSuspendsWhenOddResolver from "../LiveUserSuspendsWhenOdd.js";
+import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolver} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveUserSuspendsWhenOddResolver: () => LiveState<any>);
@@ -43,7 +43,20 @@ export type LiveResolversTestUnsubscribesWhenSuspendsQuery = {|
 |};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = {
+  "kind": "ClientExtension",
+  "selections": [
+    {
+      "name": "live_user_suspends_when_odd",
+      "args": null,
+      "fragment": null,
+      "kind": "RelayResolver",
+      "storageKey": null
+    }
+  ]
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -61,7 +74,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_user_suspends_when_odd",
-          "resolverModule": require('./../LiveUserSuspendsWhenOdd'),
+          "resolverModule": require('./../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
           "path": "user"
         },
         "linkedField": {
@@ -93,7 +106,7 @@ var node/*: ClientRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "live_external_greeting",
-        "resolverModule": require('./../LiveExternalGreeting'),
+        "resolverModule": require('./../LiveExternalGreeting').live_external_greeting,
         "path": "greeting"
       }
     ],
@@ -107,17 +120,20 @@ var node/*: ClientRequest*/ = {
     "name": "LiveResolversTestUnsubscribesWhenSuspendsQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
-          }
-        ]
-      }
+        "name": "live_external_greeting",
+        "args": null,
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            (v0/*: any*/)
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null
+      },
+      (v0/*: any*/)
     ]
   },
   "params": {
@@ -129,6 +145,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "06f9d01a4042d27c7e069bc35d4694c1";

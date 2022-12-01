@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8cfbe364f914c89ce9b2405a88713948>>
+ * @generated SignedSource<<a4ac9b5a5be2f2b7e2e1b3dc40f11ab3>>
  */
 
 mod refetchable_fragment;
@@ -13,17 +13,17 @@ use refetchable_fragment::transform_fixture;
 use fixture_tests::test_fixture;
 
 #[test]
-fn fragment_on_interface_which_implmentations_implement_node() {
-    let input = include_str!("refetchable_fragment/fixtures/fragment-on-interface-which-implmentations-implement-node.graphql");
-    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-interface-which-implmentations-implement-node.expected");
-    test_fixture(transform_fixture, "fragment-on-interface-which-implmentations-implement-node.graphql", "refetchable_fragment/fixtures/fragment-on-interface-which-implmentations-implement-node.expected", input, expected);
+fn fragment_on_interface_which_implementations_implement_node() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-interface-which-implementations-implement-node.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-interface-which-implementations-implement-node.expected");
+    test_fixture(transform_fixture, "fragment-on-interface-which-implementations-implement-node.graphql", "refetchable_fragment/fixtures/fragment-on-interface-which-implementations-implement-node.expected", input, expected);
 }
 
 #[test]
-fn fragment_on_interface_which_implmentations_not_implement_node_invalid() {
-    let input = include_str!("refetchable_fragment/fixtures/fragment-on-interface-which-implmentations-not-implement-node.invalid.graphql");
-    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-interface-which-implmentations-not-implement-node.invalid.expected");
-    test_fixture(transform_fixture, "fragment-on-interface-which-implmentations-not-implement-node.invalid.graphql", "refetchable_fragment/fixtures/fragment-on-interface-which-implmentations-not-implement-node.invalid.expected", input, expected);
+fn fragment_on_interface_which_implementations_not_implement_node_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-interface-which-implementations-not-implement-node.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-interface-which-implementations-not-implement-node.invalid.expected");
+    test_fixture(transform_fixture, "fragment-on-interface-which-implementations-not-implement-node.invalid.graphql", "refetchable_fragment/fixtures/fragment-on-interface-which-implementations-not-implement-node.invalid.expected", input, expected);
 }
 
 #[test]

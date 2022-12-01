@@ -8,7 +8,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import MutationConfig from '../types/MutationConfig.md';
 import Disposable from '../types/Disposable.md';
 
@@ -22,7 +22,7 @@ See also the [`useMutation`](../use-mutation/) API and [Guide to Updating Data](
 import type {FeedbackLikeMutation} from 'FeedbackLikeMutation.graphql';
 const React = require('React');
 
-const {graphql, useMutation} = require('react-relay');
+const {graphql, commitMutation} = require('react-relay');
 
 function likeFeedback(environment: IEnvironment): Disposable {
   return commitMutation<FeedbackLikeMutation>(environment, {

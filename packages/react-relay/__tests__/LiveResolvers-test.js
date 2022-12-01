@@ -31,8 +31,10 @@ const {
   GLOBAL_STORE,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
-const counterNoFragmentResolver = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
+const {
+  counter_no_fragment: counterNoFragmentResolver,
+} = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
+const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -1619,7 +1621,7 @@ test('Errors when reading a non-@live resolver that returns a LiveState object',
   expect(() => {
     environment.lookup(operation.fragment);
   }).toThrow(
-    'Unexpected LiveState value returned from the non-@live Relay Resolver backing the field "non_live_resolver_with_live_return_value". Did you intend to add @live to this resolver?.',
+    'Unexpected LiveState value returned from the non-@live Relay Resolver backing the field "non_live_resolver_with_live_return_value". Did you intend to add @live to this resolver?',
   );
 });
 
@@ -1682,4 +1684,26 @@ test('Errors when reading a @live resolver that does not return a LiveState obje
   }).toThrow(
     'Expected the @live Relay Resolver backing the field "live_resolver_return_undefined" to return a value that implements LiveState interface. The result for this field is `undefined`, we also did not detect any errors, or missing data during resolver execution. Did you mean to remove the @live annotation on this resolver, or was there unexpected early return in the function?',
   );
+});
+
+test('provided variables and resolvers', () => {
+  const FooQuery = graphql`
+    query LiveResolversTestWithProvidedVariablesQuery {
+      hello_world_with_provided_variable
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new LiveResolverStore(RelayRecordSource.create(), {
+      gcReleaseBufferSize: 0,
+    }),
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+  expect(snapshot.relayResolverErrors).toEqual([]);
+  expect(snapshot.data).toEqual({
+    hello_world_with_provided_variable: 'Hello, Hello, World!!',
+  });
 });

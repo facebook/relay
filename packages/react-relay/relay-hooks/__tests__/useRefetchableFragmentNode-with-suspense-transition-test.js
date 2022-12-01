@@ -56,7 +56,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     ) {
       const [isPending, startTransition] = useTransition();
       const {fragmentData: data, ...result} =
-        useRefetchableFragmentNodeOriginal(
+        useRefetchableFragmentNodeOriginal<any, any>(
           fragmentNode,
           fragmentRef,
           'TestComponent',

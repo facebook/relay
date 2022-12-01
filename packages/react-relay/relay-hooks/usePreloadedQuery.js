@@ -136,7 +136,7 @@ function usePreloadedQuery<TQuery: OperationType>(
     };
   }
 
-  const data = useLazyLoadQueryNode(useLazyLoadQueryNodeParams);
+  const data = useLazyLoadQueryNode<TQuery>(useLazyLoadQueryNodeParams);
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useDebugValue({

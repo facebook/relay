@@ -7,6 +7,7 @@
 
 //! Utilities for providing the hover feature
 
+use intern::Lookup;
 use lsp_types::request::HoverRequest;
 use lsp_types::request::Request;
 use lsp_types::LanguageString;

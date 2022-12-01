@@ -138,7 +138,7 @@ function getStorageKey(
 ): string {
   if (field.storageKey) {
     // TODO T23663664: Handle nodes do not yet define a static storageKey.
-    return (field: $FlowFixMe).storageKey;
+    return field.storageKey;
   }
 
   const args = getArguments(field);
@@ -253,6 +253,7 @@ const RelayStoreUtils = {
   RELAY_RESOLVER_INVALIDATION_KEY: '__resolverValueMayBeInvalid',
   RELAY_RESOLVER_SNAPSHOT_KEY: '__resolverSnapshot',
   RELAY_RESOLVER_ERROR_KEY: '__resolverError',
+  RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS: '__resolverOutputTypeRecordIDs',
 
   formatStorageKey,
   getArgumentValue,

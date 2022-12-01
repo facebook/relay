@@ -41,7 +41,7 @@ function testResolver<D, Ret>(
   fragmentData: D,
 ): Ret {
   const readFragment = ResolverFragments.readFragment;
-  // a test utility, so... YOLO!!
+  // $FlowFixMe: a test utility, so... YOLO!!
   ResolverFragments.readFragment = () => fragmentData;
   const result = resolver(
     // This will be ignored since we mock the function it gets passed to.

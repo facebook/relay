@@ -103,6 +103,16 @@ pub fn parse_schema_document(
     parser.parse_schema_document()
 }
 
+pub fn parse_field_definition(
+    source: &str,
+    source_location: SourceLocationKey,
+    offset: u32,
+) -> DiagnosticsResult<FieldDefinition> {
+    let features = ParserFeatures::default();
+    let parser = Parser::with_offset(source, source_location, features, offset);
+    parser.parse_field_definition()
+}
+
 pub fn parse_field_definition_stub(
     source: &str,
     source_location: SourceLocationKey,
@@ -122,6 +132,17 @@ pub fn parse_type(
     let features = ParserFeatures::default();
     let parser = Parser::with_offset(source, source_location, features, offset);
     parser.parse_type()
+}
+
+/// Parses a GraphQL identifier, such as `foo` or `User`.
+pub fn parse_identifier(
+    source: &str,
+    source_location: SourceLocationKey,
+    offset: u32,
+) -> DiagnosticsResult<Identifier> {
+    let features = ParserFeatures::default();
+    let parser = Parser::with_offset(source, source_location, features, offset);
+    parser.parse_identifier_result()
 }
 
 /// Parses a GraphQL document that's restricted to type system definitions

@@ -22,6 +22,7 @@ use graphql_ir::Variable;
 use graphql_ir::VariableName;
 use graphql_ir::Visitor;
 use schema::Schema;
+use schema::Type;
 use schema::TypeReference;
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
@@ -169,7 +170,7 @@ impl VariablesVisitor<'_, '_> {
     fn record_root_variable_usage(
         &mut self,
         name: &WithLocation<VariableName>,
-        type_: &TypeReference,
+        type_: &TypeReference<Type>,
     ) {
         let schema = &self.program.schema;
         let errors = &mut self.errors;

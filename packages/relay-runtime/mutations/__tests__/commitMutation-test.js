@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {
@@ -461,7 +462,7 @@ describe('Configs: RANGE_ADD', () => {
       feedback: feedbackID,
       message: {
         text: 'Hello!',
-        ranges: [],
+        ranges: ([]: Array<mixed>),
       },
     },
   };

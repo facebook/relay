@@ -9,7 +9,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.org/learn/queries/#variables).
 
@@ -118,24 +118,26 @@ function UserComponent(props: Props) {
 
 ## @arguments and @argumentDefinitions
 
-However, in order to avoid bloating queries with global variable declarations and to allow developers to reuse fragments with different variables, Relay also provides a way to declare variables that are scoped locally to a fragment using  the `@arguments` and `@argumentDefinitions` directives:
+Relay also provides a way to declare variables that are scoped locally to a fragment using the `@arguments` and `@argumentDefinitions` directives. Fragments that use local variables are easy to customize and reuse, since they do not depend on the value of global (query-level) variables.
 
 ```js
 /**
  * Declare a fragment that accepts arguments with @argumentDefinitions
  */
 
-function PictureComponent(props) {
+function TaskView(props) {
   const data = useFragment(
     graphql`
-      fragment PictureComponent_user on User
-        @argumentDefinitions(scale: {type: "Float!"}) {
-        profile_picture(scale: $scale) {
-          uri
+      fragment TaskView_task on Task
+        @argumentDefinitions(showDetailedResults: {type: "Boolean!"}) {
+        name
+        is_completed
+        ... @include(if: $showDetailedResults) {
+          description
         }
       }
     `,
-    props.user,
+    props.task,
   );
 }
 ```
@@ -145,47 +147,32 @@ function PictureComponent(props) {
  * Include fragment using @arguments
  */
 
-function UserComponent(props) {
-  const data = useFragment(
+function TaskList(props) {
+  const data = usePreloadedQuery(
     graphql`
-      fragment UserComponent_user on User {
-        name
-
-        # Pass value of 2.0 for the $scale variable
-        ...PictureComponent_user @arguments(scale: 2.0)
+      query TaskListQuery {
+        todays_tasks {
+          ...TaskView_task @arguments(showDetailedResults: true)
+        }
+        tomorrows_tasks {
+          ...TaskView_task @arguments(showDetailedResults: false)
+        }
       }
     `,
-    props.user,
+    props.queryRef,
   );
 }
 ```
 
-```js
-/**
- * Include same fragment using *_different_* @arguments
- */
+* Locally-scoped variables also make it easier to reuse a fragment from another query.
+  * A query definition must list all variables that are used by any nested fragments, including in recursively-nested fragments.
+  * Since a fragment can potentially be accessible from many queries, modifying a fragment that uses global variables can require changes to many query definitions.
+  * This can also lead to awkward situations, like having multiple versions of the "same" variable, such as `$showDetailedResults` and `$showDetails`.
 
-function OtherUserComponent(props) {
-  const data = useFragment(
-    graphql`
-      fragment OtherUserComponent_user on User {
-        name
-
-        # Pass a different value for the scale variable.
-        # The value can be a local variable, global variable or literal:
-        ...PictureComponent_user @arguments(scale: $pictureScale)
-      }
-    `,
-    props.user,
-  );
-}
-```
+  * Since fragments with only locally-scoped variables do not use global variables, they do not suffer from this issue.
 
 * Note that when passing `@arguments` to a fragment, we can pass a literal value or pass another variable. The variable can be a global query variable, a local variable declared via `@argumentDefinitions` or a literal (e.g. `42.0`).
-* When we actually fetch `PictureComponent_user` as part of a query, the `scale` value passed to the `profile_picture` field will depend on the argument that was provided by the parent of `PictureComponent_user`:
-    * For `UserComponent_user` the value of `$scale` will be 2.0.
-    * For `OtherUserComponent_user`, the value of `$scale` will be whatever value we pass to the server for the `$pictureScale` variable when we fetch the query.
-
+* When we actually fetch `TaskView_task` as part of a query, the `showDetailedResults` value will depend on the argument that was provided by the parent of `TaskView_task`:
 
 Fragments that expect arguments can also declare default values, making the arguments optional:
 
@@ -194,41 +181,42 @@ Fragments that expect arguments can also declare default values, making the argu
  * Declare a fragment that accepts arguments with default values
  */
 
-function PictureComponent(props) {
+function TaskView(props) {
   const data = useFragment(
     graphql`
-      fragment PictureComponent_user on User
-        @argumentDefinitions(scale: {type: "Float!", defaultValue: 2.0}) {
-
-        # $scale is a local variable here, declared above
-        # as an argument scale, of type Float! with a default value of 2.0
-        profile_picture(scale: $scale) {
-          uri
+      fragment TaskView_task on Task
+        @argumentDefinitions(showDetailedResults: {type: "Boolean!", defaultValue: true}) {
+        name
+        is_completed
+        ... @include(if: $showDetailedResults) {
+          description
         }
       }
     `,
-    props.user,
+    props.task,
   );
 }
 ```
 
 ```js
-function UserComponent(props) {
-  const data = useFragment(
+function TaskList(props) {
+  const data = usePreloadedQuery(
     graphql`
-      fragment UserComponent_user on User {
-        name
-
-        # Do not pass an argument, value for scale will be 2.0
-        ...PictureComponent_user
+      query TaskListQuery {
+        todays_tasks {
+          ...TaskView_task
+        }
+        tomorrows_tasks {
+          ...TaskView_task @arguments(showDetailedResults: false)
+        }
       }
     `,
-    props.user,
+    props.queryRef,
   );
 }
 ```
 
-* Not passing the argument to `PictureComponent_user` makes it use the default value for its locally declared `$scale` variable, in this case 2.0.
+* Not passing the argument to `TaskView_task` makes it use the default value for its locally declared `$showDetailedResult` variable.
 
 
 

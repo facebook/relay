@@ -43,6 +43,7 @@ import type {
   SelectorStoreUpdater,
   Store,
   StreamPlaceholder,
+  TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {
   NormalizationLinkedField,
@@ -98,11 +99,6 @@ export type ExecuteConfig<TMutation: MutationParameters> = {
 };
 
 export type ActiveState = 'active' | 'inactive';
-
-export type TaskScheduler = {
-  +cancel: (id: string) => void,
-  +schedule: (fn: () => void) => string,
-};
 
 type Label = string;
 type PathKey = string;
@@ -343,7 +339,7 @@ class Executor<TMutation: MutationParameters> {
     const scheduler = this._scheduler;
     if (scheduler != null) {
       const id = this._nextSubscriptionId++;
-      RelayObservable.create(sink => {
+      RelayObservable.create<empty>(sink => {
         const cancellationToken = scheduler.schedule(() => {
           try {
             task();
@@ -746,7 +742,7 @@ class Executor<TMutation: MutationParameters> {
     moduleImportPayload: ModuleImportPayload,
   ): $ReadOnlyArray<OptimisticUpdate<TMutation>> {
     const operation = getOperation(normalizationRootNode);
-    const optimisticUpdates = [];
+    const optimisticUpdates: Array<OptimisticUpdate<TMutation>> = [];
     const modulePayload = this._normalizeFollowupPayload(
       moduleImportPayload,
       operation,
@@ -949,14 +945,15 @@ class Executor<TMutation: MutationParameters> {
           // Observable.from(operationLoader.load()) wouldn't catch synchronous
           // errors thrown by the load function, which is user-defined. Guard
           // against that with Observable.from(new Promise(<work>)).
-          const networkObservable = RelayObservable.from(
-            new Promise((resolve, reject) => {
-              operationLoader
-                .load(followupPayload.operationReference)
-                .then(resolve, reject);
-            }),
-          );
-          RelayObservable.create(sink => {
+          const networkObservable =
+            RelayObservable.from<?NormalizationRootNode>(
+              new Promise<?NormalizationRootNode>((resolve, reject) => {
+                operationLoader
+                  .load(followupPayload.operationReference)
+                  .then(resolve, reject);
+              }),
+            );
+          RelayObservable.create<empty>(sink => {
             let cancellationToken;
             const subscription = networkObservable.subscribe({
               next: (loadedNode: ?NormalizationRootNode) => {
@@ -1153,7 +1150,7 @@ class Executor<TMutation: MutationParameters> {
         previousParentEntry.record,
         parentRecord,
       );
-      const handlePayloads = new Map();
+      const handlePayloads = new Map<string, HandleFieldPayload>();
       const dedupePayload = (payload: HandleFieldPayload) => {
         const key = stableStringify(payload);
         handlePayloads.set(key, payload);
@@ -1569,7 +1566,7 @@ class Executor<TMutation: MutationParameters> {
   _runPublishQueue(
     operation?: OperationDescriptor,
   ): $ReadOnlyArray<RequestDescriptor> {
-    const updatedOwners = new Set();
+    const updatedOwners = new Set<RequestDescriptor>();
     for (const actorIdentifier of this._getActorsToVisit()) {
       const owners = this._getPublishQueue(actorIdentifier).run(operation);
       owners.forEach(owner => updatedOwners.add(owner));

@@ -53,7 +53,7 @@ export type PreloadableConcreteRequest<TQuery: OperationType> = {
   params: RequestParameters,
 };
 
-export type EnvironmentProviderOptions = {[string]: mixed, ...};
+export type EnvironmentProviderOptions = {+[string]: mixed, ...};
 
 export type PreloadedQuery<
   TQuery: OperationType,

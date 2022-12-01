@@ -1,0 +1,83 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver User.favorite_page: Page
+ * @rootFragment myRootFragment
+ * @onType User
+ * @edgeTo User
+ * @onInterface User
+ * @outputType User
+ * @fieldName my_field
+ * @weak
+ *
+ * The user's favorite page! They probably clicked something in the UI
+ * to tell us that it was their favorite page and then we put that in a
+ * database or something. Then we got that info out again and put it out
+ * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
+ */
+ graphql`
+ fragment myRootFragment on User {
+   name
+ }
+`
+==================================== ERROR ====================================
+✖︎ Unexpected docblock field `edgeTo`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:14:5
+   13 │  * @onType User
+   14 │  * @edgeTo User
+      │     ^^^^^^
+   15 │  * @onInterface User
+
+
+✖︎ Unexpected docblock field `fieldName`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:17:5
+   16 │  * @outputType User
+   17 │  * @fieldName my_field
+      │     ^^^^^^^^^
+   18 │  * @weak
+
+
+✖︎ Unexpected docblock field `onInterface`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:15:5
+   14 │  * @edgeTo User
+   15 │  * @onInterface User
+      │     ^^^^^^^^^^^
+   16 │  * @outputType User
+
+
+✖︎ Unexpected docblock field `onType`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:13:5
+   12 │  * @rootFragment myRootFragment
+   13 │  * @onType User
+      │     ^^^^^^
+   14 │  * @edgeTo User
+
+
+✖︎ Unexpected docblock field `outputType`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:16:5
+   15 │  * @onInterface User
+   16 │  * @outputType User
+      │     ^^^^^^^^^^
+   17 │  * @fieldName my_field
+
+
+✖︎ Unexpected docblock field `weak`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:18:5
+   17 │  * @fieldName my_field
+   18 │  * @weak
+      │     ^^^^
+   19 │  *

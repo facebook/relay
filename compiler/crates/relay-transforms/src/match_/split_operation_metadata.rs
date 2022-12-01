@@ -25,6 +25,8 @@ lazy_static! {
     static ref ARG_DERIVED_FROM: ArgumentName = ArgumentName("derivedFrom".intern());
     static ref ARG_PARENT_DOCUMENTS: ArgumentName = ArgumentName("parentDocuments".intern());
     static ref ARG_RAW_RESPONSE_TYPE: ArgumentName = ArgumentName("rawResponseType".intern());
+    static ref ARG_RAW_RESPONSE_TYPE_STRICT: ArgumentName =
+        ArgumentName("rawResponseTypeStrict".intern());
 }
 
 /// The split operation metadata directive indicates that an operation was split
@@ -63,7 +65,18 @@ pub struct SplitOperationMetadata {
     pub parent_documents: StringKeySet,
 
     /// Should a @raw_response_type style type be generated.
-    pub raw_response_type: bool,
+    pub raw_response_type_generation_mode: Option<RawResponseGenerationMode>,
+}
+
+/// For split operations. This will define the mode for the type generation of RawResponse type
+/// With Relay resolvers we may need to require all keys to be presented in the response shape.
+#[derive(Clone, Copy)]
+pub enum RawResponseGenerationMode {
+    /// All keys are optional
+    AllFieldsOptional,
+    /// All keys in the raw response type are required
+    /// (values can still be optional, based on the schema type)
+    AllFieldsRequired,
 }
 
 impl SplitOperationMetadata {
@@ -87,12 +100,23 @@ impl SplitOperationMetadata {
                     .collect(),
             ))),
         });
-        if self.raw_response_type {
-            arguments.push(Argument {
-                name: WithLocation::generated(*ARG_RAW_RESPONSE_TYPE),
-                value: WithLocation::generated(Value::Constant(ConstantValue::Null())),
-            });
+
+        match self.raw_response_type_generation_mode {
+            Some(RawResponseGenerationMode::AllFieldsOptional) => {
+                arguments.push(Argument {
+                    name: WithLocation::generated(*ARG_RAW_RESPONSE_TYPE),
+                    value: WithLocation::generated(Value::Constant(ConstantValue::Null())),
+                });
+            }
+            Some(RawResponseGenerationMode::AllFieldsRequired) => {
+                arguments.push(Argument {
+                    name: WithLocation::generated(*ARG_RAW_RESPONSE_TYPE_STRICT),
+                    value: WithLocation::generated(Value::Constant(ConstantValue::Null())),
+                });
+            }
+            None => {}
         }
+
         Directive {
             name: WithLocation::new(self.location, *DIRECTIVE_SPLIT_OPERATION),
             arguments,
@@ -106,16 +130,27 @@ impl From<&Directive> for SplitOperationMetadata {
         debug_assert!(directive.name.item == *DIRECTIVE_SPLIT_OPERATION);
         let location = directive.name.location;
         let derived_from_arg = directive.arguments.named(*ARG_DERIVED_FROM);
-
-        let derived_from = derived_from_arg.map(|derived_from_arg| {
-            FragmentDefinitionName(derived_from_arg.value.item.expect_string_literal())
-        });
-
+        let derived_from = derived_from_arg
+            .map(|arg| FragmentDefinitionName(arg.value.item.expect_string_literal()));
         let parent_documents_arg = directive
             .arguments
             .named(*ARG_PARENT_DOCUMENTS)
             .expect("Expected parent_documents arg to exist");
-        let raw_response_type = directive.arguments.named(*ARG_RAW_RESPONSE_TYPE).is_some();
+        let is_raw_response_type = directive.arguments.named(*ARG_RAW_RESPONSE_TYPE).is_some();
+        let is_raw_response_type_strict = directive
+            .arguments
+            .named(*ARG_RAW_RESPONSE_TYPE_STRICT)
+            .is_some();
+
+        let raw_response_type_generation_mode =
+            match (is_raw_response_type_strict, is_raw_response_type) {
+                (true, false) => Some(RawResponseGenerationMode::AllFieldsRequired),
+                (false, true) => Some(RawResponseGenerationMode::AllFieldsOptional),
+                (false, false) => None,
+                _ => {
+                    panic!("Only one of raw_response_type arguments is expected.")
+                }
+            };
 
         if let Value::Constant(ConstantValue::List(source_definition_names)) =
             &parent_documents_arg.value.item
@@ -135,7 +170,7 @@ impl From<&Directive> for SplitOperationMetadata {
                 derived_from,
                 location,
                 parent_documents,
-                raw_response_type,
+                raw_response_type_generation_mode,
             }
         } else {
             panic!("Expected parent sources to be a constant of list.");

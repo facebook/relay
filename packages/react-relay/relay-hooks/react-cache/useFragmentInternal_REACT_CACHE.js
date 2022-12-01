@@ -73,7 +73,7 @@ function getMissingClientEdges(
   } else if (state.kind === 'singular') {
     return state.snapshot.missingClientEdges ?? null;
   } else {
-    let edges = null;
+    let edges: null | Array<MissingClientEdgeRequestInfo> = null;
     for (const snapshot of state.snapshots) {
       if (snapshot.missingClientEdges) {
         edges = edges ?? [];
@@ -94,7 +94,7 @@ function getSuspendingLiveResolver(
   } else if (state.kind === 'singular') {
     return state.snapshot.missingLiveResolverFields ?? null;
   } else {
-    let missingFields = null;
+    let missingFields: null | Array<MissingLiveResolverField> = null;
     for (const snapshot of state.snapshots) {
       if (snapshot.missingLiveResolverFields) {
         missingFields = missingFields ?? [];
@@ -438,7 +438,7 @@ function useFragmentInternal_REACT_CACHE(
       // eslint-disable-next-line no-shadow
       let clientEdgeQueries;
       if (missingClientEdges?.length) {
-        clientEdgeQueries = [];
+        clientEdgeQueries = ([]: Array<QueryResult>);
         for (const edge of missingClientEdges) {
           clientEdgeQueries.push(
             handleMissingClientEdge(

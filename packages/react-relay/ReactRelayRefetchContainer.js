@@ -371,7 +371,7 @@ function createContainerWithFragments<
 
       // Declare refetchSubscription before assigning it in .start(), since
       // synchronous completion may call callbacks .subscribe() returns.
-      let refetchSubscription;
+      let refetchSubscription: Subscription;
 
       const storeSnapshot = this._getQueryFetcher().lookupInStore(
         environment,
@@ -407,12 +407,12 @@ function createContainerWithFragments<
           // TODO (T26430099): Cleanup old references
           preservePreviousReferences: true,
         })
-        .mergeMap(response => {
+        .mergeMap<void>(response => {
           this.state.resolver.setVariables(
             fragmentVariables,
             operation.request.node,
           );
-          return Observable.create(sink =>
+          return Observable.create<void>(sink =>
             this.setState(
               latestState => ({
                 data: latestState.resolver.resolve(),

@@ -12,6 +12,11 @@ use std::cmp::Ordering;
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::EnumName;
+use common::InputObjectName;
+use common::InterfaceName;
+use common::ObjectName;
+use common::ScalarName;
 use common::Span;
 use common::WithLocation;
 use flatbuffers::ForwardsUOffset;
@@ -31,6 +36,7 @@ use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 pub use serialize::serialize_as_flatbuffer;
 pub use wrapper::SchemaWrapper;
 
@@ -211,7 +217,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_scalar(&self, id: ScalarID) -> Option<Scalar> {
         let scalar = self.scalars.get(id.0.try_into().unwrap());
-        let name = scalar.name()?.to_string().intern();
+        let name = ScalarName(scalar.name()?.intern());
         let parsed_scalar = Scalar {
             name: WithLocation::generated(name),
             is_extension: scalar.is_extension(),
@@ -223,7 +229,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_input_object(&self, id: InputObjectID) -> Option<InputObject> {
         let input_object = self.input_objects.get(id.0.try_into().unwrap());
-        let name = input_object.name()?.to_string().intern();
+        let name = InputObjectName(input_object.name()?.to_string().intern());
         let parsed_input_object = InputObject {
             name: WithLocation::generated(name),
             fields: self.parse_arguments(input_object.fields()?)?,
@@ -235,7 +241,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_enum(&self, id: EnumID) -> Option<Enum> {
         let enum_ = self.enums.get(id.0.try_into().unwrap());
-        let name = enum_.name()?.to_string().intern();
+        let name = EnumName(enum_.name()?.to_string().intern());
         let parsed_enum = Enum {
             name: WithLocation::generated(name),
             is_extension: enum_.is_extension(),
@@ -250,7 +256,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         let object = self.objects.get(id.0.try_into().unwrap());
         let name = object.name()?.intern();
         let parsed_object = Object {
-            name: WithLocation::generated(name),
+            name: WithLocation::generated(ObjectName(name)),
             is_extension: object.is_extension(),
             fields: object.fields()?.iter().map(FieldID).collect(),
             interfaces: object.interfaces()?.iter().map(InterfaceID).collect(),
@@ -262,7 +268,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_interface(&self, id: InterfaceID) -> Option<Interface> {
         let interface = self.interfaces.get(id.0.try_into().unwrap());
-        let name = interface.name()?.intern();
+        let name = InterfaceName(interface.name()?.intern());
 
         let parsed_interface = Interface {
             name: WithLocation::generated(name),
@@ -349,7 +355,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_type_reference(
         &self,
         type_reference: schema_flatbuffer::TypeReference<'fb>,
-    ) -> Option<TypeReference> {
+    ) -> Option<TypeReference<Type>> {
         Some(match type_reference.kind() {
             schema_flatbuffer::TypeReferenceKind::Named => {
                 let type_name = self.get_fbtype_name(&type_reference.named()?);

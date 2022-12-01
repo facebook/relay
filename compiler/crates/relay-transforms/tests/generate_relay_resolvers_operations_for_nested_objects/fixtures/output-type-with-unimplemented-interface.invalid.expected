@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    __typename
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+type PopStarName {
+  stage_name: IStageName
+  also_a_stage_name: IStageName
+}
+
+interface IStageName {
+  value: String
+}
+
+extend type User {
+  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+  top_level: IStageName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== ERROR ====================================
+✖︎ No types implement the client interface IStageName. For a client interface to be used as a @RelayResolver @outputType, at least one Object type must implement the interface.
+
+  output-type-with-unimplemented-interface.invalid.graphql:7:11
+    6 │ 
+    7 │ interface IStageName {
+      │           ^^^^^^^^^^
+    8 │   value: String
+
+
+✖︎ No types implement the client interface IStageName. For a client interface to be used as a @RelayResolver @outputType, at least one Object type must implement the interface.
+
+  output-type-with-unimplemented-interface.invalid.graphql:7:11
+    6 │ 
+    7 │ interface IStageName {
+      │           ^^^^^^^^^^
+    8 │   value: String
+
+
+✖︎ No types implement the client interface IStageName. For a client interface to be used as a @RelayResolver @outputType, at least one Object type must implement the interface.
+
+  output-type-with-unimplemented-interface.invalid.graphql:7:11
+    6 │ 
+    7 │ interface IStageName {
+      │           ^^^^^^^^^^
+    8 │   value: String

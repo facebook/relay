@@ -11,6 +11,9 @@
 
 'use strict';
 
+import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {Options} from './useRefetchableFragmentNode';
+
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
@@ -128,7 +131,7 @@ function useBlockingPaginationFragment<
   });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
-    (variables, options) => {
+    (variables: VariablesOf<TQuery>, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
       return refetch(variables, {...options, __environment: undefined});
@@ -164,8 +167,8 @@ function useLoadMore<TQuery: OperationType>(args: {
   const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(
     null,
   );
-  const requestPromiseRef = useRef(null);
-  const promiseResolveRef = useRef(null);
+  const requestPromiseRef = useRef<null | Promise<mixed>>(null);
+  const promiseResolveRef = useRef<null | (() => void)>(null);
 
   const promiseResolve = () => {
     if (promiseResolveRef.current != null) {

@@ -13,7 +13,6 @@
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const readContext = require('../readContext');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
@@ -25,6 +24,8 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
+
+const {useContext} = React;
 
 describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   let TestChildComponent;
@@ -138,7 +139,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     );
     render = jest.fn(props => {
       refetch = props.relay.refetch;
-      relayContext = readContext(ReactRelayContext);
+      relayContext = useContext(ReactRelayContext);
       return <TestChildContainer user={props.user} />;
     });
     variables = {id: '4', scale: 2};

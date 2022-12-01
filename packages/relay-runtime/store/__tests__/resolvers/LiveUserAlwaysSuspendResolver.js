@@ -25,7 +25,7 @@ const {
  * @edgeTo User
  * @live
  */
-function liveUserResolverAlwaysSuspend(): LiveState<DataID> {
+function live_user_resolver_always_suspend(): LiveState<DataID> {
   return {
     read() {
       return suspenseSentinel();
@@ -36,4 +36,6 @@ function liveUserResolverAlwaysSuspend(): LiveState<DataID> {
   };
 }
 
-module.exports = liveUserResolverAlwaysSuspend;
+module.exports = {
+  live_user_resolver_always_suspend,
+};

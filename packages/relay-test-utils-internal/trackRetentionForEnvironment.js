@@ -26,7 +26,7 @@ function trackRetentionForEnvironment(environment: IEnvironment): {
   release_DEPRECATED: JestMockFn<[mixed], void>,
   isOperationRetained: OperationDescriptor => boolean,
 } {
-  const retainCountsByOperation = new Map();
+  const retainCountsByOperation = new Map<mixed, number>();
 
   const release = jest.fn(id => {
     const existing = retainCountsByOperation.get(id) ?? NaN;

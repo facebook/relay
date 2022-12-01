@@ -846,3 +846,18 @@ mod tests {
         assert_eq!(deserialized, val);
     }
 }
+
+pub trait Lookup {
+    fn lookup(self) -> &'static str;
+}
+
+#[macro_export]
+macro_rules! impl_lookup {
+    ($named:ident) => {
+        impl Lookup for $named {
+            fn lookup(self) -> &'static str {
+                self.0.lookup()
+            }
+        }
+    };
+}

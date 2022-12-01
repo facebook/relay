@@ -148,7 +148,18 @@ function createCacheEntry(
     };
   });
 
-  const cacheEntry = {
+  const cacheEntry: {
+    cacheIdentifier: string,
+    getValue(): QueryResult | Promise<void> | Error,
+    id: number,
+    operationAvailability: ?OperationAvailability,
+    permanentRetain(environment: IEnvironment): Disposable,
+    processedPayloadsCount: number,
+    releaseTemporaryRetain(): void,
+    setNetworkSubscription(subscription: ?Subscription): void,
+    setValue(val: QueryResult | Promise<void> | Error): void,
+    temporaryRetain(environment: IEnvironment): Disposable,
+  } = {
     cacheIdentifier,
     id: nextID++,
     processedPayloadsCount: 0,
@@ -534,7 +545,7 @@ class QueryResourceImpl {
 
       let cacheEntry = this._cache.get(cacheIdentifier);
       if (!cacheEntry) {
-        const networkPromise = new Promise(resolve => {
+        const networkPromise = new Promise<void>(resolve => {
           resolveNetworkPromise = resolve;
         });
 

@@ -361,7 +361,9 @@ Text Schema:Schema {
     Interface {
         name: WithLocation {
             location: <generated>:66:74,
-            item: "BaseNode",
+            item: InterfaceName(
+                "BaseNode",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [
@@ -378,7 +380,9 @@ Text Schema:Schema {
     Interface {
         name: WithLocation {
             location: <generated>:100:104,
-            item: "Node",
+            item: InterfaceName(
+                "Node",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [
@@ -398,7 +402,9 @@ Text Schema:Schema {
     Interface {
         name: WithLocation {
             location: <generated>:156:164,
-            item: "Resource",
+            item: InterfaceName(
+                "Resource",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [
@@ -419,7 +425,9 @@ Text Schema:Schema {
     Interface {
         name: WithLocation {
             location: <generated>:236:241,
-            item: "Image",
+            item: InterfaceName(
+                "Image",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],
@@ -441,7 +449,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:32:37,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -456,7 +466,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:187:190,
-            item: "Int",
+            item: ScalarName(
+                "Int",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -465,7 +477,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:198:203,
-            item: "Float",
+            item: ScalarName(
+                "Float",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -474,7 +488,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:211:217,
-            item: "String",
+            item: ScalarName(
+                "String",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -483,7 +499,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:225:232,
-            item: "Boolean",
+            item: ScalarName(
+                "Boolean",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -492,7 +510,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:240:242,
-            item: "ID",
+            item: ScalarName(
+                "ID",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -723,7 +743,9 @@ interfaces: [
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "BaseNode",
+            item: InterfaceName(
+                "BaseNode",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [
@@ -740,7 +762,9 @@ interfaces: [
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Image",
+            item: InterfaceName(
+                "Image",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],
@@ -760,7 +784,9 @@ interfaces: [
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Node",
+            item: InterfaceName(
+                "Node",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [
@@ -780,7 +806,9 @@ interfaces: [
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Resource",
+            item: InterfaceName(
+                "Resource",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [
@@ -803,7 +831,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -818,7 +848,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Boolean",
+            item: ScalarName(
+                "Boolean",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -827,7 +859,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Float",
+            item: ScalarName(
+                "Float",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -836,7 +870,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "ID",
+            item: ScalarName(
+                "ID",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -845,7 +881,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Int",
+            item: ScalarName(
+                "Int",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -854,7 +892,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "String",
+            item: ScalarName(
+                "String",
+            ),
         },
         is_extension: false,
         directives: [],

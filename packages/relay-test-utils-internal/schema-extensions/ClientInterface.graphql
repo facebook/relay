@@ -13,3 +13,7 @@ type OtherClientTypeImplementingClientInterface implements ClientInterface {
 extend type Query {
   client_interface: ClientInterface
 }
+
+type ClientTypeWithNestedClientInterface {
+  client_interface: ClientInterface!
+}

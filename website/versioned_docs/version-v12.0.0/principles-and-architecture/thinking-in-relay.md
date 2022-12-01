@@ -73,7 +73,7 @@ const storyQuery = graphql`
 `;
 ```
 
-Now, we can fetch the query by calling `const data = useLazyLoadQuery(storyQuery, {storyID})`. At this point, `data.author` (if it is present; all fields are nullable by default) will be a fragment reference that we can pass to `AuthorDetails`. For example:
+Now, we can fetch the query by calling `const data = useLazyLoadQuery(storyQuery, {storyID})`. At this point, `data.story.author` (if it is present; all fields are nullable by default) will be a fragment reference that we can pass to `AuthorDetails`. For example:
 
 ```javascript
 // Story.react.js

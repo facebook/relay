@@ -65,7 +65,7 @@ const {
   getFragment,
   graphql,
 } = require('relay-runtime');
-import RelayRecordSource from '../../../relay-runtime/store/RelayRecordSource';
+const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 
 describe('FragmentResource', () => {
   let environment;

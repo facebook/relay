@@ -559,7 +559,7 @@ impl CompletionRequestBuilder {
                     }
                 };
                 if is_cursor_in_next_white_space {
-                    // Handles the following speicial case
+                    // Handles the following special case
                     // (args1:  | args2:$var)
                     //          ^ cursor here
                     // The cursor is on the white space between args1 and args2.
@@ -696,7 +696,7 @@ fn completion_items_for_request(
                         schema_documentation,
                         existing_linked_field,
                     ),
-                    resolve_completion_items_for_typename(),
+                    resolve_completion_items_typename(Type::Interface(interface_id), schema),
                     resolve_completion_items_for_inline_fragment(
                         Type::Interface(interface_id),
                         schema,
@@ -710,26 +710,23 @@ fn completion_items_for_request(
                     ),
                 ]))
             }
-            Type::Object(object_id) => {
-                let object = schema.object(object_id);
-                Some(merge_completion_items_ordered([
-                    resolve_completion_items_for_fields(
-                        object,
-                        schema,
-                        schema_documentation,
-                        existing_linked_field,
-                    ),
-                    resolve_completion_items_for_typename(),
-                    resolve_completion_items_for_fragment_spread(
-                        Type::Object(object_id),
-                        program,
-                        schema,
-                        false,
-                    ),
-                ]))
-            }
+            Type::Object(object_id) => Some(merge_completion_items_ordered([
+                resolve_completion_items_for_fields(
+                    schema.object(object_id),
+                    schema,
+                    schema_documentation,
+                    existing_linked_field,
+                ),
+                resolve_completion_items_typename(Type::Object(object_id), schema),
+                resolve_completion_items_for_fragment_spread(
+                    Type::Object(object_id),
+                    program,
+                    schema,
+                    false,
+                ),
+            ])),
             Type::Union(union_id) => Some(merge_completion_items_ordered([
-                resolve_completion_items_for_typename(),
+                resolve_completion_items_typename(Type::Union(union_id), schema),
                 resolve_completion_items_for_inline_fragment(Type::Union(union_id), schema, false),
                 resolve_completion_items_for_fragment_spread(
                     Type::Union(union_id),
@@ -876,10 +873,14 @@ fn completion_items_for_request(
     }
 }
 
-fn resolve_completion_items_for_typename() -> Vec<CompletionItem> {
-    let mut item = CompletionItem::new_simple("__typename".to_owned(), "String!".to_owned());
-    item.kind = Some(CompletionItemKind::FIELD);
-    vec![item]
+fn resolve_completion_items_typename(type_: Type, schema: &SDLSchema) -> Vec<CompletionItem> {
+    if type_.is_root_type(schema) {
+        vec![]
+    } else {
+        let mut item = CompletionItem::new_simple("__typename".to_owned(), "String!".to_owned());
+        item.kind = Some(CompletionItemKind::FIELD);
+        vec![item]
+    }
 }
 
 fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
@@ -960,7 +961,7 @@ fn resolve_completion_items_for_inline_fragment(
             CompletionItem::new_simple(type_name.to_owned(), "".into())
         } else {
             CompletionItem {
-                label: format!("...on {type_name}"),
+                label: format!("... on {type_name}"),
                 kind: None,
                 detail: None,
                 documentation: None,
@@ -968,7 +969,7 @@ fn resolve_completion_items_for_inline_fragment(
                 preselect: None,
                 sort_text: None,
                 filter_text: None,
-                insert_text: Some(format!("...on {type_name} {{\n\t$1\n}}")),
+                insert_text: Some(format!("... on {type_name} {{\n\t$1\n}}")),
                 insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                 text_edit: None,
                 additional_text_edits: None,

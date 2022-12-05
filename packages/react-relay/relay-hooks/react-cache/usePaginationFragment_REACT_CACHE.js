@@ -33,7 +33,7 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
-import useRelayEnvironment from '../useRelayEnvironment';
+const useRelayEnvironment = require('../useRelayEnvironment');
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
   data: TFragmentData,

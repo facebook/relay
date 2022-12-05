@@ -145,7 +145,11 @@ beforeEach(() => {
     });
 
   writeDataToStore = () => {
-    loadQuery(environment, preloadableConcreteRequest, variables);
+    loadQuery<$FlowFixMe, _>(
+      environment,
+      preloadableConcreteRequest,
+      variables,
+    );
     sink.next(response);
     sink.complete();
     PreloadableQueryRegistry.set(ID, query);
@@ -160,7 +164,7 @@ beforeEach(() => {
     queryAstOrRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
     options?: LoadQueryOptions,
   ) => {
-    const loadedQuery = loadQuery(
+    const loadedQuery = loadQuery<$FlowFixMe, _>(
       environment,
       queryAstOrRequest,
       variables,
@@ -417,7 +421,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         // calls to load will get disposed
 
         // Start initial load of query
-        const queryRef1 = loadQuery(
+        const queryRef1 = loadQuery<$FlowFixMe, _>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -438,7 +442,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         expect(environment.executeWithSource).toBeCalledTimes(1);
 
         // Start second load of query
-        const queryRef2 = loadQuery(
+        const queryRef2 = loadQuery<$FlowFixMe, _>(
           environment,
           preloadableConcreteRequest,
           variables,

@@ -30,6 +30,9 @@ pub struct Interface {
 }
 
 impl Interface {
+    /// Return all objects that implement, directly or recursively, a given interface.
+    /// The iteration order of the HashSet might depend on the order in which schema files
+    /// are processed. It should not be relied upon when generating artifacts.
     pub fn recursively_implementing_objects(&self, schema: &impl Schema) -> HashSet<ObjectID> {
         // Note: we do not have the InterfaceID of self. This is awkward, and means that we cannot
         // prevent the loop below from visiting self if there is a recursive relationship

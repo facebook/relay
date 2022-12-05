@@ -230,6 +230,7 @@ fn enforce_selections_with_id_field(
 }
 
 pub const FETCHABLE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {
-    description: "@fetchable type",
+    // T138625502 we should support interfaces and maybe unions
+    description: "server objects with the @fetchable directive",
     build_refetch_operation,
 };

@@ -80,6 +80,16 @@ fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
     assert!(completion_labels.is_empty());
 }
 
+fn assert_no_typename_label(items: Option<Vec<CompletionItem>>) {
+    assert!(
+        items
+            .unwrap()
+            .into_iter()
+            .all(|item| item.label != "__typename"),
+        "__typename is invalid on root types"
+    );
+}
+
 #[test]
 fn scalar_field() {
     let items = parse_and_resolve_completion_items(
@@ -234,8 +244,8 @@ fn whitespace_in_interface() {
             "source",
             "node",
             "__typename",
-            "...on CommentsEdgeInterface",
-            "...on CommentsEdge",
+            "... on CommentsEdgeInterface",
+            "... on CommentsEdge",
             "...ImplementingFragment",
             "...InterfaceFragment",
         ],
@@ -270,9 +280,9 @@ fn whitespace_in_union() {
         items.unwrap(),
         vec![
             "__typename",
-            "...on CommentBody",
-            "...on PlainCommentBody",
-            "...on MarkdownCommentBody",
+            "... on CommentBody",
+            "... on PlainCommentBody",
+            "... on MarkdownCommentBody",
             "...UnionFragment",
             "...UnionVariantFragment",
         ],
@@ -284,7 +294,7 @@ fn inline_fragment_on_object() {
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on Viewer {
-                ...on |a
+                ... on |a
             }
         "#,
         None,
@@ -297,14 +307,14 @@ fn inline_fragment_on_interface() {
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on Named {
-                ...on |a
+                ... on |a
             }
         "#,
         None,
     );
     assert_labels(
         items.unwrap(),
-        vec!["...on Named", "...on User", "...on SimpleNamed"],
+        vec!["... on Named", "... on User", "... on SimpleNamed"],
     );
 }
 
@@ -313,7 +323,7 @@ fn inline_fragment_on_interface_with_existing_inline_fragment() {
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on Named {
-                ...on |a {}
+                ... on |a {}
             }
         "#,
         None,
@@ -326,7 +336,7 @@ fn inline_fragment_on_union() {
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on MaybeNode {
-                ...on |a
+                ... on |a
             }
         "#,
         None,
@@ -334,10 +344,10 @@ fn inline_fragment_on_union() {
     assert_labels(
         items.unwrap(),
         vec![
-            "...on MaybeNode",
-            "...on Story",
-            "...on FakeNode",
-            "...on NonNode",
+            "... on MaybeNode",
+            "... on Story",
+            "... on FakeNode",
+            "... on NonNode",
         ],
     );
 }
@@ -347,7 +357,7 @@ fn inline_fragment_on_union_with_existing_inline_fragment() {
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on MaybeNode {
-                ...on |a {}
+                ... on |a {}
             }
         "#,
         None,
@@ -640,6 +650,45 @@ fn argument_value_between_names() {
         )),
     );
     assert_labels(items.unwrap(), vec!["$pictureSize", "$pictureSize2"]);
+}
+
+#[test]
+fn no_typename_on_query() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Query {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
+}
+
+#[test]
+fn no_typename_on_mutation() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
+}
+
+#[test]
+fn no_typename_on_subscription() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Subscription {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
 }
 
 #[test]

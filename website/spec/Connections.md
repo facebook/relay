@@ -304,12 +304,12 @@ EdgesToReturn(allEdges, before, after, first, last):
   * If {first} is set:
     * If {first} is less than 0:
       * Throw an error.
-    * If {edges} has length greater than than {first}:
+    * If {edges} has length greater than {first}:
       * Slice {edges} to be of length {first} by removing edges from the end of {edges}.
   * If {last} is set:
     * If {last} is less than 0:
       * Throw an error.
-    * If {edges} has length greater than than {last}:
+    * If {edges} has length greater than {last}:
       * Slice {edges} to be of length {last} by removing edges from the start of {edges}.
   * Return {edges}.
 

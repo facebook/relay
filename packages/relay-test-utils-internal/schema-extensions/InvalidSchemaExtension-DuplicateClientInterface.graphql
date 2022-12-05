@@ -1,0 +1,46 @@
+# This serves as a fixture to show that we currently do not
+# catch the following invalid GraphQL: duplicated client objects,
+# interfaces, unions, input objects, scalars and enums.
+# Note that for interfaces, client types that implement the interface
+# only need to implement the second instance of the interface.
+
+type DuplicatedObject {
+  field_1: String
+}
+type DuplicatedObject {
+  field_2: String
+}
+
+interface DuplicatedInterface {
+  field_1: String
+}
+interface DuplicatedInterface {
+  field_2: String
+}
+type SomeClientType implements DuplicatedInterface {
+  field_2: String
+}
+
+union DuplicatedUnion = DuplicatedObject | SomeClientType
+union DuplicatedUnion = User | Query
+
+input DuplicatedInput {
+  field_1: String
+}
+input DuplicatedInput {
+  field_2: String
+}
+
+scalar DuplicatedScalar
+scalar DuplicatedScalar
+
+enum DuplicatedEnum {
+  A
+  B
+  C
+}
+enum DuplicatedEnum {
+  D
+  E
+  F
+}

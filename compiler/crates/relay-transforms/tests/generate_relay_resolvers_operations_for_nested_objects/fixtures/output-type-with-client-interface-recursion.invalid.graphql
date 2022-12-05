@@ -24,6 +24,12 @@ type PopStarName {
 
 interface IStageName {
   value: String
+  stage_name: IStageName
+}
+
+type Foo implements IStageName {
+  value: String
+  stage_name: IStageName
 }
 
 extend type User {

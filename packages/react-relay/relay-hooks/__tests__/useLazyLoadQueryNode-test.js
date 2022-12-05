@@ -51,7 +51,7 @@ const {
 const defaultFetchPolicy = 'network-only';
 
 function expectToBeRendered(
-  renderFn: JestMockFn<Array<any>, any>,
+  renderFn: JestMockFn<$ReadOnlyArray<any>, any>,
   readyState: ?SelectorData,
 ) {
   // Ensure useEffect is called before other timers

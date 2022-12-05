@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
 import type {
   IActorEnvironment,

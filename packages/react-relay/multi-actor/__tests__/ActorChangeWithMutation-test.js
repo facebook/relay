@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
 import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';

@@ -857,17 +857,17 @@ fn completion_items_for_request(
                 .arguments
                 .iter()
                 .find(|argument| argument.name() == name)?;
+
             let mut input_object = resolve_root_input_field(schema, &field_argument.type_)?;
 
             for input_field_name in input_field_path.iter() {
                 input_object = resolve_input_field(schema, input_object, input_field_name)?;
             }
 
-            Some(resolve_completion_items_for_argument_name(
-                input_object.fields.iter(),
+            Some(resolve_completion_items_for_input_object(
+                input_object,
                 schema,
                 existing_names,
-                false,
             ))
         }
     }
@@ -881,6 +881,50 @@ fn resolve_completion_items_typename(type_: Type, schema: &SDLSchema) -> Vec<Com
         item.kind = Some(CompletionItemKind::FIELD);
         vec![item]
     }
+}
+
+fn resolve_completion_items_for_input_object(
+    input_object: &InputObject,
+    schema: &SDLSchema,
+    existing_names: FnvHashSet<StringKey>,
+) -> Vec<CompletionItem> {
+    input_object
+        .fields
+        .iter()
+        .filter(|arg| !existing_names.contains(&arg.name()))
+        .map(|arg| {
+            let label = arg.name().lookup().to_string();
+            let detail = schema.get_type_string(arg.type_());
+            let kind = match arg.type_().inner() {
+                Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
+                Type::Scalar(_) => Some(CompletionItemKind::FIELD),
+                _ => None,
+            };
+
+            CompletionItem {
+                label: label.clone(),
+                kind,
+                detail: Some(detail),
+                documentation: None,
+                deprecated: None,
+                preselect: None,
+                sort_text: None,
+                filter_text: None,
+                insert_text: Some(format!("{}: $1", label)),
+                insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
+                text_edit: None,
+                additional_text_edits: None,
+                command: Some(lsp_types::Command::new(
+                    "Suggest".into(),
+                    "editor.action.triggerSuggest".into(),
+                    None,
+                )),
+                data: None,
+                tags: None,
+                ..Default::default()
+            }
+        })
+        .collect()
 }
 
 fn resolve_completion_items_for_argument_name<T: ArgumentLike>(

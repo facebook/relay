@@ -125,23 +125,33 @@ fn get_fetchable_field_name(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
 ) -> DiagnosticsResult<Option<StringKey>> {
-    if let Type::Object(id) = fragment.type_condition {
-        let object = schema.object(id);
-        if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
-            let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
-            if let Some(field_name_arg) = field_name_arg {
-                if let Some(value) = field_name_arg.value.get_string_literal() {
-                    return Ok(Some(value));
-                }
-            }
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidRefetchDirectiveDefinition {
-                    fragment_name: fragment.name.item.0,
-                },
-                fragment.name.location,
-            )]);
+    let fetchable_directive = match fragment.type_condition {
+        Type::Interface(interface_id) => {
+            let interface = schema.interface(interface_id);
+            interface.directives.named(CONSTANTS.fetchable)
         }
+        Type::Object(object_id) => {
+            let object = schema.object(object_id);
+            object.directives.named(CONSTANTS.fetchable)
+        }
+        _ => None,
+    };
+
+    if let Some(fetchable) = fetchable_directive {
+        let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
+        if let Some(field_name_arg) = field_name_arg {
+            if let Some(value) = field_name_arg.value.get_string_literal() {
+                return Ok(Some(value));
+            }
+        }
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::InvalidRefetchDirectiveDefinition {
+                fragment_name: fragment.name.item,
+            },
+            fragment.name.location,
+        )]);
     }
+
     Ok(None)
 }
 
@@ -231,6 +241,6 @@ fn enforce_selections_with_id_field(
 
 pub const FETCHABLE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {
     // T138625502 we should support interfaces and maybe unions
-    description: "server objects with the @fetchable directive",
+    description: "server objects and interfaces with the @fetchable directive",
     build_refetch_operation,
 };

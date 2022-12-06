@@ -9,7 +9,7 @@ fragment UserName on UserNameRenderable
  - the Viewer type
  - the Query type
  - the Node interface, object types that implement the Node interface, interfaces whose implementing objects all implement Node, and unions whose members all implement Node
- - server objects with the @fetchable directive
+ - server objects and interfaces with the @fetchable directive
 
   fragment-on-interface-which-implementations-not-implement-node.invalid.graphql:2:10
     1 │ # expected-to-throw

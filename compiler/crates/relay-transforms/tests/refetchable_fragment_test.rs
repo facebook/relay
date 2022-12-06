@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a4ac9b5a5be2f2b7e2e1b3dc40f11ab3>>
+ * @generated SignedSource<<5d6010d9b0356775854a925e90881577>>
  */
 
 mod refetchable_fragment;
@@ -171,4 +171,32 @@ fn refetchable_fragment_with_connection_with_stream() {
     let input = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-stream.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-stream.expected");
     test_fixture(transform_fixture, "refetchable-fragment-with-connection-with-stream.graphql", "refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-stream.expected", input, expected);
+}
+
+#[test]
+fn refetchable_interface() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-interface.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-interface.expected");
+    test_fixture(transform_fixture, "refetchable-interface.graphql", "refetchable_fragment/fixtures/refetchable-interface.expected", input, expected);
+}
+
+#[test]
+fn refetchable_interface_all_implementing_types_impl_node() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-interface-all-implementing-types-impl-node.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-interface-all-implementing-types-impl-node.expected");
+    test_fixture(transform_fixture, "refetchable-interface-all-implementing-types-impl-node.graphql", "refetchable_fragment/fixtures/refetchable-interface-all-implementing-types-impl-node.expected", input, expected);
+}
+
+#[test]
+fn refetchable_interface_but_no_implementing_types() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-interface-but-no-implementing-types.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-interface-but-no-implementing-types.expected");
+    test_fixture(transform_fixture, "refetchable-interface-but-no-implementing-types.graphql", "refetchable_fragment/fixtures/refetchable-interface-but-no-implementing-types.expected", input, expected);
+}
+
+#[test]
+fn refetchable_interface_some_types_impl_node() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-interface-some-types-impl-node.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-interface-some-types-impl-node.expected");
+    test_fixture(transform_fixture, "refetchable-interface-some-types-impl-node.graphql", "refetchable_fragment/fixtures/refetchable-interface-some-types-impl-node.expected", input, expected);
 }

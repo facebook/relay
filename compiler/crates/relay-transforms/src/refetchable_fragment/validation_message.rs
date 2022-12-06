@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::VariableName;
 use intern::string_key::StringKey;
 use thiserror::Error;
@@ -76,10 +77,13 @@ pub(super) enum ValidationMessage {
     )]
     InvalidViewerSchemaForRefetchableFragmentOnViewer { fragment_name: StringKey },
 
+    // T139416294 this error message doesn't appear to be accurate
     #[error(
-        "Invalid use of @refetchable with @connection in fragment '{fragment_name}', check that your schema defines a `directive @fetchable(field_name: String!) on OBJECT`."
+        "Invalid use of @refetchable with @connection in fragment '{fragment_name}', check that your schema defines a `directive @fetchable(field_name: String!) on OBJECT` or on `INTERFACE`."
     )]
-    InvalidRefetchDirectiveDefinition { fragment_name: StringKey },
+    InvalidRefetchDirectiveDefinition {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', the type '{type_name}' is @fetchable but the identifying field '{identifier_field_name}' does not have type 'ID'."

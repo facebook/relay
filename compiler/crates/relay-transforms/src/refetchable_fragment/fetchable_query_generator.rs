@@ -14,6 +14,7 @@ use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Value;
@@ -44,7 +45,7 @@ fn build_refetch_operation(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let id_name = schema_config.node_interface_id_field;
@@ -84,7 +85,7 @@ fn build_refetch_operation(
         if let Some(id_argument) = variable_definitions.named(VariableName(id_name)) {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
-                    fragment_name: fragment.name.item.0,
+                    fragment_name: fragment.name.item,
                 },
                 id_argument.name.location,
             )]);
@@ -169,7 +170,7 @@ fn get_identifier_field_id(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchIdentifyingField {
-            fragment_name: fragment.name.item.0,
+            fragment_name: fragment.name.item,
             identifier_field_name,
             type_name: schema.get_type_name(fragment.type_condition),
         },
@@ -200,7 +201,7 @@ fn get_fetch_field_id_and_id_arg<'s>(
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchFetchField {
             fetch_field_name,
-            fragment_name: fragment.name.item.0,
+            fragment_name: fragment.name.item,
             type_name: schema.get_type_name(fragment.type_condition),
         },
         fragment.name.location,

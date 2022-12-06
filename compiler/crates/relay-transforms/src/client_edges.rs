@@ -25,7 +25,6 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
-use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -275,7 +274,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     kind: OperationKind::Query,
                     name: WithLocation::new(
                         document_name.location,
-                        OperationDefinitionName(refetchable_directive.query_name.item),
+                        refetchable_directive.query_name.item,
                     ),
                     type_: query_type,
                     variable_definitions: refetchable_root.variable_definitions,

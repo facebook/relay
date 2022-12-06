@@ -38,7 +38,9 @@ query RefetchableFragmentQuery(
 
 fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [
 #         "fetch__RefetchableInterface",
 #     ],

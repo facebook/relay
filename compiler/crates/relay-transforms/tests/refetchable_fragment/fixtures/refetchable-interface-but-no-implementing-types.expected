@@ -33,7 +33,9 @@ query RefetchableFragmentFooQuery(
 
 fragment RefetchableFragmentFoo on RefetchableInterfaceFoo @refetchable(queryName: "RefetchableFragmentFooQuery") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentFooQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentFooQuery",
+#     ),
 #     path: [
 #         "node",
 #     ],

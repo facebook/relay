@@ -62,7 +62,9 @@ query RefetchableFragmentQuery2(
 
 fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [
 #         "fetch__RefetchableInterface",
 #     ],
@@ -77,7 +79,9 @@ fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "Re
 
 fragment RefetchableFragment2 on RefetchableInterface2 @refetchable(queryName: "RefetchableFragmentQuery2") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery2",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery2",
+#     ),
 #     path: [
 #         "fetch__RefetchableInterface2",
 #     ],

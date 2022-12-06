@@ -48,7 +48,9 @@ fragment Foo_user on User {
 
 fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "ClientEdgeQuery_Foo_user_best_friend",
+#     operation_name: OperationDefinitionName(
+#         "ClientEdgeQuery_Foo_user_best_friend",
+#     ),
 #     path: [
 #         "node",
 #     ],

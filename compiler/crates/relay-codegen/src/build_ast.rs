@@ -432,7 +432,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 .collect(),
                         ),
                     ),
-                operation: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name),
+                operation: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name.0),
             };
             if let Some(identifier_field) = refetch_metadata.identifier_field {
                 refetch_object.push(ObjectEntry {

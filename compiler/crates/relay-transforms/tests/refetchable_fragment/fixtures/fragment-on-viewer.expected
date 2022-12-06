@@ -36,7 +36,9 @@ fragment ProfilePicture on User {
 
 fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [
 #         "viewer",
 #     ],

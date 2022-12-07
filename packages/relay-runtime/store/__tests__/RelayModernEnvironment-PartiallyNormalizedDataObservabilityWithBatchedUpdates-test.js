@@ -71,6 +71,7 @@ describe('execute() a query with @module if the module fragment is available syn
       _cacheConfig: CacheConfig,
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -191,6 +192,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
       _cacheConfig: CacheConfig,
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -331,6 +333,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       _cacheConfig: CacheConfig,
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

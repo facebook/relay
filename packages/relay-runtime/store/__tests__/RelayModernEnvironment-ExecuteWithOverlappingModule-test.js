@@ -133,6 +133,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       _cacheConfig: CacheConfig,
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

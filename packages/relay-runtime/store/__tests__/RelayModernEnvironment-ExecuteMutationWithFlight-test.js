@@ -155,10 +155,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ),
         };
         source = RelayRecordSource.create();
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         store = new RelayModernStore(source, {operationLoader});
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           operationLoader,
           reactFlightPayloadDeserializer,
         });
@@ -167,6 +169,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
                 network: RelayNetwork.create(fetch),
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 operationLoader,
                 store,
                 reactFlightPayloadDeserializer,
@@ -342,6 +345,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             const multiActorEnvironment = new MultiActorEnvironment({
               createNetworkForActor: _actorID => RelayNetwork.create(fetch),
               createStoreForActor: _actorID => store,
+              // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
               operationLoader,
               reactFlightPayloadDeserializer,
               reactFlightServerErrorHandler,
@@ -353,6 +357,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   )
                 : new RelayModernEnvironment({
                     network: RelayNetwork.create(fetch),
+                    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                     operationLoader,
                     store,
                     reactFlightPayloadDeserializer,

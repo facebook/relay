@@ -127,6 +127,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
         const multiActorEnvironment = new MultiActorEnvironment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
         });
@@ -134,6 +135,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environmentType === 'MultiActorEnvironment'
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 network: RelayNetwork.create(fetch),
                 store,
               });
@@ -502,6 +504,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         environment = new RelayModernEnvironment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           network: RelayNetwork.create(fetch),
           store,
           treatMissingFieldsAsNull: true,

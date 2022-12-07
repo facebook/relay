@@ -70,6 +70,7 @@ describe('execute() a query with @module if the module fragment is available syn
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -189,6 +190,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -328,6 +330,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -335,6 +338,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
 
     promise = new Promise(_resolve => (resolve = _resolve));
     operationLoader = {
+      // $FlowFixMe[incompatible-type-arg] Error found while enabling LTI on this file
       load: () => promise,
       get: jest.fn(),
     };

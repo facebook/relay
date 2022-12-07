@@ -231,6 +231,7 @@ describe('requestSubscription-test', () => {
       const source = RelayRecordSource.create({});
       const store = new RelayModernStore(source);
       environment = new RelayModernEnvironment({
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         network: RelayNetwork.create(fetch, fetch),
         store,
       });

@@ -28,6 +28,7 @@ test('send a network request with actor specific params', () => {
   const actorIdentifier = getDefaultActorIdentifier();
   const fetchFn = jest.fn(() => new Promise(jest.fn()));
   const multiActorEnvironment = new MultiActorEnvironment({
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
     requiredFieldLogger: jest.fn(),
@@ -53,6 +54,7 @@ test('send a network request with actor specific params', () => {
   expect(fetchFn).toBeCalled();
 
   expect(fetchFn.mock.calls.length).toEqual(1);
+  // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
   expect(fetchFn.mock.calls[0][0].name).toBe(
     'actorEnvironmentExecuteTestQuery',
   );

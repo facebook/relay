@@ -68,6 +68,7 @@ beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
+    // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
@@ -84,6 +85,7 @@ beforeEach(() => {
     return observable;
   });
 
+  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
   environment = createMockEnvironment({network: Network.create(fetch)});
 
   const originalExecuteWithSource =
@@ -134,6 +136,7 @@ describe('when loading and disposing same query multiple times', () => {
         </React.Suspense>
       );
     };
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     const Container = function ({initialPreloadedQuery = undefined}: {}) {
       return (
         <RelayEnvironmentProvider environment={environment}>

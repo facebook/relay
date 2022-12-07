@@ -111,6 +111,7 @@ beforeEach(() => {
     }),
   );
   environment = new Environment({
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     network: Network.create(fetch),
     store: new Store(new RecordSource()),
   });

@@ -156,6 +156,7 @@ describe.each([
     });
     const disposable = environment.subscribe(
       snapshot,
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       environmentUpdateHandler,
     );
 
@@ -227,6 +228,7 @@ describe.each([
     });
     const disposable = environment.subscribe(
       snapshot,
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       environmentUpdateHandler,
     );
 

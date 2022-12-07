@@ -109,6 +109,7 @@ describe('executeMutation()', () => {
       }),
     );
     environment = new MultiActorEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       createNetworkForActor: _id => RelayNetwork.create(fetch),
     }).forActor(
       // $FlowFixMe
@@ -479,6 +480,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     environment = new MultiActorEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       createNetworkForActor: _id => RelayNetwork.create(fetch),
       treatMissingFieldsAsNull: true,
     }).forActor(

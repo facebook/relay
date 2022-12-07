@@ -164,6 +164,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         }
       `;
       const ProfilePicture = createFragmentContainer(
+        // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
         props => {
           return (
             <img

@@ -47,6 +47,7 @@ describe('ClientEdges', () => {
   let fetchFn;
   beforeEach(() => {
     fetchFn = jest.fn(() =>
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       RelayObservable.create(sink => {
         networkSink = sink;
       }),
@@ -67,6 +68,7 @@ describe('ClientEdges', () => {
           },
         }),
       ),
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: Network.create(fetchFn),
     });
   });
@@ -107,10 +109,12 @@ describe('ClientEdges', () => {
     });
     expect(fetchFn.mock.calls.length).toEqual(1);
     // We should send the client-edge query
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetchFn.mock.calls[0][0].name).toBe(
       'ClientEdgeQuery_ClientEdgesTest1Query_me__client_node',
     );
     // Check variables
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetchFn.mock.calls[0][1]).toEqual(variables);
     expect(renderer?.toJSON()).toBe('Loading');
 
@@ -166,10 +170,12 @@ describe('ClientEdges', () => {
     });
     expect(fetchFn.mock.calls.length).toEqual(1);
     // We should send the client-edge query
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetchFn.mock.calls[0][0].name).toBe(
       'ClientEdgeQuery_ClientEdgesTest2Query_me__client_node',
     );
     // Check variables
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetchFn.mock.calls[0][1]).toEqual(variables);
     expect(renderer?.toJSON()).toBe('Loading');
 
@@ -225,10 +231,12 @@ describe('ClientEdges', () => {
     });
     expect(fetchFn.mock.calls.length).toEqual(1);
     // We should send the client-edge query
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetchFn.mock.calls[0][0].name).toBe(
       'ClientEdgeQuery_ClientEdgesTest3Query_me__client_node',
     );
     // Check variables
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetchFn.mock.calls[0][1]).toEqual(variables);
     expect(renderer?.toJSON()).toBe('Loading');
 

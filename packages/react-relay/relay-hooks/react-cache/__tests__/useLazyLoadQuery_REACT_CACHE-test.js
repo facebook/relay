@@ -748,12 +748,11 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
                 container.update(
                   <Cache>
                     <Wrappers env={environment}>
-                      {
-                        // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
-                        new Array(numberOfComponents).fill().map((a, k) => (
+                      {new Array<void>(numberOfComponents)
+                        .fill()
+                        .map((a, k) => (
                           <TestComponent key={k} output={k === 0} />
-                        ))
-                      }
+                        ))}
                     </Wrappers>
                   </Cache>,
                 );

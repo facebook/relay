@@ -247,7 +247,7 @@ type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear
 type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
 export type ResolverNormalizationInfo = {
-  +concreteType: string,
+  +concreteType: string | null,
   +plural: boolean,
   +normalizationNode: NormalizationSelectableNode,
 };

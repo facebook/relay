@@ -1092,8 +1092,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 self.definition_source_location,
                 path_for_artifact.to_str().unwrap().intern(),
             );
+            let concrete_type = if normalization_info.inner_type.is_abstract_type() {
+                Primitive::Null
+            } else {
+                Primitive::String(self.schema.get_type_name(normalization_info.inner_type))
+            };
+
             let normalization_info = object! {
-                concrete_type: Primitive::String(normalization_info.type_name),
+                concrete_type: concrete_type,
                 plural: Primitive::Bool(normalization_info.plural),
                 normalization_node: Primitive::GraphQLModuleDependency(normalization_import_path),
             };

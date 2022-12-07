@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dd3f2ed4f03c6630d6c37647415dbd0e>>
+ * @generated SignedSource<<8d6be460861aa843b3ed594f98e1b612>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -114,7 +114,7 @@ return {
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', false),
             "path": "some_interface",
             "normalizationInfo": {
-              "concreteType": "ClientInterface",
+              "concreteType": null,
               "plural": false,
               "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_interface$normalization.graphql')
             }

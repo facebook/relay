@@ -45,7 +45,7 @@ fragment Foo_user on User {
     #     output_type_info: Some(
     #         Composite(
     #             ResolverNormalizationInfo {
-    #                 type_name: "ClientUser",
+    #                 inner_type: Object(78),
     #                 plural: false,
     #                 normalization_operation: WithLocation {
     #                     location: <generated>:59:70,

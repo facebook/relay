@@ -336,9 +336,10 @@ describe.each([
 
     // This incorrectly currently reads out just the typename from resolvers which
     // return interface fields
-    expect(response.fancy_description?.some_interface).toEqual(
-      'client:ClientTypeImplementingClientInterface:client:TodoDescription:client:TodoModel:todo-1:fancy_description:some_interface',
-    );
+    expect(response.fancy_description?.some_interface).toEqual({
+      __typename: 'ClientTypeImplementingClientInterface',
+      description: 'It was a magical place',
+    });
 
     // However, for resolvers which return objects that contain interface fields,
     // we correctly read out the data.

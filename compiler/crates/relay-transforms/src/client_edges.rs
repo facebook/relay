@@ -363,7 +363,10 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                             field.alias_or_name_location(),
                         ));
                     }
-                    return self.default_transform_linked_field(field);
+                    ClientEdgeMetadataDirective::ClientObject {
+                        type_name: None,
+                        unique_id: self.get_key(),
+                    }
                 }
                 Type::Union(_) => {
                     self.errors.push(Diagnostic::error(

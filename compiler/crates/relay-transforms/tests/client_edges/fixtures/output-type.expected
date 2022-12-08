@@ -26,8 +26,10 @@ fragment BestFriendResolverFragment_name on User {
 fragment Foo_user on User {
   ... @__ClientEdgeMetadataDirective
   # ClientObject {
-  #     type_name: ObjectName(
-  #         "ClientUser",
+  #     type_name: Some(
+  #         ObjectName(
+  #             "ClientUser",
+  #         ),
   #     ),
   #     unique_id: 0,
   # }

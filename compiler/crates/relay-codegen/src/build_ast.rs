@@ -1331,9 +1331,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }))
             }
             ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
+                let concrete_type = match type_name {
+                    Some(type_name) => Primitive::String(type_name.0),
+                    None => Primitive::Null,
+                };
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                    concrete_type: Primitive::String(type_name.0),
+                    concrete_type: concrete_type,
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
                 }))

@@ -74,7 +74,7 @@ pub enum ClientEdgeMetadataDirective {
         unique_id: u32,
     },
     ClientObject {
-        type_name: ObjectName,
+        type_name: Option<ObjectName>,
         unique_id: u32,
     },
 }
@@ -373,7 +373,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     return Transformed::Keep;
                 }
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
-                    type_name: schema.object(object_id).name.item,
+                    type_name: Some(schema.object(object_id).name.item),
                     unique_id: self.get_key(),
                 },
                 _ => {

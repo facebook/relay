@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {readUpdatableFragmentEXPERIMENTALTestRegularQuery} from './__generated__/readUpdatableFragmentEXPERIMENTALTestRegularQuery.graphql';
+import type {readUpdatableFragmentTestRegularQuery} from './__generated__/readUpdatableFragmentTestRegularQuery.graphql';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const {graphql} = require('../../query/GraphQLTag');
@@ -24,13 +24,10 @@ const RelayReader = require('../../store/RelayReader');
 const RelayRecordSource = require('../../store/RelayRecordSource');
 const commitLocalUpdate = require('../commitLocalUpdate');
 const regularQuery = graphql`
-  query readUpdatableFragmentEXPERIMENTALTestRegularQuery(
-    $if2: Boolean
-    $if3: Boolean
-  ) {
+  query readUpdatableFragmentTestRegularQuery($if2: Boolean, $if3: Boolean) {
     me {
-      ...readUpdatableFragmentEXPERIMENTALTest_user
-      ...readUpdatableFragmentEXPERIMENTALTest_2_user
+      ...readUpdatableFragmentTest_user
+      ...readUpdatableFragmentTest_2_user
       firstName
       firstName2: firstName(if: $if2)
       firstName3: firstName(if: $if3)
@@ -39,14 +36,14 @@ const regularQuery = graphql`
 `;
 
 const updatableFragment = graphql`
-  fragment readUpdatableFragmentEXPERIMENTALTest_user on User @updatable {
+  fragment readUpdatableFragmentTest_user on User @updatable {
     firstName
     firstName2: firstName(if: $if2)
   }
 `;
 
 const updatableFragment2 = graphql`
-  fragment readUpdatableFragmentEXPERIMENTALTest_2_user on User @updatable {
+  fragment readUpdatableFragmentTest_2_user on User @updatable {
     firstName2: firstName(if: $if2)
     firstName3: firstName(if: $if3)
   }
@@ -84,7 +81,7 @@ describe('readUpdatableFragment', () => {
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableFragmentEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableFragmentTestRegularQuery['response']);
 
     const me = readOnlyData.me;
     if (me == null) {
@@ -94,7 +91,7 @@ describe('readUpdatableFragment', () => {
     expect(me.firstName2).toBe('Twain');
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableFragment_EXPERIMENTAL(
+      const updatableData = store.readUpdatableFragment(
         updatableFragment,
         me,
       ).updatableData;
@@ -110,7 +107,7 @@ describe('readUpdatableFragment', () => {
     });
 
     const readOnlyData2 = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableFragmentEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableFragmentTestRegularQuery['response']);
     expect(readOnlyData2?.me?.firstName).toBe('Rita');
     expect(readOnlyData2?.me?.firstName2).toBe('Repulsa');
   });
@@ -129,7 +126,7 @@ describe('readUpdatableFragment', () => {
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableFragmentEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableFragmentTestRegularQuery['response']);
 
     const me = readOnlyData.me;
     if (me == null) {
@@ -139,7 +136,7 @@ describe('readUpdatableFragment', () => {
     expect(me.firstName3).toBe('Wahlburg');
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableFragment_EXPERIMENTAL(
+      const updatableData = store.readUpdatableFragment(
         updatableFragment2,
         me,
       ).updatableData;
@@ -155,7 +152,7 @@ describe('readUpdatableFragment', () => {
     });
 
     const readOnlyData2 = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableFragmentEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableFragmentTestRegularQuery['response']);
     expect(readOnlyData2?.me?.firstName2).toBe('Lord');
     expect(readOnlyData2?.me?.firstName3).toBe('Zedd');
   });

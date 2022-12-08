@@ -27,7 +27,7 @@ const {createUpdatableProxy} = require('./createUpdatableProxy');
 const invariant = require('invariant');
 
 // Note: plural fragment references are currently not supported
-function readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+function readUpdatableFragment<TFragmentType: FragmentType, TData>(
   fragment: UpdatableFragment<TFragmentType, TData>,
   fragmentReference: HasUpdatableSpread<TFragmentType>,
   proxy: RecordSourceProxy,
@@ -59,4 +59,4 @@ function readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
   };
 }
 
-module.exports = {readUpdatableFragment_EXPERIMENTAL};
+module.exports = {readUpdatableFragment};

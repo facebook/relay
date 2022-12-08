@@ -482,7 +482,7 @@ export interface ReadOnlyRecordProxy {
 /**
  * A linked field where an updatable fragment is spread has the type
  * HasUpdatableSpread.
- * This type is expected by store.readUpdatableFragment_EXPERIMENTAL.
+ * This type is expected by store.readUpdatableFragment.
  */
 export type HasUpdatableSpread<TFragmentType> = {
   +$updatableFragmentSpreads: TFragmentType,
@@ -491,7 +491,7 @@ export type HasUpdatableSpread<TFragmentType> = {
 
 /**
  * The return type of calls to readUpdatableQuery_EXPERIMENTAL and
- * readUpdatableFragment_EXPERIMENTAL.
+ * readUpdatableFragment.
  */
 export type UpdatableData<TData> = {
   +updatableData: TData,
@@ -513,7 +513,7 @@ export interface RecordSourceProxy {
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
   ): UpdatableData<TData>;
-  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+  readUpdatableFragment<TFragmentType: FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
   ): UpdatableData<TData>;

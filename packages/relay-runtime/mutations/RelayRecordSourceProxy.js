@@ -186,6 +186,18 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     );
   }
 
+  readUpdatableQuery<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): UpdatableData<TData> {
+    return readUpdatableQuery_EXPERIMENTAL(
+      query,
+      variables,
+      this,
+      this._missingFieldHandlers,
+    );
+  }
+
   readUpdatableFragment<TFragmentType: FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,

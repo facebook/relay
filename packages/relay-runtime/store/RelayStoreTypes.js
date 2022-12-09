@@ -509,6 +509,10 @@ export interface RecordSourceProxy {
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
   invalidateStore(): void;
+  readUpdatableQuery<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): UpdatableData<TData>;
   readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,

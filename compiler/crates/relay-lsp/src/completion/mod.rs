@@ -48,6 +48,7 @@ use lsp_types::Documentation;
 use lsp_types::InsertTextFormat;
 use lsp_types::MarkupContent;
 use lsp_types::MarkupKind;
+use resolution_path::ResolvePosition;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
 use schema::InputObject;
@@ -86,7 +87,7 @@ pub enum CompletionKind {
     InlineFragmentType {
         existing_inline_fragment: bool,
     },
-    InputFieldName {
+    InputObjectFieldName {
         name: StringKey,
         existing_names: FnvHashSet<StringKey>,
         input_field_path: Vec<StringKey>,
@@ -368,114 +369,111 @@ impl CompletionRequestBuilder {
         &self,
         position_span: Span,
         type_path: Vec<TypePathItem>,
-        mut existing_names: FnvHashSet<StringKey>,
         mut input_field_path: Vec<StringKey>,
         constant_value: &ConstantValue,
         name: StringKey,
     ) -> Option<CompletionRequest> {
         match constant_value {
-            ConstantValue::List(list) => {
-                for item in list.items.iter() {
-                    if item.span().contains(position_span) {
-                        return self.build_request_from_constant_input_value(
-                            position_span,
-                            type_path,
-                            existing_names,
-                            input_field_path,
-                            item,
-                            name,
-                        );
-                    }
-                }
-            }
+            ConstantValue::List(list) => list
+                .items
+                .iter()
+                .find(|arg| arg.span().contains(position_span))
+                .map(|constant_value| {
+                    self.build_request_from_constant_input_value(
+                        position_span,
+                        type_path,
+                        input_field_path,
+                        constant_value,
+                        name,
+                    )
+                }),
             ConstantValue::Object(arguments) => {
-                for item in arguments.items.iter() {
-                    if item.span.contains(position_span) {
-                        input_field_path.push(item.name());
-                        return self.build_request_from_constant_input_value(
-                            position_span,
-                            type_path,
-                            Default::default(),
-                            input_field_path,
-                            &item.value,
+                if let Some(constant_argument) = arguments
+                    .items
+                    .iter()
+                    .find(|arg| arg.span.contains(position_span))
+                {
+                    input_field_path.push(constant_argument.name());
+                    self.build_request_from_constant_input_value(
+                        position_span,
+                        type_path,
+                        input_field_path,
+                        &arg.value,
+                        name,
+                    )
+                } else {
+                    Some(self.new_request(
+                        CompletionKind::InputObjectFieldName {
                             name,
-                        );
-                    }
+                            existing_names:
+                                arguments.items.iter().map(|item| item.name()).collect(),
+                            input_field_path,
+                        },
+                        type_path,
+                    ))
                 }
-                existing_names = arguments.items.iter().map(|item| item.name()).collect();
             }
-            _ => {}
-        };
-        Some(self.new_request(
-            CompletionKind::InputFieldName {
-                name,
-                existing_names,
-                input_field_path,
-            },
-            type_path,
-        ))
+            _ => None,
+        }
     }
 
     fn build_request_from_input_value(
         &self,
         position_span: Span,
         type_path: Vec<TypePathItem>,
-        mut existing_names: FnvHashSet<StringKey>,
         mut input_field_path: Vec<StringKey>,
         value: &Value,
         name: StringKey,
     ) -> Option<CompletionRequest> {
         match value {
-            Value::List(list) => {
-                for item in list.items.iter() {
-                    if item.span().contains(position_span) {
-                        return self.build_request_from_input_value(
-                            position_span,
-                            type_path,
-                            Default::default(),
-                            input_field_path,
-                            item,
-                            name,
-                        );
-                    }
-                }
-            }
+            Value::List(list) => list
+                .items
+                .iter()
+                .find(|arg| arg.span().contains(position_span))
+                .map(|value| {
+                    self.build_request_from_input_value(
+                        position_span,
+                        type_path,
+                        input_field_path,
+                        value,
+                        name,
+                    )
+                }),
             Value::Object(arguments) => {
-                for item in arguments.items.iter() {
-                    if item.span.contains(position_span) {
-                        input_field_path.push(item.name());
-                        return self.build_request_from_input_value(
-                            position_span,
-                            type_path,
-                            Default::default(),
-                            input_field_path,
-                            &item.value,
+                if let Some(position_argument) = arguments
+                    .items
+                    .iter()
+                    .find(|arg| arg.span.contains(position_span))
+                {
+                    input_field_path.push(position_argument.name());
+                    self.build_request_from_input_value(
+                        position_span,
+                        type_path,
+                        input_field_path,
+                        &position_argument.value,
+                        name,
+                    )
+                } else {
+                    Some(self.new_request(
+                        CompletionKind::InputObjectFieldName {
                             name,
-                        );
-                    }
+                            existing_names:
+                                arguments.items.iter().map(|item| item.name()).collect(),
+                            input_field_path,
+                        },
+                        type_path,
+                    ))
                 }
-                existing_names = arguments.items.iter().map(|item| item.name()).collect();
             }
-            Value::Constant(constant_value) => {
-                return self.build_request_from_constant_input_value(
-                    position_span,
-                    type_path,
-                    existing_names,
-                    input_field_path,
-                    constant_value,
-                    name,
-                );
-            }
-            _ => return None,
-        };
-        Some(self.new_request(
-            CompletionKind::InputFieldName {
-                name,
-                existing_names,
+            Value::Constant(constant_value) => self.build_request_from_constant_input_value(
+                position_span,
+                type_path,
                 input_field_path,
-            },
-            type_path,
-        ))
+                constant_value,
+                name,
+            ),
+            _ => None,
+        }
     }
 
     fn build_request_from_arguments(
@@ -526,7 +524,6 @@ impl CompletionRequestBuilder {
                                 position_span,
                                 type_path,
                                 Default::default(),
-                                Default::default(),
                                 constant_value,
                                 name.value,
                             ),
@@ -542,7 +539,6 @@ impl CompletionRequestBuilder {
                             position_span,
                             type_path,
                             Default::default(),
-                            vec![],
                             value,
                             name.value,
                         ),
@@ -820,7 +816,7 @@ fn completion_items_for_request(
                 existing_inline_fragment,
             ))
         }
-        CompletionKind::InputFieldName {
+        CompletionKind::InputObjectFieldName {
             name,
             existing_names,
             input_field_path,

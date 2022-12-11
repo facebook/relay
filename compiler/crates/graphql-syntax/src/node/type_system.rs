@@ -10,11 +10,10 @@ use std::fmt;
 use common::Span;
 use intern::string_key::StringKey;
 
-use crate::OperationKind;
-
 use super::constant_directive::ConstantDirective;
 use super::constant_value::ConstantValue;
 use super::constant_value::StringNode;
+use super::executable::OperationKind;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
 

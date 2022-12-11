@@ -105,9 +105,7 @@ impl TypePath {
                             .named_field(type_, name)
                             .map(|field_id| (type_, schema.field(field_id)))
                     }
-                    _ => {
-                        None
-                    }
+                    _ => None,
                 };
             } else {
                 type_ = resolve_relative_type(type_, path_item, schema)?;

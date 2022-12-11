@@ -48,7 +48,6 @@ use lsp_types::Documentation;
 use lsp_types::InsertTextFormat;
 use lsp_types::MarkupContent;
 use lsp_types::MarkupKind;
-use resolution_path::ResolvePosition;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
 use schema::InputObject;
@@ -378,7 +377,7 @@ impl CompletionRequestBuilder {
                 .items
                 .iter()
                 .find(|arg| arg.span().contains(position_span))
-                .map(|constant_value| {
+                .and_then(|constant_value| {
                     self.build_request_from_constant_input_value(
                         position_span,
                         type_path,
@@ -398,7 +397,7 @@ impl CompletionRequestBuilder {
                         position_span,
                         type_path,
                         input_field_path,
-                        &arg.value,
+                        &constant_argument.value,
                         name,
                     )
                 } else {
@@ -430,7 +429,7 @@ impl CompletionRequestBuilder {
                 .items
                 .iter()
                 .find(|arg| arg.span().contains(position_span))
-                .map(|value| {
+                .and_then(|value| {
                     self.build_request_from_input_value(
                         position_span,
                         type_path,

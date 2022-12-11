@@ -175,6 +175,7 @@ it('does not dispose the entry point before the new component tree unsuspends in
     }
 
     function ComponentWithHook() {
+      // $FlowFixMe[incompatible-call]
       [, entryPointLoaderCallback] = useEntryPointLoader(
         defaultEnvironmentProvider,
         defaultEntryPoint,
@@ -279,6 +280,7 @@ it('disposes entry point references associated with previous suspensions when mu
     }
 
     function Inner({promise}: {promise: ?Promise<any>}) {
+      // $FlowFixMe[incompatible-call]
       [, entryPointLoaderCallback] = useEntryPointLoader(
         defaultEnvironmentProvider,
         defaultEntryPoint,
@@ -378,6 +380,7 @@ it('disposes entry point references associated with subsequent suspensions when 
 
     let innerUnsuspendedCorrectly = false;
     function Inner({promise}: {promise: ?Promise<any>}) {
+      // $FlowFixMe[incompatible-call]
       [, entryPointLoaderCallback] = useEntryPointLoader(
         defaultEnvironmentProvider,
         defaultEntryPoint,

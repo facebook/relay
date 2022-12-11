@@ -40,7 +40,9 @@ fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragme
   id: {type: "ID!"}
 ) @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [],
 #     identifier_field: None,
 # }

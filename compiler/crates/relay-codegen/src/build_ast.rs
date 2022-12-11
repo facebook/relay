@@ -432,7 +432,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 .collect(),
                         ),
                     ),
-                operation: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name),
+                operation: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name.0),
             };
             if let Some(identifier_field) = refetch_metadata.identifier_field {
                 refetch_object.push(ObjectEntry {
@@ -1092,8 +1092,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 self.definition_source_location,
                 path_for_artifact.to_str().unwrap().intern(),
             );
+            let concrete_type = if normalization_info.inner_type.is_abstract_type() {
+                Primitive::Null
+            } else {
+                Primitive::String(self.schema.get_type_name(normalization_info.inner_type))
+            };
+
             let normalization_info = object! {
-                concrete_type: Primitive::String(normalization_info.type_name),
+                concrete_type: concrete_type,
                 plural: Primitive::Bool(normalization_info.plural),
                 normalization_node: Primitive::GraphQLModuleDependency(normalization_import_path),
             };
@@ -1325,9 +1331,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }))
             }
             ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
+                let concrete_type = match type_name {
+                    Some(type_name) => Primitive::String(type_name.0),
+                    None => Primitive::Null,
+                };
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                    concrete_type: Primitive::String(type_name.0),
+                    concrete_type: concrete_type,
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
                 }))

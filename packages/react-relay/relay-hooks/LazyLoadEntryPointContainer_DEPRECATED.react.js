@@ -116,6 +116,7 @@ function prepareEntryPoint<
       }
       const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
         entryPointDescription;
+      // $FlowFixMe[incompatible-call]
       preloadedEntryPoints[entryPointPropName] = prepareEntryPoint(
         environmentProvider,
         nestedEntryPoint,

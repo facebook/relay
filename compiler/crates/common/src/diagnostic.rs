@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Write;
@@ -68,6 +69,7 @@ impl Diagnostic {
             tags,
             severity,
             data: Vec::new(),
+            machine_readable: BTreeMap::new(),
         }))
     }
 
@@ -91,6 +93,7 @@ impl Diagnostic {
             severity: DiagnosticSeverity::ERROR,
             related_information: Vec::new(),
             data,
+            machine_readable: BTreeMap::new(),
         }))
     }
 
@@ -136,6 +139,13 @@ impl Diagnostic {
                 message: Box::new(message),
                 location,
             });
+        self
+    }
+
+    pub fn metadata_for_machine(mut self, key: impl AsRef<str>, value: impl AsRef<str>) -> Self {
+        self.0
+            .machine_readable
+            .insert(key.as_ref().to_string(), value.as_ref().to_string());
         self
     }
 
@@ -246,6 +256,9 @@ struct DiagnosticData {
     /// `data` is used in the LSP protocol:
     /// @see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#diagnostic
     data: Vec<Box<dyn DiagnosticDisplay>>,
+
+    /// Metadata with (K,V) are strings that can read by machine
+    machine_readable: BTreeMap<String, String>,
 }
 
 /// Secondary locations attached to a diagnostic.

@@ -102,6 +102,8 @@ beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
+    // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+    // $FlowFixMe[underconstrained-implicit-instantiation]
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
@@ -118,6 +120,7 @@ beforeEach(() => {
     return observable;
   });
 
+  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
   environment = createMockEnvironment({network: Network.create(fetch)});
   const store = environment.getStore();
   const operation = createOperationDescriptor(query, variables);

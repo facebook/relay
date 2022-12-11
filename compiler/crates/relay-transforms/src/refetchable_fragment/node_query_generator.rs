@@ -17,6 +17,7 @@ use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Value;
@@ -47,7 +48,7 @@ fn build_refetch_operation(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let id_name = schema_config.node_interface_id_field;
@@ -144,7 +145,7 @@ fn build_refetch_operation(
             if let Some(id_argument) = variable_definitions.named(VariableName(id_name)) {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
-                        fragment_name: fragment.name.item.0,
+                        fragment_name: fragment.name.item,
                     },
                     id_argument.name.location,
                 )]);
@@ -200,7 +201,7 @@ fn get_node_field_id_and_id_arg<'s>(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidNodeSchemaForRefetchableFragmentOnNode {
-            fragment_name: fragment.name.item.0,
+            fragment_name: fragment.name.item,
         },
         fragment.name.location,
     )])

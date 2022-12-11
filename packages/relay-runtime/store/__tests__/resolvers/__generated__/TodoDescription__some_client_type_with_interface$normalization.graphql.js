@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ff6c1bc53627516a4215e36add42735f>>
+ * @generated SignedSource<<86c0dfdcb38df9033344f5db0904eb5e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -69,13 +69,13 @@ return {
             {
               "kind": "InlineFragment",
               "selections": (v0/*: any*/),
-              "type": "OtherClientTypeImplementingClientInterface",
+              "type": "ClientTypeImplementingClientInterface",
               "abstractKey": null
             },
             {
               "kind": "InlineFragment",
               "selections": (v0/*: any*/),
-              "type": "ClientTypeImplementingClientInterface",
+              "type": "OtherClientTypeImplementingClientInterface",
               "abstractKey": null
             }
           ],

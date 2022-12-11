@@ -111,6 +111,7 @@ beforeEach(() => {
     }),
   );
   environment = new Environment({
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     network: Network.create(fetch),
     store: new Store(new RecordSource()),
   });
@@ -193,6 +194,7 @@ it('suspends while the query and component are pending', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
+        {/* $FlowFixMe[incompatible-type-arg] */}
         <EntryPointContainer
           entryPointReference={entryPointReference}
           props={{}}
@@ -249,6 +251,7 @@ it('suspends then updates when the query and component load', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
+        {/* $FlowFixMe[incompatible-type-arg] */}
         <EntryPointContainer
           entryPointReference={entryPointReference}
           props={{}}
@@ -330,6 +333,7 @@ it('renders synchronously when the component has already loaded and the data arr
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
+        {/* $FlowFixMe[incompatible-type-arg] */}
         <EntryPointContainer
           entryPointReference={entryPointReference}
           props={{}}
@@ -345,6 +349,7 @@ it('renders synchronously when the component has already loaded and the data arr
 
 it('warns if the entryPointReference has already been disposed', () => {
   // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-call]
   entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
@@ -356,6 +361,7 @@ it('warns if the entryPointReference has already been disposed', () => {
     TestRenderer.create(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
+          {/* $FlowFixMe[incompatible-type-arg] */}
           <EntryPointContainer
             entryPointReference={entryPointReference}
             props={{}}

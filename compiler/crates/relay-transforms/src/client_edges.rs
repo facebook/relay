@@ -25,7 +25,6 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
-use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -75,7 +74,7 @@ pub enum ClientEdgeMetadataDirective {
         unique_id: u32,
     },
     ClientObject {
-        type_name: ObjectName,
+        type_name: Option<ObjectName>,
         unique_id: u32,
     },
 }
@@ -275,7 +274,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     kind: OperationKind::Query,
                     name: WithLocation::new(
                         document_name.location,
-                        OperationDefinitionName(refetchable_directive.query_name.item),
+                        refetchable_directive.query_name.item,
                     ),
                     type_: query_type,
                     variable_definitions: refetchable_root.variable_definitions,
@@ -364,7 +363,10 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                             field.alias_or_name_location(),
                         ));
                     }
-                    return self.default_transform_linked_field(field);
+                    ClientEdgeMetadataDirective::ClientObject {
+                        type_name: None,
+                        unique_id: self.get_key(),
+                    }
                 }
                 Type::Union(_) => {
                     self.errors.push(Diagnostic::error(
@@ -374,7 +376,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     return Transformed::Keep;
                 }
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
-                    type_name: schema.object(object_id).name.item,
+                    type_name: Some(schema.object(object_id).name.item),
                     unique_id: self.get_key(),
                 },
                 _ => {

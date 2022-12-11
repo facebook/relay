@@ -19,11 +19,11 @@ const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
 const {
+  __internal: {fetchQuery},
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  __internal: {fetchQuery},
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -1654,7 +1654,7 @@ describe('useBlockingPaginationFragment', () => {
         jest.doMock('../useLoadMoreFunction');
         const useLoadMoreFunction = require('../useLoadMoreFunction');
         // $FlowFixMe[prop-missing]
-        useLoadMoreFunction.mockImplementation((...args) =>
+        useLoadMoreFunction.mockImplementation((...args: any) =>
           jest.requireActual<any>('../useLoadMoreFunction')(...args),
         );
 

@@ -143,6 +143,7 @@ describe.each([
       }),
     );
     environment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: Network.create(fetch),
       store: new Store(new RecordSource()),
     });
@@ -1013,6 +1014,7 @@ describe.each([
           }),
         );
         const altEnvironment = new Environment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           network: Network.create(altFetch),
           store: new Store(new RecordSource()),
         });
@@ -1113,7 +1115,9 @@ describe.each([
         );
         let data;
         function Component(props: any) {
+          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           data = usePreloadedQuery(query, props.prefetched);
+          // $FlowFixMe[incompatible-use] Error found while enabling LTI on this file
           return data.node.name;
         }
         const renderer = TestRenderer.create(
@@ -1214,7 +1218,9 @@ describe.each([
         );
         let data;
         function Component(props: any) {
+          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           data = usePreloadedQuery(query, props.prefetched);
+          // $FlowFixMe[incompatible-use] Error found while enabling LTI on this file
           return data.node.name;
         }
         const renderer = TestRenderer.create(

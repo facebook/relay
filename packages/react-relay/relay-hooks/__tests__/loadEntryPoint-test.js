@@ -566,6 +566,7 @@ test('it should dispose nested entry points', () => {
     {
       getEnvironment: () => env,
     },
+    // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
     entryPoint,
     // $FlowFixMe[prop-missing]
     {},
@@ -622,6 +623,7 @@ test('with `getEnvironment` function', () => {
     $FlowFixMe,
     _,
   >(
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     {
       getEnvironment,
     },

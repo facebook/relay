@@ -317,7 +317,7 @@ fn generate_inline_fragments_from_interface(
         parent_types,
         type_,
         |parent_types: &mut HashSet<Type>| {
-            let implementing_objects = &interface.recursively_implementing_objects(schema);
+            let implementing_objects = interface.recursively_implementing_objects(schema);
             if implementing_objects.is_empty() {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RelayResolverClientInterfaceMustBeImplemented {
@@ -328,47 +328,48 @@ fn generate_inline_fragments_from_interface(
             }
 
             let typename_field = schema.typename_field();
-            implementing_objects
-        .iter()
-        .map(|object_id| {
-            let object = schema.object(*object_id);
-            if !object.is_extension {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::RelayResolverClientInterfaceImplementingTypeMustBeClientTypes {
-                        interface_name: interface.name.item,
-                        object_name: object.name.item,
-                    },
-                    interface.name.location,
-                )]);
-            }
+            let implementing_objects =
+                get_implementing_objects_sorted(schema, implementing_objects);
 
-            let mut selections = generate_selections_from_object(*object_id, parent_types, schema, schema_config, field)?;
-            // The returned InlineFragment contains "fat" selections, i.e. selects every field
-            // defined on every concrete implementation. These InlineFragments are top-level selections
-            // on newly created "split" operations, and the $normalization type of these newly-created operations
-            // becomes the return type of user-defined resolver functions.
-            //
-            // For client types, all fields must be returned, since there is now way to fetch missing
-            // fields from the server. Hence, we create "fat" selections here.
-            //
-            // Note also that the fat selection on an interface must also include the __typename field,
-            // but that is not included in the return value of `generate_selections_from_object`. We
-            // add it here manually.
-            selections.push(Selection::ScalarField(Arc::new(ScalarField {
-                alias: None,
-                definition: WithLocation::generated(typename_field),
-                arguments: vec![],
-                directives: vec![],
-            })));
+            implementing_objects.into_iter()
+                .map(|(object_id, object)| {
+                    if !object.is_extension {
+                        return Err(vec![Diagnostic::error(
+                            ValidationMessage::RelayResolverClientInterfaceImplementingTypeMustBeClientTypes {
+                                interface_name: interface.name.item,
+                                object_name: object.name.item,
+                            },
+                            interface.name.location,
+                        )]);
+                    }
 
-            Ok(InlineFragment {
-                type_condition: Some(Type::Object(*object_id)),
-                directives: vec![],
-                selections,
-                spread_location: Location::generated(),
-            })
-        })
-        .collect::<DiagnosticsResult<Vec<_>>>()
+                    let mut selections = generate_selections_from_object(object_id, parent_types, schema, schema_config, field)?;
+                    // The returned InlineFragment contains "fat" selections, i.e. selects every field
+                    // defined on every concrete implementation. These InlineFragments are top-level selections
+                    // on newly created "split" operations, and the $normalization type of these newly-created operations
+                    // becomes the return type of user-defined resolver functions.
+                    //
+                    // For client types, all fields must be returned, since there is now way to fetch missing
+                    // fields from the server. Hence, we create "fat" selections here.
+                    //
+                    // Note also that the fat selection on an interface must also include the __typename field,
+                    // but that is not included in the return value of `generate_selections_from_object`. We
+                    // add it here manually.
+                    selections.push(Selection::ScalarField(Arc::new(ScalarField {
+                        alias: None,
+                        definition: WithLocation::generated(typename_field),
+                        arguments: vec![],
+                        directives: vec![],
+                    })));
+
+                    Ok(InlineFragment {
+                        type_condition: Some(Type::Object(object_id)),
+                        directives: vec![],
+                        selections,
+                        spread_location: Location::generated(),
+                    })
+                })
+                .collect::<DiagnosticsResult<Vec<_>>>()
         },
     )?;
 
@@ -392,18 +393,7 @@ fn generate_selections_from_interface_fields(
         )]);
     }
 
-    let mut implementing_objects: Vec<_> = implementing_objects
-        .into_iter()
-        .map(|object_id| (object_id, schema.object(object_id)))
-        .collect();
-
-    // The inline fragments below were being generated in what appears to be a random order
-    // that changed after a rebase. Sort the objects to guarantee a consistent ordering
-    // and stable artifacts.
-    implementing_objects.sort_by(|(_, first_object), (_, second_object)| {
-        first_object.name.item.cmp(&second_object.name.item)
-    });
-
+    let implementing_objects = get_implementing_objects_sorted(schema, implementing_objects);
     let typename_field = schema.typename_field();
 
     implementing_objects
@@ -584,4 +574,23 @@ fn with_additional_parent_type<T>(
     );
 
     t
+}
+
+fn get_implementing_objects_sorted(
+    schema: &SDLSchema,
+    implementing_objects: HashSet<ObjectID>,
+) -> Vec<(ObjectID, &schema::Object)> {
+    let mut implementing_objects: Vec<_> = implementing_objects
+        .into_iter()
+        .map(|object_id| (object_id, schema.object(object_id)))
+        .collect();
+
+    // The inline fragments below were being generated in what appears to be a random order
+    // that changed after a rebase. Sort the objects to guarantee a consistent ordering
+    // and stable artifacts.
+    implementing_objects.sort_by(|(_, first_object), (_, second_object)| {
+        first_object.name.item.cmp(&second_object.name.item)
+    });
+
+    implementing_objects
 }

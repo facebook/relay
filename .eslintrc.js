@@ -14,7 +14,7 @@ module.exports = {
   root: true,
   // TODO - migrate this onto @react-native-community/eslint-config
   extends: ['fbjs'],
-  plugins: ['jest', 'relay', 'react-hooks'],
+  plugins: ['jest', 'relay', 'react-hooks', 'relay-internal'],
   parser: 'hermes-eslint',
   rules: {
     // Consistency with internal config
@@ -73,5 +73,8 @@ module.exports = {
 
     // depreciated rules
     'no-spaced-func': 0,
+
+    // Custom rules for our own codebase
+    'relay-internal/no-mixed-import-and-require': 'error',
   },
 };

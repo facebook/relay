@@ -1,0 +1,17 @@
+# Because there are no implementing types, "all implementing types impl Node"
+# is true, so we generated a Node refetch query.
+fragment RefetchableFragmentFoo on RefetchableInterfaceFoo
+  @refetchable(queryName: "RefetchableFragmentFooQuery") {
+  id
+}
+
+
+# %extensions%
+
+interface RefetchableInterfaceFoo @fetchable(field_name: "id") {
+    id: ID!
+}
+
+extend type Query {
+  fetch__RefetchableInterfaceFoo(id: ID!): RefetchableInterfaceFoo
+}

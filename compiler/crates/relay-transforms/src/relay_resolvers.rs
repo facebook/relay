@@ -40,6 +40,7 @@ use schema::Field;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 
 use super::ValidationMessage;
 use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
@@ -83,7 +84,7 @@ lazy_static! {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ResolverNormalizationInfo {
-    pub type_name: StringKey,
+    pub inner_type: Type,
     pub plural: bool,
     pub normalization_operation: WithLocation<OperationDefinitionName>,
     pub weak_object_instance_field: Option<StringKey>,
@@ -436,10 +437,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
 
                             Some(ResolverOutputTypeInfo::Composite(
                                 ResolverNormalizationInfo {
-                                    type_name: self
-                                        .program
-                                        .schema
-                                        .get_type_name(field_type.type_.inner()),
+                                    inner_type: field_type.type_.inner(),
                                     plural: field_type.type_.is_list(),
                                     normalization_operation,
                                     weak_object_instance_field,

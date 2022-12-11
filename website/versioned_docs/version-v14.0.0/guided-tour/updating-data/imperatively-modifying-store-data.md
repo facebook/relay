@@ -112,8 +112,8 @@ function commitCreateFeedbackMutation(
         return;
       }
 
-      // Step 3: call store.readUpdatableFragment_EXPERIMENTAL
-      const {updatableData} = store.readUpdatableFragment_EXPERIMENTAL(
+      // Step 3: call store.readUpdatableFragment
+      const {updatableData} = store.readUpdatableFragment(
           // Step 4: Pass it a fragment literal, where the fragment contains the @updatable directive.
           // This fragment selects the fields that you wish to update on the feedback object.
           // In step 1, we spread this fragment in the query response.
@@ -143,7 +143,7 @@ Let's distill what's going on here.
 * This `updater` is executed after the mutation response has been written to the store.
 * In this example updater, we do three things:
   * First, we spread an updatable fragment in the mutation response.
-  * Second, we read out the fields selected by this fragment by calling `readUpdatableFragment_EXPERIMENTAL`. This returns an updatable proxy object.
+  * Second, we read out the fields selected by this fragment by calling `readUpdatableFragment`. This returns an updatable proxy object.
   * Third, we update fields on this updatable proxy.
 * Once this updater completes, the updates that have been recorded are written to the store, and all affected components are re-rendered.
 
@@ -192,7 +192,7 @@ function UserSelectToggle({ userId, viewerRef }: {
             return;
           }
 
-          const {updatableData} = store.readUpdatableFragment_EXPERIMENTAL(
+          const {updatableData} = store.readUpdatableFragment(
             graphql`
               fragment UserSelectToggle_updatable_user on User @updatable {
                 is_selected
@@ -214,8 +214,8 @@ function UserSelectToggle({ userId, viewerRef }: {
 Let's distill what's going on here.
 
 * In a click handler, we call `commitLocalUpdate`, which accepts a Relay environment and an updater function. **Unlike in the previous examples, this updater does not accept a second parameter** because there is no associated network payload.
-* In this updater function, we access get an updatable proxy object by calling `store.readUpdatableFragment_EXPERIMENTAL`, and toggle the `is_selected` field.
-* Like the previous example in which we called `readUpdatableFragment_EXPERIMENTAL`, this can be rewritten to use the `readUpdatableQuery_EXPERIMENTAL` API.
+* In this updater function, we access get an updatable proxy object by calling `store.readUpdatableFragment`, and toggle the `is_selected` field.
+* Like the previous example in which we called `readUpdatableFragment`, this can be rewritten to use the `readUpdatableQuery_EXPERIMENTAL` API.
 
 :::note
 This example can be rewritten using the `environment.commitPayload` API, albeit without type safety.
@@ -265,9 +265,9 @@ function NameUpdater({ queryRef }: {
 }
 ```
 
-* This particular example can be rewritten using `readUpdatableFragment_EXPERIMENTAL`. However, you may prefer `readUpdatableQuery_EXPERIMENTAL` for several reasons:
+* This particular example can be rewritten using `readUpdatableFragment`. However, you may prefer `readUpdatableQuery_EXPERIMENTAL` for several reasons:
   * You do not have ready access to a fragment reference, e.g. if the call to `commitLocalUpdate` is not obviously associated with a component.
   * You do not have ready access to a fragment where we select the **parent record** of the record we wish to modify (e.g. the `Query` in this example). Due to a known type hole in Relay, **updatable fragments cannot be spread at the top level.**
-  * You wish to use variables in the updatatable fragment. Currently, updatable fragments reuse the variables that were passed to the query. This means that you cannot, for example, have an updatable fragment with fragment-local variables and call `readUpdatableFragment_EXPERIMENTAL` multiple times, each time passing different variables.
+  * You wish to use variables in the updatatable fragment. Currently, updatable fragments reuse the variables that were passed to the query. This means that you cannot, for example, have an updatable fragment with fragment-local variables and call `readUpdatableFragment` multiple times, each time passing different variables.
 
 <DocsRating />

@@ -79,8 +79,11 @@ describe('execute() with Promise network', () => {
   it('fetches queries', () => {
     environment.execute({operation}).subscribe(callbacks);
     expect(fetch.mock.calls.length).toBe(1);
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][0]).toEqual(query.params);
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][2]).toEqual({});
   });
 
@@ -96,8 +99,11 @@ describe('execute() with Promise network', () => {
     );
     environment.execute({operation}).subscribe(callbacks);
     expect(fetch.mock.calls.length).toBe(1);
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][0]).toEqual(query.params);
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
   });
 

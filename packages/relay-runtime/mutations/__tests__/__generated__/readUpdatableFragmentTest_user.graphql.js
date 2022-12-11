@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8a342ece086a26c0de1e43bae20b042>>
+ * @generated SignedSource<<34d7a82ae1945df46e0bd5281b0e2ed6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,15 +19,15 @@
 /*::
 import type { UpdatableFragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type readUpdatableFragmentEXPERIMENTALTest_user$fragmentType: FragmentType;
-export type readUpdatableFragmentEXPERIMENTALTest_user$data = {|
+declare export opaque type readUpdatableFragmentTest_user$fragmentType: FragmentType;
+export type readUpdatableFragmentTest_user$data = {|
   firstName: ?string,
   firstName2: ?string,
-  +$fragmentType: readUpdatableFragmentEXPERIMENTALTest_user$fragmentType,
+  +$fragmentType: readUpdatableFragmentTest_user$fragmentType,
 |};
-export type readUpdatableFragmentEXPERIMENTALTest_user$key = {
-  +$data?: readUpdatableFragmentEXPERIMENTALTest_user$data,
-  +$updatableFragmentSpreads: readUpdatableFragmentEXPERIMENTALTest_user$fragmentType,
+export type readUpdatableFragmentTest_user$key = {
+  +$data?: readUpdatableFragmentTest_user$data,
+  +$updatableFragmentSpreads: readUpdatableFragmentTest_user$fragmentType,
   ...
 };
 */
@@ -41,7 +41,7 @@ var node/*: ReaderFragment*/ = {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "readUpdatableFragmentEXPERIMENTALTest_user",
+  "name": "readUpdatableFragmentTest_user",
   "selections": [
     {
       "alias": null,
@@ -69,10 +69,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5de9847cd4133fe73dc2812f7cfe7e12";
+  (node/*: any*/).hash = "c812b9d445ff295af2eac12937098ddb";
 }
 
 module.exports = ((node/*: any*/)/*: UpdatableFragment<
-  readUpdatableFragmentEXPERIMENTALTest_user$fragmentType,
-  readUpdatableFragmentEXPERIMENTALTest_user$data,
+  readUpdatableFragmentTest_user$fragmentType,
+  readUpdatableFragmentTest_user$data,
 >*/);

@@ -1,0 +1,96 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on RefetchableInterface
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}
+
+fragment RefetchableFragment2 on RefetchableInterface2
+  @refetchable(queryName: "RefetchableFragmentQuery2") {
+  __typename
+}
+
+# %extensions%
+
+interface RefetchableInterface @fetchable(field_name: "id") {
+    id: ID!
+}
+
+interface RefetchableInterface2 @fetchable(field_name: "not_id") {
+    not_id: ID!
+}
+
+extend type Query {
+  fetch__RefetchableInterface(id: ID!): RefetchableInterface
+  fetch__RefetchableInterface2(id: ID!): RefetchableInterface2
+}
+
+type ConcreteTypeImplementingRefetchableInterface implements RefetchableInterface {
+  id: ID!
+}
+
+type ConcreteTypeImplementingRefetchableInterface2 implements RefetchableInterface2 {
+  not_id: ID!
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     FragmentDefinitionName(
+#         "RefetchableFragment",
+#     ),
+# )
+ {
+  fetch__RefetchableInterface(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+query RefetchableFragmentQuery2(
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     FragmentDefinitionName(
+#         "RefetchableFragment2",
+#     ),
+# )
+ {
+  fetch__RefetchableInterface2(id: $id) {
+    ...RefetchableFragment2
+  }
+}
+
+fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
+#     path: [
+#         "fetch__RefetchableInterface",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  id
+  __token
+}
+
+fragment RefetchableFragment2 on RefetchableInterface2 @refetchable(queryName: "RefetchableFragmentQuery2") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery2",
+#     ),
+#     path: [
+#         "fetch__RefetchableInterface2",
+#     ],
+#     identifier_field: Some(
+#         "not_id",
+#     ),
+# }
+ {
+  __typename
+  not_id
+  __token
+}

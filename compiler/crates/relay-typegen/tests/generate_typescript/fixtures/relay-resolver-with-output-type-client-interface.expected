@@ -68,7 +68,9 @@ export type User__pop_star_name$normalization = {
 -------------------------------------------------------------------------------
 import type { FragmentRefs } from "relay-runtime";
 export type Foo_user$data = {
-  readonly poppy: ReturnType<typeof userPopStarNameResolver> | null;
+  readonly poppy: {
+    readonly name: string | null;
+  } | null;
   readonly " $fragmentType": "Foo_user";
 };
 export type Foo_user$key = {

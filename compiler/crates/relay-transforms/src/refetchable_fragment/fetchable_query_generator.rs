@@ -14,6 +14,7 @@ use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Value;
@@ -44,7 +45,7 @@ fn build_refetch_operation(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let id_name = schema_config.node_interface_id_field;
@@ -84,7 +85,7 @@ fn build_refetch_operation(
         if let Some(id_argument) = variable_definitions.named(VariableName(id_name)) {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
-                    fragment_name: fragment.name.item.0,
+                    fragment_name: fragment.name.item,
                 },
                 id_argument.name.location,
             )]);
@@ -125,23 +126,33 @@ fn get_fetchable_field_name(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
 ) -> DiagnosticsResult<Option<StringKey>> {
-    if let Type::Object(id) = fragment.type_condition {
-        let object = schema.object(id);
-        if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
-            let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
-            if let Some(field_name_arg) = field_name_arg {
-                if let Some(value) = field_name_arg.value.get_string_literal() {
-                    return Ok(Some(value));
-                }
-            }
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidRefetchDirectiveDefinition {
-                    fragment_name: fragment.name.item.0,
-                },
-                fragment.name.location,
-            )]);
+    let fetchable_directive = match fragment.type_condition {
+        Type::Interface(interface_id) => {
+            let interface = schema.interface(interface_id);
+            interface.directives.named(CONSTANTS.fetchable)
         }
+        Type::Object(object_id) => {
+            let object = schema.object(object_id);
+            object.directives.named(CONSTANTS.fetchable)
+        }
+        _ => None,
+    };
+
+    if let Some(fetchable) = fetchable_directive {
+        let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
+        if let Some(field_name_arg) = field_name_arg {
+            if let Some(value) = field_name_arg.value.get_string_literal() {
+                return Ok(Some(value));
+            }
+        }
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::InvalidRefetchDirectiveDefinition {
+                fragment_name: fragment.name.item,
+            },
+            fragment.name.location,
+        )]);
     }
+
     Ok(None)
 }
 
@@ -159,7 +170,7 @@ fn get_identifier_field_id(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchIdentifyingField {
-            fragment_name: fragment.name.item.0,
+            fragment_name: fragment.name.item,
             identifier_field_name,
             type_name: schema.get_type_name(fragment.type_condition),
         },
@@ -190,7 +201,7 @@ fn get_fetch_field_id_and_id_arg<'s>(
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchFetchField {
             fetch_field_name,
-            fragment_name: fragment.name.item.0,
+            fragment_name: fragment.name.item,
             type_name: schema.get_type_name(fragment.type_condition),
         },
         fragment.name.location,
@@ -231,6 +242,6 @@ fn enforce_selections_with_id_field(
 
 pub const FETCHABLE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {
     // T138625502 we should support interfaces and maybe unions
-    description: "server objects with the @fetchable directive",
+    description: "server objects and interfaces with the @fetchable directive",
     build_refetch_operation,
 };

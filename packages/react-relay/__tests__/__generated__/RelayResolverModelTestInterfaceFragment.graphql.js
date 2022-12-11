@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dd3f2ed4f03c6630d6c37647415dbd0e>>
+ * @generated SignedSource<<c7308fd6cd44f6dd7e2ff8c8c37d4c9f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -51,7 +51,10 @@ export type RelayResolverModelTestInterfaceFragment$data = {|
         +description: ?string,
       |},
     |},
-    +some_interface: ?$Call<<R>((...empty[]) => R) => R, typeof todoDescriptionSomeInterfaceResolver>,
+    +some_interface: {|
+      +__typename: string,
+      +description: ?string,
+    |},
   |},
   +$fragmentType: RelayResolverModelTestInterfaceFragment$fragmentType,
 |};
@@ -67,7 +70,23 @@ var v0 = {
   "args": null,
   "kind": "FragmentSpread",
   "name": "TodoDescription____relay_model_instance"
-};
+},
+v1 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "__typename",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
@@ -106,17 +125,31 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "fragment": (v0/*: any*/),
-            "kind": "RelayResolver",
-            "name": "some_interface",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', false),
-            "path": "some_interface",
-            "normalizationInfo": {
-              "concreteType": "ClientInterface",
+            "kind": "ClientEdgeToClientObject",
+            "concreteType": null,
+            "backingField": {
+              "alias": null,
+              "args": null,
+              "fragment": (v0/*: any*/),
+              "kind": "RelayResolver",
+              "name": "some_interface",
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', false),
+              "path": "some_interface",
+              "normalizationInfo": {
+                "concreteType": null,
+                "plural": false,
+                "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_interface$normalization.graphql')
+              }
+            },
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": null,
+              "kind": "LinkedField",
+              "name": "some_interface",
               "plural": false,
-              "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_interface$normalization.graphql')
+              "selections": (v1/*: any*/),
+              "storageKey": null
             }
           },
           {
@@ -151,22 +184,7 @@ return {
                   "kind": "LinkedField",
                   "name": "client_interface",
                   "plural": false,
-                  "selections": [
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "__typename",
-                      "storageKey": null
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "description",
-                      "storageKey": null
-                    }
-                  ],
+                  "selections": (v1/*: any*/),
                   "storageKey": null
                 }
               ],

@@ -31,9 +31,7 @@ import type {
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
-const {
-  readUpdatableFragment_EXPERIMENTAL,
-} = require('./readUpdatableFragment_EXPERIMENTAL');
+const {readUpdatableFragment} = require('./readUpdatableFragment');
 const {
   readUpdatableQuery_EXPERIMENTAL,
 } = require('./readUpdatableQuery_EXPERIMENTAL');
@@ -148,11 +146,23 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     );
   }
 
-  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+  readUpdatableQuery<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): UpdatableData<TData> {
+    return readUpdatableQuery_EXPERIMENTAL(
+      query,
+      variables,
+      this,
+      this._missingFieldHandlers,
+    );
+  }
+
+  readUpdatableFragment<TFragmentType: FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
   ): UpdatableData<TData> {
-    return readUpdatableFragment_EXPERIMENTAL(
+    return readUpdatableFragment(
       fragment,
       fragmentReference,
       this,

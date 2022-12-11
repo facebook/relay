@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<33d1f7249eda5ed1638dabd92fbf5166>>
+ * @generated SignedSource<<898b14df672e4da8057ab584282aad1b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,23 +18,23 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { readUpdatableFragmentEXPERIMENTALTest_2_user$fragmentType } from "./readUpdatableFragmentEXPERIMENTALTest_2_user.graphql";
-import type { readUpdatableFragmentEXPERIMENTALTest_user$fragmentType } from "./readUpdatableFragmentEXPERIMENTALTest_user.graphql";
-export type readUpdatableFragmentEXPERIMENTALTestRegularQuery$variables = {|
+import type { readUpdatableFragmentTest_2_user$fragmentType } from "./readUpdatableFragmentTest_2_user.graphql";
+import type { readUpdatableFragmentTest_user$fragmentType } from "./readUpdatableFragmentTest_user.graphql";
+export type readUpdatableFragmentTestRegularQuery$variables = {|
   if2?: ?boolean,
   if3?: ?boolean,
 |};
-export type readUpdatableFragmentEXPERIMENTALTestRegularQuery$data = {|
+export type readUpdatableFragmentTestRegularQuery$data = {|
   +me: ?{|
-    +$updatableFragmentSpreads: readUpdatableFragmentEXPERIMENTALTest_2_user$fragmentType & readUpdatableFragmentEXPERIMENTALTest_user$fragmentType,
+    +$updatableFragmentSpreads: readUpdatableFragmentTest_2_user$fragmentType & readUpdatableFragmentTest_user$fragmentType,
     +firstName: ?string,
     +firstName2: ?string,
     +firstName3: ?string,
   |},
 |};
-export type readUpdatableFragmentEXPERIMENTALTestRegularQuery = {|
-  response: readUpdatableFragmentEXPERIMENTALTestRegularQuery$data,
-  variables: readUpdatableFragmentEXPERIMENTALTestRegularQuery$variables,
+export type readUpdatableFragmentTestRegularQuery = {|
+  response: readUpdatableFragmentTestRegularQuery$data,
+  variables: readUpdatableFragmentTestRegularQuery$variables,
 |};
 */
 
@@ -89,7 +89,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "readUpdatableFragmentEXPERIMENTALTestRegularQuery",
+    "name": "readUpdatableFragmentTestRegularQuery",
     "selections": [
       {
         "alias": null,
@@ -102,12 +102,12 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "readUpdatableFragmentEXPERIMENTALTest_user"
+            "name": "readUpdatableFragmentTest_user"
           },
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "readUpdatableFragmentEXPERIMENTALTest_2_user"
+            "name": "readUpdatableFragmentTest_2_user"
           },
           (v1/*: any*/),
           (v2/*: any*/),
@@ -123,7 +123,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "readUpdatableFragmentEXPERIMENTALTestRegularQuery",
+    "name": "readUpdatableFragmentTestRegularQuery",
     "selections": [
       {
         "alias": null,
@@ -156,21 +156,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1b4bfc80599b384d83872eb0aea657ab",
+    "cacheID": "ec6cc7c4d9efd732034dbc01a14d8346",
     "id": null,
     "metadata": {},
-    "name": "readUpdatableFragmentEXPERIMENTALTestRegularQuery",
+    "name": "readUpdatableFragmentTestRegularQuery",
     "operationKind": "query",
-    "text": "query readUpdatableFragmentEXPERIMENTALTestRegularQuery(\n  $if2: Boolean\n  $if3: Boolean\n) {\n  me {\n    __typename\n    firstName\n    firstName2: firstName(if: $if2)\n    firstName3: firstName(if: $if3)\n    id\n  }\n}\n"
+    "text": "query readUpdatableFragmentTestRegularQuery(\n  $if2: Boolean\n  $if3: Boolean\n) {\n  me {\n    __typename\n    firstName\n    firstName2: firstName(if: $if2)\n    firstName3: firstName(if: $if3)\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7246306333eabc00f92117b5faf95307";
+  (node/*: any*/).hash = "1fcec5ea959f10501f187ab122841d2e";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  readUpdatableFragmentEXPERIMENTALTestRegularQuery$variables,
-  readUpdatableFragmentEXPERIMENTALTestRegularQuery$data,
+  readUpdatableFragmentTestRegularQuery$variables,
+  readUpdatableFragmentTestRegularQuery$data,
 >*/);

@@ -733,16 +733,22 @@ class RelayReader {
       // Client objects might use ids that are not globally unique and instead are just
       // local within their type. ResolverCache will derive a namespaced ID for us.
       if (backingField.normalizationInfo == null) {
+        const concreteType = field.concreteType;
+        invariant(
+          concreteType != null,
+          'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
+            'This indicates a bug in Relay.',
+        );
         // @edgeTo case where we need to ensure that the record has `id` field
         if (field.linkedField.plural) {
           // $FlowFixMe[prop-missing]
           destinationDataID = destinationDataID.map(id =>
-            this._resolverCache.ensureClientRecord(id, field.concreteType),
+            this._resolverCache.ensureClientRecord(id, concreteType),
           );
         } else {
           destinationDataID = this._resolverCache.ensureClientRecord(
             destinationDataID,
-            field.concreteType,
+            concreteType,
           );
         }
       } else {

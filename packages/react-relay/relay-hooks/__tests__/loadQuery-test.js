@@ -229,6 +229,7 @@ describe('loadQuery', () => {
             );
             const nextCallback = jest.fn(() => done());
             if (source) {
+              // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
               source.subscribe({
                 next: nextCallback,
               });
@@ -408,6 +409,7 @@ describe('loadQuery', () => {
         );
         const nextCallback = jest.fn(() => done());
         if (source) {
+          // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
           source.subscribe({
             next: nextCallback,
           });
@@ -659,6 +661,7 @@ describe('loadQuery', () => {
           );
           const nextCallback = jest.fn(() => done());
           if (source) {
+            // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
             source.subscribe({
               next: nextCallback,
             });
@@ -782,6 +785,7 @@ describe('loadQuery', () => {
         );
         const nextCallback = jest.fn(() => done());
         if (source) {
+          // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
           source.subscribe({
             next: nextCallback,
           });

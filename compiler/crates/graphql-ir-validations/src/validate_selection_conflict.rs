@@ -441,28 +441,37 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         location_b: Location,
         arguments_b: &[Argument],
     ) -> Diagnostic {
+        let arguments_a_printed = graphql_text_printer::print_arguments(
+            &self.program.schema,
+            arguments_a,
+            graphql_text_printer::PrinterOptions::default(),
+        );
+        let arguments_b_printed = graphql_text_printer::print_arguments(
+            &self.program.schema,
+            arguments_b,
+            graphql_text_printer::PrinterOptions::default(),
+        );
+
         Diagnostic::error(
             ValidationMessage::InvalidSameFieldWithDifferentArguments {
                 field_name,
-                arguments_a: graphql_text_printer::print_arguments(
-                    &self.program.schema,
-                    arguments_a,
-                    graphql_text_printer::PrinterOptions::default(),
-                ),
+                arguments_a: arguments_a_printed.clone(),
             },
             location_a,
         )
         .annotate(
             format!(
                 "which conflicts with this field with applied argument values {}",
-                graphql_text_printer::print_arguments(
-                    &self.program.schema,
-                    arguments_b,
-                    graphql_text_printer::PrinterOptions::default()
-                ),
+                &arguments_b_printed,
             ),
             location_b,
         )
+        .metadata_for_machine("err", "InvalidSameFieldWithDifferentArguments")
+        .metadata_for_machine("filed_name", field_name.lookup())
+        .metadata_for_machine("arg_a", arguments_a_printed)
+        .metadata_for_machine("arg_b", arguments_b_printed)
+        .metadata_for_machine("loc_a", format!("{:?}", location_a))
+        .metadata_for_machine("loc_b", format!("{:?}", location_b))
     }
 }
 

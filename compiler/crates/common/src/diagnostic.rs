@@ -169,6 +169,14 @@ impl Diagnostic {
         self.0.tags.clone()
     }
 
+    pub fn machine_readable(&self) -> Option<BTreeMap<String, String>> {
+        if self.0.machine_readable.is_empty() {
+            None
+        } else {
+            Some(self.0.machine_readable.clone())
+        }
+    }
+
     /// Override the location. This should only be used for exceptional situations.
     /// Typically, diagnostics should be constructed with a correct location.
     pub fn override_location(&mut self, location: Location) {

@@ -2,7 +2,7 @@
 id: imperatively-modifying-linked-fields
 title: Imperatively modifying linked fields
 slug: /guided-tour/updating-data/imperatively-modifying-linked-fields/
-description: Using readUpdatableQuery_EXPERIMENTAL to update linked fields in the store
+description: Using readUpdatableQuery to update linked fields in the store
 keywords:
 - record source
 - store
@@ -21,18 +21,18 @@ import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 
 :::caution
 
-Because in TypeScript, [getters and setters cannot have different types](https://github.com/microsoft/TypeScript/issues/43662), and the generated types of getters and setters is not the same, `readUpdatableQuery_EXPERIMENTAL` is currently unusable with TypeScript. `readUpdatableFragment` is usable, as long as the updatable fragment contains only scalar fields.
+Because in TypeScript, [getters and setters cannot have different types](https://github.com/microsoft/TypeScript/issues/43662), and the generated types of getters and setters is not the same, `readUpdatableQuery` is currently unusable with TypeScript. `readUpdatableFragment` is usable, as long as the updatable fragment contains only scalar fields.
 
 :::
 
 </OssOnly>
 
 :::note
-See also [using readUpdatableQuery_EXPERIMENTAL to update scalar fields in the store](../imperatively-modifying-store-data).
+See also [using readUpdatableQuery to update scalar fields in the store](../imperatively-modifying-store-data).
 :::
 
 
-The examples in the [previous section](../imperatively-modifying-store-data/) showed how to use the `readUpdatableQuery_EXPERIMENTAL` API to update scalar fields like `is_new_comment` and `is_selected`.
+The examples in the [previous section](../imperatively-modifying-store-data/) showed how to use the `readUpdatableQuery` API to update scalar fields like `is_new_comment` and `is_selected`.
 
 The examples did **not** cover how to assign to linked fields. Let's start with an example of a component which allows the user of the application to update the Viewer's `best_friend` field.
 
@@ -88,7 +88,7 @@ export default function AssignBestFriendButton({
 }
 ```
 
-That's great! Now, we have a component that renders a button. Let's fill out that button's click handler by using the `commitLocalUpdate` and `readUpdatableQuery_EXPERIMENTAL` APIs to assign `viewer.best_friend`.
+That's great! Now, we have a component that renders a button. Let's fill out that button's click handler by using the `commitLocalUpdate` and `readUpdatableQuery` APIs to assign `viewer.best_friend`.
 
 * In order to make it valid to assign `data.user` to `best_friend`, we must **also** spread `AssignBestFriendButton_assignable_user` under the `best_friend` field in the viewer in the updatable query or fragment.
 
@@ -104,7 +104,7 @@ const onClick = () => {
   const updatableData = commitLocalUpdate(
     environment,
     (store: RecordSourceSelectorProxy) => {
-      const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+      const {updatableData} = store.readUpdatableQuery(
           graphql`
             query AssignBestFriendButtonUpdatableQuery
             @updatable {
@@ -166,7 +166,7 @@ export default function AssignBestFriendButton({
     const updatableData = commitLocalUpdate(
       environment,
       (store: RecordSourceSelectorProxy) => {
-        const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+        const {updatableData} = store.readUpdatableQuery(
             graphql`
               query AssignBestFriendButtonUpdatableQuery
               @updatable {
@@ -197,8 +197,8 @@ Let's recap what is happening here.
 
 * We are writing a component in which clicking a button results in a user is being assigned to `viewer.best_friend`. After this button is clicked, all components which were previously reading the `viewer.best_friend` field will be re-rendered, if necessary.
 * The source of the assignment is a user where an **assignable fragment** is spread.
-* The target of the assignment is accessed using the `commitLocalUpdate` and `readUpdatableQuery_EXPERIMENTAL` APIs.
-* The query passed to `readUpdatableQuery_EXPERIMENTAL` must include the `@updatable` directive.
+* The target of the assignment is accessed using the `commitLocalUpdate` and `readUpdatableQuery` APIs.
+* The query passed to `readUpdatableQuery` must include the `@updatable` directive.
 * The target field must have that same **assignable fragment** spread.
 * We are checking whether `data.user` is not null before assigning. This isn't strictly necessary. However, if we assign `updatableData.viewer.best_friend = null`, we will be nulling out the linked field in the store! This is (probably) not what you want.
 
@@ -279,7 +279,7 @@ export default function AssignBestFriendButton({
     commitLocalUpdate(
       environment,
       (store: RecordSourceSelectorProxy) => {
-        const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+        const {updatableData} = store.readUpdatableQuery(
             graphql`
               query AssignBestFriendButtonUpdatableQuery
               @updatable {
@@ -330,7 +330,7 @@ const onClick = () => {
   const updatableData = commitLocalUpdate(
     environment,
     (store: RecordSourceSelectorProxy) => {
-      const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+      const {updatableData} = store.readUpdatableQuery(
           graphql`
             query AssignBestFriendButtonUpdatableQuery
             @updatable {
@@ -388,7 +388,7 @@ const data = useFragment(graphql`
 const environment = useRelayEnvironment();
 const onClick = () => {
   commitLocalUpdate(environment, store => {
-    const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+    const {updatableData} = store.readUpdatableQuery(
       graphql`
         query FooUpdatableQuery @updatable {
           viewer {
@@ -491,7 +491,7 @@ const data = useFragment(graphql`
 const environment = useRelayEnvironment();
 const onClick = () => {
   commitLocalUpdate(environment, store => {
-    const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+    const {updatableData} = store.readUpdatableQuery(
       graphql`
         query FooUpdatableQuery @updatable {
           viewer {

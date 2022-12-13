@@ -2,7 +2,7 @@
 id: imperatively-modifying-store-data
 title: Imperatively modifying store data
 slug: /guided-tour/updating-data/imperatively-modifying-store-data/
-description: Using readUpdatableQuery_EXPERIMENTAL to update scalar fields in the store
+description: Using readUpdatableQuery to update scalar fields in the store
 keywords:
 - record source
 - store
@@ -215,17 +215,17 @@ Let's distill what's going on here.
 
 * In a click handler, we call `commitLocalUpdate`, which accepts a Relay environment and an updater function. **Unlike in the previous examples, this updater does not accept a second parameter** because there is no associated network payload.
 * In this updater function, we access get an updatable proxy object by calling `store.readUpdatableFragment`, and toggle the `is_selected` field.
-* Like the previous example in which we called `readUpdatableFragment`, this can be rewritten to use the `readUpdatableQuery_EXPERIMENTAL` API.
+* Like the previous example in which we called `readUpdatableFragment`, this can be rewritten to use the `readUpdatableQuery` API.
 
 :::note
 This example can be rewritten using the `environment.commitPayload` API, albeit without type safety.
 :::
 
-## Alternative API: `readUpdatableQuery_EXPERIMENTAL`.
+## Alternative API: `readUpdatableQuery`.
 
 In the previous examples, we used an updatable fragment to access the record whose fields we want to update. This can also be possible to do with an updatable query.
 
-If we know the path from the root (i.e. the object whose type is `Query`) to the record we wish to modify, we can use the `readUpdatableQuery_EXPERIMENTAL` API to achieve this.
+If we know the path from the root (i.e. the object whose type is `Query`) to the record we wish to modify, we can use the `readUpdatableQuery` API to achieve this.
 
 For example, we could set the viewer's `name` field in response to an event as follows:
 
@@ -246,7 +246,7 @@ function NameUpdater({ queryRef }: {
   const [newName, setNewName] = useState(data?.viewer?.name);
   const onSubmit = () => {
     commitLocalUpdate(environment, store => {
-      const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+      const {updatableData} = store.readUpdatableQuery(
         graphql`
           viewer {
             name
@@ -265,7 +265,7 @@ function NameUpdater({ queryRef }: {
 }
 ```
 
-* This particular example can be rewritten using `readUpdatableFragment`. However, you may prefer `readUpdatableQuery_EXPERIMENTAL` for several reasons:
+* This particular example can be rewritten using `readUpdatableFragment`. However, you may prefer `readUpdatableQuery` for several reasons:
   * You do not have ready access to a fragment reference, e.g. if the call to `commitLocalUpdate` is not obviously associated with a component.
   * You do not have ready access to a fragment where we select the **parent record** of the record we wish to modify (e.g. the `Query` in this example). Due to a known type hole in Relay, **updatable fragments cannot be spread at the top level.**
   * You wish to use variables in the updatatable fragment. Currently, updatable fragments reuse the variables that were passed to the query. This means that you cannot, for example, have an updatable fragment with fragment-local variables and call `readUpdatableFragment` multiple times, each time passing different variables.

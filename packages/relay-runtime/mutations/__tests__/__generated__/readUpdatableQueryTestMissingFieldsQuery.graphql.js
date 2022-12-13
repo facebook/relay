@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3fcf865512e0e94843d07f3d5f999670>>
+ * @generated SignedSource<<c9f511d2b0ad61e1c82d0c0a89feeb43>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +18,15 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery$variables = {||};
-export type readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery$data = {|
+export type readUpdatableQueryTestMissingFieldsQuery$variables = {||};
+export type readUpdatableQueryTestMissingFieldsQuery$data = {|
   +me: ?{|
     +name: ?string,
   |},
 |};
-export type readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery = {|
-  response: readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery$data,
-  variables: readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery$variables,
+export type readUpdatableQueryTestMissingFieldsQuery = {|
+  response: readUpdatableQueryTestMissingFieldsQuery$data,
+  variables: readUpdatableQueryTestMissingFieldsQuery$variables,
 |};
 */
 
@@ -43,7 +43,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery",
+    "name": "readUpdatableQueryTestMissingFieldsQuery",
     "selections": [
       {
         "alias": null,
@@ -65,7 +65,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery",
+    "name": "readUpdatableQueryTestMissingFieldsQuery",
     "selections": [
       {
         "alias": null,
@@ -89,21 +89,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a40cab9ddbd355f3b2bf5e68811568e2",
+    "cacheID": "20dc54c7abef5a35eb7d46f05a362332",
     "id": null,
     "metadata": {},
-    "name": "readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery",
+    "name": "readUpdatableQueryTestMissingFieldsQuery",
     "operationKind": "query",
-    "text": "query readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery {\n  me {\n    name\n    id\n  }\n}\n"
+    "text": "query readUpdatableQueryTestMissingFieldsQuery {\n  me {\n    name\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e5884201f48d9f74be4354e1ad95278b";
+  (node/*: any*/).hash = "9de93271e8eefca4bd47df351b30ec10";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery$variables,
-  readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery$data,
+  readUpdatableQueryTestMissingFieldsQuery$variables,
+  readUpdatableQueryTestMissingFieldsQuery$data,
 >*/);

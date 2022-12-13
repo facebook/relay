@@ -21,7 +21,7 @@ import type {UpdatableQuery, Variables} from '../util/RelayRuntimeTypes';
 const {getUpdatableQuery} = require('../query/GraphQLTag');
 const {createUpdatableProxy} = require('./createUpdatableProxy');
 
-function readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+function readUpdatableQuery<TVariables: Variables, TData>(
   query: UpdatableQuery<TVariables, TData>,
   variables: TVariables,
   proxy: RecordSourceProxy,
@@ -41,4 +41,4 @@ function readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
   };
 }
 
-module.exports = {readUpdatableQuery_EXPERIMENTAL};
+module.exports = {readUpdatableQuery};

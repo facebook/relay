@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d3b38e9ef821374b88ff0a62f9a98551>>
+ * @generated SignedSource<<df3090c6517dc324c1c8f20f1decd3cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,10 +18,10 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-import type { readUpdatableQueryEXPERIMENTALTest_node$fragmentType } from "./readUpdatableQueryEXPERIMENTALTest_node.graphql";
-import type { readUpdatableQueryEXPERIMENTALTest_user$fragmentType } from "./readUpdatableQueryEXPERIMENTALTest_user.graphql";
-export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables = {||};
-export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
+import type { readUpdatableQueryTest_node$fragmentType } from "./readUpdatableQueryTest_node.graphql";
+import type { readUpdatableQueryTest_user$fragmentType } from "./readUpdatableQueryTest_user.graphql";
+export type readUpdatableQueryTestUpdatableQuery$variables = {||};
+export type readUpdatableQueryTestUpdatableQuery$data = {|
   get me(): ?{|
     +__typename: "User",
     +__id: string,
@@ -34,7 +34,7 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
       set client_best_friend(value: ?{
         +__typename: "User",
         +__id: string,
-        +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+        +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
         ...
       }): void,
     |},
@@ -47,7 +47,7 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
   set me(value: ?{
     +__typename: "User",
     +__id: string,
-    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+    +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
     ...
   }): void,
   get node(): ?({|
@@ -72,7 +72,7 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     set parents(value: $ReadOnlyArray<{
       +__typename: "User",
       +__id: string,
-      +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+      +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
       ...
     }>): void,
   |} | {|
@@ -86,14 +86,14 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
   |},
   set node3(value: ?{
     +__id: string,
-    +__isreadUpdatableQueryEXPERIMENTALTest_node: string,
-    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_node$fragmentType,
+    +__isreadUpdatableQueryTest_node: string,
+    +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
     ...
   }): void,
 |};
-export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery = {|
-  response: readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data,
-  variables: readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables,
+export type readUpdatableQueryTestUpdatableQuery = {|
+  response: readUpdatableQueryTestUpdatableQuery$data,
+  variables: readUpdatableQueryTestUpdatableQuery$variables,
 |};
 */
 
@@ -122,14 +122,14 @@ v2 = {
 v3 = {
   "args": null,
   "kind": "FragmentSpread",
-  "name": "readUpdatableQueryEXPERIMENTALTest_user"
+  "name": "readUpdatableQueryTest_user"
 };
 return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "readUpdatableQueryEXPERIMENTALTestUpdatableQuery",
+    "name": "readUpdatableQueryTestUpdatableQuery",
     "selections": [
       {
         "alias": null,
@@ -305,7 +305,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "readUpdatableQueryEXPERIMENTALTest_node"
+            "name": "readUpdatableQueryTest_node"
           }
         ],
         "storageKey": "node(id:\"6\")"
@@ -319,10 +319,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "91a7122121c1d4d4b99ee4b8155b4fbd";
+  (node/*: any*/).hash = "ad00b2de468d8a8877260a0cb5a0db06";
 }
 
 module.exports = ((node/*: any*/)/*: UpdatableQuery<
-  readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables,
-  readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data,
+  readUpdatableQueryTestUpdatableQuery$variables,
+  readUpdatableQueryTestUpdatableQuery$data,
 >*/);

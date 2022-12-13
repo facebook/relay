@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a96ea72c4633964f0114941cdf83ab0d>>
+ * @generated SignedSource<<619ec10d1e504f16c0f60a943fe0e43c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,18 +18,18 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-export type readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$variables = {|
+export type readUpdatableQueryTest2UpdatableQuery$variables = {|
   id: string,
 |};
-export type readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$data = {|
+export type readUpdatableQueryTest2UpdatableQuery$data = {|
   get node(): ?{|
     +__typename: string,
   |},
   set node(value: null | void): void,
 |};
-export type readUpdatableQueryEXPERIMENTALTest2UpdatableQuery = {|
-  response: readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$data,
-  variables: readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$variables,
+export type readUpdatableQueryTest2UpdatableQuery = {|
+  response: readUpdatableQueryTest2UpdatableQuery$data,
+  variables: readUpdatableQueryTest2UpdatableQuery$variables,
 |};
 */
 
@@ -44,7 +44,7 @@ var node/*: ConcreteUpdatableQuery*/ = {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "readUpdatableQueryEXPERIMENTALTest2UpdatableQuery",
+    "name": "readUpdatableQueryTest2UpdatableQuery",
     "selections": [
       {
         "alias": null,
@@ -78,10 +78,10 @@ var node/*: ConcreteUpdatableQuery*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3351f181d26cbfcea5d107d3103ffd55";
+  (node/*: any*/).hash = "093b5c34b7f889b8759dda2c3bf97058";
 }
 
 module.exports = ((node/*: any*/)/*: UpdatableQuery<
-  readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$variables,
-  readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$data,
+  readUpdatableQueryTest2UpdatableQuery$variables,
+  readUpdatableQueryTest2UpdatableQuery$data,
 >*/);

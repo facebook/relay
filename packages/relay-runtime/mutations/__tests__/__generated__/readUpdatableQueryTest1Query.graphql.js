@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5634e99a491cd2ae82bcd6706505e576>>
+ * @generated SignedSource<<d1cacf95c8fda1da9298e6fa5809c354>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,13 @@
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
 import type { OpaqueScalarType } from "../OpaqueScalarType";
-export type readUpdatableQueryEXPERIMENTALTest1Query$variables = {||};
-export type readUpdatableQueryEXPERIMENTALTest1Query$data = {|
+export type readUpdatableQueryTest1Query$variables = {||};
+export type readUpdatableQueryTest1Query$data = {|
   updatable_scalar_field: ?OpaqueScalarType,
 |};
-export type readUpdatableQueryEXPERIMENTALTest1Query = {|
-  response: readUpdatableQueryEXPERIMENTALTest1Query$data,
-  variables: readUpdatableQueryEXPERIMENTALTest1Query$variables,
+export type readUpdatableQueryTest1Query = {|
+  response: readUpdatableQueryTest1Query$data,
+  variables: readUpdatableQueryTest1Query$variables,
 |};
 */
 
@@ -34,7 +34,7 @@ var node/*: ConcreteUpdatableQuery*/ = {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "readUpdatableQueryEXPERIMENTALTest1Query",
+    "name": "readUpdatableQueryTest1Query",
     "selections": [
       {
         "kind": "ClientExtension",
@@ -56,10 +56,10 @@ var node/*: ConcreteUpdatableQuery*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "deed3e3557d65f6306d1ab18a8a59859";
+  (node/*: any*/).hash = "67121b98c8a52240b7a99d3c4d26a509";
 }
 
 module.exports = ((node/*: any*/)/*: UpdatableQuery<
-  readUpdatableQueryEXPERIMENTALTest1Query$variables,
-  readUpdatableQueryEXPERIMENTALTest1Query$data,
+  readUpdatableQueryTest1Query$variables,
+  readUpdatableQueryTest1Query$data,
 >*/);

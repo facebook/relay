@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c82622b49c643852cb44e9189526a0e4>>
+ * @generated SignedSource<<6a07a0613287459204a27bf01dd58957>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { readUpdatableQueryEXPERIMENTALTest_node$fragmentType } from "./readUpdatableQueryEXPERIMENTALTest_node.graphql";
-import type { readUpdatableQueryEXPERIMENTALTest_user$fragmentType } from "./readUpdatableQueryEXPERIMENTALTest_user.graphql";
-export type readUpdatableQueryEXPERIMENTALTestRegularQuery$variables = {||};
-export type readUpdatableQueryEXPERIMENTALTestRegularQuery$data = {|
+import type { readUpdatableQueryTest_node$fragmentType } from "./readUpdatableQueryTest_node.graphql";
+import type { readUpdatableQueryTest_user$fragmentType } from "./readUpdatableQueryTest_user.graphql";
+export type readUpdatableQueryTestRegularQuery$variables = {||};
+export type readUpdatableQueryTestRegularQuery$data = {|
   +me: ?{|
     +__id: string,
-    +__isreadUpdatableQueryEXPERIMENTALTest_node?: "User",
+    +__isreadUpdatableQueryTest_node?: "User",
     +author: ?{|
       +client_best_friend: ?{|
         +name: ?string,
@@ -33,13 +33,13 @@ export type readUpdatableQueryEXPERIMENTALTestRegularQuery$data = {|
     |},
     +id: string,
     +name: ?string,
-    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_node$fragmentType,
+    +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   |},
   +node: ?{|
     +__typename: string,
     +__id: string,
     +name?: ?string,
-    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+    +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
   |},
   +node2: ?{|
     +name?: ?string,
@@ -52,9 +52,9 @@ export type readUpdatableQueryEXPERIMENTALTestRegularQuery$data = {|
     |}>,
   |},
 |};
-export type readUpdatableQueryEXPERIMENTALTestRegularQuery = {|
-  response: readUpdatableQueryEXPERIMENTALTestRegularQuery$data,
-  variables: readUpdatableQueryEXPERIMENTALTestRegularQuery$variables,
+export type readUpdatableQueryTestRegularQuery = {|
+  response: readUpdatableQueryTestRegularQuery$data,
+  variables: readUpdatableQueryTestRegularQuery$variables,
 |};
 */
 
@@ -155,7 +155,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "readUpdatableQueryEXPERIMENTALTestRegularQuery",
+    "name": "readUpdatableQueryTestRegularQuery",
     "selections": [
       {
         "alias": null,
@@ -168,13 +168,13 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "readUpdatableQueryEXPERIMENTALTest_node"
+            "name": "readUpdatableQueryTest_node"
           },
           {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": "__isreadUpdatableQueryEXPERIMENTALTest_node",
+                "alias": "__isreadUpdatableQueryTest_node",
                 "args": null,
                 "kind": "ScalarField",
                 "name": "__typename",
@@ -228,7 +228,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "readUpdatableQueryEXPERIMENTALTest_user"
+            "name": "readUpdatableQueryTest_user"
           },
           (v6/*: any*/),
           (v0/*: any*/),
@@ -256,7 +256,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "readUpdatableQueryEXPERIMENTALTestRegularQuery",
+    "name": "readUpdatableQueryTestRegularQuery",
     "selections": [
       {
         "alias": null,
@@ -341,21 +341,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ece638c7f4d79a48e34a167dbdf0c3a1",
+    "cacheID": "fc873ac420848e8fa3d8286d9837b2a6",
     "id": null,
     "metadata": {},
-    "name": "readUpdatableQueryEXPERIMENTALTestRegularQuery",
+    "name": "readUpdatableQueryTestRegularQuery",
     "operationKind": "query",
-    "text": "query readUpdatableQueryEXPERIMENTALTestRegularQuery {\n  me {\n    ...readUpdatableQueryEXPERIMENTALTest_node\n    id\n    name\n    author {\n      id\n    }\n  }\n  node(id: \"4\") {\n    __typename\n    ...readUpdatableQueryEXPERIMENTALTest_user\n    ... on User {\n      name\n    }\n    id\n  }\n  node2: node(id: \"5\") {\n    __typename\n    ... on User {\n      name\n      parents {\n        id\n        name\n        parents {\n          id\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_node on Node {\n  __isNode: __typename\n  __typename\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_user on User {\n  __typename\n}\n"
+    "text": "query readUpdatableQueryTestRegularQuery {\n  me {\n    ...readUpdatableQueryTest_node\n    id\n    name\n    author {\n      id\n    }\n  }\n  node(id: \"4\") {\n    __typename\n    ...readUpdatableQueryTest_user\n    ... on User {\n      name\n    }\n    id\n  }\n  node2: node(id: \"5\") {\n    __typename\n    ... on User {\n      name\n      parents {\n        id\n        name\n        parents {\n          id\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment readUpdatableQueryTest_node on Node {\n  __isNode: __typename\n  __typename\n}\n\nfragment readUpdatableQueryTest_user on User {\n  __typename\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "12785f1f4beff952cc20920d7c4bd1e2";
+  (node/*: any*/).hash = "bb6d520f1d382edceed7c6abb54ac6bb";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  readUpdatableQueryEXPERIMENTALTestRegularQuery$variables,
-  readUpdatableQueryEXPERIMENTALTestRegularQuery$data,
+  readUpdatableQueryTestRegularQuery$variables,
+  readUpdatableQueryTestRegularQuery$data,
 >*/);

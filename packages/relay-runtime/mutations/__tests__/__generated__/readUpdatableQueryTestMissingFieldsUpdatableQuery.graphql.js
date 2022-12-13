@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b6f92ddd7c21025a682f235962724c48>>
+ * @generated SignedSource<<4eea6b4fad6e2e207d671572badf8320>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-export type readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery$variables = {||};
-export type readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery$data = {|
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery$variables = {||};
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery$data = {|
   get me(): ?{|
     lastName: ?string,
   |},
@@ -43,9 +43,9 @@ export type readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery$data =
   |})>,
   set nodes(value: []): void,
 |};
-export type readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery = {|
-  response: readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery$data,
-  variables: readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery$variables,
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery = {|
+  response: readUpdatableQueryTestMissingFieldsUpdatableQuery$data,
+  variables: readUpdatableQueryTestMissingFieldsUpdatableQuery$variables,
 |};
 */
 
@@ -78,7 +78,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery",
+    "name": "readUpdatableQueryTestMissingFieldsUpdatableQuery",
     "selections": [
       {
         "alias": null,
@@ -141,10 +141,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9f4d223533dd6ace8cb0dc550cd0ed9b";
+  (node/*: any*/).hash = "33578755c95870b57a52adef714a176e";
 }
 
 module.exports = ((node/*: any*/)/*: UpdatableQuery<
-  readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery$variables,
-  readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery$data,
+  readUpdatableQueryTestMissingFieldsUpdatableQuery$variables,
+  readUpdatableQueryTestMissingFieldsUpdatableQuery$data,
 >*/);

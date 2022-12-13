@@ -18,7 +18,7 @@ import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 
 :::caution
 
-Because in TypeScript, [getters and setters cannot have different types](https://github.com/microsoft/TypeScript/issues/43662), and the generated types of getters and setters is not the same, `readUpdatableQuery_EXPERIMENTAL` is currently unusable with TypeScript. `readUpdatableFragment` is usable, as long as the updatable fragment contains only scalar fields.
+Because in TypeScript, [getters and setters cannot have different types](https://github.com/microsoft/TypeScript/issues/43662), and the generated types of getters and setters is not the same, `readUpdatableQuery` is currently unusable with TypeScript. `readUpdatableFragment` is usable, as long as the updatable fragment contains only scalar fields.
 
 :::
 
@@ -87,7 +87,7 @@ You should select that field in both a regular query/fragment **and** in an upda
 
 ## Where do I get a `store`?
 
-The classes `RelayRecordSourceSelectorProxy` and `RelayRecordSourceProxy` contain the methods `readUpdatableQuery_EXPERIMENTAL` and `readUpdatableFragment`. One can acquire an instance of these classes:
+The classes `RelayRecordSourceSelectorProxy` and `RelayRecordSourceProxy` contain the methods `readUpdatableQuery` and `readUpdatableFragment`. One can acquire an instance of these classes:
 
 * In updaters of mutations and subscriptions
 * In optimistic updaters of mutations

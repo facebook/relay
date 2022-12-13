@@ -490,7 +490,7 @@ export type HasUpdatableSpread<TFragmentType> = {
 };
 
 /**
- * The return type of calls to readUpdatableQuery_EXPERIMENTAL and
+ * The return type of calls to readUpdatableQuery and
  * readUpdatableFragment.
  */
 export type UpdatableData<TData> = {
@@ -510,10 +510,6 @@ export interface RecordSourceProxy {
   getRoot(): RecordProxy;
   invalidateStore(): void;
   readUpdatableQuery<TVariables: Variables, TData>(
-    query: UpdatableQuery<TVariables, TData>,
-    variables: TVariables,
-  ): UpdatableData<TData>;
-  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
   ): UpdatableData<TData>;

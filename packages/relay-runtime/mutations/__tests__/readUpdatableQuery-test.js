@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {readUpdatableQueryEXPERIMENTALTestRegularQuery} from './__generated__/readUpdatableQueryEXPERIMENTALTestRegularQuery.graphql';
+import type {readUpdatableQueryTestRegularQuery} from './__generated__/readUpdatableQueryTestRegularQuery.graphql';
 import type {OpaqueScalarType} from './OpaqueScalarType';
 
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -27,10 +27,10 @@ const {ROOT_TYPE} = require('../../store/RelayStoreUtils');
 const commitLocalUpdate = require('../commitLocalUpdate');
 const {
   validate: validateNode,
-} = require('./__generated__/readUpdatableQueryEXPERIMENTALTest_node.graphql');
+} = require('./__generated__/readUpdatableQueryTest_node.graphql');
 const {
   validate: validateUser,
-} = require('./__generated__/readUpdatableQueryEXPERIMENTALTest_user.graphql');
+} = require('./__generated__/readUpdatableQueryTest_user.graphql');
 const {createOpaqueScalarTypeValue} = require('./OpaqueScalarType');
 const {
   disallowConsoleErrors,
@@ -41,7 +41,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 const updatableQuery = graphql`
-  query readUpdatableQueryEXPERIMENTALTestUpdatableQuery @updatable {
+  query readUpdatableQueryTestUpdatableQuery @updatable {
     me {
       __typename
       __id
@@ -49,14 +49,14 @@ const updatableQuery = graphql`
       name
       author {
         client_best_friend {
-          ...readUpdatableQueryEXPERIMENTALTest_user
+          ...readUpdatableQueryTest_user
           name
         }
       }
       author2: author {
         client_nickname
       }
-      ...readUpdatableQueryEXPERIMENTALTest_user
+      ...readUpdatableQueryTest_user
     }
     node(id: "4") {
       ... on User {
@@ -69,7 +69,7 @@ const updatableQuery = graphql`
         __typename
         name
         parents {
-          ...readUpdatableQueryEXPERIMENTALTest_user
+          ...readUpdatableQueryTest_user
           name
           parents {
             name
@@ -79,13 +79,13 @@ const updatableQuery = graphql`
     }
     node3: node(id: "6") {
       id
-      ...readUpdatableQueryEXPERIMENTALTest_node
+      ...readUpdatableQueryTest_node
     }
   }
 `;
 
 const updatableQuery2 = graphql`
-  query readUpdatableQueryEXPERIMENTALTest2UpdatableQuery($id: ID!) @updatable {
+  query readUpdatableQueryTest2UpdatableQuery($id: ID!) @updatable {
     node(id: $id) {
       __typename
     }
@@ -93,9 +93,9 @@ const updatableQuery2 = graphql`
 `;
 
 const regularQuery = graphql`
-  query readUpdatableQueryEXPERIMENTALTestRegularQuery {
+  query readUpdatableQueryTestRegularQuery {
     me {
-      ...readUpdatableQueryEXPERIMENTALTest_node
+      ...readUpdatableQueryTest_node
       id
       name
       author {
@@ -106,7 +106,7 @@ const regularQuery = graphql`
       }
     }
     node(id: "4") {
-      ...readUpdatableQueryEXPERIMENTALTest_user
+      ...readUpdatableQueryTest_user
       ... on User {
         name
       }
@@ -127,13 +127,13 @@ const regularQuery = graphql`
 `;
 
 graphql`
-  fragment readUpdatableQueryEXPERIMENTALTest_user on User @assignable {
+  fragment readUpdatableQueryTest_user on User @assignable {
     __typename
   }
 `;
 
 graphql`
-  fragment readUpdatableQueryEXPERIMENTALTest_node on Node @assignable {
+  fragment readUpdatableQueryTest_node on Node @assignable {
     __typename
   }
 `;
@@ -171,7 +171,7 @@ describe('readUpdatableQuery', () => {
       expect(me?.getValue('id')).toEqual('4');
       expect(me?.getValue('name')).toEqual('Zuck');
 
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -198,7 +198,7 @@ describe('readUpdatableQuery', () => {
       expect(me?.getValue('id')).toEqual('4');
       expect(me?.getValue('name')).toEqual('Zuck');
 
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -213,7 +213,7 @@ describe('readUpdatableQuery', () => {
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableQueryTestRegularQuery['response']);
     expect(readOnlyData?.me?.name).toEqual('MetaZuck');
   });
 
@@ -234,7 +234,7 @@ describe('readUpdatableQuery', () => {
       expect(me?.getValue('id')).toEqual('4');
       expect(me?.getValue('name')).toEqual('Zuck');
 
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -283,7 +283,7 @@ describe('readUpdatableQuery', () => {
       expect(node2?.getValue('id')).toEqual('5');
       expect(node2?.getValue('name')).toEqual(undefined);
 
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -355,7 +355,7 @@ describe('readUpdatableQuery', () => {
         expect(node?.getValue('id')).toEqual('4');
         expect(node?.getValue('name')).toEqual('Zuck');
 
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           updatableQuery,
           {},
         ).updatableData;
@@ -363,7 +363,7 @@ describe('readUpdatableQuery', () => {
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
         const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+          .data: any): readUpdatableQueryTestRegularQuery['response']);
 
         expect(readOnlyData.me?.id).toBe('42');
 
@@ -395,7 +395,7 @@ describe('readUpdatableQuery', () => {
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
       const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+        .data: any): readUpdatableQueryTestRegularQuery['response']);
       expect(readOnlyData.me?.id).toBe('4');
     });
 
@@ -423,7 +423,7 @@ describe('readUpdatableQuery', () => {
       });
 
       commitLocalUpdate(environment, store => {
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           updatableQuery,
           {},
         ).updatableData;
@@ -431,7 +431,7 @@ describe('readUpdatableQuery', () => {
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
         const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+          .data: any): readUpdatableQueryTestRegularQuery['response']);
 
         const validUser = (() => {
           if (readOnlyData.node != null) {
@@ -471,7 +471,7 @@ describe('readUpdatableQuery', () => {
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
       const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+        .data: any): readUpdatableQueryTestRegularQuery['response']);
       if (readOnlyData.node2?.parents != null) {
         expect(readOnlyData.node2?.parents[0]?.name).toBe(
           'Gaius Julius Caesar',
@@ -505,7 +505,7 @@ describe('readUpdatableQuery', () => {
       });
 
       commitLocalUpdate(environment, store => {
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           updatableQuery,
           {},
         ).updatableData;
@@ -513,7 +513,7 @@ describe('readUpdatableQuery', () => {
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
         const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+          .data: any): readUpdatableQueryTestRegularQuery['response']);
 
         const author = (() => {
           if (updatableData.me?.author != null) {
@@ -540,7 +540,7 @@ describe('readUpdatableQuery', () => {
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
       const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+        .data: any): readUpdatableQueryTestRegularQuery['response']);
       expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mark');
     });
 
@@ -558,7 +558,7 @@ describe('readUpdatableQuery', () => {
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
         const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+          .data: any): readUpdatableQueryTestRegularQuery['response']);
         if (readOnlyData.node != null) {
           expect(validateUser(readOnlyData.node)).toBe(false);
         } else {
@@ -580,7 +580,7 @@ describe('readUpdatableQuery', () => {
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
         const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+          .data: any): readUpdatableQueryTestRegularQuery['response']);
         if (readOnlyData.node != null) {
           expect(validateUser(readOnlyData.node)).toEqual(readOnlyData.node);
         } else {
@@ -604,7 +604,7 @@ describe('readUpdatableQuery', () => {
       });
 
       commitLocalUpdate(environment, store => {
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           updatableQuery,
           {},
         ).updatableData;
@@ -612,7 +612,7 @@ describe('readUpdatableQuery', () => {
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
         const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+          .data: any): readUpdatableQueryTestRegularQuery['response']);
 
         const validNode = (() => {
           if (readOnlyData.me != null) {
@@ -638,7 +638,7 @@ describe('readUpdatableQuery', () => {
             id: '4',
             name: 'Mark',
             author: null,
-            __isreadUpdatableQueryEXPERIMENTALTest_node: null,
+            __isreadUpdatableQueryTest_node: null,
           },
           node: null,
           node2: null,
@@ -647,10 +647,8 @@ describe('readUpdatableQuery', () => {
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
         const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
-        expect(
-          readOnlyData.me?.__isreadUpdatableQueryEXPERIMENTALTest_node,
-        ).toBe('User');
+          .data: any): readUpdatableQueryTestRegularQuery['response']);
+        expect(readOnlyData.me?.__isreadUpdatableQueryTest_node).toBe('User');
         if (readOnlyData.me != null) {
           expect(validateNode(readOnlyData.me)).toBe(readOnlyData.me);
         } else {
@@ -685,7 +683,7 @@ describe('readUpdatableQuery', () => {
       expect(node?.getValue('id')).toEqual('4');
       expect(node?.getValue('name')).toEqual('Zuck');
 
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -701,7 +699,7 @@ describe('readUpdatableQuery', () => {
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableQueryTestRegularQuery['response']);
     expect(readOnlyData.me).toBe(null);
   });
 
@@ -735,7 +733,7 @@ describe('readUpdatableQuery', () => {
         throw new Error('parents should not be null');
       }
 
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -760,7 +758,7 @@ describe('readUpdatableQuery', () => {
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableQueryTestRegularQuery['response']);
     expect(readOnlyData.node2?.parents).toEqual([]);
   });
 
@@ -788,7 +786,7 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -796,7 +794,7 @@ describe('readUpdatableQuery', () => {
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
       const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+        .data: any): readUpdatableQueryTestRegularQuery['response']);
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
@@ -845,7 +843,7 @@ describe('readUpdatableQuery', () => {
       },
     });
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -878,22 +876,19 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
-        updatableQuery2,
-        {id: '4'},
-      ).updatableData;
+      const updatableData = store.readUpdatableQuery(updatableQuery2, {
+        id: '4',
+      }).updatableData;
       expect(updatableData.node?.__typename).toBe('Metahuman');
 
-      const updatableData2 = store.readUpdatableQuery_EXPERIMENTAL(
-        updatableQuery2,
-        {id: '5'},
-      ).updatableData;
+      const updatableData2 = store.readUpdatableQuery(updatableQuery2, {
+        id: '5',
+      }).updatableData;
       expect(updatableData2.node?.__typename).toBe('Page');
 
-      const updatableData3 = store.readUpdatableQuery_EXPERIMENTAL(
-        updatableQuery2,
-        {id: '42'},
-      ).updatableData;
+      const updatableData3 = store.readUpdatableQuery(updatableQuery2, {
+        id: '42',
+      }).updatableData;
       expect(updatableData3.node).toBe(undefined);
     });
   });
@@ -909,7 +904,7 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
         updatableQuery2,
         // $FlowFixMe[prop-missing] That's the point
@@ -939,7 +934,7 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -974,7 +969,7 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -989,7 +984,7 @@ describe('readUpdatableQuery', () => {
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableQueryTestRegularQuery['response']);
     expect(readOnlyData.me?.author?.client_nickname).toBe('Mr. Right');
   });
 
@@ -1013,7 +1008,7 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+      const updatableData = store.readUpdatableQuery(
         updatableQuery,
         {},
       ).updatableData;
@@ -1031,7 +1026,7 @@ describe('readUpdatableQuery', () => {
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+      .data: any): readUpdatableQueryTestRegularQuery['response']);
     expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mr. Right');
   });
 
@@ -1039,12 +1034,12 @@ describe('readUpdatableQuery', () => {
     it('should update custom scalar field', () => {
       // Read initial data
       const readableQuery = graphql`
-        query readUpdatableQueryEXPERIMENTALTest2Query {
+        query readUpdatableQueryTest2Query {
           updatable_scalar_field
         }
       `;
       const updateableQuery = graphql`
-        query readUpdatableQueryEXPERIMENTALTest1Query @updatable {
+        query readUpdatableQueryTest1Query @updatable {
           updatable_scalar_field
         }
       `;
@@ -1057,7 +1052,7 @@ describe('readUpdatableQuery', () => {
 
       function updateCustomScalar(newValue: OpaqueScalarType) {
         commitLocalUpdate(environment, store => {
-          const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+          const updatableData = store.readUpdatableQuery(
             updateableQuery,
             {},
           ).updatableData;
@@ -1107,8 +1102,7 @@ describe('readUpdatableQuery', () => {
     // Hence, we provide data using different operations that do not contain the fields
     // we are attempting to provide via missing field handlers.
     const missingFieldsUpdatableQuery = graphql`
-      query readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery
-      @updatable {
+      query readUpdatableQueryTestMissingFieldsUpdatableQuery @updatable {
         node(id: "4") {
           ... on User {
             __typename
@@ -1127,7 +1121,7 @@ describe('readUpdatableQuery', () => {
       }
     `;
     const missingFieldsQuery = graphql`
-      query readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery {
+      query readUpdatableQueryTestMissingFieldsQuery {
         me {
           name
         }
@@ -1210,7 +1204,7 @@ describe('readUpdatableQuery', () => {
         expect(me?.getValue('id')).toEqual('4');
         expect(me?.getValue('name')).toEqual('Zuck');
 
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           missingFieldsUpdatableQuery,
           {},
         ).updatableData;
@@ -1241,7 +1235,7 @@ describe('readUpdatableQuery', () => {
         expect(me?.getValue('id')).toEqual('4');
         expect(me?.getValue('name')).toEqual('Zuck');
 
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           missingFieldsUpdatableQuery,
           {},
         ).updatableData;
@@ -1272,7 +1266,7 @@ describe('readUpdatableQuery', () => {
         expect(me?.getValue('id')).toEqual('4');
         expect(me?.getValue('name')).toEqual('Zuck');
 
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           missingFieldsUpdatableQuery,
           {},
         ).updatableData;

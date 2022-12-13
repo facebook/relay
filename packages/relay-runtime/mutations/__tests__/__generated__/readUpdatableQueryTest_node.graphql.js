@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9ffe9f81f75d4b0bcef30ac7c4c3f08c>>
+ * @generated SignedSource<<53b3b22d71f7629f39c4f4603c4586ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,19 +18,19 @@
 
 /*::
 import type { FragmentType } from "relay-runtime";
-declare export opaque type readUpdatableQueryEXPERIMENTALTest_user$fragmentType: FragmentType;
+declare export opaque type readUpdatableQueryTest_node$fragmentType: FragmentType;
 */
 
 module.exports.validate = function validate(value/*: {
-  +__typename: string,
   +__id: string,
-  +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+  +__isreadUpdatableQueryTest_node?: string,
+  +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   ...
 }*/)/*: false | {
-  +__typename: "User",
   +__id: string,
-  +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+  +__isreadUpdatableQueryTest_node: string,
+  +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   ...
 }*/ {
-  return value.__typename === 'User' ? (value/*: any*/) : false;
+  return value.__isreadUpdatableQueryTest_node != null ? (value/*: any*/) : false;
 };

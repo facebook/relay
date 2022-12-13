@@ -36,9 +36,7 @@ const RelayModernRecord = require('../store/RelayModernRecord');
 const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
 const {readUpdatableFragment} = require('./readUpdatableFragment');
-const {
-  readUpdatableQuery_EXPERIMENTAL,
-} = require('./readUpdatableQuery_EXPERIMENTAL');
+const {readUpdatableQuery} = require('./readUpdatableQuery');
 const RelayRecordProxy = require('./RelayRecordProxy');
 const invariant = require('invariant');
 
@@ -174,23 +172,11 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     return this._idsMarkedForInvalidation;
   }
 
-  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
-    query: UpdatableQuery<TVariables, TData>,
-    variables: TVariables,
-  ): UpdatableData<TData> {
-    return readUpdatableQuery_EXPERIMENTAL(
-      query,
-      variables,
-      this,
-      this._missingFieldHandlers,
-    );
-  }
-
   readUpdatableQuery<TVariables: Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
   ): UpdatableData<TData> {
-    return readUpdatableQuery_EXPERIMENTAL(
+    return readUpdatableQuery(
       query,
       variables,
       this,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5bee78bb62af7ece3766b49e2a68348e>>
+ * @generated SignedSource<<88fe93c5b9a904ac7103fa3166ecc584>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { OpaqueScalarType } from "../OpaqueScalarType";
-export type readUpdatableQueryEXPERIMENTALTest2Query$variables = {||};
-export type readUpdatableQueryEXPERIMENTALTest2Query$data = {|
+export type readUpdatableQueryTest2Query$variables = {||};
+export type readUpdatableQueryTest2Query$data = {|
   +updatable_scalar_field: ?OpaqueScalarType,
 |};
-export type readUpdatableQueryEXPERIMENTALTest2Query = {|
-  response: readUpdatableQueryEXPERIMENTALTest2Query$data,
-  variables: readUpdatableQueryEXPERIMENTALTest2Query$variables,
+export type readUpdatableQueryTest2Query = {|
+  response: readUpdatableQueryTest2Query$data,
+  variables: readUpdatableQueryTest2Query$variables,
 |};
 */
 
@@ -49,7 +49,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "readUpdatableQueryEXPERIMENTALTest2Query",
+    "name": "readUpdatableQueryTest2Query",
     "selections": (v0/*: any*/),
     "type": "Query",
     "abstractKey": null
@@ -58,14 +58,14 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "readUpdatableQueryEXPERIMENTALTest2Query",
+    "name": "readUpdatableQueryTest2Query",
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "20dce9c8e494595d2a6c2c0708b45a9b",
+    "cacheID": "dd26ecea75e3561a6784a7144142c864",
     "id": null,
     "metadata": {},
-    "name": "readUpdatableQueryEXPERIMENTALTest2Query",
+    "name": "readUpdatableQueryTest2Query",
     "operationKind": "query",
     "text": null
   }
@@ -73,10 +73,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c0277f7ea53774f1ffa8f57b9e0b35a1";
+  (node/*: any*/).hash = "17153fb9c11380ca4682cb0bf6f90711";
 }
 
 module.exports = ((node/*: any*/)/*: ClientQuery<
-  readUpdatableQueryEXPERIMENTALTest2Query$variables,
-  readUpdatableQueryEXPERIMENTALTest2Query$data,
+  readUpdatableQueryTest2Query$variables,
+  readUpdatableQueryTest2Query$data,
 >*/);

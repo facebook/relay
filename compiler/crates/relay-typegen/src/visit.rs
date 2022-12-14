@@ -509,12 +509,11 @@ fn import_relay_resolver_function_type(
 
 /// Check if the scalar field has output type as `RelayResolverValue`
 fn is_relay_resolver_type(typegen_context: &'_ TypegenContext<'_>, field: &Field) -> bool {
-    typegen_context
-        .schema
-        .scalar(field.type_.inner().get_scalar_id().unwrap())
-        .name
-        .item
-        == *TYPE_RELAY_RESOLVER_VALUE
+    if let Some(scalar_id) = field.type_.inner().get_scalar_id() {
+        typegen_context.schema.scalar(scalar_id).name.item == *TYPE_RELAY_RESOLVER_VALUE
+    } else {
+        false
+    }
 }
 
 /// Build relay resolver field type

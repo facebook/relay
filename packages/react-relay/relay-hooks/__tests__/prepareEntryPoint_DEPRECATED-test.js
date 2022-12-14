@@ -33,6 +33,7 @@ class FakeJSResource<T> {
     this._resource = resource;
 
     this.getModuleIfRequired = jest.fn(() => this._resource);
+    // $FlowFixMe[incompatible-type-arg]
     this.load = jest.fn(() => {
       return new Promise(resolve => {
         this._resolve = resolve;

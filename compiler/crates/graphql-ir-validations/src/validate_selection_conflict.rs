@@ -467,7 +467,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             location_b,
         )
         .metadata_for_machine("err", "InvalidSameFieldWithDifferentArguments")
-        .metadata_for_machine("filed_name", field_name.lookup())
+        .metadata_for_machine("field_name", field_name.lookup())
         .metadata_for_machine("arg_a", arguments_a_printed)
         .metadata_for_machine("arg_b", arguments_b_printed)
         .metadata_for_machine("loc_a", format!("{:?}", location_a))

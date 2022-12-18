@@ -1,0 +1,11 @@
+node_modules/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+/cra-js
+/cra-ts
+/vite-js
+/vite-ts
+/next-js
+/next-ts

@@ -1,0 +1,18 @@
+{
+  // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
+  "include": ["src"],
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "lib": ["dom", "esnext"],
+    "rootDir": "./src",
+    "outDir": "dist",
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

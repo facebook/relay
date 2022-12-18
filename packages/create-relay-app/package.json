@@ -1,0 +1,56 @@
+{
+  "name": "create-relay-app",
+  "description": "Easy configuration of Relay for existing projects",
+  "version": "0.0.0",
+  "keywords": [
+    "create-relay-app",
+    "graphql",
+    "relay",
+    "react",
+    "vite.js",
+    "next.js",
+    "create react app"
+  ],
+  "license": "MIT",
+  "homepage": "https://relay.dev",
+  "bugs": "https://github.com/facebook/relay/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facebook/relay.git",
+    "directory": "packages/create-relay-app"
+  },
+  "files": [
+    "./dist"
+  ],
+  "bin": "./dist/bin.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "tsc --watch",
+    "format": "prettier --write ./src/**/*.ts"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@types/babel__generator": "^7.6.4",
+    "@types/babel__traverse": "^7.18.0",
+    "@types/fs-extra": "^9.0.13",
+    "@types/glob": "^7.2.0",
+    "@types/inquirer": "^9.0.0",
+    "@types/node": "^18.6.5",
+    "@types/ora": "^3.2.0",
+    "@types/prettier": "^2.7.0",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.18.12",
+    "@babel/parser": "^7.18.11",
+    "@babel/traverse": "^7.18.11",
+    "chalk": "^5.0.1",
+    "commander": "^9.4.0",
+    "fs-extra": "^10.1.0",
+    "glob": "^8.0.3",
+    "inquirer": "^9.1.0",
+    "ora": "^6.1.2",
+    "prettier": "^2.7.1"
+  }
+}

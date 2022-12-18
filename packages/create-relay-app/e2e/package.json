@@ -1,0 +1,19 @@
+{
+  "name": "e2e",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "playwright test",
+    "postinstall": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.25.0",
+    "@types/babel__core": "^7.1.19"
+  },
+  "dependencies": {
+    "@babel/core": "^7.18.10",
+    "@babel/generator": "^7.18.12",
+    "@babel/traverse": "^7.18.11",
+    "@babel/types": "^7.18.10"
+  }
+}

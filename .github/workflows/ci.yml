@@ -108,7 +108,7 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - run: sudo apt install libssl-dev
+      - run: sudo apt-get install pkg-config libssl-dev
       - name: "Build compiler test project"
         run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
         working-directory: ./compiler/test-project

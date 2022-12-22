@@ -79,7 +79,7 @@ jobs:
         run: yarn run typecheck
 
   build-tests:
-    name: Rust Tests (${{ matrix.os }})
+    name: Rust Tests (${{ matrix.target.os }})
     strategy:
       matrix:
         target:
@@ -90,7 +90,7 @@ jobs:
             os: macos-latest
           - target: windows-latest
             os: windows-latest
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -108,6 +108,7 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
+      - run: sudo apt install libssl-dev
       - name: "Build compiler test project"
         run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
         working-directory: ./compiler/test-project

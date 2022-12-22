@@ -123,7 +123,7 @@ jobs:
           command: run
           args: --manifest-path=compiler/Cargo.toml --bin relay --release --features vendored ./scripts/config.tests.json
       - name: "Check working directory status"
-        run: './check-git-status.sh'
+        run: './scripts/check-git-status.sh'
 
   rust-lint:
     name: Rust Lint

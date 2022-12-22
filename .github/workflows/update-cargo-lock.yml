@@ -25,7 +25,6 @@ jobs:
           override: true
       - name: cargo check
         run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
-        working-directory: compiler
       - name: pull-request
         uses: peter-evans/create-pull-request@v4
         with:

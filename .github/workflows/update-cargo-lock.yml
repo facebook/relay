@@ -26,8 +26,8 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --features vendored
-          working-directory: ./compiler/
+          args: --features vendored --manifest-path=compiler/Cargo.toml
+          working-directory: compiler
       - name: pull-request
         uses: peter-evans/create-pull-request@v4
         with:

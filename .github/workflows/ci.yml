@@ -90,14 +90,21 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - uses: actions-rs/cargo@v1
+      - run: cargo test --manifest-path=compiler/Cargo.toml --locked
+
+  build-test-projects:
+    name: Build artifacts for test projects and runtime unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
         with:
-          command: test
-          args: --manifest-path=compiler/Cargo.toml --locked
+          toolchain: 1.64.0
+          override: true
       - name: "Build compiler test project"
         run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
         working-directory: ./compiler/test-project
-      - name: "Build relay Unit-tests"
+      - name: "Build relay unit-tests"
         run: './compile-tests.sh'
         working-directory: ./scripts
       - name: "Check working directory status"

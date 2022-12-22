@@ -109,16 +109,13 @@ jobs:
           toolchain: 1.64.0
           override: true
       - name: "Build compiler test project"
-        run: cargo build --manifest-path=../crates/relay-bin/Cargo.toml --features vendored
+        run: cargo build --features vendored
       - name: "Run compiler for test project"
-        run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml --bin relay --release
-        working-directory: ./compiler/test-project
+        run: cargo run --bin relay --release ./compiler/test-project/relay.config.js
       - name: "Build relay unit-tests"
-        run: './compile-tests.sh'
-        working-directory: ./scripts
+        run: cargo run --bin relay --release ./scripts/config.tests.json
       - name: "Check working directory status"
         run: './check-git-status.sh'
-        working-directory: ./scripts
 
   rust-lint:
     name: Rust Lint

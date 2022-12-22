@@ -108,9 +108,8 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - run: sudo apt-get install pkg-config libssl-dev
       - name: "Build compiler test project"
-        run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
+        run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml --feature vendored
         working-directory: ./compiler/test-project
       - name: "Build relay unit-tests"
         run: './compile-tests.sh'

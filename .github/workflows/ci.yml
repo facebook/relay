@@ -97,7 +97,11 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
+      - uses: actions-rs/cargo@v1
+        name: "test"
+        with:
+          command: test
+          args: --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
 
   build-test-projects:
     name: Build artifacts for test projects and runtime unit tests
@@ -108,12 +112,16 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - name: "Build compiler test project"
-        run: cargo build --manifest-path=compiler/Cargo.toml --features vendored
-      - name: "Run compiler for test project"
-        run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release --features vendored ./compiler/test-project/relay.config.js 
-      - name: "Build relay unit-tests"
-        run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release --features vendored ./scripts/config.tests.json
+      - uses: actions-rs/cargo@v1
+        name: "Build test project"
+        with:
+          command: run
+          args: --manifest-path=compiler/Cargo.toml --bin relay --release --features vendored ./compiler/test-project/relay.config.json
+      - uses: actions-rs/cargo@v1
+        name: "Build Relay unit-test artifacts"
+        with:
+          command: run
+          args: --manifest-path=compiler/Cargo.toml --bin relay --release --features vendored ./scripts/config.tests.json
       - name: "Check working directory status"
         run: './check-git-status.sh'
 

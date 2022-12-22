@@ -109,11 +109,11 @@ jobs:
           toolchain: 1.64.0
           override: true
       - name: "Build compiler test project"
-        run: cargo build --features vendored
+        run: cargo build --manifest-path=compiler/Cargo.toml --features vendored
       - name: "Run compiler for test project"
-        run: cargo run --bin relay --release ./compiler/test-project/relay.config.js
+        run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release ./compiler/test-project/relay.config.js
       - name: "Build relay unit-tests"
-        run: cargo run --bin relay --release ./scripts/config.tests.json
+        run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release ./scripts/config.tests.json
       - name: "Check working directory status"
         run: './check-git-status.sh'
 

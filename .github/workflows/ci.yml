@@ -104,8 +104,18 @@ jobs:
           args: --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
 
   build-test-projects:
-    name: Build artifacts for test projects and runtime unit tests
-    runs-on: ubuntu-latest
+    name: Build artifacts check (${{ matrix.target.os }})
+    strategy:
+      matrix:
+        target:
+          - target: ubuntu-latest
+            os: ubuntu-latest
+            features: vendored
+          - target: macos-latest
+            os: macos-latest
+          - target: windows-latest
+            os: windows-latest
+    runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -116,12 +126,12 @@ jobs:
         name: "Build test project"
         with:
           command: run
-          args: --manifest-path=compiler/Cargo.toml --bin relay --release --features vendored ./compiler/test-project/relay.config.json
+          args: --manifest-path=compiler/Cargo.toml --bin relay --release ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }} ./compiler/test-project/relay.config.json
       - uses: actions-rs/cargo@v1
         name: "Build Relay unit-test artifacts"
         with:
           command: run
-          args: --manifest-path=compiler/Cargo.toml --bin relay --release --features vendored ./scripts/config.tests.json
+          args: --manifest-path=compiler/Cargo.toml --bin relay --release ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }} ./scripts/config.tests.json
       - name: "Check working directory status"
         run: './scripts/check-git-status.sh'
 

@@ -82,7 +82,14 @@ jobs:
     name: Rust Tests (${{ matrix.os }})
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        target:
+          - target: ubuntu-latest
+            os: ubuntu-latest
+            features: vendored
+          - target: macos-latest
+            os: macos-latest
+          - target: windows-latest
+            os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -90,7 +97,7 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - run: cargo test --manifest-path=compiler/Cargo.toml --locked
+      - run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
 
   build-test-projects:
     name: Build artifacts for test projects and runtime unit tests

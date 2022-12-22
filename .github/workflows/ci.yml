@@ -109,7 +109,9 @@ jobs:
           toolchain: 1.64.0
           override: true
       - name: "Build compiler test project"
-        run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml --features vendored
+        run: cargo build --manifest-path=../crates/relay-bin/Cargo.toml --features vendored
+      - name: "Run compiler for test project"
+        run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml --bin relay --release
         working-directory: ./compiler/test-project
       - name: "Build relay unit-tests"
         run: './compile-tests.sh'

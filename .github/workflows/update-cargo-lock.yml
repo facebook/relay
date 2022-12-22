@@ -23,11 +23,9 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --features vendored --manifest-path=compiler/Cargo.toml
-          working-directory: compiler
+      - name: cargo check
+        run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
+        working-directory: compiler
       - name: pull-request
         uses: peter-evans/create-pull-request@v4
         with:

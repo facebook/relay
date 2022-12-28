@@ -23,9 +23,8 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - name: "cargo check"
-        run: cargo check
-        working-directory: ./compiler/
+      - name: cargo check
+        run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
       - name: pull-request
         uses: peter-evans/create-pull-request@v4
         with:

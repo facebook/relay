@@ -2832,9 +2832,9 @@ decimal.js@^10.2.1:
   integrity sha512-V0pfhfr8suzyPGOx3nmq4aHqabehUZn6Ch9kyFpV79TGDTWFmHqUqXdabR7QHqxzrYolF4+tVmJhUG4OURg5dQ==
 
 decode-uri-component@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"
-  integrity sha512-hjf+xovcEn31w/EUYdTXQh/8smFL/dzYjohQGEIgjyNavaJfBY2p5F527Bo1VPATxv0VYTUC2bOcXvqFwk78Og==
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
+  integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
 
 decompress-response@^6.0.0:
   version "6.0.0"
@@ -3387,7 +3387,6 @@ eslint-plugin-react@7.30.1:
 
 "eslint-plugin-relay-internal@link:./packages/eslint-plugin-relay-internal":
   version "0.0.0"
-  uid ""
 
 eslint-plugin-relay@1.8.3:
   version "1.8.3"
@@ -3931,10 +3930,10 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.6.tgz#022e9218c637f9f3fc9c35ab9c9193f05add60b2"
   integrity sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==
 
-flow-bin@^0.196.0:
-  version "0.196.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.196.0.tgz#171952a2f30c48e45f4e9b6ac4a51968594c222d"
-  integrity sha512-FnLpDvRV8ELcpxSeYBo4SPADUk0OMReX8zV/1dOF63PesO8tHVBJX/CI1JOdx2emzXRs3Lv8/UMz9+x2OpYsSg==
+flow-bin@^0.196.3:
+  version "0.196.3"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.196.3.tgz#b6df48986a2629f2c6a26fb79d73fc07c8056af0"
+  integrity sha512-pmvjlksi1CvkSnDHpcfhDFj/KC3hwSgE2OpzvugW57dfgqfHzqX1UfZIcScGWM5AmP/IeOsQCW383k3zIbEnrA==
 
 flush-write-stream@^1.0.0, flush-write-stream@^1.0.2:
   version "1.1.1"

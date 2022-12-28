@@ -13,7 +13,7 @@ path = "tests/hover_test.rs"
 [dependencies]
 common = { path = "../common" }
 crossbeam = "0.8"
-dashmap = { version = "5.4", features = ["rayon", "serde"] }
+dashmap = { version = "5.4", features = ["raw-api", "rayon", "serde"] }
 docblock-syntax = { path = "../docblock-syntax" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"

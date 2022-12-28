@@ -55,13 +55,6 @@ fn fragment_with_defer_if_false() {
 }
 
 #[test]
-fn fragment_with_defer_if_null_invalid() {
-    let input = include_str!("defer_stream/fixtures/fragment-with-defer-if-arg-null.invalid.graphql");
-    let expected = include_str!("defer_stream/fixtures/fragment-with-defer-if-arg-null.invalid.expected");
-    test_fixture(transform_fixture, "fragment-with-defer-if-arg-null.invalid.graphql", "defer_stream/fixtures/fragment-with-defer-if-arg-null.invalid.expected", input, expected);
-}
-
-#[test]
 fn fragment_with_defer_statically_disabled() {
     let input = include_str!("defer_stream/fixtures/fragment-with-defer-statically-disabled.graphql");
     let expected = include_str!("defer_stream/fixtures/fragment-with-defer-statically-disabled.expected");
@@ -94,13 +87,6 @@ fn fragment_with_stream_if_arg() {
     let input = include_str!("defer_stream/fixtures/fragment-with-stream-if-arg.graphql");
     let expected = include_str!("defer_stream/fixtures/fragment-with-stream-if-arg.expected");
     test_fixture(transform_fixture, "fragment-with-stream-if-arg.graphql", "defer_stream/fixtures/fragment-with-stream-if-arg.expected", input, expected);
-}
-
-#[test]
-fn fragment_with_stream_if_arg_null_invalid() {
-    let input = include_str!("defer_stream/fixtures/fragment-with-stream-if-arg-null.invalid.graphql");
-    let expected = include_str!("defer_stream/fixtures/fragment-with-stream-if-arg-null.invalid.expected");
-    test_fixture(transform_fixture, "fragment-with-stream-if-arg-null.invalid.graphql", "defer_stream/fixtures/fragment-with-stream-if-arg-null.invalid.expected", input, expected);
 }
 
 #[test]

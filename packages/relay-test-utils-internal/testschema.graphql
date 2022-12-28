@@ -16,7 +16,7 @@ directive @defer(
 ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @stream(
-  label: String!
+  label: String
   initialCount: Int = 0
   if: Boolean! = true
   use_customized_batch: Boolean = false

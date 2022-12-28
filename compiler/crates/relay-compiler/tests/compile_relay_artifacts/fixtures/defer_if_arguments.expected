@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 query deferIfArgumentsQuery (
-  $valueFromQuery: Boolean
+  $valueFromQuery: Boolean!
 ) {
   ...deferIfArguments_F1 @arguments(
     setToValue: $valueFromQuery
@@ -11,11 +11,11 @@ query deferIfArgumentsQuery (
 
 
 fragment deferIfArguments_F1 on Query @argumentDefinitions(
-  defaultsToTrue: {type: "Boolean", defaultValue: true}
-  defaultsToFalse: {type: "Boolean", defaultValue: false}
-  setToValue: {type: "Boolean", defaultValue: false}
-  setToTrue: {type: "Boolean", defaultValue: false}
-  setToFalse: {type: "Boolean", defaultValue: false}
+  defaultsToTrue: {type: "Boolean!", defaultValue: true}
+  defaultsToFalse: {type: "Boolean!", defaultValue: false}
+  setToValue: {type: "Boolean!", defaultValue: false}
+  setToTrue: {type: "Boolean!", defaultValue: false}
+  setToFalse: {type: "Boolean!", defaultValue: false}
 ) {
   withDefaultTrue: me {
     ...deferIfArguments_F2 @defer(if: $defaultsToTrue, label: "defaultTrue")
@@ -284,7 +284,7 @@ fragment deferIfArguments_F2 on User {
 QUERY:
 
 query deferIfArgumentsQuery(
-  $valueFromQuery: Boolean
+  $valueFromQuery: Boolean!
 ) {
   ...deferIfArguments_F1_39RTKZ
 }

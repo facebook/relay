@@ -1,4 +1,4 @@
-query QueryWithFragmentWithDefer($enableDefer: Boolean) {
+query QueryWithFragmentWithDefer($enableDefer: Boolean!) {
   me {
     id
     ...UserFragment

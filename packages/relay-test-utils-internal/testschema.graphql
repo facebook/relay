@@ -12,7 +12,7 @@ directive @fixme_fat_interface on FIELD
 
 directive @defer(
   label: String!
-  if: Boolean = true
+  if: Boolean! = true
 ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @stream(

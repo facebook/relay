@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query QueryWithFragmentWithDefer($enableDefer: Boolean) {
+query QueryWithFragmentWithDefer($enableDefer: Boolean!) {
   me {
     id
     ...UserFragment
@@ -18,7 +18,7 @@ fragment DeferredFragment on User {
 }
 ==================================== OUTPUT ===================================
 query QueryWithFragmentWithDefer(
-  $enableDefer: Boolean
+  $enableDefer: Boolean!
 ) {
   me {
     id

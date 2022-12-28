@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "DeferredFragmentLabel", if: null)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+==================================== ERROR ====================================
+✖︎ Expected a value of type 'Boolean'
+
+  fragment-with-defer-if-arg-null.invalid.graphql:12:66
+   11 │   emailAddresses
+   12 │   ...DeferredFragment @defer(label: "DeferredFragmentLabel", if: null)
+      │                                                                  ^^^^
+   13 │ }

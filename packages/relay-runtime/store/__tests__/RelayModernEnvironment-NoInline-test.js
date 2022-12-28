@@ -810,7 +810,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const QueryWithDeferredStream = graphql`
             query RelayModernEnvironmentNoInlineTestDeferredStreamQuery(
               $cond: Boolean!
-              $enableStream: Boolean
+              $enableStream: Boolean!
             ) {
               viewer {
                 ...RelayModernEnvironmentNoInlineTestDeferredStreamParent

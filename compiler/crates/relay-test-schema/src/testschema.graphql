@@ -19,7 +19,7 @@ directive @_auto_hoisted on VARIABLE_DEFINITION
 directive @fb_actor_change on FIELD
 
 directive @defer(
-  label: String!
+  label: String
   if: Boolean! = true
 ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 

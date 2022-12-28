@@ -25,7 +25,7 @@ directive @defer(
 
 directive @stream(
   label: String!
-  initialCount: Int!
+  initialCount: Int = 0
   if: Boolean = true
   use_customized_batch: Boolean = false
 ) on FIELD

@@ -229,13 +229,6 @@ impl DeferStreamTransform<'_> {
             )));
         }
 
-        if initial_count_arg.is_none() {
-            return Err(Diagnostic::error(
-                ValidationMessage::StreamInitialCountRequired,
-                stream.name.location,
-            ));
-        }
-
         let label_value = get_literal_string_argument(stream, label_arg)?;
         let label = label_value.unwrap_or_else(|| {
             get_applied_fragment_name(
@@ -435,9 +428,6 @@ enum ValidationMessage {
 
     #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
     StreamFieldIsNotAList { field_name: StringKey },
-
-    #[error("Invalid use of @stream, the 'initialCount' argument is required.")]
-    StreamInitialCountRequired,
 
     #[error(
         "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."

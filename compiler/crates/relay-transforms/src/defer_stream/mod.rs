@@ -223,17 +223,16 @@ impl DeferStreamTransform<'_> {
             Transformed::Delete => Transformed::Delete,
         };
 
-         if let Some(initial_count_arg) = initial_count_arg {
+        if let Some(initial_count_arg) = initial_count_arg {
             if let Some(initial_count_val) = initial_count_arg.value.item.get_int_literal() {
                 if initial_count_val < 0 {
                     return Err(Diagnostic::error(
-                ValidationMessage::InvalidStreamInitialCount,
+                        ValidationMessage::InvalidStreamInitialCount,
                         initial_count_arg.value.location,
                     ));
                 }
             }
         }
-
 
         if is_literal_false_arg(if_arg) {
             return Ok(get_next_selection(remove_directive(

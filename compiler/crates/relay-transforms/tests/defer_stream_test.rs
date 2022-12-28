@@ -111,10 +111,17 @@ fn fragment_with_stream_initial_count_arg() {
 }
 
 #[test]
-fn fragment_with_stream_missing_initial_count_arg() {
-    let input = include_str!("defer_stream/fixtures/fragment-with-stream-missing-initial-count-arg.graphql");
-    let expected = include_str!("defer_stream/fixtures/fragment-with-stream-missing-initial-count-arg.expected");
-    test_fixture(transform_fixture, "fragment-with-stream-missing-initial-count-arg.graphql", "defer_stream/fixtures/fragment-with-stream-missing-initial-count-arg.expected", input, expected);
+fn fragment_with_stream_initial_count_arg_missing() {
+    let input = include_str!("defer_stream/fixtures/fragment-with-stream-initial-count-arg-missing.graphql");
+    let expected = include_str!("defer_stream/fixtures/fragment-with-stream-initial-count-arg-missing.expected");
+    test_fixture(transform_fixture, "fragment-with-stream-initial-count-arg-missing.graphql", "defer_stream/fixtures/fragment-with-stream-initial-count-arg-missing.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_stream_initial_count_arg_negative_invalid() {
+    let input = include_str!("defer_stream/fixtures/fragment-with-stream-initial-count-arg-negative.invalid.graphql");
+    let expected = include_str!("defer_stream/fixtures/fragment-with-stream-initial-count-arg-negative.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-stream-initial-count-arg-negative.invalid.graphql", "defer_stream/fixtures/fragment-with-stream-initial-count-arg-negative.invalid.expected", input, expected);
 }
 
 #[test]

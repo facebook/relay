@@ -1,0 +1,14 @@
+#expected-to-throw
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initialCount: -5, label: "StreamedActorsLabel") {
+    name
+  }
+}

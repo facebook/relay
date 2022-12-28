@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initialCount: -5, label: "StreamedActorsLabel") {
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected the 'initialCount' value to @stream to be a non-negative int literal if provided.
+
+  fragment-with-stream-initial-count-arg-negative.invalid.graphql:11:32
+   10 │   id
+   11 │   actors @stream(initialCount: -5, label: "StreamedActorsLabel") {
+      │                                ^^
+   12 │     name

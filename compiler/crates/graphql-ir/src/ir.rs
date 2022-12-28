@@ -449,6 +449,15 @@ impl Value {
         }
     }
 
+    /// If the value is a constant int literal, return the value, otherwise None.
+    pub fn get_int_literal(&self) -> Option<i64> {
+        if let Value::Constant(ConstantValue::Int(val)) = self {
+            Some(*val)
+        } else {
+            None
+        }
+    }
+
     /// Return the constant of this value.
     /// Panics if the value is not a constant.
     pub fn expect_constant(&self) -> &ConstantValue {

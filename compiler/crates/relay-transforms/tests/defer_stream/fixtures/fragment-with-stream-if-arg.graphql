@@ -1,4 +1,4 @@
-query QueryWithFragmentWithStream($id: ID!, $enableStream: Boolean) {
+query QueryWithFragmentWithStream($id: ID!, $enableStream: Boolean!) {
   node(id: $id) {
     id
     ...FeedbackFragment

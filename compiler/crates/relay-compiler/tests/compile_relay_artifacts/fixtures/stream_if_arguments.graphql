@@ -1,4 +1,4 @@
-query streamIfArgumentsQuery($valueFromQuery: Boolean) {
+query streamIfArgumentsQuery($valueFromQuery: Boolean!) {
   me {
     ...streamIfArgumentsFragment
       @arguments(
@@ -11,11 +11,11 @@ query streamIfArgumentsQuery($valueFromQuery: Boolean) {
 
 fragment streamIfArgumentsFragment on User
 @argumentDefinitions(
-  defaultsToTrue: { type: "Boolean", defaultValue: true }
-  defaultsToFalse: { type: "Boolean", defaultValue: false }
-  setToValue: { type: "Boolean", defaultValue: false }
-  setToTrue: { type: "Boolean", defaultValue: false }
-  setToFalse: { type: "Boolean", defaultValue: false }
+  defaultsToTrue: { type: "Boolean!", defaultValue: true }
+  defaultsToFalse: { type: "Boolean!", defaultValue: false }
+  setToValue: { type: "Boolean!", defaultValue: false }
+  setToTrue: { type: "Boolean!", defaultValue: false }
+  setToFalse: { type: "Boolean!", defaultValue: false }
 ) {
   withDefaultTrue: tasks
     @stream(initialCount: 1, if: $defaultsToTrue, label: "defaultTrue") {

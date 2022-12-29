@@ -14,6 +14,7 @@ use lsp_server::RequestId as ServerRequestId;
 use lsp_server::Response as ServerResponse;
 use lsp_server::ResponseError;
 use lsp_types::request::Request;
+use serde_json::Value;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -79,6 +80,14 @@ fn convert_to_lsp_response(
             error: None,
         },
         Err(runtime_error) => {
+            if let LSPRuntimeError::ExpectedError = runtime_error {
+                return ServerResponse {
+                    id,
+                    result: Some(Value::Null),
+                    error: None,
+                };
+            }
+
             let response_error: Option<ResponseError> = runtime_error.into();
             let response_error = response_error.unwrap_or_else(|| ResponseError {
                 code: ErrorCode::UnknownErrorCode as i32,

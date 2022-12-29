@@ -66,7 +66,10 @@ pub fn extract_project_name_from_url(
     url: &Url,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<StringKey> {
-    let absolute_file_path = PathBuf::from(url.path());
+    let absolute_file_path = url.to_file_path().map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to fiel path: {:?}", url))
+    })?;
+
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
             "Failed to strip prefix {:?} from {:?}",

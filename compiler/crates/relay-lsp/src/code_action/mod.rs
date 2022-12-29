@@ -45,10 +45,11 @@ pub(crate) fn on_code_action(
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
-    if !uri
-        .path()
-        .starts_with(state.root_dir().to_string_lossy().as_ref())
-    {
+    let file_path = uri.to_file_path().map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", uri))
+    })?;
+
+    if !file_path.starts_with(state.root_dir()) {
         return Err(LSPRuntimeError::ExpectedError);
     }
 

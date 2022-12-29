@@ -1602,6 +1602,7 @@ dependencies = [
  "crossbeam",
  "dashmap",
  "docblock-syntax",
+ "dunce",
  "extract-graphql",
  "fixture-tests",
  "fnv",

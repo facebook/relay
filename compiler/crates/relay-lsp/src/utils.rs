@@ -67,7 +67,7 @@ pub fn extract_project_name_from_url(
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<StringKey> {
     let absolute_file_path = url.to_file_path().map_err(|_| {
-        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to fiel path: {:?}", url))
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
     })?;
 
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {

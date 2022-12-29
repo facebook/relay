@@ -19,6 +19,7 @@ use lsp_types::TextDocumentItem;
 
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
+use crate::LSPRuntimeError;
 
 pub fn on_did_open_text_document(
     lsp_state: &impl GlobalState,
@@ -26,10 +27,11 @@ pub fn on_did_open_text_document(
 ) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
-    if !uri
-        .path()
-        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
-    {
+    let file_path = uri.to_file_path().map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", uri))
+    })?;
+
+    if !file_path.starts_with(lsp_state.root_dir()) {
         return Ok(());
     }
 
@@ -42,10 +44,11 @@ pub fn on_did_close_text_document(
     params: <DidCloseTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
-    if !uri
-        .path()
-        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
-    {
+    let file_path = uri.to_file_path().map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", uri))
+    })?;
+
+    if !file_path.starts_with(lsp_state.root_dir()) {
         return Ok(());
     }
 
@@ -61,10 +64,11 @@ pub fn on_did_change_text_document(
         text_document,
     } = params;
     let uri = text_document.uri;
-    if !uri
-        .path()
-        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
-    {
+    let file_path = uri.to_file_path().map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", uri))
+    })?;
+
+    if !file_path.starts_with(lsp_state.root_dir()) {
         return Ok(());
     }
 

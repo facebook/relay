@@ -223,8 +223,8 @@
       "description": "Path to a GraphQL schema file"
     },
     "CodegenCommand": {
-      "type": "string"
-      // todo: add descriptions
+      "type": "string",
+      "description": "Name of the command that runs the relay-compiler"
     },
     "JsModuleFormat": {
       "type": "string",
@@ -251,8 +251,39 @@
       }
     },
     "ModuleImportConfig": {
-      "type": "object"
-      // todo: add
+      "type": "object",
+      "description": "Configuration for @module",
+      "properties": {
+        "dynamicModuleProvider": {
+          "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime.",
+          "required": ["mode"],
+          "oneOf": [
+            {
+              "type": "object",
+              "description": "Generates a module provider using JSResource",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": ["JSResource"]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "description": "Generates a custom JS import. Use `<$module>` as the placeholder for the actual module. e.g. `\"() => import('<$module>')\"`",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": ["Custom"]
+                },
+                "statement": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
     },
     "TypegenConfig": {
       "type": "object",
@@ -262,30 +293,30 @@
           "$ref": "#/definitions/TypegenLanguage"
         },
         "enumModuleSuffix": {
-          "type": "string"
-          // todo: add descriptions
+          "type": "string",
+          "description": "(Flow only) When set, enum values are imported from a module with this suffix. For example, an enum Foo and this property set to `.test` would be imported from `Foo.test`"
         },
         "optionalInputFields": {
           "type": "array",
-          // todo: add descriptions
+          "description": "(Flow only) When set, generated input types will have the listed fields optional even if the schema defines them as required.",
           "items": {
             "type": "string"
           }
         },
         "useImportTypeSyntax": {
-          "type": "boolean"
-          // todo: add descriptions
+          "type": "boolean",
+          "description": "(TypeScript only) Whether to use the `import type` syntax introduced in Typescript version 3.8. This will prevent warnings from `importsNotUsedAsValues`."
         },
         "customScalarTypes": {
           "$ref": "#/definitions/CustomScalarTypes"
         },
         "requireCustomScalarTypes": {
-          "type": "boolean"
-          // todo: add descriptions
+          "type": "boolean",
+          "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type."
         },
         "flowTypegen": {
           "type": "object",
-          // todo: add descriptions
+          "description": "Work in progress new Flow type definitions",
           "properties": {
             "noFutureProofEnums": {
               "$ref": "#/definitions/NoFutureProofEnums"
@@ -304,13 +335,25 @@
     "CustomScalarTypes": {
       "type": "object",
       "description": "Mappings from custom scalars in your schema to built-in GraphQL types, for type emission purposes",
-      // todo: this can be both
-      // { "Url": "String" }
-      // { "Url": {"name:: "MyURL", "path": "../src/MyUrlTypes"} }
       "examples": [{"MyCustomScalar": "String"}],
       "additionalProperties": {
-        "type": "string",
-        "minLength": 1
+        "oneOf": [
+          {"type": "string", "minLength": 1},
+          {
+            "type": "object",
+            "required": ["name", "path"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        ]
       }
     },
     "TypegenLanguage": {
@@ -374,7 +417,7 @@
     },
     "SchemaConfig": {
       "type": "object",
-      // todo: add descriptions
+      "description": "Configuration where Relay should expect some fields in the schema.",
       "properties": {
         "connectionInterface": {
           "type": "object",
@@ -427,8 +470,8 @@
           }
         },
         "unselectableDirectiveName": {
-          "type": "string"
-          // todo: add descriptions
+          "type": "string",
+          "description": "The name of the directive indicating fields that cannot be selected"
         }
       }
     },
@@ -486,6 +529,7 @@
       }
     },
     "FeatureFlag": {
+      "required": ["kind"],
       "oneOf": [
         {
           "type": "object",

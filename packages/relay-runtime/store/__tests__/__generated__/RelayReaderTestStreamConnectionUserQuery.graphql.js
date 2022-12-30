@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e3aa55beaa0fd5fd9dc1be4e98bbb1fd>>
+ * @generated SignedSource<<6b8e4257f5082c870d1220cab73748bd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -222,7 +222,7 @@ return {
     ]
   },
   "params": {
-    "cacheID": "86d1b720aaf45195cf84453ca6c32530",
+    "cacheID": "72a67f3d1f2fc376509335a87179a83c",
     "id": null,
     "metadata": {},
     "name": "RelayReaderTestStreamConnectionUserQuery",

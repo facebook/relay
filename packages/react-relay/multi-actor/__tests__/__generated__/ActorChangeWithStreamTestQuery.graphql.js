@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<44ece5679aa693485843d855ff3b8768>>
+ * @generated SignedSource<<6c6e3e8f65e698ec1e4e9d5c24f90f64>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -236,7 +236,7 @@ return {
     ]
   },
   "params": {
-    "cacheID": "af2db8fd534769c172bc84e7a133c65a",
+    "cacheID": "af9077c40ecf696d1f3bbe7d9cad03c6",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithStreamTestQuery",

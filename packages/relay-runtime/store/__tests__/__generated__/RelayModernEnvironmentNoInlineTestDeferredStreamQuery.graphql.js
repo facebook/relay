@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bb6924948dfdb9fc53f21eeb8b587b1e>>
+ * @generated SignedSource<<93600409d5ef6c9ed5607deef276872c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType } from "./RelayModernEnvironmentNoInlineTestDeferredStreamParent.graphql";
 export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables = {|
   cond: boolean,
-  enableStream?: ?boolean,
+  enableStream: boolean,
 |};
 export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data = {|
   +viewer: ?{|
@@ -128,18 +128,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "fa5c110bab1b05dbc18049fd94e86111",
+    "cacheID": "4d0193949508eb551fb03d7063fb2890",
     "id": null,
     "metadata": {},
     "name": "RelayModernEnvironmentNoInlineTestDeferredStreamQuery",
     "operationKind": "query",
-    "text": "query RelayModernEnvironmentNoInlineTestDeferredStreamQuery(\n  $cond: Boolean!\n  $enableStream: Boolean\n) {\n  viewer {\n    ...RelayModernEnvironmentNoInlineTestDeferredStreamParent_3Qhviu\n  }\n}\n\nfragment RelayModernEnvironmentNoInlineTestDeferredStreamParent_3Qhviu on Viewer {\n  ...RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed_3Qhviu @defer(label: \"RelayModernEnvironmentNoInlineTestDeferredStreamParent$defer$FeedFragment\")\n}\n\nfragment RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed_3Qhviu on Viewer {\n  newsFeed(first: 2) {\n    edges @stream(label: \"RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$stream$newsFeed\", if: $enableStream, initialCount: 0) {\n      node {\n        __typename\n        __isFeedUnit: __typename @include(if: $cond)\n        feedback @include(if: $cond) {\n          author {\n            name\n            id\n          }\n          id\n        }\n        id\n      }\n    }\n  }\n}\n"
+    "text": "query RelayModernEnvironmentNoInlineTestDeferredStreamQuery(\n  $cond: Boolean!\n  $enableStream: Boolean!\n) {\n  viewer {\n    ...RelayModernEnvironmentNoInlineTestDeferredStreamParent_3Qhviu\n  }\n}\n\nfragment RelayModernEnvironmentNoInlineTestDeferredStreamParent_3Qhviu on Viewer {\n  ...RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed_3Qhviu @defer(label: \"RelayModernEnvironmentNoInlineTestDeferredStreamParent$defer$FeedFragment\")\n}\n\nfragment RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed_3Qhviu on Viewer {\n  newsFeed(first: 2) {\n    edges @stream(label: \"RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$stream$newsFeed\", if: $enableStream, initialCount: 0) {\n      node {\n        __typename\n        __isFeedUnit: __typename @include(if: $cond)\n        feedback @include(if: $cond) {\n          author {\n            name\n            id\n          }\n          id\n        }\n        id\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bbd7ede751091238fba6e4da25d3237b";
+  (node/*: any*/).hash = "68954072ef7efb3ebc3914738569243c";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9403bf41a2f46b24c1b361b32f5a865d>>
+ * @generated SignedSource<<b5cc9f59196d1a96c8bb5539098cdc6b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -145,7 +145,7 @@ return {
     ]
   },
   "params": {
-    "cacheID": "b640fb9713191be1875743e6167ab32c",
+    "cacheID": "7339b4f78046e5af58929d225b41c7e7",
     "id": null,
     "metadata": {},
     "name": "RelayResponseNormalizerTestQuery",

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b60b37cc8a2db6c22f50ebee84a2ad8f>>
+ * @generated SignedSource<<1ffbcf3e9a790c9c51d31241efc85038>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -126,7 +126,7 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8fc97cd294d6932de54434bbab273bbf",
+    "cacheID": "39c55c98cd5d3007e77912a1c29967c5",
     "id": null,
     "metadata": {},
     "name": "RelayModernEnvironmentNoInlineTestStreamQuery",

@@ -104,15 +104,15 @@
       }
     },
     "jsonValidation": [
-			{
-				"fileMatch": "relay.config.json",
-				"url": "./src/json-schemas/relay-config-json.json"
-			},
-			{
-				"fileMatch": "package.json",
-				"url": "./src/json-schemas/package-json.json"
-			}
-		]
+      {
+        "fileMatch": "relay.config.json",
+        "url": "./src/json-schemas/relay-config-json.jsonc"
+      },
+      {
+        "fileMatch": "package.json",
+        "url": "./src/json-schemas/package-json.jsonc"
+      }
+    ]
   },
   "prettier": {
     "arrowParens": "avoid",

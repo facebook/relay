@@ -3,7 +3,7 @@
   "properties": {
     "relay": {
       "description": "Relay.js configuration",
-      "$ref": "./relay-config-json.json"
+      "$ref": "./relay-config-json.jsonc"
     }
   }
 }

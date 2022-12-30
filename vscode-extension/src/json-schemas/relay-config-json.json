@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Relay.js configuration",
+  "oneOf": [
+    {
+      "type": "object",
+      "title": "Single project configuration",
+      "required": ["schema", "src", "language"],
+      "properties": {
+        "src": {
+          "type": "string",
+          "description": "Root directory of application code"
+        },
+        "schema": {
+          "type": "string",
+          "description": "Path to `schema.graphql` file"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["javascript", "typescript", "flow"],
+          "default": "typescript"
+        },
+        "artifactDirectory": {
+          "type": "string",
+          "description": "A directory to output all artifacts to"
+        },
+        "excludes": {
+          "type": "array",
+          "description": "List of directory glob patterns to ignore",
+          "examples": [
+            ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"]
+          ],
+          "items": {
+            "type": "string",
+            "description": "A directory glob pattern"
+          }
+        },
+        "schemaExtensions": {
+          "type": "array",
+          "description": "List of directories with schema extensions",
+          "items": {
+            "type": "string",
+            "description": "A directory path"
+          }
+        },
+        "schemaConfig": {
+          "type": "object",
+          "properties": {
+            "nodeInterfaceIdField": {
+              "type": "string",
+              "description": "Configure the name of the globally unique ID field on the Node interface",
+              "default": "id"
+            },
+            "nonNodeIdFields": {
+              "type": "object",
+              "required": ["allowedIdTypes"],
+              "properties": {
+                "allowedIdTypes": {
+                  "type": "object",
+                  "description": "Mappings from types in your schema to allowed types for their fields named `id`",
+                  "examples": [{"ObjectType": "CustomIdType"}],
+                  "additionalProperties": {
+                    "description": "The type of the `id` field of this type",
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "noFutureProofEnums": {
+          "type": "boolean",
+          "description": "For flow only. This option controls whether or not a catch-all entry is added to enum type definitions values that may be added in the future. Enabling this means you will have to update your application whenever the GraphQL server schema adds new enum values to prevent it from breaking",
+          "default": false
+        },
+        "customScalars": {
+          "type": "object",
+          "description": "Mappings from custom scalars in your schema to built-in GraphQL types, for type emission purposes",
+          "examples": [{"MyCustomScalar": "String"}],
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "eagerEsModules": {
+          "type": "boolean",
+          "description": "Emit ES module artifacts",
+          "default": false
+        },
+        "persistConfig": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Remote Persisting",
+              "required": ["url"],
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "description": "URL to send a POST request to to persist."
+                },
+                "params": {
+                  "type": "object",
+                  "description": "The document will be in a POST parameter text. This map can contain additional parameters to send",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "concurrency": {
+                  "type": "integer",
+                  "description": "The maximum number concurrent requests that will be made to `url`",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Local Persisting",
+              "required": ["file"],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "description": "Path to the JSON file that will contain operations map"
+                }
+              }
+            }
+          ]
+        },
+        "codegenCommand": {
+          "type": "string"
+        },
+        "isDevVariableName": {
+          "type": "string",
+          "description": "Name of the global variable for dev mode",
+          "default": "__DEV__"
+        },
+        "jsModuleFormat": {
+          "type": "string",
+          "description": "Formatting style for generated files",
+          "enum": ["commonjs", "haste"],
+          "default": "commonjs"
+        }
+      }
+    }
+  ]
+}

@@ -102,7 +102,17 @@
           "description": "Whether or not we should automatically start the Relay Compiler in watch mode when you open a project."
         }
       }
-    }
+    },
+    "jsonValidation": [
+			{
+				"fileMatch": "relay.config.json",
+				"url": "./src/json-schemas/relay-config-json.json"
+			},
+			{
+				"fileMatch": "package.json",
+				"url": "./src/json-schemas/package-json.json"
+			}
+		]
   },
   "prettier": {
     "arrowParens": "avoid",

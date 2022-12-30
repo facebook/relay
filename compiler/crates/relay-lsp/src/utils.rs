@@ -30,6 +30,15 @@ use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::Feature;
 
+pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
+    let file_path_result = file_uri.to_file_path();
+
+    match file_path_result {
+        Ok(file_path) => file_path.starts_with(root_dir),
+        Err(()) => false,
+    }
+}
+
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,

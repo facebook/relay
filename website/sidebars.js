@@ -69,6 +69,14 @@ const Guides = fbContent({
 module.exports = {
   docs: [
     {
+      'Tutorial': [
+        'tutorial/intro',
+        'tutorial/graphql',
+        'tutorial/queries-1',
+        'tutorial/fragments-1',
+        'tutorial/arrays-lists',
+        'tutorial/queries-2',
+      ],
       'Getting Started': [
         'getting-started/introduction',
         ...fbContent({

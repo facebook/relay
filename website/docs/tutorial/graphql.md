@@ -143,6 +143,8 @@ enum Category {
 
 Besides queries, GraphQL also lets you send *mutations* that ask the server to update its data. If queries are analogous to HTTP GET requests, then mutations are the equivalent of POST requests. Like POSTs, they let the server respond with updated data. GraphQL also has *subscriptions* which allow for an open connection for realtime updates.
 
+(GraphQL is usually implemented over HTTP, so queries and mutations are not only *analogous* to GET and POST, but may be sent as such as well.)
+
 * * *
 
 Now that we’ve talked about GraphQL, let’s talk about Relay. It has a few different parts and pieces that we’ll briefly go over before diving into the code.

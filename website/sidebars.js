@@ -145,7 +145,6 @@ module.exports = {
           external: [
             'getting-started/prerequisites',
             'getting-started/installation-and-setup',
-            'getting-started/step-by-step-guide',
             'editor-support',
           ],
         }),

@@ -542,3 +542,11 @@ summary {
   font-weight: bold;
   font-size: 1.4rem;
 }
+
+.bigCallToAction {
+  margin: 12px;
+  padding: 12px;
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid var(--ifm-color-primary);
+  font-size: 1.6rem;
+}

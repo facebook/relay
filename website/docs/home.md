@@ -45,7 +45,11 @@ Relay has a UI-agnostic layer that fetches and manages data, and a React-specifi
 
 <OssOnly>
 
-- Start with the **[tutorial](./tutorial/intro/)** — it will take you step-by-step through building a Relay app.
+<div class="bigCallToAction">
+Start with the <strong><a href="tutorial/intro/">tutorial</a></strong> — it will take you step-by-step through building a Relay app.
+</div>
+
+
 - An overview of the **[prerequisites](./getting-started/prerequisites/)** for using Relay, and an **[installation and setup guide](./getting-started/installation-and-setup/)**.
 - The **[API reference](./api-reference/relay-environment-provider/)**, for a reference of our APIs including a detailed overview of their inputs and outputs.
 

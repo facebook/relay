@@ -52,4 +52,6 @@ The files that make up the example app are laid out in this way:
 * `server` — a very basic GraphQL server that serves up example data
     * `server/schema.graphql` — the GraphQL schema: it specifies what information can be queried from the server via GraphQL.
 
+Finally, you may want to install the [Relay VSCode extension](https://marketplace.visualstudio.com/items?itemName=meta.relay) for autocomplete, errors, and other help when using VSCode.
+
 Head over to the next section to start learning about GraphQL and Relay.

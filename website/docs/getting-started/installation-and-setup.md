@@ -1,6 +1,6 @@
 ---
 id: installation-and-setup
-title: Installation and Setup
+title: Installing in a Project
 slug: /getting-started/installation-and-setup/
 description: Relay installation and setup guide
 keywords:

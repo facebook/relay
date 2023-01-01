@@ -79,7 +79,7 @@ This illustrates the part of the graph that this query is asking for:
 
 ![Parts of the GraphQL query](/img/docs/tutorial/query-breakdown.png)
 
-Now that we’ve defined the query, we need to modify our React component to fetch it and to use the data returned b the server.
+Now that we’ve defined the query, we need to modify our React component to fetch it and to use the data returned by the server.
 
 Turn back to the `Newsfeed` component and start by deleting the placeholder data. Then replace it with this:
 
@@ -113,16 +113,16 @@ The object that `useLazyLoadQuery` returns has the same shape as the query. For 
 ```
 {
   topStory: {
-    title: "Placeholder Story",
-    summary: "Lorem Ipsum",
+    title: "Local Yak Named Yak of the Year",
+    summary: "The annual Yak of the Year awards ceremony ...",
     poster: {
-      name: "P. Lace Holder",
+      name: "Baller Bovine Board",
       profilePic: {
-        url: '/images/placeholder_profile_pic.jpg',
+        url: '/images/baller_bovine_board.jpg',
       },
     },
     thumbnail: {
-      url: '/images/placeholder_story.jpg',
+      url: '/images/max_the_yak.jpg',
     }
   }
 }

@@ -83,7 +83,7 @@ However, we're also getting a React warning that we're rendering an array of com
 
 ![React missing key warning](/img/docs/tutorial/arrays-keys-warning-screenshot.png)
 
-It's always important to heed this warning, and more specifically to base `key`s on the identity of the things being displayed, rather than simply the order. This allows React to handle reordering and deleting items from the list correctly, since it knows which items are which even if their order changes.
+It's always important to heed this warning, and more specifically to base keys on the identity of the things being displayed, rather than simply their indices in the array. This allows React to handle reordering and deleting items from the list correctly, since it knows which items are which even if their order changes.
 
 Luckily, GraphQL nodes generally have IDs. We can simply select the `id` field of `story` and use it as a key:
 

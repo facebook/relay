@@ -1,4 +1,4 @@
-# More About Queries
+# Queries for Interactions
 
 We’ve seen how fragments let us specify data requirements in each component, yet at runtime perform only a single query for an entire screen. Here we’ll look at a situation where we *want* a second query on the same screen. This will also let us explore some more features of GraphQL queries.
 
@@ -225,9 +225,9 @@ Relay will garbage-collect nodes from the Store if they aren’t “reachable”
 </details>
 
 <details>
-<summary>Deep dive: Why GraphQL Needs A Feature for Variables</summary>
+<summary>Deep dive: Why GraphQL Needs a Syntax for Variables</summary>
 
-You might be wondering why GraphQL even has the concept of variables, instead of just interpolating the value of the variables into the query string. Well, [as mentioned before](/docs/tutorial/queries-1), the text of the GraphQL query string isn’t available at runtime, because Relay replaces it with a data structure that is more efficient. You can configure Relay to use *prepared queries*, where the compiler uploads each query to the server at build time and assigns it an ID — in that case, at runtime, Relay is just telling the server “Give me query #1337”, so naturally the variables just have to come out of band. Even when the query string is available, passing variable values separately eliminates any issues with serializing arbitrary values and escaping strings, above what is required with any HTTP request.
+You might be wondering why GraphQL even has the concept of variables, instead of just interpolating the value of the variables into the query string. Well, [as mentioned before](/docs/tutorial/queries-1), the text of the GraphQL query string isn’t available at runtime, because Relay replaces it with a data structure that is more efficient. You can also configure Relay to use *prepared queries*, where the compiler uploads each query to the server at build time and assigns it an ID — in that case, at runtime, Relay is just telling the server “Give me query #1337”, so naturally the variables just have to come out of band. Even when the query string is available, passing variable values separately eliminates any issues with serializing arbitrary values and escaping strings, above what is required with any HTTP request.
 </details>
 
 * * *

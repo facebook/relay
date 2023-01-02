@@ -1,5 +1,18 @@
 {
   "version-v14.0.0/docs": [
+    "home",
+    {"Tutorial": [
+      "tutorial/intro",
+      "tutorial/graphql",
+      "tutorial/queries-1",
+      "tutorial/fragments-1",
+      "tutorial/arrays-lists",
+      "tutorial/queries-2",
+      {"type": "doc", "id": "tutorial/interfaces-polymorphism", "label": "Interfaces & Polymorphism"},
+      "tutorial/refetchable-fragments",
+      "tutorial/connections-pagination",
+      "tutorial/mutations-updates"
+    ]},
     {
       "type": "category",
       "collapsed": true,

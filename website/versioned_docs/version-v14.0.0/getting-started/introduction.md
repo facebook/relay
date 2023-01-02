@@ -1,7 +1,6 @@
 ---
 id: introduction
 title: Introduction to Relay
-slug: /
 description: Introduction to Relay documentation
 keywords:
 - relay

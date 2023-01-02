@@ -237,9 +237,9 @@ const onLoadMore = () => loadNext(3);
 
 Now the Load More button should cause another three comments to be loaded.
 
-### Fine-tuning the Loading Experience with Suspense
+### Improving the Loading Experience with useTransition
 
-As it stands, there’s no user feedback when you click the “Load More” button until the new comments have finished loading and then appear. (You can use your [browser’s developer tools to slow down the network responses](https://developer.chrome.com/docs/devtools/network/#throttle) to verify this.) Every user action should result in immediate feedback, so let’s show a spinner while the new data is loading — but without hiding the existing UI.
+As it stands, there’s no user feedback when you click the “Load More” button until the new comments have finished loading and then appear. Every user action should result in immediate feedback, so let’s show a spinner while the new data is loading — but without hiding the existing UI.
 
 To do that, we need to wrap our call to `loadNext` inside a React transition. Here’s the change’s we need to make:
 
@@ -272,7 +272,7 @@ function StoryCommentsSection({story}) {
 }
 ```
 
-Every user action with results that aren’t immediate should be wrapped in a React transition. This allows React to intelligently prioritize different updates: for example, if when the data becomes available and React is rendering the new comments, the user clicks on another tab to navigate to a different page, React can interrupt rendering the comments in order to render the new page that the user wanted.
+Every user action with results that aren’t immediate should be wrapped in a React transition. This allows React to prioritize different updates: for example, if when the data becomes available and React is rendering the new comments, the user clicks on another tab to navigate to a different page, React can interrupt rendering the comments in order to render the new page that the user wanted.
 
 * * *
 
@@ -474,4 +474,4 @@ function NewsfeedContents({query}) {
 }
 ```
 
-We should now be able to scroll to the bottom of the page and see more stories loading. (Use the Network inspector to throttle the network to see this.) Feels like a real newsfeed app!
+We should now be able to scroll to the bottom of the page and see more stories loading. Feels like a real newsfeed app!

@@ -47,9 +47,9 @@ function SidebarContents() {
   const data = useLazyLoadQuery<SidebarQueryType>(SidebarQuery, {});
   return (
     <>
+      <ViewerProfile viewer={data.viewer} />
       // change-line
       <ContactsList viewer={data.viewer} />
-      <ViewerProfile viewer={data.viewer} />
     </>
   );
 }
@@ -222,7 +222,19 @@ You’ll notice that Relay gives us a callback for refetching, rather than accep
 
 ### Step 6 — Control loading with useTransition
 
-At this point, when the fragment is refreshed, Relay uses Suspense while the new data is loading, so the entire component is replaced with a spinner! This makes the UI fairly unusable. We would rather just keep the current data on screen until the new data is available, so we wrap the refetch in a React transition:
+At this point, when the fragment is refreshed, Relay uses Suspense while the new data is loading, so the entire component is replaced with a spinner! This makes the UI fairly unusable. We would rather just keep the current data on screen until the new data is available.
+
+The way Suspense normally works is this: When a component is missing data that it needs to render (as our component does after we refetch), it tells React to wait. When this happens, React finds the nearest Suspense component in the tree. It then replaces everything under that component with a "fallback" loading indicator.
+
+![Component needs data](../../static/img/docs/tutorial/refetchable-suspense-1-data-needed.png)
+![React finds the nearest Suspense point](../../static/img/docs/tutorial/refetechable-suspense-2-nearest-suspense-point.png)
+![Renders a fallback at that point until the data is available](../../static/img/docs/tutorial/refetchable-suspense-3-fallback.png)
+
+This makes sense when initially loading a screen, but in this instance there's no reason to hide the existing UI and replace it with a spinner. While React is waiting, it can simply continue showing what's already there.
+
+To achieve this, we can mark the refetch as a *transition*. Transitions are React state updates that do not need to be immediately responded to — React can wait until the data is available.
+
+Transitions are marked by wrapping the state change in a call to a function provided by the `useTransition` hook. This is what the code will look like:
 
 ```
 // change-line
@@ -258,9 +270,11 @@ function ContactsList({viewer}) {
 }
 ```
 
-We simply pass the `isPending` flag to `SearchInput` (which causes it to show a spinner) while the refetch is happening instead of suspending the entire component. Meanwhile, by placing `setSearchString` outside of the transition but `refetch` within it, we tell React to immediately update the search input for full responsiveness, but to deprioritize the rendering of the network response if other user events are happening when it arrives.
+While React is waiting for the new data, instead of using a Suspense fallback, React re-renders the component with the `isPending` flag set to true.
 
-We should now be able to search the contacts list with a nice user experience, showing a spinner but keeping the previous data visible while loading. Use the Network inspector to throttle your network to see this.
+We simply pass the `isPending` flag to `SearchInput` (which causes it to show a spinner) while the refetch is happening. Meanwhile, by placing `setSearchString` outside of the transition but `refetch` within it, we tell React to immediately update the search input.
+
+We should now be able to search the contacts list with a nice user experience, showing a spinner but keeping the previous data visible while loading.
 
 ![Search input goes from spinner to filtered list](/img/docs/tutorial/refetchable-transition-search.png)
 

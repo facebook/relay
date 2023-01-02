@@ -134,9 +134,23 @@ At this point, you should see a story fetched from the server:
 
 ![Screenshot](/img/docs/tutorial/queries-basic-screenshot.png)
 
+:::note
+The server's responses are artifically slowed down to make loading states perceptible, which will come in handy when we add more interactivity to the app. If you want to remove the delay, open `server/index.js` and remove the call to `sleep()`.
+:::
+
 The `useLazyLoadQuery` hook fetches the data when the component is first rendered. Relay also has APIs for pre-fetching the data before your app has even loaded — these are covered later. In any case, Relay uses Suspense to show a loading indicator until the data is available.
 
 This is Relay in its most basic form: fetching the results of a GraphQL query when a component is rendered. As the tutorial progresses, we’ll see how Relay’s features fit together to make your app more maintainable — starting with a look at how Relay generates TypeScript types corresponding to each query.
+
+<details>
+<summary>Deep dive: Suspense for Data Loading</summary>
+
+*Suspense* is a new API in React that lets React wait while data is loading before it renders components that need that data. When a component needs to load data before rendering, React shows a loading indicator. You control the loading indicator's location and style using a special component called `Suspense`.
+
+Right now, there's a `Suspense` component inside `App.tsx`, which is what shows the spinner while `useLazyLoadQuery` is loading data.
+
+We'll look at Suspense in more detail in later sections when we add some more interactivity to the app.
+</details>
 
 <details>
 <summary>Deep dive: Queries are Static</summary>

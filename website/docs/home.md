@@ -39,7 +39,7 @@ Relay works on the Web and on React Native — it is used extensively at Meta in
 
 Relay is completely tied to GraphQL, so if you cannot use GraphQL then it's not the right choice for you.
 
-Relay has a UI-agnostic layer that fetches and manages data, and a React-specific layer that handles loading states, pagination, and other UI paradigms. It is mainly supported when used with React, although you can access your Relay data outside of React if you need to.
+Relay has a UI-agnostic layer that fetches and manages data, and a React-specific layer that handles loading states, pagination, and other UI paradigms. It is mainly supported when used with React, although you can access your Relay data outside of React if you need to. The React-specific parts of Relay are based on Suspense, so there are some limitations if you're stuck on an older version of React.
 
 ## Where to Go from Here
 

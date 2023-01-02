@@ -2,10 +2,10 @@
 
 This tutorial will get you started with the most important and frequently-used features of Relay. To do that, we’ll build a simple app that displays a newsfeed. We will cover:
 
-* How to fetch data using Queries
+* How to fetch data using Queries.
 * How to make components self-contained by breaking Queries into Fragments.
-* How to paginate through data with Connections
-* How to update data on the server with Mutations and Updaters
+* How to paginate through data with Connections.
+* How to update data on the server with Mutations and Updaters.
 
 This tutorial assumes a fair familiarity with React. If you’re still new to React, we suggest going through the [React tutorial](https://reactjs.org/tutorial/) and working with React until you’re comfortable with creating components, passing props, and using the basic hooks such as `useState`. The tutorial is based on the Web, but Relay also works great with React Native.
 

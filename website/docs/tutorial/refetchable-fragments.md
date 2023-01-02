@@ -226,9 +226,9 @@ At this point, when the fragment is refreshed, Relay uses Suspense while the new
 
 The way Suspense normally works is this: When a component is missing data that it needs to render (as our component does after we refetch), it tells React to wait. When this happens, React finds the nearest Suspense component in the tree. It then replaces everything under that component with a "fallback" loading indicator.
 
-![Component needs data](../../static/img/docs/tutorial/refetchable-suspense-1-data-needed.png)
-![React finds the nearest Suspense point](../../static/img/docs/tutorial/refetechable-suspense-2-nearest-suspense-point.png)
-![Renders a fallback at that point until the data is available](../../static/img/docs/tutorial/refetchable-suspense-3-fallback.png)
+![Component needs data](/img/docs/tutorial/refetchable-suspense-1-data-needed.png)
+![React finds the nearest Suspense point](/img/docs/tutorial/refetechable-suspense-2-nearest-suspense-point.png)
+![Renders a fallback at that point until the data is available](/img/docs/tutorial/refetchable-suspense-3-fallback.png)
 
 This makes sense when initially loading a screen, but in this instance there's no reason to hide the existing UI and replace it with a spinner. While React is waiting, it can simply continue showing what's already there.
 

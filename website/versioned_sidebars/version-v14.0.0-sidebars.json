@@ -17,12 +17,8 @@
       "type": "category",
       "collapsed": true,
       "collapsible": true,
-      "label": "Getting Started",
+      "label": "Installation",
       "items": [
-        {
-          "type": "doc",
-          "id": "version-v14.0.0/getting-started/introduction"
-        },
         {
           "type": "doc",
           "id": "version-v14.0.0/getting-started/prerequisites"
@@ -33,7 +29,7 @@
         },
         {
           "type": "doc",
-          "id": "version-v14.0.0/getting-started/step-by-step-guide"
+          "id": "version-v14.0.0/editor-support"
         }
       ]
     },

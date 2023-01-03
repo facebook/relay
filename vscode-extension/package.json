@@ -119,7 +119,7 @@
     "build-local": "vsce package"
   },
   "engines": {
-    "vscode": "^1.60.0"
+    "vscode": "^1.65.0"
   },
   "dependencies": {
     "semver": "^7.3.7",

@@ -23,48 +23,34 @@ But fragments are just that, fragments — they aren’t queries and can’t be 
 
 * * *
 
-To try this out, let's add a filterable contacts list to the sidebar. After all, what this newsfeed app really needs to feel cozy is a list of our contacts.
+To try this out, let's add a sidebar to the page with a filterable contacts list. After all, it wouldn't feel like a properly cozy newsfeed app without the ability to contact people.
 
-Take a peek at `Sidebar.tsx` and drop in the `ContactsList` component that we've prepared:
+We've already prepared a `Sidebar` component, you just need to drop it into `App.tsx`:
 
 ```
 // change-line
-import ContactsList from './ContactsList';
+import Sidebar from './Sidebar';
 
-const SidebarQuery = graphql`
-  query SidebarQuery {
-    viewer {
-      // change-line
-      ...ContactsListFragment
-      ...ViewerProfileFragment
-    }
-  }
-`;
-
-...
-
-function SidebarContents() {
-  const data = useLazyLoadQuery<SidebarQueryType>(SidebarQuery, {});
+export default function App(): React.ReactElement {
   return (
-    <>
-      <ViewerProfile viewer={data.viewer} />
-      // change-line
-      <ContactsList viewer={data.viewer} />
-    </>
+    <RelayEnvironment>
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <div className="app">
+          <Newsfeed />
+          // change-line
+          <Sidebar />
+        </div>
+      </React.Suspense>
+    </RelayEnvironment>
   );
 }
-
 ```
 
-:::note
-There is no need for Sidebar to have its own query separate from Newsfeed; in a real app they would both have fragments and the *entire screen* would have only a single query. We built it with a separate query to simplify the early examples in the tutorial.
-:::
-
-You should now see a list of people in the sidebar.
+You should now see a sidebar with a list of people at the top.
 
 ![Contacts list](/img/docs/tutorial/refetchable-contacts-initial.png)
 
-Have a look at `ContactsList.js` and you’ll find this fragment:
+Have a look at `ContactsList.js` and you’ll find this fragment, which is what selects the list of contacts:
 
 ```
 const ContactsListFragment = graphql`
@@ -80,6 +66,10 @@ const ContactsListFragment = graphql`
 As it happens, the `contacts` field accepts a `search` argument that filters the list. You can try it out by changing `contacts` in this fragment to `contacts(search: "S")`. If you refresh the page, you should see only those contacts that have the letter S in them.
 
 Our goal, then, will be to hook up a search input so that, when the input changes, we refetch *just this fragment* with a new value for that `search` argument.
+
+:::tip
+As an optional exercise, try combining the queries of Sidebar and Newsfeed into a single query. There is no need for Sidebar to have its own query separate from Newsfeed; in a real app they would both have fragments and the *entire screen* would have only a single query. We built it with a separate query to simplify the early examples in the tutorial.
+:::
 
 ### Step 1 — Add a fragment argument
 

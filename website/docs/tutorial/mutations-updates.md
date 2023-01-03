@@ -58,10 +58,10 @@ function Story({story}) {
   const storyData = useFragment(StoryFragment, story);
   return (
     <Card>
-      <Heading>{storyData.title}</Heading>
       <PersonalByline person={storyData.poster} />
-      <Timestamp time={storyData.posted_at} />
-      <Image image={storyData.image} />
+      <Heading>{storyData.title}</Heading>
+      <Timestamp time={storyData.posterAt} />
+      <Image image={story.thumbnail} width={400} height={400} />
       <StorySummary summary={storyData.summary} />
       // change-line
       <StoryLikeButton story={storyData} />

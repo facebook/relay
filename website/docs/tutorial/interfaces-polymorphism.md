@@ -1,6 +1,6 @@
 # GraphQL Types, Interfaces, and Polymorphism
 
-In this section, we’ll see how to treat different types of nodes differently. You might notice that some of the newsfeed stories in the example app are posted by people, while others are posted by organizations. In this example, we'll enhance our hovercard by writing a fragment that selects people-specific information about people posters and organization-specific information about organization posters.
+In this section, we’ll see how to treat different types of nodes differently. You might notice that some of the newsfeed stories in the example app are posted by people, while others are posted by organizations. In this example, we'll enhance our hovercard by writing a fragment that selects people-specific information about people  and organization-specific information about organizations.
 
 * * *
 
@@ -155,3 +155,7 @@ In the GraphQL spec and other sources, type refinements are called *inline fragm
 :::tip
 If you need to do something totally different depending on what type it is, you can select a field called `__typename`, which returns a string with the name of the concrete type that you got (e.g., `"Person"` or `"Organization"`). This is a built-in feature of GraphQL.
 :::
+
+## Summary
+
+The `... Type {}` syntax allows us to select fields that are only present in a specific type that implements an interface.

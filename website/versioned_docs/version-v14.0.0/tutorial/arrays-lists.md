@@ -117,8 +117,10 @@ export default function Newsfeed({}) {
 }
 ```
 
-With that, we've got a collection of Stories on the screen. Onward!
+With that, we've got a collection of Stories on the screen.
 
 :::tip
 GraphQL Lists are only the most basic way of dealing with collections of things. We’ll build on them to do pagination and infinite scrolling later in the tutorial, using a special system called Connections. You’ll want to use Connections in most situations where you have a collection of items — although you’ll still use GraphQL Lists as a building block.
 :::
+
+Onward!

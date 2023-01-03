@@ -69,8 +69,7 @@ The avoid these and many other problems, we can move the data requirements for t
 
 We do this by splitting off `Story`’s data requirements into a *fragment* defined in `Story.tsx`. Fragments are separate pieces of GraphQL that the Relay compiler stitches together into complete queries. They allow each component to define its own data requirements, without paying the cost at runtime of each component running its own queries.
 
-![Newsfeed and Story fragments](/img/docs/tutorial/fragment-newsfeed-story.png)
-![Relay compiler combines them into a query](/img/docs/tutorial/fragment-newsfeed-story-combined.png)
+![The Relay compiler combines the fragment into the place it's spread](/img/docs/tutorial/fragments-newsfeed-story-compilation.png)
 
 Let’s go ahead and split `Story`’s data requirements into a fragment now.
 
@@ -163,12 +162,32 @@ It returns the data selected by that fragment.
 We’ve rewritten `story` to `data` (the data returned by `useFragment`) in all of the JSX here; make sure to do the same in your copy of the component, or it won't work.
 :::
 
+Fragment keys are the places in a GraphQL query response where a fragment was spread. For example, given the Newsfeed query:
+
+```
+query NewsfeedQuery {
+  topStory {
+    ...StoryFragment
+  }
+}
+```
+
+Then if `queryResult` is the object returned by `useLazyLoadQuery`, `queryResult.topStory` will be a fragment key for `StoryFragment`.
+
+Technically, `queryResult.topStory` is an object that contains some hidden fields that tell Relay's `useFragment` where to look for the data it needs. The fragment key specifies both which node to read from (here there's just one story, but soon we'll have multiple stories), and what fields can be read out (the fields selected by that specific fragment). The `useFragment` hook then reads that specific information out of Relay's local data store.
+
+:::note
+As we'll see in later examples, you can spread multiple fragments into the same place in a query, and also mix fragment spreads with directly-selected fields.
+:::
+
 
 ### Step 4 — TypeScript types for fragment refs
 
-We also need to change the type definition for `Props` so that TypeScript knows this component expects to receive a fragment key instead of the raw data.
+To complete the fragmentization, we also need to change the type definition for `Props` so that TypeScript knows this component expects to receive a fragment key instead of the raw data.
 
-Recall that when you spread a fragment into a query (or another fragment), the part of the query results where you spread the fragment becomes a *fragment key* for that fragment. This is the object that you pass to a component in its props in order to give it a specific place in the graph to read the fragment from. Relay generates a type that represents the fragment key for that specific fragment — this way, if you try to use a component without spreading its fragment into your query, you won’t be able to provide a fragment key that satisfies the type system. Here are the changes we need to make:
+Recall that when you spread a fragment into a query (or another fragment), the part of the query result corresponding to where you spread the fragment becomes a *fragment key* for that fragment. This is the object that you pass to a component in its props in order to give it a specific place in the graph to read the fragment from.
+
+To make this type-safe, Relay generates a type that represents the fragment key for that specific fragment — this way, if you try to use a component without spreading its fragment into your query, you won’t be able to provide a fragment key that satisfies the type system. Here are the changes we need to make:
 
 ```
 // change-line
@@ -181,6 +200,7 @@ type Props = {
 ```
 
 With that done, we have a `Newsfeed` no longer has to care what data `Story` requires, yet can still fetch that data up-front within its own query.
+
 * * *
 
 ## Exercise
@@ -204,8 +224,7 @@ A fragment says, given *some* graph node of a particular type, what data to read
 
 For example, notice that the `Image` component is used in two places: directly within `Story` for the story’s thumbnail image, and also within `PosterByline` for the poster’s profile pic. Let’s fragmentize `Image` and see how it can select the data it needs from different places in the graph according to where it is used.
 
-![Image fragment with two possible fragment keys](/img/docs/tutorial/fragment-newsfeed-story-image.png)
-![It is combined into both places](/img/docs/tutorial/fragment-newsfeed-story-image-combined.png)
+![Fragment can be used in multiple places](/img/docs/tutorial/fragments-image-two-places-compiled.png)
 
 ### Step 1 — Define the fragment
 
@@ -313,10 +332,9 @@ function Image({image}) {
 
 Now *both* the story thumbnail image and the poster’s profile pic will have an alt text. (You can use your browser’s Elements inspector to verify this.)
 
-You can imagine how beneficial this is as your codebase gets larger. Each component is self-contained, no matter how many places it’s used in!
+You can imagine how beneficial this is as your codebase gets larger. Each component is self-contained, no matter how many places it’s used in! Even if a component is used in hundreds of places, you can add or remove fields from its data dependencies at will. This is one of the main ways that Relay helps you scale with the size of your app.
 
-![Adding a field in one fragment](/img/docs/tutorial/fragment-reuse-seperate.png)
-![It's added in all places the fragment is used](/img/docs/tutorial/fragment-reuse-combined.png)
+![Field added to one fragment is added in all places it's used](/img/docs/tutorial/fragment-image-add-once-compiled.png)
 
 Fragments are the building block of Relay apps. As such, a lot of Relay features are based on fragments. We’ll look at a few of them in the next sections.
 

@@ -16,14 +16,16 @@ const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 // we need to stick somewhere until the rest of the Guides and API
 // Reference are rewritten.
 const GuidesRescuedFromOldTutorial = [
-  {'Reusing Cached Data for Rendering': [
-    'guided-tour/reusing-cached-data/introduction',
-    'guided-tour/reusing-cached-data/fetch-policies',
-    'guided-tour/reusing-cached-data/presence-of-data',
-    'guided-tour/reusing-cached-data/staleness-of-data',
-    'guided-tour/reusing-cached-data/rendering-partially-cached-data',
-    'guided-tour/reusing-cached-data/filling-in-missing-data',
-  ]},
+  {
+    'Reusing Cached Data for Rendering': [
+      'guided-tour/reusing-cached-data/introduction',
+      'guided-tour/reusing-cached-data/fetch-policies',
+      'guided-tour/reusing-cached-data/presence-of-data',
+      'guided-tour/reusing-cached-data/staleness-of-data',
+      'guided-tour/reusing-cached-data/rendering-partially-cached-data',
+      'guided-tour/reusing-cached-data/filling-in-missing-data',
+    ],
+  },
   ...fbContent({
     internal: ['guided-tour/list-data/fb/blocking-pagination'],
     external: [],
@@ -48,7 +50,6 @@ const GuidesRescuedFromOldTutorial = [
   'guided-tour/updating-data/graphql-subscriptions',
   {
     'Updating Data': [
-
       ...fbContent({
         internal: [
           'guided-tour/updating-data/imperatively-modifying-store-data',
@@ -127,19 +128,23 @@ module.exports = {
   docs: [
     'home',
     {
-      'Tutorial': [
+      Tutorial: [
         'tutorial/intro',
         'tutorial/graphql',
         'tutorial/queries-1',
         'tutorial/fragments-1',
         'tutorial/arrays-lists',
         'tutorial/queries-2',
-        {type: 'doc', id: 'tutorial/interfaces-polymorphism', label: 'Interfaces & Polymorphism'},
+        {
+          type: 'doc',
+          id: 'tutorial/interfaces-polymorphism',
+          label: 'Interfaces & Polymorphism',
+        },
         'tutorial/refetchable-fragments',
         'tutorial/connections-pagination',
         'tutorial/mutations-updates',
       ],
-      'Installation': [
+      Installation: [
         ...fbContent({
           internal: [],
           external: [

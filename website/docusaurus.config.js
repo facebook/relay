@@ -453,7 +453,7 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Meta Platforms, Inc. Built with Docusaurus.`,
     },
     prism: {
-      theme: require('prism-react-renderer/themes/github'),
+      theme: require('./prismTheme'),
       darkTheme: require('prism-react-renderer/themes/dracula'),
       defaultLanguage: 'javascript',
       magicComments: [

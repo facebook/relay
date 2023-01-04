@@ -12,6 +12,60 @@
 
 const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
+// Some advanced information not covered in the new tutorial that
+// we need to stick somewhere until the rest of the Guides and API
+// Reference are rewritten.
+const GuidesRescuedFromOldTutorial = [
+  {
+    'Reusing Cached Data for Rendering': [
+      'guided-tour/reusing-cached-data/introduction',
+      'guided-tour/reusing-cached-data/fetch-policies',
+      'guided-tour/reusing-cached-data/presence-of-data',
+      'guided-tour/reusing-cached-data/staleness-of-data',
+      'guided-tour/reusing-cached-data/rendering-partially-cached-data',
+      'guided-tour/reusing-cached-data/filling-in-missing-data',
+    ],
+  },
+  ...fbContent({
+    internal: ['guided-tour/list-data/fb/blocking-pagination'],
+    external: [],
+  }),
+  'guided-tour/list-data/advanced-pagination',
+  ...fbContent({
+    internal: ['guided-tour/fb/advanced-data-fetching'],
+    external: [
+      // TODO(T85915654): Release entrypoints guide externally
+    ],
+  }),
+  {
+    'Managing Data Outside React': [
+      // These were already commented out
+      // 'guided-tour/managing-data-outside-react/prefetching-queries',
+      // 'guided-tour/managing-data-outside-react/subscribing-to-queries',
+      // 'guided-tour/managing-data-outside-react/reading-queries',
+      // 'guided-tour/managing-data-outside-react/reading-fragments',
+      'guided-tour/managing-data-outside-react/retaining-queries',
+    ],
+  },
+  'guided-tour/updating-data/graphql-subscriptions',
+  {
+    'Updating Data': [
+      ...fbContent({
+        internal: [
+          'guided-tour/updating-data/imperatively-modifying-store-data',
+          'guided-tour/updating-data/imperatively-modifying-linked-fields',
+          'guided-tour/updating-data/typesafe-updaters-faq',
+        ],
+        external: [
+          'guided-tour/updating-data/imperatively-modifying-store-data-unsafe',
+        ],
+      }),
+      'guided-tour/updating-data/local-data-updates',
+      'guided-tour/updating-data/client-only-data',
+    ],
+  },
+];
+
 const Guides = fbContent({
   internal: [
     'guides/graphql-server-specification',
@@ -25,6 +79,8 @@ const Guides = fbContent({
     'guides/relay-resolvers',
     'guides/client-schema-extensions',
     'guides/type-emission',
+    'guided-tour/rendering/error-states',
+    GuidesRescuedFromOldTutorial,
     {
       EntryPoints: [
         'guides/fb/entrypoints/entrypoints',
@@ -56,6 +112,8 @@ const Guides = fbContent({
     'guides/testing-relay-with-preloaded-queries',
     'guides/required-directive',
     'guides/relay-resolvers',
+    'guided-tour/rendering/error-states',
+    GuidesRescuedFromOldTutorial,
     // TODO(T84797602) release incremental data delivery externally
     // 'guides/incremental-data-delivery',
     // TODO release these in OSS
@@ -68,95 +126,30 @@ const Guides = fbContent({
 // They do not always correspond to the slug, e.g. with /fb/ in the id.
 module.exports = {
   docs: [
+    'home',
     {
-      'Getting Started': [
-        'getting-started/introduction',
-        ...fbContent({
-          internal: [],
-          external: [
-            'getting-started/prerequisites',
-            'getting-started/installation-and-setup',
-            'getting-started/step-by-step-guide',
-          ],
-        }),
+      Tutorial: [
+        'tutorial/intro',
+        'tutorial/graphql',
+        'tutorial/queries-1',
+        'tutorial/fragments-1',
+        'tutorial/arrays-lists',
+        'tutorial/queries-2',
+        {
+          type: 'doc',
+          id: 'tutorial/interfaces-polymorphism',
+          label: 'Interfaces & Polymorphism',
+        },
+        'tutorial/refetchable-fragments',
+        'tutorial/connections-pagination',
+        'tutorial/mutations-updates',
       ],
-      'A Guided Tour': [
-        'guided-tour/introduction',
-        'guided-tour/workflow',
-        {
-          'Rendering Data Basics': [
-            'guided-tour/rendering/queries',
-            'guided-tour/rendering/fragments',
-            'guided-tour/rendering/variables',
-            'guided-tour/rendering/loading-states',
-            'guided-tour/rendering/error-states',
-            'guided-tour/rendering/environment',
-          ],
-          'Reusing Cached Data for Rendering': [
-            'guided-tour/reusing-cached-data/introduction',
-            'guided-tour/reusing-cached-data/fetch-policies',
-            'guided-tour/reusing-cached-data/availability-of-data',
-            'guided-tour/reusing-cached-data/presence-of-data',
-            'guided-tour/reusing-cached-data/staleness-of-data',
-            'guided-tour/reusing-cached-data/rendering-partially-cached-data',
-            'guided-tour/reusing-cached-data/filling-in-missing-data',
-          ],
-          'Refreshing and Refetching': [
-            'guided-tour/refetching/introduction',
-            'guided-tour/refetching/refreshing-queries',
-            'guided-tour/refetching/refetching-queries-with-different-data',
-            'guided-tour/refetching/refreshing-fragments',
-            'guided-tour/refetching/refetching-fragments-with-different-data',
-          ],
-          'Rendering List Data and Pagination': [
-            'guided-tour/list-data/connections',
-            'guided-tour/list-data/rendering-connections',
-            'guided-tour/list-data/pagination',
-            'guided-tour/list-data/streaming-pagination',
-            ...fbContent({
-              internal: ['guided-tour/list-data/fb/blocking-pagination'],
-              external: [],
-            }),
-            'guided-tour/list-data/refetching-connections',
-            'guided-tour/list-data/updating-connections',
-            'guided-tour/list-data/advanced-pagination',
-          ],
-        },
-        {
-          'Updating Data': [
-            'guided-tour/updating-data/introduction',
-            'guided-tour/updating-data/graphql-mutations',
-            'guided-tour/updating-data/graphql-subscriptions',
-            ...fbContent({
-              internal: [
-                'guided-tour/updating-data/imperatively-modifying-store-data',
-                'guided-tour/updating-data/imperatively-modifying-linked-fields',
-                'guided-tour/updating-data/typesafe-updaters-faq',
-              ],
-              external: [
-                'guided-tour/updating-data/imperatively-modifying-store-data-unsafe',
-              ],
-            }),
-            'guided-tour/updating-data/local-data-updates',
-            'guided-tour/updating-data/client-only-data',
-          ],
-        },
-        ...fbContent({
-          internal: ['guided-tour/fb/advanced-data-fetching'],
-          external: [
-            // TODO(T85915654): Release entrypoints guide externally
-          ],
-        }),
-        {
-          'Managing Data Outside React': [
-            // 'guided-tour/managing-data-outside-react/prefetching-queries',
-            // 'guided-tour/managing-data-outside-react/subscribing-to-queries',
-            // 'guided-tour/managing-data-outside-react/reading-queries',
-            // 'guided-tour/managing-data-outside-react/reading-fragments',
-            'guided-tour/managing-data-outside-react/retaining-queries',
-          ],
-        },
+      Installation: [
+        'getting-started/prerequisites',
+        'getting-started/installation-and-setup',
+        'editor-support',
       ],
+      Guides,
       'API Reference': [
         {
           'Relay Hooks': [
@@ -194,7 +187,6 @@ module.exports = {
         'api-reference/graphql/graphql-directives',
         'api-reference/legacy-apis/legacy-apis',
       ],
-      Guides,
       'Migration and Compatibility': [
         'migration-and-compatibility/upgrading-to-relay-hooks',
         'migration-and-compatibility/suspense-compatibility',
@@ -234,7 +226,6 @@ module.exports = {
       ],
       'Error reference': ['error-reference/unknown-field'],
     },
-    'editor-support',
     'community/learning-resources',
     'glossary/glossary',
   ],

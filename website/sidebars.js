@@ -145,14 +145,9 @@ module.exports = {
         'tutorial/mutations-updates',
       ],
       Installation: [
-        ...fbContent({
-          internal: [],
-          external: [
-            'getting-started/prerequisites',
-            'getting-started/installation-and-setup',
-            'editor-support',
-          ],
-        }),
+        'getting-started/prerequisites',
+        'getting-started/installation-and-setup',
+        'editor-support',
       ],
       Guides,
       'API Reference': [

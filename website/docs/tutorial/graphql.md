@@ -90,7 +90,7 @@ query {
 
 This means we can retrieve information about a whole panoply of objects all in one query — in others words, you can efficiently get all the data for a screen in a single request instead of sending many requests one after the other. But you achieve this without writing and maintaining a separate endpoint for each screen in your UI.
 
-Instead, your GraphQL server provides a *schema*, which describes what kind of nodes there are, how they’re connected, and what information each node contains. Then, you pick and choose from this schema to select the information you want.
+Instead, your GraphQL server provides a *schema*, which describes what kinds of nodes there are, how they’re connected, and what information each node contains. Then, you pick and choose from this schema to select the information you want.
 
 The example app in this tutorial is a newsfeed app, so its schema consists of types such as
 

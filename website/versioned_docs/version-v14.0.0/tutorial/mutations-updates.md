@@ -343,11 +343,8 @@ Unlike normal fragments, updatable fragments are not spread into queries and do 
 
 ### Step 3 — Call readUpdatableFragment
 
-We pass this <span className="color1">fragment</span>, along with the <span className="color2">original fragment ref</span> that we received as a prop (which tells us *which* story we’re liking), to `store.readUpdatableFragment_EXPERIMENTAL`. It returns a <span className="color3">special object called `updatableData`</span>:
+We pass this <span className="color1">fragment</span>, along with the <span className="color2">original fragment ref</span> that we received as a prop (which tells us *which* story we’re liking), to `store.readUpdatableFragment`. It returns a <span className="color3">special object called `updatableData`</span>:
 
-:::note
-`readUpdatableFragment_EXPERIMENTAL` will be renamed to `readUpdatableFragment` in the next release of Relay. It is ready for general adoption, don't be scared by the name.
-:::
 
 ```
 function StoryLikeButton({story}) {
@@ -362,7 +359,7 @@ function StoryLikeButton({story}) {
         const {
           // color1
           updatableData
-        } = store.readUpdatableFragment_EXPERIMENTAL(
+        } = store.readUpdatableFragment(
           // color2
           fragment,
           // color3
@@ -387,7 +384,7 @@ function StoryLikeButton({story}) {
             doesViewerLike
           }
         `;
-        const {updatableData} = store.readUpdatableFragment_EXPERIMENTAL(fragment, story);
+        const {updatableData} = store.readUpdatableFragment(fragment, story);
         // change
         const alreadyLikes = updatableData.doesViewerLike;
         updatableData.doesViewerLike = !alreadyLikes;

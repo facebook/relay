@@ -117,7 +117,7 @@ export default function Newsfeed({}) {
 }
 ```
 
-With that, we've got a collection of Stories on the screen.
+With that, we've got a collection of Stories on the screen. It's worth pointing out that here we're mixing individual fields with fragment spreads in the same place in our query. This means that Newsfeed can read the fields it cares about (directly from `useLazyLoadQuery`) while Story can read the fields it cares about (via `useFragment`). The *same object* both contains Newsfeed's selected field `id` and is also a fragment key for `StoryFragment`.
 
 :::tip
 GraphQL Lists are only the most basic way of dealing with collections of things. We’ll build on them to do pagination and infinite scrolling later in the tutorial, using a special system called Connections. You’ll want to use Connections in most situations where you have a collection of items — although you’ll still use GraphQL Lists as a building block.

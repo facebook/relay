@@ -103,7 +103,7 @@ export default function Newsfeed({}) {
 }
 ```
 
-The `useLazyLoadHook` hook fetches and returns the data. It takes two arguments:
+The `useLazyLoadQuery` hook fetches and returns the data. It takes two arguments:
 
 * The <span className="color1">GraphQL query</span> that we defined before.
 * <span className="color2">Variables</span> that are passed to the server with the query. This query doesn’t declare any variables, so it’s an empty object.
@@ -145,7 +145,7 @@ This is Relay in its most basic form: fetching the results of a GraphQL query wh
 <details>
 <summary>Deep dive: Suspense for Data Loading</summary>
 
-*Suspense* is a new API in React that lets React wait while data is loading before it renders components that need that data. When a component needs to load data before rendering, React shows a loading indicator. You control the loading indicator's location and style using a special component called `Suspense`.
+*Suspense* is a new API in React that lets React wait while data is loaded before it renders components that need that data. When a component needs to load data before rendering, React shows a loading indicator. You control the loading indicator's location and style using a special component called `Suspense`.
 
 Right now, there's a `Suspense` component inside `App.tsx`, which is what shows the spinner while `useLazyLoadQuery` is loading data.
 
@@ -159,7 +159,7 @@ All of the GraphQL strings in a Relay app are pre-processed by the Relay compile
 
 First, it allows Relay to generate type definitions for the results of the query, making your code more type-safe.
 
-Relay replaces the GraphQL string literal with an object that tells Relay what to do. This is much faster than using the GraphQL strings directly at runtime would be.
+Second, Relay replaces the GraphQL string literal with an object that tells Relay what to do. This is much faster than using the GraphQL strings directly at runtime.
 
 Also, Relay’s compiler can be configured to [save queries to the server](/docs/guides/persisted-queries/) when you build your app, so that at runtime the client need only send a query ID instead of the query itself. This saves bundle size and network bandwidth, and can prevent attackers from writing malicious queries since only those your app was built with need be available.
 
@@ -248,7 +248,7 @@ export type NewsfeedQuery$data = {
 
 Using Relay’s generated types makes your app safer and more maintainable. In addition to TypeScript, Relay supports the Flow type system if you want to use that instead. When using Flow, the extra annotation on `useLazyLoadQuery` is not needed, because Flow directly understands the contents of the <code>graphql``</code> tagged literal.
 
-We’ll revisit types throughout this tutorial. But next, we’ll look at how to add some basic interactivity to our app.
+We’ll revisit types throughout this tutorial. But next, we'll look at an even more important way that Relay helps us with maintainability.
 
 * * *
 
@@ -256,7 +256,7 @@ We’ll revisit types throughout this tutorial. But next, we’ll look at how to
 
 Queries are the foundation of fetching GraphQL data. We’ve seen:
 
-* How to define a GraphQL query within our app using the `graphql``` tagged literal
+* How to define a GraphQL query within our app using the <code>graphql``</code> tagged literal
 * How to use the `useLazyLoadQuery` hook to fetch the results of a query when a component renders.
 * How to import Relay's generated types for type safety.
 

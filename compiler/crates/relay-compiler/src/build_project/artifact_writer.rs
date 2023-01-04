@@ -11,8 +11,10 @@ use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 use std::path::PathBuf;
+use std::sync::atomic::AtomicUsize;
 use std::sync::Mutex;
 
+use common::sync::Ordering::Acquire;
 use dashmap::DashSet;
 use log::info;
 use serde::Serialize;
@@ -177,6 +179,96 @@ impl ArtifactWriter for ArtifactDifferenceWriter {
                 path,
                 data: content,
             });
+        Ok(())
+    }
+
+    fn remove(&self, path: PathBuf) -> BuildProjectResult {
+        if path.exists() {
+            self.codegen_records
+                .lock()
+                .unwrap()
+                .removed
+                .push(ArtifactDeletionRecord { path });
+        }
+        Ok(())
+    }
+
+    fn finalize(&self) -> crate::errors::Result<()> {
+        (|| {
+            let mut file = File::create(&self.codegen_filepath)?;
+            file.write_all(serde_json::to_string(&self.codegen_records)?.as_bytes())
+        })()
+        .map_err(|error| crate::errors::Error::WriteFileError {
+            file: self.codegen_filepath.clone(),
+            source: error,
+        })
+    }
+}
+
+#[derive(Serialize)]
+struct ArtifactUpdateShardedRecord {
+    pub path: PathBuf,
+    pub index: usize,
+}
+
+#[derive(Serialize)]
+struct CodegenShardedRecords {
+    pub removed: Vec<ArtifactDeletionRecord>,
+    pub changed: Vec<ArtifactUpdateShardedRecord>,
+}
+pub struct ArtifactDifferenceShardedWriter {
+    codegen_records: Mutex<CodegenShardedRecords>,
+    codegen_filepath: PathBuf,
+    codegen_shard_directory: PathBuf,
+    verify_changes_against_filesystem: bool,
+    codegen_index: AtomicUsize,
+}
+
+impl ArtifactDifferenceShardedWriter {
+    pub fn new(
+        codegen_filepath: PathBuf,
+        codegen_shard_directory: PathBuf,
+        verify_changes_against_filesystem: bool,
+    ) -> Self {
+        Self {
+            codegen_filepath,
+            codegen_records: Mutex::new(CodegenShardedRecords {
+                changed: Vec::new(),
+                removed: Vec::new(),
+            }),
+            codegen_shard_directory,
+            verify_changes_against_filesystem,
+            codegen_index: AtomicUsize::new(0),
+        }
+    }
+}
+
+impl ArtifactWriter for ArtifactDifferenceShardedWriter {
+    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
+        Ok(!self.verify_changes_against_filesystem
+            || content_is_different(path, content).map_err(|error| {
+                BuildProjectError::WriteFileError {
+                    file: path.clone(),
+                    source: error,
+                }
+            })?)
+    }
+
+    fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
+        let index = self.codegen_index.fetch_add(1, Acquire);
+        (|| {
+            let mut file = File::create(self.codegen_shard_directory.join(index.to_string()))?;
+            file.write_all(&content)
+        })()
+        .map_err(|error| BuildProjectError::WriteFileError {
+            file: path.clone(),
+            source: error,
+        })?;
+        self.codegen_records
+            .lock()
+            .unwrap()
+            .changed
+            .push(ArtifactUpdateShardedRecord { path, index });
         Ok(())
     }
 

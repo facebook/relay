@@ -79,15 +79,12 @@ fn convert_to_lsp_response(
             result: Some(result),
             error: None,
         },
+        Err(LSPRuntimeError::ExpectedError) => ServerResponse {
+            id,
+            result: Some(Value::Null),
+            error: None,
+        },
         Err(runtime_error) => {
-            if let LSPRuntimeError::ExpectedError = runtime_error {
-                return ServerResponse {
-                    id,
-                    result: Some(Value::Null),
-                    error: None,
-                };
-            }
-
             let response_error: Option<ResponseError> = runtime_error.into();
             let response_error = response_error.unwrap_or_else(|| ResponseError {
                 code: ErrorCode::UnknownErrorCode as i32,

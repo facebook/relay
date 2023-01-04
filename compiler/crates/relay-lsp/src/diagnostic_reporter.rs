@@ -16,6 +16,7 @@ use common::TextSource;
 use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
+use dunce::canonicalize;
 use extract_graphql::JavaScriptSourceFeature;
 use lsp_server::Message;
 use lsp_server::Notification as ServerNotification;
@@ -42,7 +43,7 @@ use crate::lsp_process_error::LSPProcessResult;
 /// Returns None if we are unable to do the conversion
 fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {
     let file_path = location.source_location().path();
-    let canonical_path = std::fs::canonicalize(root_dir.join(file_path)).ok()?;
+    let canonical_path = canonicalize(root_dir.join(file_path)).ok()?;
     Url::from_file_path(canonical_path).ok()
 }
 

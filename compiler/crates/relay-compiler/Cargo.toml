@@ -22,7 +22,7 @@ common-path = "1.0.0"
 dashmap = { version = "5.4", features = ["raw-api", "rayon", "serde"] }
 dependency-analyzer = { path = "../dependency-analyzer" }
 docblock-syntax = { path = "../docblock-syntax" }
-dunce = "1.0.3"
+dunce = "1.0.2"
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"

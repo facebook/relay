@@ -15,7 +15,7 @@ common = { path = "../common" }
 crossbeam = "0.8"
 dashmap = { version = "5.4", features = ["raw-api", "rayon", "serde"] }
 docblock-syntax = { path = "../docblock-syntax" }
-dunce = "1.0.3"
+dunce = "1.0.2"
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }

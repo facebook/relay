@@ -227,7 +227,7 @@ Relay will garbage-collect nodes from the Store if they aren’t “reachable”
 <details>
 <summary>Deep dive: Why GraphQL Needs a Syntax for Variables</summary>
 
-You might be wondering why GraphQL even has the concept of variables, instead of just interpolating the value of the variables into the query string. Well, [as mentioned before](../queries-1), the text of the GraphQL query string isn’t available at runtime, because Relay replaces it with a data structure that is more efficient. You can also configure Relay to use *prepared queries*, where the compiler uploads each query to the server at build time and assigns it an ID — in that case, at runtime, Relay is just telling the server “Give me query #1337”, so naturally the variables just have to come out of band. Even when the query string is available, passing variable values separately eliminates any issues with serializing arbitrary values and escaping strings, above what is required with any HTTP request.
+You might be wondering why GraphQL even has the concept of variables, instead of just interpolating the value of the variables into the query string. Well, [as mentioned before](../queries-1), the text of the GraphQL query string isn’t available at runtime, because Relay replaces it with a data structure that is more efficient. You can also configure Relay to use *prepared queries*, where the compiler uploads each query to the server at build time and assigns it an ID — in that case, at runtime, Relay is just telling the server “Give me query #1337”, so string interpolation isn't possible and therefore the variables have to come out of band. Even when the query string is available, passing variable values separately eliminates any issues with serializing arbitrary values and escaping strings, above what is required with any HTTP request.
 </details>
 
 * * *
@@ -240,7 +240,7 @@ Right now, the hovercard uses the `useLazyLoadQuery` hook, which fetches the que
 
 ![Network doesn't start until render](/img/docs/tutorial/preloaded-basic.png)
 
-This timeline could look even worse if we used `React.lazy` to load the code for the hovercard component itself when the interaction happened. In that case, it would look like this:
+Ideally, we should start the network fetch as early as possible, but here we don't start it until React is finished rendering. This timeline could look even worse if we used `React.lazy` to load the code for the hovercard component itself when the interaction happened. In that case, it would look like this:
 
 ![Network doesn't start until component is fetched and then rendered](/img/docs/tutorial/preloaded-lazy.png)
 

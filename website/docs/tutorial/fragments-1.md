@@ -401,7 +401,7 @@ Let’s break this down:
 
 * We’ve added an `@argumentDefinitions` directive to the fragment declaration. This says what arguments the fragment accepts. For each argument, we give:
     * <span className="color1">The name of the argument</span>
-    * <span className="color2">Its type</span> (which can be any <a>GraphQL scalar type</a>(https://graphql.org/learn/schema/#scalar-types))
+    * <span className="color2">Its type</span> (which can be any <a href="https://graphql.org/learn/schema/#scalar-types">GraphQL scalar type</a>)
     * Optionally a <span className="color3">default value </span>— in this case, the default value is null, which lets us fetch the image at its inherent size. If no default value is given, then the argument is required at every place the fragment is used.
 * Then we populate an <span className="color4">argument to a GraphQL field</span> by using the fragment argument as a variable. Here the field arguments and fragment arguments have the same name (as will often be the case), but note: `width:` is the field argument while `$width` is the variable created by the fragment argument.
 

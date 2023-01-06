@@ -15,7 +15,9 @@ const RELAY_CONFIG_SCHEMA_PATH = 'relay-config-schema';
 const PACKAGE_JSON_RELAY_CONFIG_SCHEMA_PATH =
   'package-json-relay-config-schema';
 
-export class RelayTextDocumentContentProvider implements TextDocumentContentProvider {
+export class RelayTextDocumentContentProvider
+  implements TextDocumentContentProvider
+{
   private readonly jsonSchemaPath: string;
 
   constructor(context: RelayExtensionContext) {

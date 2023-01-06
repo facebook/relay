@@ -16,15 +16,13 @@ module.exports = {
         project: './tsconfig.json',
         tsconfigRootDir: __dirname,
       },
-      extends: ['airbnb-base', 'airbnb-typescript/base'],
+      extends: [
+        'airbnb-base',
+        'airbnb-typescript/base',
+        'plugin:prettier/recommended',
+      ],
+      plugins: ['prettier'],
       rules: {
-        // The following rules conflict with prettier
-        'operator-linebreak': 'off',
-        '@typescript-eslint/indent': 'off',
-        '@typescript-eslint/object-curly-spacing': 'off',
-        'object-curly-newline': 'off',
-        'arrow-parens': 'off',
-
         // Opinionated
         'import/prefer-default-export': 'off',
         'no-await-in-loop': 'off',

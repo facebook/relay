@@ -176,7 +176,7 @@ const StoryCommentsSectionFragment = graphql`
 `;
 ```
 
-Next, we need to make the fragment [refetchable](./refetchable-fragments), so that Relay will be able to fetch it again with new values for the arguments — namely, a new cursor for the `$cursor` argument:
+Next, we need to make the fragment [refetchable](../refetchable-fragments), so that Relay will be able to fetch it again with new values for the arguments — namely, a new cursor for the `$cursor` argument:
 
 ```
 const StoryCommentsSectionFragment = graphql`

@@ -106,11 +106,11 @@
     "jsonValidation": [
       {
         "fileMatch": "relay.config.json",
-        "url": "./src/json-schemas/relay-config-json.jsonc"
+        "url": "relay://relay-config-schema"
       },
       {
         "fileMatch": "package.json",
-        "url": "./src/json-schemas/package-json.jsonc"
+        "url": "relay://package-json-relay-config-schema"
       }
     ]
   },

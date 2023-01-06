@@ -10,9 +10,9 @@ import {ExtensionContext, window, workspace} from 'vscode';
 import {registerCommands} from './commands/register';
 import {createAndStartCompiler} from './compiler';
 import {getConfig} from './config';
-
 import {RelayExtensionContext} from './context';
 import {createAndStartLanguageClient} from './languageClient';
+import {registerProviders} from './providers/register';
 import {createStatusBarItem, intializeStatusBarItem} from './statusBarItem';
 import {findRelayBinaryWithWarnings} from './utils/findRelayBinary';
 
@@ -72,6 +72,7 @@ export async function activate(extensionContext: ExtensionContext) {
 
     intializeStatusBarItem(relayExtensionContext);
     registerCommands(relayExtensionContext);
+    registerProviders(relayExtensionContext);
     createAndStartLanguageClient(relayExtensionContext);
 
     if (config.autoStartCompiler) {

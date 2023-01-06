@@ -367,6 +367,20 @@ const relayCompiler = gulp.parallel(
       })
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
   },
+  function copyConfigJsonSchema() {
+    return gulp
+      .src(
+        path.join(
+          '.',
+          'compiler',
+          'crates',
+          'relay-config',
+          'src',
+          'config-schema.json',
+        ),
+      )
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
+  },
   function copyCompilerBins() {
     return gulp
       .src('**', {

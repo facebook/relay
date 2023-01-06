@@ -400,6 +400,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dunce"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0bd4b30a6560bbd9b4620f4de34c3f14f60848e58a9b7216801afcb4c7b31c3c"
+
+[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1506,6 +1512,7 @@ dependencies = [
  "dashmap",
  "dependency-analyzer",
  "docblock-syntax",
+ "dunce",
  "errors",
  "extract-graphql",
  "fixture-tests",
@@ -1595,6 +1602,7 @@ dependencies = [
  "crossbeam",
  "dashmap",
  "docblock-syntax",
+ "dunce",
  "extract-graphql",
  "fixture-tests",
  "fnv",

@@ -1,6 +1,6 @@
 ---
 id: installation-and-setup
-title: Installation and Setup
+title: Installing in a Project
 slug: /getting-started/installation-and-setup/
 description: Relay installation and setup guide
 keywords:
@@ -13,8 +13,27 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
+# Installation
 
-## Installation
+In many situations, the easiest way to install Relay is with the `create-relay-app` package written by Tobias Tengler. Contrary to what the name suggests, this package *installs* Relay on your existing app.
+
+It currently supports apps built on Next, Vite, and Create React App. If you aren't on one of those platforms, or if it doesn't work for you for some reason, proceed to the manual steps below.
+
+To run it, make sure you have a clean working directory and run:
+
+```
+npm create @tobiastengler/relay-app
+```
+
+(or use `yarn` or `pnpm` instead of `npm` as you prefer).
+
+When it's done it will print some "Next Steps" for you to follow.
+
+More details about this script can be found at its [GitHub repository](https://github.com/tobias-tengler/create-relay-app).
+
+* * *
+
+# Manual Installation
 
 Install React and Relay using `yarn` or `npm`:
 

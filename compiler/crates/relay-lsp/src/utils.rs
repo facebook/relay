@@ -30,6 +30,15 @@ use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::Feature;
 
+pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
+    let file_path_result = file_uri.to_file_path();
+
+    match file_path_result {
+        Ok(file_path) => file_path.starts_with(root_dir),
+        Err(()) => false,
+    }
+}
+
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
@@ -66,7 +75,10 @@ pub fn extract_project_name_from_url(
     url: &Url,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<StringKey> {
-    let absolute_file_path = PathBuf::from(url.path());
+    let absolute_file_path = url.to_file_path().map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
+    })?;
+
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
             "Failed to strip prefix {:?} from {:?}",

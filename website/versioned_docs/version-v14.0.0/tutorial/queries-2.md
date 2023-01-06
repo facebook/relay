@@ -227,7 +227,7 @@ Relay will garbage-collect nodes from the Store if they aren’t “reachable”
 <details>
 <summary>Deep dive: Why GraphQL Needs a Syntax for Variables</summary>
 
-You might be wondering why GraphQL even has the concept of variables, instead of just interpolating the value of the variables into the query string. Well, [as mentioned before](../queries-1), the text of the GraphQL query string isn’t available at runtime, because Relay replaces it with a data structure that is more efficient. You can also configure Relay to use *prepared queries*, where the compiler uploads each query to the server at build time and assigns it an ID — in that case, at runtime, Relay is just telling the server “Give me query #1337”, so naturally the variables just have to come out of band. Even when the query string is available, passing variable values separately eliminates any issues with serializing arbitrary values and escaping strings, above what is required with any HTTP request.
+You might be wondering why GraphQL even has the concept of variables, instead of just interpolating the value of the variables into the query string. Well, [as mentioned before](../queries-1), the text of the GraphQL query string isn’t available at runtime, because Relay replaces it with a data structure that is more efficient. You can also configure Relay to use *prepared queries*, where the compiler uploads each query to the server at build time and assigns it an ID — in that case, at runtime, Relay is just telling the server “Give me query #1337”, so string interpolation isn't possible and therefore the variables have to come out of band. Even when the query string is available, passing variable values separately eliminates any issues with serializing arbitrary values and escaping strings, above what is required with any HTTP request.
 </details>
 
 * * *
@@ -240,7 +240,7 @@ Right now, the hovercard uses the `useLazyLoadQuery` hook, which fetches the que
 
 ![Network doesn't start until render](/img/docs/tutorial/preloaded-basic.png)
 
-This timeline could look even worse if we used `React.lazy` to load the code for the hovercard component itself when the interaction happened. In that case, it would look like this:
+Ideally, we should start the network fetch as early as possible, but here we don't start it until React is finished rendering. This timeline could look even worse if we used `React.lazy` to load the code for the hovercard component itself when the interaction happened. In that case, it would look like this:
 
 ![Network doesn't start until component is fetched and then rendered](/img/docs/tutorial/preloaded-lazy.png)
 
@@ -374,7 +374,7 @@ Note that the query variables are now passed in here where we initiate the reque
 At this point, you should see the same behavior as before, but now it will be a little bit faster since Relay can get the query started earlier.
 
 :::tip
-Although we introduced queries using `useLadyLoadQuery` for simplicity, preloaded queries are always the preferred way to use queries in Relay because they can significantly improve performance in the real world. With the appropriate [integrations with your server and router system](https://github.com/relayjs/relay-examples/tree/main/issue-tracker-next-v13), you can even preload the main query for a webpage on the server side before you’ve even downloaded or run any client code.
+Although we introduced queries using `useLazyLoadQuery` for simplicity, preloaded queries are always the preferred way to use queries in Relay because they can significantly improve performance in the real world. With the appropriate [integrations with your server and router system](https://github.com/relayjs/relay-examples/tree/main/issue-tracker-next-v13), you can even preload the main query for a webpage on the server side before you’ve even downloaded or run any client code.
 :::
 
 * * *
@@ -383,7 +383,7 @@ Although we introduced queries using `useLadyLoadQuery` for simplicity, preloade
 
 * Although all of the data initially shown on a screen should be combined into one query, user interactions needing further information can be handled with secondary queries.
 * Query variables let you pass information to the server along with your query.
-** Query variables are used by passing them into field arguments.
+* Query variables are used by passing them into field arguments.
 * Preloaded queries are always the best way to go. For user interaction queries, initiate the fetch in the event handler. For the initial query for your screen, initiate the fetch as early as possible in your specific routing system. Use lazy-loaded queries only for quick prototyping, or not at all.
 
 Next we'll briefly look at a way to enhance the hovecard by handling different types of posters differently. After that, we'll see how to handle situations where information that's part of the initial query also needs to be updated and refetched with different variables.

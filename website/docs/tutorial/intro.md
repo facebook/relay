@@ -36,7 +36,7 @@ When you run `npm run dev`, several processes are started:
 
 In the terminal output, these three processes’ log output are marked with tags: `[webpack]` in yellow, `[server]` in green, and `[relay]` in blue. Keep a look out for errors marked with `[relay]` as these are helpful if your GraphQL has any mistakes.
 
-Now that these processes are running, you should be able to run open [http://localhost:3000](http://localhost:3000/) in your browser.
+Now that these processes are running, you should be able to open [http://localhost:3000](http://localhost:3000/) in your browser.
 
 ![Screenshot](/img/docs/tutorial/intro-screenshot-placeholder.png)
 
@@ -44,11 +44,10 @@ We start from a webpage that shows a single Newsfeed story rendered with React, 
 
 The files that make up the example app are laid out in this way:
 
-* `src/components` — the front-end app components that we’ll be modifying ad working with. Some of the important components are:
+* `src/components` — the front-end app components that we’ll be modifying and working with. Some of the important components are:
     * `App.tsx` — the top-level component
     * `Newsfeed.tsx` — a component that will run a query to fetch newsfeed stories and display a scrolling list of stories. At the beginning of the tutorial, this component uses hard-coded placeholder data — we’ll modify it to fetch data via GraphQL and Relay.
     * `Story.tsx` — a component that shows a single newsfeed story.
-    * `Sidebar.tsx` — a sidebar shown to the right of the newsfeed. In later chapters we’ll add some information and interactivity here.
 * `server` — a very basic GraphQL server that serves up example data
     * `server/schema.graphql` — the GraphQL schema: it specifies what information can be queried from the server via GraphQL.
 

@@ -47,7 +47,7 @@ type Props = {
   };
 };
 
-export default function Story({story}) {
+export default function Story({story}: Props) {
   return (
     <Card>
       <PosterByline person={story.poster} />
@@ -55,13 +55,13 @@ export default function Story({story}) {
       // change-line
       <Timestamp time={story.createdAt} /> // Add this line
       <Image image={story.image} />
-      <p>{story.summary}</p>
+      <StorySummary summary={story.summary} />
     </Card>
   );
 }
 ```
 
-The date should now appear.
+The date should now appear. And thanks to GraphQL, we didn't have to write and deploy any new server code.
 
 But if you think about it, why should you have had to modify `Newsfeed.tsx`? Shouldn’t React components be self-contained? Why should Newsfeed care about the specific data required by Story? What if the data was required by some child component of Story way down in the hierarchy? What if it was a component that was used in many different places? Then we would have to modify many components whenever its data requirements changed.
 
@@ -127,12 +127,12 @@ The reason is that Relay hides them. Unless a component specifically asks for th
 
 Without data masking, you could never remove a field from a fragment, because it would be hard to verify that some other component somewhere wasn’t using it.
 
-To access the data selected by a fragment, we use a hook called `useFragment`. Modify the `Story` to look like this:
+To access the data selected by a fragment, we use a hook called `useFragment`. Modify `Story` to look like this:
 
 ```
 import { useFragment } from 'react-relay';
 
-function Story({story}) {
+export default function Story({story}: Props) {
   const data = useFragment(
     // color1
     StoryFragment,
@@ -145,7 +145,7 @@ function Story({story}) {
       <PosterByline person={data.poster} />
       <Timestamp time={data.createdAt} />
       <Image image={data.image} />
-      <p>{data.summary}</p>
+      <StorySummary summary={data.summary} />
     </Card>
   );
 }
@@ -199,7 +199,7 @@ type Props = {
 };
 ```
 
-With that done, we have a `Newsfeed` no longer has to care what data `Story` requires, yet can still fetch that data up-front within its own query.
+With that done, we have a `Newsfeed` that no longer has to care what data `Story` requires, yet can still fetch that data up-front within its own query.
 
 * * *
 
@@ -313,7 +313,8 @@ Edit `ImageFragment` as follows:
 const ImageFragment = graphql`
   fragment ImageFragment on Image {
     url
-    altText // Add this line
+    // change-line
+    altText
   }
 `;
 ```
@@ -336,7 +337,7 @@ You can imagine how beneficial this is as your codebase gets larger. Each compon
 
 ![Field added to one fragment is added in all places it's used](/img/docs/tutorial/fragment-image-add-once-compiled.png)
 
-Fragments are the building block of Relay apps. As such, a lot of Relay features are based on fragments. We’ll look at a few of them in the next sections.
+Fragments are the building blocks of Relay apps. As such, a lot of Relay features are based on fragments. We’ll look at a few of them in the next sections.
 
 * * *
 
@@ -400,7 +401,7 @@ Let’s break this down:
 
 * We’ve added an `@argumentDefinitions` directive to the fragment declaration. This says what arguments the fragment accepts. For each argument, we give:
     * <span className="color1">The name of the argument</span>
-    * <span className="color2">Its type</span> (which can be any [GraphQL scalar type](https://graphql.org/learn/schema/#scalar-types))
+    * <span className="color2">Its type</span> (which can be any <a href="https://graphql.org/learn/schema/#scalar-types">GraphQL scalar type</a>)
     * Optionally a <span className="color3">default value </span>— in this case, the default value is null, which lets us fetch the image at its inherent size. If no default value is given, then the argument is required at every place the fragment is used.
 * Then we populate an <span className="color4">argument to a GraphQL field</span> by using the fragment argument as a variable. Here the field arguments and fragment arguments have the same name (as will often be the case), but note: `width:` is the field argument while `$width` is the variable created by the fragment argument.
 
@@ -465,11 +466,9 @@ const PosterBylineFragment = graphql`
   </TabItem>
 </Tabs>
 
-Now if you look at the images that our app downloads, you’ll see they’re of the smaller size, saving network bandwidth. Note that although we use integer literal here, these arguments could also be supplied from fragment arguments, and therefore ultimately from query variables that are passed down to the fragment.
+Now if you look at the images that our app downloads, you’ll see they’re of the smaller size, saving network bandwidth. Note that although we used integer literals for the value of our fragment arguments, we can also use variables supplied at runtime, as we'll see in later sections.
 
 Field arguments (e.g. `url(height: 100)`) are a feature of GraphQL itself, while fragment arguments (as in `@argumentDefinitions` and `@arguments`) are Relay-specific features. The Relay compiler processes these fragment arguments when it combines fragments into queries.
-
-In this example, the argument values are hard-coded and known at build time. Next we’ll see how to use *query variables* to pass information to the server that’s not known until runtime.
 
 ---
 

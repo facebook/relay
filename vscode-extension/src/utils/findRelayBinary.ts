@@ -159,6 +159,14 @@ export async function findRelayBinaryWithWarnings(
 ): Promise<string | null> {
   const config = getConfig();
 
+  if (config.pathToRelay) {
+    outputChannel.appendLine(
+      "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
+    );
+
+    return config.pathToRelay;
+  }
+
   let rootPath = workspace.rootPath || process.cwd();
   if (config.rootDirectory) {
     rootPath = path.join(rootPath, config.rootDirectory);
@@ -169,13 +177,6 @@ export async function findRelayBinaryWithWarnings(
   );
   const relayBinaryResult = await findRelayCompilerBinary(rootPath);
 
-  if (config.pathToRelay) {
-    outputChannel.appendLine(
-      "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
-    );
-
-    return config.pathToRelay;
-  }
   if (relayBinaryResult.kind === 'versionDidNotMatch') {
     window.showErrorMessage(
       // Array syntax so it's easier to read this message in the source code.

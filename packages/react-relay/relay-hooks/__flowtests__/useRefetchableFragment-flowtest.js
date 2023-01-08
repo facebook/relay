@@ -82,6 +82,12 @@ const [, refetch] = useRefetchableFragment<QueryOperation, _>(
   fragmentInput,
   keyNonNullable,
 );
+
+// Accepts CacheConfig
+refetch(variables, {
+  cacheConfig: {metadata: {METADATA_VARIABLES: null}},
+});
+
 // $FlowExpectedError: internal option
 refetch(variables, {
   __environment: environment,

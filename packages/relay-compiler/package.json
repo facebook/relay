@@ -15,5 +15,14 @@
     "directory": "packages/relay-compiler"
   },
   "main": "index.js",
-  "bin": "cli.js"
+  "types": "index.d.ts",
+  "bin": "cli.js",
+  "devDependencies": {
+    "ts-json-schema-generator": "^1.2.0",
+    "typescript-json-schema": "^0.55.0"
+  },
+  "scripts": {
+    "create-json-schema-2": "ts-json-schema-generator --path ./index.d.ts --type CompilerConfig",
+    "create-json-schema": "typescript-json-schema ./index.d.ts CompilerConfig -o ./config-schema.json"
+  }
 }

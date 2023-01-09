@@ -21,7 +21,7 @@ pub struct ReachableAst {
     pub base_fragment_names: FragmentDefinitionNameSet,
 }
 
-/// Get all definitions that reachable from project defintions
+/// Get all definitions that are reachable from project definitions
 pub fn get_reachable_ast(
     project_definitions: Vec<ExecutableDefinition>,
     base_definitions: Vec<ExecutableDefinition>,

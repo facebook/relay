@@ -80,6 +80,8 @@ lazy_static! {
         ArgumentName("inject_fragment_data".intern());
     pub static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
         DirectiveName("__RelayWeakObject".intern());
+    static ref RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__RelayResolverModel".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -697,7 +699,12 @@ pub(crate) fn get_bool_argument_is_true(
     }
 }
 
-pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionName> {
+// If the field is a resolver, return its user defined fragment name. Does not
+// return generated fragment names.
+pub fn get_resolver_fragment_dependency_name(
+    field: &Field,
+    schema: &SDLSchema,
+) -> Option<FragmentDefinitionName> {
     if !field.is_extension {
         return None;
     }
@@ -710,7 +717,27 @@ pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionNam
                 .arguments
                 .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
         })
+        .filter(|_| {
+            // Resolvers on relay model types use generated fragments, and
+            // therefore have no user-defined fragment dependency.
+            !is_field_of_relay_model(schema, field)
+        })
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
+}
+
+fn is_field_of_relay_model(schema: &SDLSchema, field: &Field) -> bool {
+    if let Some(parent_type) = field.parent_type {
+        let directives = match parent_type {
+            schema::Type::Object(object_id) => &schema.object(object_id).directives,
+            schema::Type::Interface(interface_id) => &schema.interface(interface_id).directives,
+            schema::Type::Union(union_id) => &schema.union(union_id).directives,
+            _ => panic!("Expected parent to be an object, interface or union."),
+        };
+
+        directives.named(*RESOLVER_MODEL_DIRECTIVE_NAME).is_some()
+    } else {
+        false
+    }
 }
 
 fn to_camel_case(non_camelized_string: String) -> String {

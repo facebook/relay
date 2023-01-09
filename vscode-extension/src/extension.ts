@@ -72,7 +72,7 @@ export async function activate(extensionContext: ExtensionContext) {
 
     intializeStatusBarItem(relayExtensionContext);
     registerCommands(relayExtensionContext);
-    registerProviders(relayExtensionContext);
+    await registerProviders(relayExtensionContext);
     createAndStartLanguageClient(relayExtensionContext);
 
     if (config.autoStartCompiler) {

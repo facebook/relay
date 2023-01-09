@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import * as path from 'path';
 import * as fs from 'fs';
 import {TextDocumentContentProvider, Event, Uri, ProviderResult} from 'vscode';
-import {RelayExtensionContext} from '../context';
 
 const EMPTY_JSON_SCHEMA = '{}';
 const RELAY_CONFIG_SCHEMA_PATH = 'relay-config-schema';
@@ -18,14 +16,7 @@ const PACKAGE_JSON_RELAY_CONFIG_SCHEMA_PATH =
 export class RelayTextDocumentContentProvider
   implements TextDocumentContentProvider
 {
-  private readonly jsonSchemaPath: string;
-
-  constructor(context: RelayExtensionContext) {
-    this.jsonSchemaPath = path.join(
-      context.relayBinaryExecutionOptions.binaryPath,
-      '../../config-schema.json',
-    );
-  }
+  constructor(private readonly configJsonSchemaPath: string) {}
 
   static readonly scheme: string = 'relay';
 
@@ -38,7 +29,7 @@ export class RelayTextDocumentContentProvider
 
     if (uri.authority === RELAY_CONFIG_SCHEMA_PATH) {
       try {
-        return fs.readFileSync(this.jsonSchemaPath, {encoding: 'utf-8'});
+        return fs.readFileSync(this.configJsonSchemaPath, {encoding: 'utf-8'});
       } catch {
         return EMPTY_JSON_SCHEMA;
       }

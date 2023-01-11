@@ -110,17 +110,18 @@ type MultiProjectItem = TypegenConfig & {
   schemaConfig?: SchemaConfig;
   moduleImportConfig?: ModuleImportConfig;
   diagnosticReportConfig?: DiagnosticReportConfig;
-} & (
-    | {
-        schema: Schema;
-      }
-    | {
-        /**
-         * A directory containing a schema broken up in multiple `*.graphql` files.
-         */
-        schemaDir: string;
-      }
-  );
+} & SchemaLocation;
+
+type SchemaLocation =
+  | {
+      schema: Schema;
+    }
+  | {
+      /**
+       * A directory containing a schema broken up in multiple `*.graphql` files.
+       */
+      schemaDir: string;
+    };
 
 /**
  * Path to a GraphQL schema file
@@ -193,6 +194,7 @@ type DevVariableName = string;
  */
 type JsModuleFormat = "commonjs" | "haste";
 
+/** @discriminator kind */
 type FeatureFlag =
   | {
       kind: "disabled";
@@ -202,11 +204,12 @@ type FeatureFlag =
     }
   | {
       kind: "limited";
-      allowlist?: string[];
+      allowlist: string[];
     }
   | {
       kind: "rollout";
-      rollout?: number;
+      /** @minimum 0 @maximum 100 */
+      rollout: number;
     };
 
 /**
@@ -263,15 +266,18 @@ type ModuleImportConfig = {
   /**
    * Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime.
    */
-  dynamicModuleProvider?:
-    | {
-        mode: "JSResource";
-      }
-    | {
-        mode: "Custom";
-        statement?: string;
-      };
+  dynamicModuleProvider?: DynamicModuleProvider;
 };
+
+/** @discriminator mode */
+type DynamicModuleProvider =
+  | {
+      mode: "JSResource";
+    }
+  | {
+      mode: "Custom";
+      statement?: string;
+    };
 
 type FeatureFlags = {
   enable_flight_transform?: boolean;

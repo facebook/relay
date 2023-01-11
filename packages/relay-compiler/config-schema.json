@@ -1,1013 +1,820 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "anyOf": [
-        {
-            "properties": {
-                "artifactDirectory": {
-                    "description": "A directory to output all artifacts to",
-                    "type": "string"
-                },
-                "codegenCommand": {
-                    "description": "Name of the command that runs the relay-compiler",
-                    "type": "string"
-                },
-                "customScalars": {
-                    "additionalProperties": {
-                        "anyOf": [
-                            {
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "path": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    },
-                    "description": "Mappings from custom scalars in your schema to built-in GraphQL types, for type emission purposes",
-                    "type": "object"
-                },
-                "eagerEsModules": {
-                    "description": "Emit ES module artifacts",
-                    "type": "boolean"
-                },
-                "excludes": {
-                    "description": "List of directory glob patterns to ignore",
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "featureFlags": {
-                    "properties": {
-                        "actor_change_support": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "compact_query_text": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "enable_3d_branch_arg_generation": {
-                            "type": "boolean"
-                        },
-                        "enable_client_edges": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "enable_flight_transform": {
-                            "type": "boolean"
-                        },
-                        "enable_fragment_aliases": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "enable_relay_resolver_transform": {
-                            "type": "boolean"
-                        },
-                        "hash_supported_argument": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "no_inline": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "relay_resolver_enable_terse_syntax": {
-                            "type": "boolean"
-                        },
-                        "relay_resolver_model_syntax_enabled": {
-                            "type": "boolean"
-                        },
-                        "skip_printing_nulls": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "text_artifacts": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "use_named_imports_for_relay_resolvers": {
-                            "type": "boolean"
-                        }
-                    },
-                    "type": "object"
-                },
-                "isDevVariableName": {
-                    "description": "Name of the global variable for dev mode",
-                    "type": "string"
-                },
-                "jsModuleFormat": {
-                    "$ref": "#/definitions/JsModuleFormat"
-                },
-                "language": {
-                    "$ref": "#/definitions/TypegenLanguage"
-                },
-                "moduleImportConfig": {
-                    "description": "Configuration for @module",
-                    "properties": {
-                        "dynamicModuleProvider": {
-                            "anyOf": [
-                                {
-                                    "properties": {
-                                        "mode": {
-                                            "enum": [
-                                                "JSResource"
-                                            ],
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                {
-                                    "properties": {
-                                        "mode": {
-                                            "enum": [
-                                                "Custom"
-                                            ],
-                                            "type": "string"
-                                        },
-                                        "statement": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            ],
-                            "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime."
-                        }
-                    },
-                    "type": "object"
-                },
-                "noFutureProofEnums": {
-                    "description": "This option controls whether or not a catch-all entry is added to enum type definitions values that may be added in the future. Enabling this means you will have to update your application whenever the GraphQL server schema adds new enum values to prevent it from breaking",
-                    "type": "boolean"
-                },
-                "persistConfig": {
-                    "$ref": "#/definitions/PersistConfig"
-                },
-                "schema": {
-                    "description": "Path to a GraphQL schema file",
-                    "type": "string"
-                },
-                "schemaConfig": {
-                    "description": "Configuration where Relay should expect some fields in the schema.",
-                    "properties": {
-                        "connectionInterface": {
-                            "properties": {
-                                "cursor": {
-                                    "type": "string"
-                                },
-                                "edges": {
-                                    "type": "string"
-                                },
-                                "endCursor": {
-                                    "type": "string"
-                                },
-                                "hasNextPage": {
-                                    "type": "string"
-                                },
-                                "hasPreviousPage": {
-                                    "type": "string"
-                                },
-                                "node": {
-                                    "type": "string"
-                                },
-                                "pageInfo": {
-                                    "type": "string"
-                                },
-                                "startCursor": {
-                                    "type": "string"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        "nodeInterfaceIdField": {
-                            "description": "Configure the name of the globally unique ID field on the Node interface",
-                            "type": "string"
-                        },
-                        "nonNodeIdFields": {
-                            "properties": {
-                                "allowedIdTypes": {
-                                    "additionalProperties": {
-                                        "type": "string"
-                                    },
-                                    "description": "Mappings from types in your schema to allowed types for their fields named `id`",
-                                    "type": "object"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        "unselectableDirectiveName": {
-                            "description": "The name of the directive indicating fields that cannot be selected",
-                            "type": "string"
-                        }
-                    },
-                    "type": "object"
-                },
-                "schemaExtensions": {
-                    "description": "List of directories with `*.graphql` files containing schema extensions",
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "src": {
-                    "description": "Root directory of application code",
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        {
-            "properties": {
-                "codegenCommand": {
-                    "description": "Name of the command that runs the relay-compiler",
-                    "type": "string"
-                },
-                "excludes": {
-                    "description": "List of directory glob patterns to ignore",
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "featureFlags": {
-                    "properties": {
-                        "actor_change_support": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "compact_query_text": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "enable_3d_branch_arg_generation": {
-                            "type": "boolean"
-                        },
-                        "enable_client_edges": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "enable_flight_transform": {
-                            "type": "boolean"
-                        },
-                        "enable_fragment_aliases": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "enable_relay_resolver_transform": {
-                            "type": "boolean"
-                        },
-                        "hash_supported_argument": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "no_inline": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "relay_resolver_enable_terse_syntax": {
-                            "type": "boolean"
-                        },
-                        "relay_resolver_model_syntax_enabled": {
-                            "type": "boolean"
-                        },
-                        "skip_printing_nulls": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "text_artifacts": {
-                            "$ref": "#/definitions/FeatureFlag"
-                        },
-                        "use_named_imports_for_relay_resolvers": {
-                            "type": "boolean"
-                        }
-                    },
-                    "type": "object"
-                },
-                "header": {
-                    "description": "A header to be prepended to each generated artifact",
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "isDevVariableName": {
-                    "description": "Name of the global variable for dev mode",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "Optional name of this configuration",
-                    "type": "string"
-                },
-                "projects": {
-                    "additionalProperties": {
-                        "$ref": "#/definitions/MultiProjectItem"
-                    },
-                    "description": "Configuration of projects to compile",
-                    "type": "object"
-                },
-                "root": {
-                    "description": "Root directory relative to the config file. Defaults to the directory where the config is located.",
-                    "type": "string"
-                },
-                "savedStateConfig": {
-                    "properties": {
-                        "mergebase": {
-                            "type": "string"
-                        },
-                        "mergebase-with": {
-                            "type": "string"
-                        },
-                        "saved-state": {
-                            "properties": {
-                                "commit-id": {
-                                    "type": "string"
-                                },
-                                "config": {},
-                                "storage": {
-                                    "type": "string"
-                                }
-                            },
-                            "type": "object"
-                        }
-                    },
-                    "type": "object"
-                },
-                "sources": {
-                    "additionalProperties": {
-                        "type": "string"
-                    },
-                    "description": "A mapping from directory paths (relative to the root) to a project. If a path is a subdirectory of another path, the more specific path wins.",
-                    "type": "object"
-                }
-            },
-            "type": "object"
-        }
-    ],
-    "definitions": {
-        "FeatureFlag": {
-            "anyOf": [
-                {
-                    "properties": {
-                        "kind": {
-                            "enum": [
-                                "disabled"
-                            ],
-                            "type": "string"
-                        }
-                    },
-                    "type": "object"
-                },
-                {
-                    "properties": {
-                        "kind": {
-                            "enum": [
-                                "enabled"
-                            ],
-                            "type": "string"
-                        }
-                    },
-                    "type": "object"
-                },
-                {
-                    "properties": {
-                        "allowlist": {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        "kind": {
-                            "enum": [
-                                "limited"
-                            ],
-                            "type": "string"
-                        }
-                    },
-                    "type": "object"
-                },
-                {
-                    "properties": {
-                        "kind": {
-                            "enum": [
-                                "rollout"
-                            ],
-                            "type": "string"
-                        },
-                        "rollout": {
-                            "type": "number"
-                        }
-                    },
-                    "type": "object"
-                }
-            ]
-        },
-        "JsModuleFormat": {
-            "description": "Formatting style for generated files",
-            "enum": [
-                "commonjs",
-                "haste"
-            ],
-            "type": "string"
-        },
-        "MultiProjectItem": {
-            "anyOf": [
-                {
-                    "allOf": [
-                        {
-                            "properties": {
-                                "customScalarTypes": {
-                                    "additionalProperties": {
-                                        "anyOf": [
-                                            {
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string"
-                                                    },
-                                                    "path": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            },
-                                            {
-                                                "type": "string"
-                                            }
-                                        ]
-                                    },
-                                    "description": "Mappings from custom scalars in your schema to built-in GraphQL types, for type emission purposes",
-                                    "type": "object"
-                                },
-                                "eagerEsModules": {
-                                    "description": "Emit ES module artifacts",
-                                    "type": "boolean"
-                                },
-                                "enumModuleSuffix": {
-                                    "description": "(Flow only) When set, enum values are imported from a module with this suffix. For example, an enum Foo and this property set to `.test` would be imported from `Foo.test`",
-                                    "type": "string"
-                                },
-                                "flowTypegen": {
-                                    "description": "Work in progress new Flow type definitions",
-                                    "properties": {
-                                        "noFutureProofEnums": {
-                                            "description": "This option controls whether or not a catch-all entry is added to enum type definitions values that may be added in the future. Enabling this means you will have to update your application whenever the GraphQL server schema adds new enum values to prevent it from breaking",
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "language": {
-                                    "$ref": "#/definitions/TypegenLanguage"
-                                },
-                                "optionalInputFields": {
-                                    "description": "(Flow only) When set, generated input types will have the listed fields optional even if the schema defines them as required.",
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                },
-                                "requireCustomScalarTypes": {
-                                    "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type.",
-                                    "type": "boolean"
-                                },
-                                "useImportTypeSyntax": {
-                                    "description": "(TypeScript only) Whether to use the `import type` syntax introduced in Typescript version 3.8. This will prevent warnings from `importsNotUsedAsValues`.",
-                                    "type": "boolean"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "properties": {
-                                "base": {
-                                    "description": "The name of the base project. If a base project is set, the documents of that project can be referenced, but won't produce output artifacts. Extensions from the base project will be added as well and the schema of the base project should be a subset of the schema of this project.",
-                                    "type": "string"
-                                },
-                                "diagnosticReportConfig": {
-                                    "description": "Configuration for all diagnostic reporting in the compiler",
-                                    "properties": {
-                                        "criticalLevel": {
-                                            "description": "Threshold for diagnostics to be critical to the compiler's execution. All diagnostic with severities at and below this level will cause the compiler to fatally exit.",
-                                            "enum": [
-                                                "error",
-                                                "hint",
-                                                "info",
-                                                "warning"
-                                            ],
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "extraArtifactsOutput": {
-                                    "description": "Some projects may need to generate extra artifacts. For those, we may need to provide an additional directory to put them. By default they will use `output`.",
-                                    "type": "string"
-                                },
-                                "featureFlags": {
-                                    "properties": {
-                                        "actor_change_support": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "compact_query_text": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "enable_3d_branch_arg_generation": {
-                                            "type": "boolean"
-                                        },
-                                        "enable_client_edges": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "enable_flight_transform": {
-                                            "type": "boolean"
-                                        },
-                                        "enable_fragment_aliases": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "enable_relay_resolver_transform": {
-                                            "type": "boolean"
-                                        },
-                                        "hash_supported_argument": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "no_inline": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "relay_resolver_enable_terse_syntax": {
-                                            "type": "boolean"
-                                        },
-                                        "relay_resolver_model_syntax_enabled": {
-                                            "type": "boolean"
-                                        },
-                                        "skip_printing_nulls": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "text_artifacts": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "use_named_imports_for_relay_resolvers": {
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "jsModuleFormat": {
-                                    "$ref": "#/definitions/JsModuleFormat"
-                                },
-                                "moduleImportConfig": {
-                                    "description": "Configuration for @module",
-                                    "properties": {
-                                        "dynamicModuleProvider": {
-                                            "anyOf": [
-                                                {
-                                                    "properties": {
-                                                        "mode": {
-                                                            "enum": [
-                                                                "JSResource"
-                                                            ],
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "mode": {
-                                                            "enum": [
-                                                                "Custom"
-                                                            ],
-                                                            "type": "string"
-                                                        },
-                                                        "statement": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                }
-                                            ],
-                                            "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime."
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "output": {
-                                    "description": "A directory to output all artifacts to",
-                                    "type": "string"
-                                },
-                                "persist": {
-                                    "$ref": "#/definitions/PersistConfig"
-                                },
-                                "rollout": {
-                                    "type": "number"
-                                },
-                                "schemaConfig": {
-                                    "description": "Configuration where Relay should expect some fields in the schema.",
-                                    "properties": {
-                                        "connectionInterface": {
-                                            "properties": {
-                                                "cursor": {
-                                                    "type": "string"
-                                                },
-                                                "edges": {
-                                                    "type": "string"
-                                                },
-                                                "endCursor": {
-                                                    "type": "string"
-                                                },
-                                                "hasNextPage": {
-                                                    "type": "string"
-                                                },
-                                                "hasPreviousPage": {
-                                                    "type": "string"
-                                                },
-                                                "node": {
-                                                    "type": "string"
-                                                },
-                                                "pageInfo": {
-                                                    "type": "string"
-                                                },
-                                                "startCursor": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "nodeInterfaceIdField": {
-                                            "description": "Configure the name of the globally unique ID field on the Node interface",
-                                            "type": "string"
-                                        },
-                                        "nonNodeIdFields": {
-                                            "properties": {
-                                                "allowedIdTypes": {
-                                                    "additionalProperties": {
-                                                        "type": "string"
-                                                    },
-                                                    "description": "Mappings from types in your schema to allowed types for their fields named `id`",
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "unselectableDirectiveName": {
-                                            "description": "The name of the directive indicating fields that cannot be selected",
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "schemaExtensions": {
-                                    "description": "List of directories with `*.graphql` files containing schema extensions",
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                },
-                                "shardOutput": {
-                                    "description": "If `output` is provided and `shard_output` is `true`, shard the files by putting them under `{output_dir}/{source_relative_path}`",
-                                    "type": "boolean"
-                                },
-                                "shardStripRegex": {
-                                    "description": "Regex to match and strip parts of the `source_relative_path`",
-                                    "type": "string"
-                                },
-                                "testPathRegex": {
-                                    "description": "Restrict @relay_test_operation to directories matching this regex",
-                                    "type": "string"
-                                },
-                                "variableNamesComment": {
-                                    "description": "Generates a `// @relayVariables name1 name2` header in generated operation files",
-                                    "type": "boolean"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "properties": {
-                                "schema": {
-                                    "description": "Path to a GraphQL schema file",
-                                    "type": "string"
-                                }
-                            },
-                            "type": "object"
-                        }
-                    ]
-                },
-                {
-                    "allOf": [
-                        {
-                            "properties": {
-                                "customScalarTypes": {
-                                    "additionalProperties": {
-                                        "anyOf": [
-                                            {
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string"
-                                                    },
-                                                    "path": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            },
-                                            {
-                                                "type": "string"
-                                            }
-                                        ]
-                                    },
-                                    "description": "Mappings from custom scalars in your schema to built-in GraphQL types, for type emission purposes",
-                                    "type": "object"
-                                },
-                                "eagerEsModules": {
-                                    "description": "Emit ES module artifacts",
-                                    "type": "boolean"
-                                },
-                                "enumModuleSuffix": {
-                                    "description": "(Flow only) When set, enum values are imported from a module with this suffix. For example, an enum Foo and this property set to `.test` would be imported from `Foo.test`",
-                                    "type": "string"
-                                },
-                                "flowTypegen": {
-                                    "description": "Work in progress new Flow type definitions",
-                                    "properties": {
-                                        "noFutureProofEnums": {
-                                            "description": "This option controls whether or not a catch-all entry is added to enum type definitions values that may be added in the future. Enabling this means you will have to update your application whenever the GraphQL server schema adds new enum values to prevent it from breaking",
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "language": {
-                                    "$ref": "#/definitions/TypegenLanguage"
-                                },
-                                "optionalInputFields": {
-                                    "description": "(Flow only) When set, generated input types will have the listed fields optional even if the schema defines them as required.",
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                },
-                                "requireCustomScalarTypes": {
-                                    "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type.",
-                                    "type": "boolean"
-                                },
-                                "useImportTypeSyntax": {
-                                    "description": "(TypeScript only) Whether to use the `import type` syntax introduced in Typescript version 3.8. This will prevent warnings from `importsNotUsedAsValues`.",
-                                    "type": "boolean"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "properties": {
-                                "base": {
-                                    "description": "The name of the base project. If a base project is set, the documents of that project can be referenced, but won't produce output artifacts. Extensions from the base project will be added as well and the schema of the base project should be a subset of the schema of this project.",
-                                    "type": "string"
-                                },
-                                "diagnosticReportConfig": {
-                                    "description": "Configuration for all diagnostic reporting in the compiler",
-                                    "properties": {
-                                        "criticalLevel": {
-                                            "description": "Threshold for diagnostics to be critical to the compiler's execution. All diagnostic with severities at and below this level will cause the compiler to fatally exit.",
-                                            "enum": [
-                                                "error",
-                                                "hint",
-                                                "info",
-                                                "warning"
-                                            ],
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "extraArtifactsOutput": {
-                                    "description": "Some projects may need to generate extra artifacts. For those, we may need to provide an additional directory to put them. By default they will use `output`.",
-                                    "type": "string"
-                                },
-                                "featureFlags": {
-                                    "properties": {
-                                        "actor_change_support": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "compact_query_text": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "enable_3d_branch_arg_generation": {
-                                            "type": "boolean"
-                                        },
-                                        "enable_client_edges": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "enable_flight_transform": {
-                                            "type": "boolean"
-                                        },
-                                        "enable_fragment_aliases": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "enable_relay_resolver_transform": {
-                                            "type": "boolean"
-                                        },
-                                        "hash_supported_argument": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "no_inline": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "relay_resolver_enable_terse_syntax": {
-                                            "type": "boolean"
-                                        },
-                                        "relay_resolver_model_syntax_enabled": {
-                                            "type": "boolean"
-                                        },
-                                        "skip_printing_nulls": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "text_artifacts": {
-                                            "$ref": "#/definitions/FeatureFlag"
-                                        },
-                                        "use_named_imports_for_relay_resolvers": {
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "jsModuleFormat": {
-                                    "$ref": "#/definitions/JsModuleFormat"
-                                },
-                                "moduleImportConfig": {
-                                    "description": "Configuration for @module",
-                                    "properties": {
-                                        "dynamicModuleProvider": {
-                                            "anyOf": [
-                                                {
-                                                    "properties": {
-                                                        "mode": {
-                                                            "enum": [
-                                                                "JSResource"
-                                                            ],
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "mode": {
-                                                            "enum": [
-                                                                "Custom"
-                                                            ],
-                                                            "type": "string"
-                                                        },
-                                                        "statement": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                }
-                                            ],
-                                            "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime."
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "output": {
-                                    "description": "A directory to output all artifacts to",
-                                    "type": "string"
-                                },
-                                "persist": {
-                                    "$ref": "#/definitions/PersistConfig"
-                                },
-                                "rollout": {
-                                    "type": "number"
-                                },
-                                "schemaConfig": {
-                                    "description": "Configuration where Relay should expect some fields in the schema.",
-                                    "properties": {
-                                        "connectionInterface": {
-                                            "properties": {
-                                                "cursor": {
-                                                    "type": "string"
-                                                },
-                                                "edges": {
-                                                    "type": "string"
-                                                },
-                                                "endCursor": {
-                                                    "type": "string"
-                                                },
-                                                "hasNextPage": {
-                                                    "type": "string"
-                                                },
-                                                "hasPreviousPage": {
-                                                    "type": "string"
-                                                },
-                                                "node": {
-                                                    "type": "string"
-                                                },
-                                                "pageInfo": {
-                                                    "type": "string"
-                                                },
-                                                "startCursor": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "nodeInterfaceIdField": {
-                                            "description": "Configure the name of the globally unique ID field on the Node interface",
-                                            "type": "string"
-                                        },
-                                        "nonNodeIdFields": {
-                                            "properties": {
-                                                "allowedIdTypes": {
-                                                    "additionalProperties": {
-                                                        "type": "string"
-                                                    },
-                                                    "description": "Mappings from types in your schema to allowed types for their fields named `id`",
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "unselectableDirectiveName": {
-                                            "description": "The name of the directive indicating fields that cannot be selected",
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "schemaExtensions": {
-                                    "description": "List of directories with `*.graphql` files containing schema extensions",
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                },
-                                "shardOutput": {
-                                    "description": "If `output` is provided and `shard_output` is `true`, shard the files by putting them under `{output_dir}/{source_relative_path}`",
-                                    "type": "boolean"
-                                },
-                                "shardStripRegex": {
-                                    "description": "Regex to match and strip parts of the `source_relative_path`",
-                                    "type": "string"
-                                },
-                                "testPathRegex": {
-                                    "description": "Restrict @relay_test_operation to directories matching this regex",
-                                    "type": "string"
-                                },
-                                "variableNamesComment": {
-                                    "description": "Generates a `// @relayVariables name1 name2` header in generated operation files",
-                                    "type": "boolean"
-                                }
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "properties": {
-                                "schemaDir": {
-                                    "description": "A directory containing a schema broken up in multiple `*.graphql` files.",
-                                    "type": "string"
-                                }
-                            },
-                            "type": "object"
-                        }
-                    ]
-                }
-            ]
-        },
-        "PersistConfig": {
-            "anyOf": [
-                {
-                    "properties": {
-                        "concurrency": {
-                            "description": "The maximum number concurrent requests that will be made to `url`",
-                            "type": "number"
-                        },
-                        "params": {
-                            "additionalProperties": {
-                                "type": "string"
-                            },
-                            "description": "The document will be in a POST parameter text. This map can contain additional parameters to send",
-                            "type": "object"
-                        },
-                        "url": {
-                            "description": "URL to send a POST request to to persist.",
-                            "type": "string"
-                        }
-                    },
-                    "type": "object"
-                },
-                {
-                    "properties": {
-                        "file": {
-                            "description": "Path to the JSON file that will contain operations map",
-                            "type": "string"
-                        }
-                    },
-                    "type": "object"
-                }
-            ]
-        },
-        "TypegenLanguage": {
-            "description": "The language used for input files and generated artifacts",
-            "enum": [
-                "flow",
-                "javascript",
-                "typescript"
-            ],
-            "type": "string"
-        }
+  "$ref": "#/definitions/CompilerConfig",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "CodegenCommand": {
+      "description": "Name of the command that runs the relay-compiler",
+      "type": "string"
     },
-    "description": "Relay.js configuration"
+    "CompilerConfig": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/SingleProjectConfiguration"
+        },
+        {
+          "$ref": "#/definitions/MultiProjectConfiguration"
+        }
+      ],
+      "description": "Relay.js configuration"
+    },
+    "CustomScalarTypes": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "path"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "description": "Mappings from custom scalars in your schema to built-in GraphQL types, for type emission purposes",
+      "type": "object"
+    },
+    "DevVariableName": {
+      "description": "Name of the global variable for dev mode",
+      "type": "string"
+    },
+    "DiagnosticReportConfig": {
+      "additionalProperties": false,
+      "description": "Configuration for all diagnostic reporting in the compiler",
+      "properties": {
+        "criticalLevel": {
+          "description": "Threshold for diagnostics to be critical to the compiler's execution. All diagnostic with severities at and below this level will cause the compiler to fatally exit.",
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "hint"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "criticalLevel"
+      ],
+      "type": "object"
+    },
+    "DynamicModuleProvider": {
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "JSResource",
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "const": "JSResource",
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "Custom",
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "const": "Custom",
+                "type": "string"
+              },
+              "statement": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "JSResource",
+            "Custom"
+          ]
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "type": "object"
+    },
+    "EagerEsModules": {
+      "description": "Emit ES module artifacts",
+      "type": "boolean"
+    },
+    "Excludes": {
+      "description": "List of directory glob patterns to ignore",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "FeatureFlag": {
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "disabled",
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "disabled",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "enabled",
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "enabled",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "limited",
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "additionalProperties": false,
+            "properties": {
+              "allowlist": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "kind": {
+                "const": "limited",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "allowlist"
+            ],
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "rollout",
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "rollout",
+                "type": "string"
+              },
+              "rollout": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "rollout"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "disabled",
+            "enabled",
+            "limited",
+            "rollout"
+          ]
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "FeatureFlags": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_change_support": {
+          "$ref": "#/definitions/FeatureFlag"
+        },
+        "compact_query_text": {
+          "$ref": "#/definitions/FeatureFlag"
+        },
+        "enable_3d_branch_arg_generation": {
+          "type": "boolean"
+        },
+        "enable_client_edges": {
+          "$ref": "#/definitions/FeatureFlag"
+        },
+        "enable_flight_transform": {
+          "type": "boolean"
+        },
+        "enable_fragment_aliases": {
+          "$ref": "#/definitions/FeatureFlag"
+        },
+        "enable_relay_resolver_transform": {
+          "type": "boolean"
+        },
+        "hash_supported_argument": {
+          "$ref": "#/definitions/FeatureFlag"
+        },
+        "no_inline": {
+          "$ref": "#/definitions/FeatureFlag"
+        },
+        "relay_resolver_enable_terse_syntax": {
+          "type": "boolean"
+        },
+        "relay_resolver_model_syntax_enabled": {
+          "type": "boolean"
+        },
+        "skip_printing_nulls": {
+          "$ref": "#/definitions/FeatureFlag"
+        },
+        "text_artifacts": {
+          "$ref": "#/definitions/FeatureFlag"
+        },
+        "use_named_imports_for_relay_resolvers": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "JsModuleFormat": {
+      "description": "Formatting style for generated files",
+      "enum": [
+        "commonjs",
+        "haste"
+      ],
+      "type": "string"
+    },
+    "LocalPersistConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "description": "Path to the JSON file that will contain operations map",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file"
+      ],
+      "type": "object"
+    },
+    "ModuleImportConfig": {
+      "additionalProperties": false,
+      "description": "Configuration for @module",
+      "properties": {
+        "dynamicModuleProvider": {
+          "$ref": "#/definitions/DynamicModuleProvider",
+          "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime."
+        }
+      },
+      "type": "object"
+    },
+    "MultiProjectConfiguration": {
+      "additionalProperties": false,
+      "properties": {
+        "codegenCommand": {
+          "$ref": "#/definitions/CodegenCommand"
+        },
+        "excludes": {
+          "$ref": "#/definitions/Excludes"
+        },
+        "featureFlags": {
+          "$ref": "#/definitions/FeatureFlags"
+        },
+        "header": {
+          "description": "A header to be prepended to each generated artifact",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "isDevVariableName": {
+          "$ref": "#/definitions/DevVariableName"
+        },
+        "name": {
+          "description": "Optional name of this configuration",
+          "type": "string"
+        },
+        "projects": {
+          "additionalProperties": {
+            "$ref": "#/definitions/MultiProjectItem"
+          },
+          "description": "Configuration of projects to compile",
+          "type": "object"
+        },
+        "root": {
+          "description": "Root directory relative to the config file. Defaults to the directory where the config is located.",
+          "type": "string"
+        },
+        "savedStateConfig": {
+          "additionalProperties": false,
+          "properties": {
+            "mergebase": {
+              "type": "string"
+            },
+            "mergebase-with": {
+              "type": "string"
+            },
+            "saved-state": {
+              "additionalProperties": false,
+              "properties": {
+                "commit-id": {
+                  "type": "string"
+                },
+                "config": {},
+                "storage": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "type": "object"
+        },
+        "sources": {
+          "additionalProperties": {
+            "description": "The name of a project",
+            "type": "string"
+          },
+          "description": "A mapping from directory paths (relative to the root) to a project. If a path is a subdirectory of another path, the more specific path wins.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "sources",
+        "projects"
+      ],
+      "type": "object"
+    },
+    "MultiProjectItem": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "base": {
+              "description": "The name of the base project. If a base project is set, the documents of that project can be referenced, but won't produce output artifacts. Extensions from the base project will be added as well and the schema of the base project should be a subset of the schema of this project.",
+              "type": "string"
+            },
+            "customScalarTypes": {
+              "$ref": "#/definitions/CustomScalarTypes"
+            },
+            "diagnosticReportConfig": {
+              "$ref": "#/definitions/DiagnosticReportConfig"
+            },
+            "eagerEsModules": {
+              "$ref": "#/definitions/EagerEsModules"
+            },
+            "enumModuleSuffix": {
+              "description": "(Flow only) When set, enum values are imported from a module with this suffix. For example, an enum Foo and this property set to `.test` would be imported from `Foo.test`",
+              "type": "string"
+            },
+            "extraArtifactsOutput": {
+              "description": "Some projects may need to generate extra artifacts. For those, we may need to provide an additional directory to put them. By default they will use `output`.",
+              "type": "string"
+            },
+            "featureFlags": {
+              "$ref": "#/definitions/FeatureFlags"
+            },
+            "flowTypegen": {
+              "additionalProperties": false,
+              "description": "Work in progress new Flow type definitions",
+              "properties": {
+                "noFutureProofEnums": {
+                  "$ref": "#/definitions/NoFutureProofEnums"
+                }
+              },
+              "type": "object"
+            },
+            "jsModuleFormat": {
+              "$ref": "#/definitions/JsModuleFormat"
+            },
+            "language": {
+              "$ref": "#/definitions/TypegenLanguage"
+            },
+            "moduleImportConfig": {
+              "$ref": "#/definitions/ModuleImportConfig"
+            },
+            "optionalInputFields": {
+              "description": "(Flow only) When set, generated input types will have the listed fields optional even if the schema defines them as required.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "output": {
+              "description": "A directory to output all artifacts to",
+              "type": "string"
+            },
+            "persist": {
+              "$ref": "#/definitions/PersistConfig"
+            },
+            "requireCustomScalarTypes": {
+              "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type.",
+              "type": "boolean"
+            },
+            "rollout": {
+              "type": "number"
+            },
+            "schema": {
+              "$ref": "#/definitions/Schema"
+            },
+            "schemaConfig": {
+              "$ref": "#/definitions/SchemaConfig"
+            },
+            "schemaExtensions": {
+              "$ref": "#/definitions/SchemaExtensions"
+            },
+            "shardOutput": {
+              "description": "If `output` is provided and `shard_output` is `true`, shard the files by putting them under `{output_dir}/{source_relative_path}`",
+              "type": "boolean"
+            },
+            "shardStripRegex": {
+              "description": "Regex to match and strip parts of the `source_relative_path`",
+              "type": "string"
+            },
+            "testPathRegex": {
+              "description": "Restrict @relay_test_operation to directories matching this regex",
+              "type": "string"
+            },
+            "useImportTypeSyntax": {
+              "description": "(TypeScript only) Whether to use the `import type` syntax introduced in Typescript version 3.8. This will prevent warnings from `importsNotUsedAsValues`.",
+              "type": "boolean"
+            },
+            "variableNamesComment": {
+              "description": "Generates a `// @relayVariables name1 name2` header in generated operation files",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "language",
+            "schema"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "base": {
+              "description": "The name of the base project. If a base project is set, the documents of that project can be referenced, but won't produce output artifacts. Extensions from the base project will be added as well and the schema of the base project should be a subset of the schema of this project.",
+              "type": "string"
+            },
+            "customScalarTypes": {
+              "$ref": "#/definitions/CustomScalarTypes"
+            },
+            "diagnosticReportConfig": {
+              "$ref": "#/definitions/DiagnosticReportConfig"
+            },
+            "eagerEsModules": {
+              "$ref": "#/definitions/EagerEsModules"
+            },
+            "enumModuleSuffix": {
+              "description": "(Flow only) When set, enum values are imported from a module with this suffix. For example, an enum Foo and this property set to `.test` would be imported from `Foo.test`",
+              "type": "string"
+            },
+            "extraArtifactsOutput": {
+              "description": "Some projects may need to generate extra artifacts. For those, we may need to provide an additional directory to put them. By default they will use `output`.",
+              "type": "string"
+            },
+            "featureFlags": {
+              "$ref": "#/definitions/FeatureFlags"
+            },
+            "flowTypegen": {
+              "additionalProperties": false,
+              "description": "Work in progress new Flow type definitions",
+              "properties": {
+                "noFutureProofEnums": {
+                  "$ref": "#/definitions/NoFutureProofEnums"
+                }
+              },
+              "type": "object"
+            },
+            "jsModuleFormat": {
+              "$ref": "#/definitions/JsModuleFormat"
+            },
+            "language": {
+              "$ref": "#/definitions/TypegenLanguage"
+            },
+            "moduleImportConfig": {
+              "$ref": "#/definitions/ModuleImportConfig"
+            },
+            "optionalInputFields": {
+              "description": "(Flow only) When set, generated input types will have the listed fields optional even if the schema defines them as required.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "output": {
+              "description": "A directory to output all artifacts to",
+              "type": "string"
+            },
+            "persist": {
+              "$ref": "#/definitions/PersistConfig"
+            },
+            "requireCustomScalarTypes": {
+              "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type.",
+              "type": "boolean"
+            },
+            "rollout": {
+              "type": "number"
+            },
+            "schemaConfig": {
+              "$ref": "#/definitions/SchemaConfig"
+            },
+            "schemaDir": {
+              "description": "A directory containing a schema broken up in multiple `*.graphql` files.",
+              "type": "string"
+            },
+            "schemaExtensions": {
+              "$ref": "#/definitions/SchemaExtensions"
+            },
+            "shardOutput": {
+              "description": "If `output` is provided and `shard_output` is `true`, shard the files by putting them under `{output_dir}/{source_relative_path}`",
+              "type": "boolean"
+            },
+            "shardStripRegex": {
+              "description": "Regex to match and strip parts of the `source_relative_path`",
+              "type": "string"
+            },
+            "testPathRegex": {
+              "description": "Restrict @relay_test_operation to directories matching this regex",
+              "type": "string"
+            },
+            "useImportTypeSyntax": {
+              "description": "(TypeScript only) Whether to use the `import type` syntax introduced in Typescript version 3.8. This will prevent warnings from `importsNotUsedAsValues`.",
+              "type": "boolean"
+            },
+            "variableNamesComment": {
+              "description": "Generates a `// @relayVariables name1 name2` header in generated operation files",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "language",
+            "schemaDir"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "NoFutureProofEnums": {
+      "description": "This option controls whether or not a catch-all entry is added to enum type definitions values that may be added in the future. Enabling this means you will have to update your application whenever the GraphQL server schema adds new enum values to prevent it from breaking",
+      "type": "boolean"
+    },
+    "PersistConfig": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/RemotePersistConfig"
+        },
+        {
+          "$ref": "#/definitions/LocalPersistConfig"
+        }
+      ]
+    },
+    "RemotePersistConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "concurrency": {
+          "description": "The maximum number concurrent requests that will be made to `url`",
+          "type": "number"
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "The document will be in a POST parameter text. This map can contain additional parameters to send",
+          "type": "object"
+        },
+        "url": {
+          "description": "URL to send a POST request to to persist.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    },
+    "Schema": {
+      "description": "Path to a GraphQL schema file",
+      "type": "string"
+    },
+    "SchemaConfig": {
+      "additionalProperties": false,
+      "description": "Configuration where Relay should expect some fields in the schema.",
+      "properties": {
+        "connectionInterface": {
+          "additionalProperties": false,
+          "properties": {
+            "cursor": {
+              "type": "string"
+            },
+            "edges": {
+              "type": "string"
+            },
+            "endCursor": {
+              "type": "string"
+            },
+            "hasNextPage": {
+              "type": "string"
+            },
+            "hasPreviousPage": {
+              "type": "string"
+            },
+            "node": {
+              "type": "string"
+            },
+            "pageInfo": {
+              "type": "string"
+            },
+            "startCursor": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "nodeInterfaceIdField": {
+          "description": "Configure the name of the globally unique ID field on the Node interface",
+          "type": "string"
+        },
+        "nonNodeIdFields": {
+          "additionalProperties": false,
+          "properties": {
+            "allowedIdTypes": {
+              "additionalProperties": {
+                "description": "The type of the `id` field of this type",
+                "type": "string"
+              },
+              "description": "Mappings from types in your schema to allowed types for their fields named `id`",
+              "type": "object"
+            }
+          },
+          "required": [
+            "allowedIdTypes"
+          ],
+          "type": "object"
+        },
+        "unselectableDirectiveName": {
+          "description": "The name of the directive indicating fields that cannot be selected",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "SchemaExtensions": {
+      "description": "List of directories with `*.graphql` files containing schema extensions",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "SingleProjectConfiguration": {
+      "additionalProperties": false,
+      "properties": {
+        "artifactDirectory": {
+          "description": "A directory to output all artifacts to",
+          "type": "string"
+        },
+        "codegenCommand": {
+          "$ref": "#/definitions/CodegenCommand"
+        },
+        "customScalars": {
+          "$ref": "#/definitions/CustomScalarTypes"
+        },
+        "eagerEsModules": {
+          "$ref": "#/definitions/EagerEsModules"
+        },
+        "excludes": {
+          "$ref": "#/definitions/Excludes"
+        },
+        "featureFlags": {
+          "$ref": "#/definitions/FeatureFlags"
+        },
+        "isDevVariableName": {
+          "$ref": "#/definitions/DevVariableName"
+        },
+        "jsModuleFormat": {
+          "$ref": "#/definitions/JsModuleFormat"
+        },
+        "language": {
+          "$ref": "#/definitions/TypegenLanguage"
+        },
+        "moduleImportConfig": {
+          "$ref": "#/definitions/ModuleImportConfig"
+        },
+        "noFutureProofEnums": {
+          "$ref": "#/definitions/NoFutureProofEnums"
+        },
+        "persistConfig": {
+          "$ref": "#/definitions/PersistConfig"
+        },
+        "schema": {
+          "$ref": "#/definitions/Schema"
+        },
+        "schemaConfig": {
+          "$ref": "#/definitions/SchemaConfig"
+        },
+        "schemaExtensions": {
+          "$ref": "#/definitions/SchemaExtensions"
+        },
+        "src": {
+          "description": "Root directory of application code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "src",
+        "schema",
+        "language"
+      ],
+      "type": "object"
+    },
+    "TypegenLanguage": {
+      "description": "The language used for input files and generated artifacts",
+      "enum": [
+        "javascript",
+        "typescript",
+        "flow"
+      ],
+      "type": "string"
+    }
+  }
 }
-

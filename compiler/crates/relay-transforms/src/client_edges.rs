@@ -25,7 +25,6 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
-use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -38,12 +37,14 @@ use intern::string_key::StringKeyMap;
 use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
+use schema::DirectiveValue;
 use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessageWithData;
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use crate::RequiredMetadataDirective;
 use crate::ValidationMessage;
@@ -73,7 +74,7 @@ pub enum ClientEdgeMetadataDirective {
         unique_id: u32,
     },
     ClientObject {
-        type_name: ObjectName,
+        type_name: Option<ObjectName>,
         unique_id: u32,
     },
 }
@@ -273,7 +274,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     kind: OperationKind::Query,
                     name: WithLocation::new(
                         document_name.location,
-                        OperationDefinitionName(refetchable_directive.query_name.item),
+                        refetchable_directive.query_name.item,
                     ),
                     type_: query_type,
                     variable_definitions: refetchable_root.variable_definitions,
@@ -356,11 +357,16 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
             match edge_to_type {
                 Type::Interface(_) => {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::ClientEdgeToClientInterface,
-                        field.alias_or_name_location(),
-                    ));
-                    return self.default_transform_linked_field(field);
+                    if !has_output_type(resolver_directive) {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::ClientEdgeToClientInterface,
+                            field.alias_or_name_location(),
+                        ));
+                    }
+                    ClientEdgeMetadataDirective::ClientObject {
+                        type_name: None,
+                        unique_id: self.get_key(),
+                    }
                 }
                 Type::Union(_) => {
                     self.errors.push(Diagnostic::error(
@@ -370,7 +376,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     return Transformed::Keep;
                 }
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
-                    type_name: schema.object(object_id).name.item,
+                    type_name: Some(schema.object(object_id).name.item),
                     unique_id: self.get_key(),
                 },
                 _ => {
@@ -545,5 +551,17 @@ impl Transformer for ClientEdgesCleanupTransform {
             }
             None => self.default_transform_inline_fragment(fragment),
         }
+    }
+}
+
+// We should restructure the calling code so that this function does not
+// accept an option.
+fn has_output_type(directive: Option<&DirectiveValue>) -> bool {
+    match directive {
+        Some(directive) => get_bool_argument_is_true(
+            &directive.arguments,
+            *crate::relay_resolvers::RELAY_RESOLVER_HAS_OUTPUT_TYPE,
+        ),
+        None => false,
     }
 }

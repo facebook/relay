@@ -38,8 +38,8 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
   let canRecycle = false;
 
   // Assign local variables to preserve Flow type refinement.
-  const prevArray = Array.isArray(prevData) ? prevData : null;
-  const nextArray = Array.isArray(nextData) ? nextData : null;
+  const prevArray: ?Array<mixed> = Array.isArray(prevData) ? prevData : null;
+  const nextArray: ?Array<mixed> = Array.isArray(nextData) ? nextData : null;
   if (prevArray && nextArray) {
     canRecycle =
       nextArray.reduce((wasEqual, nextItem, ii) => {

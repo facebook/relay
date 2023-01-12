@@ -15,7 +15,9 @@ import type {
   loadQueryStoreBehaviorTestQuery$data,
   loadQueryStoreBehaviorTestQuery$variables,
 } from './__generated__/loadQueryStoreBehaviorTestQuery.graphql';
-import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {Sink} from 'relay-runtime/network/RelayObservable';
+import type {GraphQLSingularResponse} from 'relay-runtime/network/RelayNetworkTypes';
+import type {Query, OperationType} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {loadQuery} = require('../loadQuery');
 const {
@@ -52,7 +54,7 @@ const preloadableConcreteRequest = {
   params: query.params,
 };
 
-const response = {
+const response: GraphQLSingularResponse = {
   data: {
     node: {
       __typename: 'User',
@@ -65,7 +67,7 @@ const response = {
   },
 };
 
-const updatedResponse = {
+const updatedResponse: GraphQLSingularResponse = {
   data: {
     node: {
       __typename: 'User',
@@ -92,12 +94,16 @@ let writeDataToStore;
 
 beforeEach(() => {
   operation = createOperationDescriptor(query, variables);
-  fetch = jest.fn((_query, _variables, _cacheConfig) => {
-    const observableCreate = Observable.create(_sink => {
-      sink = _sink;
-    });
-    return observableCreate;
-  });
+  fetch = jest.fn(
+    (_query, _variables, _cacheConfig, _uploadables, _logRequestInfo) => {
+      const observableCreate = Observable.create(
+        (_sink: Sink<GraphQLSingularResponse>) => {
+          sink = _sink;
+        },
+      );
+      return observableCreate;
+    },
+  );
   environment = createMockEnvironment({network: Network.create(fetch)});
   store = environment.getStore();
 
@@ -110,7 +116,11 @@ beforeEach(() => {
     .mockImplementation(() => resolvedModule);
 
   writeDataToStore = () => {
-    loadQuery(environment, preloadableConcreteRequest, variables);
+    loadQuery<OperationType>(
+      environment,
+      preloadableConcreteRequest,
+      variables,
+    );
     sink.next(response);
     sink.complete();
     PreloadableQueryRegistry.set(ID, query);
@@ -133,7 +143,11 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
       it('should write the data to the store after the query AST and network response are available', () => {
         expect(store.check(operation).status).toBe('missing');
-        loadQuery(environment, preloadableConcreteRequest, variables);
+        loadQuery<OperationType>(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+        );
         expect(fetch).toHaveBeenCalled();
         expect(store.check(operation).status).toBe('missing');
         PreloadableQueryRegistry.set(ID, query);
@@ -144,7 +158,11 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
       it('should write the data to the store after the network response and query AST are available', () => {
         expect(store.check(operation).status).toBe('missing');
-        loadQuery(environment, preloadableConcreteRequest, variables);
+        loadQuery<OperationType>(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+        );
         expect(store.check(operation).status).toBe('missing');
         sink.next(response);
         expect(store.check(operation).status).toBe('missing');
@@ -154,7 +172,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
       it('should not write the data to the store if dispose is called before the query AST and network response are available', () => {
         expect(store.check(operation).status).toBe('missing');
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -168,7 +186,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
       it('should not write the data to the store if dispose is called before the network response and query AST are available', () => {
         expect(store.check(operation).status).toBe('missing');
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -182,7 +200,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
       it('should not write the data to the store if dispose is called after the query AST is available, but before the network response is available', () => {
         expect(store.check(operation).status).toBe('missing');
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -196,7 +214,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
       it('should not write the data to the store if dispose is called after the network response is available, but before the query AST is available', () => {
         expect(store.check(operation).status).toBe('missing');
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -212,14 +230,18 @@ describe('when passed a PreloadableConcreteRequest', () => {
     describe('when the query AST is available synchronously', () => {
       it('should write data to the store when the network response is available', () => {
         expect(store.check(operation).status).toBe('missing');
-        loadQuery(environment, preloadableConcreteRequest, variables);
+        loadQuery<OperationType>(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+        );
         sink.next(response);
         expect(store.check(operation).status).toBe('available');
       });
 
       it('should not write data to the store if dispose is called before the network response is available', () => {
         expect(store.check(operation).status).toBe('missing');
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -235,9 +257,14 @@ describe('when passed a PreloadableConcreteRequest', () => {
     beforeEach(() => writeDataToStore());
     describe('when the query AST is available synchronously', () => {
       it('should write updated data to the store when the network response is available', () => {
-        loadQuery(environment, preloadableConcreteRequest, variables, {
-          fetchPolicy: 'network-only',
-        });
+        loadQuery<OperationType>(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
 
         expect(
           (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
@@ -249,7 +276,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
 
       it('should not write updated data to the store if dispose is called before the network response is available', () => {
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -270,9 +297,14 @@ describe('when passed a PreloadableConcreteRequest', () => {
         resolvedModule = undefined;
       });
       it('should write updated data to the store when the network response and query AST are available', () => {
-        loadQuery(environment, preloadableConcreteRequest, variables, {
-          fetchPolicy: 'network-only',
-        });
+        loadQuery<OperationType>(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
 
         expect(
           (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
@@ -288,9 +320,14 @@ describe('when passed a PreloadableConcreteRequest', () => {
         ).toEqual('Mark');
       });
       it('should write updated data to the store when the query AST and network response are available', () => {
-        loadQuery(environment, preloadableConcreteRequest, variables, {
-          fetchPolicy: 'network-only',
-        });
+        loadQuery<OperationType>(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
 
         expect(
           (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
@@ -307,7 +344,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
 
       it('should not write updated data to the store if dispose is called before the network response and query AST are available', () => {
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -328,7 +365,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
 
       it('should not write updated data to the store if dispose is called before the query AST and network response are available', () => {
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -349,7 +386,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
 
       it('should not write updated data to the store if dispose is called after the query AST is available and before the network response is available', () => {
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -373,7 +410,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
 
       it('should not write updated data to the store if dispose is called after ·the network repsonse is available and before the query AST is available', () => {
-        const {dispose} = loadQuery(
+        const {dispose} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -403,14 +440,14 @@ describe('when passed a query AST', () => {
   describe('when data is unavailable in the store', () => {
     it('should write data to the store when the network response is available', () => {
       expect(store.check(operation).status).toBe('missing');
-      loadQuery(environment, query, variables);
+      loadQuery<OperationType>(environment, query, variables);
       sink.next(response);
       expect(store.check(operation).status).toBe('available');
     });
 
     it('should not write data to the store if dispose is called before the network response is available', () => {
       expect(store.check(operation).status).toBe('missing');
-      const {dispose} = loadQuery(environment, query, variables);
+      const {dispose} = loadQuery<OperationType>(environment, query, variables);
       dispose();
       sink.next(response);
       expect(store.check(operation).status).toBe('missing');
@@ -419,7 +456,7 @@ describe('when passed a query AST', () => {
   describe("when data is available in the store, but the fetch policy is 'network-only'", () => {
     beforeEach(() => writeDataToStore());
     it('should write updated data to the store when the network response is available', () => {
-      loadQuery(environment, query, variables, {
+      loadQuery<OperationType>(environment, query, variables, {
         fetchPolicy: 'network-only',
       });
 
@@ -433,9 +470,14 @@ describe('when passed a query AST', () => {
     });
 
     it('should not write updated data to the store if dispose is called before the network response is available', () => {
-      const {dispose} = loadQuery(environment, query, variables, {
-        fetchPolicy: 'network-only',
-      });
+      const {dispose} = loadQuery<OperationType>(
+        environment,
+        query,
+        variables,
+        {
+          fetchPolicy: 'network-only',
+        },
+      );
 
       dispose();
       sink.next(updatedResponse);

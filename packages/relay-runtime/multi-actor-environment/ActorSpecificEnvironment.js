@@ -17,6 +17,7 @@ import type {INetwork} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type {
   ExecuteMutationConfig,
+  MissingFieldHandler,
   LogFunction,
   MutationParameters,
   OperationAvailability,
@@ -30,6 +31,7 @@ import type {
   Snapshot,
   Store,
   StoreUpdater,
+  TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
@@ -54,6 +56,7 @@ export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   network: INetwork,
   requiredFieldLogger: RequiredFieldLogger,
   store: Store,
+  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
 }>;
 
 class ActorSpecificEnvironment implements IActorEnvironment {
@@ -83,6 +86,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
       config.store,
       config.handlerProvider,
       defaultGetDataID,
+      config.missingFieldHandlers,
     );
     this._defaultRenderPolicy = config.defaultRenderPolicy;
     // TODO:T92305692 Remove `options` in favor of directly using `actorIdentifier` on the environment
@@ -181,6 +185,10 @@ class ActorSpecificEnvironment implements IActorEnvironment {
 
   getOperationTracker(): OperationTracker {
     return this._operationTracker;
+  }
+
+  getScheduler(): ?TaskScheduler {
+    return this.multiActorEnvironment.getScheduler();
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {

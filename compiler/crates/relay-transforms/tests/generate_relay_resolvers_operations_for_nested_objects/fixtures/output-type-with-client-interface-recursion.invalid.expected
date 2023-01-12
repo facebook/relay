@@ -1,0 +1,55 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    __typename
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+type PopStarName {
+  stage_name: IStageName
+  also_a_stage_name: IStageName
+}
+
+interface IStageName {
+  value: String
+  stage_name: IStageName
+}
+
+type Foo implements IStageName {
+  value: String
+  stage_name: IStageName
+}
+
+extend type User {
+  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== ERROR ====================================
+✖︎ @RelayResolver type recursion detected for the output type `IStageName`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
+
+  output-type-with-client-interface-recursion.invalid.graphql:14:3
+   13 │   value: String
+   14 │   stage_name: IStageName
+      │   ^^^^^^^^^^
+   15 │ }
+
+
+✖︎ @RelayResolver type recursion detected for the output type `IStageName`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
+
+  output-type-with-client-interface-recursion.invalid.graphql:14:3
+   13 │   value: String
+   14 │   stage_name: IStageName
+      │   ^^^^^^^^^^
+   15 │ }

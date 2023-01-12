@@ -172,7 +172,7 @@ class RelayOperationTracker {
       };
     }
     let resolve;
-    const promise = new Promise(r => {
+    const promise = new Promise<void>(r => {
       resolve = r;
     });
     invariant(

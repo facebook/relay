@@ -1,0 +1,6 @@
+# expected-to-throw
+query requiredQuery @updatable {
+  me {
+    name @required(action: NONE)
+  }
+}

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -110,12 +111,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // DataChecker receives its operationLoader from the store, not the
         // environment. So we have to pass it here as well.
         store = new RelayModernStore(source, {
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           operationLoader,
           gcReleaseBufferSize: 0,
         });
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           operationLoader,
           reactFlightPayloadDeserializer,
         });
@@ -124,6 +127,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
                 network: RelayNetwork.create(fetch),
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 operationLoader,
                 store,
                 reactFlightPayloadDeserializer,
@@ -340,6 +344,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             const multiActorEnvironment = new MultiActorEnvironment({
               createNetworkForActor: _actorID => RelayNetwork.create(fetch),
               createStoreForActor: _actorID => store,
+              // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
               operationLoader,
               reactFlightPayloadDeserializer,
               reactFlightServerErrorHandler,
@@ -351,6 +356,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   )
                 : new RelayModernEnvironment({
                     network: RelayNetwork.create(fetch),
+                    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                     operationLoader,
                     store,
                     reactFlightPayloadDeserializer,

@@ -72,7 +72,9 @@ function createOperationLoader() {
           // $FlowFixMe[incompatible-type]
           resolveFn = resolve_;
         });
+        // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
         entry = {kind: 'promise', promise, resolve: resolveFn};
+        // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
         cache.set(moduleName, entry);
         return promise;
       } else if (entry.kind === 'value') {
@@ -172,6 +174,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
+          // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+          // $FlowFixMe[underconstrained-implicit-instantiation]
           return RelayObservable.create(sink => {
             dataSource = sink;
           });
@@ -179,10 +183,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
 
+        // $FlowFixMe[incompatible-type-arg] Error found while enabling LTI on this file
         [resolveFragment, operationLoader] = createOperationLoader();
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
+          // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
           operationLoader,
         });
         environment =

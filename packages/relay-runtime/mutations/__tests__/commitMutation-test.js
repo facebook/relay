@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {
@@ -1117,6 +1118,7 @@ describe('Required mutation roots', () => {
     const source = RelayRecordSource.create({});
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
     });
@@ -1201,6 +1203,7 @@ describe('commitMutation()', () => {
     const source = RelayRecordSource.create({});
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
     });
@@ -1519,6 +1522,7 @@ describe('commitMutation() cacheConfig', () => {
     const source = RelayRecordSource.create({});
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
     });

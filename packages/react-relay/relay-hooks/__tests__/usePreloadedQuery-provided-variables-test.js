@@ -128,7 +128,7 @@ describe.each([
     let environment;
     let fetch;
     const Component = function (props: any) {
-      const queryData = usePreloadedQuery(queryPV, props.prefetched);
+      const queryData = usePreloadedQuery<any>(queryPV, props.prefetched);
       data = useFragment(fragmentPV, queryData.node);
       return [
         data?.name ?? 'MISSING NAME',
@@ -145,6 +145,7 @@ describe.each([
         }),
       );
       environment = new Environment({
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         network: Network.create(fetch),
         store: new Store(new RecordSource()),
       });
@@ -188,7 +189,7 @@ describe.each([
     });
     describe('using loadQuery', () => {
       it('renders synchronously when passed a preloadableConcreteRequest', () => {
-        const prefetched = loadQuery(
+        const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequestPV,
           {
@@ -223,7 +224,7 @@ describe.each([
       });
 
       it('renders synchronously when passed a query AST', () => {
-        const prefetched = loadQuery(environment, queryPV, {
+        const prefetched = loadQuery<any, _>(environment, queryPV, {
           id: '4',
         });
         expect(dataSource).toBeDefined();

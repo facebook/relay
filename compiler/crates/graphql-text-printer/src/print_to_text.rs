@@ -282,7 +282,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Selection::LinkedField(field) => self.print_linked_field(field, conditions),
             Selection::FragmentSpread(field) => self.print_fragment_spread(field, conditions),
             Selection::InlineFragment(field) => self.print_inline_fragment(field, conditions),
-            Selection::Condition(field) => self.print_condition(field),
+            Selection::Condition(field) => self.print_condition(field, conditions),
         }
     }
 
@@ -345,26 +345,50 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         self.print_selections(&field.selections)
     }
 
-    fn print_condition(&mut self, condition: &Condition) -> FmtResult {
-        let mut maybe_current_condition = Some(condition);
-        let mut accum_conditions: Vec<Condition> = vec![];
-        let mut is_first_selection = true;
-        while let Some(current_condition) = maybe_current_condition {
-            accum_conditions.push(current_condition.clone());
-
-            for selection in current_condition.selections.iter() {
-                if let Selection::Condition(nested_cond) = selection {
-                    maybe_current_condition = Some(nested_cond);
-                } else {
-                    if is_first_selection {
-                        is_first_selection = false;
-                    } else {
-                        self.print_new_line(false)?;
-                    }
-                    self.print_selection(selection, Some(accum_conditions.iter().rev().collect()))?;
-                    maybe_current_condition = None;
-                }
+    fn print_condition(
+        &mut self,
+        condition: &Condition,
+        accum_conditions: Option<Vec<&Condition>>,
+    ) -> FmtResult {
+        let mut accum_conditions: Vec<&Condition> = accum_conditions.unwrap_or_default();
+        // GraphQL spec doesn't allow repeated include or skip. See
+        // https://spec.graphql.org/October2021/#sec-Directives-Are-Unique-Per-Location
+        // To work around it, we extract repeated conditions into an inline fragment.
+        let mut has_repeated_condition = false;
+        for cond in &accum_conditions {
+            if cond.passing_value == condition.passing_value {
+                has_repeated_condition = true;
             }
+        }
+        if has_repeated_condition {
+            write!(self.writer, "...")?;
+            self.print_directives(&[], Some(accum_conditions), None)?;
+            write!(self.writer, " {{")?;
+            self.indentation += 1;
+            self.print_new_line(false)?;
+            accum_conditions = vec![condition];
+        } else {
+            accum_conditions.push(condition);
+        }
+
+        let mut is_first_selection = true;
+        for selection in condition.selections.iter() {
+            {
+                if is_first_selection {
+                    is_first_selection = false;
+                } else {
+                    self.print_new_line(false)?;
+                }
+                self.print_selection(
+                    selection,
+                    Some(accum_conditions.iter().rev().cloned().collect()),
+                )?;
+            }
+        }
+        if has_repeated_condition {
+            self.indentation -= 1;
+            self.print_new_line(false)?;
+            write!(self.writer, "}}")?;
         }
         Ok(())
     }

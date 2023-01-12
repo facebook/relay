@@ -1,0 +1,19 @@
+# expected-to-throw
+mutation LikeMutation {
+  feedbackLikeStrict(input: {
+    feedbackId: false
+    userID: "some-user-id"
+  }) {
+    __typename
+  }
+}
+
+mutation LikeMutationReverse {
+  feedbackLikeStrict(input: {
+    userID: "some-user-id"
+    feedbackId: false
+  }) {
+    __typename
+  }
+}
+

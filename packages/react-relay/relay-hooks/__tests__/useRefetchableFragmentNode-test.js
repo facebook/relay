@@ -351,6 +351,7 @@ describe.each([
             [ID_KEY]:
               owner.request.variables.id ?? owner.request.variables.nodeID,
             [FRAGMENTS_KEY]: {
+              // $FlowFixMe[invalid-computed-prop] Error found while enabling LTI on this file
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,

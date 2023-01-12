@@ -1,0 +1,22 @@
+#expected-to-throw
+
+fragment User_fragment on User {
+  id
+  sensitiveUserInfo {
+    id
+    sensitiveName
+    sensitiveNickname
+  }
+}
+
+# %extensions%
+
+type SensitiveUserInfo {
+  id: ID!
+  sensitiveName: String
+  sensitiveNickname: String
+}
+
+extend type User {
+  sensitiveUserInfo: SensitiveUserInfo @unselectable(reason: "This data has been disabled per our policy.")
+}

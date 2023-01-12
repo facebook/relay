@@ -17,6 +17,7 @@ use async_trait::async_trait;
 use common::FeatureFlags;
 use common::Rollout;
 use common::ScalarName;
+use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
@@ -161,8 +162,7 @@ fn normalize_path_from_config(
 ) -> PathBuf {
     let mut src = current_dir.join(path_from_config.clone());
 
-    src = src
-        .canonicalize()
+    src = canonicalize(src.clone())
         .unwrap_or_else(|err| panic!("Unable to canonicalize file {:?}. Error: {:?}", &src, err));
 
     src.strip_prefix(common_path.clone())
@@ -370,8 +370,9 @@ Example file:
             .collect::<Result<FnvIndexMap<_, _>>>()?;
 
         let config_file_dir = config_path.parent().unwrap();
+
         let root_dir = if let Some(config_root) = config_file.root {
-            config_file_dir.join(config_root).canonicalize().unwrap()
+            canonicalize(config_file_dir.join(config_root)).unwrap()
         } else {
             config_file_dir.to_owned()
         };
@@ -754,41 +755,34 @@ impl SingleProjectConfigFile {
         let mut paths = vec![];
         if let Some(artifact_directory_path) = self.artifact_directory.clone() {
             paths.push(
-                root_dir
-                    .join(artifact_directory_path.clone())
-                    .canonicalize()
-                    .map_err(|_| ConfigValidationError::ArtifactDirectoryNotExistent {
+                canonicalize(root_dir.join(artifact_directory_path.clone())).map_err(|_| {
+                    ConfigValidationError::ArtifactDirectoryNotExistent {
                         path: artifact_directory_path,
-                    })?,
+                    }
+                })?,
             );
         }
+        paths.push(canonicalize(root_dir.join(self.src.clone())).map_err(|_| {
+            ConfigValidationError::SourceNotExistent {
+                source_dir: self.src.clone(),
+            }
+        })?);
         paths.push(
-            root_dir
-                .join(self.src.clone())
-                .canonicalize()
-                .map_err(|_| ConfigValidationError::SourceNotExistent {
-                    source_dir: self.src.clone(),
-                })?,
-        );
-        paths.push(
-            root_dir
-                .join(self.schema.clone())
-                .canonicalize()
-                .map_err(|_| ConfigValidationError::SchemaFileNotExistent {
+            canonicalize(root_dir.join(self.schema.clone())).map_err(|_| {
+                ConfigValidationError::SchemaFileNotExistent {
                     project_name: self.project_name,
                     schema_file: self.schema.clone(),
-                })?,
+                }
+            })?,
         );
         for extension_dir in self.schema_extensions.iter() {
             paths.push(
-                root_dir
-                    .clone()
-                    .join(extension_dir.clone())
-                    .canonicalize()
-                    .map_err(|_| ConfigValidationError::ExtensionDirNotExistent {
+                canonicalize(root_dir.join(extension_dir.clone())).map_err(|_| {
+                    ConfigValidationError::ExtensionDirNotExistent {
                         project_name: self.project_name,
                         extension_dir: extension_dir.clone(),
-                    })?,
+                    }
+                })?,
             );
         }
         common_path::common_path_all(paths.iter().map(|path| path.as_path()))

@@ -91,7 +91,9 @@ fragment Foo_node on Node {
 
 fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
+#     operation_name: OperationDefinitionName(
+#         "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
+#     ),
 #     path: [
 #         "node",
 #     ],
@@ -106,7 +108,9 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
 
 fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
+#     operation_name: OperationDefinitionName(
+#         "ClientEdgeQuery_Foo_node_Story__author__best_friend",
+#     ),
 #     path: [
 #         "node",
 #     ],

@@ -1,0 +1,39 @@
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    __typename
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+type PopStarName {
+  stage_name: IStageName
+  also_a_stage_name: IStageName
+}
+
+interface IStageName {
+  value: String
+  stage_name: IStageName
+}
+
+# NOTE: because we are lying, and claiming that Foo implements IStageName,
+# even though it does not, we do not catch the infinite recursion, which
+# exists on the IStageName interface. This will start failing when we correctly
+# validate that types implement the interfaces they claim to implement.
+type Foo implements IStageName {
+  value: String
+  # stage_name: IStageName
+}
+
+extend type User {
+  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}

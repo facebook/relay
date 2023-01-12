@@ -26,8 +26,10 @@ fragment BestFriendResolverFragment_name on User {
 fragment Foo_user on User {
   ... @__ClientEdgeMetadataDirective
   # ClientObject {
-  #     type_name: ObjectName(
-  #         "ClientUser",
+  #     type_name: Some(
+  #         ObjectName(
+  #             "ClientUser",
+  #         ),
   #     ),
   #     unique_id: 0,
   # }
@@ -45,7 +47,7 @@ fragment Foo_user on User {
     #     output_type_info: Some(
     #         Composite(
     #             ResolverNormalizationInfo {
-    #                 type_name: "ClientUser",
+    #                 inner_type: Object(78),
     #                 plural: false,
     #                 normalization_operation: WithLocation {
     #                     location: <generated>:59:70,

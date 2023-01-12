@@ -129,6 +129,8 @@ describe('execute() a query with @module', () => {
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -618,7 +620,7 @@ describe('execute() a query with @module', () => {
 
     beforeEach(() => {
       taskID = 0;
-      tasks = new Map();
+      tasks = new Map<string, () => void>();
       scheduler = {
         cancel: (id: string) => {
           tasks.delete(id);

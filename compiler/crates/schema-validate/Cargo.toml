@@ -21,7 +21,7 @@ fnv = "1.0"
 intern = { path = "../intern" }
 lazy_static = "1.4"
 rayon = "1.2"
-regex = "1.5.4"
+regex = "1.6.0"
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }
 thiserror = "1.0.36"

@@ -110,7 +110,6 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
-export type {TaskScheduler} from './store/OperationExecutor';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {RecordState} from './store/RelayRecordState';
 export type {
@@ -147,6 +146,7 @@ export type {
   ReactFlightServerErrorHandler,
   ReaderSelector,
   ReadOnlyRecordProxy,
+  ReadOnlyRecordSourceProxy,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
@@ -159,6 +159,7 @@ export type {
   Snapshot,
   StoreUpdater,
   UpdatableData,
+  TaskScheduler,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,
@@ -271,6 +272,7 @@ module.exports = {
   createReaderSelector: RelayModernSelector.createReaderSelector,
   createRequestDescriptor:
     RelayModernOperationDescriptor.createRequestDescriptor,
+  getArgumentValues: RelayStoreUtils.getArgumentValues,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
   getNode: GraphQLTag.getNode,

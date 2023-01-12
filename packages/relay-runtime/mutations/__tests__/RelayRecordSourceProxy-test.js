@@ -74,7 +74,12 @@ describe('RelayRecordSourceProxy', () => {
     baseSource = new RelayRecordSource(simpleClone(initialData));
     sinkSource = new RelayRecordSource({});
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-    store = new RelayRecordSourceProxy(mutator, defaultGetDataID);
+    store = new RelayRecordSourceProxy(
+      mutator,
+      defaultGetDataID,
+      undefined,
+      [],
+    );
   });
 
   describe('get()', () => {

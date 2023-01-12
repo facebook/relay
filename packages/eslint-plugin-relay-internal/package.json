@@ -1,0 +1,28 @@
+{
+  "name": "eslint-plugin-relay-internal",
+  "private": true,
+  "version": "0.0.0",
+  "description": "ESLint rules intended to run on Relay's own codebase",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin"
+  ],
+  "license": "MIT",
+  "homepage": "https://relay.dev",
+  "bugs": "https://github.com/facebook/relay/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facebook/relay.git",
+    "directory": "packages/relay-test-utils-internal"
+  },
+  "main": "./lib/index.js",
+  "exports": "./lib/index.js",
+  "dependencies": {},
+  "engines": {
+    "node": "^14.17.0 || ^16.0.0 || >= 18.0.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=7"
+  }
+}

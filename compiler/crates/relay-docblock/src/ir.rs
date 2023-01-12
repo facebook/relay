@@ -553,6 +553,18 @@ impl ResolverIr for TerseRelayResolverIr {
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let schema = schema_info.schema;
 
+        let name = self
+            .field_name()
+            .name_with_location(self.location.source_location());
+        if name.item == schema_info.config.node_interface_id_field {
+            return Err(vec![Diagnostic::error(
+                ErrorMessages::ResolversCantImplementId {
+                    id_field_name: name.item,
+                },
+                name.location,
+            )]);
+        }
+
         if let Some(type_) = schema.get_type(self.type_.item) {
             match type_ {
                 Type::Object(object_id) => {
@@ -656,6 +668,18 @@ impl ResolverIr for RelayResolverIr {
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let schema = schema_info.schema;
+
+        let name = self
+            .field_name()
+            .name_with_location(self.location.source_location());
+        if name.item == schema_info.config.node_interface_id_field {
+            return Err(vec![Diagnostic::error(
+                ErrorMessages::ResolversCantImplementId {
+                    id_field_name: name.item,
+                },
+                name.location,
+            )]);
+        }
 
         if let Some(OutputType::EdgeTo(edge_to_with_location)) = &self.output_type {
             if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {
@@ -804,6 +828,7 @@ impl ResolverIr for StrongObjectIr {
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let span = Span::empty();
+
         let fields = vec![
             FieldDefinition {
                 name: string_key_as_identifier(schema_info.config.node_interface_id_field),
@@ -818,15 +843,13 @@ impl ResolverIr for StrongObjectIr {
                 directives: vec![],
                 description: None,
             },
-            FieldDefinition {
-                name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
-                type_: TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(*INT_TYPE),
-                }),
-                arguments: None,
-                directives: self.directives(None, schema_info),
-                description: None,
-            },
+            generate_model_instance_field(
+                schema_info,
+                *INT_TYPE,
+                None,
+                self.directives(None, schema_info),
+                self.location().clone(),
+            ),
         ];
         let type_ = TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
             name: as_identifier(self.type_.value),
@@ -889,7 +912,7 @@ pub struct WeakObjectIr {
 
 impl WeakObjectIr {
     // Generate the named GraphQL type (with an __relay_model_instance field).
-    fn type_definition(&self) -> TypeSystemDefinition {
+    fn type_definition(&self, schema_info: SchemaInfo<'_, '_>) -> TypeSystemDefinition {
         let span = self.type_name.value.location.span();
 
         let mut directives = vec![
@@ -929,15 +952,13 @@ impl WeakObjectIr {
             name: as_identifier(self.type_name.value),
             interfaces: vec![],
             directives,
-            fields: Some(List::generated(vec![FieldDefinition {
-                name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
-                type_: TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(self.model_type_name()),
-                }),
-                arguments: None,
-                directives: vec![],
-                description: self.description.map(as_string_node),
-            }])),
+            fields: Some(List::generated(vec![generate_model_instance_field(
+                schema_info,
+                self.model_type_name(),
+                self.description.map(as_string_node),
+                vec![],
+                self.location().clone(),
+            )])),
         })
     }
 
@@ -995,10 +1016,13 @@ impl WeakObjectIr {
 }
 
 impl ResolverIr for WeakObjectIr {
-    fn definitions(&self, _: SchemaInfo<'_, '_>) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         Ok(vec![
             self.instance_scalar_type_definition(),
-            self.type_definition(),
+            self.type_definition(schema_info),
         ])
     }
 
@@ -1118,5 +1142,38 @@ fn get_root_fragment_for_object(object: Option<&Object>) -> Option<RootFragment>
         })
     } else {
         None
+    }
+}
+
+/// Generate the internal field for weak and strong model types
+fn generate_model_instance_field(
+    schema_info: SchemaInfo<'_, '_>,
+    type_name: StringKey,
+    description: Option<StringNode>,
+    mut directives: Vec<ConstantDirective>,
+    location: Location,
+) -> FieldDefinition {
+    let span = location.span().clone();
+    directives.push(ConstantDirective {
+        span,
+        at: dummy_token(&span),
+        name: string_key_as_identifier(schema_info.config.unselectable_directive_name.0),
+        arguments: Some(List::generated(vec![string_argument(
+            DEPRECATED_REASON_ARGUMENT_NAME.0,
+            WithLocation::new(
+                location,
+                "This field is intended only for Relay's internal use".intern(),
+            ),
+        )])),
+    });
+
+    FieldDefinition {
+        name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
+        type_: TypeAnnotation::Named(NamedTypeAnnotation {
+            name: string_key_as_identifier(type_name),
+        }),
+        arguments: None,
+        directives,
+        description,
     }
 }

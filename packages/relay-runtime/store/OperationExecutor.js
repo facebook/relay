@@ -43,6 +43,7 @@ import type {
   SelectorStoreUpdater,
   Store,
   StreamPlaceholder,
+  TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {
   NormalizationLinkedField,
@@ -98,11 +99,6 @@ export type ExecuteConfig<TMutation: MutationParameters> = {
 };
 
 export type ActiveState = 'active' | 'inactive';
-
-export type TaskScheduler = {
-  +cancel: (id: string) => void,
-  +schedule: (fn: () => void) => string,
-};
 
 type Label = string;
 type PathKey = string;
@@ -949,13 +945,14 @@ class Executor<TMutation: MutationParameters> {
           // Observable.from(operationLoader.load()) wouldn't catch synchronous
           // errors thrown by the load function, which is user-defined. Guard
           // against that with Observable.from(new Promise(<work>)).
-          const networkObservable = RelayObservable.from(
-            new Promise((resolve, reject) => {
-              operationLoader
-                .load(followupPayload.operationReference)
-                .then(resolve, reject);
-            }),
-          );
+          const networkObservable =
+            RelayObservable.from<?NormalizationRootNode>(
+              new Promise<?NormalizationRootNode>((resolve, reject) => {
+                operationLoader
+                  .load(followupPayload.operationReference)
+                  .then(resolve, reject);
+              }),
+            );
           RelayObservable.create<empty>(sink => {
             let cancellationToken;
             const subscription = networkObservable.subscribe({

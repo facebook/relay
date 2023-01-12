@@ -129,7 +129,10 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     queryRenderLogs = [];
     QueryComponent = function (props: any) {
-      const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
+      const result = usePreloadedQuery<any>(
+        gqlQuery,
+        (props.queryRef: $FlowFixMe),
+      );
 
       const name = result?.node?.name ?? 'Empty';
       useEffect(() => {
@@ -238,9 +241,14 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   describe('when there is a committed query reference when effects are double invoked (i.e. component is hidden/re-shown)', () => {
     describe('when network request is in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
       it('forces a re-render and refetches when policy is network-only', () => {
-        const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-          fetchPolicy: 'network-only',
-        });
+        const initialQueryRef = loadQuery<any, _>(
+          environment,
+          gqlQuery,
+          variables,
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -353,9 +361,14 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       });
 
       it('forces a re-render and refetches when policy is store-or-network', () => {
-        const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-          fetchPolicy: 'store-or-network',
-        });
+        const initialQueryRef = loadQuery<any, _>(
+          environment,
+          gqlQuery,
+          variables,
+          {
+            fetchPolicy: 'store-or-network',
+          },
+        );
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -471,9 +484,14 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     describe('when network request is NOT in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
       it('forces a re-render and refetches when policy is network-only', () => {
         // Initialize and complete the query ref
-        const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-          fetchPolicy: 'network-only',
-        });
+        const initialQueryRef = loadQuery<any, _>(
+          environment,
+          gqlQuery,
+          variables,
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
             data: {
@@ -595,9 +613,14 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
       it('forces a re-render and does not refetch when policy is store-or-network', () => {
         // Initialize and complete the query ref
-        const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-          fetchPolicy: 'store-or-network',
-        });
+        const initialQueryRef = loadQuery<any, _>(
+          environment,
+          gqlQuery,
+          variables,
+          {
+            fetchPolicy: 'store-or-network',
+          },
+        );
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
             data: {
@@ -687,9 +710,14 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
   describe('when whole tree suspends on query reference', () => {
     it('forces a re-render and refetches when policy is network-only', () => {
-      const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-        fetchPolicy: 'network-only',
-      });
+      const initialQueryRef = loadQuery<any, _>(
+        environment,
+        gqlQuery,
+        variables,
+        {
+          fetchPolicy: 'network-only',
+        },
+      );
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -822,9 +850,14 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     });
 
     it('forces a re-render and does not refetch when policy is store-or-network', () => {
-      const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-        fetchPolicy: 'store-or-network',
-      });
+      const initialQueryRef = loadQuery<any, _>(
+        environment,
+        gqlQuery,
+        variables,
+        {
+          fetchPolicy: 'store-or-network',
+        },
+      );
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters

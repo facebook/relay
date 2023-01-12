@@ -62,6 +62,7 @@ const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
 const getOutputTypeRecordIDs = require('./getOutputTypeRecordIDs');
+const isLiveStateValue = require('./isLiveStateValue');
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -318,7 +319,7 @@ class LiveResolverCache implements ResolverCache {
     );
 
     return new Promise(resolve => {
-      const unsubscribe = liveState.subscribe(() => {
+      const unsubscribe: () => void = liveState.subscribe(() => {
         unsubscribe();
         resolve();
       });
@@ -505,8 +506,11 @@ class LiveResolverCache implements ResolverCache {
           // is localized to it's resolver record. To ensure that
           // there is only one path to the records created from the
           // @outputType payload.
+
+          const typename = getConcreteTypename(normalizationInfo, currentValue);
+
           const outputTypeDataID = generateClientObjectClientID(
-            normalizationInfo.concreteType,
+            typename,
             RelayModernRecord.getDataID(resolverRecord),
             ii,
           );
@@ -516,6 +520,7 @@ class LiveResolverCache implements ResolverCache {
             variables,
             normalizationInfo,
             this._store.__getNormalizationOptions([field.path, String(ii)]),
+            typename,
           );
           for (const recordID of source.getRecordIDs()) {
             // For plural case we'll keep adding the `item` records to the `nextSource`
@@ -539,8 +544,10 @@ class LiveResolverCache implements ResolverCache {
           typeof value == 'object',
           '_setResolverValue: Expected object value as the payload for the @outputType resolver.',
         );
+        const typename = getConcreteTypename(normalizationInfo, value);
+
         const outputTypeDataID = generateClientObjectClientID(
-          normalizationInfo.concreteType,
+          typename,
           RelayModernRecord.getDataID(resolverRecord),
         );
         const nextSource = normalizeOutputTypeValue(
@@ -549,6 +556,7 @@ class LiveResolverCache implements ResolverCache {
           variables,
           normalizationInfo,
           this._store.__getNormalizationOptions([field.path]),
+          typename,
         );
         for (const recordID of nextSource.getRecordIDs()) {
           nextOutputTypeRecordIDs.add(recordID);
@@ -738,14 +746,12 @@ function normalizeOutputTypeValue(
   variables: Variables,
   resolverNormalizationInfo: ResolverNormalizationInfo,
   normalizationOptions: NormalizationOptions,
+  typename: string,
 ): RecordSource {
   const source = RelayRecordSource.create();
   source.set(
     outputTypeDataID,
-    RelayModernRecord.create(
-      outputTypeDataID,
-      resolverNormalizationInfo.concreteType,
-    ),
+    RelayModernRecord.create(outputTypeDataID, typename),
   );
   const selector = createNormalizationSelector(
     resolverNormalizationInfo.normalizationNode,
@@ -773,7 +779,7 @@ function updateCurrentSource(
   nextSource: RecordSource,
   prevOutputTypeRecordIDs: ?$ReadOnlySet<DataID>,
 ): DataIDSet {
-  const updatedDataIDs = new Set();
+  const updatedDataIDs = new Set<DataID>();
 
   // First, we are removing records from the `currentSource`
   // that is no longer created from the resolver with @outputType
@@ -821,18 +827,27 @@ function expectRecord(source: RecordSource, recordID: DataID): Record {
   return record;
 }
 
-// Validate that a value is live state
-function isLiveStateValue(v: mixed): boolean {
-  return (
-    v != null &&
-    typeof v === 'object' &&
-    typeof v.read === 'function' &&
-    typeof v.subscribe === 'function'
-  );
-}
-
 function getUpdatedDataIDs(updatedRecords: UpdatedRecords): DataIDSet {
   return updatedRecords;
+}
+
+function getConcreteTypename(
+  normalizationInfo: ResolverNormalizationInfo,
+  currentValue: {...},
+): string {
+  // If normalizationInfo does not have a concrete type (i.e. the return type of the resolver
+  // is abstract), then the generated return type for the resolver will include a mandatory
+  // __typename field.
+  const typename =
+    normalizationInfo.concreteType ??
+    // $FlowFixMe[prop-missing]
+    (currentValue.__typename: string);
+  invariant(
+    typename != null,
+    'normalizationInfo.concreteType should not be null, or the value returned from the resolver should include a __typename field, ' +
+      'or the resolver should have a flow error. If not, this indicates a bug in Relay.',
+  );
+  return typename;
 }
 
 module.exports = {

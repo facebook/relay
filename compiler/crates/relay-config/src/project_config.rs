@@ -12,6 +12,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 use std::usize;
 
+use common::DirectiveName;
 use common::FeatureFlags;
 use common::Rollout;
 use common::SourceLocationKey;
@@ -50,6 +51,10 @@ pub struct RemotePersistConfig {
     /// additional parameters to send.
     #[serde(default)]
     pub params: FnvIndexMap<String, String>,
+
+    /// Additional headers to send
+    #[serde(default)]
+    pub headers: FnvIndexMap<String, String>,
 
     #[serde(
         default,
@@ -153,10 +158,18 @@ pub struct SchemaConfig {
 
     #[serde(default)]
     pub non_node_id_fields: Option<NonNodeIdFieldsConfig>,
+
+    /// The name of the directive indicating fields that cannot be selected
+    #[serde(default = "default_unselectable_directive_name")]
+    pub unselectable_directive_name: DirectiveName,
 }
 
 fn default_node_interface_id_field() -> StringKey {
     "id".intern()
+}
+
+fn default_unselectable_directive_name() -> DirectiveName {
+    DirectiveName("unselectable".intern())
 }
 
 impl Default for SchemaConfig {
@@ -165,6 +178,7 @@ impl Default for SchemaConfig {
             connection_interface: ConnectionInterface::default(),
             node_interface_id_field: default_node_interface_id_field(),
             non_node_id_fields: None,
+            unselectable_directive_name: default_unselectable_directive_name(),
         }
     }
 }

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -79,6 +80,7 @@ describe('execute() with handler and updater', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
       handlerProvider: name => {

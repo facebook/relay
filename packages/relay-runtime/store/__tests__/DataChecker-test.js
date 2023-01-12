@@ -38,7 +38,6 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {check} = require('../DataChecker');
 const defaultGetDataID = require('../defaultGetDataID');
-const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
@@ -1956,6 +1955,7 @@ describe('check()', () => {
           INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             {
               kind: 'linked',
               handle,
@@ -2108,6 +2108,7 @@ describe('check()', () => {
           INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             {
               kind: 'pluralLinked',
               handle,
@@ -2179,7 +2180,7 @@ describe('check()', () => {
             handle: (field, record, argValues) => {
               if (
                 record &&
-                RelayModernRecord.getDataID(record) === '1' &&
+                record?.getDataID() === '1' &&
                 field.name === 'firstName'
               ) {
                 return 'Alice';
@@ -2189,7 +2190,7 @@ describe('check()', () => {
           {
             kind: 'linked',
             handle: (field, record, argValues) => {
-              const id = record && RelayModernRecord.getDataID(record);
+              const id = record?.getDataID();
               if (
                 field.name === 'profilePicture' &&
                 record &&
@@ -2898,6 +2899,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );
@@ -2948,6 +2950,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );
@@ -2995,6 +2998,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );
@@ -3042,6 +3046,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );
@@ -3087,6 +3092,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );

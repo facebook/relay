@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
@@ -85,6 +86,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           const multiActorEnvironment = new MultiActorEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             createNetworkForActor: _actorID => Network.create(fetch),
             createStoreForActor: _actorID =>
               new Store(new RecordSource(), {
@@ -95,6 +97,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
+                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: Network.create(fetch),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
@@ -797,6 +800,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             });
           });
           const multiActorEnvironment = new MultiActorEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             createNetworkForActor: _actorID => Network.create(fetch),
             createStoreForActor: _actorID =>
               new Store(new RecordSource(), {
@@ -808,6 +812,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
+                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: Network.create(fetch),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
@@ -943,6 +948,7 @@ describe('Preload queries that use provided variables', () => {
     });
 
     environment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: Network.create(fetch),
       store: new Store(new RecordSource()),
     });

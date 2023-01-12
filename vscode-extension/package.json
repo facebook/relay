@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -128,7 +128,7 @@
   "devDependencies": {
     "@types/node": "^17.0.23",
     "@types/semver": "^7.3.9",
-    "@types/vscode": "^1.65.0",
+    "@types/vscode": "^1.60.0",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.12.0",

@@ -17,6 +17,7 @@ import type {
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
+  MissingFieldHandler,
   SingularReaderSelector,
   UpdatableData,
 } from '../store/RelayStoreTypes';
@@ -30,12 +31,8 @@ import type {
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
-const {
-  readUpdatableFragment_EXPERIMENTAL,
-} = require('./readUpdatableFragment_EXPERIMENTAL');
-const {
-  readUpdatableQuery_EXPERIMENTAL,
-} = require('./readUpdatableQuery_EXPERIMENTAL');
+const {readUpdatableFragment} = require('./readUpdatableFragment');
+const {readUpdatableQuery} = require('./readUpdatableQuery');
 const invariant = require('invariant');
 
 /**
@@ -50,15 +47,18 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   __mutator: RelayRecordSourceMutator;
   __recordSource: RecordSourceProxy;
   _readSelector: SingularReaderSelector;
+  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
 
   constructor(
     mutator: RelayRecordSourceMutator,
     recordSource: RecordSourceProxy,
     readSelector: SingularReaderSelector,
+    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
   ) {
     this.__mutator = mutator;
     this.__recordSource = recordSource;
     this._readSelector = readSelector;
+    this._missingFieldHandlers = missingFieldHandlers;
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {
@@ -132,21 +132,27 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     this.__recordSource.invalidateStore();
   }
 
-  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+  readUpdatableQuery<TVariables: Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
   ): UpdatableData<TData> {
-    return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
+    return readUpdatableQuery(
+      query,
+      variables,
+      this,
+      this._missingFieldHandlers,
+    );
   }
 
-  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+  readUpdatableFragment<TFragmentType: FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
   ): UpdatableData<TData> {
-    return readUpdatableFragment_EXPERIMENTAL(
+    return readUpdatableFragment(
       fragment,
       fragmentReference,
       this,
+      this._missingFieldHandlers,
     );
   }
 }

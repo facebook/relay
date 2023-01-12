@@ -1,0 +1,153 @@
+==================================== INPUT ====================================
+fragment relayResolverWithOutputTypeClientObject_user on User {
+  poppy: pop_star_name {
+    __typename
+  }
+}
+
+fragment relayResolverWithOutputTypeClientObject_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  pop_star_name: ClientUser @relay_resolver(fragment_name: "relayResolverWithOutputTypeClientObject_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "User__pop_star_name$normalization",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolverWithOutputTypeClientObject_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "StreetAddress",
+      "kind": "LinkedField",
+      "name": "address",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "street",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "parents",
+      "plural": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "lastName",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "hasClientEdges": true
+  },
+  "name": "relayResolverWithOutputTypeClientObject_user",
+  "selections": [
+    {
+      "kind": "ClientEdgeToClientObject",
+      "concreteType": "ClientUser",
+      "backingField": {
+        "alias": "poppy",
+        "args": null,
+        "fragment": {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "relayResolverWithOutputTypeClientObject_name"
+        },
+        "kind": "RelayResolver",
+        "name": "pop_star_name",
+        "resolverModule": require('PopStarNameResolver'),
+        "path": "poppy",
+        "normalizationInfo": {
+          "concreteType": "ClientUser",
+          "plural": false,
+          "normalizationNode": require('User__pop_star_name$normalization.graphql')
+        }
+      },
+      "linkedField": {
+        "alias": "poppy",
+        "args": null,
+        "concreteType": "ClientUser",
+        "kind": "LinkedField",
+        "name": "pop_star_name",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

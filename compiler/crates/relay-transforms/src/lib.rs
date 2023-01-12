@@ -172,7 +172,7 @@ pub use relay_client_component::RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME;
 pub use relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
 pub use relay_directive::RelayDirective;
 pub use relay_node_identifier::RelayLocationAgnosticBehavior;
-pub use relay_resolvers::get_resolver_fragment_name;
+pub use relay_resolvers::get_resolver_fragment_dependency_name;
 pub use relay_resolvers::relay_resolvers;
 pub use relay_resolvers::FragmentDataInjectionMode;
 pub use relay_resolvers::RelayResolverMetadata;

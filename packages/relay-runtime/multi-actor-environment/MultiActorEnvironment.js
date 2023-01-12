@@ -14,7 +14,7 @@
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type {INetwork} from '../network/RelayNetworkTypes';
-import type {ActiveState, TaskScheduler} from '../store/OperationExecutor';
+import type {ActiveState} from '../store/OperationExecutor';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   ExecuteMutationConfig,
@@ -35,6 +35,7 @@ import type {
   Snapshot,
   Store,
   StoreUpdater,
+  TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {RenderPolicy} from '../util/RelayRuntimeTypes';
@@ -83,7 +84,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_handlerProvider: HandlerProvider;
   +_isServer: boolean;
   +_logFn: LogFunction;
-  +_missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
+  +_missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
   +_operationExecutions: Map<string, ActiveState>;
   +_operationLoader: ?OperationLoader;
   +_reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
@@ -109,7 +110,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
     this._isServer = config.isServer ?? false;
-    this._missingFieldHandlers = config.missingFieldHandlers;
+    this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._createStoreForActor = config.createStoreForActor;
     this._reactFlightPayloadDeserializer =
       config.reactFlightPayloadDeserializer;
@@ -141,6 +142,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         network: this._createNetworkForActor(actorIdentifier),
         handlerProvider: this._handlerProvider,
         defaultRenderPolicy: this._defaultRenderPolicy,
+        missingFieldHandlers: this._missingFieldHandlers,
       });
       this._actorEnvironments.set(actorIdentifier, newEnvironment);
       return newEnvironment;
@@ -451,8 +453,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       updater: ?SelectorStoreUpdater<TMutation['response']>,
     },
   ): RelayObservable<GraphQLResponse> {
-    return RelayObservable.create(sink => {
-      const executor = OperationExecutor.execute({
+    return RelayObservable.create<GraphQLResponse>(sink => {
+      const executor = OperationExecutor.execute<TMutation>({
         actorIdentifier: actorEnvironment.actorIdentifier,
         getDataID: this._getDataID,
         isClientPayload,
@@ -498,6 +500,10 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         updater(actorIdentifier, environment, storeProxy);
       });
     }
+  }
+
+  getScheduler(): ?TaskScheduler {
+    return this._scheduler;
   }
 }
 

@@ -140,7 +140,7 @@ module.exports = {
       render(): React.Element<typeof Bar> {
         return (
           <Bar
-            componentRef={ref => {
+            componentRef={(ref: empty) => {
               this._barRef = (ref: empty);
             }}
             requiredProp="bar"

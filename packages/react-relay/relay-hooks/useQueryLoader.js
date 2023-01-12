@@ -138,7 +138,7 @@ function useQueryLoader<TQuery: OperationType>(
             }
           : options;
       if (isMountedRef.current) {
-        const updatedQueryReference = loadQuery(
+        const updatedQueryReference = loadQuery<TQuery>(
           options?.__environment ?? environment,
           preloadableRequest,
           variables,

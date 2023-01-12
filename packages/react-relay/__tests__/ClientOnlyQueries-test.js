@@ -191,23 +191,20 @@ describe('Client-only queries', () => {
         const settings = store.create(settingsID, 'Settings');
         root.setLinkedRecord(settings, 'defaultSettings');
 
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           updatableQuery,
           {},
         ).updatableData;
         const defaultSettings = updatableData.defaultSettings;
         if (defaultSettings != null) {
-          defaultSettings.client_field =
-            'Set with readUpdatableQuery_EXPERIMENTAL';
+          defaultSettings.client_field = 'Set with readUpdatableQuery';
         } else {
           throw new Error('Expected `defaultSettings` to be defined.');
         }
       });
     });
 
-    expect(renderer.toJSON()).toEqual(
-      'Set with readUpdatableQuery_EXPERIMENTAL',
-    );
+    expect(renderer.toJSON()).toEqual('Set with readUpdatableQuery');
   });
 });
 

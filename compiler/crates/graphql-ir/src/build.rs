@@ -389,14 +389,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .map(|x| (x.name.item, x.clone()))
             .collect();
 
-        let directives = self.build_directives(
-            &operation.directives,
-            match kind {
-                OperationKind::Query => DirectiveLocation::Query,
-                OperationKind::Mutation => DirectiveLocation::Mutation,
-                OperationKind::Subscription => DirectiveLocation::Subscription,
-            },
-        );
+        let directives = self.build_directives(&operation.directives, kind.into());
         let operation_type_reference = TypeReference::Named(operation_type);
         // assert the subscription only contains one selection
         if let OperationKind::Subscription = kind {
@@ -1525,7 +1518,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .map(|x| x.name.0)
             .collect::<StringKeySet>();
 
-        let fields: DiagnosticsResult<Vec<Argument>> = object
+        let fields = object
             .items
             .iter()
             .map(
@@ -1577,9 +1570,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     )]),
                 },
             )
-            .collect();
+            .collect::<DiagnosticsResult<Vec<Argument>>>()?;
         if required_fields.is_empty() {
-            Ok(Value::Object(fields?))
+            Ok(Value::Object(fields))
         } else {
             let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
@@ -1669,7 +1662,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .map(|x| x.name.0)
             .collect::<StringKeySet>();
 
-        let fields: DiagnosticsResult<Vec<ConstantArgument>> = object
+        let fields = object
             .items
             .iter()
             .map(
@@ -1721,9 +1714,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     )]),
                 },
             )
-            .collect();
+            .collect::<DiagnosticsResult<Vec<ConstantArgument>>>()?;
         if required_fields.is_empty() {
-            Ok(ConstantValue::Object(fields?))
+            Ok(ConstantValue::Object(fields))
         } else {
             let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();

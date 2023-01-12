@@ -15,7 +15,6 @@ type MyClientType @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
 
 extend type Query {
   client_types: MyClientType @relay_resolver(
-      fragment_name: "MyClientType____relay_model_instance"
       import_path: "./path/to/ClientTypeResolver.js"
       has_output_type: true
       live: true,
@@ -57,11 +56,7 @@ extend type Query {
         "backingField": {
           "alias": null,
           "args": null,
-          "fragment": {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "MyClientType____relay_model_instance"
-          },
+          "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "client_types",
           "resolverModule": require('relay-runtime/experimental').weakObjectWrapperLive(require('ClientTypeResolver'), '__relay_model_instance', false),
@@ -107,20 +102,7 @@ extend type Query {
           {
             "name": "client_types",
             "args": null,
-            "fragment": {
-              "kind": "InlineFragment",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "__relay_model_instance",
-                  "storageKey": null
-                }
-              ],
-              "type": "MyClientType",
-              "abstractKey": null
-            },
+            "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null
           }

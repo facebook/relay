@@ -197,7 +197,7 @@ function StoryLikeButton({story}) {
     commitMutation({
       variables: {
         id: data.id,
-        doesViewerLike: !doesViewerLike,
+        doesLike: !data.doesViewerLike,
       },
     })
     // end-change

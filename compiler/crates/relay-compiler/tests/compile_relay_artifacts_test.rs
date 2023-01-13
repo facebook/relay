@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5e3fec2fa6c31c2536b60fbc0d68998f>>
+ * @generated SignedSource<<ee27cc847ad47c04e69070e0dd743220>>
  */
 
 mod compile_relay_artifacts;
@@ -178,6 +178,27 @@ fn client_conditions() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-conditions.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-conditions.expected");
     test_fixture(transform_fixture, "client-conditions.graphql", "compile_relay_artifacts/fixtures/client-conditions.expected", input, expected);
+}
+
+#[test]
+fn client_edge_from_client_type_to_client_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.expected");
+    test_fixture(transform_fixture, "client_edge_from_client_type_to_client_type.graphql", "compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.expected", input, expected);
+}
+
+#[test]
+fn client_edge_from_server_type_to_client_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type.expected");
+    test_fixture(transform_fixture, "client_edge_from_server_type_to_client_type.graphql", "compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type.expected", input, expected);
+}
+
+#[test]
+fn client_edge_from_server_type_to_client_type_fragment_reads_client_field() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type_fragment_reads_client_field.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type_fragment_reads_client_field.expected");
+    test_fixture(transform_fixture, "client_edge_from_server_type_to_client_type_fragment_reads_client_field.graphql", "compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type_fragment_reads_client_field.expected", input, expected);
 }
 
 #[test]

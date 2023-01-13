@@ -1,0 +1,165 @@
+==================================== INPUT ====================================
+fragment clientEdgeFromServerTypeToClientType_resolver_fragment on Query {
+  me {
+    id
+  }
+}
+
+query clientEdgeFromServerTypeToClientType_Query {
+  client_edge {
+    name
+  }
+}
+
+# %extensions%
+
+type ClientType {
+  name: String
+}
+
+extend type Query {
+  client_edge: ClientType
+    @relay_resolver(
+      fragment_name: "clientEdgeFromServerTypeToClientType_resolver_fragment"
+      import_path: "./path/to/Resolver.js"
+    )
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": {
+      "hasClientEdges": true
+    },
+    "name": "clientEdgeFromServerTypeToClientType_Query",
+    "selections": [
+      {
+        "kind": "ClientEdgeToClientObject",
+        "concreteType": "ClientType",
+        "backingField": {
+          "alias": null,
+          "args": null,
+          "fragment": {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "clientEdgeFromServerTypeToClientType_resolver_fragment"
+          },
+          "kind": "RelayResolver",
+          "name": "client_edge",
+          "resolverModule": require('Resolver'),
+          "path": "client_edge"
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "client_edge",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "name",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientEdgeFromServerTypeToClientType_Query",
+    "selections": [
+      {
+        "name": "client_edge",
+        "args": null,
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "930c9a64f2bf1cff9bcaafc9b86b2712",
+    "id": null,
+    "metadata": {},
+    "name": "clientEdgeFromServerTypeToClientType_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query clientEdgeFromServerTypeToClientType_Query {
+  ...clientEdgeFromServerTypeToClientType_resolver_fragment
+}
+
+fragment clientEdgeFromServerTypeToClientType_resolver_fragment on Query {
+  me {
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientEdgeFromServerTypeToClientType_resolver_fragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}

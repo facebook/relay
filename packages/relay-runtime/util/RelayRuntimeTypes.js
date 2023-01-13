@@ -163,5 +163,5 @@ declare export opaque type Fragment<TFragmentType, +TData>: ReaderFragment;
 declare export opaque type RefetchableFragment<
   TFragmentType,
   +TData,
-  -TVariables: Variables,
+  TVariables: Variables,
 >: Fragment<TFragmentType, TData>;

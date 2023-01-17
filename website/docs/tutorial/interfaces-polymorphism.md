@@ -36,7 +36,7 @@ interface Actor {
 Not coincidentally this is exactly the information that we’re displaying here. There are two types in the schema that *implement* Actor, meaning that they include all the fields defined in Actor and declare as such:
 
 ```
-type User implements Actor {
+type Person implements Actor {
   id: ID!
   name: String
   profilePicture: Image

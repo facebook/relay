@@ -17,7 +17,7 @@ type Story {
 }
 ```
 
-Here, some of the fields are scalars (like `String` and `ID`). Others are types defined elsewhere in the schema, like `Image`. — these fields are edges to nodes of those specific types. The `!` on `ID!` means that field is non-nullable. In GraphQL, fields are normally nullable and non-nullability is the exception.
+Here, some of the fields are scalars (like `String` and `ID`). Others are types defined elsewhere in the schema, like `Image` — these fields are edges to nodes of those specific types. The `!` on `ID!` means that field is non-nullable. In GraphQL, fields are normally nullable and non-nullability is the exception.
 
 Fragments are always “on” a particular type. In our example above, `StoryFragment` is defined `on Story`. This means that you can only spread it into places in a query where a `Story` node is expected. And it means that the fragment can select just those fields that exist on the `Story` type.
 
@@ -56,7 +56,7 @@ type Organization implements Actor {
 
 Both of these types have `name` , `profilePicture`, and `joined`, so they can both declare that they implement Actor and thus can be used wherever an Actor is called for in the schema and in fragments. They also have other fields that are distinct to each particular type.
 
-Let’s see how to work with interfaces more by extending the `PosterDetailsHovercardContentsBody` component to display the location of a `Person` or the organization type of an `Organization`.
+Let’s see how to work with interfaces more by extending the `PosterDetailsHovercardContentsBody` component to display the location of a `Person` or the organization kind of an `Organization`. These are fields that are only present on those specific types, not on the `Actor` interface.
 
 Right now, if you’ve followed along so far, it should have a fragment defined like this (in `PosterDetailsHovercardContents.tsx`):
 
@@ -115,7 +115,7 @@ fragment PosterDetailsHovercardContentsBodyFragment on Actor {
 }
 ```
 
-When you select a field that’s only present on some of the types that implement an interface, and the node you’re dealing with is of a different type, then you simply get `null` for the value of that field when you read it out. With that in mind, we can modify the `PosterDetailsHovercardContentsBody` component to show the location of people and organization type of organizations:
+When you select a field that’s only present on some of the types that implement an interface, and the node you’re dealing with is of a different type, then you simply get `null` for the value of that field when you read it out. With that in mind, we can modify the `PosterDetailsHovercardContentsBody` component to show the location of people and organization kind of organizations:
 
 ```
 import OrganizationKind from './OrganizationKind';
@@ -142,7 +142,7 @@ function PosterDetailsHovercardContentsBody({ poster }: Props): React.ReactEleme
 }
 ```
 
-You should now see the location of people, and the organization type for organizations:
+You should now see the location of people, and the organization kind for organizations:
 
 ![An organization hovercard](/img/docs/tutorial/interfaces-organization-screenshot.png) ![A person hovercard](/img/docs/tutorial/interfaces-person-screenshot.png)
 
@@ -158,4 +158,4 @@ If you need to do something totally different depending on what type it is, you 
 
 ## Summary
 
-The `... Type {}` syntax allows us to select fields that are only present in a specific type that implements an interface.
+The `... on Type {}` syntax allows us to select fields that are only present in a specific type that implements an interface.

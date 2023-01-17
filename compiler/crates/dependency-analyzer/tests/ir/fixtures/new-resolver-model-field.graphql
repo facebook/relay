@@ -1,0 +1,27 @@
+# F1
+query Q1 {
+  client_user {
+    ...F1
+  }
+}
+fragment F1 on ClientUser {
+  pop_star_name
+}
+
+# %definitions%
+
+%extensions%
+
+extend type Query {
+  client_user: ClientUser
+}
+
+type ClientUser @__RelayResolverModel {
+  id: ID!
+}
+
+# This resolver's fragment is generated because it's on a @__RelayResolverModel type.
+# Dependency tracker should not look for this fragment.
+extend type ClientUser {
+  pop_star_name: String @relay_resolver(root_fragment: "this___is___generated", import_path: "PopStarNameResolver")
+}

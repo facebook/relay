@@ -38,7 +38,7 @@ fragment FriendsFragment1 on Viewer {
 }
 ```
 
-Now we have a good place in the GraphQL schema to put edge-specific information such as the date when the edge was created (that is, you friended someone).
+Now we have a good place in the GraphQL schema to put edge-specific information such as the date when the edge was created (that is, the date you friended that person).
 
 * * *
 
@@ -48,11 +48,11 @@ Now consider what we would need to model in our schema in order to support pagin
 * The client must be informed as to whether any more pages are available, so that it can enable or disable the ‘next page’ button (or, for infinite scrolling, can stop making further requests).
 * The client must be able to ask for the next page after the one it already has.
 
-How can we use the features of GraphQL to do these things? Specifying the page size is done with field arguments. In other words, instead of just `friends` the query will say `friends(first: 3)`, passing the page size an argument to the `friends` ** field.
+How can we use the features of GraphQL to do these things? Specifying the page size is done with field arguments. In other words, instead of just `friends` the query will say `friends(first: 3)`, passing the page size an argument to the `friends` field.
 
-For the server to say whether there is a next page or not, we need to introduce a node in the graph that has information about the *list of friends itself,* just like we introduces a node for each edge to store information about the edge itself. This new node is called a *Connection*.
+For the server to say whether there is a next page or not, we need to introduce a node in the graph that has information about the *list of friends itself,* just like we are introducing a node for each edge to store information about the edge itself. This new node is called a *Connection*.
 
-The Connection node represents the connection itself between you and your friends. Metadata about the connection is stored there — for example, it could have a `totalCount` field that says how many friends you have. In addition, it always has two fields which represent the *current* page: a `pageInfo` field with metadata about the current page, such as whether there is another page available — and an `edges` ** field that points to the edges we saw before:
+The Connection node represents the connection itself between you and your friends. Metadata about the connection is stored there — for example, it could have a `totalCount` field that says how many friends you have. In addition, it always has two fields which represent the *current* page: a `pageInfo` field with metadata about the current page, such as whether there is another page available — and an `edges` field that points to the edges we saw before:
 
 ![The full connection model with page info and edges](/img/docs/tutorial/connections-full-model.png)
 
@@ -64,7 +64,8 @@ By passing the `lastCursor` value back to the server as an argument to the `frie
 
 This overall scheme for modeling paginated lists is specified in detail in the [GraphQL Cursor Connections Spec](https://relay.dev/graphql/connections.htm). It is flexible for many different applications, and although Relay relies on this convention to handle pagination automatically, designing your schema this way is a good idea whether or not you use Relay.
 
-Now that we understand the underlying model for Connections, let’s turn our attention to actually using it to implement Comments for our Newsfeed stories.
+Now that we've stepped through the underlying model for Connections, let’s turn our attention to actually using it to implement Comments for our Newsfeed stories.
+
 * * *
 
 ## Implementing “Load More Comments”
@@ -76,16 +77,16 @@ Take a look once more at the `Story` component. There’s a `StoryCommentsSectio
 import StoryCommentsSection from './StoryCommentsSection';
 
 function Story({story}) {
-  const storyData = useFragment(StoryFragment, story);
+  const data = useFragment(StoryFragment, story);
   return (
     <Card>
-      <Heading>{storyData.title}</Heading>
-      <PersonalByline person={storyData.poster} />
-      <Timestamp time={storyData.posted_at} />
-      <Image image={storyData.image} />
-      <StorySummary summary={storyData.summary} />
+      <Heading>{data.title}</Heading>
+      <PosterByline person={data.poster} />
+      <Timestamp time={data.posted_at} />
+      <Image image={data.image} />
+      <StorySummary summary={data.summary} />
       // change-line
-      <StoryCommentsSection story={storyData} />
+      <StoryCommentsSection story={data} />
     </Card>
   );
 }
@@ -175,7 +176,7 @@ const StoryCommentsSectionFragment = graphql`
 `;
 ```
 
-Next, we need to make the fragment [[refetchable]](link to refetch section of previous chapter), so that Relay will be able to fetch it again with new values for the arguments — namely, a new cursor for the `$cursor` argument:
+Next, we need to make the fragment [refetchable](../refetchable-fragments), so that Relay will be able to fetch it again with new values for the arguments — namely, a new cursor for the `$cursor` argument:
 
 ```
 const StoryCommentsSectionFragment = graphql`
@@ -288,6 +289,7 @@ Right now our app uses the `topStories` root field to fetch a simple array of th
 const NewsfeedQuery = graphql`
   query NewsfeedQuery {
     topStories {
+      id
       ...StoryFragment
     }
   }
@@ -300,7 +302,7 @@ Go ahead and replace it with this:
 const NewsfeedQuery = graphql`
   query NewsfeedQuery {
     viewer {
-      newsfeedStories {
+      newsfeedStories(first: 3) {
         edges {
           node {
             id
@@ -313,7 +315,7 @@ const NewsfeedQuery = graphql`
 `;
 ```
 
-Here we’ve replaced `topStories` with `viewer`’s `newsfeedStories`, retaining the `category` argument and also adding a `first` argument so that we fetch the first 3 stories initially. Within that we’ve selected the `edge` and then the `node`, which is a `Story` node so we can spread the same `StoryFragment` from before. We also select `id` so that we can use it as a React `key` attribute.
+Here we’ve replaced `topStories` with `viewer`’s `newsfeedStories`, adding a `first` argument so that we fetch the first 3 stories initially. Within that we’ve selected the `edge` and then the `node`, which is a `Story` node so we can spread the same `StoryFragment` from before. We also select `id` so that we can use it as a React `key` attribute.
 
 :::tip
 Although we put the `topStory` and `topStories` fields at the top level of `Query` for simplicity, it’s conventional to put fields related to the person who’s looking at the page or app under a field called `viewer`. We’ll switch to that convention now that we’re using the field as it would be in a real app.

@@ -54,18 +54,18 @@ const StoryFragment = graphql`
 
 ...
 
-function Story({story}) {
-  const storyData = useFragment(StoryFragment, story);
+export default function Story({story}: Props) {
+  const data = useFragment(StoryFragment, story);
   return (
     <Card>
-      <PersonalByline person={storyData.poster} />
-      <Heading>{storyData.title}</Heading>
-      <Timestamp time={storyData.posterAt} />
+      <PosterByline person={data.poster} />
+      <Heading>{data.title}</Heading>
+      <Timestamp time={data.posterAt} />
       <Image image={story.thumbnail} width={400} height={400} />
-      <StorySummary summary={storyData.summary} />
+      <StorySummary summary={data.summary} />
       // change-line
-      <StoryLikeButton story={storyData} />
-      <StoryCommentsSection story={storyData} />
+      <StoryLikeButton story={data} />
+      <StoryCommentsSection story={data} />
     </Card>
   );
 }
@@ -144,7 +144,7 @@ This is a lot, let’s break it down:
 
 * The mutation declares <span className="color1">variables</span> which are passed from the client to the server when the mutation is dispatched. Each variable has a name (`$id`, `$doesLike`) and a type (`ID!`, `Boolean!`). The `!` after the type indicates that it is required, not optional.
 * The mutation selects a <span className="color2">mutation field</span> defined by the GraphQL schema. Each mutation field that the server defines corresponds to some action that the client can request of the server, such as liking a story.
-    * The <span className="color3">mutation field takes arguments</span> (just like any field can do). Here we pass in the mutation variables that we declares to be the argument values — for example, the `doesLike` field argument is set to be the `$doesLike` mutation variable.
+    * The <span className="color3">mutation field takes arguments</span> (just like any field can do). Here we pass in the mutation variables that we declared as the argument values — for example, the `doesLike` field argument is set to be the `$doesLike` mutation variable.
 * The `likeStory` field returns an edge to a node that represents the mutation response. We can select various fields in order to receive updated data. The fields that are available in the mutation response are specified by the GraphQL schema.
     * We select the `story` field, which is an <span className="color4">edge to the Story that we just liked</span>.
     * We select specific <span className="color5">fields from within that Story to get updated data</span>. These are the same fields that a query could select about a Story — in fact, the same fields we selected in our fragment.
@@ -213,7 +213,7 @@ function StoryLikeButton({story}) {
 
 The `useMutation` hook returns a function `commitMutation` that we can call to tell the server to do stuff.
 
-We pass in an option called `variables` where we give values for the variables defined by the mutation, namely `id` and `doesViewerLike`. This tells the server *which* story we’re talking about and whether the we are liking on un-liking it. The `id` of the story we’ve read from the fragment, while whether we like it or unlike it comes from the event and toggles whatever the current value that we rendered is.
+We pass in an option called `variables` where we give values for the variables defined by the mutation, namely `id` and `doesViewerLike`. This tells the server which story we’re talking about and whether the we are liking or un-liking it. The `id` of the story we’ve read from the fragment, while whether we like it or unlike it comes from toggling whatever the current value that we rendered is.
 
 The hook also returns a boolean flag that tells us when the mutation is in flight. We can use that to make the user experience nicer by disabling the button while the mutation is happening:
 
@@ -276,7 +276,7 @@ Mutations take time to perform, yet we always want the UI to update immediately 
 
 Oftentimes the best feedback will be to simply pretend the operation is already completed: for example, if you press the Like button, that buttons immediately goes into the same highlighted state that it will stay in whenever you see something you’ve already liked. Or take the example of posting a comment: We would like to immediately show your comment as having been posted. This is because mutations are usually fast and reliable enough that we don’t need to bother the user with a separate loading state for them. However, sometimes mutations do end in failure. In that case, we’d like to roll back the changes we made and return you to the state you were in before we tried the mutation: the comment we showed as being posted should go away, while the text of the comment should re-appear within the composer where you wrote it, so that the data isn’t lost if you want to try posting again.
 
-Managing these ** so-called *optimistic updates* is complicated to do manually, but Relay has a robust system for applying and rolling back updates. You can even have multiple mutations in flight at the same time (say if the user clicks several buttons in sequence), and Relay will keep track of what changes need to be rolled back in case of a failure.
+Managing these so-called *optimistic updates* is complicated to do manually, but Relay has a robust system for applying and rolling back updates. You can even have multiple mutations in flight at the same time (say if the user clicks several buttons in sequence), and Relay will keep track of what changes need to be rolled back in case of a failure.
 
 Mutations proceed in three phases:
 
@@ -343,11 +343,7 @@ Unlike normal fragments, updatable fragments are not spread into queries and do 
 
 ### Step 3 — Call readUpdatableFragment
 
-We pass this <span className="color1">fragment</span>, along with the <span className="color2">original fragment ref</span> that we received as a prop (which tells us *which* story we’re liking), to `store.readUpdatableFragment_EXPERIMENTAL`. It returns a <span className="color3">special object called `updatableData`</span>:
-
-:::note
-`readUpdatableFragment_EXPERIMENTAL` will be renamed to `readUpdatableFragment` in the next release of Relay. It is ready for general adoption, don't be scared by the name.
-:::
+We pass this <span className="color2">fragment</span>, along with the <span className="color3">original fragment ref</span> that we received as a prop (which tells us *which* story we’re liking), to `store.readUpdatableFragment`. It returns a <span className="color1">special object called `updatableData`</span>:
 
 ```
 function StoryLikeButton({story}) {
@@ -362,7 +358,7 @@ function StoryLikeButton({story}) {
         const {
           // color1
           updatableData
-        } = store.readUpdatableFragment_EXPERIMENTAL(
+        } = store.readUpdatableFragment(
           // color2
           fragment,
           // color3
@@ -387,7 +383,7 @@ function StoryLikeButton({story}) {
             doesViewerLike
           }
         `;
-        const {updatableData} = store.readUpdatableFragment_EXPERIMENTAL(fragment, story);
+        const {updatableData} = store.readUpdatableFragment(fragment, story);
         // change
         const alreadyLikes = updatableData.doesViewerLike;
         updatableData.doesViewerLike = !alreadyLikes;
@@ -412,7 +408,7 @@ The only thing that Relay can do completely automatically is what we’ve seen a
 
 Let’s look at the case of Connections. We’ll implement the ability to post a new comment on a story.
 
-The server’s mutation response only includes the newly-created story. We have to tell Relay how to insert that story into the Connection between a story and its comments.
+The server’s mutation response only includes the newly-created comment. We have to tell Relay how to insert that story into the Connection between a story and its comments.
 
 Head back over to `StoryCommentsSection` and add a component for posting a new comment, remembering to spread its fragment into our fragment:
 
@@ -492,7 +488,7 @@ const StoryCommentsComposerPostMutation = graphql`
 
 Here, the schema allows us to select as part of the mutation response the newly-created edge to the newly-created comment. We select it and will use it to update the local store by inserting this edge into the Connection.
 
-### Step 2 — Call commitMutation to Post it
+### Step 2 — Call commitMutation to post it
 
 Now we use the `useMutation` hook to get access to the `commitMutation` callback, and call it in `onPost`:
 

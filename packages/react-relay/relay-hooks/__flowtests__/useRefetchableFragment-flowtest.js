@@ -13,7 +13,6 @@ import type {
   FetchFn,
   NonNullableData,
   NullableData,
-  QueryOperation,
   QueryVariables,
   QueryVariablesSubset,
 } from './utils';
@@ -22,7 +21,7 @@ import type {IEnvironment} from 'relay-runtime';
 import useRefetchableFragment from '../useRefetchableFragment';
 import {
   fragmentData,
-  fragmentInput,
+  refetchableFragmentInput,
   keyAnotherNonNullable,
   keyAnotherNullable,
   keyNonNullable,
@@ -32,54 +31,55 @@ import {
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
-(useRefetchableFragment<QueryOperation, _>(fragmentInput, keyNonNullable): [
+(useRefetchableFragment(refetchableFragmentInput, keyNonNullable): [
   NonNullableData,
   FetchFn<QueryVariablesSubset>,
 ]);
 
-(useRefetchableFragment<QueryOperation, _>(fragmentInput, keyNullable): [
+(useRefetchableFragment(refetchableFragmentInput, keyNullable): [
   NullableData,
   FetchFn<QueryVariables>,
 ]);
 
 // $FlowExpectedError: can't cast nullable to non-nullable
-(useRefetchableFragment<QueryOperation, _>(fragmentInput, keyNullable): [
+(useRefetchableFragment(refetchableFragmentInput, keyNullable): [
   NonNullableData,
   FetchFn<QueryVariables>,
 ]);
 
 // $FlowExpectedError: refetch requires exact type if key is nullable
-(useRefetchableFragment<QueryOperation, _>(fragmentInput, keyNullable): [
+(useRefetchableFragment(refetchableFragmentInput, keyNullable): [
   NullableData,
   FetchFn<QueryVariablesSubset>,
 ]);
 
 // $FlowExpectedError: actual type of returned data is correct
-(useRefetchableFragment<QueryOperation, _>(
-  fragmentInput,
-  keyAnotherNonNullable,
-): [NonNullableData, FetchFn<QueryVariablesSubset>]);
-// $FlowExpectedError
-(useRefetchableFragment<QueryOperation, _>(fragmentInput, keyAnotherNullable): [
+(useRefetchableFragment(refetchableFragmentInput, keyAnotherNonNullable): [
+  NonNullableData,
+  FetchFn<QueryVariablesSubset>,
+]);
+
+// $FlowExpectedError - incompatible key types
+(useRefetchableFragment(refetchableFragmentInput, keyAnotherNullable): [
   NullableData,
   FetchFn<QueryVariables>,
 ]);
 
 // $FlowExpectedError: Key should not be a user provided object
-useRefetchableFragment<QueryOperation, _>(fragmentInput, {abc: 123});
+useRefetchableFragment(refetchableFragmentInput, {abc: 123});
 
 // $FlowExpectedError: Key should not be an empty object
-useRefetchableFragment<QueryOperation, _>(fragmentInput, {});
+useRefetchableFragment(refetchableFragmentInput, {});
 
 // $FlowExpectedError: Key should be the `<name>$key` type from generated flow
-useRefetchableFragment<QueryOperation, _>(fragmentInput, fragmentData);
+useRefetchableFragment(refetchableFragmentInput, fragmentData);
 
 // Refetch function options:
 declare var variables: QueryVariables;
 declare var environment: IEnvironment;
 
-const [, refetch] = useRefetchableFragment<QueryOperation, _>(
-  fragmentInput,
+const [, refetch] = useRefetchableFragment(
+  refetchableFragmentInput,
   keyNonNullable,
 );
 // $FlowExpectedError: internal option

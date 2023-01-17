@@ -11,11 +11,22 @@
 
 'use strict';
 
-import type {Disposable, Fragment, FragmentType} from 'relay-runtime';
+import type {
+  Disposable,
+  Fragment,
+  RefetchableFragment,
+  FragmentType,
+} from 'relay-runtime';
 
 declare export var fragmentInput: Fragment<
   Example_user$fragmentType,
   Example_user$data,
+>;
+
+declare export var refetchableFragmentInput: RefetchableFragment<
+  Example_user$fragmentType,
+  Example_user$data,
+  QueryVariables,
 >;
 
 declare export opaque type Example_user$fragmentType: FragmentType;

@@ -14,16 +14,15 @@ import type {
   FetchFn,
   NonNullableData,
   NullableData,
-  QueryOperation,
   QueryVariables,
   QueryVariablesSubset,
 } from './utils';
-import type {IEnvironment, OperationType} from 'relay-runtime';
+import type {IEnvironment, Variables, OperationType} from 'relay-runtime';
 
 import useBlockingPaginationFragment from '../useBlockingPaginationFragment';
 import {
   fragmentData,
-  fragmentInput,
+  refetchableFragmentInput,
   keyAnotherNonNullable,
   keyAnotherNullable,
   keyNonNullable,
@@ -31,63 +30,67 @@ import {
 } from './utils';
 
 type ExpectedReturnType<
-  TQuery: OperationType,
-  TQueryVariables,
+  TRefetchVariables: Variables,
+  TLoadMoreVariables: Variables,
   TFragmentData,
+  TQuery: OperationType = {
+    variables: TLoadMoreVariables,
+    response: TFragmentData,
+  },
 > = {
   data: TFragmentData,
   loadNext: LoadMoreFn<TQuery>,
   loadPrevious: LoadMoreFn<TQuery>,
   hasNext: boolean,
   hasPrevious: boolean,
-  refetch: FetchFn<TQueryVariables>,
+  refetch: FetchFn<TRefetchVariables>,
 };
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
-(useBlockingPaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(useBlockingPaginationFragment(
+  refetchableFragmentInput,
   keyNonNullable,
-): ExpectedReturnType<QueryOperation, QueryVariablesSubset, NonNullableData>);
+): ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>);
 
-(useBlockingPaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(useBlockingPaginationFragment(
+  refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
+): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
 
 // $FlowExpectedError: can't cast nullable to non-nullable
-(useBlockingPaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(useBlockingPaginationFragment(
+  refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryOperation, QueryVariables, NonNullableData>);
+): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: actual type of returned data is correct
-(useBlockingPaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(useBlockingPaginationFragment(
+  refetchableFragmentInput,
   keyAnotherNonNullable,
-): ExpectedReturnType<QueryOperation, QueryVariablesSubset, NonNullableData>);
+): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
 // $FlowExpectedError
-(useBlockingPaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(useBlockingPaginationFragment(
+  refetchableFragmentInput,
   keyAnotherNullable,
-): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
+): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
 
 // $FlowExpectedError: Key should not be a user provided object
-useBlockingPaginationFragment<QueryOperation, _>(fragmentInput, {abc: 123});
+useBlockingPaginationFragment(fragmentInput, {abc: 123});
 
 // $FlowExpectedError: Key should not be an empty object
-useBlockingPaginationFragment<QueryOperation, _>(fragmentInput, {});
+useBlockingPaginationFragment(fragmentInput, {});
 
 // $FlowExpectedError: Key should be the `<name>$key` type from generated flow
-useBlockingPaginationFragment<QueryOperation, _>(fragmentInput, fragmentData);
+useBlockingPaginationFragment(fragmentInput, fragmentData);
 
 // Refetch function options:
 declare var variables: QueryVariables;
 declare var environment: IEnvironment;
 
-const {refetch} = useBlockingPaginationFragment<QueryOperation, _>(
-  fragmentInput,
+const {refetch} = useBlockingPaginationFragment(
+  refetchableFragmentInput,
   keyNonNullable,
 );
 // $FlowExpectedError: internal option
@@ -104,8 +107,8 @@ refetch(variables, {
 declare var extraVariables: {nickname: string};
 declare var invalidVariables: {foo: string};
 
-const {loadNext} = useBlockingPaginationFragment<QueryOperation, _>(
-  fragmentInput,
+const {loadNext} = useBlockingPaginationFragment(
+  refetchableFragmentInput,
   keyNonNullable,
 );
 // Accepts extraVariables

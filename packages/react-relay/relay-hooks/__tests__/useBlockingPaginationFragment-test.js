@@ -85,7 +85,7 @@ describe('useBlockingPaginationFragment', () => {
     fragmentRef: mixed,
   ) {
     // $FlowFixMe[incompatible-call]
-    const {data, ...result} = useBlockingPaginationFragmentOriginal<any, mixed>(
+    const {data, ...result} = useBlockingPaginationFragmentOriginal(
       fragmentNode,
       // $FlowFixMe[incompatible-call]
       // $FlowFixMe[prop-missing]

@@ -117,8 +117,8 @@ describe('when loading and disposing same query multiple times', () => {
     let queryLoaderCallback;
 
     const QueryRenderer = function ({queryRef}: $FlowFixMe) {
-      const data = usePreloadedQuery<$FlowFixMe>(query, queryRef);
-      return data.node.id;
+      const data = usePreloadedQuery(query, queryRef);
+      return data.node?.id;
     };
     const Inner = function ({
       initialPreloadedQuery,

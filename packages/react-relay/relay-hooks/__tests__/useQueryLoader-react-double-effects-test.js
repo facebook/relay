@@ -129,10 +129,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     queryRenderLogs = [];
     QueryComponent = function (props: any) {
-      const result = usePreloadedQuery<any>(
-        gqlQuery,
-        (props.queryRef: $FlowFixMe),
-      );
+      const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
 
       const name = result?.node?.name ?? 'Empty';
       useEffect(() => {

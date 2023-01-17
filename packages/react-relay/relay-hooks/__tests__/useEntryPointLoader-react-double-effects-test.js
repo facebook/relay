@@ -143,7 +143,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
     queryRenderLogs = [];
     QueryComponent = function (props: any) {
-      const result = usePreloadedQuery<any>(
+      const result = usePreloadedQuery(
         gqlQuery,
         (props.queries.TestQuery: $FlowFixMe),
       );

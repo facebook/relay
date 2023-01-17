@@ -128,7 +128,7 @@ describe.each([
     let environment;
     let fetch;
     const Component = function (props: any) {
-      const queryData = usePreloadedQuery<any>(queryPV, props.prefetched);
+      const queryData = usePreloadedQuery(queryPV, props.prefetched);
       data = useFragment(fragmentPV, queryData.node);
       return [
         data?.name ?? 'MISSING NAME',

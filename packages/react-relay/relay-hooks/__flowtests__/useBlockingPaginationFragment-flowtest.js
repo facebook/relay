@@ -68,11 +68,14 @@ type ExpectedReturnType<
 // $FlowExpectedError: actual type of returned data is correct
 (useBlockingPaginationFragment(
   refetchableFragmentInput,
+  // $FlowExpectedError[incompatible-call]
   keyAnotherNonNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
-// $FlowExpectedError
+
+// $FlowExpectedError[incompatible-call] `Example_user$fragmentType` is incompatible with  `FragmentType`
 (useBlockingPaginationFragment(
   refetchableFragmentInput,
+  // $FlowExpectedError[incompatible-call]
   keyAnotherNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
 

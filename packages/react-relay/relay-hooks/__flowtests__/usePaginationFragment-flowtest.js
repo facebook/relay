@@ -36,8 +36,8 @@ type ExpectedReturnType<
   TFragmentData,
 > = {
   data: TFragmentData,
-  loadNext: LoadMoreFn<TQuery>,
-  loadPrevious: LoadMoreFn<TQuery>,
+  loadNext: LoadMoreFn<TQuery['variables']>,
+  loadPrevious: LoadMoreFn<TQuery['variables']>,
   hasNext: boolean,
   hasPrevious: boolean,
   isLoadingNext: boolean,

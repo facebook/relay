@@ -65,14 +65,8 @@ type ReturnType<TVariables, TData, TKey> = {
     & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => ?TData),
     TKey,
   >,
-  loadNext: LoadMoreFn<{
-    variables: TVariables,
-    response: TData,
-  }>,
-  loadPrevious: LoadMoreFn<{
-    variables: TVariables,
-    response: TData,
-  }>,
+  loadNext: LoadMoreFn<TVariables>,
+  loadPrevious: LoadMoreFn<TVariables>,
   hasNext: boolean,
   hasPrevious: boolean,
   refetch: RefetchFn<TVariables, TKey>,
@@ -180,7 +174,7 @@ function useBlockingPaginationFragment<
   };
 }
 
-function useLoadMore<TVariables: Variables, TData>(args: {
+function useLoadMore<TVariables: Variables>(args: {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
   ...$Exact<
@@ -193,11 +187,7 @@ function useLoadMore<TVariables: Variables, TData>(args: {
       },
     >,
   >,
-}): [
-  LoadMoreFn<{variables: TVariables, response: TData}>,
-  boolean,
-  () => void,
-] {
+}): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
   const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(
     null,
@@ -248,10 +238,7 @@ function useLoadMore<TVariables: Variables, TData>(args: {
     // and blow away the whole list of items.
     error: promiseResolve,
   };
-  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<{
-    variables: TVariables,
-    response: TData,
-  }>({
+  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({
     ...loadMoreArgs,
     observer,
     onReset: handleReset,

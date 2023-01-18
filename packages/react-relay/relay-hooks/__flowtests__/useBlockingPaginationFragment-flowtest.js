@@ -17,7 +17,7 @@ import type {
   QueryVariables,
   QueryVariablesSubset,
 } from './utils';
-import type {IEnvironment, Variables, OperationType} from 'relay-runtime';
+import type {IEnvironment, Variables} from 'relay-runtime';
 
 import useBlockingPaginationFragment from '../useBlockingPaginationFragment';
 import {
@@ -33,14 +33,10 @@ type ExpectedReturnType<
   TRefetchVariables: Variables,
   TLoadMoreVariables: Variables,
   TFragmentData,
-  TQuery: OperationType = {
-    variables: TLoadMoreVariables,
-    response: TFragmentData,
-  },
 > = {
   data: TFragmentData,
-  loadNext: LoadMoreFn<TQuery>,
-  loadPrevious: LoadMoreFn<TQuery>,
+  loadNext: LoadMoreFn<TLoadMoreVariables>,
+  loadPrevious: LoadMoreFn<TLoadMoreVariables>,
   hasNext: boolean,
   hasPrevious: boolean,
   refetch: FetchFn<TRefetchVariables>,
@@ -119,8 +115,8 @@ loadNext(10, {
   UNSTABLE_extraVariables: extraVariables,
 });
 
-// $FlowExpectedError: doesn't accept variables not available in the Flow type
 loadNext(10, {
+  // $FlowExpectedError: doesn't accept variables not available in the Flow type
   UNSTABLE_extraVariables: invalidVariables,
 });
 

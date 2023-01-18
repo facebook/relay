@@ -26,7 +26,7 @@
     "@docusaurus/preset-classic": "2.1.0",
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
-    "docusaurus-plugin-internaldocs-fb": "1.2.1",
+    "docusaurus-plugin-internaldocs-fb": "1.4.0",
     "lz-string": "^1.4.4",
     "monaco-editor": "^0.24.0",
     "react": "^17.0.2",

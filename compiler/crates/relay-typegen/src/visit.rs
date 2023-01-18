@@ -7,6 +7,7 @@
 
 use std::hash::Hash;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use ::intern::intern;
 use ::intern::string_key::Intern;
@@ -671,7 +672,9 @@ fn visit_client_edge(
 
     let mut client_edge_selections = visit_selections(
         typegen_context,
-        &[client_edge_metadata.selections.clone()],
+        &[Selection::LinkedField(Arc::new(
+            client_edge_metadata.linked_field.clone(),
+        ))],
         input_object_types,
         encountered_enums,
         imported_raw_response_types,

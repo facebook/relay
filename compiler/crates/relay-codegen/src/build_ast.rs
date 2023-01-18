@@ -1314,30 +1314,26 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             ),
         };
 
-        let selections_item = match client_edge_metadata.selections {
-            Selection::LinkedField(linked_field) => {
-                if required_metadata.is_none() {
-                    self.build_linked_field(context, linked_field)
-                } else {
-                    let next_directives = linked_field
-                        .directives
-                        .iter()
-                        .filter(|directive| {
-                            directive.name.item != RequiredMetadataDirective::directive_name()
-                        })
-                        .cloned()
-                        .collect();
+        let selections_item = if required_metadata.is_none() {
+            self.build_linked_field(context, client_edge_metadata.linked_field)
+        } else {
+            let next_directives = client_edge_metadata
+                .linked_field
+                .directives
+                .iter()
+                .filter(|directive| {
+                    directive.name.item != RequiredMetadataDirective::directive_name()
+                })
+                .cloned()
+                .collect();
 
-                    self.build_linked_field(
-                        context,
-                        &LinkedField {
-                            directives: next_directives,
-                            ..linked_field.as_ref().clone()
-                        },
-                    )
-                }
-            }
-            _ => panic!("Expected Client Edge selections to be a LinkedField"),
+            self.build_linked_field(
+                context,
+                &LinkedField {
+                    directives: next_directives,
+                    ..client_edge_metadata.linked_field.clone()
+                },
+            )
         };
 
         let field = match client_edge_metadata.metadata_directive {

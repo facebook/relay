@@ -88,8 +88,11 @@ pub struct ClientEdgeGeneratedQueryMetadataDirective {
 associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
 pub struct ClientEdgeMetadata<'a> {
+    /// The field which defines the graph relationship (currently always a Resolver)
     pub backing_field: Selection,
-    pub selections: &'a Selection,
+    /// Models the client edge field and its selections
+    pub linked_field: &'a LinkedField,
+    /// Additional metadata about the client edge
     pub metadata_directive: ClientEdgeMetadataDirective,
 }
 
@@ -125,13 +128,15 @@ impl<'a> ClientEdgeMetadata<'a> {
             ).cloned().collect();
             backing_field.set_directives(backing_field_directives);
 
+            let linked_field = match fragment.selections.get(1) {
+                Some(Selection::LinkedField(linked_field)) => linked_field,
+                _ => panic!("Client Edge inline fragments have exactly two selections, with the second selection being a linked field.")
+            };
+
             ClientEdgeMetadata {
                 metadata_directive: metadata_directive.clone(),
                 backing_field,
-                selections: fragment
-                    .selections
-                    .get(1)
-                    .expect("Client Edge inline fragments have exactly two selections"),
+                linked_field,
             }
         })
     }

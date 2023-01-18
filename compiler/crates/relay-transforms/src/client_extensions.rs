@@ -74,12 +74,12 @@ impl<'program> ClientExtensionsTransform<'program> {
         // fields of the client edge get wrapped with a client extension inline
         // fragment or deleted.
         let backing_field = self
-            .default_transform_selection(&metadata.backing_field)
+            .transform_selection(&metadata.backing_field)
             .unwrap_or_else(|| metadata.backing_field.clone());
 
         let selections = self
-            .default_transform_selection(metadata.selections)
-            .unwrap_or_else(|| metadata.selections.clone());
+            .transform_linked_field(metadata.linked_field)
+            .unwrap_or_else(|| Selection::LinkedField(Arc::new(metadata.linked_field.clone())));
 
         Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
             selections: vec![backing_field, selections],

@@ -288,19 +288,11 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
                     .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
-                let selections_field = match client_edge_metadata.selections {
-                    Selection::LinkedField(linked_field) => self
-                        .default_transform_linked_field(linked_field)
-                        .unwrap_or_else(|| {
-                            Selection::LinkedField(
-                                #[allow(clippy::clone_on_ref_ptr)]
-                                linked_field.clone(),
-                            )
-                        }),
-                    _ => panic!(
-                        "Expected the Client Edges transform to always make the second selection the linked field."
-                    ),
-                };
+                let selections_field = self
+                    .default_transform_linked_field(client_edge_metadata.linked_field)
+                    .unwrap_or_else(|| {
+                        Selection::LinkedField(Arc::new(client_edge_metadata.linked_field.clone()))
+                    });
 
                 let selections = vec![backing_id_field, selections_field];
 
@@ -549,19 +541,11 @@ impl Transformer for RelayResolverFieldTransform<'_> {
                     .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
-                let selections_field = match client_edge_metadata.selections {
-                    Selection::LinkedField(linked_field) => self
-                        .default_transform_linked_field(linked_field)
-                        .unwrap_or_else(|| {
-                            Selection::LinkedField(
-                                #[allow(clippy::clone_on_ref_ptr)]
-                                linked_field.clone(),
-                            )
-                        }),
-                    _ => panic!(
-                        "Expected the Client Edges transform to always make the second selection the linked field."
-                    ),
-                };
+                let selections_field = self
+                    .default_transform_linked_field(client_edge_metadata.linked_field)
+                    .unwrap_or_else(|| {
+                        Selection::LinkedField(Arc::new(client_edge_metadata.linked_field.clone()))
+                    });
 
                 let selections = vec![backing_id_field, selections_field];
 

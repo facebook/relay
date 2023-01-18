@@ -166,6 +166,7 @@ beforeEach(() => {
   callLoadQuery = <TQuery: OperationType>(
     queryAstOrRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
     options?: LoadQueryOptions,
+    // $FlowFixMe[missing-local-annot]
   ) => {
     const loadedQuery = loadQuery<$FlowFixMe, _>(
       environment,

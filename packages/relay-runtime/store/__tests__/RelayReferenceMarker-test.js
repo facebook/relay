@@ -286,6 +286,7 @@ describe('RelayReferenceMarker', () => {
         __id: 'client:bestFriendsByLastName',
         __typename: 'FriendsConnection',
         edges: {
+          // $FlowFixMe[missing-empty-array-annot]
           __refs: [],
         },
       },

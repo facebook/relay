@@ -416,6 +416,7 @@ describe('readUpdatableQuery', () => {
               __typename: 'User',
               id: '467',
               name: 'Gaius Octavius',
+              // $FlowFixMe[missing-empty-array-annot]
               parents: [],
             },
           ],
@@ -716,6 +717,7 @@ describe('readUpdatableQuery', () => {
             __typename: 'User',
             id: '467',
             name: 'Laius',
+            // $FlowFixMe[missing-empty-array-annot]
             parents: [],
           },
         ],
@@ -779,6 +781,7 @@ describe('readUpdatableQuery', () => {
             __typename: 'User',
             id: '467',
             name: 'Gaius Octavius',
+            // $FlowFixMe[missing-empty-array-annot]
             parents: [],
           },
         ],

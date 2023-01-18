@@ -298,6 +298,7 @@ describe('requestSubscription-test', () => {
     environment.commitPayload(operationDescriptor, {
       viewer: {
         configs: {
+          // $FlowFixMe[missing-empty-array-annot]
           edges: [],
         },
       },

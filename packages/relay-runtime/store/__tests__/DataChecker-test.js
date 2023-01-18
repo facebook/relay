@@ -2109,6 +2109,7 @@ describe('check()', () => {
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+            // $FlowFixMe[incompatible-call]
             {
               kind: 'pluralLinked',
               handle,

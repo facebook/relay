@@ -1128,6 +1128,7 @@ describe.each([
               id: '1',
               name: 'Alice',
               friends: {
+                // $FlowFixMe[missing-empty-array-annot]
                 edges: [],
                 pageInfo: {
                   startCursor: null,

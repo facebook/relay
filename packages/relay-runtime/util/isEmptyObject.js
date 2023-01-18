@@ -14,7 +14,7 @@
 // $FlowFixMe[method-unbinding] added when improving typing for this parameters
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-function isEmptyObject(obj: {+[key: string]: mixed}): boolean {
+export function isEmptyObject(obj: {+[key: string]: mixed}): boolean {
   for (const key in obj) {
     if (hasOwnProperty.call(obj, key)) {
       return false;
@@ -22,5 +22,3 @@ function isEmptyObject(obj: {+[key: string]: mixed}): boolean {
   }
   return true;
 }
-
-module.exports = isEmptyObject;

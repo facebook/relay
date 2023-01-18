@@ -18,7 +18,7 @@ const {
   getSelector,
   getVariablesFromFragment,
 } = require('../store/RelayModernSelector');
-const isEmptyObject = require('./isEmptyObject');
+const {isEmptyObject} = require('./isEmptyObject');
 const RelayFeatureFlags = require('./RelayFeatureFlags');
 const stableCopy = require('./stableCopy');
 const {intern} = require('./StringInterner');

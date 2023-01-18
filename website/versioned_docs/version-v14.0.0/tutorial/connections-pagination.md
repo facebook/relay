@@ -24,7 +24,7 @@ In GraphQL, only nodes can have properties, not edges. So the first thing we’l
 
 Now the properties of the edge are represented by a new type of node called a “`FriendsEdge`”.
 
-The GraphQL to query this would like this:
+The GraphQL to query this would look like this:
 
 ```
 // XXX example only, not final code
@@ -329,7 +329,7 @@ We need to modify the Newsfeed component to map over the edges and render each n
 function Newsfeed() {
   const data = useLazyLoadQuery(NewsfeedFragment, {});
   // change-line
-  const storyEdges = data.newsfeedStories.edges;
+  const storyEdges = data.viewer.newsfeedStories.edges;
   return (
     <>
       {storyEdges.map(storyEdge =>

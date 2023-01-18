@@ -97,16 +97,11 @@ extend type Query {
     "name": "relayResolverLiveWeakObject_Query",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "client_types",
-            "args": null,
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "name": "client_types",
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null
       }
     ]
   },

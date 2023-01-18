@@ -627,7 +627,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     // For Relay Resolvers in the normalization AST, we need to include enough
-    // information to retain resolver fields during GC. Tha means the data for
+    // information to retain resolver fields during GC. That means the data for
     // the resolver's root query as well as enough data to derive the storage
     // key for the resolver itself in the cache.
     fn build_normalization_relay_resolver(
@@ -1268,7 +1268,26 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         })
     }
 
-    fn build_client_edge(
+    fn build_normalization_client_edge(
+        &mut self,
+        context: &mut ContextualMetadata,
+        client_edge_metadata: ClientEdgeMetadata<'_>,
+    ) -> Primitive {
+        let backing_field_primitives =
+            self.build_selections_from_selection(context, &client_edge_metadata.backing_field);
+
+        if backing_field_primitives.len() != 1 {
+            panic!(
+                "Expected client edge backing field to be transformed into exactly one primitive."
+            )
+        }
+
+        // In the future client edges will get their own normalization node, but
+        // for this first step we'll just expose the backing field.
+        backing_field_primitives.into_iter().next().unwrap()
+    }
+
+    fn build_reader_client_edge(
         &mut self,
         context: &mut ContextualMetadata,
         client_edge_metadata: ClientEdgeMetadata<'_>,
@@ -1359,9 +1378,20 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         match inline_frag.type_condition {
             None => {
                 if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_frag) {
-                    let required_metadata =
-                        RequiredMetadataDirective::find(&inline_frag.directives).cloned();
-                    self.build_client_edge(context, client_edge_metadata, required_metadata)
+                    match self.variant {
+                        CodegenVariant::Reader => {
+                            let required_metadata =
+                                RequiredMetadataDirective::find(&inline_frag.directives).cloned();
+                            self.build_reader_client_edge(
+                                context,
+                                client_edge_metadata,
+                                required_metadata,
+                            )
+                        }
+                        CodegenVariant::Normalization => {
+                            self.build_normalization_client_edge(context, client_edge_metadata)
+                        }
+                    }
                 } else if
                 // TODO(T63388023): Use typed custom directives
                 inline_frag.directives.len() == 1

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50eb6a4b9dbbb0cad6ea369fb8512977>>
+ * @generated SignedSource<<89a2538c53bc8a38639773421ea7c46d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -85,16 +85,11 @@ var node/*: ClientRequest*/ = {
     "name": "RelayResolverModelTestTodoNullQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "todo_model_null",
-            "args": null,
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "name": "todo_model_null",
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null
       }
     ]
   },

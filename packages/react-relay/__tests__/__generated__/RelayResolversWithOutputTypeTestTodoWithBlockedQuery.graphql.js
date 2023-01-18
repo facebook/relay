@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5576a492ea3984643a4e15277b0e6272>>
+ * @generated SignedSource<<8ba13a0c985e286afd964b598e5a1c9c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -155,16 +155,11 @@ return {
     "name": "RelayResolversWithOutputTypeTestTodoWithBlockedQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "todo",
-            "args": (v1/*: any*/),
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "name": "todo",
+        "args": (v1/*: any*/),
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null
       }
     ]
   },

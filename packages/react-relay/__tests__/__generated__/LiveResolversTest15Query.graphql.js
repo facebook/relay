@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<846368fe42ae432edfecc1f7f81e0575>>
+ * @generated SignedSource<<1b5b98d04342223f08cf1339905d1213>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -86,16 +86,11 @@ var node/*: ClientRequest*/ = {
     "name": "LiveResolversTest15Query",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "live_user_resolver_always_suspend",
-            "args": null,
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "name": "live_user_resolver_always_suspend",
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null
       }
     ]
   },

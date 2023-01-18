@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<18de8fb090d6e1f796d3bdc9b985d453>>
+ * @generated SignedSource<<f67a81fe82acdfd8fd85d057b1c948f7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -105,16 +105,11 @@ return {
     "name": "RelayResolverModelTestTodoWithPluralFieldQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "todo_model",
-            "args": (v1/*: any*/),
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "name": "todo_model",
+        "args": (v1/*: any*/),
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null
       }
     ]
   },

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a29f1d14c1cb2cd5a3af353a344fda91>>
+ * @generated SignedSource<<a4fccc35335b8ccd579daa629ca19158>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -97,16 +97,11 @@ return {
     "name": "ClientOnlyQueriesTest3Query",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "hello_user",
-            "args": (v0/*: any*/),
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": "hello_user(id:\"4\")"
-          }
-        ]
+        "name": "hello_user",
+        "args": (v0/*: any*/),
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": "hello_user(id:\"4\")"
       }
     ]
   },

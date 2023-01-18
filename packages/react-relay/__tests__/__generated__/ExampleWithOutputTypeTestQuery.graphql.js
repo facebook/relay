@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<918f907dc1b5afb2cdd180e69f75c012>>
+ * @generated SignedSource<<9c08385d50a2cd52b944583bdeba3d90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -91,16 +91,11 @@ var node/*: ClientRequest*/ = {
     "name": "ExampleWithOutputTypeTestQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "example_client_object",
-            "args": null,
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "name": "example_client_object",
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null
       }
     ]
   },

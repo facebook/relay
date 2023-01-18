@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de6b523b80f1c9eaf9156c5a20a5b336>>
+ * @generated SignedSource<<8249f0c3defcf9254c30362db3a434da>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -143,16 +143,11 @@ return {
     "name": "RelayResolverModelTestWeakLiveFieldQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "live_todo_description",
-            "args": (v1/*: any*/),
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "name": "live_todo_description",
+        "args": (v1/*: any*/),
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null
       }
     ]
   },

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d9873989937ddb818cbe87b8839b2549>>
+ * @generated SignedSource<<710e1977781d3bd2713b052561de0e03>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -45,16 +45,11 @@ export type LiveResolversTestUnsubscribesWhenSuspendsQuery = {|
 
 var node/*: ClientRequest*/ = (function(){
 var v0 = {
-  "kind": "ClientExtension",
-  "selections": [
-    {
-      "name": "live_user_suspends_when_odd",
-      "args": null,
-      "fragment": null,
-      "kind": "RelayResolver",
-      "storageKey": null
-    }
-  ]
+  "name": "live_user_suspends_when_odd",
+  "args": null,
+  "fragment": null,
+  "kind": "RelayResolver",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -119,6 +114,7 @@ return {
     "kind": "Operation",
     "name": "LiveResolversTestUnsubscribesWhenSuspendsQuery",
     "selections": [
+      (v0/*: any*/),
       {
         "name": "live_external_greeting",
         "args": null,
@@ -132,8 +128,7 @@ return {
         },
         "kind": "RelayResolver",
         "storageKey": null
-      },
-      (v0/*: any*/)
+      }
     ]
   },
   "params": {

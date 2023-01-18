@@ -851,7 +851,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch).toBeCalledTimes(1);
           });
           it('does not trigger timers', () => {
-            jest.useFakeTimers('legacy');
+            jest.useFakeTimers({legacyFakeTimers: true});
             preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,

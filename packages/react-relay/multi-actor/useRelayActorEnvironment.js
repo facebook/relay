@@ -18,7 +18,7 @@ import type {
 
 const invariant = require('invariant');
 const {useContext} = require('react');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const ReactRelayContext = require('./../ReactRelayContext');
 
 function useRelayActorEnvironment(
   actorIdentifier: ActorIdentifier,

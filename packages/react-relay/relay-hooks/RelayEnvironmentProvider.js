@@ -18,7 +18,7 @@ import type {
 } from 'relay-runtime/multi-actor-environment';
 
 const React = require('react');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const ReactRelayContext = require('./../ReactRelayContext');
 
 const {useMemo} = React;
 

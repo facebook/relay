@@ -125,7 +125,9 @@ describe('when loading and disposing same query multiple times', () => {
     }: {
       initialPreloadedQuery: $FlowFixMe,
     }) {
-      [loadedQuery, queryLoaderCallback] = useQueryLoader<$FlowFixMe>(
+      /* $FlowFixMe[underconstrained-implicit-instantiation] error exposed when
+       * improving flow typing of useQueryLoader */
+      [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
         initialPreloadedQuery,
       );

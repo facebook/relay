@@ -82,18 +82,44 @@ type UseQueryLoaderHookReturnType<
   () => void,
 ];
 
+type ExtractVariablesType = <T>({+variables: T, ...}) => T;
+type ExtractResponseType = <T>({+response: T, ...}) => T;
+
+declare function useQueryLoader<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+>(
+  preloadableRequest: Query<TVariables, TData, TRawResponse>,
+): UseQueryLoaderHookReturnType<TVariables, TData>;
+
+declare function useQueryLoader<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+>(
+  preloadableRequest: Query<TVariables, TData, TRawResponse>,
+  initialQueryReference: ?PreloadedQuery<{
+    response: TData,
+    variables: TVariables,
+    rawResponse?: $NonMaybeType<TRawResponse>,
+  }>,
+): UseQueryLoaderHookReturnType<TVariables, TData>;
+
+declare function useQueryLoader<TQuery: OperationType>(
+  preloadableRequest: PreloadableConcreteRequest<TQuery>,
+  initialQueryReference?: ?PreloadedQuery<TQuery>,
+): UseQueryLoaderHookReturnType<
+  $Call<ExtractVariablesType, TQuery>,
+  $Call<ExtractResponseType, TQuery>,
+>;
+
 function useQueryLoader<
   TVariables: Variables,
   TData,
   TRawResponse: ?{...} = void,
 >(
-  preloadableRequest:
-    | Query<TVariables, TData, TRawResponse>
-    | PreloadableConcreteRequest<{
-        response: TData,
-        variables: TVariables,
-        rawResponse?: $NonMaybeType<TRawResponse>,
-      }>,
+  preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
     variables: TVariables,

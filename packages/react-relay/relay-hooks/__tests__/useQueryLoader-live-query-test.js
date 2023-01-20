@@ -90,9 +90,9 @@ beforeEach(() => {
     },
   }) {
     renderCount = (renderCount || 0) + 1;
+    // $FlowFixMe[incompatible-call]
     [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
       query,
-      // $FlowExpectedError[incompatible-call] it's ok to pass our fake preloaded query here
       initialPreloadedQuery,
     );
     return null;

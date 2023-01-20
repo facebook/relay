@@ -39,7 +39,7 @@ export default function PosterByline({ poster }: Props): React.ReactElement {
   return (
     <div className="byline">
       <Image image={data.profilePicture} width={60} height={60} className="byline__image" />
-      <div className="byline__name" ref={hoverRef}>{data.name}</div>
+      <div className="byline__name">{data.name}</div>
     </div>
   );
 }

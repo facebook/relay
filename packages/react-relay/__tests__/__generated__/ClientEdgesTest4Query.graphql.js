@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b6388dd803bb5a6885cc0cb47d51d514>>
+ * @generated SignedSource<<0dce644573614f5dce4e09b2ee4bf95a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,7 +56,25 @@ v1 = [
     "name": "id",
     "variableName": "id"
   }
-];
+],
+v2 = {
+  "alias": null,
+  "args": (v1/*: any*/),
+  "concreteType": "ClientObject",
+  "kind": "LinkedField",
+  "name": "client_object",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "description",
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -88,24 +106,7 @@ return {
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeClientObjectResolver').client_object,
                 "path": "me.client_object"
               },
-              "linkedField": {
-                "alias": null,
-                "args": (v1/*: any*/),
-                "concreteType": "ClientObject",
-                "kind": "LinkedField",
-                "name": "client_object",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "description",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
+              "linkedField": (v2/*: any*/)
             },
             "action": "THROW",
             "path": "me.client_object"
@@ -132,11 +133,15 @@ return {
         "plural": false,
         "selections": [
           {
-            "name": "client_object",
-            "args": (v1/*: any*/),
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
+            "kind": "ClientEdgeToClientObject",
+            "backingField": {
+              "name": "client_object",
+              "args": (v1/*: any*/),
+              "fragment": null,
+              "kind": "RelayResolver",
+              "storageKey": null
+            },
+            "linkedField": (v2/*: any*/)
           },
           {
             "alias": null,

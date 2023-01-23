@@ -96,11 +96,32 @@ extend type Query {
     "name": "relayResolverWeakObjectPlural_Query",
     "selections": [
       {
-        "name": "client_types",
-        "args": null,
-        "fragment": null,
-        "kind": "RelayResolver",
-        "storageKey": null
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "client_types",
+          "args": null,
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "MyClientType",
+          "kind": "LinkedField",
+          "name": "client_types",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
       }
     ]
   },

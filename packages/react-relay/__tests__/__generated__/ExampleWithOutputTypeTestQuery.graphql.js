@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c08385d50a2cd52b944583bdeba3d90>>
+ * @generated SignedSource<<6cc393cf50f8c33ee687a4191c042a4e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,7 +35,26 @@ export type ExampleWithOutputTypeTestQuery = {|
 |};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "concreteType": "ClientObject",
+  "kind": "LinkedField",
+  "name": "example_client_object",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "description",
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -61,24 +80,7 @@ var node/*: ClientRequest*/ = {
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql')
           }
         },
-        "linkedField": {
-          "alias": null,
-          "args": null,
-          "concreteType": "ClientObject",
-          "kind": "LinkedField",
-          "name": "example_client_object",
-          "plural": false,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "description",
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        }
+        "linkedField": (v0/*: any*/)
       }
     ],
     "type": "Query",
@@ -91,11 +93,15 @@ var node/*: ClientRequest*/ = {
     "name": "ExampleWithOutputTypeTestQuery",
     "selections": [
       {
-        "name": "example_client_object",
-        "args": null,
-        "fragment": null,
-        "kind": "RelayResolver",
-        "storageKey": null
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "example_client_object",
+          "args": null,
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": (v0/*: any*/)
       }
     ]
   },
@@ -108,6 +114,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "6af44b9f4263bf177df8d084dc79d494";

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8249f0c3defcf9254c30362db3a434da>>
+ * @generated SignedSource<<855f7a57db080c51ee123c7ef735e2d6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,6 +75,20 @@ v2 = {
   "args": null,
   "kind": "FragmentSpread",
   "name": "TodoDescription____relay_model_instance"
+},
+v3 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__relay_model_instance",
+      "storageKey": null
+    }
+  ],
+  "type": "TodoDescription",
+  "abstractKey": null
 };
 return {
   "fragment": {
@@ -143,11 +157,39 @@ return {
     "name": "RelayResolverModelTestWeakLiveFieldQuery",
     "selections": [
       {
-        "name": "live_todo_description",
-        "args": (v1/*: any*/),
-        "fragment": null,
-        "kind": "RelayResolver",
-        "storageKey": null
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "live_todo_description",
+          "args": (v1/*: any*/),
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": (v1/*: any*/),
+          "concreteType": "TodoDescription",
+          "kind": "LinkedField",
+          "name": "live_todo_description",
+          "plural": false,
+          "selections": [
+            {
+              "name": "text",
+              "args": null,
+              "fragment": (v3/*: any*/),
+              "kind": "RelayResolver",
+              "storageKey": null
+            },
+            {
+              "name": "color",
+              "args": null,
+              "fragment": (v3/*: any*/),
+              "kind": "RelayResolver",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
       }
     ]
   },

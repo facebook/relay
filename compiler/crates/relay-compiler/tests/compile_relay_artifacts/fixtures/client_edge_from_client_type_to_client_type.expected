@@ -115,24 +115,45 @@ extend type ClientViewer {
             "plural": false,
             "selections": [
               {
-                "name": "client_edge",
-                "args": null,
-                "fragment": {
-                  "kind": "InlineFragment",
+                "kind": "ClientEdgeToClientObject",
+                "backingField": {
+                  "name": "client_edge",
+                  "args": null,
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "some_field",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "ClientViewer",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
+                  "storageKey": null
+                },
+                "linkedField": {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "ClientType",
+                  "kind": "LinkedField",
+                  "name": "client_edge",
+                  "plural": false,
                   "selections": [
                     {
                       "alias": null,
                       "args": null,
                       "kind": "ScalarField",
-                      "name": "some_field",
+                      "name": "name",
                       "storageKey": null
                     }
                   ],
-                  "type": "ClientViewer",
-                  "abstractKey": null
-                },
-                "kind": "RelayResolver",
-                "storageKey": null
+                  "storageKey": null
+                }
               }
             ],
             "storageKey": null

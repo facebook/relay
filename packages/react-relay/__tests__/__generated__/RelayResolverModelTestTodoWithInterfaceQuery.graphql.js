@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<47bbc8876ce03ce28afbb6e15b4e3ef3>>
+ * @generated SignedSource<<2c6d38a8cb981b86ac0772984364b279>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -54,6 +54,43 @@ v1 = [
     "kind": "Variable",
     "name": "todoID",
     "variableName": "id"
+  }
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v3 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__relay_model_instance",
+      "storageKey": null
+    }
+  ],
+  "type": "TodoDescription",
+  "abstractKey": null
+},
+v4 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "__typename",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
   }
 ];
 return {
@@ -105,11 +142,118 @@ return {
     "name": "RelayResolverModelTestTodoWithInterfaceQuery",
     "selections": [
       {
-        "name": "todo_model",
-        "args": (v1/*: any*/),
-        "fragment": null,
-        "kind": "RelayResolver",
-        "storageKey": null
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "todo_model",
+          "args": (v1/*: any*/),
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": (v1/*: any*/),
+          "concreteType": "TodoModel",
+          "kind": "LinkedField",
+          "name": "todo_model",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ClientEdgeToClientObject",
+              "backingField": {
+                "name": "fancy_description",
+                "args": null,
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "__relay_model_instance",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          (v2/*: any*/)
+                        ],
+                        "type": "TodoModel",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "TodoModel",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": null
+              },
+              "linkedField": {
+                "alias": null,
+                "args": null,
+                "concreteType": "TodoDescription",
+                "kind": "LinkedField",
+                "name": "fancy_description",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ClientEdgeToClientObject",
+                    "backingField": {
+                      "name": "some_interface",
+                      "args": null,
+                      "fragment": (v3/*: any*/),
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    },
+                    "linkedField": {
+                      "alias": null,
+                      "args": null,
+                      "concreteType": null,
+                      "kind": "LinkedField",
+                      "name": "some_interface",
+                      "plural": false,
+                      "selections": (v4/*: any*/),
+                      "storageKey": null
+                    }
+                  },
+                  {
+                    "kind": "ClientEdgeToClientObject",
+                    "backingField": {
+                      "name": "some_client_type_with_interface",
+                      "args": null,
+                      "fragment": (v3/*: any*/),
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    },
+                    "linkedField": {
+                      "alias": null,
+                      "args": null,
+                      "concreteType": "ClientTypeWithNestedClientInterface",
+                      "kind": "LinkedField",
+                      "name": "some_client_type_with_interface",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "concreteType": null,
+                          "kind": "LinkedField",
+                          "name": "client_interface",
+                          "plural": false,
+                          "selections": (v4/*: any*/),
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": null
+                    }
+                  }
+                ],
+                "storageKey": null
+              }
+            },
+            (v2/*: any*/)
+          ],
+          "storageKey": null
+        }
       }
     ]
   },

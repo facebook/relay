@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5f4e566f6a17bfa823ae99a14dab421c>>
+ * @generated SignedSource<<8f6e19699c465a0b582e4ee091acc04c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -46,7 +46,15 @@ export type ResolverGCTestResolverClientEdgeToClientQuery = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -126,50 +134,86 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "name": "astrological_sign",
-            "args": null,
-            "fragment": {
-              "kind": "InlineFragment",
+            "kind": "ClientEdgeToClientObject",
+            "backingField": {
+              "name": "astrological_sign",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Date",
+                    "kind": "LinkedField",
+                    "name": "birthdate",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "month",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "day",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null
+            },
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "AstrologicalSign",
+              "kind": "LinkedField",
+              "name": "astrological_sign",
+              "plural": false,
               "selections": [
                 {
-                  "alias": null,
+                  "name": "name",
                   "args": null,
-                  "concreteType": "Date",
-                  "kind": "LinkedField",
-                  "name": "birthdate",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "month",
-                      "storageKey": null
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "day",
-                      "storageKey": null
-                    }
-                  ],
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "name": "self",
+                        "args": null,
+                        "fragment": {
+                          "kind": "InlineFragment",
+                          "selections": [
+                            (v0/*: any*/)
+                          ],
+                          "type": "AstrologicalSign",
+                          "abstractKey": null
+                        },
+                        "kind": "RelayResolver",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "AstrologicalSign",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
                   "storageKey": null
-                }
+                },
+                (v0/*: any*/)
               ],
-              "type": "User",
-              "abstractKey": null
-            },
-            "kind": "RelayResolver",
-            "storageKey": null
+              "storageKey": null
+            }
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
+          (v0/*: any*/)
         ],
         "storageKey": null
       }
@@ -184,6 +228,7 @@ var node/*: ConcreteRequest*/ = {
     "text": "query ResolverGCTestResolverClientEdgeToClientQuery {\n  me {\n    ...UserAstrologicalSignResolver\n    id\n  }\n}\n\nfragment UserAstrologicalSignResolver on User {\n  birthdate {\n    month\n    day\n  }\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "bb4a063ffe158013e1572fcf7597f16a";

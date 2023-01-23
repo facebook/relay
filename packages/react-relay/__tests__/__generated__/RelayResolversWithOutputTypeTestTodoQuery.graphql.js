@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<694fa9a95d464a64e943a870f8456d27>>
+ * @generated SignedSource<<33ec1e18f39951814d9ec4cfb07c06cb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,34 @@ v1 = [
     "name": "todoID",
     "variableName": "id"
   }
-];
+],
+v2 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "name": "self",
+      "args": null,
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "todo_id",
+            "storageKey": null
+          }
+        ],
+        "type": "Todo",
+        "abstractKey": null
+      },
+      "kind": "RelayResolver",
+      "storageKey": null
+    }
+  ],
+  "type": "Todo",
+  "abstractKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -112,11 +139,109 @@ return {
     "name": "RelayResolversWithOutputTypeTestTodoQuery",
     "selections": [
       {
-        "name": "todo",
-        "args": (v1/*: any*/),
-        "fragment": null,
-        "kind": "RelayResolver",
-        "storageKey": null
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "todo",
+          "args": (v1/*: any*/),
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": (v1/*: any*/),
+          "concreteType": "Todo",
+          "kind": "LinkedField",
+          "name": "todo",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ClientEdgeToClientObject",
+              "backingField": {
+                "name": "text",
+                "args": null,
+                "fragment": (v2/*: any*/),
+                "kind": "RelayResolver",
+                "storageKey": null
+              },
+              "linkedField": {
+                "alias": null,
+                "args": null,
+                "concreteType": "TodoText",
+                "kind": "LinkedField",
+                "name": "text",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "content",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "TodoTextStyle",
+                    "kind": "LinkedField",
+                    "name": "style",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "font_style",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "TodoTextColor",
+                        "kind": "LinkedField",
+                        "name": "color",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "name": "human_readable_color",
+                            "args": null,
+                            "fragment": {
+                              "kind": "InlineFragment",
+                              "selections": [
+                                {
+                                  "alias": null,
+                                  "args": null,
+                                  "kind": "ScalarField",
+                                  "name": "hex",
+                                  "storageKey": null
+                                }
+                              ],
+                              "type": "TodoTextColor",
+                              "abstractKey": null
+                            },
+                            "kind": "RelayResolver",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            },
+            {
+              "name": "complete",
+              "args": null,
+              "fragment": (v2/*: any*/),
+              "kind": "RelayResolver",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
       }
     ]
   },

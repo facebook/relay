@@ -84,47 +84,68 @@ extend type Query {
     "name": "clientEdgeFromServerTypeToClientTypeFragmentReadsClientField_Query",
     "selections": [
       {
-        "name": "client_edge",
-        "args": null,
-        "fragment": {
-          "kind": "InlineFragment",
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "client_edge",
+          "args": null,
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "me",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "id",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "client_field",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "Query",
+            "abstractKey": null
+          },
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "client_edge",
+          "plural": false,
           "selections": [
             {
               "alias": null,
               "args": null,
-              "concreteType": "User",
-              "kind": "LinkedField",
-              "name": "me",
-              "plural": false,
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "storageKey": null
-                }
-              ],
+              "kind": "ScalarField",
+              "name": "name",
               "storageKey": null
-            },
-            {
-              "kind": "ClientExtension",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "client_field",
-                  "storageKey": null
-                }
-              ]
             }
           ],
-          "type": "Query",
-          "abstractKey": null
-        },
-        "kind": "RelayResolver",
-        "storageKey": null
+          "storageKey": null
+        }
       }
     ]
   },

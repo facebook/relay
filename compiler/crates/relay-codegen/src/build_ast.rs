@@ -1281,10 +1281,29 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 "Expected client edge backing field to be transformed into exactly one primitive."
             )
         }
+        let backing_field = backing_field_primitives.into_iter().next().unwrap();
 
-        // In the future client edges will get their own normalization node, but
-        // for this first step we'll just expose the backing field.
-        backing_field_primitives.into_iter().next().unwrap()
+        let field_type = self
+            .schema
+            .field(client_edge_metadata.linked_field.definition.item)
+            .type_
+            .inner();
+
+        if self.schema.is_extension_type(field_type) {
+            let selections_item =
+                self.build_linked_field(context, client_edge_metadata.linked_field);
+            Primitive::Key(self.object(object! {
+                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                client_edge_backing_field_key: backing_field,
+                client_edge_selections_key: selections_item,
+            }))
+        } else {
+            // If a Client Edge models an edge to the server, its generated
+            // query's normalization AST will take care of
+            // normalization/retention of selections hanging off the edge. So,
+            // we just need to include the backing field.
+            backing_field
+        }
     }
 
     fn build_reader_client_edge(

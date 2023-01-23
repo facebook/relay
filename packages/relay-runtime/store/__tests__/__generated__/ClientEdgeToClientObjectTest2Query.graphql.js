@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d0fbac22becc12aa5e3ae6d48da11415>>
+ * @generated SignedSource<<0dc76b3a970920aae214fa33821f7da0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -44,7 +44,15 @@ export type ClientEdgeToClientObjectTest2Query = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -105,42 +113,78 @@ var node/*: ConcreteRequest*/ = {
     "name": "ClientEdgeToClientObjectTest2Query",
     "selections": [
       {
-        "name": "all_astrological_signs",
-        "args": null,
-        "fragment": {
-          "kind": "InlineFragment",
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "all_astrological_signs",
+          "args": null,
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "me",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  (v0/*: any*/)
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "Query",
+            "abstractKey": null
+          },
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "AstrologicalSign",
+          "kind": "LinkedField",
+          "name": "all_astrological_signs",
+          "plural": true,
           "selections": [
             {
-              "alias": null,
+              "name": "name",
               "args": null,
-              "concreteType": "User",
-              "kind": "LinkedField",
-              "name": "me",
-              "plural": false,
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "__typename",
-                  "storageKey": null
-                },
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "storageKey": null
-                }
-              ],
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "name": "self",
+                    "args": null,
+                    "fragment": {
+                      "kind": "InlineFragment",
+                      "selections": [
+                        (v0/*: any*/)
+                      ],
+                      "type": "AstrologicalSign",
+                      "abstractKey": null
+                    },
+                    "kind": "RelayResolver",
+                    "storageKey": null
+                  }
+                ],
+                "type": "AstrologicalSign",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
               "storageKey": null
-            }
+            },
+            (v0/*: any*/)
           ],
-          "type": "Query",
-          "abstractKey": null
-        },
-        "kind": "RelayResolver",
-        "storageKey": null
+          "storageKey": null
+        }
       }
     ]
   },
@@ -153,6 +197,7 @@ var node/*: ConcreteRequest*/ = {
     "text": "query ClientEdgeToClientObjectTest2Query {\n  ...QueryAllAstrologicalSignsResolver\n}\n\nfragment QueryAllAstrologicalSignsResolver on Query {\n  me {\n    __typename\n    id\n  }\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "b03fba0ae5a32ea645e8614e2f612822";

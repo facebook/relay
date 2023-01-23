@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2a4fd27f5766e2dae0229f13eab03f7d>>
+ * @generated SignedSource<<93ce387b90a76b8dee0c34957315f315>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,7 +53,34 @@ var v0 = [
     "name": "first",
     "value": 10
   }
-];
+],
+v1 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "name": "self",
+      "args": null,
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "todo_id",
+            "storageKey": null
+          }
+        ],
+        "type": "Todo",
+        "abstractKey": null
+      },
+      "kind": "RelayResolver",
+      "storageKey": null
+    }
+  ],
+  "type": "Todo",
+  "abstractKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -130,11 +157,131 @@ return {
     "name": "RelayResolversWithOutputTypeTestExceptionalProjectQuery",
     "selections": [
       {
-        "name": "todos",
-        "args": (v0/*: any*/),
-        "fragment": null,
-        "kind": "RelayResolver",
-        "storageKey": "todos(first:10)"
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "todos",
+          "args": (v0/*: any*/),
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": "todos(first:10)"
+        },
+        "linkedField": {
+          "alias": null,
+          "args": (v0/*: any*/),
+          "concreteType": "TodoConnection",
+          "kind": "LinkedField",
+          "name": "todos",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "TodoEdge",
+              "kind": "LinkedField",
+              "name": "edges",
+              "plural": true,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "Todo",
+                  "kind": "LinkedField",
+                  "name": "node",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "kind": "ClientEdgeToClientObject",
+                      "backingField": {
+                        "name": "text",
+                        "args": null,
+                        "fragment": (v1/*: any*/),
+                        "kind": "RelayResolver",
+                        "storageKey": null
+                      },
+                      "linkedField": {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "TodoText",
+                        "kind": "LinkedField",
+                        "name": "text",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "content",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "TodoTextStyle",
+                            "kind": "LinkedField",
+                            "name": "style",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "font_style",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "concreteType": "TodoTextColor",
+                                "kind": "LinkedField",
+                                "name": "color",
+                                "plural": false,
+                                "selections": [
+                                  {
+                                    "name": "human_readable_color",
+                                    "args": null,
+                                    "fragment": {
+                                      "kind": "InlineFragment",
+                                      "selections": [
+                                        {
+                                          "alias": null,
+                                          "args": null,
+                                          "kind": "ScalarField",
+                                          "name": "hex",
+                                          "storageKey": null
+                                        }
+                                      ],
+                                      "type": "TodoTextColor",
+                                      "abstractKey": null
+                                    },
+                                    "kind": "RelayResolver",
+                                    "storageKey": null
+                                  }
+                                ],
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    },
+                    {
+                      "name": "complete",
+                      "args": null,
+                      "fragment": (v1/*: any*/),
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": "todos(first:10)"
+        }
       }
     ]
   },

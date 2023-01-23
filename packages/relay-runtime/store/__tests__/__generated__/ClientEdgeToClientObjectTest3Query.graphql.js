@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<59d7731fa89fa141f390fbbb8e75c989>>
+ * @generated SignedSource<<e1a0b7368eeda0e08858ad7676701e93>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -48,7 +48,29 @@ export type ClientEdgeToClientObjectTest3Query = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "__id",
+  "storageKey": null
+},
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "notes",
+  "storageKey": null
+},
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -89,13 +111,7 @@ var node/*: ConcreteRequest*/ = {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "__id",
-                  "storageKey": null
-                },
+                (v0/*: any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -109,13 +125,7 @@ var node/*: ConcreteRequest*/ = {
                   "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
                   "path": "me.name"
                 },
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "notes",
-                  "storageKey": null
-                }
+                (v1/*: any*/)
               ],
               "storageKey": null
             }
@@ -142,50 +152,88 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "name": "astrological_sign",
-            "args": null,
-            "fragment": {
-              "kind": "InlineFragment",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "concreteType": "Date",
-                  "kind": "LinkedField",
-                  "name": "birthdate",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "month",
-                      "storageKey": null
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "day",
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
-                }
-              ],
-              "type": "User",
-              "abstractKey": null
+            "kind": "ClientEdgeToClientObject",
+            "backingField": {
+              "name": "astrological_sign",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Date",
+                    "kind": "LinkedField",
+                    "name": "birthdate",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "month",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "day",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null
             },
-            "kind": "RelayResolver",
-            "storageKey": null
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "AstrologicalSign",
+              "kind": "LinkedField",
+              "name": "astrological_sign",
+              "plural": false,
+              "selections": [
+                (v0/*: any*/),
+                {
+                  "name": "name",
+                  "args": null,
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "name": "self",
+                        "args": null,
+                        "fragment": {
+                          "kind": "InlineFragment",
+                          "selections": [
+                            (v2/*: any*/)
+                          ],
+                          "type": "AstrologicalSign",
+                          "abstractKey": null
+                        },
+                        "kind": "RelayResolver",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "AstrologicalSign",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
+                  "storageKey": null
+                },
+                (v1/*: any*/),
+                (v2/*: any*/)
+              ],
+              "storageKey": null
+            }
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
+          (v2/*: any*/)
         ],
         "storageKey": null
       }
@@ -200,6 +248,7 @@ var node/*: ConcreteRequest*/ = {
     "text": "query ClientEdgeToClientObjectTest3Query {\n  me {\n    ...UserAstrologicalSignResolver\n    id\n  }\n}\n\nfragment UserAstrologicalSignResolver on User {\n  birthdate {\n    month\n    day\n  }\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "c0bf4abbfd5f064e3fa3f5da531b725c";

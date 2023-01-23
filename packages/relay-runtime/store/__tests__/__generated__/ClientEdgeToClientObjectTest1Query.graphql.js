@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d37a05d0fd4ea663ab9f70ef011ad05f>>
+ * @generated SignedSource<<9469e74dd85ab92f952a5d9821f70fe0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -117,6 +117,55 @@ v3 = {
   "name": "opposite",
   "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver').opposite,
   "path": "me.opposite"
+},
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v5 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "name": "self",
+      "args": null,
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          (v4/*: any*/)
+        ],
+        "type": "AstrologicalSign",
+        "abstractKey": null
+      },
+      "kind": "RelayResolver",
+      "storageKey": null
+    }
+  ],
+  "type": "AstrologicalSign",
+  "abstractKey": null
+},
+v6 = {
+  "name": "name",
+  "args": null,
+  "fragment": (v5/*: any*/),
+  "kind": "RelayResolver",
+  "storageKey": null
+},
+v7 = {
+  "name": "house",
+  "args": null,
+  "fragment": (v5/*: any*/),
+  "kind": "RelayResolver",
+  "storageKey": null
+},
+v8 = {
+  "name": "opposite",
+  "args": null,
+  "fragment": (v5/*: any*/),
+  "kind": "RelayResolver",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -225,50 +274,99 @@ return {
         "plural": false,
         "selections": [
           {
-            "name": "astrological_sign",
-            "args": null,
-            "fragment": {
-              "kind": "InlineFragment",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "concreteType": "Date",
-                  "kind": "LinkedField",
-                  "name": "birthdate",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "month",
-                      "storageKey": null
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "day",
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
-                }
-              ],
-              "type": "User",
-              "abstractKey": null
+            "kind": "ClientEdgeToClientObject",
+            "backingField": {
+              "name": "astrological_sign",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Date",
+                    "kind": "LinkedField",
+                    "name": "birthdate",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "month",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "day",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null
             },
-            "kind": "RelayResolver",
-            "storageKey": null
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "AstrologicalSign",
+              "kind": "LinkedField",
+              "name": "astrological_sign",
+              "plural": false,
+              "selections": [
+                (v0/*: any*/),
+                (v6/*: any*/),
+                (v7/*: any*/),
+                {
+                  "kind": "ClientEdgeToClientObject",
+                  "backingField": (v8/*: any*/),
+                  "linkedField": {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "AstrologicalSign",
+                    "kind": "LinkedField",
+                    "name": "opposite",
+                    "plural": false,
+                    "selections": [
+                      (v0/*: any*/),
+                      (v6/*: any*/),
+                      (v7/*: any*/),
+                      {
+                        "kind": "ClientEdgeToClientObject",
+                        "backingField": (v8/*: any*/),
+                        "linkedField": {
+                          "alias": null,
+                          "args": null,
+                          "concreteType": "AstrologicalSign",
+                          "kind": "LinkedField",
+                          "name": "opposite",
+                          "plural": false,
+                          "selections": [
+                            (v0/*: any*/),
+                            (v6/*: any*/),
+                            (v4/*: any*/)
+                          ],
+                          "storageKey": null
+                        }
+                      },
+                      (v4/*: any*/)
+                    ],
+                    "storageKey": null
+                  }
+                },
+                (v4/*: any*/)
+              ],
+              "storageKey": null
+            }
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
+          (v4/*: any*/)
         ],
         "storageKey": null
       }

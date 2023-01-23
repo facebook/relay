@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f67a81fe82acdfd8fd85d057b1c948f7>>
+ * @generated SignedSource<<e682225ef23d79c82310ef1d54cb62a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,7 +55,28 @@ v1 = [
     "name": "todoID",
     "variableName": "id"
   }
-];
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v3 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__relay_model_instance",
+      "storageKey": null
+    }
+  ],
+  "type": "TodoDescription",
+  "abstractKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -105,11 +126,81 @@ return {
     "name": "RelayResolverModelTestTodoWithPluralFieldQuery",
     "selections": [
       {
-        "name": "todo_model",
-        "args": (v1/*: any*/),
-        "fragment": null,
-        "kind": "RelayResolver",
-        "storageKey": null
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "todo_model",
+          "args": (v1/*: any*/),
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": (v1/*: any*/),
+          "concreteType": "TodoModel",
+          "kind": "LinkedField",
+          "name": "todo_model",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ClientEdgeToClientObject",
+              "backingField": {
+                "name": "many_fancy_descriptions",
+                "args": null,
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "__relay_model_instance",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          (v2/*: any*/)
+                        ],
+                        "type": "TodoModel",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "TodoModel",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": null
+              },
+              "linkedField": {
+                "alias": null,
+                "args": null,
+                "concreteType": "TodoDescription",
+                "kind": "LinkedField",
+                "name": "many_fancy_descriptions",
+                "plural": true,
+                "selections": [
+                  {
+                    "name": "text",
+                    "args": null,
+                    "fragment": (v3/*: any*/),
+                    "kind": "RelayResolver",
+                    "storageKey": null
+                  },
+                  {
+                    "name": "color",
+                    "args": null,
+                    "fragment": (v3/*: any*/),
+                    "kind": "RelayResolver",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            },
+            (v2/*: any*/)
+          ],
+          "storageKey": null
+        }
       }
     ]
   },

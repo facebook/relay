@@ -20,6 +20,7 @@ import type {
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
+  NormalizationResolverField,
   NormalizationScalarField,
   NormalizationStream,
 } from '../util/NormalizationNode';
@@ -58,6 +59,7 @@ const {
   SCALAR_HANDLE,
   STREAM,
   TYPE_DISCRIMINATOR,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {generateClientID, isClientID} = require('./ClientID');
@@ -354,9 +356,10 @@ class RelayResponseNormalizer {
           this._normalizeActorChange(node, selection, record, data);
           break;
         case RELAY_RESOLVER:
-          if (selection.fragment != null) {
-            this._traverseSelections(selection.fragment, record, data);
-          }
+          this._normalizeResolver(selection, record, data);
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          this._normalizeResolver(selection.backingField, record, data);
           break;
         default:
           (selection: empty);
@@ -366,6 +369,16 @@ class RelayResponseNormalizer {
             selection.kind,
           );
       }
+    }
+  }
+
+  _normalizeResolver(
+    resolver: NormalizationResolverField,
+    record: Record,
+    data: PayloadData,
+  ) {
+    if (resolver.fragment != null) {
+      this._traverseSelections(resolver.fragment, record, data);
     }
   }
 

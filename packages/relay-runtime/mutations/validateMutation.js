@@ -22,6 +22,7 @@ const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CONDITION,
   DEFER,
   FLIGHT_FIELD,
@@ -165,6 +166,7 @@ if (__DEV__) {
       case TYPE_DISCRIMINATOR:
         return validateAbstractKey(context, selection.abstractKey);
       case RELAY_RESOLVER:
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
       case LINKED_HANDLE:
       case SCALAR_HANDLE:
       case DEFER:

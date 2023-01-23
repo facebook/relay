@@ -893,7 +893,7 @@ class RelayReader {
 
   _readLinkedIds(
     field: ReaderLinkedField,
-    linkedIDs: ?Array<?DataID>,
+    linkedIDs: ?$ReadOnlyArray<?DataID>,
     record: Record,
     data: SelectorData,
   ): ?mixed {

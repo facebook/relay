@@ -710,70 +710,36 @@ class RelayReader {
     const applicationName = backingField.alias ?? backingField.name;
     const backingFieldData = {};
     this._traverseSelections([backingField], record, backingFieldData);
+    // At this point, backingFieldData is an object with a single key (applicationName)
+    // whose value is the value returned from the resolver, or a suspense sentinel.
 
-    let destinationDataID = backingFieldData[applicationName];
-    if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
-      data[applicationName] = destinationDataID;
+    const clientEdgeResolverResponse = backingFieldData[applicationName];
+    if (
+      clientEdgeResolverResponse == null ||
+      isSuspenseSentinel(clientEdgeResolverResponse)
+    ) {
+      data[applicationName] = clientEdgeResolverResponse;
       return;
     }
 
-    if (field.linkedField.plural) {
-      invariant(
-        Array.isArray(destinationDataID),
-        'Expected plural Client Edge Relay Resolver to return an array of IDs.',
-      );
-    } else {
-      invariant(
-        typeof destinationDataID === 'string',
-        'Expected a Client Edge Relay Resolver to return an ID of type `string`.',
-      );
-    }
+    assertValidClientEdgeResolverResponse(field, clientEdgeResolverResponse);
 
-    if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
-      // Client objects might use ids that are not globally unique and instead are just
-      // local within their type. ResolverCache will derive a namespaced ID for us.
-      if (backingField.normalizationInfo == null) {
-        const concreteType = field.concreteType;
-        invariant(
-          concreteType != null,
-          'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
-            'This indicates a bug in Relay.',
-        );
-        // @edgeTo case where we need to ensure that the record has `id` field
-        if (field.linkedField.plural) {
-          // $FlowFixMe[prop-missing]
-          destinationDataID = destinationDataID.map(id =>
-            this._resolverCache.ensureClientRecord(id, concreteType),
-          );
-        } else {
-          destinationDataID = this._resolverCache.ensureClientRecord(
-            destinationDataID,
-            concreteType,
-          );
-        }
-      } else {
-        // Normalization process in LiveResolverCache should take care of generating correct ID.
-      }
-
-      this._clientEdgeTraversalPath.push(null);
-    } else {
-      invariant(
-        !field.linkedField.plural,
-        'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+    const [actualIDs, traversalPathSegment] =
+      getStoreIDsAndTraversalPathSegmentForClientEdgeResolver(
+        field,
+        clientEdgeResolverResponse,
+        this._resolverCache,
       );
-      // Not wrapping the push/pop in a try/finally because if we throw, the
-      // Reader object is not usable after that anyway.
-      this._clientEdgeTraversalPath.push({
-        readerClientEdge: field,
-        clientEdgeDestinationID: destinationDataID,
-      });
-    }
+
+    // Not wrapping the push/pop in a try/finally because if we throw, the
+    // Reader object is not usable after that anyway.
+    this._clientEdgeTraversalPath.push(traversalPathSegment);
 
     if (field.linkedField.plural) {
       data[applicationName] = this._readLinkedIds(
         field.linkedField,
         // $FlowFixMe[incompatible-call]
-        destinationDataID,
+        actualIDs,
         record,
         data,
       );
@@ -789,7 +755,8 @@ class RelayReader {
       );
       data[applicationName] = this._traverse(
         field.linkedField,
-        destinationDataID,
+        // $FlowFixMe[incompatible-call]
+        actualIDs,
         // $FlowFixMe[incompatible-variance]
         prevData,
       );
@@ -1281,6 +1248,84 @@ function getResolverValue(
     }
   }
   return [resolverResult, resolverError];
+}
+
+function assertValidClientEdgeResolverResponse(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+  clientEdgeResolverResponse: mixed,
+) {
+  if (field.linkedField.plural) {
+    invariant(
+      Array.isArray(clientEdgeResolverResponse),
+      'Expected plural Client Edge Relay Resolver to return an array of IDs.',
+    );
+  } else {
+    invariant(
+      typeof clientEdgeResolverResponse === 'string',
+      'Expected a Client Edge Relay Resolver to return an ID of type `string`.',
+    );
+  }
+}
+
+// For weak objects:
+// The return value of a client edge resolver is the entire object (though,
+// strong objects become DataIDs or arrays thereof). However, when being read
+// out, these raw objects are turned into DataIDs or arrays thereof.
+//
+// For strong objects:
+// The return value of a client edge resolver is either a DataID (i.e. string)
+// or array of DataID's. If the edge points to a client type, we namespace the
+// ID or IDs with the typename by calling resolverCache.ensureClientRecord.
+function getStoreIDsAndTraversalPathSegmentForClientEdgeResolver(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+  clientEdgeResolverResponse: DataID | $ReadOnlyArray<DataID>,
+  resolverCache: ResolverCache,
+): [DataID | $ReadOnlyArray<DataID>, ClientEdgeTraversalInfo | null] {
+  if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
+    if (field.backingField.normalizationInfo == null) {
+      const concreteType = field.concreteType;
+      invariant(
+        concreteType != null,
+        'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
+          'This indicates a bug in Relay.',
+      );
+      // @edgeTo case where we need to ensure that the record has `id` field
+      if (field.linkedField.plural) {
+        return [
+          // $FlowFixMe[prop-missing]
+          clientEdgeResolverResponse.map(id =>
+            resolverCache.ensureClientRecord(id, concreteType),
+          ),
+          null,
+        ];
+      } else {
+        return [
+          resolverCache.ensureClientRecord(
+            // $FlowFixMe[incompatible-call]
+            clientEdgeResolverResponse,
+            concreteType,
+          ),
+          null,
+        ];
+      }
+    } else {
+      // Normalization process in LiveResolverCache should take care of generating correct ID.
+      return [clientEdgeResolverResponse, null];
+    }
+  } else {
+    invariant(
+      !field.linkedField.plural,
+      'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+    );
+    return [
+      clientEdgeResolverResponse,
+      // $FlowFixMe[incompatible-return]
+      {
+        readerClientEdge: field,
+        clientEdgeDestinationID: clientEdgeResolverResponse,
+      },
+    ];
+  }
 }
 
 module.exports = {read};

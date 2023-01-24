@@ -14,13 +14,11 @@
 import type {Options} from './useRefetchableFragmentNode';
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
-import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
   FragmentType,
   GraphQLResponse,
-  GraphQLTaggedNode,
   Observer,
-  OperationType,
+  RefetchableFragment,
   Variables,
 } from 'relay-runtime';
 
@@ -34,44 +32,30 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
-
-export type ReturnType<TQuery: OperationType, TKey> = {
-  // NOTE: This $Call ensures that the type of the returned data is either:
-  //   - nullable if the provided ref type is nullable
-  //   - non-nullable if the provided ref type is non-nullable
-  // prettier-ignore
-  data: $Call<
-    & (<TFragmentData>( { +$data?: TFragmentData, ... }) =>  TFragmentData)
-    & (<TFragmentData>(?{ +$data?: TFragmentData, ... }) => ?TFragmentData),
-    TKey,
-  >,
-  loadNext: LoadMoreFn<TQuery['variables']>,
-  loadPrevious: LoadMoreFn<TQuery['variables']>,
-  hasNext: boolean,
-  hasPrevious: boolean,
-  isLoadingNext: boolean,
-  isLoadingPrevious: boolean,
-  refetch: RefetchFnDynamic<TQuery, TKey>,
-};
+import type {RefetchFn} from './useRefetchableFragment';
 
 // This separate type export is only needed as long as we are injecting
 // a separate hooks implementation in ./HooksImplementation -- it can
 // be removed after we stop doing that.
 export type UsePaginationFragmentType = <
-  TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
+  TFragmentType: FragmentType,
+  TVariables: Variables,
+  TData,
+  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
 >(
-  fragmentInput: GraphQLTaggedNode,
+  fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
-) => ReturnType<TQuery, TKey>;
+) => ReturnType<TVariables, TData, TKey>;
 
 function usePaginationFragment_LEGACY<
-  TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
+  TFragmentType: FragmentType,
+  TVariables: Variables,
+  TData,
+  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
 >(
-  fragmentInput: GraphQLTaggedNode,
+  fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
-): ReturnType<TQuery, TKey> {
+): ReturnType<TVariables, TData, TKey> {
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
     fragmentNode,
@@ -87,14 +71,14 @@ function usePaginationFragment_LEGACY<
   } = getPaginationMetadata(fragmentNode, componentDisplayName);
 
   const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentNode<
-    TQuery,
-    TKey,
+    $FlowFixMe,
+    $FlowFixMe,
   >(fragmentNode, parentFragmentRef, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
   // Backward pagination
   const [loadPrevious, hasPrevious, isLoadingPrevious, disposeFetchPrevious] =
-    useLoadMore<TQuery['variables']>({
+    useLoadMore<TVariables>({
       componentDisplayName,
       connectionPathInFragmentData,
       direction: 'backward',
@@ -108,23 +92,22 @@ function usePaginationFragment_LEGACY<
     });
 
   // Forward pagination
-  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] = useLoadMore<
-    TQuery['variables'],
-  >({
-    componentDisplayName,
-    connectionPathInFragmentData,
-    direction: 'forward',
-    fragmentData,
-    fragmentIdentifier,
-    fragmentNode,
-    fragmentRef,
-    identifierField,
-    paginationMetadata,
-    paginationRequest,
-  });
+  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] =
+    useLoadMore<TVariables>({
+      componentDisplayName,
+      connectionPathInFragmentData,
+      direction: 'forward',
+      fragmentData,
+      fragmentIdentifier,
+      fragmentNode,
+      fragmentRef,
+      identifierField,
+      paginationMetadata,
+      paginationRequest,
+    });
 
-  const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
-    (variables: TQuery['variables'], options: void | Options) => {
+  const refetchPagination: RefetchFn<TVariables, TKey> = useCallback(
+    (variables: TVariables, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
       return refetch(variables, {...options, __environment: undefined});
@@ -144,7 +127,7 @@ function usePaginationFragment_LEGACY<
     });
   }
   return {
-    data: fragmentData,
+    data: (fragmentData: $FlowFixMe),
     loadNext,
     loadPrevious,
     hasNext,
@@ -180,16 +163,37 @@ function useLoadMore<TVariables: Variables>(
   return [loadMore, hasMore, isLoadingMore, disposeFetch];
 }
 
+export type ReturnType<TVariables, TData, TKey> = {
+  // NOTE: This $Call ensures that the type of the returned data is either:
+  //   - nullable if the provided ref type is nullable
+  //   - non-nullable if the provided ref type is non-nullable
+  // prettier-ignore
+  data: $Call<
+    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) =>  TData)
+    & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => ?TData),
+    TKey,
+  >,
+  loadNext: LoadMoreFn<TVariables>,
+  loadPrevious: LoadMoreFn<TVariables>,
+  hasNext: boolean,
+  hasPrevious: boolean,
+  isLoadingNext: boolean,
+  isLoadingPrevious: boolean,
+  refetch: RefetchFn<TVariables, TKey>,
+};
+
 function usePaginationFragment<
-  TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
+  TFragmentType: FragmentType,
+  TVariables: Variables,
+  TData,
+  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
 >(
-  fragmentInput: GraphQLTaggedNode,
+  fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
-): ReturnType<TQuery, TKey> {
+): ReturnType<TVariables, TData, TKey> {
   const impl = HooksImplementation.get();
   if (impl) {
-    return impl.usePaginationFragment<TQuery, TKey>(
+    return impl.usePaginationFragment<TFragmentType, TVariables, TData, TKey>(
       fragmentInput,
       parentFragmentRef,
     );

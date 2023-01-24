@@ -14,16 +14,15 @@ import type {
   FetchFn,
   NonNullableData,
   NullableData,
-  QueryOperation,
   QueryVariables,
   QueryVariablesSubset,
 } from './utils';
-import type {IEnvironment, OperationType} from 'relay-runtime';
+import type {IEnvironment, Variables} from 'relay-runtime';
 
 import usePaginationFragment from '../usePaginationFragment';
 import {
   fragmentData,
-  fragmentInput,
+  refetchableFragmentInput,
   keyAnotherNonNullable,
   keyAnotherNullable,
   keyNonNullable,
@@ -31,65 +30,65 @@ import {
 } from './utils';
 
 type ExpectedReturnType<
-  TQuery: OperationType,
-  TQueryVariables,
+  TRefetchVariables: Variables,
+  TLoadMoreVariables: Variables,
   TFragmentData,
 > = {
   data: TFragmentData,
-  loadNext: LoadMoreFn<TQuery['variables']>,
-  loadPrevious: LoadMoreFn<TQuery['variables']>,
+  loadNext: LoadMoreFn<TLoadMoreVariables>,
+  loadPrevious: LoadMoreFn<TLoadMoreVariables>,
   hasNext: boolean,
   hasPrevious: boolean,
   isLoadingNext: boolean,
   isLoadingPrevious: boolean,
-  refetch: FetchFn<TQueryVariables>,
+  refetch: FetchFn<TRefetchVariables>,
 };
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
-(usePaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(usePaginationFragment(
+  refetchableFragmentInput,
   keyNonNullable,
-): ExpectedReturnType<QueryOperation, QueryVariablesSubset, NonNullableData>);
+): ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>);
 
-(usePaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(usePaginationFragment(
+  refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
+): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
 
 // $FlowExpectedError: can't cast nullable to non-nullable
-(usePaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(usePaginationFragment(
+  refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryOperation, QueryVariables, NonNullableData>);
+): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: actual type of returned data is correct
-(usePaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(usePaginationFragment(
+  refetchableFragmentInput,
   keyAnotherNonNullable,
-): ExpectedReturnType<QueryOperation, QueryVariablesSubset, NonNullableData>);
+): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
 // $FlowExpectedError
-(usePaginationFragment<QueryOperation, _>(
-  fragmentInput,
+(usePaginationFragment(
+  refetchableFragmentInput,
   keyAnotherNullable,
-): ExpectedReturnType<QueryOperation, QueryVariables, NullableData>);
+): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: Key should not be a user provided object
-usePaginationFragment<QueryOperation, _>(fragmentInput, {abc: 123});
+usePaginationFragment(refetchableFragmentInput, {abc: 123});
 
 // $FlowExpectedError: Key should not be an empty object
-usePaginationFragment<QueryOperation, _>(fragmentInput, {});
+usePaginationFragment(refetchableFragmentInput, {});
 
 // $FlowExpectedError: Key should be the `<name>$key` type from generated flow
-usePaginationFragment<QueryOperation, _>(fragmentInput, fragmentData);
+usePaginationFragment(refetchableFragmentInput, fragmentData);
 
 // Refetch function options:
 declare var variables: QueryVariables;
 declare var environment: IEnvironment;
 
-const {refetch} = usePaginationFragment<QueryOperation, _>(
-  fragmentInput,
+const {refetch} = usePaginationFragment(
+  refetchableFragmentInput,
   keyNonNullable,
 );
 // $FlowExpectedError: internal option
@@ -106,8 +105,8 @@ refetch(variables, {
 declare var extraVariables: {nickname: string};
 declare var invalidVariables: {foo: string};
 
-const {loadNext} = usePaginationFragment<QueryOperation, _>(
-  fragmentInput,
+const {loadNext} = usePaginationFragment(
+  refetchableFragmentInput,
   keyNonNullable,
 );
 // Accepts extraVariables
@@ -115,8 +114,8 @@ loadNext(10, {
   UNSTABLE_extraVariables: extraVariables,
 });
 
-// $FlowExpectedError: doesn't accept variables not available in the Flow type
 loadNext(10, {
+  // $FlowExpectedError: doesn't accept variables not available in the Flow type
   UNSTABLE_extraVariables: invalidVariables,
 });
 

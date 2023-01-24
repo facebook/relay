@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de2aa110362140d258b9b1779834c5e9>>
+ * @generated SignedSource<<e5851b1e17b2d745656b81416e0d2986>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAlwaysThrowsResolver$key } from "./../resolvers/__generated__/UserAlwaysThrowsResolver.graphql";
-import {always_throws as userAlwaysThrowsResolver} from "../resolvers/UserAlwaysThrowsResolver.js";
-// Type assertion validating that `userAlwaysThrowsResolver` resolver is correctly implemented.
+import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAlwaysThrowsResolver.js";
+// Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolver: (
+(userAlwaysThrowsResolverType: (
   rootKey: UserAlwaysThrowsResolver$key, 
 ) => mixed);
 export type RelayReaderResolverTest12Query$variables = {||};
 export type RelayReaderResolverTest12Query$data = {|
   +me: ?{|
-    +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolver>,
+    +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolverType>,
   |},
 |};
 export type RelayReaderResolverTest12Query = {|

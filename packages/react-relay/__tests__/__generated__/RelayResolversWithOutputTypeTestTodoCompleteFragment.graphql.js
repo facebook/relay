@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5bb43d9a139ee55bee38d4fcfc5ff2e2>>
+ * @generated SignedSource<<a29c8c729f77b9d424759641e9ea9c0f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoCompleteResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoCompleteResolverFragment.graphql";
 import type { FragmentType } from "relay-runtime";
-import {complete as todoCompleteResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoCompleteResolver.js";
-// Type assertion validating that `todoCompleteResolver` resolver is correctly implemented.
+import {complete as todoCompleteResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoCompleteResolver.js";
+// Type assertion validating that `todoCompleteResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoCompleteResolver: (
+(todoCompleteResolverType: (
   rootKey: TodoCompleteResolverFragment$key, 
 ) => mixed);
 declare export opaque type RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType: FragmentType;
 export type RelayResolversWithOutputTypeTestTodoCompleteFragment$data = {|
-  +complete: ?$Call<<R>((...empty[]) => R) => R, typeof todoCompleteResolver>,
+  +complete: ?$Call<<R>((...empty[]) => R) => R, typeof todoCompleteResolverType>,
   +$fragmentType: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
 |};
 export type RelayResolversWithOutputTypeTestTodoCompleteFragment$key = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<710e1977781d3bd2713b052561de0e03>>
+ * @generated SignedSource<<baaea5d2cf3e09ed115e943b109296b5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,19 +20,19 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
-import {live_external_greeting as queryLiveExternalGreetingResolver} from "../LiveExternalGreeting.js";
-// Type assertion validating that `queryLiveExternalGreetingResolver` resolver is correctly implemented.
+import {live_external_greeting as queryLiveExternalGreetingResolverType} from "../LiveExternalGreeting.js";
+// Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveExternalGreetingResolver: (
+(queryLiveExternalGreetingResolverType: (
   rootKey: LiveExternalGreetingFragment$key, 
 ) => LiveState<any>);
-import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolver} from "../LiveUserSuspendsWhenOdd.js";
-// Type assertion validating that `queryLiveUserSuspendsWhenOddResolver` resolver is correctly implemented.
+import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
+// Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserSuspendsWhenOddResolver: () => LiveState<any>);
+(queryLiveUserSuspendsWhenOddResolverType: () => LiveState<any>);
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {|
-  +greeting: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveExternalGreetingResolver>["read"]>,
+  +greeting: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveExternalGreetingResolverType>["read"]>,
   +user: ?{|
     +id: string,
   |},

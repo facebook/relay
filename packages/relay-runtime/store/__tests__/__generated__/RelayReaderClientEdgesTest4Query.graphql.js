@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b34da7799c839c816c44f793c4ad308>>
+ * @generated SignedSource<<ec70ea67b80a0c85561b9d82d0060dcf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,16 +20,16 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAnotherClientEdgeResolver$key } from "./../resolvers/__generated__/UserAnotherClientEdgeResolver.graphql";
 import type { UserClientEdgeResolver$key } from "./../resolvers/__generated__/UserClientEdgeResolver.graphql";
-import {another_client_edge as userAnotherClientEdgeResolver} from "../resolvers/UserAnotherClientEdgeResolver.js";
-// Type assertion validating that `userAnotherClientEdgeResolver` resolver is correctly implemented.
+import {another_client_edge as userAnotherClientEdgeResolverType} from "../resolvers/UserAnotherClientEdgeResolver.js";
+// Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolver: (
+(userAnotherClientEdgeResolverType: (
   rootKey: UserAnotherClientEdgeResolver$key, 
 ) => mixed);
-import {client_edge as userClientEdgeResolver} from "../resolvers/UserClientEdgeResolver.js";
-// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolver: (
+(userClientEdgeResolverType: (
   rootKey: UserClientEdgeResolver$key, 
 ) => mixed);
 export type RelayReaderClientEdgesTest4Query$variables = {||};

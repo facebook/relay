@@ -145,6 +145,13 @@ impl RelayResolverMetadata {
         ))
         .intern()
     }
+    pub fn generate_local_resolver_type_name(&self) -> StringKey {
+        to_camel_case(format!(
+            "{}_{}_resolver_type",
+            self.field_parent_type, self.field_name
+        ))
+        .intern()
+    }
 }
 
 /// Convert fields with attached Relay Resolver metadata into the fragment

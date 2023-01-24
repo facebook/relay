@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f371c287dcb83dd19196b206303ad00f>>
+ * @generated SignedSource<<c42569421990ca2902cb35c17273b329>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,10 +19,10 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserProfilePictureWithDefaultValueResolver$key } from "./../resolvers/__generated__/UserProfilePictureWithDefaultValueResolver.graphql";
-import {user_profile_picture_uri_with_scale_and_default_value as userUserProfilePictureUriWithScaleAndDefaultValueResolver} from "../resolvers/UserProfilePictureWithDefaultValueResolver.js";
-// Type assertion validating that `userUserProfilePictureUriWithScaleAndDefaultValueResolver` resolver is correctly implemented.
+import {user_profile_picture_uri_with_scale_and_default_value as userUserProfilePictureUriWithScaleAndDefaultValueResolverType} from "../resolvers/UserProfilePictureWithDefaultValueResolver.js";
+// Type assertion validating that `userUserProfilePictureUriWithScaleAndDefaultValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleAndDefaultValueResolver: (
+(userUserProfilePictureUriWithScaleAndDefaultValueResolverType: (
   rootKey: UserProfilePictureWithDefaultValueResolver$key, 
   args: {|
     scale: ?number,
@@ -31,7 +31,7 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
 export type RelayReaderResolverTest17Query$variables = {||};
 export type RelayReaderResolverTest17Query$data = {|
   +me: ?{|
-    +user_profile_picture_uri_with_scale_and_default_value: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleAndDefaultValueResolver>,
+    +user_profile_picture_uri_with_scale_and_default_value: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleAndDefaultValueResolverType>,
   |},
 |};
 export type RelayReaderResolverTest17Query = {|

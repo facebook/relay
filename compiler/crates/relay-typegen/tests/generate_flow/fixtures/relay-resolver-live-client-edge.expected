@@ -33,10 +33,10 @@ export type ClientEdgeQuery_relayResolver_Query_me__best_friend = {|
 -------------------------------------------------------------------------------
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { relayResolver_BestFriendResolverFragment_name$key } from "relayResolver_BestFriendResolverFragment_name.graphql";
-import userBestFriendResolver from "BestFriendResolver";
-// Type assertion validating that `userBestFriendResolver` resolver is correctly implemented.
+import userBestFriendResolverType from "BestFriendResolver";
+// Type assertion validating that `userBestFriendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userBestFriendResolver: (
+(userBestFriendResolverType: (
   rootKey: relayResolver_BestFriendResolverFragment_name$key, 
 ) => LiveState<any>);
 export type relayResolver_Query$variables = {||};

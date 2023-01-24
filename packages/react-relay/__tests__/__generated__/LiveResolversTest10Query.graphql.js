@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6cf215eb6a876ba120c14fa022073282>>
+ * @generated SignedSource<<906a6358e9c719fd5c51b789dbde086d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,15 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { LiveCounterResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LiveCounterResolver.graphql";
-import {counter as queryCounterResolver} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterResolver.js";
-// Type assertion validating that `queryCounterResolver` resolver is correctly implemented.
+import {counter as queryCounterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterResolver.js";
+// Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterResolver: (
+(queryCounterResolverType: (
   rootKey: LiveCounterResolver$key, 
 ) => LiveState<any>);
 export type LiveResolversTest10Query$variables = {||};
 export type LiveResolversTest10Query$data = {|
-  +counter: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolver>["read"]>,
+  +counter: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolverType>["read"]>,
   +me: ?{|
     +name: ?string,
   |},

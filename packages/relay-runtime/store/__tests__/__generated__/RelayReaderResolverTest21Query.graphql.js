@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3b7c387af404142160b00221edc21148>>
+ * @generated SignedSource<<6500d0fcb3466ccf970243c96f82a18c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,10 +19,10 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserProfilePictureResolver$key } from "./../resolvers/__generated__/UserProfilePictureResolver.graphql";
-import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolver} from "../resolvers/UserProfilePictureResolver.js";
-// Type assertion validating that `userUserProfilePictureUriWithScaleResolver` resolver is correctly implemented.
+import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolverType} from "../resolvers/UserProfilePictureResolver.js";
+// Type assertion validating that `userUserProfilePictureUriWithScaleResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleResolver: (
+(userUserProfilePictureUriWithScaleResolverType: (
   rootKey: UserProfilePictureResolver$key, 
   args: {|
     scale: ?number,
@@ -33,7 +33,7 @@ export type RelayReaderResolverTest21Query$variables = {|
 |};
 export type RelayReaderResolverTest21Query$data = {|
   +me: ?{|
-    +profile_picture: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleResolver>,
+    +profile_picture: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleResolverType>,
   |},
 |};
 export type RelayReaderResolverTest21Query = {|

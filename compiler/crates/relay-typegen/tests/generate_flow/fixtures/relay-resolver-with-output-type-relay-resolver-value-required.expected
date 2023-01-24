@@ -21,15 +21,15 @@ extend type User {
 ==================================== OUTPUT ===================================
 import type { PopStarNameResolverFragment_name$key } from "PopStarNameResolverFragment_name.graphql";
 import type { FragmentType } from "relay-runtime";
-import userPopStarNameResolver from "PopStarNameResolver";
-// Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
+import userPopStarNameResolverType from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userPopStarNameResolver: (
+(userPopStarNameResolverType: (
   rootKey: PopStarNameResolverFragment_name$key, 
 ) => mixed);
 declare export opaque type Foo_user$fragmentType: FragmentType;
 export type Foo_user$data = {|
-  +poppy: $NonMaybeType<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>>,
+  +poppy: $NonMaybeType<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>>,
   +$fragmentType: Foo_user$fragmentType,
 |};
 export type Foo_user$key = {

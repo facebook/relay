@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e639023ec2be3cc544b265fed4603ecf>>
+ * @generated SignedSource<<b4c2a8f7cb2a1009eff54e5354cb4e85>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,10 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { QueryResourceClientEdgesTestUser1Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser1Fragment.graphql";
 import type { QueryResourceClientEdgesTestUser2Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser2Fragment.graphql";
 import type { UserClientEdgeResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserClientEdgeResolver.graphql";
-import {client_edge as userClientEdgeResolver} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver.js";
-// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+import {client_edge as userClientEdgeResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolver: (
+(userClientEdgeResolverType: (
   rootKey: UserClientEdgeResolver$key, 
 ) => mixed);
 export type QueryResourceClientEdgesTest2Query$variables = {||};

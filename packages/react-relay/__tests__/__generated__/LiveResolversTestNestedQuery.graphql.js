@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cd3fb00b1c2e0fabca179a27262398b6>>
+ * @generated SignedSource<<72d5554e642a7dfb126b3a95403b053f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,22 +21,22 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { InnerResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/InnerResolver.graphql";
 import type { OuterResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/OuterResolver.graphql";
-import {inner as queryInnerResolver} from "../../../relay-runtime/store/__tests__/resolvers/InnerResolver.js";
-// Type assertion validating that `queryInnerResolver` resolver is correctly implemented.
+import {inner as queryInnerResolverType} from "../../../relay-runtime/store/__tests__/resolvers/InnerResolver.js";
+// Type assertion validating that `queryInnerResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryInnerResolver: (
+(queryInnerResolverType: (
   rootKey: InnerResolver$key, 
 ) => LiveState<any>);
-import {outer as queryOuterResolver} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
-// Type assertion validating that `queryOuterResolver` resolver is correctly implemented.
+import {outer as queryOuterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
+// Type assertion validating that `queryOuterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryOuterResolver: (
+(queryOuterResolverType: (
   rootKey: OuterResolver$key, 
 ) => mixed);
 export type LiveResolversTestNestedQuery$variables = {||};
 export type LiveResolversTestNestedQuery$data = {|
-  +inner: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryInnerResolver>["read"]>,
-  +outer: ?$Call<<R>((...empty[]) => R) => R, typeof queryOuterResolver>,
+  +inner: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryInnerResolverType>["read"]>,
+  +outer: ?$Call<<R>((...empty[]) => R) => R, typeof queryOuterResolverType>,
 |};
 export type LiveResolversTestNestedQuery = {|
   response: LiveResolversTestNestedQuery$data,

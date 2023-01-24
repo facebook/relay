@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1347f7d7434c2d1f1f673d552935009a>>
+ * @generated SignedSource<<3443454904548c6460a162b6a506f1be>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,10 @@
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { UserAnotherClientEdgeResolver$key } from "./../resolvers/__generated__/UserAnotherClientEdgeResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import {another_client_edge as userAnotherClientEdgeResolver} from "../resolvers/UserAnotherClientEdgeResolver.js";
-// Type assertion validating that `userAnotherClientEdgeResolver` resolver is correctly implemented.
+import {another_client_edge as userAnotherClientEdgeResolverType} from "../resolvers/UserAnotherClientEdgeResolver.js";
+// Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolver: (
+(userAnotherClientEdgeResolverType: (
   rootKey: UserAnotherClientEdgeResolver$key, 
 ) => mixed);
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType: FragmentType;

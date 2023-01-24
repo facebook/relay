@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a14e34f3b57689a0c3255d7ec00ddd6c>>
+ * @generated SignedSource<<98e106c00838123c742b4f1bcedc2537>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import {counter_no_fragment as queryCounterNoFragmentResolver} from "../LiveCounterNoFragment.js";
-// Type assertion validating that `queryCounterNoFragmentResolver` resolver is correctly implemented.
+import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../LiveCounterNoFragment.js";
+// Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolver: () => LiveState<any>);
+(queryCounterNoFragmentResolverType: () => LiveState<any>);
 export type ResolverGCTestWithoutFragmentQuery$variables = {||};
 export type ResolverGCTestWithoutFragmentQuery$data = {|
-  +counter_no_fragment: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterNoFragmentResolver>["read"]>,
+  +counter_no_fragment: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterNoFragmentResolverType>["read"]>,
 |};
 export type ResolverGCTestWithoutFragmentQuery = {|
   response: ResolverGCTestWithoutFragmentQuery$data,

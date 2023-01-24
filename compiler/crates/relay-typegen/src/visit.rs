@@ -470,7 +470,7 @@ fn import_relay_resolver_function_type(
     resolver_metadata: &RelayResolverMetadata,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    let local_resolver_name = resolver_metadata.generate_local_resolver_name();
+    let local_resolver_name = resolver_metadata.generate_local_resolver_type_name();
     let resolver_name = if let Some(name) = resolver_metadata.import_name {
         ImportedResolverName::Named {
             name,
@@ -606,7 +606,7 @@ fn visit_relay_resolver(
     let field_name = resolver_metadata.field_name;
     let key = resolver_metadata.field_alias.unwrap_or(field_name);
     let live = resolver_metadata.live;
-    let local_resolver_name = resolver_metadata.generate_local_resolver_name();
+    let local_resolver_name = resolver_metadata.generate_local_resolver_type_name();
 
     let resolver_type = relay_resolver_field_type(
         typegen_context,

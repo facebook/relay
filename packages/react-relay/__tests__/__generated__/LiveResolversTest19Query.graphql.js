@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1ca9db5059a37fbf917bdcd482c8bc2e>>
+ * @generated SignedSource<<cbe977c08a3a1cc07bd57ce54f20a87d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import {live_resolver_return_undefined as queryLiveResolverReturnUndefinedResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined.js";
-// Type assertion validating that `queryLiveResolverReturnUndefinedResolver` resolver is correctly implemented.
+import {live_resolver_return_undefined as queryLiveResolverReturnUndefinedResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined.js";
+// Type assertion validating that `queryLiveResolverReturnUndefinedResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveResolverReturnUndefinedResolver: () => LiveState<any>);
+(queryLiveResolverReturnUndefinedResolverType: () => LiveState<any>);
 export type LiveResolversTest19Query$variables = {||};
 export type LiveResolversTest19Query$data = {|
-  +live_resolver_return_undefined: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveResolverReturnUndefinedResolver>["read"]>,
+  +live_resolver_return_undefined: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveResolverReturnUndefinedResolverType>["read"]>,
 |};
 export type LiveResolversTest19Query = {|
   response: LiveResolversTest19Query$data,

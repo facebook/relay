@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6a18003b296478ac09174d1a3facdbdd>>
+ * @generated SignedSource<<6aa40b164afa6bea63f9abe3ed785d56>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,10 +18,10 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import {client_node as userClientNodeResolver} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver.js";
-// Type assertion validating that `userClientNodeResolver` resolver is correctly implemented.
+import {client_node as userClientNodeResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver.js";
+// Type assertion validating that `userClientNodeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientNodeResolver: (
+(userClientNodeResolverType: (
   args: {|
     id: string,
   |}, 

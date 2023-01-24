@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<22bf05d56f20475941fc3321defa591c>>
+ * @generated SignedSource<<d1928e5ff63939365a889e2ad16294a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,16 +21,16 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
 import type { UserProfilePictureResolver$key } from "./UserProfilePictureResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import {greeting as userGreetingResolver} from "../UserGreetingResolver.js";
-// Type assertion validating that `userGreetingResolver` resolver is correctly implemented.
+import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
+// Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolver: (
+(userGreetingResolverType: (
   rootKey: UserGreetingResolver$key, 
 ) => mixed);
-import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolver} from "../UserProfilePictureResolver.js";
-// Type assertion validating that `userUserProfilePictureUriWithScaleResolver` resolver is correctly implemented.
+import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolverType} from "../UserProfilePictureResolver.js";
+// Type assertion validating that `userUserProfilePictureUriWithScaleResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleResolver: (
+(userUserProfilePictureUriWithScaleResolverType: (
   rootKey: UserProfilePictureResolver$key, 
   args: {|
     scale: ?number,
@@ -38,8 +38,8 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
 ) => mixed);
 declare export opaque type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType: FragmentType;
 export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data = {|
-  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolver>,
-  +uri: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleResolver>,
+  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
+  +uri: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleResolverType>,
   +$fragmentType: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType,
 |};
 export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key = {

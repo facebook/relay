@@ -60,7 +60,7 @@ pub struct SplitOperationMetadata {
     pub location: Location,
 
     /// The names of the fragments and operations that included this fragment.
-    /// They are the reason this split operation exist. If they are all removed,
+    /// They are the reason this split operation exists. If they are all removed,
     /// this file also needs to be removed.
     pub parent_documents: StringKeySet,
 

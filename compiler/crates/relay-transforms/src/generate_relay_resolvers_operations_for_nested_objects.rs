@@ -497,10 +497,17 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
             }
 
             let operation_name = generate_name_for_nested_object_operation(&program.schema, field);
+
+            let parent_documents = {
+                let mut parent_documents = HashSet::default();
+                parent_documents.insert(operation_name.item.0);
+                parent_documents
+            };
+
             let directives = vec![
                 SplitOperationMetadata {
                     location: field.name.location,
-                    parent_documents: Default::default(),
+                    parent_documents,
                     derived_from: None,
                     raw_response_type_generation_mode: Some(
                         RawResponseGenerationMode::AllFieldsRequired,

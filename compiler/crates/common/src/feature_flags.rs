@@ -76,6 +76,10 @@ pub struct FeatureFlags {
     /// Print queries in compact form
     #[serde(default)]
     pub compact_query_text: FeatureFlag,
+
+    /// Create normalization nodes for client edges to client objects
+    #[serde(default)]
+    pub emit_normalization_nodes_for_client_edges: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

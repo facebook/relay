@@ -40,7 +40,8 @@
         },
         "enable_fragment_aliases": {
           "kind": "enabled"
-        }
+        },
+        "emit_normalization_nodes_for_client_edges": true
       },
       "language": "flow"
     }

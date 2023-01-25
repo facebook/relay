@@ -26,7 +26,6 @@ use dashmap::DashSet;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
-use graphql_ir::ExecutableDefinitionName;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
@@ -39,6 +38,7 @@ use zstd::stream::read::Decoder as ZstdDecoder;
 use zstd::stream::write::Encoder as ZstdEncoder;
 
 use crate::artifact_map::ArtifactMap;
+use crate::artifact_map::ArtifactSourceKey;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
@@ -553,11 +553,11 @@ impl CompilerState {
         self.dirty_artifact_paths.clear();
     }
 
-    /// Calculate dirty definitions from dirty artifacts
-    pub fn get_dirty_definitions(
+    /// Calculate dirty definitions/sources from dirty artifacts
+    pub fn get_dirty_artifact_sources(
         &self,
         config: &Config,
-    ) -> FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>> {
+    ) -> FnvHashMap<ProjectName, Vec<ArtifactSourceKey>> {
         if self.dirty_artifact_paths.is_empty() {
             return Default::default();
         }
@@ -576,7 +576,7 @@ impl CompilerState {
                         let mut added = false;
                         for artifact_record in artifact_records {
                             if paths.remove(&artifact_record.path).is_some() && !added {
-                                dirty_definitions.push(*definition_name);
+                                dirty_definitions.push(definition_name.clone());
                                 if paths.is_empty() {
                                     break 'outer;
                                 }

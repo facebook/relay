@@ -34,6 +34,7 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use crate::generate_relay_resolvers_model_fragments::directives_with_artifact_source;
 use crate::get_normalization_operation_name;
 use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
@@ -498,24 +499,18 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
 
             let operation_name = generate_name_for_nested_object_operation(&program.schema, field);
 
-            let parent_documents = {
-                let mut parent_documents = HashSet::default();
-                parent_documents.insert(operation_name.item.into());
-                parent_documents
-            };
-
-            let directives = vec![
+            let mut directives = directives_with_artifact_source(field);
+            directives.push(
                 SplitOperationMetadata {
                     location: field.name.location,
-                    parent_documents,
+                    parent_documents: Default::default(),
                     derived_from: None,
                     raw_response_type_generation_mode: Some(
                         RawResponseGenerationMode::AllFieldsRequired,
                     ),
                 }
                 .into(),
-            ];
-
+            );
             let operation = OperationDefinition {
                 name: operation_name,
                 type_: field.type_.inner(),

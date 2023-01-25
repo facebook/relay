@@ -18,6 +18,7 @@ use common::NamedItem;
 use common::ObjectName;
 use common::Span;
 use common::WithLocation;
+use docblock_shared::ResolverSourceHash;
 use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::GENERATED_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
@@ -28,6 +29,8 @@ use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
+use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::FragmentDefinitionName;
@@ -284,6 +287,7 @@ trait ResolverIr: Sized {
     fn deprecated(&self) -> Option<IrField>;
     fn live(&self) -> Option<UnpopulatedIrField>;
     fn named_import(&self) -> Option<StringKey>;
+    fn source_hash(&self) -> ResolverSourceHash;
 
     fn to_graphql_schema_ast(
         self,
@@ -302,7 +306,10 @@ trait ResolverIr: Sized {
     ) -> Vec<ConstantDirective> {
         let location = self.location();
         let span = location.span();
-        let mut directives = vec![self.directive(object, schema_info)];
+        let mut directives: Vec<ConstantDirective> = vec![
+            self.directive(object, schema_info),
+            resolver_source_hash_directive(self.source_hash()),
+        ];
 
         if let Some(deprecated) = self.deprecated() {
             directives.push(ConstantDirective {
@@ -409,7 +416,6 @@ trait ResolverIr: Sized {
                 WithLocation::new(self.location(), name),
             ));
         }
-
         ConstantDirective {
             span,
             at: dummy_token(span),
@@ -618,6 +624,7 @@ pub struct TerseRelayResolverIr {
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
+    pub source_hash: ResolverSourceHash,
 }
 
 impl ResolverIr for TerseRelayResolverIr {
@@ -703,6 +710,10 @@ impl ResolverIr for TerseRelayResolverIr {
     fn named_import(&self) -> Option<StringKey> {
         Some(self.field.name.value)
     }
+
+    fn source_hash(&self) -> ResolverSourceHash {
+        self.source_hash
+    }
 }
 
 impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
@@ -739,6 +750,7 @@ pub struct RelayResolverIr {
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
+    pub source_hash: ResolverSourceHash,
 }
 
 impl ResolverIr for RelayResolverIr {
@@ -870,6 +882,10 @@ impl ResolverIr for RelayResolverIr {
     fn named_import(&self) -> Option<StringKey> {
         Some(self.field.name.value)
     }
+
+    fn source_hash(&self) -> ResolverSourceHash {
+        self.source_hash
+    }
 }
 
 impl ResolverTypeDefinitionIr for RelayResolverIr {
@@ -909,6 +925,7 @@ pub struct StrongObjectIr {
     pub location: Location,
     /// The interfaces which the newly-created object implements
     pub implements_interfaces: Vec<Identifier>,
+    pub source_hash: ResolverSourceHash,
 }
 
 impl StrongObjectIr {
@@ -1119,6 +1136,10 @@ impl ResolverIr for StrongObjectIr {
     fn named_import(&self) -> Option<StringKey> {
         Some(self.type_name.value)
     }
+
+    fn source_hash(&self) -> ResolverSourceHash {
+        self.source_hash
+    }
 }
 
 /// Relay Resolver docblock representing a "model" type for a weak object
@@ -1133,6 +1154,7 @@ pub struct WeakObjectIr {
     pub hack_source: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub location: Location,
+    pub source_hash: ResolverSourceHash,
 }
 
 impl WeakObjectIr {
@@ -1182,7 +1204,7 @@ impl WeakObjectIr {
                 self.model_type_name(),
                 self.description.map(as_string_node),
                 self.hack_source.map(as_string_node),
-                vec![],
+                vec![resolver_source_hash_directive(self.source_hash())],
                 self.location(),
             )])),
         })
@@ -1278,6 +1300,10 @@ impl ResolverIr for WeakObjectIr {
 
     fn named_import(&self) -> Option<StringKey> {
         None
+    }
+
+    fn source_hash(&self) -> ResolverSourceHash {
+        self.source_hash
     }
 }
 
@@ -1408,5 +1434,18 @@ fn generate_model_instance_field(
         directives,
         description,
         hack_source,
+    }
+}
+
+fn resolver_source_hash_directive(source_hash: ResolverSourceHash) -> ConstantDirective {
+    let span = Span::empty();
+    ConstantDirective {
+        span,
+        at: dummy_token(span),
+        name: string_key_as_identifier(RELAY_RESOLVER_SOURCE_HASH.0),
+        arguments: Some(List::generated(vec![string_argument(
+            RELAY_RESOLVER_SOURCE_HASH_VALUE.0,
+            WithLocation::generated(source_hash.get_value()),
+        )])),
     }
 }

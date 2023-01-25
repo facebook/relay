@@ -6,6 +6,9 @@
     "This source code is licensed under the MIT license found in the",
     "LICENSE file in the root directory of this source tree."
   ],
+  "excludes": [
+    "**/node_modules/**"
+  ],
   "sources": {
     "compiler/test-project": "test"
   },
@@ -14,7 +17,10 @@
       "customScalarTypes": {},
       "enumModuleSuffix": ".test",
       "schema": "packages/relay-test-utils-internal/testschema.graphql",
-      "language": "javascript"
+      "language": "flow",
+      "featureFlags": {
+        "enable_relay_resolver_transform": true
+      }
     }
   }
 }

@@ -24,6 +24,7 @@ mod red_to_green;
 pub mod saved_state;
 pub mod status_reporter;
 
+pub use artifact_map::ArtifactSourceKey;
 pub use build_project::add_to_mercurial;
 pub use build_project::artifact_writer::ArtifactDifferenceShardedWriter;
 pub use build_project::artifact_writer::ArtifactDifferenceWriter;

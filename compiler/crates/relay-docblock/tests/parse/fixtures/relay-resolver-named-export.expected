@@ -67,5 +67,8 @@ RelayResolver(
         live: None,
         location: /path/to/test/fixture/relay-resolver-named-export.js:0:393,
         fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "0a13488b7b321b8d7770f691a668ba44",
+        ),
     },
 )

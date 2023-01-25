@@ -13,13 +13,12 @@ use std::path::PathBuf;
 use common::Diagnostic;
 use common::SourceLocationKey;
 use dependency_analyzer::ExecutableDefinitionNameSet;
-use dependency_analyzer::ExecutableDefinitionNameVec;
 use fnv::FnvHashMap;
-use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 
+use crate::artifact_map::ArtifactSourceKey;
 use crate::compiler_state::GraphQLSources;
 use crate::compiler_state::ProjectName;
 use crate::errors::Error;
@@ -32,7 +31,7 @@ pub struct GraphQLAsts {
     /// Names of fragments and operations that are updated or created
     pub pending_definition_names: ExecutableDefinitionNameSet,
     /// Names of fragments and operations that are deleted
-    pub removed_definition_names: ExecutableDefinitionNameVec,
+    pub removed_definition_names: Vec<ArtifactSourceKey>,
 }
 
 impl GraphQLAsts {
@@ -49,14 +48,14 @@ impl GraphQLAsts {
 
     pub fn from_graphql_sources_map(
         graphql_sources_map: &FnvHashMap<ProjectName, GraphQLSources>,
-        dirty_definitions_map: &FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>>,
+        dirty_artifact_sources: &FnvHashMap<ProjectName, Vec<ArtifactSourceKey>>,
     ) -> Result<FnvHashMap<ProjectName, GraphQLAsts>> {
         graphql_sources_map
             .iter()
             .map(|(&project_name, sources)| {
                 let asts = GraphQLAsts::from_graphql_sources(
                     sources,
-                    dirty_definitions_map.get(&project_name),
+                    dirty_artifact_sources.get(&project_name),
                 )?;
                 Ok((project_name, asts))
             })
@@ -68,16 +67,25 @@ impl GraphQLAsts {
     /// Additionally collects the set of definition names that updated, given the compiler state
     pub fn from_graphql_sources(
         graphql_sources: &GraphQLSources,
-        dirty_definitions: Option<&Vec<ExecutableDefinitionName>>,
+        dirty_artifact_sources: Option<&Vec<ArtifactSourceKey>>,
     ) -> Result<Self> {
         let mut syntax_errors = Vec::new();
 
         let mut asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>> = Default::default();
-        let mut pending_definition_names: ExecutableDefinitionNameSet = HashSet::default();
-        let mut removed_definition_names = Vec::new();
+        let mut pending_definition_names = HashSet::default();
+        let mut removed_definition_names: Vec<ArtifactSourceKey> = Vec::new();
 
-        if let Some(dirty_definitions) = dirty_definitions {
-            pending_definition_names.extend(dirty_definitions);
+        if let Some(dirty_sources) = dirty_artifact_sources {
+            for artifact_source in dirty_sources {
+                match artifact_source {
+                    ArtifactSourceKey::ExecutableDefinition(name) => {
+                        pending_definition_names.insert(name.clone());
+                    }
+                    ArtifactSourceKey::ResolverHash(_) => {
+                        panic!("Unexpected DocblockSourceText in dirty_definitions!");
+                    }
+                }
+            }
         }
 
         // Iterate over all pending sources, and parse each graphql string.
@@ -139,12 +147,18 @@ impl GraphQLAsts {
                                 if !definitions_for_file.iter().any(|def| def.name() == name) {
                                     match def {
                                         ExecutableDefinition::Operation(_) => {
-                                            removed_definition_names
-                                                .push(OperationDefinitionName(def_name).into())
+                                            removed_definition_names.push(
+                                                ArtifactSourceKey::ExecutableDefinition(
+                                                    OperationDefinitionName(def_name).into(),
+                                                ),
+                                            )
                                         }
                                         ExecutableDefinition::Fragment(_) => {
-                                            removed_definition_names
-                                                .push(FragmentDefinitionName(def_name).into())
+                                            removed_definition_names.push(
+                                                ArtifactSourceKey::ExecutableDefinition(
+                                                    FragmentDefinitionName(def_name).into(),
+                                                ),
+                                            )
                                         }
                                     }
                                 }

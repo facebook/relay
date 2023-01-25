@@ -135,5 +135,8 @@ RelayResolver(
                 },
             ],
         ),
+        source_hash: ResolverSourceHash(
+            "0a13488b7b321b8d7770f691a668ba44",
+        ),
     },
 )

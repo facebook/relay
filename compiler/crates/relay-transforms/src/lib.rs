@@ -195,3 +195,4 @@ pub use validations::*;
 
 pub use crate::errors::ValidationMessage;
 pub use crate::errors::ValidationMessageWithData;
+pub use generate_relay_resolvers_model_fragments::ArtifactSourceKeyData;

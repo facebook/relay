@@ -14,6 +14,7 @@ use common::NamedItem;
 use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
+use docblock_shared::ResolverSourceHash;
 use docblock_shared::ARGUMENT_DEFINITIONS;
 use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
@@ -83,6 +84,7 @@ pub(crate) fn parse_docblock_ir(
     let UntypedDocblockRepresentation {
         description,
         mut fields,
+        source_hash,
     } = untyped_representation;
 
     let resolver_field = match fields.remove(&AllowedFieldName::RelayResolverField) {
@@ -99,6 +101,7 @@ pub(crate) fn parse_docblock_ir(
                 docblock_location,
                 unpopulated_ir_field,
                 parse_options,
+                source_hash,
             )?)
         }
         IrField::PopulatedIrField(populated_ir_field) => {
@@ -109,6 +112,7 @@ pub(crate) fn parse_docblock_ir(
                     populated_ir_field,
                     definitions_in_file,
                     docblock_location,
+                    source_hash,
                 )?)
             } else {
                 match get_optional_unpopulated_field_named(
@@ -122,12 +126,14 @@ pub(crate) fn parse_docblock_ir(
                         docblock_location,
                         populated_ir_field,
                         weak_field,
+                        source_hash,
                     )?),
                     None => DocblockIr::StrongObjectResolver(parse_strong_object_ir(
                         &mut fields,
                         description,
                         docblock_location,
                         populated_ir_field,
+                        source_hash,
                     )?),
                 }
             }
@@ -151,6 +157,7 @@ fn parse_relay_resolver_ir(
     location: Location,
     _resolver_field: UnpopulatedIrField,
     parse_options: &ParseOptions<'_>,
+    source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<RelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
@@ -213,6 +220,7 @@ fn parse_relay_resolver_ir(
         field: field_definition_stub,
         output_type,
         fragment_arguments,
+        source_hash,
     })
 }
 
@@ -221,6 +229,7 @@ fn parse_strong_object_ir(
     description: Option<WithLocation<StringKey>>,
     location: Location,
     relay_resolver_field: PopulatedIrField,
+    source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<StrongObjectIr> {
     let type_str = relay_resolver_field.value;
     let (identifier, implements_interfaces) = parse_identifier_and_implements_interfaces(
@@ -240,6 +249,7 @@ fn parse_strong_object_ir(
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
         location,
         implements_interfaces,
+        source_hash,
     })
 }
 
@@ -250,6 +260,7 @@ fn parse_weak_object_ir(
     location: Location,
     relay_resolver_field: PopulatedIrField,
     _weak_field: UnpopulatedIrField,
+    source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<WeakObjectIr> {
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
     let identifier = assert_only_identifier(relay_resolver_field)?;
@@ -261,6 +272,7 @@ fn parse_weak_object_ir(
         hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         location,
+        source_hash,
     })
 }
 
@@ -270,6 +282,7 @@ fn parse_terse_relay_resolver_ir(
     relay_resolver_field: PopulatedIrField,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     location: Location,
+    source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<TerseRelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
@@ -332,19 +345,17 @@ fn parse_terse_relay_resolver_ir(
 
     if let Some(fragment_type_condition) = fragment_type_condition {
         if fragment_type_condition.item != type_name.value {
-            return Err(vec![
-                Diagnostic::error(
-                    IrParsingErrorMessages::MismatchRootFragmentTypeConditionTerseSyntax {
-                        fragment_type_condition: fragment_type_condition.item,
-                        type_name: type_name.value,
-                    },
-                    type_str.location.with_span(type_name.span),
-                )
-                .annotate(
-                    "with fragment type condition",
-                    fragment_type_condition.location,
-                ),
-            ]);
+            return Err(vec![Diagnostic::error(
+                IrParsingErrorMessages::MismatchRootFragmentTypeConditionTerseSyntax {
+                    fragment_type_condition: fragment_type_condition.item,
+                    type_name: type_name.value,
+                },
+                type_str.location.with_span(type_name.span),
+            )
+            .annotate(
+                "with fragment type condition",
+                fragment_type_condition.location,
+            )]);
         }
     }
 
@@ -357,6 +368,7 @@ fn parse_terse_relay_resolver_ir(
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
         fragment_arguments,
+        source_hash,
     })
 }
 
@@ -459,16 +471,14 @@ fn combine_edge_to_and_output_type(
         (None, Some(output_type)) => {
             parse_type_annotation(output_type.value).map(|val| Some(OutputType::Output(val)))
         }
-        (Some(edge_to), Some(output_type)) => Err(vec![
-            Diagnostic::error(
-                IrParsingErrorMessages::IncompatibleFields {
-                    field_1: AllowedFieldName::EdgeToField,
-                    field_2: AllowedFieldName::OutputTypeField,
-                },
-                edge_to.key_location,
-            )
-            .annotate("@outputType", output_type.key_location),
-        ]),
+        (Some(edge_to), Some(output_type)) => Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::IncompatibleFields {
+                field_1: AllowedFieldName::EdgeToField,
+                field_2: AllowedFieldName::OutputTypeField,
+            },
+            edge_to.key_location,
+        )
+        .annotate("@outputType", output_type.key_location)]),
     }
 }
 
@@ -582,18 +592,16 @@ fn parse_fragment_definition(
     {
         for field_arg in &field_arguments.items {
             if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
-                return Err(vec![
-                    Diagnostic::error(
-                        IrParsingErrorMessages::ConflictingArguments,
-                        Location::new(source_location, field_arg.name.span),
-                    )
-                    .annotate(
-                        "conflicts with this fragment argument",
-                        fragment_definition
-                            .location
-                            .with_span(fragment_arg.name.span),
-                    ),
-                ]);
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::ConflictingArguments,
+                    Location::new(source_location, field_arg.name.span),
+                )
+                .annotate(
+                    "conflicts with this fragment argument",
+                    fragment_definition
+                        .location
+                        .with_span(fragment_arg.name.span),
+                )]);
             }
         }
     }

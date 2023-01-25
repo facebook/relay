@@ -134,7 +134,7 @@ describe.each([
   }
 
   function usePaginationFragment(fragmentNode: any, fragmentRef: any) {
-    const {data, ...result} = usePaginationFragmentOriginal<any, any>(
+    const {data, ...result} = usePaginationFragmentOriginal(
       fragmentNode,
       fragmentRef,
     );

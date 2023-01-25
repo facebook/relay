@@ -66,11 +66,13 @@ type ExpectedReturnType<
 // $FlowExpectedError: actual type of returned data is correct
 (usePaginationFragment(
   refetchableFragmentInput,
+  // $FlowFixMe[incompatible-call]
   keyAnotherNonNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
 // $FlowExpectedError
 (usePaginationFragment(
   refetchableFragmentInput,
+  // $FlowFixMe[incompatible-call]
   keyAnotherNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 

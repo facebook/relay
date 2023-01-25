@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c7e9bfaa0fe9c214c87ab5a37837767>>
+ * @generated SignedSource<<8fa471eca1295f346d143e9a83cce428>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,31 +21,31 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import type { AstrologicalSignOppositeResolver$key } from "./AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
-import {name as astrologicalSignNameResolver} from "../AstrologicalSignNameResolver.js";
-// Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
+import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
+// Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolver: (
+(astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key, 
 ) => mixed);
-import {opposite as astrologicalSignOppositeResolver} from "../AstrologicalSignOppositeResolver.js";
-// Type assertion validating that `astrologicalSignOppositeResolver` resolver is correctly implemented.
+import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
+// Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignOppositeResolver: (
+(astrologicalSignOppositeResolverType: (
   rootKey: AstrologicalSignOppositeResolver$key, 
 ) => mixed);
-import {astrological_sign as userAstrologicalSignResolver} from "../UserAstrologicalSignResolver.js";
-// Type assertion validating that `userAstrologicalSignResolver` resolver is correctly implemented.
+import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
+// Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolver: (
+(userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key, 
 ) => mixed);
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {|
   +me: ?{|
     +astrological_sign: ?{|
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolver>,
+      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
       +opposite: ?{|
-        +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolver>,
+        +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
       |},
     |},
   |},

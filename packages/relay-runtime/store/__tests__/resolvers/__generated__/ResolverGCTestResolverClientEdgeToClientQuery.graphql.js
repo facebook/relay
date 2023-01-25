@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f6e19699c465a0b582e4ee091acc04c>>
+ * @generated SignedSource<<430fea82573fbcbdef37cba79f42afd0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,23 +20,23 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
-import {name as astrologicalSignNameResolver} from "../AstrologicalSignNameResolver.js";
-// Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
+import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
+// Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolver: (
+(astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key, 
 ) => mixed);
-import {astrological_sign as userAstrologicalSignResolver} from "../UserAstrologicalSignResolver.js";
-// Type assertion validating that `userAstrologicalSignResolver` resolver is correctly implemented.
+import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
+// Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolver: (
+(userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key, 
 ) => mixed);
 export type ResolverGCTestResolverClientEdgeToClientQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientQuery$data = {|
   +me: ?{|
     +astrological_sign: ?{|
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolver>,
+      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
     |},
   |},
 |};

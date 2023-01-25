@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7e768088f2e6f838fc9789b7e490d86b>>
+ * @generated SignedSource<<0728c8bdd96517f87337ecfd38344dac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,10 +19,10 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResolverModelTestFragment$fragmentType } from "./RelayResolverModelTestFragment.graphql";
-import {todo_model as queryTodoModelResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
-// Type assertion validating that `queryTodoModelResolver` resolver is correctly implemented.
+import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
+// Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelResolver: (
+(queryTodoModelResolverType: (
   args: {|
     todoID: string,
   |}, 

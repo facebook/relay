@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d1dce1ca8e780568b95188edd9c93d38>>
+ * @generated SignedSource<<4bce2586e1c1861973156ec488eb1c55>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,18 +21,18 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import type { TodoBlockedByResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoBlockedByResolverFragment.graphql";
-import {todo as queryTodoResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
-// Type assertion validating that `queryTodoResolver` resolver is correctly implemented.
+import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
+// Type assertion validating that `queryTodoResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoResolver: (
+(queryTodoResolverType: (
   args: {|
     todoID: string,
   |}, 
 ) => LiveState<?Query__todo$normalization>);
-import {blocked_by as todoBlockedByResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
-// Type assertion validating that `todoBlockedByResolver` resolver is correctly implemented.
+import {blocked_by as todoBlockedByResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
+// Type assertion validating that `todoBlockedByResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoBlockedByResolver: (
+(todoBlockedByResolverType: (
   rootKey: TodoBlockedByResolverFragment$key, 
 ) => $ReadOnlyArray<?Todo__blocked_by$normalization>);
 import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";

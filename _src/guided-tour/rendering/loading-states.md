@@ -199,7 +199,7 @@ const {graphql, usePreloadedQuery} = require('react-relay');
 
 function MainContent(props) {
   // Fetch and render a query
-  const data = usePreloadedQuery<...>(
+  const data = usePreloadedQuery(
     graphql`...`,
     props.queryRef,
   );

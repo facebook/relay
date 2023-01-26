@@ -111,7 +111,7 @@ test('Live Resolver _with_ root fragment', async () => {
     variables: {},
     payloads: [{data: {me: {__typename: 'User', id: '1'}}}],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(counterResolver.callCount - initialCallCount).toBe(1);
@@ -153,7 +153,7 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
     variables: {},
     payloads: [{data: {me: {__typename: 'User', id: '1'}}}],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({counter_plus_one: 1});
@@ -203,7 +203,7 @@ test('Non-live Resolver with fragment', async () => {
     variables: {},
     payloads: [{data: {me: {__typename: 'User', id: '1', name: 'Elizabeth'}}}],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({me: {greeting: 'Hello, Elizabeth!'}});
@@ -346,7 +346,7 @@ test('Resolver reading a client-edge to a server type', async () => {
       },
     ],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({
@@ -437,7 +437,7 @@ test('Resolver reading a client-edge to a server type (recursive)', async () => 
       },
     ],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({
@@ -510,7 +510,11 @@ test('Resolver reading a client-edge to a client type', async () => {
       },
     ],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:birthdate',
+      ]);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({
@@ -582,7 +586,11 @@ test('Resolver reading a client-edge to a client type (recursive)', async () => 
       },
     ],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:birthdate',
+      ]);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({
@@ -674,6 +682,7 @@ async function testResolverGC<T: OperationType>({
   query,
   payloads,
   variables,
+  beforeLookup,
   afterLookup,
   afterRetainedGC,
   afterFreedGC,
@@ -715,6 +724,7 @@ async function testResolverGC<T: OperationType>({
   });
 
   await environment.execute({operation}).toPromise();
+  beforeLookup(store.getSource().getRecordIDs());
 
   const retains = [];
   const operations = [operation];

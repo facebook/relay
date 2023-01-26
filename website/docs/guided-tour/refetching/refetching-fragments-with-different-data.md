@@ -29,7 +29,6 @@ To do so, we can also use the [`useRefetchableFragment`](../../../api-reference/
 <OssOnly>
 
 ```js
-import type {CommentBodyRefetchQuery} from 'CommentBodyRefetchQuery.graphql';
 import type {CommentBody_comment$key} from 'CommentBody_comment.graphql';
 
 type Props = {
@@ -37,7 +36,7 @@ type Props = {
 };
 
 function CommentBody(props: Props) {
-  const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
+  const [data, refetch] = useRefetchableFragment(
     graphql`
       fragment CommentBody_comment on Comment
       # @refetchable makes it so Relay autogenerates a query for
@@ -102,7 +101,6 @@ In some cases, you might want to avoid showing a Suspense fallback, which would 
 </OssOnly>
 
 ```js
-import type {CommentBodyRefetchQuery} from 'CommentBodyRefetchQuery.graphql';
 import type {CommentBody_comment$key} from 'CommentBody_comment.graphql';
 
 type Props = {
@@ -110,7 +108,7 @@ type Props = {
 };
 
 function CommentBody(props: Props) {
-  const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
+  const [data, refetch] = useRefetchableFragment(
     graphql`
       fragment CommentBody_comment on Comment
       # @refetchable makes it so Relay autogenerates a query for

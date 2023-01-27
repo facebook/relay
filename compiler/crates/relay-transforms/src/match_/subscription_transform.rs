@@ -198,7 +198,7 @@ impl<'program> SubscriptionTransform<'program> {
                         )
                         .intern(),
                         module_name: normalization_operation_name,
-                        source_document_name: operation.name.item.0,
+                        source_document_name: operation.name.item.into(),
                         fragment_name: fragment_spread.fragment.item,
                         fragment_source_location: self
                             .program

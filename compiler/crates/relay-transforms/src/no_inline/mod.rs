@@ -16,6 +16,7 @@ use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::Program;
@@ -37,7 +38,7 @@ lazy_static! {
 }
 
 pub fn attach_no_inline_directives_to_fragments(
-    no_inline_fragments: &mut FragmentDefinitionNameMap<Vec<StringKey>>,
+    no_inline_fragments: &mut FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     program: &mut Program,
 ) {
     for (fragment_name, parent_sources) in no_inline_fragments.drain() {
@@ -56,7 +57,11 @@ pub fn attach_no_inline_directives_to_fragments(
                 if let Value::Constant(ConstantValue::List(parent_documents)) =
                     &mut parent_documents_arg.value.item
                 {
-                    parent_documents.extend(parent_sources.into_iter().map(ConstantValue::String));
+                    parent_documents.extend(
+                        parent_sources
+                            .into_iter()
+                            .map(|name| ConstantValue::String(name.into())),
+                    );
                 } else {
                     panic!("Expected parent arguments to be a constant list of String");
                 }
@@ -92,33 +97,37 @@ pub fn is_raw_response_type_enabled(directive: &Directive) -> bool {
 /// adding `@no_inline` is required. Because in watch mode, if the path with @module
 /// or @relay_client_component isn't changed, `@no_inline` won't get added.
 pub fn validate_required_no_inline_directive(
-    no_inline_fragments: &FragmentDefinitionNameMap<Vec<StringKey>>,
+    no_inline_fragments: &FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     program: &Program,
 ) -> DiagnosticsResult<()> {
     let mut validator = RequiredNoInlineValidator::new(no_inline_fragments, program);
     validator.validate_program(program)
 }
 
-pub(crate) fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
+pub(crate) fn create_parent_documents_arg(
+    parent_sources: Vec<ExecutableDefinitionName>,
+) -> Argument {
     Argument {
         name: WithLocation::generated(*PARENT_DOCUMENTS_ARG),
         value: WithLocation::generated(Value::Constant(ConstantValue::List(
             parent_sources
                 .into_iter()
-                .map(ConstantValue::String)
+                .map(|executable_definition_name| {
+                    ConstantValue::String(executable_definition_name.into())
+                })
                 .collect(),
         ))),
     }
 }
 
 struct RequiredNoInlineValidator<'f, 'p> {
-    no_inline_fragments: &'f FragmentDefinitionNameMap<Vec<StringKey>>,
+    no_inline_fragments: &'f FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     program: &'p Program,
 }
 
 impl<'f, 'p> RequiredNoInlineValidator<'f, 'p> {
     fn new(
-        no_inline_fragments: &'f FragmentDefinitionNameMap<Vec<StringKey>>,
+        no_inline_fragments: &'f FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
         program: &'p Program,
     ) -> Self {
         Self {

@@ -128,6 +128,55 @@ pub struct FragmentDefinition {
     pub selections: Vec<Selection>,
 }
 
+/// An enum that can contain an operation definition name (e.g. names of queries,
+/// subscriptions and mutations) or a fragment name. Note that the graphql spec
+/// [defines](https://spec.graphql.org/draft/#ExecutableDefinition) executable
+/// definitions as either operations or fragments.
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+pub enum ExecutableDefinitionName {
+    OperationDefinitionName(OperationDefinitionName),
+    FragmentDefinitionName(FragmentDefinitionName),
+}
+
+impl fmt::Display for ExecutableDefinitionName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            ExecutableDefinitionName::OperationDefinitionName(name) => name.fmt(f),
+            ExecutableDefinitionName::FragmentDefinitionName(name) => name.fmt(f),
+        }
+    }
+}
+
+impl From<OperationDefinitionName> for ExecutableDefinitionName {
+    fn from(name: OperationDefinitionName) -> Self {
+        ExecutableDefinitionName::OperationDefinitionName(name)
+    }
+}
+
+impl From<FragmentDefinitionName> for ExecutableDefinitionName {
+    fn from(name: FragmentDefinitionName) -> Self {
+        ExecutableDefinitionName::FragmentDefinitionName(name)
+    }
+}
+
+impl From<ExecutableDefinitionName> for StringKey {
+    fn from(executable_definition: ExecutableDefinitionName) -> Self {
+        match executable_definition {
+            ExecutableDefinitionName::OperationDefinitionName(name) => name.0,
+            ExecutableDefinitionName::FragmentDefinitionName(name) => name.0,
+        }
+    }
+}
+
+impl Lookup for ExecutableDefinitionName {
+    fn lookup(self) -> &'static str {
+        match self {
+            ExecutableDefinitionName::OperationDefinitionName(name) => name.lookup(),
+            ExecutableDefinitionName::FragmentDefinitionName(name) => name.lookup(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct VariableName(pub StringKey);
 

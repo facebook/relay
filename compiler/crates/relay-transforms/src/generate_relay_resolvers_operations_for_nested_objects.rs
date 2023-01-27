@@ -500,7 +500,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
 
             let parent_documents = {
                 let mut parent_documents = HashSet::default();
-                parent_documents.insert(operation_name.item.0);
+                parent_documents.insert(operation_name.item.into());
                 parent_documents
             };
 

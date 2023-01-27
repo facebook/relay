@@ -22,7 +22,11 @@ subscription CommentCreateSubscription(
       #     key: "CommentCreateSubscription__subscription",
       #     module_id: "CommentCreateSubscription.commentCreateSubscribe",
       #     module_name: "CommentCreate_CommentCreateResponsePayload$normalization.graphql",
-      #     source_document_name: "CommentCreateSubscription",
+      #     source_document_name: OperationDefinitionName(
+      #         OperationDefinitionName(
+      #             "CommentCreateSubscription",
+      #         ),
+      #     ),
       #     fragment_name: FragmentDefinitionName(
       #         "CommentCreate_CommentCreateResponsePayload",
       #     ),

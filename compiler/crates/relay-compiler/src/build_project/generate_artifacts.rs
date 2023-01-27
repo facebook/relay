@@ -72,7 +72,7 @@ pub fn generate_artifacts(
                     };
 
                     return Artifact {
-                        source_definition_names: metadata.parent_documents.into_iter().collect(),
+                        source_definition_names: metadata.parent_documents.into_iter().map(|name| name.into()).collect(),
                         path: project_config
                             .path_for_artifact(source_file, normalization.name.item.0),
                         content: ArtifactContent::SplitOperation {

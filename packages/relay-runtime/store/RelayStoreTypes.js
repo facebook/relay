@@ -1247,3 +1247,12 @@ export type ReactFlightServerErrorHandler = (
   status: string,
   errors: Array<ReactFlightServerError>,
 ) => void;
+
+/**
+ * The return type of a client edge resolver pointing to a concrete type.
+ * T can be overridden to be more specific than a DataID, e.g. if the IDs
+ * can only come from a given set.
+ */
+export type ConcreteClientEdgeResolverReturnType<T = any> = {
+  id: T & DataID,
+};

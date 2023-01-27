@@ -726,7 +726,7 @@ class RelayReader {
       assertValidClientEdgeResolverResponse(field, clientEdgeResolverResponse);
 
     switch (validClientEdgeResolverResponse.kind) {
-      case 'plural':
+      case 'PluralConcrete':
         const storeIDs = getStoreIDsForPluralClientEdgeResolver(
           field,
           validClientEdgeResolverResponse.ids,
@@ -742,7 +742,7 @@ class RelayReader {
         this._clientEdgeTraversalPath.pop();
         break;
 
-      case 'singular':
+      case 'SingularConcrete':
         const [storeID, traversalPathSegment] =
           getStoreIDAndTraversalPathSegmentForSingularClientEdgeResolver(
             field,
@@ -1260,11 +1260,11 @@ function getResolverValue(
 
 type ValidClientEdgeResolverResponse =
   | {
-      kind: 'plural',
+      kind: 'PluralConcrete',
       ids: $ReadOnlyArray<DataID>,
     }
   | {
-      kind: 'singular',
+      kind: 'SingularConcrete',
       id: DataID,
     };
 
@@ -1275,21 +1275,24 @@ function assertValidClientEdgeResolverResponse(
   if (field.linkedField.plural) {
     invariant(
       Array.isArray(clientEdgeResolverResponse),
-      'Expected plural Client Edge Relay Resolver to return an array of IDs.',
+      'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
     );
     return {
-      kind: 'plural',
-      // $FlowFixMe[incompatible-return]
-      ids: clientEdgeResolverResponse,
+      kind: 'PluralConcrete',
+      ids: clientEdgeResolverResponse.map(response =>
+        extractIdFromResponse(
+          response,
+          'Expected this plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
+        ),
+      ),
     };
   } else {
-    invariant(
-      typeof clientEdgeResolverResponse === 'string',
-      'Expected a Client Edge Relay Resolver to return an ID of type `string`.',
-    );
     return {
-      kind: 'singular',
-      id: clientEdgeResolverResponse,
+      kind: 'SingularConcrete',
+      id: extractIdFromResponse(
+        clientEdgeResolverResponse,
+        'Expected this Client Edge Relay Resolver to return an ID of type `string` or an object with shape {id}.',
+      ),
     };
   }
 }
@@ -1375,6 +1378,22 @@ function getStoreIDsForPluralClientEdgeResolver(
       'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
     );
   }
+}
+
+function extractIdFromResponse(
+  individualResponse: mixed,
+  errorMessage: string,
+): string {
+  if (typeof individualResponse === 'string') {
+    return individualResponse;
+  } else if (
+    typeof individualResponse === 'object' &&
+    individualResponse != null &&
+    typeof individualResponse.id === 'string'
+  ) {
+    return individualResponse.id;
+  }
+  invariant(false, errorMessage);
 }
 
 module.exports = {read};

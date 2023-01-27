@@ -20,10 +20,10 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import userPopStarNameResolver from "PopStarNameResolver";
-// Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
+import userPopStarNameResolverType from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userPopStarNameResolver: (
+(userPopStarNameResolverType: (
   args: {|
     count: ?number,
     greeting: string,
@@ -32,7 +32,7 @@ import userPopStarNameResolver from "PopStarNameResolver";
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +pop_star_name: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>["read"]>,
+    +pop_star_name: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>["read"]>,
   |},
 |};
 export type relayResolver_Query = {|

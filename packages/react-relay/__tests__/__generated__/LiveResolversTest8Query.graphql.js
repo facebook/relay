@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e6e013e5a940a0fd86da240869d01352>>
+ * @generated SignedSource<<57bf5f0e15960e55a8172f38cde113ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,10 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { ResolverThatThrows$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/ResolverThatThrows.graphql";
-import {resolver_that_throws as userResolverThatThrowsResolver} from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
-// Type assertion validating that `userResolverThatThrowsResolver` resolver is correctly implemented.
+import {resolver_that_throws as userResolverThatThrowsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
+// Type assertion validating that `userResolverThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userResolverThatThrowsResolver: (
+(userResolverThatThrowsResolverType: (
   rootKey: ResolverThatThrows$key, 
 ) => LiveState<any>);
 export type LiveResolversTest8Query$variables = {|
@@ -32,7 +32,7 @@ export type LiveResolversTest8Query$variables = {|
 export type LiveResolversTest8Query$data = {|
   +node: ?{|
     +name?: ?string,
-    +resolver_that_throws?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userResolverThatThrowsResolver>["read"]>,
+    +resolver_that_throws?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userResolverThatThrowsResolverType>["read"]>,
   |},
 |};
 export type LiveResolversTest8Query = {|

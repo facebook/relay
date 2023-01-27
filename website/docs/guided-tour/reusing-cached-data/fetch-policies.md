@@ -24,7 +24,7 @@ function AppTabs() {
   const [
     queryRef,
     loadQuery,
-  ] = useQueryLoader<HomeTabQueryType>(HomeTabQuery);
+  ] = useQueryLoader(HomeTabQuery);
 
   const onSelectHomeTab = () => {
     loadQuery({id: '4'}, {fetchPolicy: 'store-or-network'});

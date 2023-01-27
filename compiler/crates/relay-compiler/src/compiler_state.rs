@@ -180,14 +180,6 @@ impl<V: Source + Clone> IncrementalSources<V> {
         }
     }
 
-    /// Remove deleted sources from both pending sources and processed sources.
-    fn remove_sources(&mut self, removed_sources: &[PathBuf]) {
-        for source in removed_sources {
-            self.pending.remove(source);
-            self.processed.remove(source);
-        }
-    }
-
     fn commit_pending_sources(&mut self) {
         for (file_name, pending_graphql_sources) in self.pending.drain() {
             if pending_graphql_sources.is_empty() {
@@ -685,7 +677,9 @@ impl CompilerState {
         }
         for project_name in project_set {
             let entry = source_map.entry(project_name).or_default();
-            entry.remove_sources(&removed_sources);
+            for source in &removed_sources {
+                entry.pending.insert(source.clone(), "".to_string());
+            }
             entry.merge_pending_sources(&added_sources);
         }
         Ok(())

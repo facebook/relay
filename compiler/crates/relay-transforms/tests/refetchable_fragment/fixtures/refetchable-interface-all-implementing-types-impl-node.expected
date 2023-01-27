@@ -1,0 +1,49 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on RefetchableInterface
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}
+
+# %extensions%
+
+interface RefetchableInterface @fetchable(field_name: "id") {
+    id: ID!
+}
+
+extend type Query {
+  fetch__RefetchableInterface(id: ID!): RefetchableInterface
+}
+
+type ConcreteTypeImplementingRefetchableInterface implements RefetchableInterface & Node {
+  id: ID!
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     FragmentDefinitionName(
+#         "RefetchableFragment",
+#     ),
+# )
+ {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  id
+}

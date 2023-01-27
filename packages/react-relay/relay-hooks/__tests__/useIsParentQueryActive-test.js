@@ -386,6 +386,7 @@ it('should only update if the latest owner completes the query', () => {
   let setRef = (ref: $FlowFixMe) => {};
   const mockFn = jest.fn(() => {});
   const Renderer = (props: {pending: boolean}) => {
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     mockFn(props.pending);
     return props.pending;
   };

@@ -252,6 +252,7 @@ describe('FragmentResource Client Edges behavior', () => {
       // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
       // $FlowFixMe[cannot-write]
       global.clearTimeout = id => {
+        // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
         timeouts.delete(id);
       };
       function runAllTimeouts() {

@@ -50,9 +50,18 @@ fragment Foo_user on User {
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend on User @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-within-non-client-edge.graphql:9:17,
+#         item: "Foo_user",
+#     },
+# }
+ @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
+#     operation_name: OperationDefinitionName(
+#         "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
+#     ),
 #     path: [
 #         "node",
 #     ],

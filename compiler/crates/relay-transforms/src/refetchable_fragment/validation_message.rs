@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::VariableName;
 use intern::string_key::StringKey;
 use thiserror::Error;
@@ -15,44 +17,50 @@ pub(super) enum ValidationMessage {
         "Invalid use of @refetchable on fragment '{fragment_name}', only supported are fragments on:\n{descriptions}"
     )]
     UnsupportedRefetchableFragment {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
         descriptions: String,
     },
 
     #[error(
         "Invalid use of @refetchable on fragment `{fragment_name}`, fragments cannot be annotated with both @refetchable and @relay(plural: true)."
     )]
-    InvalidRefetchableFragmentWithRelayPlural { fragment_name: StringKey },
+    InvalidRefetchableFragmentWithRelayPlural {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "Duplicate definition for @refetchable operation '{query_name}' from fragments '{first_fragment_name}' and '{second_fragment_name}'"
     )]
     DuplicateRefetchableOperation {
-        query_name: StringKey,
-        first_fragment_name: StringKey,
-        second_fragment_name: StringKey,
+        query_name: OperationDefinitionName,
+        first_fragment_name: FragmentDefinitionName,
+        second_fragment_name: FragmentDefinitionName,
     },
 
     #[error(
         "A unique query name has to be specified in `@refetchable`, an operation `{query_name}` already exists."
     )]
-    RefetchableQueryConflictWithQuery { query_name: StringKey },
+    RefetchableQueryConflictWithQuery { query_name: OperationDefinitionName },
 
     #[error(
         "Invalid use of @refetchable with @connection in fragment '{fragment_name}', at most once @connection can appear in a refetchable fragment."
     )]
-    RefetchableWithMultipleConnections { fragment_name: StringKey },
+    RefetchableWithMultipleConnections {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "Invalid use of @refetchable with @connection in fragment '{fragment_name}', refetchable connections cannot appear inside plural fields."
     )]
-    RefetchableWithConnectionInPlural { fragment_name: StringKey },
+    RefetchableWithConnectionInPlural {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "Invalid use of @refetchable with @connection in fragment '{fragment_name}', refetchable connections must use variables for the {arguments} arguments."
     )]
     RefetchableWithConstConnectionArguments {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
         arguments: &'static str,
     },
 
@@ -64,28 +72,37 @@ pub(super) enum ValidationMessage {
     #[error(
         "Invalid use of @refetchable on fragment `{fragment_name}`, this fragment already has an `$id` variable in scope."
     )]
-    RefetchableFragmentOnNodeWithExistingID { fragment_name: StringKey },
+    RefetchableFragmentOnNodeWithExistingID {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', check that your schema defines a `Node {{ id: ID }}` interface and has a `node(id: ID): Node` field on the query type (the id argument may also be non-null)."
     )]
-    InvalidNodeSchemaForRefetchableFragmentOnNode { fragment_name: StringKey },
+    InvalidNodeSchemaForRefetchableFragmentOnNode {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', check that your schema defines a 'Viewer' object type and has a 'viewer: Viewer' field on the query type."
     )]
-    InvalidViewerSchemaForRefetchableFragmentOnViewer { fragment_name: StringKey },
+    InvalidViewerSchemaForRefetchableFragmentOnViewer {
+        fragment_name: FragmentDefinitionName,
+    },
 
+    // T139416294 this error message doesn't appear to be accurate
     #[error(
-        "Invalid use of @refetchable with @connection in fragment '{fragment_name}', check that your schema defines a `directive @fetchable(field_name: String!) on OBJECT`."
+        "Invalid use of @refetchable with @connection in fragment '{fragment_name}', check that your schema defines a `directive @fetchable(field_name: String!) on OBJECT` or on `INTERFACE`."
     )]
-    InvalidRefetchDirectiveDefinition { fragment_name: StringKey },
+    InvalidRefetchDirectiveDefinition {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', the type '{type_name}' is @fetchable but the identifying field '{identifier_field_name}' does not have type 'ID'."
     )]
     InvalidRefetchIdentifyingField {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
         identifier_field_name: StringKey,
         type_name: StringKey,
     },
@@ -95,7 +112,7 @@ pub(super) enum ValidationMessage {
     )]
     InvalidRefetchFetchField {
         fetch_field_name: StringKey,
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
         type_name: StringKey,
     },
 

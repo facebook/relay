@@ -17,6 +17,7 @@ import type {
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
+  NormalizationResolverField,
   NormalizationScalarField,
   NormalizationSelection,
 } from '../util/NormalizationNode';
@@ -57,6 +58,7 @@ const {
   CONDITION,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   DEFER,
   FLIGHT_FIELD,
   FRAGMENT_SPREAD,
@@ -463,9 +465,10 @@ class DataChecker {
           this._traverseSelections(selection.fragment.selections, dataID);
           break;
         case RELAY_RESOLVER:
-          if (selection.fragment) {
-            this._traverseSelections([selection.fragment], dataID);
-          }
+          this._checkResolver(selection, dataID);
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          this._checkResolver(selection.backingField, dataID);
           break;
         default:
           (selection: empty);
@@ -476,6 +479,11 @@ class DataChecker {
           );
       }
     });
+  }
+  _checkResolver(resolver: NormalizationResolverField, dataID: DataID) {
+    if (resolver.fragment) {
+      this._traverseSelections([resolver.fragment], dataID);
+    }
   }
 
   _checkModuleImport(

@@ -432,7 +432,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 .collect(),
                         ),
                     ),
-                operation: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name),
+                operation: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name.0),
             };
             if let Some(identifier_field) = refetch_metadata.identifier_field {
                 refetch_object.push(ObjectEntry {
@@ -627,7 +627,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     // For Relay Resolvers in the normalization AST, we need to include enough
-    // information to retain resolver fields during GC. Tha means the data for
+    // information to retain resolver fields during GC. That means the data for
     // the resolver's root query as well as enough data to derive the storage
     // key for the resolver itself in the cache.
     fn build_normalization_relay_resolver(
@@ -1092,8 +1092,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 self.definition_source_location,
                 path_for_artifact.to_str().unwrap().intern(),
             );
+            let concrete_type = if normalization_info.inner_type.is_abstract_type() {
+                Primitive::Null
+            } else {
+                Primitive::String(self.schema.get_type_name(normalization_info.inner_type))
+            };
+
             let normalization_info = object! {
-                concrete_type: Primitive::String(normalization_info.type_name),
+                concrete_type: concrete_type,
                 plural: Primitive::Bool(normalization_info.plural),
                 normalization_node: Primitive::GraphQLModuleDependency(normalization_import_path),
             };
@@ -1262,7 +1268,53 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         })
     }
 
-    fn build_client_edge(
+    fn build_normalization_client_edge(
+        &mut self,
+        context: &mut ContextualMetadata,
+        client_edge_metadata: ClientEdgeMetadata<'_>,
+    ) -> Primitive {
+        let backing_field_primitives =
+            self.build_selections_from_selection(context, &client_edge_metadata.backing_field);
+
+        if backing_field_primitives.len() != 1 {
+            panic!(
+                "Expected client edge backing field to be transformed into exactly one primitive."
+            )
+        }
+        let backing_field = backing_field_primitives.into_iter().next().unwrap();
+
+        if !self
+            .project_config
+            .feature_flags
+            .emit_normalization_nodes_for_client_edges
+        {
+            return backing_field;
+        }
+
+        let field_type = self
+            .schema
+            .field(client_edge_metadata.linked_field.definition.item)
+            .type_
+            .inner();
+
+        if self.schema.is_extension_type(field_type) {
+            let selections_item =
+                self.build_linked_field(context, client_edge_metadata.linked_field);
+            Primitive::Key(self.object(object! {
+                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                client_edge_backing_field_key: backing_field,
+                client_edge_selections_key: selections_item,
+            }))
+        } else {
+            // If a Client Edge models an edge to the server, its generated
+            // query's normalization AST will take care of
+            // normalization/retention of selections hanging off the edge. So,
+            // we just need to include the backing field.
+            backing_field
+        }
+    }
+
+    fn build_reader_client_edge(
         &mut self,
         context: &mut ContextualMetadata,
         client_edge_metadata: ClientEdgeMetadata<'_>,
@@ -1289,30 +1341,26 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             ),
         };
 
-        let selections_item = match client_edge_metadata.selections {
-            Selection::LinkedField(linked_field) => {
-                if required_metadata.is_none() {
-                    self.build_linked_field(context, linked_field)
-                } else {
-                    let next_directives = linked_field
-                        .directives
-                        .iter()
-                        .filter(|directive| {
-                            directive.name.item != RequiredMetadataDirective::directive_name()
-                        })
-                        .cloned()
-                        .collect();
+        let selections_item = if required_metadata.is_none() {
+            self.build_linked_field(context, client_edge_metadata.linked_field)
+        } else {
+            let next_directives = client_edge_metadata
+                .linked_field
+                .directives
+                .iter()
+                .filter(|directive| {
+                    directive.name.item != RequiredMetadataDirective::directive_name()
+                })
+                .cloned()
+                .collect();
 
-                    self.build_linked_field(
-                        context,
-                        &LinkedField {
-                            directives: next_directives,
-                            ..linked_field.as_ref().clone()
-                        },
-                    )
-                }
-            }
-            _ => panic!("Expected Client Edge selections to be a LinkedField"),
+            self.build_linked_field(
+                context,
+                &LinkedField {
+                    directives: next_directives,
+                    ..client_edge_metadata.linked_field.clone()
+                },
+            )
         };
 
         let field = match client_edge_metadata.metadata_directive {
@@ -1325,9 +1373,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }))
             }
             ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
+                let concrete_type = match type_name {
+                    Some(type_name) => Primitive::String(type_name.0),
+                    None => Primitive::Null,
+                };
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                    concrete_type: Primitive::String(type_name.0),
+                    concrete_type: concrete_type,
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
                 }))
@@ -1349,9 +1401,20 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         match inline_frag.type_condition {
             None => {
                 if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_frag) {
-                    let required_metadata =
-                        RequiredMetadataDirective::find(&inline_frag.directives).cloned();
-                    self.build_client_edge(context, client_edge_metadata, required_metadata)
+                    match self.variant {
+                        CodegenVariant::Reader => {
+                            let required_metadata =
+                                RequiredMetadataDirective::find(&inline_frag.directives).cloned();
+                            self.build_reader_client_edge(
+                                context,
+                                client_edge_metadata,
+                                required_metadata,
+                            )
+                        }
+                        CodegenVariant::Normalization => {
+                            self.build_normalization_client_edge(context, client_edge_metadata)
+                        }
+                    }
                 } else if
                 // TODO(T63388023): Use typed custom directives
                 inline_frag.directives.len() == 1

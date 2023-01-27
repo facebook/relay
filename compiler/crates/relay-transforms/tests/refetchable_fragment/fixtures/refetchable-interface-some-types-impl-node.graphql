@@ -1,0 +1,23 @@
+fragment RefetchableFragment on RefetchableInterface
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}
+
+# %extensions%
+
+interface RefetchableInterface @fetchable(field_name: "id") {
+    id: ID!
+}
+
+extend type Query {
+  fetch__RefetchableInterface(id: ID!): RefetchableInterface
+}
+
+type ConcreteTypeImplementingRefetchableInterface implements RefetchableInterface & Node {
+  id: ID!
+}
+
+type ConcreteType2ImplementingRefetchableInterface implements RefetchableInterface {
+  id: ID!
+}
+

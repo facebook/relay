@@ -17,10 +17,9 @@ import type {
   Disposable,
   GraphQLResponse,
   Observer,
-  OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
-  VariablesOf,
+  Variables,
 } from 'relay-runtime';
 
 const useFetchTrackingRef = require('./useFetchTrackingRef');
@@ -39,11 +38,11 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-export type LoadMoreFn<TQuery: OperationType> = (
+export type LoadMoreFn<TVariables: Variables> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
-    UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
+    UNSTABLE_extraVariables?: $Shape<TVariables>,
   },
 ) => Disposable;
 
@@ -62,9 +61,9 @@ export type UseLoadMoreFunctionArgs = {
   onReset: () => void,
 };
 
-function useLoadMoreFunction<TQuery: OperationType>(
+function useLoadMoreFunction<TVariables: Variables>(
   args: UseLoadMoreFunctionArgs,
-): [LoadMoreFn<TQuery>, boolean, () => void] {
+): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {
     direction,
     fragmentNode,
@@ -126,7 +125,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
     (
       count: number,
       options: void | {
-        UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
+        UNSTABLE_extraVariables?: $Shape<TVariables>,
         onComplete?: (Error | null) => void,
       },
     ) => {

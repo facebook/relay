@@ -13,6 +13,16 @@ type Todo {
   blocked_by: [Todo!]!
 }
 
+type Parent {
+  child: Child
+  child2: Child
+}
+
+type Child {
+  child: Child
+}
+
 extend type User {
   todo: [Todo] @relay_resolver(import_path: "TodoResolver", has_output_type: true)
+  parent: Parent @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }

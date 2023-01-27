@@ -345,6 +345,7 @@ test('client-only query with error', () => {
   });
   const environment = new Environment({
     store: new Store(new RecordSource()),
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     network: Network.create(fetchFn),
   });
   const query = graphql`

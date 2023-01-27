@@ -1955,6 +1955,7 @@ describe('check()', () => {
           INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             {
               kind: 'linked',
               handle,
@@ -2107,6 +2108,8 @@ describe('check()', () => {
           INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+            // $FlowFixMe[incompatible-call]
             {
               kind: 'pluralLinked',
               handle,
@@ -2897,6 +2900,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );
@@ -2947,6 +2951,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );
@@ -2994,6 +2999,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );
@@ -3041,6 +3047,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );
@@ -3086,6 +3093,7 @@ describe('check()', () => {
           },
         ),
         [],
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         operationLoader,
         defaultGetDataID,
       );

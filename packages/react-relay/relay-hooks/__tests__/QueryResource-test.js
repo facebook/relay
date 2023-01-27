@@ -2940,7 +2940,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
         fetchTime: null,
       });
 
-      jest.useFakeTimers('legacy');
+      jest.useFakeTimers();
       const result = QueryResource.prepare(
         query,
         fetchObservable,

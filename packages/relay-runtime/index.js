@@ -110,10 +110,10 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
-export type {TaskScheduler} from './store/OperationExecutor';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {RecordState} from './store/RelayRecordState';
 export type {
+  ConcreteClientEdgeResolverReturnType,
   ExecuteMutationConfig,
   FragmentMap,
   // DEPRECATED: use FragmentType instead of FragmentReference
@@ -160,6 +160,7 @@ export type {
   Snapshot,
   StoreUpdater,
   UpdatableData,
+  TaskScheduler,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,

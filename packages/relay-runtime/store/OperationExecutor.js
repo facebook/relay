@@ -43,6 +43,7 @@ import type {
   SelectorStoreUpdater,
   Store,
   StreamPlaceholder,
+  TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {
   NormalizationLinkedField,
@@ -98,11 +99,6 @@ export type ExecuteConfig<TMutation: MutationParameters> = {
 };
 
 export type ActiveState = 'active' | 'inactive';
-
-export type TaskScheduler = {
-  +cancel: (id: string) => void,
-  +schedule: (fn: () => void) => string,
-};
 
 type Label = string;
 type PathKey = string;

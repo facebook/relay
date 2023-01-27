@@ -13,11 +13,13 @@ use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Value;
 use intern::string_key::Intern;
-use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
+use rustc_hash::FxHashSet;
 
 lazy_static! {
     pub static ref DIRECTIVE_SPLIT_OPERATION: DirectiveName =
@@ -60,9 +62,9 @@ pub struct SplitOperationMetadata {
     pub location: Location,
 
     /// The names of the fragments and operations that included this fragment.
-    /// They are the reason this split operation exist. If they are all removed,
+    /// They are the reason this split operation exists. If they are all removed,
     /// this file also needs to be removed.
-    pub parent_documents: StringKeySet,
+    pub parent_documents: FxHashSet<ExecutableDefinitionName>,
 
     /// Should a @raw_response_type style type be generated.
     pub raw_response_type_generation_mode: Option<RawResponseGenerationMode>,
@@ -96,7 +98,7 @@ impl SplitOperationMetadata {
                 self.parent_documents
                     .iter()
                     .cloned()
-                    .map(ConstantValue::String)
+                    .map(|name| ConstantValue::String(name.into()))
                     .collect(),
             ))),
         });
@@ -159,12 +161,19 @@ impl From<&Directive> for SplitOperationMetadata {
                 .iter()
                 .map(|val| {
                     if let ConstantValue::String(name) = val {
-                        name
+                        // TODO: replace to_directive and from_directive with associated_data_impl (T143638419)
+                        // Note: we are assuming that the string key is an OperationDefinition here,
+                        // but we don't know that!
+                        // We don't actually rely on this piece of knowledge (e.g. ExecutableDefinitionName
+                        // could be a union instead of an enum), but in the future we get rid of this function and
+                        // use the data: Option<Any> field instead of serializing to parameters.
+                        ExecutableDefinitionName::OperationDefinitionName(OperationDefinitionName(
+                            *name,
+                        ))
                     } else {
                         panic!("Expected item in the parent sources to be a StringKey.")
                     }
                 })
-                .cloned()
                 .collect();
             Self {
                 derived_from,

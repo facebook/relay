@@ -21,7 +21,7 @@ use crate::idhasher::BuildIdHasher;
 use crate::string;
 use crate::string::IntoUtf8Bytes;
 use crate::string::StringId;
-use crate::Lookup;
+pub use crate::Lookup;
 
 // StringKey is a small impedence matcher around StringId.
 // NOTE in particular that it does NOT do de-duplicating serde.

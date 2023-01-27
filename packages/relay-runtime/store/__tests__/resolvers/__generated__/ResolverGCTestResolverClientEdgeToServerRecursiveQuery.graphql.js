@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d81ec95989c3f1870f4600f159110427>>
+ * @generated SignedSource<<50cb60039e90b2e3d0a323769d7cbd4e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,16 +20,16 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAnotherClientEdgeResolver$key } from "./UserAnotherClientEdgeResolver.graphql";
 import type { UserClientEdgeResolver$key } from "./UserClientEdgeResolver.graphql";
-import {another_client_edge as userAnotherClientEdgeResolver} from "../UserAnotherClientEdgeResolver.js";
-// Type assertion validating that `userAnotherClientEdgeResolver` resolver is correctly implemented.
+import {another_client_edge as userAnotherClientEdgeResolverType} from "../UserAnotherClientEdgeResolver.js";
+// Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolver: (
+(userAnotherClientEdgeResolverType: (
   rootKey: UserAnotherClientEdgeResolver$key, 
 ) => mixed);
-import {client_edge as userClientEdgeResolver} from "../UserClientEdgeResolver.js";
-// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolver: (
+(userClientEdgeResolverType: (
   rootKey: UserClientEdgeResolver$key, 
 ) => mixed);
 export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$variables = {||};

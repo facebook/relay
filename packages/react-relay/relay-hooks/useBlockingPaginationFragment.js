@@ -11,17 +11,15 @@
 
 'use strict';
 
-import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
 import type {Options} from './useRefetchableFragmentNode';
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
-import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
   FragmentType,
   GraphQLResponse,
-  GraphQLTaggedNode,
+  Variables,
   Observer,
-  OperationType,
+  Disposable,
 } from 'relay-runtime';
 
 const useLoadMoreFunction = require('./useLoadMoreFunction');
@@ -34,36 +32,56 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
+import type {RefetchableFragment} from '../../relay-runtime/util/RelayRuntimeTypes';
 
-export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
-  data: TFragmentData,
-  loadNext: LoadMoreFn<TQuery>,
-  loadPrevious: LoadMoreFn<TQuery>,
-  hasNext: boolean,
-  hasPrevious: boolean,
-  refetch: RefetchFnDynamic<TQuery, TKey>,
-};
+type RefetchVariables<TVariables, TKey> =
+  // NOTE: This $Call ensures that the type of the variables is either:
+  //   - nullable if the provided ref type is non-nullable
+  //   - non-nullable if the provided ref type is nullable, and the caller need to provide the full set of variables
+  // prettier-ignore
+  $Call<
+    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) => $Shape<TVariables>)
+    & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => TVariables),
+    TKey,
+  >;
 
-function useBlockingPaginationFragment<
-  TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
->(
-  fragmentInput: GraphQLTaggedNode,
-  parentFragmentRef: TKey,
-  componentDisplayName: string = 'useBlockingPaginationFragment()',
-): ReturnType<
-  TQuery,
-  TKey,
+type RefetchFnBase<TVars, TOptions> = (
+  vars: TVars,
+  options?: TOptions,
+) => Disposable;
+
+type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
+  RefetchVariables<TVariables, TKey>,
+  TOptions,
+>;
+
+type ReturnType<TVariables, TData, TKey> = {
   // NOTE: This $Call ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
   // prettier-ignore
-  $Call<
-    & (<TFragmentData>( { +$data?: TFragmentData, ... }) =>  TFragmentData)
-    & (<TFragmentData>(?{ +$data?: TFragmentData, ... }) => ?TFragmentData),
+  data: $Call<
+    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) =>  TData)
+    & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => ?TData),
     TKey,
   >,
-> {
+  loadNext: LoadMoreFn<TVariables>,
+  loadPrevious: LoadMoreFn<TVariables>,
+  hasNext: boolean,
+  hasPrevious: boolean,
+  refetch: RefetchFn<TVariables, TKey>,
+};
+
+function useBlockingPaginationFragment<
+  TFragmentType: FragmentType,
+  TVariables: Variables,
+  TData,
+  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+>(
+  fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
+  parentFragmentRef: TKey,
+  componentDisplayName: string = 'useBlockingPaginationFragment()',
+): ReturnType<TVariables, TData, TKey> {
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
     fragmentNode,
@@ -89,33 +107,39 @@ function useBlockingPaginationFragment<
     refetch,
     disableStoreUpdates,
     enableStoreUpdates,
-  } = useRefetchableFragmentNode<TQuery, TKey>(
-    fragmentNode,
-    parentFragmentRef,
-    componentDisplayName,
-  );
+  } = useRefetchableFragmentNode<
+    {
+      response: TData,
+      variables: TVariables,
+    },
+    {
+      +$data: mixed,
+      ...
+    },
+  >(fragmentNode, parentFragmentRef, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
   // Backward pagination
-  const [loadPrevious, hasPrevious, disposeFetchPrevious] = useLoadMore<TQuery>(
-    {
-      componentDisplayName,
-      connectionPathInFragmentData,
-      direction: 'backward',
-      disableStoreUpdates,
-      enableStoreUpdates,
-      fragmentData,
-      fragmentIdentifier,
-      fragmentNode,
-      fragmentRef,
-      identifierField,
-      paginationMetadata,
-      paginationRequest,
-    },
-  );
+  const [loadPrevious, hasPrevious, disposeFetchPrevious] = useLoadMore<
+    TVariables,
+    TData,
+  >({
+    componentDisplayName,
+    connectionPathInFragmentData,
+    direction: 'backward',
+    disableStoreUpdates,
+    enableStoreUpdates,
+    fragmentData,
+    fragmentIdentifier,
+    fragmentNode,
+    fragmentRef,
+    identifierField,
+    paginationMetadata,
+    paginationRequest,
+  });
 
   // Forward pagination
-  const [loadNext, hasNext, disposeFetchNext] = useLoadMore<TQuery>({
+  const [loadNext, hasNext, disposeFetchNext] = useLoadMore<TVariables, TData>({
     componentDisplayName,
     connectionPathInFragmentData,
     direction: 'forward',
@@ -130,8 +154,8 @@ function useBlockingPaginationFragment<
     paginationRequest,
   });
 
-  const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
-    (variables: VariablesOf<TQuery>, options: void | Options) => {
+  const refetchPagination: RefetchFn<TVariables, TKey> = useCallback(
+    (variables: TVariables, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
       return refetch(variables, {...options, __environment: undefined});
@@ -140,7 +164,8 @@ function useBlockingPaginationFragment<
   );
 
   return {
-    data: fragmentData,
+    // $FlowFixMe[incompatible-cast]
+    data: (fragmentData: TData),
     loadNext,
     loadPrevious,
     hasNext,
@@ -149,7 +174,7 @@ function useBlockingPaginationFragment<
   };
 }
 
-function useLoadMore<TQuery: OperationType>(args: {
+function useLoadMore<TVariables: Variables>(args: {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
   ...$Exact<
@@ -162,7 +187,7 @@ function useLoadMore<TQuery: OperationType>(args: {
       },
     >,
   >,
-}): [LoadMoreFn<TQuery>, boolean, () => void] {
+}): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
   const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(
     null,
@@ -213,7 +238,7 @@ function useLoadMore<TQuery: OperationType>(args: {
     // and blow away the whole list of items.
     error: promiseResolve,
   };
-  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TQuery>({
+  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({
     ...loadMoreArgs,
     observer,
     onReset: handleReset,

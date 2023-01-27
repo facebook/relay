@@ -54,9 +54,8 @@ class Help extends React.Component {
       {
         content: (
           <span>
-            Hashtag{' '}
-            <a href="https://twitter.com/search?q=%23relayjs">#relayjs</a> is
-            used on Twitter to keep up with the latest Relay news.
+            We are on Twitter as{' '}
+            <a href="https://twitter.com/RelayFramework/">@RelayFramework</a>.
           </span>
         ),
         title: 'Twitter',

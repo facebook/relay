@@ -304,10 +304,23 @@ class FragmentResourceImpl {
         cachedValue.result.snapshot &&
         !missingLiveResolverFields(cachedValue.result.snapshot)?.length
       ) {
-        this._handlePotentialSnapshotErrorsInSnapshot(
+        this._throwOrLogErrorsInSnapshot(
           // $FlowFixMe[incompatible-call]
           cachedValue.result.snapshot,
         );
+
+        // This cache gets populated directly whenever the store notifies us of
+        // an update. That mechanism does not check for missing data, or
+        // in-flight requests.
+        if (cachedValue.result.isMissingData) {
+          environment.__log({
+            name: 'fragmentresource.missing_data',
+            data: cachedValue.result.data,
+            fragment: fragmentNode,
+            isRelayHooks: true,
+            cached: true,
+          });
+        }
         return cachedValue.result;
       }
     }
@@ -346,7 +359,7 @@ class FragmentResourceImpl {
       storeEpoch,
     );
     if (!fragmentResult.isMissingData) {
-      this._handlePotentialSnapshotErrorsInSnapshot(snapshot);
+      this._throwOrLogErrorsInSnapshot(snapshot);
 
       this._cache.set(fragmentIdentifier, {
         kind: 'done',
@@ -470,7 +483,19 @@ class FragmentResourceImpl {
       }
     }
 
-    this._handlePotentialSnapshotErrorsInSnapshot(snapshot);
+    this._throwOrLogErrorsInSnapshot(snapshot);
+
+    // At this point, there's nothing we can do. We don't have all the expected
+    // data, but there's no indication the missing data will be fulfilled. So we
+    // choose to return potentially non-typesafe data. The data returned here
+    // might not match the generated types for this fragment/operation.
+    environment.__log({
+      name: 'fragmentresource.missing_data',
+      data: fragmentResult.data,
+      fragment: fragmentNode,
+      isRelayHooks: true,
+      cached: false,
+    });
     return getFragmentResult(fragmentIdentifier, snapshot, storeEpoch);
   }
 
@@ -506,7 +531,7 @@ class FragmentResourceImpl {
     };
   }
 
-  _handlePotentialSnapshotErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
+  _throwOrLogErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
         handlePotentialSnapshotErrors(

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Write;
@@ -68,6 +69,7 @@ impl Diagnostic {
             tags,
             severity,
             data: Vec::new(),
+            machine_readable: BTreeMap::new(),
         }))
     }
 
@@ -91,6 +93,7 @@ impl Diagnostic {
             severity: DiagnosticSeverity::ERROR,
             related_information: Vec::new(),
             data,
+            machine_readable: BTreeMap::new(),
         }))
     }
 
@@ -139,6 +142,13 @@ impl Diagnostic {
         self
     }
 
+    pub fn metadata_for_machine(mut self, key: impl AsRef<str>, value: impl AsRef<str>) -> Self {
+        self.0
+            .machine_readable
+            .insert(key.as_ref().to_string(), value.as_ref().to_string());
+        self
+    }
+
     pub fn message(&self) -> &impl DiagnosticDisplay {
         &self.0.message
     }
@@ -157,6 +167,14 @@ impl Diagnostic {
 
     pub fn tags(&self) -> Vec<DiagnosticTag> {
         self.0.tags.clone()
+    }
+
+    pub fn machine_readable(&self) -> Option<BTreeMap<String, String>> {
+        if self.0.machine_readable.is_empty() {
+            None
+        } else {
+            Some(self.0.machine_readable.clone())
+        }
     }
 
     /// Override the location. This should only be used for exceptional situations.
@@ -246,6 +264,9 @@ struct DiagnosticData {
     /// `data` is used in the LSP protocol:
     /// @see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#diagnostic
     data: Vec<Box<dyn DiagnosticDisplay>>,
+
+    /// Metadata with (K,V) are strings that can read by machine
+    machine_readable: BTreeMap<String, String>,
 }
 
 /// Secondary locations attached to a diagnostic.

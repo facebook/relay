@@ -180,6 +180,12 @@ export type NormalizationResolverField = {
   +storageKey: ?string,
 };
 
+export type NormalizationClientEdgeToClientObject = {
+  +kind: 'ClientEdgeToClientObject',
+  +linkedField: NormalizationLinkedField,
+  +backingField: NormalizationResolverField,
+};
+
 export type NormalizationClientComponent = {
   +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ClientComponent',
@@ -195,6 +201,7 @@ export type NormalizationSelection =
   | NormalizationCondition
   | NormalizationClientComponent
   | NormalizationClientExtension
+  | NormalizationClientEdgeToClientObject
   | NormalizationDefer
   | NormalizationField
   | NormalizationFlightField

@@ -36,7 +36,7 @@ extend type User {
     )
 }
 ==================================== OUTPUT ===================================
-query User__pop_star_name$normalization @__splitOperation(parentDocuments: [], rawResponseTypeStrict: null) {
+query User__pop_star_name$normalization @__splitOperation(parentDocuments: ["User__pop_star_name$normalization"], rawResponseTypeStrict: null) {
   name
   stage_name
 }

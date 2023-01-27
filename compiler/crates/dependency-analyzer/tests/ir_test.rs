@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fabb9e569dd82897c0c179445145c334>>
+ * @generated SignedSource<<080b76ec4b2c6ea6cde4bc6b7c0fea2b>>
  */
 
 mod ir;
@@ -66,6 +66,13 @@ fn new_resolver_field() {
     let input = include_str!("ir/fixtures/new-resolver-field.graphql");
     let expected = include_str!("ir/fixtures/new-resolver-field.expected");
     test_fixture(transform_fixture, "new-resolver-field.graphql", "ir/fixtures/new-resolver-field.expected", input, expected);
+}
+
+#[test]
+fn new_resolver_model_field() {
+    let input = include_str!("ir/fixtures/new-resolver-model-field.graphql");
+    let expected = include_str!("ir/fixtures/new-resolver-model-field.expected");
+    test_fixture(transform_fixture, "new-resolver-model-field.graphql", "ir/fixtures/new-resolver-model-field.expected", input, expected);
 }
 
 #[test]

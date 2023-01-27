@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 use common::DiagnosticsResult;
 use graphql_ir::FragmentDefinition;
-use intern::string_key::StringKey;
+use graphql_ir::OperationDefinitionName;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use schema::Schema;
@@ -27,7 +27,7 @@ fn build_refetch_operation(
     schema: &SDLSchema,
     _schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let query_type = schema.query_type().unwrap();

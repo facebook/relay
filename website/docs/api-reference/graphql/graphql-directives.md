@@ -136,7 +136,7 @@ fragment TodoApp_app on App {
 }
 ```
 
-## @required
+## `@required`
 
 `@required` is a directive you can add to fields in your Relay queries to declare how null values should be handled at runtime.
 

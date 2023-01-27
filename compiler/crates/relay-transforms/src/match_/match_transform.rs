@@ -23,6 +23,7 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -31,6 +32,7 @@ use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -101,7 +103,7 @@ type MatchesForPath = FnvHashMap<Vec<Path>, Matches>;
 pub struct MatchTransform<'program, 'flag> {
     program: &'program Program,
     parent_type: Type,
-    document_name: StringKey,
+    document_name: ExecutableDefinitionName,
     match_directive_key_argument: Option<StringKey>,
     errors: Vec<Diagnostic>,
     path: Vec<Path>,
@@ -109,7 +111,7 @@ pub struct MatchTransform<'program, 'flag> {
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FragmentDefinitionNameMap<Vec<StringKey>>,
+    no_inline_fragments: FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     module_import_config: ModuleImportConfig,
 }
 
@@ -123,7 +125,9 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             program,
             // Placeholders to make the types non-optional,
             parent_type: Type::Scalar(ScalarID(0)),
-            document_name: "".intern(),
+            document_name: ExecutableDefinitionName::OperationDefinitionName(
+                OperationDefinitionName("".intern()),
+            ),
             match_directive_key_argument: None,
             errors: Vec::new(),
             path: Default::default(),
@@ -352,7 +356,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             // most recently encountered while traversing the operation, or the document name
             let match_directive_key_argument = self
                 .match_directive_key_argument
-                .unwrap_or(self.document_name);
+                .unwrap_or_else(|| self.document_name.into());
 
             // If this is the first time we are encountering @module at this path, also ensure
             // that we have not previously encountered another @module associated with the same
@@ -446,7 +450,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             // Done validating. Build out the resulting fragment spread.
 
             let module_id = if self.path.is_empty() {
-                self.document_name
+                self.document_name.into()
             } else {
                 let mut str = String::new();
                 str.push_str(self.document_name.lookup());
@@ -807,7 +811,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = fragment.name.item.0;
+        self.document_name = fragment.name.item.into();
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = fragment.type_condition;
@@ -819,7 +823,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = operation.name.item.0;
+        self.document_name = operation.name.item.into();
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = operation.type_;
@@ -944,7 +948,7 @@ pub struct ModuleMetadata {
     pub key: StringKey,
     pub module_id: StringKey,
     pub module_name: StringKey,
-    pub source_document_name: StringKey,
+    pub source_document_name: ExecutableDefinitionName,
     pub fragment_name: FragmentDefinitionName,
     pub fragment_source_location: Location,
     pub no_inline: bool,

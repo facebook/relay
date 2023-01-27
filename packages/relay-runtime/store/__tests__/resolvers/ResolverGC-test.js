@@ -111,7 +111,7 @@ test('Live Resolver _with_ root fragment', async () => {
     variables: {},
     payloads: [{data: {me: {__typename: 'User', id: '1'}}}],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(counterResolver.callCount - initialCallCount).toBe(1);
@@ -153,7 +153,7 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
     variables: {},
     payloads: [{data: {me: {__typename: 'User', id: '1'}}}],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({counter_plus_one: 1});
@@ -203,7 +203,7 @@ test('Non-live Resolver with fragment', async () => {
     variables: {},
     payloads: [{data: {me: {__typename: 'User', id: '1', name: 'Elizabeth'}}}],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({me: {greeting: 'Hello, Elizabeth!'}});
@@ -346,7 +346,7 @@ test('Resolver reading a client-edge to a server type', async () => {
       },
     ],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({
@@ -437,7 +437,7 @@ test('Resolver reading a client-edge to a server type (recursive)', async () => 
       },
     ],
     beforeLookup: recordIdsInStore => {
-      expect(recordIdsInStore).toEqual(['client:root']);
+      expect(recordIdsInStore).toEqual(['client:root', '1']);
     },
     afterLookup: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({
@@ -490,6 +490,164 @@ test('Resolver reading a client-edge to a server type (recursive)', async () => 
   });
 });
 
+test('Resolver reading a client-edge to a client type', async () => {
+  await testResolverGC({
+    query: graphql`
+      query ResolverGCTestResolverClientEdgeToClientQuery {
+        me {
+          astrological_sign {
+            name
+          }
+        }
+      }
+    `,
+    variables: {},
+    payloads: [
+      {
+        data: {
+          me: {__typename: 'User', id: '1', birthdate: {month: 3, day: 11}},
+        },
+      },
+    ],
+    beforeLookup: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:birthdate',
+      ]);
+    },
+    afterLookup: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        me: {astrological_sign: {name: 'Pisces'}},
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:birthdate',
+        'client:1:astrological_sign',
+        'client:AstrologicalSign:Pisces',
+        'client:AstrologicalSign:Pisces:self',
+        'client:AstrologicalSign:Pisces:name',
+      ]);
+    },
+    afterRetainedGC: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        me: {astrological_sign: {name: 'Pisces'}},
+      });
+      /* For correct behavior we should retain all of these records...
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:birthdate',
+        'client:1:astrological_sign',
+        'client:AstrologicalSign:Pisces',
+        'client:AstrologicalSign:Pisces:self',
+        'client:AstrologicalSign:Pisces:name',
+      ]);
+      */
+      // ...but for now we only retain these.
+      expect(recordIdsInStore).toContain('client:root');
+      expect(recordIdsInStore).toContain('1');
+      expect(recordIdsInStore).toContain('client:1:birthdate');
+      expect(recordIdsInStore).toContain('client:1:astrological_sign');
+    },
+
+    afterFreedGC: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
+      // Note that we _can't_ recreate the Resolver value because it's root fragment has been GGed.
+      expect(snapshot.data).toEqual({me: undefined});
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+  });
+});
+
+test('Resolver reading a client-edge to a client type (recursive)', async () => {
+  await testResolverGC({
+    query: graphql`
+      query ResolverGCTestResolverClientEdgeToClientRecursiveQuery {
+        me {
+          astrological_sign {
+            name
+            opposite {
+              name
+            }
+          }
+        }
+      }
+    `,
+    variables: {},
+    payloads: [
+      {
+        data: {
+          me: {__typename: 'User', id: '1', birthdate: {month: 3, day: 11}},
+        },
+      },
+    ],
+    beforeLookup: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:birthdate',
+      ]);
+    },
+    afterLookup: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        me: {astrological_sign: {name: 'Pisces', opposite: {name: 'Virgo'}}},
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:birthdate',
+        'client:1:astrological_sign',
+        'client:AstrologicalSign:Pisces',
+        'client:AstrologicalSign:Pisces:self',
+        'client:AstrologicalSign:Pisces:name',
+        'client:AstrologicalSign:Pisces:opposite',
+        'client:AstrologicalSign:Virgo',
+        'client:AstrologicalSign:Virgo:self',
+        'client:AstrologicalSign:Virgo:name',
+      ]);
+    },
+    afterRetainedGC: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        me: {astrological_sign: {name: 'Pisces', opposite: {name: 'Virgo'}}},
+      });
+
+      /* For correct behavior we should retain all of these records...
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:birthdate',
+        'client:1:astrological_sign',
+        'client:AstrologicalSign:Pisces',
+        'client:AstrologicalSign:Pisces:self',
+        'client:AstrologicalSign:Pisces:name',
+        'client:AstrologicalSign:Pisces:opposite',
+        'client:AstrologicalSign:Virgo',
+        'client:AstrologicalSign:Virgo:self',
+        'client:AstrologicalSign:Virgo:name',
+      ]);
+      */
+
+      // ...but for now we only retain these.
+      expect(recordIdsInStore).toContain('client:root');
+      expect(recordIdsInStore).toContain('1');
+      expect(recordIdsInStore).toContain('client:1:birthdate');
+      expect(recordIdsInStore).toContain('client:1:astrological_sign');
+    },
+    afterFreedGC: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
+      // Note that we _can't_ recreate the Resolver value because it's root fragment has been GGed.
+      expect(snapshot.data).toEqual({me: undefined});
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+  });
+});
+
 type TestProps<T: OperationType> = {
   query: ConcreteRequest,
   variables: VariablesOf<T>,
@@ -524,6 +682,7 @@ async function testResolverGC<T: OperationType>({
   query,
   payloads,
   variables,
+  beforeLookup,
   afterLookup,
   afterRetainedGC,
   afterFreedGC,
@@ -565,6 +724,7 @@ async function testResolverGC<T: OperationType>({
   });
 
   await environment.execute({operation}).toPromise();
+  beforeLookup(store.getSource().getRecordIDs());
 
   const retains = [];
   const operations = [operation];
@@ -605,6 +765,7 @@ async function testResolverGC<T: OperationType>({
   }
   store.__gc();
 
+  afterRetainedGC(snapshot, store.getSource().getRecordIDs());
   const nextSnapshot = environment.lookup(operation.fragment);
   afterRetainedGC(nextSnapshot, store.getSource().getRecordIDs());
 

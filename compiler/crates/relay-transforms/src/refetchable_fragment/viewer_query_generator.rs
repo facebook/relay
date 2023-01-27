@@ -12,8 +12,8 @@ use common::DiagnosticsResult;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Selection;
-use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
 use schema::FieldID;
 use schema::SDLSchema;
@@ -35,7 +35,7 @@ fn build_refetch_operation(
     schema: &SDLSchema,
     _schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     if schema.get_type_name(fragment.type_condition) != CONSTANTS.viewer_type_name {
@@ -94,7 +94,7 @@ fn get_viewer_field_id(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidViewerSchemaForRefetchableFragmentOnViewer {
-            fragment_name: fragment.name.item.0,
+            fragment_name: fragment.name.item,
         },
         fragment.name.location,
     )])

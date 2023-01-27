@@ -143,7 +143,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
     queryRenderLogs = [];
     QueryComponent = function (props: any) {
-      const result = usePreloadedQuery<any>(
+      const result = usePreloadedQuery(
         gqlQuery,
         (props.queries.TestQuery: $FlowFixMe),
       );
@@ -162,6 +162,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
     loaderRenderLogs = [];
     LoaderComponent = function (props: any) {
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const [entryPointRef] = useEntryPointLoader(
         environmentProvider,
         props.entryPoint,
@@ -194,6 +195,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       }
       if (props.suspendWholeTree === true) {
         return (
+          // $FlowFixMe[underconstrained-implicit-instantiation]
           <EntryPointContainer entryPointReference={entryPointRef} props={{}} />
         );
       }

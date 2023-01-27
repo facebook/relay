@@ -668,7 +668,7 @@ If the component which calls `.prepare` successfully loads a query, but suspends
 
 Compare to [fragment resource](#fragment-resource).
 
-## @raw_response_type
+## `@raw_response_type`
 
 A directive added to queries which tells Relay to generate types that cover the `optimisticResponse` parameter to `commitMutation`.
 
@@ -761,11 +761,11 @@ As queries are released (no longer [retained](#retain)), their root nodes are st
 
 The size of the release buffer is configured with the `gcReleaseBufferSize` parameter.
 
-## @required
+## `@required`
 
 A Relay directive that makes handling potentially `null` values more egonomic.
 
-See also [the @required guide](../guides/required-directive/).
+See also [the `@required` guide](../guides/required-directive/).
 
 ## Request
 

@@ -58,6 +58,7 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
   RELAY_RESOLVER,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
 } = RelayConcreteNode;
 const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
@@ -245,6 +246,9 @@ class RelayReferenceMarker {
           break;
         case RELAY_RESOLVER:
           this._traverseResolverField(selection, record);
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          this._traverseResolverField(selection.backingField, record);
           break;
         default:
           (selection: empty);

@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+{
+  foo:
+}
+==================================== ERROR ====================================
+✖︎ Incomplete field alias, expected non-variable identifier (e.g. 'x' or 'Foo') but found closing brace ('}')
+
+  incomplete_field_alias.graphql:3:3
+    2 │ {
+    3 │   foo:
+      │   ^^^^
+    4 │ }

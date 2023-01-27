@@ -427,14 +427,6 @@ fn apply_normalization_transforms(
         print_stats("client_extensions_abstract_types", &program);
     }
 
-    program = log_event.time("remove_client_edge_selections", || {
-        remove_client_edge_selections(&program)
-    })?;
-
-    if let Some(print_stats) = maybe_print_stats {
-        print_stats("remove_client_edge_selections", &program);
-    }
-
     program = log_event.time("replace_updatable_fragment_spreads", || {
         replace_updatable_fragment_spreads(&program)
     });

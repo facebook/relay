@@ -14,10 +14,38 @@ type Todo {
   blocked_by: [Todo!]!
 }
 
+type Parent {
+  child: Child
+  child2: Child
+}
+
+type Child {
+  child: Child
+}
+
 extend type User {
   todo: [Todo] @relay_resolver(import_path: "TodoResolver", has_output_type: true)
+  parent: Parent @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== ERROR ====================================
+✖︎ @RelayResolver type recursion detected for the output type `Child`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
+
+  output-type-with-recursion.graphql:14:3
+   13 │ type Child {
+   14 │   child: Child
+      │   ^^^^^
+   15 │ }
+
+
+✖︎ @RelayResolver type recursion detected for the output type `Child`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
+
+  output-type-with-recursion.graphql:14:3
+   13 │ type Child {
+   14 │   child: Child
+      │   ^^^^^
+   15 │ }
+
+
 ✖︎ @RelayResolver type recursion detected for the output type `Todo`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
 
   output-type-with-recursion.graphql:5:3

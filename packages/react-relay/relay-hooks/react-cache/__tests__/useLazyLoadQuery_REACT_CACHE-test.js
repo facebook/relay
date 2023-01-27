@@ -222,6 +222,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
           });
         });
         environment = new Environment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           network: RelayNetwork.create(fetch),
           store: new Store(new RecordSource(), {
             gcReleaseBufferSize: 0,
@@ -747,9 +748,11 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
                 container.update(
                   <Cache>
                     <Wrappers env={environment}>
-                      {new Array(numberOfComponents).fill().map((a, k) => (
-                        <TestComponent key={k} output={k === 0} />
-                      ))}
+                      {new Array<void>(numberOfComponents)
+                        .fill()
+                        .map((a, k) => (
+                          <TestComponent key={k} output={k === 0} />
+                        ))}
                     </Wrappers>
                   </Cache>,
                 );
@@ -847,10 +850,12 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         // to another. A regression test.
         // Create two enviroments where one has the data available and the other not:
         const env1 = new Environment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           network: RelayNetwork.create(fetch),
           store: new Store(new RecordSource()),
         });
         const env2 = new Environment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           network: RelayNetwork.create(fetch),
           store: new Store(new RecordSource()),
         });

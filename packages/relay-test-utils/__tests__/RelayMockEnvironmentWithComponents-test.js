@@ -92,6 +92,7 @@ describe('ReactRelayTestMocker with Containers', () => {
     it('should resolve query', () => {
       // Should render loading state
       expect(() => {
+        // $FlowFixMe[underconstrained-implicit-instantiation]
         testComponentTree.root.find(node => node.props.testID === 'loading');
       }).not.toThrow();
 
@@ -107,6 +108,7 @@ describe('ReactRelayTestMocker with Containers', () => {
     it('should reject query', () => {
       environment.mock.rejectMostRecentOperation(new Error('Uh-oh'));
 
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const errorMessage = testComponentTree.root.find(
         node => node.props.testID === 'error',
       );
@@ -120,6 +122,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           new Error(`Uh-oh: ${operation.request.node.fragment.name}`),
       );
 
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const errorMessage = testComponentTree.root.find(
         node => node.props.testID === 'error',
       );
@@ -164,6 +167,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         }
       `;
       const ProfilePicture = createFragmentContainer(
+        // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
         props => {
           return (
             <img
@@ -221,6 +225,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           },
         }),
       );
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const image = testComponentTree.root.find(
         node => node.props.testID === 'profile_picture',
       );
@@ -368,6 +373,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           }),
         );
       });
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const list = testComponentTree.root.find(
         node => node.props.testID === 'list',
       );
@@ -405,6 +411,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           }),
         );
       });
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const loadMore = testComponentTree.root.find(
         node => node.props.testID === 'loadMore',
       );
@@ -414,6 +421,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
       // Should show preloader
       expect(() => {
+        // $FlowFixMe[underconstrained-implicit-instantiation]
         testComponentTree.root.find(
           node => node.props.testID === 'loadingMore',
         );
@@ -444,6 +452,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           }),
         );
       });
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const list = testComponentTree.root.find(
         node => node.props.testID === 'list',
       );
@@ -567,10 +576,12 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
       // Make sure we're rendered correct hometown
       expect(
+        // $FlowFixMe[underconstrained-implicit-instantiation]
         testComponentTree.root.find(node => node.props.testID === 'hometown')
           .children,
       ).toEqual(['PHL']);
 
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const refetch = testComponentTree.root.find(
         node => node.props.testID === 'refetch',
       );
@@ -579,6 +590,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
       // Should load loading state
       expect(() => {
+        // $FlowFixMe[underconstrained-implicit-instantiation]
         testComponentTree.root.find(node => node.props.testID === 'refetching');
       }).not.toThrow();
 
@@ -603,6 +615,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         }),
       );
       expect(
+        // $FlowFixMe[underconstrained-implicit-instantiation]
         testComponentTree.root.find(node => node.props.testID === 'hometown')
           .children,
       ).toEqual(['SFO']);
@@ -742,6 +755,7 @@ describe('ReactRelayTestMocker with Containers', () => {
     });
 
     it('should resolve mutation', () => {
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const likeButton = testComponentTree.root.find(
         node => node.props.testID === 'likeButton',
       );
@@ -781,6 +795,7 @@ describe('ReactRelayTestMocker with Containers', () => {
     });
 
     it('should reject mutation', () => {
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const likeButton = testComponentTree.root.find(
         node => node.props.testID === 'likeButton',
       );
@@ -864,6 +879,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         }),
       );
       expect(
+        // $FlowFixMe[underconstrained-implicit-instantiation]
         testComponentTree.root.find(
           node => node.props.testID === 'helloMessage',
         ).children,
@@ -991,6 +1007,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         jest.runAllTimers();
       });
 
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       const reaction = testComponentTree.root.find(
         node => node.props.testID === 'reaction',
       );
@@ -1114,10 +1131,12 @@ describe('ReactRelayTestMocker with Containers', () => {
         }),
       );
       expect(
+        // $FlowFixMe[underconstrained-implicit-instantiation]
         testComponentTree.root.find(node => node.props.testID === 'user')
           .children,
       ).toEqual(['Alice']);
       expect(
+        // $FlowFixMe[underconstrained-implicit-instantiation]
         testComponentTree.root.find(node => node.props.testID === 'page')
           .children,
       ).toEqual(['My Page']);

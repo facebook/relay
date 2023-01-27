@@ -149,44 +149,86 @@ extend type User {
         "plural": false,
         "selections": [
           {
-            "name": "best_friend",
-            "args": null,
-            "fragment": {
-              "kind": "InlineFragment",
+            "kind": "ClientEdgeToClientObject",
+            "backingField": {
+              "name": "best_friend",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "actor_key",
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null
+            },
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "ClientUser",
+              "kind": "LinkedField",
+              "name": "best_friend",
+              "plural": false,
               "selections": [
                 {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "actor_key",
+                  "name": "name",
                   "storageKey": null
                 }
               ],
-              "type": "User",
-              "abstractKey": null
-            },
-            "kind": "RelayResolver",
-            "storageKey": null
+              "storageKey": null
+            }
           },
           {
-            "name": "worst_enemy",
-            "args": null,
-            "fragment": {
-              "kind": "InlineFragment",
+            "kind": "ClientEdgeToClientObject",
+            "backingField": {
+              "name": "worst_enemy",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "actor_key",
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null
+            },
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "ClientUser",
+              "kind": "LinkedField",
+              "name": "worst_enemy",
+              "plural": false,
               "selections": [
                 {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "actor_key",
+                  "name": "name",
                   "storageKey": null
                 }
               ],
-              "type": "User",
-              "abstractKey": null
-            },
-            "kind": "RelayResolver",
-            "storageKey": null
+              "storageKey": null
+            }
           },
           {
             "alias": null,

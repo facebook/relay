@@ -432,6 +432,14 @@ export interface StoreSubscriptions {
 export type Scheduler = (() => void) => void;
 
 /**
+ * A type that can schedule callbacks and also cancel them.
+ */
+export type TaskScheduler = {
+  +cancel: (id: string) => void,
+  +schedule: (fn: () => void) => string,
+};
+
+/**
  * An interface for imperatively getting/setting properties of a `Record`. This interface
  * is designed to allow the appearance of direct Record manipulation while
  * allowing different implementations that may e.g. create a changeset of
@@ -474,7 +482,7 @@ export interface ReadOnlyRecordProxy {
 /**
  * A linked field where an updatable fragment is spread has the type
  * HasUpdatableSpread.
- * This type is expected by store.readUpdatableFragment_EXPERIMENTAL.
+ * This type is expected by store.readUpdatableFragment.
  */
 export type HasUpdatableSpread<TFragmentType> = {
   +$updatableFragmentSpreads: TFragmentType,
@@ -482,8 +490,8 @@ export type HasUpdatableSpread<TFragmentType> = {
 };
 
 /**
- * The return type of calls to readUpdatableQuery_EXPERIMENTAL and
- * readUpdatableFragment_EXPERIMENTAL.
+ * The return type of calls to readUpdatableQuery and
+ * readUpdatableFragment.
  */
 export type UpdatableData<TData> = {
   +updatableData: TData,
@@ -501,11 +509,11 @@ export interface RecordSourceProxy {
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
   invalidateStore(): void;
-  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+  readUpdatableQuery<TVariables: Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
   ): UpdatableData<TData>;
-  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+  readUpdatableFragment<TFragmentType: FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
   ): UpdatableData<TData>;
@@ -564,6 +572,16 @@ export type LogEvent =
       +resourceID: number,
       // value from ProfilerContext
       +profilerContext: mixed,
+    }
+  | {
+      // Indicates FragmentResource is going to return a result that is missing
+      // data.
+      +name: 'fragmentresource.missing_data',
+      +data: mixed,
+      +fragment: ReaderFragment,
+      +isRelayHooks: boolean,
+      // Are we reading this result from the fragment resource cache?
+      +cached: boolean,
     }
   | {
       +name: 'network.info',
@@ -754,19 +772,24 @@ export interface IEnvironment {
   ): void;
 
   /**
-   * Get the environment's internal Network.
+   * Returns the environment's Network.
    */
   getNetwork(): INetwork;
 
   /**
-   * Get the environment's internal Store.
+   * Returns the environment's Store.
    */
   getStore(): Store;
 
   /**
-   * Returns the environment specific OperationTracker.
+   * Returns the environment's OperationTracker.
    */
   getOperationTracker(): RelayOperationTracker;
+
+  /**
+   * Returns the environment's TaskScheduler if one has been configured.
+   */
+  getScheduler(): ?TaskScheduler;
 
   /**
    * EXPERIMENTAL
@@ -1224,3 +1247,12 @@ export type ReactFlightServerErrorHandler = (
   status: string,
   errors: Array<ReactFlightServerError>,
 ) => void;
+
+/**
+ * The return type of a client edge resolver pointing to a concrete type.
+ * T can be overridden to be more specific than a DataID, e.g. if the IDs
+ * can only come from a given set.
+ */
+export type ConcreteClientEdgeResolverReturnType<T = any> = {
+  id: T & DataID,
+};

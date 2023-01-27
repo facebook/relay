@@ -47,7 +47,9 @@ fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmen
   size: {type: "[Int]"}
 ) @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [
 #         "node",
 #     ],

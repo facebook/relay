@@ -106,6 +106,7 @@ describe('executeMutation() with global invalidation', () => {
     });
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
     });

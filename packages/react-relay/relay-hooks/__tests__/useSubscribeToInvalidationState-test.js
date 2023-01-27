@@ -71,8 +71,8 @@ beforeEach(() => {
     initialDataIDs,
     initialCallback,
   }: {
-    initialCallback: JestMockFn<Array<mixed>, void>,
-    initialDataIDs: Array<string>,
+    initialCallback: JestMockFn<$ReadOnlyArray<mixed>, void>,
+    initialDataIDs: $ReadOnlyArray<string>,
   }) {
     const [dataIDs, _setDataIDs] = useState(initialDataIDs);
     const [cbState, _setCallback] = useState({callback: initialCallback});
@@ -80,6 +80,7 @@ beforeEach(() => {
 
     setDataIDs = _setDataIDs;
     setCallback = (_cb: JestMockFn<Array<mixed>, void>) =>
+      // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
       _setCallback({callback: _cb});
 
     const _disposable = useSubscribeToInvalidationState(dataIDs, cb);
@@ -91,8 +92,8 @@ beforeEach(() => {
   }
 
   function Container(props: {
-    callback: JestMockFn<Array<mixed>, void>,
-    dataIDs: Array<string>,
+    callback: JestMockFn<$ReadOnlyArray<mixed>, void>,
+    dataIDs: $ReadOnlyArray<string>,
     environment: RelayMockEnvironment,
   }) {
     const [env, setEnv] = useState(props.environment);
@@ -109,8 +110,8 @@ beforeEach(() => {
 
   render = (
     env: RelayMockEnvironment,
-    dataIDs: Array<string>,
-    cb: JestMockFn<Array<mixed>, void>,
+    dataIDs: $ReadOnlyArray<string>,
+    cb: JestMockFn<$ReadOnlyArray<mixed>, void>,
   ) => {
     ReactTestRenderer.act(() => {
       renderedInstance = ReactTestRenderer.create(
@@ -366,6 +367,7 @@ it('re-establishes subscription when callback changes', () => {
 
   const newCallback = jest.fn();
   ReactTestRenderer.act(() => {
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     setCallback(newCallback);
   });
 

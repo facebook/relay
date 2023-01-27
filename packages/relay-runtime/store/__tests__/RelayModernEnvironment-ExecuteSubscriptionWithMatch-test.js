@@ -193,6 +193,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         store = new RelayModernStore(source);
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID =>
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             RelayNetwork.create(fetchFn, subscribeFn),
           createStoreForActor: _actorID => store,
           operationLoader,
@@ -208,6 +209,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environmentType === 'MultiActorEnvironment'
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 network: RelayNetwork.create(fetchFn, subscribeFn),
                 store,
                 operationLoader,
@@ -725,6 +727,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           };
 
           environment = new RelayModernEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             network: RelayNetwork.create(fetchFn, subscribeFn),
             store,
             operationLoader,

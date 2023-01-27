@@ -13,7 +13,7 @@ use graphql_ir::*;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
-use relay_transforms::get_resolver_fragment_name;
+use relay_transforms::get_resolver_fragment_dependency_name;
 use schema::SDLSchema;
 use schema::Schema;
 
@@ -37,7 +37,7 @@ impl fmt::Debug for Node {
 /// building a dependency graph where edges are either explicit fragment spreads,
 /// or "implicit dependencies" such as those created by Relay Resolvers.
 ///
-/// New implicit dependencies are detected by walking the chaged documents,
+/// New implicit dependencies are detected by walking the changed documents,
 /// whereas preexisting implicit dependencies must be passed in as
 /// `implicit_dependencies`.
 pub fn get_reachable_ir(
@@ -135,7 +135,7 @@ fn build_dependency_graph(
     dependency_graph
 }
 
-fn update_dependecy_graph(
+fn update_dependency_graph(
     current_node: StringKey,
     parent_name: StringKey,
     dependency_graph: &mut StringKeyMap<Node>,
@@ -172,7 +172,7 @@ fn visit_selections(
         match selection {
             Selection::FragmentSpread(node) => {
                 let current_node = node.fragment.item.0;
-                update_dependecy_graph(current_node, parent_name, dependency_graph, children);
+                update_dependency_graph(current_node, parent_name, dependency_graph, children);
             }
             Selection::InlineFragment(node) => {
                 visit_selections(
@@ -184,10 +184,11 @@ fn visit_selections(
                 );
             }
             Selection::LinkedField(linked_field) => {
-                if let Some(fragment_name) =
-                    get_resolver_fragment_name(schema.field(linked_field.definition.item))
-                {
-                    update_dependecy_graph(
+                if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                    schema.field(linked_field.definition.item),
+                    schema,
+                ) {
+                    update_dependency_graph(
                         fragment_name.0,
                         parent_name,
                         dependency_graph,
@@ -203,10 +204,11 @@ fn visit_selections(
                 );
             }
             Selection::ScalarField(scalar_field) => {
-                if let Some(fragment_name) =
-                    get_resolver_fragment_name(schema.field(scalar_field.definition.item))
-                {
-                    update_dependecy_graph(
+                if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                    schema.field(scalar_field.definition.item),
+                    schema,
+                ) {
+                    update_dependency_graph(
                         fragment_name.0,
                         parent_name,
                         dependency_graph,
@@ -227,8 +229,8 @@ fn visit_selections(
     }
 }
 
-// From `key` of changed definition, recusively traverse up the depenency tree, and add all related nodes (ancestors
-// of changned definitions which are not from base definitions, and all of their desendants) into the `result`
+// From `key` of changed definition, recursively traverse up the dependency tree, and add all related nodes (ancestors
+// of changed definitions which are not from base definitions, and all of their descendants) into the `result`
 fn add_related_nodes(
     visited: &mut StringKeySet,
     result: &mut StringKeyMap<ExecutableDefinition>,

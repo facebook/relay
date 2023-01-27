@@ -99,6 +99,7 @@ test('unsubscribe happens when record is updated due to missing data', () => {
   const environmentUpdateHandler = jest.fn(() => {
     data = environment.lookup(operation.fragment).data;
   });
+  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
   environment.subscribe(snapshot, environmentUpdateHandler);
 
   const {__debug} = LiveExternalGreeting;

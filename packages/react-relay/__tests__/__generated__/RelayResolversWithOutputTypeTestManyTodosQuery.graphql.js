@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0fc1e1e19bc49a255a1c84a7811d3874>>
+ * @generated SignedSource<<d60828455c11ecab68e6f3a6c8b455f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,10 +19,10 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
-import {many_todos as queryManyTodosResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos.js";
-// Type assertion validating that `queryManyTodosResolver` resolver is correctly implemented.
+import {many_todos as queryManyTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos.js";
+// Type assertion validating that `queryManyTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryManyTodosResolver: (
+(queryManyTodosResolverType: (
   args: {|
     todo_ids: $ReadOnlyArray<?string>,
   |}, 
@@ -56,7 +56,34 @@ v1 = [
     "name": "todo_ids",
     "variableName": "todos"
   }
-];
+],
+v2 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "name": "self",
+      "args": null,
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "todo_id",
+            "storageKey": null
+          }
+        ],
+        "type": "Todo",
+        "abstractKey": null
+      },
+      "kind": "RelayResolver",
+      "storageKey": null
+    }
+  ],
+  "type": "Todo",
+  "abstractKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -111,16 +138,109 @@ return {
     "name": "RelayResolversWithOutputTypeTestManyTodosQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "many_todos",
-            "args": (v1/*: any*/),
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "many_todos",
+          "args": (v1/*: any*/),
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": (v1/*: any*/),
+          "concreteType": "Todo",
+          "kind": "LinkedField",
+          "name": "many_todos",
+          "plural": true,
+          "selections": [
+            {
+              "kind": "ClientEdgeToClientObject",
+              "backingField": {
+                "name": "text",
+                "args": null,
+                "fragment": (v2/*: any*/),
+                "kind": "RelayResolver",
+                "storageKey": null
+              },
+              "linkedField": {
+                "alias": null,
+                "args": null,
+                "concreteType": "TodoText",
+                "kind": "LinkedField",
+                "name": "text",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "content",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "TodoTextStyle",
+                    "kind": "LinkedField",
+                    "name": "style",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "font_style",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "TodoTextColor",
+                        "kind": "LinkedField",
+                        "name": "color",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "name": "human_readable_color",
+                            "args": null,
+                            "fragment": {
+                              "kind": "InlineFragment",
+                              "selections": [
+                                {
+                                  "alias": null,
+                                  "args": null,
+                                  "kind": "ScalarField",
+                                  "name": "hex",
+                                  "storageKey": null
+                                }
+                              ],
+                              "type": "TodoTextColor",
+                              "abstractKey": null
+                            },
+                            "kind": "RelayResolver",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            },
+            {
+              "name": "complete",
+              "args": null,
+              "fragment": (v2/*: any*/),
+              "kind": "RelayResolver",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
       }
     ]
   },

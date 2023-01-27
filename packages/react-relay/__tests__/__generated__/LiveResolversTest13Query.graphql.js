@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<21f9ea721ebbd2c02c7482e0f44b6efe>>
+ * @generated SignedSource<<bcec797168ae96d0d04126639778ec4b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,10 +19,10 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import {live_constant_client_edge as queryLiveConstantClientEdgeResolver} from "../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver.js";
-// Type assertion validating that `queryLiveConstantClientEdgeResolver` resolver is correctly implemented.
+import {live_constant_client_edge as queryLiveConstantClientEdgeResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver.js";
+// Type assertion validating that `queryLiveConstantClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveConstantClientEdgeResolver: () => LiveState<any>);
+(queryLiveConstantClientEdgeResolverType: () => LiveState<any>);
 export type LiveResolversTest13Query$variables = {||};
 export type LiveResolversTest13Query$data = {|
   +live_constant_client_edge: ?{|
@@ -86,16 +86,11 @@ var node/*: ClientRequest*/ = {
     "name": "LiveResolversTest13Query",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "live_constant_client_edge",
-            "args": null,
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "name": "live_constant_client_edge",
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null
       }
     ]
   },

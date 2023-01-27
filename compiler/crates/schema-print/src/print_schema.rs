@@ -35,7 +35,7 @@ pub fn print(schema: &SDLSchema) -> String {
 }
 
 pub fn print_schema_definition(schema: &SDLSchema) -> String {
-    if is_schema_of_common_name(schema) {
+    if is_schema_of_common_name(schema) || !has_schema_definition_types(schema) {
         return String::new();
     }
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
@@ -513,6 +513,12 @@ fn is_schema_of_common_name(schema: &SDLSchema) -> bool {
     schema.query_type().is_some()
         && schema.mutation_type().is_some()
         && schema.subscription_type().is_some()
+}
+
+fn has_schema_definition_types(schema: &SDLSchema) -> bool {
+    schema.query_type().is_some()
+        || schema.mutation_type().is_some()
+        || schema.subscription_type().is_some()
 }
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {

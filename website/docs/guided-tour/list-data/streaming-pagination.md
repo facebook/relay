@@ -28,7 +28,6 @@ Additionally, we can combine `usePaginationFragment` with Relay's Incremental Da
 In order to do so, we can use the `@stream_connection` directive instead of the `@connection` directive:
 
 ```js
-import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 
 const React = require('React');
@@ -46,7 +45,7 @@ function FriendsListComponent(props: Props) {
     data,
     loadNext,
     hasNext,
-  } = usePaginationFragment<FriendsListPaginationQuery, _>(
+  } = usePaginationFragment(
     graphql`
       fragment FriendsListComponent_user on User
       @refetchable(queryName: "FriendsListPaginationQuery") {

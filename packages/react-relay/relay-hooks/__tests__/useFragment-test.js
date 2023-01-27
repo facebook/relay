@@ -343,6 +343,7 @@ describe.each([
   });
 
   it('Returns [] when the fragment ref is [] (for plural fragments)', () => {
+    // $FlowFixMe[missing-empty-array-annot]
     const container = renderPluralFragment({usersRef: []});
     assertFragmentResults([]);
     container.unmount();

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<90e2c0499bdf116ea44eb268c3d35607>>
+ * @generated SignedSource<<2fffd18b076dec55f66a04b630642e13>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,13 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import {non_live_resolver_with_live_return_value as queryNonLiveResolverWithLiveReturnValueResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue.js";
-// Type assertion validating that `queryNonLiveResolverWithLiveReturnValueResolver` resolver is correctly implemented.
+import {non_live_resolver_with_live_return_value as queryNonLiveResolverWithLiveReturnValueResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue.js";
+// Type assertion validating that `queryNonLiveResolverWithLiveReturnValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryNonLiveResolverWithLiveReturnValueResolver: () => mixed);
+(queryNonLiveResolverWithLiveReturnValueResolverType: () => mixed);
 export type LiveResolversTest17Query$variables = {||};
 export type LiveResolversTest17Query$data = {|
-  +non_live_resolver_with_live_return_value: ?$Call<<R>((...empty[]) => R) => R, typeof queryNonLiveResolverWithLiveReturnValueResolver>,
+  +non_live_resolver_with_live_return_value: ?$Call<<R>((...empty[]) => R) => R, typeof queryNonLiveResolverWithLiveReturnValueResolverType>,
 |};
 export type LiveResolversTest17Query = {|
   response: LiveResolversTest17Query$data,

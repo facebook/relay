@@ -94,42 +94,70 @@ extend type Query {
     "name": "inlineFragmentOnAbstractClientTypeNestedInResolverClientEdgeQuery",
     "selections": [
       {
-        "name": "some_resolver",
-        "args": null,
-        "fragment": {
-          "kind": "InlineFragment",
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "some_resolver",
+          "args": null,
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "me",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "id",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "Query",
+            "abstractKey": null
+          },
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientUser",
+          "kind": "LinkedField",
+          "name": "some_resolver",
+          "plural": false,
           "selections": [
             {
-              "alias": null,
-              "args": null,
-              "concreteType": "User",
-              "kind": "LinkedField",
-              "name": "me",
-              "plural": false,
+              "kind": "InlineFragment",
               "selections": [
                 {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "__typename",
-                  "storageKey": null
-                },
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "id",
+                  "name": "name",
                   "storageKey": null
                 }
               ],
-              "storageKey": null
+              "type": "SomeInterface",
+              "abstractKey": "__isSomeInterface"
             }
           ],
-          "type": "Query",
-          "abstractKey": null
-        },
-        "kind": "RelayResolver",
-        "storageKey": null
+          "storageKey": null
+        }
       }
     ],
     "clientAbstractTypes": {

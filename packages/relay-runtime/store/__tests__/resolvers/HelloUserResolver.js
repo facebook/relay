@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {DataID} from '../../../util/RelayRuntimeTypes';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 /**
  * @RelayResolver
@@ -21,8 +21,10 @@ import type {DataID} from '../../../util/RelayRuntimeTypes';
  *
  * This should return the User
  */
-function hello_user(args: {id: string}): DataID {
-  return args.id;
+function hello_user(args: {
+  id: string,
+}): ConcreteClientEdgeResolverReturnType<> {
+  return {id: args.id};
 }
 
 module.exports = {

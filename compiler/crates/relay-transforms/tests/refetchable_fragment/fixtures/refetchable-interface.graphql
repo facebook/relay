@@ -1,0 +1,32 @@
+fragment RefetchableFragment on RefetchableInterface
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}
+
+fragment RefetchableFragment2 on RefetchableInterface2
+  @refetchable(queryName: "RefetchableFragmentQuery2") {
+  __typename
+}
+
+# %extensions%
+
+interface RefetchableInterface @fetchable(field_name: "id") {
+    id: ID!
+}
+
+interface RefetchableInterface2 @fetchable(field_name: "not_id") {
+    not_id: ID!
+}
+
+extend type Query {
+  fetch__RefetchableInterface(id: ID!): RefetchableInterface
+  fetch__RefetchableInterface2(id: ID!): RefetchableInterface2
+}
+
+type ConcreteTypeImplementingRefetchableInterface implements RefetchableInterface {
+  id: ID!
+}
+
+type ConcreteTypeImplementingRefetchableInterface2 implements RefetchableInterface2 {
+  not_id: ID!
+}

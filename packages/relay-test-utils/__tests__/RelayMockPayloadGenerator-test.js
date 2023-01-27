@@ -1052,6 +1052,7 @@ describe('with @relay_test_operation', () => {
       {
         User(_, generateId) {
           return {
+            // $FlowFixMe[missing-empty-array-annot]
             emailAddresses: [],
           };
         },

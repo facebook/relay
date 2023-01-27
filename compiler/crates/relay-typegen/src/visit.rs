@@ -7,6 +7,7 @@
 
 use std::hash::Hash;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use ::intern::intern;
 use ::intern::string_key::Intern;
@@ -469,7 +470,7 @@ fn import_relay_resolver_function_type(
     resolver_metadata: &RelayResolverMetadata,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    let local_resolver_name = resolver_metadata.generate_local_resolver_name();
+    let local_resolver_name = resolver_metadata.generate_local_resolver_type_name();
     let resolver_name = if let Some(name) = resolver_metadata.import_name {
         ImportedResolverName::Named {
             name,
@@ -509,12 +510,11 @@ fn import_relay_resolver_function_type(
 
 /// Check if the scalar field has output type as `RelayResolverValue`
 fn is_relay_resolver_type(typegen_context: &'_ TypegenContext<'_>, field: &Field) -> bool {
-    typegen_context
-        .schema
-        .scalar(field.type_.inner().get_scalar_id().unwrap())
-        .name
-        .item
-        == *TYPE_RELAY_RESOLVER_VALUE
+    if let Some(scalar_id) = field.type_.inner().get_scalar_id() {
+        typegen_context.schema.scalar(scalar_id).name.item == *TYPE_RELAY_RESOLVER_VALUE
+    } else {
+        false
+    }
 }
 
 /// Build relay resolver field type
@@ -606,7 +606,7 @@ fn visit_relay_resolver(
     let field_name = resolver_metadata.field_name;
     let key = resolver_metadata.field_alias.unwrap_or(field_name);
     let live = resolver_metadata.live;
-    let local_resolver_name = resolver_metadata.generate_local_resolver_name();
+    let local_resolver_name = resolver_metadata.generate_local_resolver_type_name();
 
     let resolver_type = relay_resolver_field_type(
         typegen_context,
@@ -672,7 +672,9 @@ fn visit_client_edge(
 
     let mut client_edge_selections = visit_selections(
         typegen_context,
-        &[client_edge_metadata.selections.clone()],
+        &[Selection::LinkedField(Arc::new(
+            client_edge_metadata.linked_field.clone(),
+        ))],
         input_object_types,
         encountered_enums,
         imported_raw_response_types,

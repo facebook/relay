@@ -14,6 +14,7 @@ use lsp_server::RequestId as ServerRequestId;
 use lsp_server::Response as ServerResponse;
 use lsp_server::ResponseError;
 use lsp_types::request::Request;
+use serde_json::Value;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -76,6 +77,11 @@ fn convert_to_lsp_response(
         Ok(result) => ServerResponse {
             id,
             result: Some(result),
+            error: None,
+        },
+        Err(LSPRuntimeError::ExpectedError) => ServerResponse {
+            id,
+            result: Some(Value::Null),
             error: None,
         },
         Err(runtime_error) => {

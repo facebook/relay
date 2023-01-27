@@ -14,6 +14,7 @@
 import type {LogEvent} from '../../relay-runtime/store/RelayStoreTypes';
 import type {RelayResolverModelTestFragment$key} from './__generated__/RelayResolverModelTestFragment.graphql';
 import type {RelayResolverModelTestWithPluralFragment$key} from './__generated__/RelayResolverModelTestWithPluralFragment.graphql';
+import type {RelayResolverModelTestInterfaceFragment$key} from './__generated__/RelayResolverModelTestInterfaceFragment.graphql';
 
 const React = require('react');
 const {
@@ -276,5 +277,79 @@ describe.each([
       jest.runAllImmediates();
     });
     expect(renderer.toJSON()).toEqual('Test todo - green');
+  });
+
+  test('read interface field', () => {
+    function TodoComponentWithInterfaceComponent(props: {todoID: string}) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestTodoWithInterfaceQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              ...RelayResolverModelTestInterfaceFragment
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      if (data?.todo_model == null) {
+        return null;
+      }
+
+      return <TodoComponentWithInterface fragmentKey={data.todo_model} />;
+    }
+
+    function TodoComponentWithInterface(props: {
+      fragmentKey: ?RelayResolverModelTestInterfaceFragment$key,
+    }) {
+      const data = useFragment(
+        graphql`
+          fragment RelayResolverModelTestInterfaceFragment on TodoModel {
+            fancy_description {
+              some_interface {
+                __typename
+                description
+              }
+              some_client_type_with_interface {
+                client_interface {
+                  __typename
+                  description
+                }
+              }
+            }
+          }
+        `,
+        props.fragmentKey,
+      );
+      return JSON.stringify(data);
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithInterfaceComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    // $FlowFixMe[incompatible-call] Yes, it is compatible...
+    const response = JSON.parse(renderer.toJSON() ?? '{}');
+    jest.runAllImmediates();
+
+    // This incorrectly currently reads out just the typename from resolvers which
+    // return interface fields
+    expect(response.fancy_description?.some_interface).toEqual({
+      __typename: 'ClientTypeImplementingClientInterface',
+      description: 'It was a magical place',
+    });
+
+    // However, for resolvers which return objects that contain interface fields,
+    // we correctly read out the data.
+    expect(
+      response?.fancy_description?.some_client_type_with_interface,
+    ).toEqual({
+      client_interface: {
+        __typename: 'ClientTypeImplementingClientInterface',
+        description: 'It was a magical place',
+      },
+    });
   });
 });

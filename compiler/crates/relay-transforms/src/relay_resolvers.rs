@@ -40,6 +40,7 @@ use schema::Field;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 
 use super::ValidationMessage;
 use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
@@ -79,11 +80,13 @@ lazy_static! {
         ArgumentName("inject_fragment_data".intern());
     pub static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
         DirectiveName("__RelayWeakObject".intern());
+    static ref RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__RelayResolverModel".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ResolverNormalizationInfo {
-    pub type_name: StringKey,
+    pub inner_type: Type,
     pub plural: bool,
     pub normalization_operation: WithLocation<OperationDefinitionName>,
     pub weak_object_instance_field: Option<StringKey>,
@@ -138,6 +141,13 @@ impl RelayResolverMetadata {
     pub fn generate_local_resolver_name(&self) -> StringKey {
         to_camel_case(format!(
             "{}_{}_resolver",
+            self.field_parent_type, self.field_name
+        ))
+        .intern()
+    }
+    pub fn generate_local_resolver_type_name(&self) -> StringKey {
+        to_camel_case(format!(
+            "{}_{}_resolver_type",
             self.field_parent_type, self.field_name
         ))
         .intern()
@@ -285,19 +295,11 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
                     .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
-                let selections_field = match client_edge_metadata.selections {
-                    Selection::LinkedField(linked_field) => self
-                        .default_transform_linked_field(linked_field)
-                        .unwrap_or_else(|| {
-                            Selection::LinkedField(
-                                #[allow(clippy::clone_on_ref_ptr)]
-                                linked_field.clone(),
-                            )
-                        }),
-                    _ => panic!(
-                        "Expected the Client Edges transform to always make the second selection the linked field."
-                    ),
-                };
+                let selections_field = self
+                    .default_transform_linked_field(client_edge_metadata.linked_field)
+                    .unwrap_or_else(|| {
+                        Selection::LinkedField(Arc::new(client_edge_metadata.linked_field.clone()))
+                    });
 
                 let selections = vec![backing_id_field, selections_field];
 
@@ -367,7 +369,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
         .and_then(|info| {
             if !self.enabled {
                 self.errors.push(Diagnostic::error(
-                    ValidationMessage::RelayResolversDisabled {},
+                    ValidationMessage::RelayResolversDisabled,
                     field.alias_or_name_location(),
                 ));
                 return None;
@@ -390,7 +392,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         });
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(
-                            ValidationMessage::RelayResolverUnexpectedDirective {},
+                            ValidationMessage::RelayResolverUnexpectedDirective,
                             directive.name.location,
                         ));
                     }
@@ -436,10 +438,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
 
                             Some(ResolverOutputTypeInfo::Composite(
                                 ResolverNormalizationInfo {
-                                    type_name: self
-                                        .program
-                                        .schema
-                                        .get_type_name(field_type.type_.inner()),
+                                    inner_type: field_type.type_.inner(),
                                     plural: field_type.type_.is_list(),
                                     normalization_operation,
                                     weak_object_instance_field,
@@ -539,19 +538,11 @@ impl Transformer for RelayResolverFieldTransform<'_> {
                     .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
-                let selections_field = match client_edge_metadata.selections {
-                    Selection::LinkedField(linked_field) => self
-                        .default_transform_linked_field(linked_field)
-                        .unwrap_or_else(|| {
-                            Selection::LinkedField(
-                                #[allow(clippy::clone_on_ref_ptr)]
-                                linked_field.clone(),
-                            )
-                        }),
-                    _ => panic!(
-                        "Expected the Client Edges transform to always make the second selection the linked field."
-                    ),
-                };
+                let selections_field = self
+                    .default_transform_linked_field(client_edge_metadata.linked_field)
+                    .unwrap_or_else(|| {
+                        Selection::LinkedField(Arc::new(client_edge_metadata.linked_field.clone()))
+                    });
 
                 let selections = vec![backing_id_field, selections_field];
 
@@ -699,7 +690,12 @@ pub(crate) fn get_bool_argument_is_true(
     }
 }
 
-pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionName> {
+// If the field is a resolver, return its user defined fragment name. Does not
+// return generated fragment names.
+pub fn get_resolver_fragment_dependency_name(
+    field: &Field,
+    schema: &SDLSchema,
+) -> Option<FragmentDefinitionName> {
     if !field.is_extension {
         return None;
     }
@@ -712,7 +708,27 @@ pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionNam
                 .arguments
                 .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
         })
+        .filter(|_| {
+            // Resolvers on relay model types use generated fragments, and
+            // therefore have no user-defined fragment dependency.
+            !is_field_of_relay_model(schema, field)
+        })
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
+}
+
+fn is_field_of_relay_model(schema: &SDLSchema, field: &Field) -> bool {
+    if let Some(parent_type) = field.parent_type {
+        let directives = match parent_type {
+            schema::Type::Object(object_id) => &schema.object(object_id).directives,
+            schema::Type::Interface(interface_id) => &schema.interface(interface_id).directives,
+            schema::Type::Union(union_id) => &schema.union(union_id).directives,
+            _ => panic!("Expected parent to be an object, interface or union."),
+        };
+
+        directives.named(*RESOLVER_MODEL_DIRECTIVE_NAME).is_some()
+    } else {
+        false
+    }
 }
 
 fn to_camel_case(non_camelized_string: String) -> String {

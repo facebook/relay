@@ -89,7 +89,14 @@ fragment Foo_node on Node {
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-inline-fragment.graphql:9:17,
+#         item: "Foo_node",
+#     },
+# }
+ @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: OperationDefinitionName(
 #         "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
@@ -106,7 +113,14 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-inline-fragment.graphql:9:17,
+#         item: "Foo_node",
+#     },
+# }
+ @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: OperationDefinitionName(
 #         "ClientEdgeQuery_Foo_node_Story__author__best_friend",

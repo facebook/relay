@@ -41,7 +41,6 @@ use crate::RefetchableDerivedFromMetadata;
 use crate::RelayClientComponentMetadata;
 use crate::RelayResolverMetadata;
 use crate::RequiredMetadataDirective;
-use crate::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
 use crate::DIRECTIVE_SPLIT_OPERATION;
 use crate::INTERNAL_METADATA_DIRECTIVE;
 
@@ -88,7 +87,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 23] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 22] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -104,7 +103,6 @@ lazy_static! {
         RequiredMetadataDirective::directive_name(),
         ClientEdgeMetadataDirective::directive_name(),
         ClientEdgeGeneratedQueryMetadataDirective::directive_name(),
-        *CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
         RelayResolverMetadata::directive_name(),
         RelayClientComponentMetadata::directive_name(),

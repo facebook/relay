@@ -22,8 +22,6 @@ use relay_transforms::Programs;
 use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::SplitOperationMetadata;
-use relay_transforms::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
-use relay_transforms::CLIENT_EDGE_SOURCE_NAME;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use relay_transforms::UPDATABLE_DIRECTIVE;
 
@@ -158,17 +156,10 @@ pub fn generate_artifacts(
             panic!("Expected at least one of an @updatable reader AST, or normalization AST to be present");
         })
         .chain(programs.reader.fragments().map(|reader_fragment| {
-            let source_name = if let Some(client_edges_directive) = reader_fragment
-                .directives
-                .named(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY)
+            let source_name = if let Some(client_edges_directive) =
+                ClientEdgeGeneratedQueryMetadataDirective::find(&reader_fragment.directives)
             {
-                client_edges_directive
-                    .arguments
-                    .named(*CLIENT_EDGE_SOURCE_NAME)
-                    .expect("Client edges should have a source argument")
-                    .value
-                    .item
-                    .expect_string_literal()
+                client_edges_directive.source_name.item
             } else {
                 reader_fragment.name.item.0
             };

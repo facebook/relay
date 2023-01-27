@@ -55,8 +55,6 @@ lazy_static! {
     pub static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: ArgumentName = ArgumentName("clientEdgeSourceDocument".intern());
-    // This gets attached to fragment which defines the selection in the generated query
-    pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
 }
 
@@ -235,16 +233,15 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             variable_definitions: Vec::new(),
             used_global_variables: Vec::new(),
             type_condition: field_type,
-            directives: vec![Directive {
-                name: WithLocation::generated(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY),
-                arguments: vec![Argument {
-                    name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                        document_name.item,
-                    ))),
-                }],
-                data: None,
-            }],
+            directives: vec![
+                // Used to influence where we place this generated file, and
+                // the document from which we derive the source hash for the
+                // Client Edge generated query's artifact.
+                ClientEdgeGeneratedQueryMetadataDirective {
+                    source_name: document_name,
+                }
+                .into(),
+            ],
             selections,
         };
 

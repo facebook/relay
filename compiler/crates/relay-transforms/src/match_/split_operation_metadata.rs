@@ -10,14 +10,15 @@ use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
+use graphql_ir::reexport::StringKey;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Value;
 use intern::string_key::Intern;
-use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
+use rustc_hash::FxHashSet;
 
 lazy_static! {
     pub static ref DIRECTIVE_SPLIT_OPERATION: DirectiveName =
@@ -62,7 +63,7 @@ pub struct SplitOperationMetadata {
     /// The names of the fragments and operations that included this fragment.
     /// They are the reason this split operation exists. If they are all removed,
     /// this file also needs to be removed.
-    pub parent_documents: StringKeySet,
+    pub parent_documents: FxHashSet<StringKey>,
 
     /// Should a @raw_response_type style type be generated.
     pub raw_response_type_generation_mode: Option<RawResponseGenerationMode>,

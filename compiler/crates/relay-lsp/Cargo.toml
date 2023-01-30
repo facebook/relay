@@ -39,7 +39,7 @@ schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
-tokio = { version = "1.21.2", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.25.0", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

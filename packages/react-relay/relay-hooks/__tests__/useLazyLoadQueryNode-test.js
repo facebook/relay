@@ -89,7 +89,6 @@ function expectToHaveFetched(
 type Props = {
   variables: {...},
   fetchPolicy?: FetchPolicy,
-  key?: number,
   extraData?: number,
 };
 
@@ -111,6 +110,7 @@ describe('useLazyLoadQueryNode', () => {
   let variables;
   let Container;
   let setProps;
+  let setKey;
   let logs: Array<LogEvent>;
   let errorBoundaryDidCatchFn;
 
@@ -144,10 +144,12 @@ describe('useLazyLoadQueryNode', () => {
       return renderFn(data);
     };
 
-    Container = (props: Props) => {
+    Container = (props: Props, key?: number) => {
       const [nextProps, setNextProps] = React.useState(props);
+      const [nextKey, setNextKey] = React.useState(key);
       setProps = setNextProps;
-      return <Renderer {...nextProps} />;
+      setKey = setNextKey;
+      return <Renderer {...nextProps} key={nextKey} />;
     };
 
     render = (env: RelayMockEnvironment, children: React.Node) => {
@@ -468,7 +470,7 @@ describe('useLazyLoadQueryNode', () => {
     // Render the component
     const instance = render(
       environment,
-      <Container key={0} variables={variables} />,
+      <Container variables={variables} key={0} />,
     );
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -502,7 +504,8 @@ describe('useLazyLoadQueryNode', () => {
 
     ReactTestRenderer.act(() => {
       // Pass a new key to force a re-mount
-      setProps({variables, key: 1});
+      setProps({variables});
+      setKey(1);
       jest.runAllImmediates();
     });
 
@@ -761,7 +764,8 @@ describe('useLazyLoadQueryNode', () => {
       // force re-rendering of the component, to read from the QueryResource
       // by default, error responses do not trigger react updates
       ReactTestRenderer.act(() => {
-        setProps({variables, key: 1});
+        setProps({variables});
+        setKey(1);
       });
 
       // This time, error boundary will render the error
@@ -807,7 +811,8 @@ describe('useLazyLoadQueryNode', () => {
       // force re-rendering of the component, to read from the QueryResource
       // by default, error responses do not trigger react updates
       ReactTestRenderer.act(() => {
-        setProps({variables, key: 1});
+        setProps({variables});
+        setKey(1);
       });
 
       // error boundary should not display that error

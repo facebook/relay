@@ -13,6 +13,7 @@ use std::path::Path;
 
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
+use graphql_ir::reexport::Intern;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use indexmap::IndexMap;
@@ -26,6 +27,7 @@ use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
 use crate::ast::JSModuleDependency;
+use crate::ast::ModuleImportName;
 use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
@@ -39,7 +41,6 @@ use crate::build_ast::build_request_params_ast_key;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::object;
-use crate::top_level_statements::ModuleImportName;
 use crate::top_level_statements::TopLevelStatement;
 use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
@@ -466,34 +467,26 @@ impl<'b> JSONPrinter<'b> {
             }
             Primitive::GraphQLModuleDependency(key) => self.write_js_dependency(
                 f,
-                ModuleImportName::Default(format!("{}_graphql", key)),
+                ModuleImportName::Default(format!("{}_graphql", key).intern()),
                 Cow::Owned(format!(
                     "{}.graphql",
                     get_module_path(self.js_module_format, *key)
                 )),
             ),
-            Primitive::JSModuleDependency(JSModuleDependency {
-                path,
-                named_import,
-                import_as,
-            }) => self.write_js_dependency(
-                f,
-                named_import
-                    .map(|name| ModuleImportName::Named {
-                        name: name.to_string(),
-                        import_as: import_as.map(|item| item.to_string()),
-                    })
-                    .unwrap_or_else(|| ModuleImportName::Default(path.to_string())),
-                get_module_path(self.js_module_format, *path),
-            ),
+            Primitive::JSModuleDependency(JSModuleDependency { path, import_name }) => self
+                .write_js_dependency(
+                    f,
+                    import_name.clone(),
+                    get_module_path(self.js_module_format, *path),
+                ),
             Primitive::DynamicImport { provider, module } => match provider {
                 DynamicModuleProvider::JSResource => {
                     self.top_level_statements.insert(
                         "JSResource".to_string(),
-                        TopLevelStatement::ImportStatement {
-                            module_import_name: ModuleImportName::Default("JSResource".to_string()),
-                            path: "JSResource".to_string(),
-                        },
+                        TopLevelStatement::ImportStatement(JSModuleDependency {
+                            path: "JSResource".intern(),
+                            import_name: ModuleImportName::Default("JSResource".intern()),
+                        }),
                     );
                     write!(f, "() => JSResource('m#{}')", module)
                 }
@@ -546,16 +539,14 @@ impl<'b> JSONPrinter<'b> {
                     ref name,
                     ref import_as,
                 } => import_as
-                    .as_ref()
-                    .cloned()
-                    .unwrap_or_else(|| name.to_string()),
+                    .map_or_else(|| name.to_string(), |import_name| import_name.to_string()),
             };
             self.top_level_statements.insert(
                 key.to_string(),
-                TopLevelStatement::ImportStatement {
-                    module_import_name,
-                    path,
-                },
+                TopLevelStatement::ImportStatement(JSModuleDependency {
+                    path: path.intern(),
+                    import_name: module_import_name,
+                }),
             );
             write!(f, "{}", key)
         } else {
@@ -583,7 +574,7 @@ impl<'b> JSONPrinter<'b> {
         self.write_js_dependency(
             f,
             ModuleImportName::Named {
-                name: resolver_data_injector.to_string(),
+                name: resolver_data_injector.intern(),
                 import_as: None,
             },
             Cow::Borrowed(relay_runtime_experimental),
@@ -591,7 +582,7 @@ impl<'b> JSONPrinter<'b> {
         write!(f, "(")?;
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(format!("{}_graphql", graphql_module)),
+            ModuleImportName::Default(format!("{}_graphql", graphql_module).intern()),
             Cow::Owned(format!(
                 "{}.graphql",
                 get_module_path(self.js_module_format, graphql_module)
@@ -600,13 +591,7 @@ impl<'b> JSONPrinter<'b> {
         write!(f, ", ")?;
         self.write_js_dependency(
             f,
-            js_module.named_import.map_or_else(
-                || ModuleImportName::Default(js_module.path.to_string()),
-                |name| ModuleImportName::Named {
-                    name: name.to_string(),
-                    import_as: js_module.import_as.map(|item| item.to_string()),
-                },
-            ),
+            js_module.import_name.clone(),
             get_module_path(self.js_module_format, js_module.path),
         )?;
         if let Some((field_name, is_required_field)) = injected_field_name_details {
@@ -636,7 +621,7 @@ impl<'b> JSONPrinter<'b> {
         self.write_js_dependency(
             f,
             ModuleImportName::Named {
-                name: weak_object_wrapper.to_string(),
+                name: weak_object_wrapper.intern(),
                 import_as: None,
             },
             Cow::Borrowed(relay_runtime_experimental),

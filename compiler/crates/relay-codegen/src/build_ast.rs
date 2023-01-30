@@ -70,6 +70,7 @@ use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
 use crate::ast::JSModuleDependency;
+use crate::ast::ModuleImportName;
 use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
@@ -1004,10 +1005,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let args = self.build_arguments(field_arguments);
 
+        let variable_name = relay_resolver_metadata.generate_local_resolver_name();
         let resolver_js_module = JSModuleDependency {
             path: import_path,
-            named_import: relay_resolver_metadata.import_name,
-            import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
+            import_name: match relay_resolver_metadata.import_name {
+                Some(name) => ModuleImportName::Named {
+                    name,
+                    import_as: Some(variable_name),
+                },
+                None => ModuleImportName::Default(variable_name),
+            },
         };
 
         let resolver_module = if let Some((fragment_name, injection_mode)) =
@@ -1842,8 +1849,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     key: def.name.item.0,
                     value: Primitive::JSModuleDependency(JSModuleDependency {
                         path: provider_module,
-                        named_import: None,
-                        import_as: None,
+                        import_name: ModuleImportName::Default(provider.module_name),
                     }),
                 })
             })
@@ -1921,8 +1927,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 Some(QueryID::External(module_name)) => {
                     Primitive::JSModuleDependency(JSModuleDependency {
                         path: *module_name,
-                        named_import: None,
-                        import_as: None,
+                        import_name: ModuleImportName::Default(*module_name),
                     })
                 }
                 None => Primitive::Null,

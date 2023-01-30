@@ -61,11 +61,19 @@ impl Ast {
     }
 }
 
-#[derive(Eq, PartialEq, Hash, Debug)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+pub enum ModuleImportName {
+    Default(StringKey),
+    Named {
+        name: StringKey,
+        import_as: Option<StringKey>,
+    },
+}
+
+#[derive(Eq, PartialEq, Hash, PartialOrd, Ord, Debug, Clone)]
 pub struct JSModuleDependency {
     pub path: StringKey,
-    pub named_import: Option<StringKey>,
-    pub import_as: Option<StringKey>,
+    pub import_name: ModuleImportName,
 }
 
 #[derive(Eq, PartialEq, Hash, Debug)]

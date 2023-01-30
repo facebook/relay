@@ -10,41 +10,33 @@ use std::fmt::Result as FmtResult;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 
+use crate::ast::JSModuleDependency;
+use crate::ast::ModuleImportName;
+
 #[derive(Default, Clone)]
 pub struct TopLevelStatements(IndexMap<String, TopLevelStatement, FnvBuildHasher>);
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TopLevelStatement {
-    ImportStatement {
-        module_import_name: ModuleImportName,
-        path: String,
-    },
+    ImportStatement(JSModuleDependency),
     VariableDefinition(String),
-}
-
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum ModuleImportName {
-    Default(String),
-    Named {
-        name: String,
-        import_as: Option<String>,
-    },
 }
 
 impl std::fmt::Display for TopLevelStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> FmtResult {
         match self {
-            TopLevelStatement::ImportStatement {
-                module_import_name,
-                path,
-            } => match module_import_name {
+            TopLevelStatement::ImportStatement(dependency) => match dependency.import_name {
                 ModuleImportName::Default(default_import) => {
-                    write!(f, "import {} from '{}';\n", default_import, path)?
+                    write!(f, "import {} from '{}';\n", default_import, dependency.path)?
                 }
                 ModuleImportName::Named { name, import_as } => {
                     if let Some(import_as) = import_as {
-                        write!(f, "import {{{} as {}}} from '{}';\n", name, import_as, path)?
+                        write!(
+                            f,
+                            "import {{{} as {}}} from '{}';\n",
+                            name, import_as, dependency.path
+                        )?
                     } else {
-                        write!(f, "import {{{}}} from '{}';\n", name, path)?
+                        write!(f, "import {{{}}} from '{}';\n", name, dependency.path)?
                     }
                 }
             },

@@ -85,7 +85,11 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGe
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment-no-type-condition.graphql:9:17,
-#         item: "Foo_user",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
 #     },
 # }
  @__RefetchableMetadata
@@ -109,7 +113,11 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__ClientEdge
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment-no-type-condition.graphql:9:17,
-#         item: "Foo_user",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
 #     },
 # }
  @__RefetchableMetadata
@@ -135,7 +143,11 @@ query ClientEdgeQuery_Foo_user_best_friend(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment-no-type-condition.graphql:9:17,
-#         item: "Foo_user",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
 #     },
 # }
  {
@@ -150,7 +162,11 @@ query ClientEdgeQuery_Foo_user_best_friend_1(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment-no-type-condition.graphql:9:17,
-#         item: "Foo_user",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
 #     },
 # }
  {

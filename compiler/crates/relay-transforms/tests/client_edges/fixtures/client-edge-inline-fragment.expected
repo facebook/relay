@@ -93,7 +93,11 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment.graphql:9:17,
-#         item: "Foo_node",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_node",
+#             ),
+#         ),
 #     },
 # }
  @__RefetchableMetadata
@@ -117,7 +121,11 @@ fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User 
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment.graphql:9:17,
-#         item: "Foo_node",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_node",
+#             ),
+#         ),
 #     },
 # }
  @__RefetchableMetadata
@@ -143,7 +151,11 @@ query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment.graphql:9:17,
-#         item: "Foo_node",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_node",
+#             ),
+#         ),
 #     },
 # }
  {
@@ -158,7 +170,11 @@ query ClientEdgeQuery_Foo_node_Story__author__best_friend(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment.graphql:9:17,
-#         item: "Foo_node",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_node",
+#             ),
+#         ),
 #     },
 # }
  {

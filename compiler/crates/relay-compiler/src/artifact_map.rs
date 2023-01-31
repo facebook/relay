@@ -9,16 +9,13 @@ use std::path::PathBuf;
 
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
-use intern::string_key::StringKey;
+use graphql_ir::ExecutableDefinitionName;
 use relay_codegen::QueryID;
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::build_project::Artifact;
 use crate::build_project::ArtifactContent;
-
-/// Name of a fragment or operation.
-pub type DefinitionName = StringKey;
 
 /// Record that contains path to the artifact, persisted_operation_id (when available)
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -28,7 +25,7 @@ pub struct ArtifactRecord {
 }
 /// A map from DefinitionName to output artifacts records
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]
-pub struct ArtifactMap(pub DashMap<DefinitionName, Vec<ArtifactRecord>>);
+pub struct ArtifactMap(pub DashMap<ExecutableDefinitionName, Vec<ArtifactRecord>>);
 
 impl ArtifactMap {
     pub fn insert(&self, artifact: Artifact) {

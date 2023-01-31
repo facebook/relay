@@ -8,9 +8,11 @@
 use common::Diagnostic;
 use dependency_analyzer::get_reachable_ir;
 use fnv::FnvHashMap;
+use graphql_ir::ExecutableDefinitionName;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
-use intern::string_key::StringKey;
 use md5::Digest;
 use md5::Md5;
 use schema::SDLSchema;
@@ -24,20 +26,24 @@ pub struct BuildIRResult {
 }
 
 /// Map fragments and queries definition names to the md5 of they printed source
-pub struct SourceHashes(FnvHashMap<StringKey, String>);
+pub struct SourceHashes(FnvHashMap<ExecutableDefinitionName, String>);
 
 impl SourceHashes {
     pub fn from_definitions(definitions: &[ExecutableDefinition]) -> Self {
         let mut source_hashes = FnvHashMap::default();
         for ast in definitions {
             if let Some(name) = ast.name() {
-                source_hashes.insert(name, md5(&print_executable_definition_ast(ast)));
+                let key = match ast {
+                    ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
+                    ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
+                };
+                source_hashes.insert(key, md5(&print_executable_definition_ast(ast)));
             }
         }
         Self(source_hashes)
     }
 
-    pub fn get(&self, k: &StringKey) -> Option<&String> {
+    pub fn get(&self, k: &ExecutableDefinitionName) -> Option<&String> {
         self.0.get(k)
     }
 }

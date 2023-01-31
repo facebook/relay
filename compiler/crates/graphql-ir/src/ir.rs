@@ -31,6 +31,7 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use serde::Deserialize;
 use serde::Serialize;
 
 use crate::AssociatedData;
@@ -63,7 +64,18 @@ impl ExecutableDefinition {
         }
     }
 }
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Serialize,
+    Deserialize
+)]
 pub struct OperationDefinitionName(pub StringKey);
 
 impl Display for OperationDefinitionName {
@@ -103,7 +115,18 @@ impl OperationDefinition {
 }
 
 /// A newtype wrapper around StringKey to represent a FragmentDefinition's name
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    Serialize,
+    Deserialize
+)]
 pub struct FragmentDefinitionName(pub StringKey);
 
 impl fmt::Display for FragmentDefinitionName {
@@ -132,7 +155,18 @@ pub struct FragmentDefinition {
 /// subscriptions and mutations) or a fragment name. Note that the graphql spec
 /// [defines](https://spec.graphql.org/draft/#ExecutableDefinition) executable
 /// definitions as either operations or fragments.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Eq,
+    Hash,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Serialize,
+    Deserialize
+)]
 pub enum ExecutableDefinitionName {
     OperationDefinitionName(OperationDefinitionName),
     FragmentDefinitionName(FragmentDefinitionName),
@@ -173,6 +207,17 @@ impl Lookup for ExecutableDefinitionName {
         match self {
             ExecutableDefinitionName::OperationDefinitionName(name) => name.lookup(),
             ExecutableDefinitionName::FragmentDefinitionName(name) => name.lookup(),
+        }
+    }
+}
+
+impl ExecutableDefinitionName {
+    pub fn unwrap_fragment_definition_name(&self) -> FragmentDefinitionName {
+        match self {
+            ExecutableDefinitionName::OperationDefinitionName(_) => {
+                panic!("Expected FragmentDefinitionName, found {}", self)
+            }
+            ExecutableDefinitionName::FragmentDefinitionName(name) => *name,
         }
     }
 }

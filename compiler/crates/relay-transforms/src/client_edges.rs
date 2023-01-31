@@ -19,6 +19,7 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -81,7 +82,7 @@ associated_data_impl!(ClientEdgeMetadataDirective);
 /// Metadata directive attached to generated queries
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ClientEdgeGeneratedQueryMetadataDirective {
-    pub source_name: WithLocation<StringKey>,
+    pub source_name: WithLocation<ExecutableDefinitionName>,
 }
 associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
@@ -160,7 +161,7 @@ pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> Diagnost
 
 struct ClientEdgesTransform<'program, 'sc> {
     path: Vec<&'program str>,
-    document_name: Option<WithLocation<StringKey>>,
+    document_name: Option<WithLocation<ExecutableDefinitionName>>,
     query_names: StringKeyMap<usize>,
     program: &'program Program,
     new_fragments: Vec<Arc<FragmentDefinition>>,
@@ -452,7 +453,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name.map(|x| x.0));
+        self.document_name = Some(fragment.name.map(|name| name.into()));
         let new_fragment = self.default_transform_fragment(fragment);
         self.document_name = None;
         new_fragment
@@ -462,7 +463,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name.map(|x| x.0));
+        self.document_name = Some(operation.name.map(|name| name.into()));
         let new_operation = self.default_transform_operation(operation);
         self.document_name = None;
         new_operation

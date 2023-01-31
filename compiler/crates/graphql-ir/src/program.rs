@@ -8,7 +8,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use intern::string_key::StringKey;
 use intern::BuildIdHasher;
 use schema::SDLSchema;
 
@@ -146,11 +145,14 @@ impl Program {
         }
         if let Some(removed_definition_names) = removed_definition_names {
             for removed in removed_definition_names {
-                // What are we doing here? Is removed the name of a fragment or an operation?
-                // TODO investigate (T143479189)
-                let name: StringKey = (*removed).into();
-                self.fragments.remove(&FragmentDefinitionName(name));
-                operations.remove(&OperationDefinitionName(name));
+                match removed {
+                    ExecutableDefinitionName::OperationDefinitionName(name) => {
+                        operations.remove(name);
+                    }
+                    ExecutableDefinitionName::FragmentDefinitionName(name) => {
+                        self.fragments.remove(name);
+                    }
+                };
             }
         }
         self.operations

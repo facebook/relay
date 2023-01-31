@@ -639,6 +639,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let field_name = resolver_metadata.field_name;
         let field_arguments = &resolver_metadata.field_arguments;
         let args = self.build_arguments(field_arguments);
+        let is_output_type = resolver_metadata.output_type_info.is_some();
         Primitive::Key(self.object(object! {
             name: Primitive::String(field_name),
             args: match args {
@@ -660,6 +661,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     }
                 }
             },
+            is_output_type: Primitive::Bool(is_output_type),
         }))
     }
 

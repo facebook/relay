@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f02463510a4af073802e09c07737dcc>>
+ * @generated SignedSource<<4479f8342b9acd50b16dce1b1375ef5e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -101,7 +101,8 @@ return {
         "args": (v0/*: any*/),
         "fragment": null,
         "kind": "RelayResolver",
-        "storageKey": "hello_user(id:\"4\")"
+        "storageKey": "hello_user(id:\"4\")",
+        "isOutputType": false
       }
     ]
   },

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e469727974cd3d63fc055da6e8ee3355>>
+ * @generated SignedSource<<9ba1cf3181ed6e59225a4ccf05af10f0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -90,7 +90,8 @@ var node/*: ClientRequest*/ = {
         "args": null,
         "fragment": null,
         "kind": "RelayResolver",
-        "storageKey": null
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

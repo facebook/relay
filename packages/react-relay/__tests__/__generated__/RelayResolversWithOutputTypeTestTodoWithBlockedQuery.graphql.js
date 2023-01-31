@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4bce2586e1c1861973156ec488eb1c55>>
+ * @generated SignedSource<<0625edc41f8f22d8c882a7143e6d8208>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -89,7 +89,8 @@ v2 = {
         "abstractKey": null
       },
       "kind": "RelayResolver",
-      "storageKey": null
+      "storageKey": null,
+      "isOutputType": false
     }
   ],
   "type": "Todo",
@@ -188,7 +189,8 @@ return {
           "args": (v1/*: any*/),
           "fragment": null,
           "kind": "RelayResolver",
-          "storageKey": null
+          "storageKey": null,
+          "isOutputType": true
         },
         "linkedField": {
           "alias": null,
@@ -205,7 +207,8 @@ return {
                 "args": null,
                 "fragment": (v2/*: any*/),
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": true
               },
               "linkedField": {
                 "alias": null,
@@ -222,7 +225,8 @@ return {
                       "args": null,
                       "fragment": (v2/*: any*/),
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": true
                     },
                     "linkedField": {
                       "alias": null,
@@ -280,7 +284,8 @@ return {
                                     "abstractKey": null
                                   },
                                   "kind": "RelayResolver",
-                                  "storageKey": null
+                                  "storageKey": null,
+                                  "isOutputType": false
                                 }
                               ],
                               "storageKey": null
@@ -297,7 +302,8 @@ return {
                     "args": null,
                     "fragment": (v2/*: any*/),
                     "kind": "RelayResolver",
-                    "storageKey": null
+                    "storageKey": null,
+                    "isOutputType": false
                   }
                 ],
                 "storageKey": null

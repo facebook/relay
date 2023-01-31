@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a940079f7870d2d9ff15bbf56eda6b26>>
+ * @generated SignedSource<<d34adc1feb9e687ffe627ee5795ff913>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -161,7 +161,8 @@ return {
                         "abstractKey": null
                       },
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": false
                     },
                     {
                       "name": "user_profile_picture_uri_with_scale",
@@ -192,14 +193,16 @@ return {
                         "abstractKey": null
                       },
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": false
                     }
                   ],
                   "type": "User",
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               }
             ],
             "type": "User",

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e7792998ae3a4aa97f29b2e580dbf210>>
+ * @generated SignedSource<<5edd168d9321fb71f40f0134f55d8d01>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -140,7 +140,8 @@ v5 = {
         "abstractKey": null
       },
       "kind": "RelayResolver",
-      "storageKey": null
+      "storageKey": null,
+      "isOutputType": false
     }
   ],
   "type": "AstrologicalSign",
@@ -151,21 +152,24 @@ v6 = {
   "args": null,
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 },
 v7 = {
   "name": "house",
   "args": null,
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 },
 v8 = {
   "name": "opposite",
   "args": null,
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 };
 return {
   "fragment": {
@@ -311,7 +315,8 @@ return {
                 "abstractKey": null
               },
               "kind": "RelayResolver",
-              "storageKey": null
+              "storageKey": null,
+              "isOutputType": false
             },
             "linkedField": {
               "alias": null,

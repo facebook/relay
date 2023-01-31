@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0728c8bdd96517f87337ecfd38344dac>>
+ * @generated SignedSource<<f4a999ceea8f1b7ee1f33e9034462b7b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -132,7 +132,8 @@ return {
           "args": (v1/*: any*/),
           "fragment": null,
           "kind": "RelayResolver",
-          "storageKey": null
+          "storageKey": null,
+          "isOutputType": false
         },
         "linkedField": {
           "alias": null,
@@ -163,14 +164,16 @@ return {
                         "abstractKey": null
                       },
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": false
                     }
                   ],
                   "type": "TodoModel",
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": true
               },
               "linkedField": {
                 "alias": null,
@@ -185,14 +188,16 @@ return {
                     "args": null,
                     "fragment": (v3/*: any*/),
                     "kind": "RelayResolver",
-                    "storageKey": null
+                    "storageKey": null,
+                    "isOutputType": true
                   },
                   {
                     "name": "color",
                     "args": null,
                     "fragment": (v3/*: any*/),
                     "kind": "RelayResolver",
-                    "storageKey": null
+                    "storageKey": null,
+                    "isOutputType": true
                   }
                 ],
                 "storageKey": null

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8fa471eca1295f346d143e9a83cce428>>
+ * @generated SignedSource<<c67da377d6517611143d6c8c3237bfa8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -92,7 +92,8 @@ v2 = {
         "abstractKey": null
       },
       "kind": "RelayResolver",
-      "storageKey": null
+      "storageKey": null,
+      "isOutputType": false
     }
   ],
   "type": "AstrologicalSign",
@@ -103,7 +104,8 @@ v3 = {
   "args": null,
   "fragment": (v2/*: any*/),
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 };
 return {
   "fragment": {
@@ -239,7 +241,8 @@ return {
                 "abstractKey": null
               },
               "kind": "RelayResolver",
-              "storageKey": null
+              "storageKey": null,
+              "isOutputType": false
             },
             "linkedField": {
               "alias": null,
@@ -257,7 +260,8 @@ return {
                     "args": null,
                     "fragment": (v2/*: any*/),
                     "kind": "RelayResolver",
-                    "storageKey": null
+                    "storageKey": null,
+                    "isOutputType": false
                   },
                   "linkedField": {
                     "alias": null,

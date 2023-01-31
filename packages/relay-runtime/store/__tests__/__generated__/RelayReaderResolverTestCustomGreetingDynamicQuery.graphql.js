@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<672f54ba02b4d62e4d624bf3114bb9e5>>
+ * @generated SignedSource<<ec7ff26138e8ed763ef380cf3259f2e4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -160,21 +160,24 @@ return {
             "args": (v1/*: any*/),
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "name": "custom_greeting",
             "args": (v3/*: any*/),
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
-            "storageKey": "custom_greeting(salutation:\"Greetz\")"
+            "storageKey": "custom_greeting(salutation:\"Greetz\")",
+            "isOutputType": false
           },
           {
             "name": "custom_greeting",
             "args": (v4/*: any*/),
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
-            "storageKey": "custom_greeting(salutation:\"Willkommen\")"
+            "storageKey": "custom_greeting(salutation:\"Willkommen\")",
+            "isOutputType": false
           },
           {
             "alias": null,

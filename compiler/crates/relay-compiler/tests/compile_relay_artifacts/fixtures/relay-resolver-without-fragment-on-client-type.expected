@@ -77,7 +77,8 @@ extend type ClientType {
                 "args": null,
                 "fragment": null,
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               },
               {
                 "alias": null,

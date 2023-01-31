@@ -45,6 +45,7 @@ const {
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -59,7 +60,6 @@ const {
   SCALAR_HANDLE,
   STREAM,
   TYPE_DISCRIMINATOR,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {generateClientID, isClientID} = require('./ClientID');

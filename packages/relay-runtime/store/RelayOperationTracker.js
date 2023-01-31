@@ -11,7 +11,6 @@
 
 'use strict';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
-
 import type {RequestDescriptor} from './RelayStoreTypes';
 
 const invariant = require('invariant');

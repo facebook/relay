@@ -14,8 +14,8 @@
 import type {
   CacheConfig,
   ConcreteRequest,
-  GraphQLSingularResponse,
   GraphQLResponse,
+  GraphQLSingularResponse,
   IEnvironment,
   PayloadError,
   RequestParameters,

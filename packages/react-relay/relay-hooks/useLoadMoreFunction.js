@@ -29,8 +29,8 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const invariant = require('invariant');
 const {useCallback, useEffect, useState} = require('react');
 const {
-  ConnectionInterface,
   __internal: {fetchQuery},
+  ConnectionInterface,
   createOperationDescriptor,
   getPaginationVariables,
   getSelector,

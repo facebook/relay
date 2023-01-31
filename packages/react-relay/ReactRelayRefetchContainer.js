@@ -12,11 +12,11 @@
 'use strict';
 
 import type {
+  $RelayProps,
   GeneratedNodeMap,
   ObserverOrCallback,
   RefetchOptions,
   RelayRefetchProp,
-  $RelayProps,
 } from './ReactRelayTypes';
 import type {
   CacheConfig,

@@ -15,6 +15,7 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  MissingFieldHandler,
   MutationParameters,
   OperationDescriptor,
   OptimisticUpdate,
@@ -26,7 +27,6 @@ import type {
   SelectorStoreUpdater,
   SingularReaderSelector,
   Store,
-  MissingFieldHandler,
   StoreUpdater,
 } from './RelayStoreTypes';
 

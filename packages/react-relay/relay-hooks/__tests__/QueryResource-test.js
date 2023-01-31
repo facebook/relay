@@ -15,11 +15,11 @@ import type {FetchPolicy, Subscription} from 'relay-runtime';
 
 const {getQueryResourceForEnvironment} = require('../QueryResource');
 const {
+  __internal: {fetchQuery},
   Observable,
   RecordSource,
   ROOT_ID,
   Store,
-  __internal: {fetchQuery},
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');

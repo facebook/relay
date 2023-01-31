@@ -11,18 +11,16 @@
 
 'use strict';
 
+import type {DataID} from '../../../util/RelayRuntimeTypes';
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
-
-const {
-  TODO_STORE,
-  Selectors,
-} = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-
-import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
 import type {TodoDescription} from './TodoDescription';
+import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
 
 const {createTodoDescription} = require('./TodoDescription');
-import type {DataID} from '../../../util/RelayRuntimeTypes';
+const {
+  Selectors,
+  TODO_STORE,
+} = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 
 /**
  * @RelayResolver TodoModel

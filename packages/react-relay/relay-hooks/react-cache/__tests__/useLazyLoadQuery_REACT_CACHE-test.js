@@ -11,9 +11,8 @@
 
 'use strict';
 
-import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
-
 import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';
+import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const React = require('react');
 const useLazyLoadQuery_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useLazyLoadQuery_REACT_CACHE');
@@ -21,12 +20,12 @@ const RelayEnvironmentProvider = require('react-relay/relay-hooks/RelayEnvironme
 const useLazyLoadQuery_LEGACY = require('react-relay/relay-hooks/useLazyLoadQuery');
 const ReactTestRenderer = require('react-test-renderer');
 const {
+  __internal: {getPromiseForActiveRequest},
   Environment,
   RecordSource,
   RelayFeatureFlags,
   ROOT_ID,
   Store,
-  __internal: {getPromiseForActiveRequest},
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');

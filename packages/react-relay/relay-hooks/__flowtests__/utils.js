@@ -14,8 +14,8 @@
 import type {
   Disposable,
   Fragment,
-  RefetchableFragment,
   FragmentType,
+  RefetchableFragment,
 } from 'relay-runtime';
 
 declare export var fragmentInput: Fragment<

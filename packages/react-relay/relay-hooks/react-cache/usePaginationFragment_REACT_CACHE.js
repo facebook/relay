@@ -11,10 +11,8 @@
 
 'use strict';
 
-import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
-import type {Options} from './useRefetchableFragmentInternal_REACT_CACHE';
-
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
+import type {Options} from './useRefetchableFragmentInternal_REACT_CACHE';
 import type {RefetchFnDynamic} from './useRefetchableFragmentInternal_REACT_CACHE';
 import type {
   FragmentType,
@@ -24,8 +22,10 @@ import type {
   OperationType,
   Variables,
 } from 'relay-runtime';
+import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useLoadMoreFunction = require('../useLoadMoreFunction');
+const useRelayEnvironment = require('../useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
 const {useCallback, useDebugValue, useState} = require('react');
@@ -34,7 +34,6 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
-const useRelayEnvironment = require('../useRelayEnvironment');
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
   data: TFragmentData,

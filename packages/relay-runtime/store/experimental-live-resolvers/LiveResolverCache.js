@@ -19,13 +19,13 @@ import type {
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
 import type {NormalizationOptions} from '../RelayResponseNormalizer';
 import type {
+  DataIDSet,
   MutableRecordSource,
-  RecordSource,
   Record,
+  RecordSource,
   RelayResolverError,
   SingularReaderSelector,
   Snapshot,
-  DataIDSet,
 } from '../RelayStoreTypes';
 import type {
   EvaluationResult,
@@ -39,20 +39,22 @@ const recycleNodesInto = require('../../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../../util/RelayConcreteNode');
 const {generateClientID, generateClientObjectClientID} = require('../ClientID');
 const RelayModernRecord = require('../RelayModernRecord');
+const {createNormalizationSelector} = require('../RelayModernSelector');
 const RelayRecordSource = require('../RelayRecordSource');
+const {normalize} = require('../RelayResponseNormalizer');
 const {
   RELAY_RESOLVER_ERROR_KEY,
   RELAY_RESOLVER_INVALIDATION_KEY,
+  RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
   RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
-  RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
   getStorageKey,
 } = require('../RelayStoreUtils');
+const getOutputTypeRecordIDs = require('./getOutputTypeRecordIDs');
+const isLiveStateValue = require('./isLiveStateValue');
 const {isSuspenseSentinel} = require('./LiveResolverSuspenseSentinel');
 const invariant = require('invariant');
 const warning = require('warning');
-const {createNormalizationSelector} = require('../RelayModernSelector');
-const {normalize} = require('../RelayResponseNormalizer');
 
 // When this experiment gets promoted to stable, these keys will move into
 // `RelayStoreUtils`.
@@ -61,8 +63,6 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
-const getOutputTypeRecordIDs = require('./getOutputTypeRecordIDs');
-const isLiveStateValue = require('./isLiveStateValue');
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment

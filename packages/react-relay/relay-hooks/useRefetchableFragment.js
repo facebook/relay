@@ -11,14 +11,13 @@
 
 'use strict';
 
-import type {
-  RefetchableFragment,
-  FragmentType,
-  Variables,
-  Disposable,
-} from 'relay-runtime';
-
 import type {Options} from './useRefetchableFragmentNode';
+import type {
+  Disposable,
+  FragmentType,
+  RefetchableFragment,
+  Variables,
+} from 'relay-runtime';
 
 const HooksImplementation = require('./HooksImplementation');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');

@@ -16,12 +16,12 @@ const useIsParentQueryActive = require('../useIsParentQueryActive');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {
+  __internal: {fetchQuery},
   Environment,
   Network,
   Observable,
   RecordSource,
   Store,
-  __internal: {fetchQuery},
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');

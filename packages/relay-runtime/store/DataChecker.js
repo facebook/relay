@@ -45,7 +45,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
-const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
+const {TYPE_SCHEMA_TYPE, generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
 export type Availability = {

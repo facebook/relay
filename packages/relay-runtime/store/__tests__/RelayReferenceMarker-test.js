@@ -11,16 +11,15 @@
 
 'use strict';
 
+import type {RecordObjectMap} from '../RelayStoreTypes';
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
-import type {RecordObjectMap} from '../RelayStoreTypes';
-
 import RelayNetwork from '../../network/RelayNetwork';
-import RelayModernEnvironment from '../RelayModernEnvironment';
-import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
-import LiveResolverStore from '../experimental-live-resolvers/LiveResolverStore';
 import {graphql} from '../../query/GraphQLTag';
 import RelayFeatureFlags from '../../util/RelayFeatureFlags';
+import LiveResolverStore from '../experimental-live-resolvers/LiveResolverStore';
+import RelayModernEnvironment from '../RelayModernEnvironment';
+import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
 import {createNormalizationSelector} from '../RelayModernSelector';
 import RelayRecordSource from '../RelayRecordSource';
 import {mark} from '../RelayReferenceMarker';

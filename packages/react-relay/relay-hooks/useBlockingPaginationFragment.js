@@ -11,15 +11,15 @@
 
 'use strict';
 
-import type {Options} from './useRefetchableFragmentNode';
-
+import type {RefetchableFragment} from '../../relay-runtime/util/RelayRuntimeTypes';
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
+import type {Options} from './useRefetchableFragmentNode';
 import type {
+  Disposable,
   FragmentType,
   GraphQLResponse,
-  Variables,
   Observer,
-  Disposable,
+  Variables,
 } from 'relay-runtime';
 
 const useLoadMoreFunction = require('./useLoadMoreFunction');
@@ -32,7 +32,6 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
-import type {RefetchableFragment} from '../../relay-runtime/util/RelayRuntimeTypes';
 
 type RefetchVariables<TVariables, TKey> =
   // NOTE: This $Call ensures that the type of the variables is either:

@@ -21,11 +21,11 @@ import type {IEnvironment} from 'relay-runtime';
 import useRefetchableFragment from '../useRefetchableFragment';
 import {
   fragmentData,
-  refetchableFragmentInput,
   keyAnotherNonNullable,
   keyAnotherNullable,
   keyNonNullable,
   keyNullable,
+  refetchableFragmentInput,
 } from './utils';
 
 /* eslint-disable react-hooks/rules-of-hooks */

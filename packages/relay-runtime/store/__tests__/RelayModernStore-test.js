@@ -11,7 +11,6 @@
 
 'use strict';
 
-import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {Disposable} from '../../util/RelayRuntimeTypes';
 import type {
   RelayModernStoreTest2Fragment$data,
@@ -29,6 +28,7 @@ import type {
   RelayModernStoreTest6Fragment$data,
   RelayModernStoreTest6Fragment$fragmentType,
 } from './__generated__/RelayModernStoreTest6Fragment.graphql';
+import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 

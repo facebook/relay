@@ -11,7 +11,6 @@
 
 'use strict';
 
-import type {LogEvent} from 'relay-runtime';
 import type {
   FragmentResourceTest1Fragment$data,
   FragmentResourceTest1Fragment$fragmentType,
@@ -56,6 +55,7 @@ import type {
   FragmentResourceTest8Fragment$data,
   FragmentResourceTest8Fragment$fragmentType,
 } from './__generated__/FragmentResourceTest8Fragment.graphql';
+import type {LogEvent} from 'relay-runtime';
 import type {Fragment, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');

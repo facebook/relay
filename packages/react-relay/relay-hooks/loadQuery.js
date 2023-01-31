@@ -31,11 +31,11 @@ import type {
 const invariant = require('invariant');
 const React = require('react');
 const {
+  __internal: {fetchQueryDeduped},
   Observable,
   PreloadableQueryRegistry,
   RelayFeatureFlags,
   ReplaySubject,
-  __internal: {fetchQueryDeduped},
   createOperationDescriptor,
   getRequest,
   getRequestIdentifier,

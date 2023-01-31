@@ -12,9 +12,9 @@
 'use strict';
 
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
+import type {Fragment} from '../util/RelayRuntimeTypes';
 import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
 import type {ResolverFragmentResult} from './ResolverCache';
-import type {Fragment} from '../util/RelayRuntimeTypes';
 
 const {getFragment} = require('../query/GraphQLTag');
 const {getSelector} = require('./RelayModernSelector');

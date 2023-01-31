@@ -21,13 +21,13 @@ import type {
   Snapshot,
   Variables,
 } from 'relay-runtime';
-const {RelayFeatureFlags} = require('relay-runtime');
 
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
 const areEqual = require('areEqual');
 const React = require('react');
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   createOperationDescriptor,
   deepFreeze,

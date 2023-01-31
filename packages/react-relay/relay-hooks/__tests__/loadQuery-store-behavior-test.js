@@ -15,9 +15,9 @@ import type {
   loadQueryStoreBehaviorTestQuery$data,
   loadQueryStoreBehaviorTestQuery$variables,
 } from './__generated__/loadQueryStoreBehaviorTestQuery.graphql';
-import type {Sink} from 'relay-runtime/network/RelayObservable';
 import type {GraphQLSingularResponse} from 'relay-runtime/network/RelayNetworkTypes';
-import type {Query, OperationType} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {Sink} from 'relay-runtime/network/RelayObservable';
+import type {OperationType, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {loadQuery} = require('../loadQuery');
 const {

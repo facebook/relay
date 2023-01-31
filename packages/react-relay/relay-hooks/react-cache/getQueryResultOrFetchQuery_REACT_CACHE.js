@@ -25,8 +25,8 @@ const SuspenseResource = require('../SuspenseResource');
 const {getCacheForType, getCacheSignal} = require('./RelayReactCache');
 const invariant = require('invariant');
 const {
-  RelayFeatureFlags,
   __internal: {fetchQuery: fetchQueryInternal},
+  RelayFeatureFlags,
 } = require('relay-runtime');
 const warning = require('warning');
 

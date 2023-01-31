@@ -10,7 +10,7 @@
  */
 
 'use strict';
-import type {GeneratedNodeMap, RelayProp, $RelayProps} from './ReactRelayTypes';
+import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
 import type {
   FragmentMap,
   FragmentSpecResolver,

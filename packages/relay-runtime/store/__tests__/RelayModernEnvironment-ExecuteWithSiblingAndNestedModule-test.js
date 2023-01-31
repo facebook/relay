@@ -11,7 +11,6 @@
 
 'use strict';
 import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
-
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {

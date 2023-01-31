@@ -28,7 +28,6 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-
 const {
   disallowConsoleErrors,
   disallowWarnings,

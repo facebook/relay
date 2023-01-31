@@ -18,8 +18,8 @@ export opaque type TodoDescription = {
   color: string,
 };
 
-import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
 import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
+import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
 
 // Public constructor for opaque `TodoDescription`.
 // Other resolvers have to call this function to

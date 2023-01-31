@@ -13,8 +13,8 @@
 
 import type {LogEvent} from '../../relay-runtime/store/RelayStoreTypes';
 import type {RelayResolverModelTestFragment$key} from './__generated__/RelayResolverModelTestFragment.graphql';
-import type {RelayResolverModelTestWithPluralFragment$key} from './__generated__/RelayResolverModelTestWithPluralFragment.graphql';
 import type {RelayResolverModelTestInterfaceFragment$key} from './__generated__/RelayResolverModelTestInterfaceFragment.graphql';
+import type {RelayResolverModelTestWithPluralFragment$key} from './__generated__/RelayResolverModelTestWithPluralFragment.graphql';
 
 const React = require('react');
 const {

@@ -39,21 +39,21 @@ import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
-const useRefetchableFragmentNode_LEGACY = require('../useRefetchableFragmentNode');
 const useRefetchableFragmentInternal_REACT_CACHE = require('../react-cache/useRefetchableFragmentInternal_REACT_CACHE');
+const useRefetchableFragmentNode_LEGACY = require('../useRefetchableFragmentNode');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
 const {
+  __internal: {fetchQuery},
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   Observable,
-  __internal: {fetchQuery},
+  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
-  RelayFeatureFlags,
 } = require('relay-runtime');
 const {
   createMockEnvironment,

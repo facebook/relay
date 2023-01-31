@@ -11,12 +11,12 @@
 
 'use strict';
 
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
-const {graphql} = require('relay-runtime');
-
 // TODO: typegen for plural output type
 import type {Todo__blocked_by$normalization as ReturnType} from './__generated__/Todo__blocked_by$normalization.graphql';
 import type {TodoBlockedByResolverFragment$key} from './__generated__/TodoBlockedByResolverFragment.graphql';
+
+const {graphql} = require('relay-runtime');
+const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
  * @RelayResolver

@@ -22,11 +22,11 @@ import type {IEnvironment, Variables} from 'relay-runtime';
 import useBlockingPaginationFragment from '../useBlockingPaginationFragment';
 import {
   fragmentData,
-  refetchableFragmentInput,
   keyAnotherNonNullable,
   keyAnotherNullable,
   keyNonNullable,
   keyNullable,
+  refetchableFragmentInput,
 } from './utils';
 
 type ExpectedReturnType<

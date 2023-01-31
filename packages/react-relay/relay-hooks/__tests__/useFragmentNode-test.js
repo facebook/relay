@@ -30,11 +30,11 @@ const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
 const {
+  __internal: {fetchQuery},
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   RelayFeatureFlags,
-  __internal: {fetchQuery},
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');

@@ -15,10 +15,10 @@ import type {LiveExternalGreetingFragment$key} from './__generated__/LiveExterna
 import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {graphql} = require('relay-runtime');
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
 const {
   suspenseSentinel,
 } = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
  * @RelayResolver

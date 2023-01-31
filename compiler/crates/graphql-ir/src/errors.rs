@@ -420,6 +420,29 @@ pub enum ValidationMessage {
         deprecation_reason: Option<StringKey>,
     },
 
+    #[error("The argument `{argument_name}` of the field `{parent_name}.{field_name}` is deprecated.{}",
+    match deprecation_reason {
+        Some(reason) => format!(" Deprecation reason: \"{}\"", reason),
+        None => "".to_string()
+    })]
+    DeprecatedFieldArgument {
+        argument_name: ArgumentName,
+        parent_name: StringKey,
+        field_name: StringKey,
+        deprecation_reason: Option<StringKey>,
+    },
+
+    #[error("The argument `{argument_name}` of the directive `@{directive_name}` is deprecated.{}",
+    match deprecation_reason {
+        Some(reason) => format!(" Deprecation reason: \"{}\"", reason),
+        None => "".to_string()
+    })]
+    DeprecatedDirectiveArgument {
+        argument_name: ArgumentName,
+        directive_name: DirectiveName,
+        deprecation_reason: Option<StringKey>,
+    },
+
     #[error("Missing required {}: `{}`",
         if missing_arg_names.len() > 1 { "arguments" } else { "argument" },
         missing_arg_names

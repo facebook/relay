@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+fragment Foo on User {
+  id @my_directive(my_arg: "Hello")
+}
+%extensions%
+
+directive @my_directive(my_arg: String! @deprecated) on FIELD
+==================================== OUTPUT ===================================
+ℹ The argument `my_arg` of the directive `@my_directive` is deprecated.
+
+  deprecated_directive_arg.graphql:2:20
+    1 │ fragment Foo on User {
+    2 │   id @my_directive(my_arg: "Hello")
+      │                    ^^^^^^
+    3 │ }

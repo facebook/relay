@@ -385,6 +385,19 @@ pub struct Argument {
     pub directives: Vec<DirectiveValue>,
 }
 
+impl Argument {
+    pub fn deprecated(&self) -> Option<Deprecation> {
+        self.directives
+            .named(*DIRECTIVE_DEPRECATED)
+            .map(|directive| Deprecation {
+                reason: directive
+                    .arguments
+                    .named(*ARGUMENT_REASON)
+                    .and_then(|reason| reason.value.get_string_literal()),
+            })
+    }
+}
+
 impl Named for Argument {
     type Name = ArgumentName;
     fn name(&self) -> ArgumentName {

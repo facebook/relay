@@ -16,8 +16,8 @@ import type {
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
-  NormalizationSelection,
   NormalizationResolverField,
+  NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
@@ -33,13 +33,13 @@ const getOperation = require('../util/getOperation');
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
-const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
 
 const {
   ACTOR_CHANGE,

@@ -374,6 +374,7 @@ dependencies = [
  "intern",
  "relay-test-schema",
  "relay-transforms",
+ "rustc-hash",
  "schema",
 ]
 

@@ -6,6 +6,7 @@
  */
 
 use common::Diagnostic;
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
@@ -70,6 +71,14 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                                 .content
                                 .contains("// relay:disable_relay_resolver_terse_syntax"),
                             id_field_name: "id".intern(),
+                            enable_output_type: if fixture
+                                .content
+                                .contains("// relay:enable_output_type")
+                            {
+                                FeatureFlag::Enabled
+                            } else {
+                                FeatureFlag::Disabled
+                            },
                         },
                     )
                 })

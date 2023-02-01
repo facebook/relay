@@ -13,6 +13,7 @@ use std::collections::HashMap;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::Location;
 use common::NamedItem;
 use common::SourceLocationKey;
@@ -56,6 +57,7 @@ pub struct ParseOptions {
     pub relay_resolver_model_syntax_enabled: bool,
     pub relay_resolver_enable_terse_syntax: bool,
     pub id_field_name: StringKey,
+    pub enable_output_type: FeatureFlag,
 }
 
 lazy_static! {
@@ -279,12 +281,28 @@ impl RelayResolverParser {
         // us to derive the name of the export from the source.
         let named_import = self.options.use_named_imports.then_some(field.name.value);
 
+        let maybe_output_type = self.output_type();
+        if let Some(OutputType::Output(type_annotation)) = &maybe_output_type {
+            if !self
+                .options
+                .enable_output_type
+                .is_enabled_for(field.name.value)
+            {
+                self.errors.push(Diagnostic::error(
+                    ErrorMessages::UnexpectedOutputType {
+                        field_name: field.name.value,
+                    },
+                    type_annotation.location,
+                ))
+            }
+        }
+
         Ok(RelayResolverIr {
             field,
             on: on?,
             root_fragment: root_fragment
                 .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
-            output_type: self.output_type(),
+            output_type: maybe_output_type,
             description: self.description,
             location: ast_location,
             deprecated,

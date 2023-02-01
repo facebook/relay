@@ -91,6 +91,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         relay_resolver_model_syntax_enabled: false,
         relay_resolver_enable_terse_syntax: false,
         emit_normalization_nodes_for_client_edges: true,
+        relay_resolver_enable_output_type: FeatureFlag::Disabled,
     };
 
     let project_config = ProjectConfig {

@@ -41,7 +41,18 @@
         "enable_fragment_aliases": {
           "kind": "enabled"
         },
-        "emit_normalization_nodes_for_client_edges": true
+        "emit_normalization_nodes_for_client_edges": true,
+        "relay_resolver_enable_output_type": {
+          "kind": "limited",
+          "allowlist": [
+            "example_client_object",
+            "many_todos",
+            "todo",
+            "todos",
+            "blocked_by",
+            "text"
+          ]
+        }
       },
       "language": "flow"
     }

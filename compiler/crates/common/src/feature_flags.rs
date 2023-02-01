@@ -39,6 +39,10 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub relay_resolver_enable_terse_syntax: bool,
 
+    /// Enable deprecated `@outputType` on Relay Resolvers.
+    #[serde(default)]
+    pub relay_resolver_enable_output_type: FeatureFlag,
+
     /// Enable hashing of the `supported` argument of 3D fields. Partial
     /// enabling of the feature flag checks the name based on the field type.
     #[serde(default)]

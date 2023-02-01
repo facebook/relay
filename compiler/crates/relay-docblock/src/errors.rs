@@ -116,6 +116,11 @@ pub enum ErrorMessages {
 
     #[error("Relay Resolvers may not be used to implement the `{id_field_name}` field.")]
     ResolversCantImplementId { id_field_name: StringKey },
+
+    #[error(
+        "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
+    )]
+    UnexpectedOutputType { field_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

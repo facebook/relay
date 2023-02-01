@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:enable_output_type
+
 /**
  * @RelayResolver
  *

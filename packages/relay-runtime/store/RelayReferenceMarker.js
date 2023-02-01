@@ -12,6 +12,7 @@
 'use strict';
 
 import type {
+  NormalizationClientEdgeToClientObject,
   NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
@@ -248,7 +249,7 @@ class RelayReferenceMarker {
           this._traverseResolverField(selection, record);
           break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
-          this._traverseResolverField(selection.backingField, record);
+          this._traverseClientEdgeToClientObject(selection, record);
           break;
         default:
           (selection: empty);
@@ -261,7 +262,34 @@ class RelayReferenceMarker {
     });
   }
 
-  _traverseResolverField(field: NormalizationResolverField, record: Record) {
+  _traverseClientEdgeToClientObject(
+    field: NormalizationClientEdgeToClientObject,
+    record: Record,
+  ): void {
+    const dataID = this._traverseResolverField(field.backingField, record);
+    if (dataID == null) {
+      return;
+    }
+    const resolverRecord = this._recordSource.get(dataID);
+    if (resolverRecord != null) {
+      if (field.backingField.isOutputType) {
+        // Mark all @outputType record IDs
+        const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
+        if (outputTypeRecordIDs != null) {
+          for (const dataID of outputTypeRecordIDs) {
+            this._references.add(dataID);
+          }
+        }
+      } else {
+        // TODO: Find cached resolver value.
+      }
+    }
+  }
+
+  _traverseResolverField(
+    field: NormalizationResolverField,
+    record: Record,
+  ): ?DataID {
     const storageKey = getStorageKey(field, this._variables);
     const dataID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
@@ -270,17 +298,6 @@ class RelayReferenceMarker {
     // Resolver subscription.
     if (dataID != null) {
       this._references.add(dataID);
-
-      // Also mark all @outputType record IDs
-      const resolverRecord = this._recordSource.get(dataID);
-      if (resolverRecord != null) {
-        const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
-        if (outputTypeRecordIDs != null) {
-          for (const dataID of outputTypeRecordIDs) {
-            this._references.add(dataID);
-          }
-        }
-      }
     }
 
     const {fragment} = field;
@@ -288,6 +305,8 @@ class RelayReferenceMarker {
       // Mark the contents of the resolver's data dependencies.
       this._traverseSelections([fragment], record);
     }
+
+    return dataID;
   }
 
   _traverseModuleImport(

@@ -396,20 +396,33 @@ impl<'program> RelayResolverFieldTransform<'program> {
                             directive.name.location,
                         ));
                     }
+                    let parent_type = field_type.parent_type.unwrap();
                     if let Some(fragment_name) = fragment_name {
-                        if self.program.fragment(fragment_name).is_none() {
-                            self.errors.push(Diagnostic::error(
-                                ValidationMessage::InvalidRelayResolverFragmentName {
-                                    fragment_name,
-                                },
-                                // We don't have locations for directives in schema files.
-                                // So we send them to the field name, rather than the directive value.
-                                field_type.name.location,
-                            ));
-                            return None;
+                        match self.program.fragment(fragment_name) {
+                            Some(fragment_definition) => {
+                                if !self.program.schema.are_overlapping_types(
+                                    fragment_definition.type_condition,
+                                    parent_type,
+                                ) {
+                                    // This invariant is enforced when we generate docblock IR, but we double check here to
+                                    // ensure no later transforms break that invariant, and that manually written test
+                                    // schemas gets this right.
+                                    panic!("Invalid type condition on `{}`, the fragment backing the Relay Resolver field `{}`.", fragment_name.0, field_type.name.item);
+                                }
+                            }
+                            None => {
+                                self.errors.push(Diagnostic::error(
+                                    ValidationMessage::InvalidRelayResolverFragmentName {
+                                        fragment_name,
+                                    },
+                                    // We don't have locations for directives in schema files.
+                                    // So we send them to the field name, rather than the directive value.
+                                    field_type.name.location,
+                                ));
+                                return None;
+                            }
                         }
                     }
-                    let parent_type = field_type.parent_type.unwrap();
 
                     let output_type_info = if has_output_type {
                         if field_type.type_.inner().is_composite_type() {

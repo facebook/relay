@@ -42,7 +42,7 @@ pub use relay_config::RemotePersistConfig;
 use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
-use relay_config::TypegenLanguage;
+pub use relay_config::TypegenLanguage;
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::Deserialize;

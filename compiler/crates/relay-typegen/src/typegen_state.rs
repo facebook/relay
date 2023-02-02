@@ -32,14 +32,14 @@ use crate::RELAY_RUNTIME;
 /// contains information about whether and how to write import types.
 #[derive(Default)]
 pub(crate) struct RuntimeImports {
-    pub(crate) local_3d_payload_type_should_be_imported: bool,
-    pub(crate) generic_fragment_type_should_be_imported: bool,
-    pub(crate) import_relay_resolver_live_state_type: bool,
+    pub(crate) local_3d_payload_type: bool,
+    pub(crate) generic_fragment_type: bool,
+    pub(crate) resolver_live_state_type: bool,
 }
 
 impl RuntimeImports {
     pub(crate) fn write_runtime_imports(&self, writer: &mut Box<dyn Writer>) -> FmtResult {
-        if self.import_relay_resolver_live_state_type {
+        if self.resolver_live_state_type {
             writer.write_import_type(
                 &[LIVE_RESOLVERS_LIVE_STATE],
                 LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH,
@@ -47,10 +47,10 @@ impl RuntimeImports {
         }
 
         let mut runtime_import_types = vec![];
-        if self.generic_fragment_type_should_be_imported {
+        if self.generic_fragment_type {
             runtime_import_types.push(writer.get_runtime_fragment_import())
         }
-        if self.local_3d_payload_type_should_be_imported {
+        if self.local_3d_payload_type {
             runtime_import_types.push(LOCAL_3D_PAYLOAD)
         }
         if !runtime_import_types.is_empty() {

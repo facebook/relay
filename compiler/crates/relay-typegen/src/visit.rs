@@ -441,7 +441,7 @@ fn generate_resolver_type(
         // TODO: Add proper support for Resolver type generation in typescript
         AST::Any
     } else if resolver_metadata.live {
-        runtime_imports.import_relay_resolver_live_state_type = true;
+        runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,
             inner: Box::new(inner_type.unwrap_or(AST::Any)),
@@ -1474,7 +1474,7 @@ fn append_local_3d_payload(
             None
         }
     }) {
-        runtime_imports.local_3d_payload_type_should_be_imported = true;
+        runtime_imports.local_3d_payload_type = true;
 
         types.push(AST::Local3DPayload(
             module_import.document_name,

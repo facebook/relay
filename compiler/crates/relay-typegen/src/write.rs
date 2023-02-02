@@ -151,14 +151,14 @@ pub(crate) fn write_operation_type_exports_section(
     let refetchable_fragment_name =
         RefetchableDerivedFromMetadata::find(&typegen_operation.directives);
     if refetchable_fragment_name.is_some() {
-        runtime_imports.generic_fragment_type_should_be_imported = true;
+        runtime_imports.generic_fragment_type = true;
     }
 
     // Always include 'FragmentRef' for typescript codegen for operations that have fragment spreads
     if typegen_context.project_config.typegen_config.language == TypegenLanguage::TypeScript
         && has_fragment_spread(&typegen_operation.selections)
     {
-        runtime_imports.generic_fragment_type_should_be_imported = true;
+        runtime_imports.generic_fragment_type = true;
     }
 
     write_import_actor_change_point(actor_change_status, writer)?;
@@ -312,7 +312,7 @@ pub(crate) fn write_fragment_type_exports_section(
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
     let mut runtime_imports = RuntimeImports {
-        generic_fragment_type_should_be_imported: true,
+        generic_fragment_type: true,
         ..Default::default()
     };
     let mut imported_raw_response_types = Default::default();

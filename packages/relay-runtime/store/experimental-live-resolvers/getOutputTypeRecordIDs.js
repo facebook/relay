@@ -32,11 +32,8 @@ function getOutputTypeRecordIDs(record: Record): $ReadOnlySet<DataID> | null {
     RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
     typeof maybeOutputTypeRecordIDs,
   );
-  const outputTypeRecordIDs: $ReadOnlySet<DataID> = new Set(
-    maybeOutputTypeRecordIDs,
-  );
 
-  return outputTypeRecordIDs;
+  return maybeOutputTypeRecordIDs;
 }
 
 module.exports = getOutputTypeRecordIDs;

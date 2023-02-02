@@ -26,6 +26,7 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -69,7 +70,7 @@ lazy_static! {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ClientEdgeMetadataDirective {
     ServerObject {
-        query_name: StringKey,
+        query_name: OperationDefinitionName,
         unique_id: u32,
     },
     ClientObject {
@@ -186,7 +187,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         }
     }
 
-    fn generate_query_name(&mut self) -> StringKey {
+    fn generate_query_name(&mut self) -> OperationDefinitionName {
         let document_name = self.document_name.expect("We are within a document");
         let name_root = format!(
             "ClientEdgeQuery_{}_{}",
@@ -206,14 +207,14 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .or_insert(0);
 
         match num {
-            0 => name_root,
-            n => format!("{}_{}", name_root, n).intern(),
+            0 => OperationDefinitionName(name_root),
+            n => OperationDefinitionName(format!("{}_{}", name_root, n).intern()),
         }
     }
 
     fn generate_client_edge_query(
         &mut self,
-        generated_query_name: StringKey,
+        generated_query_name: OperationDefinitionName,
         field_type: Type,
         selections: Vec<Selection>,
     ) {
@@ -514,12 +515,12 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
     }
 }
 
-fn make_refetchable_directive(query_name: StringKey) -> Directive {
+fn make_refetchable_directive(query_name: OperationDefinitionName) -> Directive {
     Directive {
         name: WithLocation::generated(*REFETCHABLE_NAME),
         arguments: vec![Argument {
             name: WithLocation::generated(*QUERY_NAME_ARG),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name))),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name.0))),
         }],
         data: None,
     }

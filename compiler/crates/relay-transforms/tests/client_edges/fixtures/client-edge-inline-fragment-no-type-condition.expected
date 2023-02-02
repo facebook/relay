@@ -30,7 +30,9 @@ fragment Foo_user on User {
   ... @skip(if: $some_var) {
     ... @__ClientEdgeMetadataDirective
     # ServerObject {
-    #     query_name: "ClientEdgeQuery_Foo_user_best_friend",
+    #     query_name: OperationDefinitionName(
+    #         "ClientEdgeQuery_Foo_user_best_friend",
+    #     ),
     #     unique_id: 0,
     # }
      {
@@ -56,7 +58,9 @@ fragment Foo_user on User {
   ... @include(if: $some_var) {
     ... @__ClientEdgeMetadataDirective
     # ServerObject {
-    #     query_name: "ClientEdgeQuery_Foo_user_best_friend_1",
+    #     query_name: OperationDefinitionName(
+    #         "ClientEdgeQuery_Foo_user_best_friend_1",
+    #     ),
     #     unique_id: 1,
     # }
      {

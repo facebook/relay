@@ -12,11 +12,13 @@ use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -69,6 +71,7 @@ use schema::Schema;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
+use crate::ast::GraphQLModuleDependency;
 use crate::ast::JSModuleDependency;
 use crate::ast::ModuleImportName;
 use crate::ast::ObjectEntry;
@@ -433,7 +436,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 .collect(),
                         ),
                     ),
-                operation: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name.0),
+                operation: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(refetch_metadata.operation_name.into())),
             };
             if let Some(identifier_field) = refetch_metadata.identifier_field {
                 refetch_object.push(ObjectEntry {
@@ -1033,7 +1036,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             );
 
             Primitive::RelayResolverModel {
-                graphql_module: fragment_import_path,
+                graphql_module_name: fragment_name.item.0,
+                graphql_module_path: fragment_import_path,
                 js_module: resolver_js_module,
                 injected_field_name_details: match injection_mode {
                     FragmentDataInjectionMode::Field { name, is_required } => {
@@ -1110,7 +1114,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             let normalization_info = object! {
                 concrete_type: concrete_type,
                 plural: Primitive::Bool(normalization_info.plural),
-                normalization_node: Primitive::GraphQLModuleDependency(normalization_import_path),
+                normalization_node: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Path {
+                    path: normalization_import_path,
+                    name: normalization_info.normalization_operation.item.into()
+            }),
             };
 
             object_props.push(ObjectEntry {
@@ -1134,7 +1141,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         None => Primitive::SkippableNull,
                         Some(key) => Primitive::Key(key),
                     },
-                fragment: Primitive::GraphQLModuleDependency(normalization_import_path),
+                fragment: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Path {
+                    path: normalization_import_path,
+                    name: frag_spread.fragment.item.into(),
+                }),
                 kind: Primitive::String(
                         if frag_spread
                             .directives
@@ -1167,7 +1177,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .trim_end_matches(".graphql")
             .intern();
         Primitive::Key(self.object(object! {
-            fragment: Primitive::GraphQLModuleDependency(normalization_name),
+            fragment: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(ExecutableDefinitionName::OperationDefinitionName(OperationDefinitionName(normalization_name)))),
             kind: Primitive::String(CODEGEN_CONSTANTS.client_component),
         }))
     }
@@ -1376,7 +1386,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
-                    operation: Primitive::GraphQLModuleDependency(query_name),
+                    operation: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(query_name.into())),
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
                 }))

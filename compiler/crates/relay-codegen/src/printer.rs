@@ -14,6 +14,7 @@ use std::path::Path;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::reexport::Intern;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use indexmap::IndexMap;
@@ -26,6 +27,7 @@ use schema::SDLSchema;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
+use crate::ast::GraphQLModuleDependency;
 use crate::ast::JSModuleDependency;
 use crate::ast::ModuleImportName;
 use crate::ast::ObjectEntry;
@@ -465,14 +467,31 @@ impl<'b> JSONPrinter<'b> {
             Primitive::StorageKey(field_name, key) => {
                 write_static_storage_key(f, self.builder, *field_name, *key)
             }
-            Primitive::GraphQLModuleDependency(key) => self.write_js_dependency(
-                f,
-                ModuleImportName::Default(format!("{}_graphql", key).intern()),
-                Cow::Owned(format!(
-                    "{}.graphql",
-                    get_module_path(self.js_module_format, *key)
-                )),
-            ),
+            Primitive::GraphQLModuleDependency(dependency) => {
+                let (variable_name, key): (&ExecutableDefinitionName, &StringKey) = match dependency
+                {
+                    GraphQLModuleDependency::Name(name) => (
+                        name,
+                        match name {
+                            ExecutableDefinitionName::OperationDefinitionName(operation_name) => {
+                                &operation_name.0
+                            }
+                            ExecutableDefinitionName::FragmentDefinitionName(fragment_name) => {
+                                &fragment_name.0
+                            }
+                        },
+                    ),
+                    GraphQLModuleDependency::Path { name, path } => (name, path),
+                };
+                self.write_js_dependency(
+                    f,
+                    ModuleImportName::Default(format!("{}_graphql", variable_name).intern()),
+                    Cow::Owned(format!(
+                        "{}.graphql",
+                        get_module_path(self.js_module_format, *key)
+                    )),
+                )
+            }
             Primitive::JSModuleDependency(JSModuleDependency { path, import_name }) => self
                 .write_js_dependency(
                     f,
@@ -499,12 +518,14 @@ impl<'b> JSONPrinter<'b> {
                 }
             },
             Primitive::RelayResolverModel {
-                graphql_module,
+                graphql_module_path,
+                graphql_module_name,
                 js_module,
                 injected_field_name_details,
             } => self.write_relay_resolver_model(
                 f,
-                *graphql_module,
+                *graphql_module_name,
+                *graphql_module_path,
                 js_module,
                 injected_field_name_details.as_ref().copied(),
             ),
@@ -564,7 +585,8 @@ impl<'b> JSONPrinter<'b> {
     fn write_relay_resolver_model(
         &mut self,
         f: &mut String,
-        graphql_module: StringKey,
+        graphql_module_name: StringKey,
+        graphql_module_path: StringKey,
         js_module: &JSModuleDependency,
         injected_field_name_details: Option<(StringKey, bool)>,
     ) -> FmtResult {
@@ -582,10 +604,10 @@ impl<'b> JSONPrinter<'b> {
         write!(f, "(")?;
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(format!("{}_graphql", graphql_module).intern()),
+            ModuleImportName::Default(format!("{}_graphql", graphql_module_name).intern()),
             Cow::Owned(format!(
                 "{}.graphql",
-                get_module_path(self.js_module_format, graphql_module)
+                get_module_path(self.js_module_format, graphql_module_path)
             )),
         )?;
         write!(f, ", ")?;

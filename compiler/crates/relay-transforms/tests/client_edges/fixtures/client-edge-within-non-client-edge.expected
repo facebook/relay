@@ -25,7 +25,9 @@ fragment Foo_user on User {
   nearest_neighbor {
     ... @__ClientEdgeMetadataDirective
     # ServerObject {
-    #     query_name: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
+    #     query_name: OperationDefinitionName(
+    #         "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
+    #     ),
     #     unique_id: 0,
     # }
      {

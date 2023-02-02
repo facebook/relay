@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<19da233b1c78ecb651f98cba61096243>>
+ * @generated SignedSource<<b6ad8923155c47656dcc0307ec645b4b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionColorResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'], 
-) => mixed);
+) => any);
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

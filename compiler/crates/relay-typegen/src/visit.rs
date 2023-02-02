@@ -394,7 +394,7 @@ fn generate_resolver_type(
             ResolverOutputTypeInfo::ScalarField(field_id) => {
                 let field = typegen_context.schema.field(*field_id);
                 if is_relay_resolver_type(typegen_context, field) {
-                    AST::Mixed
+                    AST::Any
                 } else {
                     transform_scalar_type(
                         typegen_context,

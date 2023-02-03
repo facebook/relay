@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ceea8b2bfed7b8480d2f1cc23ef0e979>>
+ * @generated SignedSource<<40f86235679f394650ba05923e617c80>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {client_edge as userClientEdgeResolverType} from "../../../../relay-runti
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolverType: (
-  rootKey: UserClientEdgeResolver$key, 
+  rootKey: UserClientEdgeResolver$key,
 ) => mixed);
 declare export opaque type FragmentResourceClientEdgesTestFragment1$fragmentType: FragmentType;
 export type FragmentResourceClientEdgesTestFragment1$data = {|

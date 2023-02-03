@@ -35,7 +35,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType: (
-  rootKey: relayResolver_PopStarNameResolverFragment_name$key, 
+  rootKey: relayResolver_PopStarNameResolverFragment_name$key,
 ) => mixed);
 declare export opaque type relayResolver_consumer$fragmentType: FragmentType;
 export type relayResolver_consumer$data = {|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<21953cdb55703504bc699594f147b21f>>
+ * @generated SignedSource<<32d05eb865569d0f5aca47bb646ddaf8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,13 +25,13 @@ import {inner as queryInnerResolverType} from "../../../relay-runtime/store/__te
 // Type assertion validating that `queryInnerResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolverType: (
-  rootKey: InnerResolver$key, 
+  rootKey: InnerResolver$key,
 ) => LiveState<any>);
 import {outer as queryOuterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
 // Type assertion validating that `queryOuterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryOuterResolverType: (
-  rootKey: OuterResolver$key, 
+  rootKey: OuterResolver$key,
 ) => mixed);
 export type LiveResolversTestNestedQuery$variables = {||};
 export type LiveResolversTestNestedQuery$data = {|

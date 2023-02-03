@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<54b619f6e831ae89ff8f0860e75b6fe1>>
+ * @generated SignedSource<<6131e749759a69bb4aaf41ffab067d72>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {client_node as userClientNodeResolverType} from "../../../relay-runtime/
 (userClientNodeResolverType: (
   args: {|
     id: string,
-  |}, 
+  |},
 ) => mixed);
 export type ClientEdgesTest1Query$variables = {|
   id: string,

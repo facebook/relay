@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f3a1cad0e734c3022647fcd097c26a1>>
+ * @generated SignedSource<<8f28ad1d07892e49234b8ed7c67505ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {client_object as userClientObjectResolverType} from "../../../relay-runt
 (userClientObjectResolverType: (
   args: {|
     id: string,
-  |}, 
+  |},
 ) => mixed);
 export type ClientEdgesTest4Query$variables = {|
   id: string,

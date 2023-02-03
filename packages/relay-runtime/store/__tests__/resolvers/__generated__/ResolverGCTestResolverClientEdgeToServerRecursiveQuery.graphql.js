@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1fb9cd040d934aabcc37cdb493b75b80>>
+ * @generated SignedSource<<5fd85d34df9ce6e9f6785af3101492b5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,13 +24,13 @@ import {another_client_edge as userAnotherClientEdgeResolverType} from "../UserA
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAnotherClientEdgeResolverType: (
-  rootKey: UserAnotherClientEdgeResolver$key, 
+  rootKey: UserAnotherClientEdgeResolver$key,
 ) => mixed);
 import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolverType: (
-  rootKey: UserClientEdgeResolver$key, 
+  rootKey: UserClientEdgeResolver$key,
 ) => mixed);
 export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$data = {|

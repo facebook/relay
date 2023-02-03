@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4494a5a24893505028891d028b217028>>
+ * @generated SignedSource<<69cbaba6dca6f66bd17cdba50108195e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolv
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolverType: (
-  rootKey: UserClientEdgeResolver$key, 
+  rootKey: UserClientEdgeResolver$key,
 ) => mixed);
 declare export opaque type UserReadsClientEdgeResolver$fragmentType: FragmentType;
 export type UserReadsClientEdgeResolver$data = {|

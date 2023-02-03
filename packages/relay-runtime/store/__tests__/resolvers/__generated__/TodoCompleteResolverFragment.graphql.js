@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0590a4d3c5777f18406b559b65f17428>>
+ * @generated SignedSource<<b531eb160939ae399b4e174b12649b1a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {self as todoSelfResolverType} from "../TodoSelfResolver.js";
 // Type assertion validating that `todoSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoSelfResolverType: (
-  rootKey: TodoSelfResolverFragment$key, 
+  rootKey: TodoSelfResolverFragment$key,
 ) => LiveState<any>);
 declare export opaque type TodoCompleteResolverFragment$fragmentType: FragmentType;
 export type TodoCompleteResolverFragment$data = {|

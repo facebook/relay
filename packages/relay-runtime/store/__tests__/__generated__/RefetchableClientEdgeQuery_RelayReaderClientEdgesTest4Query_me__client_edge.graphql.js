@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3443454904548c6460a162b6a506f1be>>
+ * @generated SignedSource<<65d0b88a6dc0530f8af3ecf7789235f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {another_client_edge as userAnotherClientEdgeResolverType} from "../resol
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAnotherClientEdgeResolverType: (
-  rootKey: UserAnotherClientEdgeResolver$key, 
+  rootKey: UserAnotherClientEdgeResolver$key,
 ) => mixed);
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$variables = any;

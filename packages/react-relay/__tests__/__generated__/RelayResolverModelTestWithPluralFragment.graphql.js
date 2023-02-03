@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<05a9aa7744d5f087a2d836a92640ce36>>
+ * @generated SignedSource<<3e75e3d6ee8c4e3dabfc40dd2a60e2fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,19 +26,19 @@ import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionColorResolverType: (
-  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'], 
+  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
 ) => any);
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextResolverType: (
-  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'], 
+  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
 ) => ?string);
 import {many_fancy_descriptions as todoModelManyFancyDescriptionsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelManyFancyDescriptionsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelManyFancyDescriptionsResolverType: (
-  __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'], 
+  __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
 ) => $ReadOnlyArray<?TodoModel__many_fancy_descriptions$normalization['__relay_model_instance']>);
 declare export opaque type RelayResolverModelTestWithPluralFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestWithPluralFragment$data = {|

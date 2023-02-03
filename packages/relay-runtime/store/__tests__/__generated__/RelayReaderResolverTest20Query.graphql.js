@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c15e2b993684c67210037fd154555491>>
+ * @generated SignedSource<<1bcc156d24711fc019f0e40f190a5035>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,10 +23,10 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleResolverType: (
-  rootKey: UserProfilePictureResolver$key, 
+  rootKey: UserProfilePictureResolver$key,
   args: {|
     scale: ?number,
-  |}, 
+  |},
 ) => mixed);
 export type RelayReaderResolverTest20Query$variables = {|
   scale: number,

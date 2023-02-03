@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9abdcb04493a6046bbb6fb9a7a543da6>>
+ * @generated SignedSource<<981b807cf2101d110c4ed39b32dddad0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {counter_plus_one as queryCounterPlusOneResolverType} from "../CounterPlu
 // Type assertion validating that `queryCounterPlusOneResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterPlusOneResolverType: (
-  rootKey: CounterPlusOneResolver$key, 
+  rootKey: CounterPlusOneResolver$key,
 ) => mixed);
 export type ResolverGCTestRegularReadsLiveQuery$variables = {||};
 export type ResolverGCTestRegularReadsLiveQuery$data = {|

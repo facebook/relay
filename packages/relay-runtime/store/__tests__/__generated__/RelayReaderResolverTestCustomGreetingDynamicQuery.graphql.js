@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ec7ff26138e8ed763ef380cf3259f2e4>>
+ * @generated SignedSource<<1aba9b07c641d36e60acc46f1a0f1c38>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,10 +23,10 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
 // Type assertion validating that `userCustomGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCustomGreetingResolverType: (
-  rootKey: UserCustomGreetingResolver$key, 
+  rootKey: UserCustomGreetingResolver$key,
   args: {|
     salutation: string,
-  |}, 
+  |},
 ) => mixed);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,

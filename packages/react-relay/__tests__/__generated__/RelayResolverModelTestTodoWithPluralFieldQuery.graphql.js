@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9b6d30b72916d376c8bc11b41abebf00>>
+ * @generated SignedSource<<29d882fa12b7221e647b459ce9de9f89>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
 (queryTodoModelResolverType: (
   args: {|
     todoID: string,
-  |}, 
+  |},
 ) => mixed);
 export type RelayResolverModelTestTodoWithPluralFieldQuery$variables = {|
   id: string,

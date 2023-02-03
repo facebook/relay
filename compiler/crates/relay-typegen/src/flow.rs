@@ -365,7 +365,7 @@ impl FlowPrinter {
                 self.write_indentation()?;
                 write!(&mut self.result, "{}: ", argument.key)?;
                 self.write(&argument.value)?;
-                writeln!(&mut self.result, ", ")?;
+                writeln!(&mut self.result, ",")?;
             }
             self.indentation -= 1;
         }

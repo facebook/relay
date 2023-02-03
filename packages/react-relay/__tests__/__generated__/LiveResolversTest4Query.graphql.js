@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<058717886824b295d0c968b1755331fd>>
+ * @generated SignedSource<<f40be8e7eecb1e6ddb43f8df5feff822>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {ping as queryPingResolverType} from "../../../relay-runtime/store/__test
 // Type assertion validating that `queryPingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryPingResolverType: (
-  rootKey: LivePingPongResolver$key, 
+  rootKey: LivePingPongResolver$key,
 ) => LiveState<any>);
 export type LiveResolversTest4Query$variables = {||};
 export type LiveResolversTest4Query$data = {|

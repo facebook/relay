@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4479f8342b9acd50b16dce1b1375ef5e>>
+ * @generated SignedSource<<44d5f2bb311b14844b449cf7582c42bf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {hello_user as queryHelloUserResolverType} from "../../../relay-runtime/s
 (queryHelloUserResolverType: (
   args: {|
     id: string,
-  |}, 
+  |},
 ) => mixed);
 export type ClientOnlyQueriesTest3Query$variables = {||};
 export type ClientOnlyQueriesTest3Query$data = {|

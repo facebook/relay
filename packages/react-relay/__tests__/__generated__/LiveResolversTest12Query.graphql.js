@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3713e10e2b4341d7984e57b7643a51a6>>
+ * @generated SignedSource<<a9b74eab07c8302fcc4a5cb2692d693a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverTyp
 (queryCounterNoFragmentWithArgResolverType: (
   args: {|
     prefix: string,
-  |}, 
+  |},
 ) => LiveState<any>);
 export type LiveResolversTest12Query$variables = {|
   prefix: string,

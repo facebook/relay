@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2d9830417b7a578d1f1329e0890ffad3>>
+ * @generated SignedSource<<1a3fb0fdd6a49685ee64ec923e9a235b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {live_external_greeting as queryLiveExternalGreetingResolverType} from ".
 // Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolverType: (
-  rootKey: LiveExternalGreetingFragment$key, 
+  rootKey: LiveExternalGreetingFragment$key,
 ) => LiveState<any>);
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.

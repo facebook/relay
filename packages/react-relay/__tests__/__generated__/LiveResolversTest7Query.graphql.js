@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3be794e42adacfabb5ef9d8fa329e2cc>>
+ * @generated SignedSource<<af80ab6f15154361b71b3c8e252995ec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,10 +24,10 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType: (
-  rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key, 
+  rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key,
   args: {|
     scale: ?number,
-  |}, 
+  |},
 ) => LiveState<any>);
 export type LiveResolversTest7Query$variables = {|
   id: string,

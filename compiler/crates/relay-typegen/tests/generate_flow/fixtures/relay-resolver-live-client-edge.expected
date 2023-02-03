@@ -37,7 +37,7 @@ import userBestFriendResolverType from "BestFriendResolver";
 // Type assertion validating that `userBestFriendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendResolverType: (
-  rootKey: relayResolver_BestFriendResolverFragment_name$key, 
+  rootKey: relayResolver_BestFriendResolverFragment_name$key,
 ) => LiveState<any>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|

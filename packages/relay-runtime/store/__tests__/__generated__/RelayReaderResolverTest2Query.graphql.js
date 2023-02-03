@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<46b6d0fa0b36a97633586ac75896f834>>
+ * @generated SignedSource<<f5680fcca557c895ee9b1615240afd90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {constant_dependent as userConstantDependentResolverType} from "../resolv
 // Type assertion validating that `userConstantDependentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userConstantDependentResolverType: (
-  rootKey: UserConstantDependentResolver$key, 
+  rootKey: UserConstantDependentResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest2Query$variables = {||};
 export type RelayReaderResolverTest2Query$data = {|

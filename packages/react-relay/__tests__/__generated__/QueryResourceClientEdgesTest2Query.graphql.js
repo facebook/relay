@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<db18a4e1b57fe72e69a2dfe77a291e16>>
+ * @generated SignedSource<<fa4333683c6a67db1fa6f50b10abdd86>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {client_edge as userClientEdgeResolverType} from "../../../relay-runtime/
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolverType: (
-  rootKey: UserClientEdgeResolver$key, 
+  rootKey: UserClientEdgeResolver$key,
 ) => mixed);
 export type QueryResourceClientEdgesTest2Query$variables = {||};
 export type QueryResourceClientEdgesTest2Query$data = {|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eb53971062728abc1d8bb94daba2c06b>>
+ * @generated SignedSource<<951b1f2ca3245584a5632c291d6e27f6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolverType} fr
 // Type assertion validating that `queryCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolverType: (
-  rootKey: CounterSuspendsWhenOdd$key, 
+  rootKey: CounterSuspendsWhenOdd$key,
 ) => LiveState<any>);
 declare export opaque type UserNameAndCounterSuspendsWhenOdd$fragmentType: FragmentType;
 export type UserNameAndCounterSuspendsWhenOdd$data = {|

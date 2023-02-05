@@ -1254,5 +1254,5 @@ export type ReactFlightServerErrorHandler = (
  * can only come from a given set.
  */
 export type ConcreteClientEdgeResolverReturnType<T = any> = {
-  id: T & DataID,
+  +id: T & DataID,
 };

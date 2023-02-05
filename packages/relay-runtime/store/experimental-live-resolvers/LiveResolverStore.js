@@ -54,7 +54,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {LiveResolverCache, getUpdatedDataIDs} = require('./LiveResolverCache');
 const invariant = require('invariant');
 
-export type LiveState<T> = {
+export type LiveState<+T> = {
   read(): T,
   subscribe(cb: () => void): () => void,
 };

@@ -415,13 +415,14 @@ fn generate_resolver_type(
                     normalization_info.normalization_operation.item.0,
                 )));
 
-                let ast = if let Some(instance_field_name) =
-                    normalization_info.weak_object_instance_field
-                {
-                    AST::PropertyType {
-                        type_: Box::new(type_),
-                        property_name: instance_field_name,
-                    }
+                let ast = if let Some(field_type) = normalization_info.weak_object_instance_field {
+                    transform_scalar_type(
+                        typegen_context,
+                        &typegen_context.schema.field(field_type).type_,
+                        None,
+                        encountered_enums,
+                        custom_scalars,
+                    )
                 } else {
                     type_
                 };

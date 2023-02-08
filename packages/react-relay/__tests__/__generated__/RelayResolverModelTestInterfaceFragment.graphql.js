@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<33acf67d9dfb2b83ca1def3f03ade6d1>>
+ * @generated SignedSource<<2e452547adee3384123090730327ab6b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,6 +23,7 @@ import type { TodoModel____relay_model_instance$data } from "./../../../relay-ru
 import type { TodoDescription__some_client_type_with_interface$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql";
 import type { TodoDescription__some_interface$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_interface$normalization.graphql";
 import type { TodoModel__fancy_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql";
+import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 import {some_client_type_with_interface as todoDescriptionSomeClientTypeWithInterfaceResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionSomeClientTypeWithInterfaceResolverType` resolver is correctly implemented.
@@ -41,7 +42,7 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
-) => ?TodoModel__fancy_description$normalization['__relay_model_instance']);
+) => ?TodoDescription);
 declare export opaque type RelayResolverModelTestInterfaceFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestInterfaceFragment$data = {|
   +fancy_description: ?{|

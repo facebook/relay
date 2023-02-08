@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9bfbe8ce41c1965d6ca48724d35ddffc>>
+ * @generated SignedSource<<e9cb64575533648a8465c939be771e96>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {live_todo_description as queryLiveTodoDescriptionResolverType} from "../
   args: {|
     todoID: string,
   |},
-) => LiveState<?Query__live_todo_description$normalization['__relay_model_instance']>);
+) => LiveState<?TodoDescription>);
 import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -41,6 +41,7 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
 ) => ?string);
 import type { Query__live_todo_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__live_todo_description$normalization.graphql";
+import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestWeakLiveFieldQuery$variables = {|
   id: string,
 |};

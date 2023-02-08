@@ -89,7 +89,7 @@ pub struct ResolverNormalizationInfo {
     pub inner_type: Type,
     pub plural: bool,
     pub normalization_operation: WithLocation<OperationDefinitionName>,
-    pub weak_object_instance_field: Option<StringKey>,
+    pub weak_object_instance_field: Option<FieldID>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -439,11 +439,10 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                         .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
                                         .is_some()
                                     {
-                                        let field_id = object.fields.get(0).unwrap();
                                         // This is expect to be `__relay_model_instance`
                                         // TODO: Add validation/panic to assert that weak object has only
                                         // one field here, and it's a magic relay instance field.
-                                        Some(self.program.schema.field(*field_id).name.item)
+                                        Some(*object.fields.get(0).unwrap())
                                     } else {
                                         None
                                     }

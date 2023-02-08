@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3e75e3d6ee8c4e3dabfc40dd2a60e2fc>>
+ * @generated SignedSource<<627d5b0fb9c56bba867e0b5101e7b9bf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,6 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import type { TodoModel__many_fancy_descriptions$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__many_fancy_descriptions$normalization.graphql";
+import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
@@ -39,7 +40,7 @@ import {many_fancy_descriptions as todoModelManyFancyDescriptionsResolverType} f
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelManyFancyDescriptionsResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
-) => $ReadOnlyArray<?TodoModel__many_fancy_descriptions$normalization['__relay_model_instance']>);
+) => $ReadOnlyArray<?TodoDescription>);
 declare export opaque type RelayResolverModelTestWithPluralFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestWithPluralFragment$data = {|
   +many_fancy_descriptions: ?$ReadOnlyArray<?{|

@@ -1049,7 +1049,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Primitive::JSModuleDependency(resolver_js_module)
         };
 
-        let resolver_module = if let Some((key, plural)) = relay_resolver_metadata
+        let resolver_module = if let Some((field_id, plural)) = relay_resolver_metadata
             .output_type_info
             .as_ref()
             .and_then(|info| match info {
@@ -1058,6 +1058,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .weak_object_instance_field
                     .map(|field_name| (field_name, info.plural)),
             }) {
+            let key = self.schema.field(field_id).name.item;
             Primitive::RelayResolverWeakObjectWrapper {
                 resolver: Box::new(resolver_module),
                 key,

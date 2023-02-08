@@ -24,7 +24,7 @@ use signedsource::SIGNING_TOKEN;
 struct Options {
     /// List of directories, each should contain a `/fixtures` subdirectory
     /// from which a test file will be generated
-    #[clap(name = "DIR", parse(from_os_str))]
+    #[clap(name = "DIR")]
     dirs: Vec<PathBuf>,
 }
 

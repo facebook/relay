@@ -960,7 +960,7 @@ describe('RelayReferenceMarker', () => {
         'client:root:counter',
       ]);
     });
-    it('with with @edgeTo client object is retained', () => {
+    it('with @edgeTo client object is retained', () => {
       const storeData = {
         'client:root': {
           __id: 'client:root',
@@ -1016,6 +1016,18 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
+        'client:AstrologicalSign:Aquarius',
+        'client:AstrologicalSign:Aries',
+        'client:AstrologicalSign:Cancer',
+        'client:AstrologicalSign:Capricorn',
+        'client:AstrologicalSign:Gemini',
+        'client:AstrologicalSign:Leo',
+        'client:AstrologicalSign:Libra',
+        'client:AstrologicalSign:Pisces',
+        'client:AstrologicalSign:Sagittarius',
+        'client:AstrologicalSign:Scorpio',
+        'client:AstrologicalSign:Taurus',
+        'client:AstrologicalSign:Virgo',
         'client:root',
         'client:root:all_astrological_signs',
       ]);

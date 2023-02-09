@@ -271,17 +271,45 @@ class RelayReferenceMarker {
       return;
     }
     const resolverRecord = this._recordSource.get(dataID);
-    if (resolverRecord != null) {
-      if (field.backingField.isOutputType) {
-        // Mark all @outputType record IDs
-        const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
-        if (outputTypeRecordIDs != null) {
-          for (const dataID of outputTypeRecordIDs) {
-            this._references.add(dataID);
+    if (resolverRecord == null) {
+      return;
+    }
+    if (field.backingField.isOutputType) {
+      // Mark all @outputType record IDs
+      const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
+      if (outputTypeRecordIDs != null) {
+        for (const dataID of outputTypeRecordIDs) {
+          this._references.add(dataID);
+        }
+      }
+    } else {
+      const {linkedField} = field;
+      const concreteType = linkedField.concreteType;
+      if (concreteType == null) {
+        // TODO: Handle retaining abstract client edges to client types.
+        return;
+      }
+      if (linkedField.plural) {
+        const dataIDs = RelayModernRecord.getResolverLinkedRecordIDs(
+          resolverRecord,
+          concreteType,
+        );
+
+        if (dataIDs != null) {
+          for (const dataID of dataIDs) {
+            if (dataID != null) {
+              this._traverse(linkedField, dataID);
+            }
           }
         }
       } else {
-        // TODO: Find cached resolver value.
+        const dataID = RelayModernRecord.getResolverLinkedRecordID(
+          resolverRecord,
+          concreteType,
+        );
+        if (dataID != null) {
+          this._traverse(linkedField, dataID);
+        }
       }
     }
   }

@@ -6,6 +6,8 @@ description: Introducing the new Relay compiler
 hide_table_of_contents: false
 ---
 
+import Image from '@site/components/Image';
+
 We're extremely excited to release a preview of the new, Rust-based Relay compiler to open source today (as [`v13.0.0-rc.1`](https://github.com/facebook/relay/releases/tag/v13.0.0-rc.1))! This new compiler is faster, supports new runtime features, and provides a strong foundation for additional growth in the future.
 
 Leading up to this release, Meta's codebase had been growing without signs of stopping. At our scale, the time it took to compile all of the queries in our codebase was increasing at the direct expense of developer productivity. Though we tried a number of strategies to optimize our JavaScript-based compiler (discussed below), our ability to incrementally eke out performance gains could not keep up with the growth in the number of queries in our codebase.
@@ -61,15 +63,17 @@ And while we're not there yet, we have made significant achievements on each of 
 
 For example, the new compiler ships with support for the new `@required` directive, which will nullify the parent linked field or throw an error if a given subfield is null when read out. This may sound like a trivial quality-of-life improvement, but if half of your component's code is null checks, `@required` starts to look pretty good!
 
-<style type="text/css">{" img { max-height: 600px; }"}</style>
+:::note A component without `@required`
 
-> A component without `@required`:
->
-> ![Image: A component with null-checking boilerplate](./2021-12-08-introducing-the-new-relay-compiler-pre-required.png)
->
-> And with `@required`:
->
-> ![Image: A component will less null-checking boilerplate, due to the use of the `@required` directive](2021-12-08-introducing-the-new-relay-compiler-post-required.png)
+<Image src={require('./images/2021-12-08-introducing-the-new-relay-compiler-pre-required.png')} title="A component with null-checking boilerplate"/>
+
+:::
+
+:::note And with `@required`:
+
+<Image src={require('./images/2021-12-08-introducing-the-new-relay-compiler-post-required.png')} title="A component will less null-checking boilerplate, due to the use of the `@required` directive"/>
+
+:::
 
 
 Next, the compiler powers an internal-only VSCode extension that autocompletes field names when you type and shows type information on hover, among many other features. We haven't made it public, yet, but we hope to at some point! Our experience is that this VSCode extension makes working with GraphQL data much easier and more intuitive.

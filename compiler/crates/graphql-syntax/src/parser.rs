@@ -22,10 +22,29 @@ use crate::syntax_error::SyntaxError;
 
 type ParseResult<T> = Result<T, ()>;
 
+#[derive(Default, PartialEq)]
+pub enum FragmentArgumentSyntaxKind {
+    #[default]
+    None,
+    OnlyFragmentVariableDefinitions,
+    SpreadArgumentsAndFragmentVariableDefinitions,
+}
+
 #[derive(Default)]
 pub struct ParserFeatures {
-    /// Enable the experimental fragment variables definitions syntax
-    pub enable_variable_definitions: bool,
+    /// Whether and how to enable the experimental fragment variables definitions syntax
+    pub fragment_argument_capability: FragmentArgumentSyntaxKind,
+}
+
+impl ParserFeatures {
+    fn supports_variable_definition_syntax(&self) -> bool {
+        self.fragment_argument_capability != FragmentArgumentSyntaxKind::None
+    }
+
+    fn supports_spread_arguments_syntax(&self) -> bool {
+        self.fragment_argument_capability
+            == FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions
+    }
 }
 
 pub struct Parser<'a> {
@@ -972,7 +991,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let fragment = self.parse_keyword("fragment")?;
         let name = self.parse_identifier()?;
-        let variable_definitions = if self.features.enable_variable_definitions {
+        let variable_definitions = if self.features.supports_variable_definition_syntax() {
             self.parse_optional_delimited_nonempty_list(
                 TokenKind::OpenParen,
                 TokenKind::CloseParen,
@@ -1299,11 +1318,17 @@ impl<'a> Parser<'a> {
         if !is_on_keyword && self.peek_token_kind() == TokenKind::Identifier {
             // fragment spread
             let name = self.parse_identifier()?;
+            let arguments = if self.features.supports_spread_arguments_syntax() {
+                self.parse_optional_arguments()?
+            } else {
+                None
+            };
             let directives = self.parse_directives()?;
             Ok(Selection::FragmentSpread(FragmentSpread {
                 span: Span::new(start, self.end_index),
                 spread,
                 name,
+                arguments,
                 directives,
             }))
         } else {

@@ -773,6 +773,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         }
 
         if self.options.fragment_variables_semantic != FragmentVariablesSemantic::PassedValue {
+            if let Some(arguments) = &spread.arguments {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::OutsidePassedArgumentsMode,
+                    self.location.with_span(arguments.span),
+                )]);
+            }
+
             let directives =
                 self.build_directives(spread.directives.iter(), DirectiveLocation::FragmentSpread)?;
             return Ok(FragmentSpread {
@@ -789,6 +796,30 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 directive.name.value == *DIRECTIVE_ARGUMENTS
                     || directive.name.value == *DIRECTIVE_UNCHECKED_ARGUMENTS
             });
+
+        if let Some(explicit_arguments) = &spread.arguments {
+            if let Some(argument_directive) = argument_directives.first() {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::FragmentArgumentsAndArgumentDirective,
+                    self.location.with_span(argument_directive.span),
+                )]);
+            }
+
+            let directives = self.build_directives(
+                other_directives.into_iter(),
+                DirectiveLocation::FragmentSpread,
+            )?;
+            let spread_arguments = self.build_fragment_spread_arguments(
+                signature,
+                explicit_arguments,
+                ValidationLevel::Strict,
+            )?;
+            return Ok(FragmentSpread {
+                fragment: spread_name_with_location,
+                arguments: spread_arguments,
+                directives,
+            });
+        }
 
         if argument_directives.len() > 1 {
             let mut locations = argument_directives

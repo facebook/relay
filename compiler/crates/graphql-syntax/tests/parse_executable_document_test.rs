@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b70fa52f45e6f2055a9ac5e1350398a6>>
+ * @generated SignedSource<<72df57f37cbaf20a3fa8589604738122>>
  */
 
 mod parse_executable_document;
@@ -80,6 +80,13 @@ fn space_in_variable() {
     let input = include_str!("parse_executable_document/fixtures/space_in_variable.graphql");
     let expected = include_str!("parse_executable_document/fixtures/space_in_variable.expected");
     test_fixture(transform_fixture, "space_in_variable.graphql", "parse_executable_document/fixtures/space_in_variable.expected", input, expected);
+}
+
+#[test]
+fn spread_with_empty_args_invalid() {
+    let input = include_str!("parse_executable_document/fixtures/spread_with_empty_args.invalid.graphql");
+    let expected = include_str!("parse_executable_document/fixtures/spread_with_empty_args.invalid.expected");
+    test_fixture(transform_fixture, "spread_with_empty_args.invalid.graphql", "parse_executable_document/fixtures/spread_with_empty_args.invalid.expected", input, expected);
 }
 
 #[test]

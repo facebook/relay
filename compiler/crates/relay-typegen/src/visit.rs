@@ -359,7 +359,7 @@ fn generate_resolver_type(
                 resolver_metadata.field_parent_type
             )
         });
-    let field = typegen_context
+    let field_id = typegen_context
         .schema
         .named_field(parent_resolver_type, resolver_metadata.field_name)
         .unwrap_or_else(|| {
@@ -369,7 +369,8 @@ fn generate_resolver_type(
             )
         });
     let mut args = vec![];
-    for field_argument in typegen_context.schema.field(field).arguments.iter() {
+    let schema_field = &typegen_context.schema.field(field_id);
+    for field_argument in schema_field.arguments.iter() {
         args.push(Prop::KeyValuePair(KeyValuePairProp {
             key: field_argument.name.0,
             optional: false,
@@ -391,7 +392,7 @@ fn generate_resolver_type(
             optional: false,
         });
     }
-    let inner_type = match &resolver_metadata.output_type_info {
+    let inner_ast = match &resolver_metadata.output_type_info {
         ResolverOutputTypeInfo::ScalarField => {
             let field_id = resolver_metadata.get_field_id(typegen_context.schema);
             let field = typegen_context.schema.field(field_id);
@@ -435,7 +436,9 @@ fn generate_resolver_type(
                 ast
             }
         }
-        ResolverOutputTypeInfo::EdgeTo(ref edge_to_resolver_return_type_info) => {
+        ResolverOutputTypeInfo::EdgeTo => {
+            let edge_to_resolver_return_type_info =
+                get_edge_to_resolver_return_type_info(schema_field, typegen_context.schema);
             create_edge_to_return_type_ast(edge_to_resolver_return_type_info, runtime_imports)
         }
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
@@ -451,10 +454,10 @@ fn generate_resolver_type(
         runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,
-            inner: Box::new(inner_type),
+            inner: Box::new(inner_ast),
         }
     } else {
-        inner_type
+        inner_ast
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
@@ -2343,7 +2346,7 @@ fn has_typename_selection(selections: &[TypeSelection]) -> bool {
 }
 
 fn create_edge_to_return_type_ast(
-    edge_to_resolver_return_type_info: &EdgeToResolverReturnTypeInfo,
+    edge_to_resolver_return_type_info: EdgeToResolverReturnTypeInfo,
     runtime_imports: &mut RuntimeImports,
 ) -> AST {
     // Mark that the DataID type is used, and must be imported.
@@ -2377,5 +2380,33 @@ fn create_edge_to_return_type_ast(
         AST::ReadOnlyArray(Box::new(inner_ast))
     } else {
         inner_ast
+    }
+}
+
+pub fn get_edge_to_resolver_return_type_info(
+    schema_field: &Field,
+    schema: &SDLSchema,
+) -> EdgeToResolverReturnTypeInfo {
+    let inner_type = schema_field.type_.inner();
+    let valid_typenames = if inner_type.is_abstract_type() && schema.is_extension_type(inner_type) {
+        // T145121765: there is currently no way to create a resolver that returns an abstract
+        // client type, so this branch will not be hit until we enable that feature.
+        let interface_id = schema_field.type_.inner().get_interface_id().expect(
+            "Only interfaces are supported here. This indicates a bug in the Relay compiler.",
+        );
+        let implementing_objects = schema
+            .interface(interface_id)
+            .implementing_objects
+            .iter()
+            .map(|id| schema.object(*id).name.item)
+            .collect();
+        Some(implementing_objects)
+    } else {
+        None
+    };
+    let plural = schema_field.type_.is_list();
+    EdgeToResolverReturnTypeInfo {
+        valid_typenames,
+        plural,
     }
 }

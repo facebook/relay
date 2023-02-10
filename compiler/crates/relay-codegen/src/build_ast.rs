@@ -1057,7 +1057,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 ResolverOutputTypeInfo::Composite(info) => info
                     .weak_object_instance_field
                     .map(|field_name| (field_name, info.plural)),
-                ResolverOutputTypeInfo::EdgeTo(_) => None,
+                ResolverOutputTypeInfo::EdgeTo => None,
                 ResolverOutputTypeInfo::Legacy => None,
             } {
             let key = self.schema.field(field_id).name.item;

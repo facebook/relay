@@ -46,12 +46,7 @@ fragment Foo_user on User {
       #     field_path: "best_friend",
       #     field_arguments: [],
       #     live: false,
-      #     output_type_info: EdgeTo(
-      #         EdgeToResolverReturnTypeInfo {
-      #             valid_typenames: None,
-      #             plural: false,
-      #         },
-      #     ),
+      #     output_type_info: EdgeTo,
       #     fragment_data_injection_mode: None,
       # }
        @waterfall
@@ -79,12 +74,7 @@ fragment Foo_user on User {
       #     field_path: "best_friend",
       #     field_arguments: [],
       #     live: false,
-      #     output_type_info: EdgeTo(
-      #         EdgeToResolverReturnTypeInfo {
-      #             valid_typenames: None,
-      #             plural: false,
-      #         },
-      #     ),
+      #     output_type_info: EdgeTo,
       #     fragment_data_injection_mode: None,
       # }
        @waterfall

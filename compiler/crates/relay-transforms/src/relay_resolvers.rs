@@ -99,7 +99,7 @@ pub enum ResolverOutputTypeInfo {
     ScalarField,
     Composite(ResolverNormalizationInfo),
     /// Resolver returns one or more edges to items in the store.
-    EdgeTo(EdgeToResolverReturnTypeInfo),
+    EdgeTo,
     Legacy,
 }
 
@@ -108,7 +108,7 @@ impl ResolverOutputTypeInfo {
         match self {
             ResolverOutputTypeInfo::ScalarField => true,
             ResolverOutputTypeInfo::Composite(_) => true,
-            ResolverOutputTypeInfo::EdgeTo(_) => false,
+            ResolverOutputTypeInfo::EdgeTo => false,
             ResolverOutputTypeInfo::Legacy => false,
         }
     }
@@ -524,27 +524,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                             ResolverOutputTypeInfo::ScalarField
                         }
                     } else if inner_type.is_composite_type() {
-                        ResolverOutputTypeInfo::EdgeTo({
-                            let valid_typenames = if inner_type.is_abstract_type()
-                                && self.program.schema.is_extension_type(inner_type)
-                            {
-                                // Note: there is currently no way to create a resolver that returns an abstract
-                                // client type, so this branch will not be hit until we enable that feature.
-                                let interface_id = inner_type.get_interface_id().expect("Only interfaces are supported here. This indicates a bug in the Relay compiler.");
-                                let implementing_objects = self.program.schema.interface(interface_id).implementing_objects
-                                    .iter()
-                                    .map(|id| self.program.schema.object(*id).name.item)
-                                    .collect();
-                                Some(implementing_objects)
-                            } else {
-                                None
-                            };
-                            let plural = schema_field.type_.is_list();
-                            EdgeToResolverReturnTypeInfo {
-                                valid_typenames,
-                                plural,
-                            }
-                        })
+                        ResolverOutputTypeInfo::EdgeTo
                     } else {
                         ResolverOutputTypeInfo::Legacy
                     };

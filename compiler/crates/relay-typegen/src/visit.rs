@@ -329,7 +329,7 @@ fn generate_resolver_type(
     let inner_ast = match &resolver_metadata.output_type_info {
         ResolverOutputTypeInfo::ScalarField => {
             if is_relay_resolver_type(typegen_context, schema_field) {
-                AST::Any
+                AST::Mixed
             } else {
                 transform_scalar_type(
                     typegen_context,
@@ -522,7 +522,9 @@ fn import_relay_resolver_function_type(
         .or_insert(imported_resolver);
 }
 
-/// Check if the scalar field has output type as `RelayResolverValue`
+/// Check if the scalar field has the special type `RelayResolverValue`. This is a type that
+/// indicates that the return type is an opaque scalar, whose type is determined by the return
+/// type of the resolver function.
 fn is_relay_resolver_type(typegen_context: &'_ TypegenContext<'_>, field: &Field) -> bool {
     if let Some(scalar_id) = field.type_.inner().get_scalar_id() {
         typegen_context.schema.scalar(scalar_id).name.item == *TYPE_RELAY_RESOLVER_VALUE

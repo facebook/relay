@@ -133,10 +133,9 @@ associated_data_impl!(RelayResolverFieldMetadata);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayResolverMetadata {
-    pub field_parent_type: StringKey,
+    field_id: FieldID,
     pub import_path: StringKey,
     pub import_name: Option<StringKey>,
-    pub field_name: StringKey,
     pub field_alias: Option<StringKey>,
     pub field_path: StringKey,
     pub field_arguments: Vec<Argument>,
@@ -152,55 +151,41 @@ pub struct RelayResolverMetadata {
 associated_data_impl!(RelayResolverMetadata);
 
 impl RelayResolverMetadata {
-    pub fn generate_local_resolver_name(&self) -> StringKey {
-        to_camel_case(format!(
-            "{}_{}_resolver",
-            self.field_parent_type, self.field_name
-        ))
-        .intern()
-    }
-    pub fn generate_local_resolver_type_name(&self) -> StringKey {
-        to_camel_case(format!(
-            "{}_{}_resolver_type",
-            self.field_parent_type, self.field_name
-        ))
-        .intern()
+    pub fn field<'schema>(&self, schema: &'schema SDLSchema) -> &'schema Field {
+        schema.field(self.field_id)
     }
 
-    pub fn get_field_id(&self, schema: &SDLSchema) -> FieldID {
-        let parent_type = schema.get_type(self.field_parent_type).expect(
-            "Expected type to exist in schema. This indicates a bug in the Relay compiler.",
-        );
-        let field_id = match parent_type {
-            Type::Object(object_id) => {
-                let object = schema.object(object_id);
-                object
-                        .fields
-                        .iter()
-                        .find(|field| {
-                            schema.field(**field).name.item == self.field_name
-                        })
-                        .expect(
-                            "Expected field to exist in schema. This indicates a bug in the Relay compiler",
-                        )
-            }
-            Type::Interface(interface_id) => {
-                let interface = schema.interface(interface_id);
-                interface
-                        .fields
-                        .iter()
-                        .find(|field| {
-                            schema.field(**field).name.item == self.field_name
-                        })
-                        .expect(
-                            "Expected field to exist in schema. This indicates a bug in the Relay compiler",
-                        )
-            }
-            _ => panic!(
-                "Resolvers can only be defined on interfaces and objects, currently. This indicates a bug in Relay."
-            ),
-        };
-        *field_id
+    pub fn field_name(&self, schema: &SDLSchema) -> StringKey {
+        self.field(schema).name.item
+    }
+
+    pub fn field_parent_type_name(&self, schema: &SDLSchema) -> StringKey {
+        let parent_type = self
+            .field(schema)
+            .parent_type
+            .expect("Expected parent type");
+        match parent_type {
+            Type::Interface(interface_id) => schema.interface(interface_id).name.item.0,
+            Type::Object(object_id) => schema.object(object_id).name.item.0,
+            _ => panic!("Unexpected parent type for resolver."),
+        }
+    }
+
+    pub fn generate_local_resolver_name(&self, schema: &SDLSchema) -> StringKey {
+        to_camel_case(format!(
+            "{}_{}_resolver",
+            self.field_parent_type_name(schema),
+            self.field_name(schema)
+        ))
+        .intern()
+    }
+    pub fn generate_local_resolver_type_name(&self, schema: &SDLSchema) -> StringKey {
+        to_camel_case(format!(
+            "{}_{}_resolver_type",
+            self.field_parent_type_name(schema),
+            self.field_name(schema)
+        ))
+        .intern()
     }
 }
 
@@ -262,14 +247,12 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     }
                 });
 
-            let schema_field = self.program.schema.field(field.definition().item);
             let resolver_metadata = RelayResolverMetadata {
-                field_parent_type: field_metadata.field_parent_type,
                 import_path: field_metadata.import_path,
                 import_name: field_metadata.import_name,
-                field_name: schema_field.name.item,
-                field_alias: field.alias().map(|alias| alias.item),
+                field_alias: field.alias().map(|field_alias| field_alias.item),
                 field_path: field_metadata.field_path,
+                field_id: field.definition().item,
                 field_arguments,
                 live: field_metadata.live,
                 output_type_info: field_metadata.output_type_info.clone(),

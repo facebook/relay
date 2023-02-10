@@ -312,8 +312,7 @@ fn generate_resolver_type(
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
 ) -> AST {
-    let field_id = resolver_metadata.get_field_id(typegen_context.schema);
-    let schema_field = typegen_context.schema.field(field_id);
+    let schema_field = resolver_metadata.field(typegen_context.schema);
 
     let resolver_arguments = get_resolver_arguments(
         fragment_name,
@@ -484,7 +483,8 @@ fn import_relay_resolver_function_type(
     resolver_metadata: &RelayResolverMetadata,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    let local_resolver_name = resolver_metadata.generate_local_resolver_type_name();
+    let local_resolver_name =
+        resolver_metadata.generate_local_resolver_type_name(typegen_context.schema);
     let resolver_name = if let Some(name) = resolver_metadata.import_name {
         ImportedResolverName::Named {
             name,
@@ -545,8 +545,7 @@ fn relay_resolver_field_type(
 ) -> AST {
     let maybe_scalar_field =
         if let ResolverOutputTypeInfo::ScalarField = resolver_metadata.output_type_info {
-            let field_id = resolver_metadata.get_field_id(typegen_context.schema);
-            let field = typegen_context.schema.field(field_id);
+            let field = resolver_metadata.field(typegen_context.schema);
             // Scalar fields that return `RelayResolverValue` should behave as "classic"
             // resolvers, where we infer the field type from the return type of the
             // resolver function
@@ -615,10 +614,12 @@ fn visit_relay_resolver(
         imported_resolvers,
     );
 
-    let field_name = resolver_metadata.field_name;
+    let field_name = resolver_metadata.field_name(typegen_context.schema);
     let key = resolver_metadata.field_alias.unwrap_or(field_name);
+
     let live = resolver_metadata.live;
-    let local_resolver_name = resolver_metadata.generate_local_resolver_type_name();
+    let local_resolver_name =
+        resolver_metadata.generate_local_resolver_type_name(typegen_context.schema);
 
     let resolver_type = relay_resolver_field_type(
         typegen_context,

@@ -30,10 +30,9 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_parent_type: "User",
+    #     field_id: FieldID(517),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
-    #     field_name: "best_friend",
     #     field_alias: None,
     #     field_path: "best_friend",
     #     field_arguments: [],

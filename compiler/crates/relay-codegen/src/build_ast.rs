@@ -639,7 +639,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
-        let field_name = resolver_metadata.field_name;
+        let field_name = resolver_metadata.field_name(self.schema);
         let field_arguments = &resolver_metadata.field_arguments;
         let args = self.build_arguments(field_arguments);
         let is_output_type = resolver_metadata
@@ -995,10 +995,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         fragment_primitive: Option<Primitive>,
     ) -> Primitive {
         let module = relay_resolver_metadata.import_path;
-        let field_name = relay_resolver_metadata.field_name;
-        let field_alias = relay_resolver_metadata.field_alias;
-        let path = relay_resolver_metadata.field_path;
+        let field = relay_resolver_metadata.field(self.schema);
         let field_arguments = &relay_resolver_metadata.field_arguments;
+        let field_alias = relay_resolver_metadata.field_alias;
+        let field_name = field.name.item;
+        let path = relay_resolver_metadata.field_path;
 
         let kind = if relay_resolver_metadata.live {
             CODEGEN_CONSTANTS.relay_live_resolver
@@ -1012,7 +1013,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let args = self.build_arguments(field_arguments);
 
-        let variable_name = relay_resolver_metadata.generate_local_resolver_name();
+        let variable_name = relay_resolver_metadata.generate_local_resolver_name(self.schema);
         let resolver_js_module = JSModuleDependency {
             path: import_path,
             import_name: match relay_resolver_metadata.import_name {

@@ -312,95 +312,28 @@ fn generate_resolver_type(
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
 ) -> AST {
-    let mut resolver_arguments = vec![];
-    if let Some(fragment_name) = fragment_name {
-        if let Some((fragment_name, injection_mode)) =
-            resolver_metadata.fragment_data_injection_mode
-        {
-            match injection_mode {
-                FragmentDataInjectionMode::Field { name, .. } => {
-                    encountered_fragments
-                        .0
-                        .insert(EncounteredFragment::Data(fragment_name.item));
+    let field_id = resolver_metadata.get_field_id(typegen_context.schema);
+    let schema_field = typegen_context.schema.field(field_id);
 
-                    resolver_arguments.push(KeyValuePairProp {
-                        key: name,
-                        value: AST::PropertyType {
-                            type_: Box::new(AST::RawType(
-                                format!("{}$data", fragment_name.item).intern(),
-                            )),
-                            property_name: name,
-                        },
-                        read_only: false,
-                        optional: false,
-                    });
-                }
-            }
-        } else {
-            encountered_fragments
-                .0
-                .insert(EncounteredFragment::Key(fragment_name));
-            resolver_arguments.push(KeyValuePairProp {
-                key: "rootKey".intern(),
-                value: AST::RawType(format!("{}$key", fragment_name).intern()),
-                read_only: false,
-                optional: false,
-            });
-        }
-    }
+    let resolver_arguments = get_resolver_arguments(
+        fragment_name,
+        resolver_metadata,
+        encountered_fragments,
+        typegen_context,
+        input_object_types,
+        encountered_enums,
+        custom_scalars,
+        schema_field,
+    );
 
-    let parent_resolver_type = typegen_context
-        .schema
-        .get_type(resolver_metadata.field_parent_type)
-        .unwrap_or_else(|| {
-            panic!(
-                "Expect to have a valid resolver type {}",
-                resolver_metadata.field_parent_type
-            )
-        });
-    let field_id = typegen_context
-        .schema
-        .named_field(parent_resolver_type, resolver_metadata.field_name)
-        .unwrap_or_else(|| {
-            panic!(
-                "Expect to have a field {} on the type {}",
-                resolver_metadata.field_parent_type, resolver_metadata.field_name
-            )
-        });
-    let mut args = vec![];
-    let schema_field = &typegen_context.schema.field(field_id);
-    for field_argument in schema_field.arguments.iter() {
-        args.push(Prop::KeyValuePair(KeyValuePairProp {
-            key: field_argument.name.0,
-            optional: false,
-            read_only: false,
-            value: transform_input_type(
-                typegen_context,
-                &field_argument.type_,
-                input_object_types,
-                encountered_enums,
-                custom_scalars,
-            ),
-        }));
-    }
-    if !args.is_empty() {
-        resolver_arguments.push(KeyValuePairProp {
-            key: "args".intern(),
-            value: AST::ExactObject(ExactObject::new(args)),
-            read_only: true,
-            optional: false,
-        });
-    }
     let inner_ast = match &resolver_metadata.output_type_info {
         ResolverOutputTypeInfo::ScalarField => {
-            let field_id = resolver_metadata.get_field_id(typegen_context.schema);
-            let field = typegen_context.schema.field(field_id);
-            if is_relay_resolver_type(typegen_context, field) {
+            if is_relay_resolver_type(typegen_context, schema_field) {
                 AST::Any
             } else {
                 transform_scalar_type(
                     typegen_context,
-                    &field.type_,
+                    &schema_field.type_,
                     None,
                     encountered_enums,
                     custom_scalars,
@@ -462,6 +395,80 @@ fn generate_resolver_type(
         arguments: resolver_arguments,
         return_type: Box::new(return_type),
     })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn get_resolver_arguments(
+    fragment_name: Option<FragmentDefinitionName>,
+    resolver_metadata: &RelayResolverMetadata,
+    encountered_fragments: &mut EncounteredFragments,
+    typegen_context: &TypegenContext<'_>,
+    input_object_types: &mut IndexMap<common::InputObjectName, GeneratedInputObject>,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut std::collections::HashSet<(StringKey, PathBuf)>,
+    schema_field: &Field,
+) -> Vec<KeyValuePairProp> {
+    let mut resolver_arguments = vec![];
+    if let Some(fragment_name) = fragment_name {
+        if let Some((fragment_name, injection_mode)) =
+            resolver_metadata.fragment_data_injection_mode
+        {
+            match injection_mode {
+                FragmentDataInjectionMode::Field { name, .. } => {
+                    encountered_fragments
+                        .0
+                        .insert(EncounteredFragment::Data(fragment_name.item));
+
+                    resolver_arguments.push(KeyValuePairProp {
+                        key: name,
+                        value: AST::PropertyType {
+                            type_: Box::new(AST::RawType(
+                                format!("{}$data", fragment_name.item).intern(),
+                            )),
+                            property_name: name,
+                        },
+                        read_only: false,
+                        optional: false,
+                    });
+                }
+            }
+        } else {
+            encountered_fragments
+                .0
+                .insert(EncounteredFragment::Key(fragment_name));
+            resolver_arguments.push(KeyValuePairProp {
+                key: "rootKey".intern(),
+                value: AST::RawType(format!("{fragment_name}$key").intern()),
+                read_only: false,
+                optional: false,
+            });
+        }
+    }
+
+    let mut args = vec![];
+    for field_argument in schema_field.arguments.iter() {
+        args.push(Prop::KeyValuePair(KeyValuePairProp {
+            key: field_argument.name.0,
+            optional: false,
+            read_only: false,
+            value: transform_input_type(
+                typegen_context,
+                &field_argument.type_,
+                input_object_types,
+                encountered_enums,
+                custom_scalars,
+            ),
+        }));
+    }
+    if !args.is_empty() {
+        resolver_arguments.push(KeyValuePairProp {
+            key: "args".intern(),
+            value: AST::ExactObject(ExactObject::new(args)),
+            read_only: true,
+            optional: false,
+        });
+    }
+    resolver_arguments
 }
 
 #[allow(clippy::too_many_arguments)]

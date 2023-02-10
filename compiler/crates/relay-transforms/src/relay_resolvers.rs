@@ -13,7 +13,6 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
-use common::ObjectName;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -112,16 +111,6 @@ impl ResolverOutputTypeInfo {
             ResolverOutputTypeInfo::Legacy => false,
         }
     }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct EdgeToResolverReturnTypeInfo {
-    /// Singular EdgeTo resolvers that point to abstract local types require that the developer
-    /// return `{id, __typename: EnumOfValidTypeNames}`. Other EdgeTo resolvers require
-    /// that the developer return `{id}`.
-    pub valid_typenames: Option<Vec<ObjectName>>,
-    /// Plural EdgeTo resolvers require that the user return a $ReadOnlyArray<T> instead of T.
-    pub plural: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

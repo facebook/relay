@@ -173,7 +173,6 @@ pub use relay_directive::RelayDirective;
 pub use relay_node_identifier::RelayLocationAgnosticBehavior;
 pub use relay_resolvers::get_resolver_fragment_dependency_name;
 pub use relay_resolvers::relay_resolvers;
-pub use relay_resolvers::EdgeToResolverReturnTypeInfo;
 pub use relay_resolvers::FragmentDataInjectionMode;
 pub use relay_resolvers::RelayResolverMetadata;
 pub use relay_resolvers::ResolverOutputTypeInfo;

@@ -35,7 +35,6 @@ use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_transforms::ClientEdgeMetadata;
-use relay_transforms::EdgeToResolverReturnTypeInfo;
 use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::FragmentDataInjectionMode;
 use relay_transforms::ModuleMetadata;
@@ -437,9 +436,7 @@ fn generate_resolver_type(
             }
         }
         ResolverOutputTypeInfo::EdgeTo => {
-            let edge_to_resolver_return_type_info =
-                get_edge_to_resolver_return_type_info(schema_field, typegen_context.schema);
-            create_edge_to_return_type_ast(edge_to_resolver_return_type_info, runtime_imports)
+            create_edge_to_return_type_ast(schema_field, typegen_context.schema, runtime_imports)
         }
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
     };
@@ -2346,11 +2343,15 @@ fn has_typename_selection(selections: &[TypeSelection]) -> bool {
 }
 
 fn create_edge_to_return_type_ast(
-    edge_to_resolver_return_type_info: EdgeToResolverReturnTypeInfo,
+    schema_field: &Field,
+    schema: &SDLSchema,
     runtime_imports: &mut RuntimeImports,
 ) -> AST {
     // Mark that the DataID type is used, and must be imported.
     runtime_imports.data_id_type = true;
+
+    let inner_type = schema_field.type_.inner();
+    let plural = schema_field.type_.is_list();
 
     let mut fields = vec![Prop::KeyValuePair(KeyValuePairProp {
         // TODO consider reading the id field from the config. This must be done
@@ -2360,7 +2361,19 @@ fn create_edge_to_return_type_ast(
         read_only: true,
         optional: false,
     })];
-    if let Some(valid_typenames) = edge_to_resolver_return_type_info.valid_typenames.as_ref() {
+    if inner_type.is_abstract_type() && schema.is_extension_type(inner_type) {
+        // Note: there is currently no way to create a resolver that returns an abstract
+        // client type, so this branch will not be hit until we enable that feature.
+        let interface_id = schema_field.type_.inner().get_interface_id().expect(
+            "Only interfaces are supported here. This indicates a bug in the Relay compiler.",
+        );
+        let valid_typenames = schema
+            .interface(interface_id)
+            .implementing_objects
+            .iter()
+            .map(|id| schema.object(*id).name.item)
+            .collect::<Vec<_>>();
+
         fields.push(Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_TYPENAME,
             value: AST::Union(SortedASTList::new(
@@ -2376,37 +2389,9 @@ fn create_edge_to_return_type_ast(
 
     let inner_ast = AST::Nullable(Box::new(AST::ExactObject(ExactObject::new(fields))));
 
-    if edge_to_resolver_return_type_info.plural {
+    if plural {
         AST::ReadOnlyArray(Box::new(inner_ast))
     } else {
         inner_ast
-    }
-}
-
-pub fn get_edge_to_resolver_return_type_info(
-    schema_field: &Field,
-    schema: &SDLSchema,
-) -> EdgeToResolverReturnTypeInfo {
-    let inner_type = schema_field.type_.inner();
-    let valid_typenames = if inner_type.is_abstract_type() && schema.is_extension_type(inner_type) {
-        // T145121765: there is currently no way to create a resolver that returns an abstract
-        // client type, so this branch will not be hit until we enable that feature.
-        let interface_id = schema_field.type_.inner().get_interface_id().expect(
-            "Only interfaces are supported here. This indicates a bug in the Relay compiler.",
-        );
-        let implementing_objects = schema
-            .interface(interface_id)
-            .implementing_objects
-            .iter()
-            .map(|id| schema.object(*id).name.item)
-            .collect();
-        Some(implementing_objects)
-    } else {
-        None
-    };
-    let plural = schema_field.type_.is_list();
-    EdgeToResolverReturnTypeInfo {
-        valid_typenames,
-        plural,
     }
 }

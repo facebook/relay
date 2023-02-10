@@ -331,13 +331,9 @@ fn generate_resolver_type(
             if is_relay_resolver_type(typegen_context, schema_field) {
                 AST::Mixed
             } else {
-                transform_scalar_type(
-                    typegen_context,
-                    &schema_field.type_,
-                    None,
-                    encountered_enums,
-                    custom_scalars,
-                )
+                transform_type_reference_into_ast(&schema_field.type_, |type_| {
+                    expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
+                })
             }
         }
         ResolverOutputTypeInfo::Composite(normalization_info) => {
@@ -351,12 +347,16 @@ fn generate_resolver_type(
             )));
 
             let ast = if let Some(field_type) = normalization_info.weak_object_instance_field {
-                transform_scalar_type(
-                    typegen_context,
+                transform_type_reference_into_ast(
                     &typegen_context.schema.field(field_type).type_,
-                    None,
-                    encountered_enums,
-                    custom_scalars,
+                    |type_| {
+                        expect_scalar_type(
+                            typegen_context,
+                            encountered_enums,
+                            custom_scalars,
+                            type_,
+                        )
+                    },
                 )
             } else {
                 type_
@@ -560,13 +560,9 @@ fn relay_resolver_field_type(
         };
 
     if let Some(field) = maybe_scalar_field {
-        let inner_value = transform_scalar_type(
-            typegen_context,
-            &field.type_,
-            None,
-            encountered_enums,
-            custom_scalars,
-        );
+        let inner_value = transform_type_reference_into_ast(&field.type_, |type_| {
+            expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
+        });
         if required {
             if field.type_.is_non_null() {
                 inner_value
@@ -1047,13 +1043,9 @@ fn visit_scalar_field(
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
         special_field,
-        value: transform_scalar_type(
-            typegen_context,
-            &field_type,
-            None,
-            encountered_enums,
-            custom_scalars,
-        ),
+        value: transform_type_reference_into_ast(&field_type, |type_| {
+            expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
+        }),
         conditional: false,
         concrete_type: None,
     }));
@@ -1551,13 +1543,16 @@ fn make_prop(
                     encountered_fragments,
                     custom_scalars,
                 );
-                let getter_return_value = transform_scalar_type(
-                    typegen_context,
-                    &linked_field.node_type,
-                    Some(getter_object_props),
-                    encountered_enums,
-                    custom_scalars,
-                );
+                let getter_return_value =
+                    transform_type_reference_into_ast(&linked_field.node_type, |type_| {
+                        return_ast_in_object_case(
+                            typegen_context,
+                            encountered_enums,
+                            custom_scalars,
+                            getter_object_props,
+                            type_,
+                        )
+                    });
 
                 let setter_parameter = if just_fragments.is_empty() {
                     if linked_field.node_type.is_list() {
@@ -1629,13 +1624,15 @@ fn make_prop(
                     encountered_fragments,
                     custom_scalars,
                 );
-                let value = transform_scalar_type(
-                    typegen_context,
-                    &linked_field.node_type,
-                    Some(object_props),
-                    encountered_enums,
-                    custom_scalars,
-                );
+                let value = transform_type_reference_into_ast(&linked_field.node_type, |type_| {
+                    return_ast_in_object_case(
+                        typegen_context,
+                        encountered_enums,
+                        custom_scalars,
+                        object_props,
+                        type_,
+                    )
+                });
 
                 Prop::KeyValuePair(KeyValuePairProp {
                     key,
@@ -1717,13 +1714,15 @@ fn raw_response_make_prop(
             );
             Prop::KeyValuePair(KeyValuePairProp {
                 key: linked_field.field_name_or_alias,
-                value: transform_scalar_type(
-                    typegen_context,
-                    &node_type,
-                    Some(object_props),
-                    encountered_enums,
-                    custom_scalars,
-                ),
+                value: transform_type_reference_into_ast(&node_type, |type_| {
+                    return_ast_in_object_case(
+                        typegen_context,
+                        encountered_enums,
+                        custom_scalars,
+                        object_props,
+                        type_,
+                    )
+                }),
                 read_only: true,
                 optional,
             })
@@ -1764,56 +1763,30 @@ fn raw_response_make_prop(
     }
 }
 
-fn transform_scalar_type(
-    typegen_context: &'_ TypegenContext<'_>,
+fn transform_type_reference_into_ast(
     type_reference: &TypeReference<Type>,
-    object_props: Option<AST>,
-    encountered_enums: &mut EncounteredEnums,
-    custom_scalars: &mut CustomScalarsImports,
+    transform_inner_type: impl FnOnce(&Type) -> AST,
 ) -> AST {
     match type_reference {
-        TypeReference::NonNull(non_null_ref) => transform_non_nullable_scalar_type(
-            typegen_context,
-            &(*non_null_ref),
-            object_props,
-            encountered_enums,
-            custom_scalars,
-        ),
-        _ => AST::Nullable(Box::new(transform_non_nullable_scalar_type(
-            typegen_context,
+        TypeReference::NonNull(non_null_ref) => {
+            transform_non_nullable_type_reference_into_ast(non_null_ref, transform_inner_type)
+        }
+        _ => AST::Nullable(Box::new(transform_non_nullable_type_reference_into_ast(
             type_reference,
-            object_props,
-            encountered_enums,
-            custom_scalars,
+            transform_inner_type,
         ))),
     }
 }
 
-fn transform_non_nullable_scalar_type(
-    typegen_context: &'_ TypegenContext<'_>,
+fn transform_non_nullable_type_reference_into_ast(
     type_reference: &TypeReference<Type>,
-    object_props: Option<AST>,
-    encountered_enums: &mut EncounteredEnums,
-    custom_scalars: &mut CustomScalarsImports,
+    transform_inner_type: impl FnOnce(&Type) -> AST,
 ) -> AST {
     match type_reference {
-        TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(transform_scalar_type(
-            typegen_context,
-            of_type,
-            object_props,
-            encountered_enums,
-            custom_scalars,
-        ))),
-        TypeReference::Named(named_type) => match named_type {
-            Type::Object(_) | Type::Union(_) | Type::Interface(_) => object_props.unwrap(),
-            Type::Scalar(scalar_id) => {
-                transform_graphql_scalar_type(typegen_context, *scalar_id, custom_scalars)
-            }
-            Type::Enum(enum_id) => {
-                transform_graphql_enum_type(typegen_context.schema, *enum_id, encountered_enums)
-            }
-            _ => panic!(),
-        },
+        TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(
+            transform_type_reference_into_ast(of_type, transform_inner_type),
+        )),
+        TypeReference::Named(named_type) => transform_inner_type(named_type),
         TypeReference::NonNull(_) => panic!("unexpected NonNull"),
     }
 }
@@ -2402,5 +2375,47 @@ fn create_edge_to_return_type_ast(
         AST::ReadOnlyArray(Box::new(inner_ast))
     } else {
         inner_ast
+    }
+}
+
+fn expect_scalar_type(
+    typegen_context: &TypegenContext<'_>,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    type_: &Type,
+) -> AST {
+    match type_ {
+        Type::Enum(enum_id) => {
+            transform_graphql_enum_type(typegen_context.schema, *enum_id, encountered_enums)
+        }
+        Type::Scalar(scalar_id) => {
+            transform_graphql_scalar_type(typegen_context, *scalar_id, custom_scalars)
+        }
+        Type::InputObject(_) => panic!("Unexpected input type"),
+        Type::Interface(_) | Type::Object(_) | Type::Union(_) => {
+            panic!("Expected a scalar type")
+        }
+    }
+}
+
+/// This is a very poorly named function. Also, we **probably** want to panic
+/// if the inner type is an enum or scalar, since this function is clearly used for the
+/// interface | object | union case.
+fn return_ast_in_object_case(
+    typegen_context: &TypegenContext<'_>,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    ast_in_object_case: AST,
+    type_: &Type,
+) -> AST {
+    match type_ {
+        Type::Enum(enum_id) => {
+            transform_graphql_enum_type(typegen_context.schema, *enum_id, encountered_enums)
+        }
+        Type::Scalar(scalar_id) => {
+            transform_graphql_scalar_type(typegen_context, *scalar_id, custom_scalars)
+        }
+        Type::InputObject(_) => panic!("Unexpected input type"),
+        Type::Interface(_) | Type::Object(_) | Type::Union(_) => ast_in_object_case,
     }
 }

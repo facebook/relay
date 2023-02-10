@@ -95,7 +95,7 @@ pub struct ResolverNormalizationInfo {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ResolverOutputTypeInfo {
-    ScalarField(FieldID),
+    ScalarField,
     Composite(ResolverNormalizationInfo),
     EdgeTo(EdgeToResolverReturnTypeInfo),
 }
@@ -103,7 +103,7 @@ pub enum ResolverOutputTypeInfo {
 impl ResolverOutputTypeInfo {
     pub fn normalization_ast_should_have_is_output_type_true(&self) -> bool {
         match self {
-            ResolverOutputTypeInfo::ScalarField(_) => true,
+            ResolverOutputTypeInfo::ScalarField => true,
             ResolverOutputTypeInfo::Composite(_) => true,
             ResolverOutputTypeInfo::EdgeTo(_) => false,
         }
@@ -172,6 +172,42 @@ impl RelayResolverMetadata {
             self.field_parent_type, self.field_name
         ))
         .intern()
+    }
+
+    pub fn get_field_id(&self, schema: &SDLSchema) -> FieldID {
+        let parent_type = schema.get_type(self.field_parent_type).expect(
+            "Expected type to exist in schema. This indicates a bug in the Relay compiler.",
+        );
+        let field_id = match parent_type {
+            Type::Object(object_id) => {
+                let object = schema.object(object_id);
+                object
+                        .fields
+                        .iter()
+                        .find(|field| {
+                            schema.field(**field).name.item == self.field_name
+                        })
+                        .expect(
+                            "Expected field to exist in schema. This indicates a bug in the Relay compiler",
+                        )
+            }
+            Type::Interface(interface_id) => {
+                let interface = schema.interface(interface_id);
+                interface
+                        .fields
+                        .iter()
+                        .find(|field| {
+                            schema.field(**field).name.item == self.field_name
+                        })
+                        .expect(
+                            "Expected field to exist in schema. This indicates a bug in the Relay compiler",
+                        )
+            }
+            _ => panic!(
+                "Resolvers can only be defined on interfaces and objects, currently. This indicates a bug in Relay."
+            ),
+        };
+        *field_id
     }
 }
 
@@ -481,7 +517,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                 },
                             ))
                         } else {
-                            Some(ResolverOutputTypeInfo::ScalarField(field.definition().item))
+                            Some(ResolverOutputTypeInfo::ScalarField)
                         }
                     } else if inner_type.is_composite_type() {
                         Some(ResolverOutputTypeInfo::EdgeTo({

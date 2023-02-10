@@ -1058,7 +1058,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .output_type_info
             .as_ref()
             .and_then(|info| match info {
-                ResolverOutputTypeInfo::ScalarField(_) => None,
+                ResolverOutputTypeInfo::ScalarField => None,
                 ResolverOutputTypeInfo::Composite(info) => info
                     .weak_object_instance_field
                     .map(|field_name| (field_name, info.plural)),

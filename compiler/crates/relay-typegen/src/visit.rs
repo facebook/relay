@@ -395,8 +395,9 @@ fn generate_resolver_type(
         .output_type_info
         .as_ref()
         .map(|output_type_info| match output_type_info {
-            ResolverOutputTypeInfo::ScalarField(field_id) => {
-                let field = typegen_context.schema.field(*field_id);
+            ResolverOutputTypeInfo::ScalarField => {
+                let field_id = resolver_metadata.get_field_id(typegen_context.schema);
+                let field = typegen_context.schema.field(field_id);
                 if is_relay_resolver_type(typegen_context, field) {
                     AST::Any
                 } else {
@@ -535,21 +536,21 @@ fn relay_resolver_field_type(
     required: bool,
     live: bool,
 ) -> AST {
-    let maybe_scalar_field = if let Some(ResolverOutputTypeInfo::ScalarField(field_id)) =
-        resolver_metadata.output_type_info
-    {
-        let field = typegen_context.schema.field(field_id);
-        // Scalar fields that return `RelayResolverValue` should behave as "classic"
-        // resolvers, where we infer the field type from the return type of the
-        // resolver function
-        if is_relay_resolver_type(typegen_context, field) {
-            None
+    let maybe_scalar_field =
+        if let Some(ResolverOutputTypeInfo::ScalarField) = resolver_metadata.output_type_info {
+            let field_id = resolver_metadata.get_field_id(typegen_context.schema);
+            let field = typegen_context.schema.field(field_id);
+            // Scalar fields that return `RelayResolverValue` should behave as "classic"
+            // resolvers, where we infer the field type from the return type of the
+            // resolver function
+            if is_relay_resolver_type(typegen_context, field) {
+                None
+            } else {
+                Some(field)
+            }
         } else {
-            Some(field)
-        }
-    } else {
-        None
-    };
+            None
+        };
 
     if let Some(field) = maybe_scalar_field {
         let inner_value = transform_scalar_type(

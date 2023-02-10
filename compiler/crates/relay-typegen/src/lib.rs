@@ -61,6 +61,10 @@ lazy_static! {
     static ref JS_FIELD_NAME: StringKey = "js".intern();
     static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();
+    static ref KEY_DATA_ID: StringKey = "DataID".intern();
+    // Note: this should **only** be used for resolvers! The id field for server
+    // types is configurable in the config, and thus cannot be hard-coded.
+    static ref KEY_RESOLVER_ID_FIELD: StringKey = "id".intern();
     static ref KEY_NODE: StringKey = "node".intern();
     static ref KEY_NODES: StringKey = "nodes".intern();
     static ref MODULE_COMPONENT: StringKey = "__module_component".intern();

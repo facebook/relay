@@ -642,7 +642,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let field_name = resolver_metadata.field_name;
         let field_arguments = &resolver_metadata.field_arguments;
         let args = self.build_arguments(field_arguments);
-        let is_output_type = resolver_metadata.output_type_info.is_some();
+        let is_output_type = resolver_metadata
+            .output_type_info
+            .as_ref()
+            .map_or(false, |type_info| {
+                type_info.normalization_ast_should_have_is_output_type_true()
+            });
         Primitive::Key(self.object(object! {
             name: Primitive::String(field_name),
             args: match args {
@@ -1057,6 +1062,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 ResolverOutputTypeInfo::Composite(info) => info
                     .weak_object_instance_field
                     .map(|field_name| (field_name, info.plural)),
+                ResolverOutputTypeInfo::EdgeTo(_) => None,
             }) {
             let key = self.schema.field(field_id).name.item;
             Primitive::RelayResolverWeakObjectWrapper {

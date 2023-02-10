@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<29d882fa12b7221e647b459ce9de9f89>>
+ * @generated SignedSource<<ba00aa99edcb326c8cd308a5e43bb302>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,6 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { RelayResolverModelTestWithPluralFragment$fragmentType } from "./RelayResolverModelTestWithPluralFragment.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
@@ -26,7 +27,9 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
   args: {|
     todoID: string,
   |},
-) => mixed);
+) => ?{|
+  +id: DataID,
+|});
 export type RelayResolverModelTestTodoWithPluralFieldQuery$variables = {|
   id: string,
 |};

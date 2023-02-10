@@ -25,14 +25,16 @@ const {
  *
  * A client edge to a client object that is @live and can suspend
  */
-function virgo_suspends_when_counter_is_odd(): LiveState<AstrologicalSignID> {
+function virgo_suspends_when_counter_is_odd(): LiveState<{
+  id: AstrologicalSignID,
+}> {
   return {
     read() {
       const number = Selectors.getNumber(GLOBAL_STORE.getState());
       if (number % 2 !== 0) {
         return suspenseSentinel();
       }
-      return 'Virgo';
+      return {id: 'Virgo'};
     },
     subscribe(cb): () => void {
       return GLOBAL_STORE.subscribe(cb);

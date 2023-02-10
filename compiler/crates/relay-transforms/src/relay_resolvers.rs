@@ -13,6 +13,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
+use common::ObjectName;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -93,10 +94,30 @@ pub struct ResolverNormalizationInfo {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-
 pub enum ResolverOutputTypeInfo {
     ScalarField(FieldID),
     Composite(ResolverNormalizationInfo),
+    EdgeTo(EdgeToResolverReturnTypeInfo),
+}
+
+impl ResolverOutputTypeInfo {
+    pub fn normalization_ast_should_have_is_output_type_true(&self) -> bool {
+        match self {
+            ResolverOutputTypeInfo::ScalarField(_) => true,
+            ResolverOutputTypeInfo::Composite(_) => true,
+            ResolverOutputTypeInfo::EdgeTo(_) => false,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct EdgeToResolverReturnTypeInfo {
+    /// Singular EdgeTo resolvers that point to abstract local types require that the developer
+    /// return `{id, __typename: EnumOfValidTypeNames}`. Other EdgeTo resolvers require
+    /// that the developer return `{id}`.
+    pub valid_typenames: Option<Vec<ObjectName>>,
+    /// Plural EdgeTo resolvers require that the user return a $ReadOnlyArray<T> instead of T.
+    pub plural: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -359,11 +380,11 @@ impl<'program> RelayResolverFieldTransform<'program> {
         &mut self,
         field: &impl IrField,
     ) -> Option<Vec<Directive>> {
-        let field_type = self.program.schema.field(field.definition().item);
+        let schema_field = self.program.schema.field(field.definition().item);
 
         get_resolver_info(
             &self.program.schema,
-            field_type,
+            schema_field,
             field.definition().location,
         )
         .and_then(|info| {
@@ -396,7 +417,10 @@ impl<'program> RelayResolverFieldTransform<'program> {
                             directive.name.location,
                         ));
                     }
-                    let parent_type = field_type.parent_type.unwrap();
+
+                    let parent_type = schema_field.parent_type.unwrap();
+                    let inner_type = schema_field.type_.inner();
+
                     if let Some(fragment_name) = fragment_name {
                         match self.program.fragment(fragment_name) {
                             Some(fragment_definition) => {
@@ -407,7 +431,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                     // This invariant is enforced when we generate docblock IR, but we double check here to
                                     // ensure no later transforms break that invariant, and that manually written test
                                     // schemas gets this right.
-                                    panic!("Invalid type condition on `{}`, the fragment backing the Relay Resolver field `{}`.", fragment_name.0, field_type.name.item);
+                                    panic!("Invalid type condition on `{}`, the fragment backing the Relay Resolver field `{}`.", fragment_name, schema_field.name.item);
                                 }
                             }
                             None => {
@@ -417,7 +441,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                     },
                                     // We don't have locations for directives in schema files.
                                     // So we send them to the field name, rather than the directive value.
-                                    field_type.name.location,
+                                    schema_field.name.location,
                                 ));
                                 return None;
                             }
@@ -425,14 +449,14 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     }
 
                     let output_type_info = if has_output_type {
-                        if field_type.type_.inner().is_composite_type() {
+                        if inner_type.is_composite_type() {
                             let normalization_operation = generate_name_for_nested_object_operation(
                                 &self.program.schema,
                                 self.program.schema.field(field.definition().item),
                             );
 
                             let weak_object_instance_field =
-                                field_type.type_.inner().get_object_id().and_then(|id| {
+                                inner_type.get_object_id().and_then(|id| {
                                     let object = self.program.schema.object(id);
                                     if object
                                         .directives
@@ -450,8 +474,8 @@ impl<'program> RelayResolverFieldTransform<'program> {
 
                             Some(ResolverOutputTypeInfo::Composite(
                                 ResolverNormalizationInfo {
-                                    inner_type: field_type.type_.inner(),
-                                    plural: field_type.type_.is_list(),
+                                    inner_type,
+                                    plural: schema_field.type_.is_list(),
                                     normalization_operation,
                                     weak_object_instance_field,
                                 },
@@ -459,6 +483,28 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         } else {
                             Some(ResolverOutputTypeInfo::ScalarField(field.definition().item))
                         }
+                    } else if inner_type.is_composite_type() {
+                        Some(ResolverOutputTypeInfo::EdgeTo({
+                            let valid_typenames = if inner_type.is_abstract_type()
+                                && self.program.schema.is_extension_type(inner_type)
+                            {
+                                // Note: there is currently no way to create a resolver that returns an abstract
+                                // client type, so this branch will not be hit until we enable that feature.
+                                let interface_id = inner_type.get_interface_id().expect("Only interfaces are supported here. This indicates a bug in the Relay compiler.");
+                                let implementing_objects = self.program.schema.interface(interface_id).implementing_objects
+                                    .iter()
+                                    .map(|id| self.program.schema.object(*id).name.item)
+                                    .collect();
+                                Some(implementing_objects)
+                            } else {
+                                None
+                            };
+                            let plural = schema_field.type_.is_list();
+                            EdgeToResolverReturnTypeInfo {
+                                valid_typenames,
+                                plural,
+                            }
+                        }))
                     } else {
                         None
                     };

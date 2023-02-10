@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<18ff9060317eb36af3b006b908a33510>>
+ * @generated SignedSource<<ee1acf3d546bd71d37e2600d4a605579>>
  */
 
 mod generate_flow;
@@ -381,6 +381,13 @@ fn relay_resolver_named_import() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-named-import.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-named-import.expected");
     test_fixture(transform_fixture, "relay-resolver-named-import.graphql", "generate_flow/fixtures/relay-resolver-named-import.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_plural_client_edge() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-plural-client-edge.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-plural-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-plural-client-edge.graphql", "generate_flow/fixtures/relay-resolver-plural-client-edge.expected", input, expected);
 }
 
 #[test]

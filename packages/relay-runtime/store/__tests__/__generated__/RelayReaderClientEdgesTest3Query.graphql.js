@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<36233be3275a92eb0f2095e63c8db1c1>>
+ * @generated SignedSource<<47124182ffc33216862a9084ad2132f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,6 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { RelayReaderClientEdgesTestFragmentOnUser$fragmentType } from "./RelayReaderClientEdgesTestFragmentOnUser.graphql";
 import type { UserClientEdgeResolver$key } from "./../resolvers/__generated__/UserClientEdgeResolver.graphql";
 import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClientEdgeResolver.js";
@@ -25,7 +26,9 @@ import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClient
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolverType: (
   rootKey: UserClientEdgeResolver$key,
-) => mixed);
+) => ?{|
+  +id: DataID,
+|});
 export type RelayReaderClientEdgesTest3Query$variables = {||};
 export type RelayReaderClientEdgesTest3Query$data = {|
   +me: ?{|

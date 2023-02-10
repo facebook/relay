@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f970ff07c67ed64875a26ae6169e06a5>>
+ * @generated SignedSource<<85091a242547c53d799be61aa402331c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,6 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
@@ -31,7 +32,9 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstr
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key,
-) => mixed);
+) => ?{|
+  +id: DataID,
+|});
 export type ResolverGCTestResolverClientEdgeToClientQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientQuery$data = {|
   +me: ?{|

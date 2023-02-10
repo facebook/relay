@@ -51,7 +51,14 @@ fragment Foo_node on Node {
         #     field_path: "author.best_friend",
         #     field_arguments: [],
         #     live: false,
-        #     output_type_info: None,
+        #     output_type_info: Some(
+        #         EdgeTo(
+        #             EdgeToResolverReturnTypeInfo {
+        #                 valid_typenames: None,
+        #                 plural: false,
+        #             },
+        #         ),
+        #     ),
         #     fragment_data_injection_mode: None,
         # }
          @waterfall
@@ -81,7 +88,14 @@ fragment Foo_node on Node {
         #     field_path: "author.best_friend",
         #     field_arguments: [],
         #     live: false,
-        #     output_type_info: None,
+        #     output_type_info: Some(
+        #         EdgeTo(
+        #             EdgeToResolverReturnTypeInfo {
+        #                 valid_typenames: None,
+        #                 plural: false,
+        #             },
+        #         ),
+        #     ),
         #     fragment_data_injection_mode: None,
         # }
          @waterfall

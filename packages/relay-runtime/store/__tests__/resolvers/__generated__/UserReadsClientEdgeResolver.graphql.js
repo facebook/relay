@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<69cbaba6dca6f66bd17cdba50108195e>>
+ * @generated SignedSource<<b5b07037588678a0d43dbbb2aa9b11bf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,15 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { UserClientEdgeResolver$key } from "./UserClientEdgeResolver.graphql";
-import type { FragmentType } from "relay-runtime";
+import type { FragmentType, DataID } from "relay-runtime";
 import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolverType: (
   rootKey: UserClientEdgeResolver$key,
-) => mixed);
+) => ?{|
+  +id: DataID,
+|});
 declare export opaque type UserReadsClientEdgeResolver$fragmentType: FragmentType;
 export type UserReadsClientEdgeResolver$data = {|
   +client_edge: ?{|

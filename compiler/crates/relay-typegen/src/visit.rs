@@ -35,6 +35,7 @@ use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_transforms::ClientEdgeMetadata;
+use relay_transforms::EdgeToResolverReturnTypeInfo;
 use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::FragmentDataInjectionMode;
 use relay_transforms::ModuleMetadata;
@@ -93,8 +94,11 @@ use crate::writer::AST;
 use crate::MaskStatus;
 use crate::TypegenContext;
 use crate::FRAGMENT_PROP_NAME;
+use crate::KEY_DATA_ID;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_RESOLVER_ID_FIELD;
+use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
 use crate::LIVE_STATE_TYPE;
 use crate::MODULE_COMPONENT;
@@ -432,6 +436,9 @@ fn generate_resolver_type(
                 } else {
                     ast
                 }
+            }
+            ResolverOutputTypeInfo::EdgeTo(edge_to_resolver_return_type_info) => {
+                create_edge_to_return_type_ast(edge_to_resolver_return_type_info, runtime_imports)
             }
         });
 
@@ -2334,4 +2341,42 @@ pub(crate) fn get_operation_type_export(
 
 fn has_typename_selection(selections: &[TypeSelection]) -> bool {
     selections.iter().any(TypeSelection::is_typename)
+}
+
+fn create_edge_to_return_type_ast(
+    edge_to_resolver_return_type_info: &EdgeToResolverReturnTypeInfo,
+    runtime_imports: &mut RuntimeImports,
+) -> AST {
+    // Mark that the DataID type is used, and must be imported.
+    runtime_imports.data_id_type = true;
+
+    let mut fields = vec![Prop::KeyValuePair(KeyValuePairProp {
+        // TODO consider reading the id field from the config. This must be done
+        // in conjunction with runtime changes.
+        key: *KEY_RESOLVER_ID_FIELD,
+        value: AST::RawType(*KEY_DATA_ID),
+        read_only: true,
+        optional: false,
+    })];
+    if let Some(valid_typenames) = edge_to_resolver_return_type_info.valid_typenames.as_ref() {
+        fields.push(Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_TYPENAME,
+            value: AST::Union(SortedASTList::new(
+                valid_typenames
+                    .iter()
+                    .map(|x| AST::StringLiteral(StringLiteral(x.0)))
+                    .collect(),
+            )),
+            read_only: true,
+            optional: false,
+        }))
+    }
+
+    let inner_ast = AST::Nullable(Box::new(AST::ExactObject(ExactObject::new(fields))));
+
+    if edge_to_resolver_return_type_info.plural {
+        AST::ReadOnlyArray(Box::new(inner_ast))
+    } else {
+        inner_ast
+    }
 }

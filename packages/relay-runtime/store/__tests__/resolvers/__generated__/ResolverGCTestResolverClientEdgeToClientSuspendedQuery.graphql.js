@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6ad504e1decf6a6b17b002b54ad6a69c>>
+ * @generated SignedSource<<5adf3b6239e3a00c98a2127e00a4ec6a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,6 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
@@ -29,7 +30,9 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOddResolverType} from "../QueryVirgoLiveSuspendsWhenOddResolver.js";
 // Type assertion validating that `queryVirgoSuspendsWhenCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryVirgoSuspendsWhenCounterIsOddResolverType: () => LiveState<any>);
+(queryVirgoSuspendsWhenCounterIsOddResolverType: () => LiveState<?{|
+  +id: DataID,
+|}>);
 export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {|
   +me: ?{|

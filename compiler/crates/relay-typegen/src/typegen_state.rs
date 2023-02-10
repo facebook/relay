@@ -16,6 +16,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::EnumID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -23,6 +24,7 @@ use schema::Schema;
 use crate::writer::ExactObject;
 use crate::writer::Writer;
 use crate::writer::AST;
+use crate::KEY_DATA_ID;
 use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
 use crate::LIVE_RESOLVERS_LIVE_STATE;
 use crate::LOCAL_3D_PAYLOAD;
@@ -35,6 +37,7 @@ pub(crate) struct RuntimeImports {
     pub(crate) local_3d_payload_type: bool,
     pub(crate) generic_fragment_type: bool,
     pub(crate) resolver_live_state_type: bool,
+    pub(crate) data_id_type: bool,
 }
 
 impl RuntimeImports {
@@ -52,6 +55,9 @@ impl RuntimeImports {
         }
         if self.local_3d_payload_type {
             runtime_import_types.push(LOCAL_3D_PAYLOAD)
+        }
+        if self.data_id_type {
+            runtime_import_types.push(KEY_DATA_ID.lookup());
         }
         if !runtime_import_types.is_empty() {
             writer.write_import_type(&runtime_import_types, RELAY_RUNTIME)

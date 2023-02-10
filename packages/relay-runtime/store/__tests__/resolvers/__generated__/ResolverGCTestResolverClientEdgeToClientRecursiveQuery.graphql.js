@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e34caa666e29897964b81e4905f3a587>>
+ * @generated SignedSource<<3983ea2457c99cb128c5e472f2360785>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,6 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import type { AstrologicalSignOppositeResolver$key } from "./AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
@@ -32,13 +33,17 @@ import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalS
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignOppositeResolverType: (
   rootKey: AstrologicalSignOppositeResolver$key,
-) => mixed);
+) => ?{|
+  +id: DataID,
+|});
 import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key,
-) => mixed);
+) => ?{|
+  +id: DataID,
+|});
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {|
   +me: ?{|

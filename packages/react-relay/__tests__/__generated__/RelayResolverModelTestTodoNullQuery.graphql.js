@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f03636f43c1a6198cded2e2b40a3586>>
+ * @generated SignedSource<<6bee1dc1952c6faf691f5addcb7012a1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,10 +18,13 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import {todo_model_null as queryTodoModelNullResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `queryTodoModelNullResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelNullResolverType: () => mixed);
+(queryTodoModelNullResolverType: () => ?{|
+  +id: DataID,
+|});
 export type RelayResolverModelTestTodoNullQuery$variables = {||};
 export type RelayResolverModelTestTodoNullQuery$data = {|
   +todo_model_null: ?{|

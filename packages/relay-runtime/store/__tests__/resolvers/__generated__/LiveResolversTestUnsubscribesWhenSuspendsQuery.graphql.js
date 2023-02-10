@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a3fb0fdd6a49685ee64ec923e9a235b>>
+ * @generated SignedSource<<b4e2a70a6dc2f0998796059a899c72d1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,6 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { DataID } from "relay-runtime";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
 import {live_external_greeting as queryLiveExternalGreetingResolverType} from "../LiveExternalGreeting.js";
 // Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
@@ -29,7 +30,9 @@ import {live_external_greeting as queryLiveExternalGreetingResolverType} from ".
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserSuspendsWhenOddResolverType: () => LiveState<any>);
+(queryLiveUserSuspendsWhenOddResolverType: () => LiveState<?{|
+  +id: DataID,
+|}>);
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {|
   +greeting: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveExternalGreetingResolverType>["read"]>,

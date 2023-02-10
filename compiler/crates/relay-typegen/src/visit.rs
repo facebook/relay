@@ -391,57 +391,55 @@ fn generate_resolver_type(
             optional: false,
         });
     }
-    let inner_type = resolver_metadata
-        .output_type_info
-        .as_ref()
-        .map(|output_type_info| match output_type_info {
-            ResolverOutputTypeInfo::ScalarField => {
-                let field_id = resolver_metadata.get_field_id(typegen_context.schema);
-                let field = typegen_context.schema.field(field_id);
-                if is_relay_resolver_type(typegen_context, field) {
-                    AST::Any
-                } else {
-                    transform_scalar_type(
-                        typegen_context,
-                        &field.type_,
-                        None,
-                        encountered_enums,
-                        custom_scalars,
-                    )
-                }
+    let inner_type = match &resolver_metadata.output_type_info {
+        ResolverOutputTypeInfo::ScalarField => {
+            let field_id = resolver_metadata.get_field_id(typegen_context.schema);
+            let field = typegen_context.schema.field(field_id);
+            if is_relay_resolver_type(typegen_context, field) {
+                AST::Any
+            } else {
+                transform_scalar_type(
+                    typegen_context,
+                    &field.type_,
+                    None,
+                    encountered_enums,
+                    custom_scalars,
+                )
             }
-            ResolverOutputTypeInfo::Composite(normalization_info) => {
-                imported_raw_response_types.0.insert(
-                    normalization_info.normalization_operation.item.0,
-                    Some(normalization_info.normalization_operation.location),
-                );
+        }
+        ResolverOutputTypeInfo::Composite(normalization_info) => {
+            imported_raw_response_types.0.insert(
+                normalization_info.normalization_operation.item.0,
+                Some(normalization_info.normalization_operation.location),
+            );
 
-                let type_ = AST::Nullable(Box::new(AST::RawType(
-                    normalization_info.normalization_operation.item.0,
-                )));
+            let type_ = AST::Nullable(Box::new(AST::RawType(
+                normalization_info.normalization_operation.item.0,
+            )));
 
-                let ast = if let Some(field_type) = normalization_info.weak_object_instance_field {
-                    transform_scalar_type(
-                        typegen_context,
-                        &typegen_context.schema.field(field_type).type_,
-                        None,
-                        encountered_enums,
-                        custom_scalars,
-                    )
-                } else {
-                    type_
-                };
+            let ast = if let Some(field_type) = normalization_info.weak_object_instance_field {
+                transform_scalar_type(
+                    typegen_context,
+                    &typegen_context.schema.field(field_type).type_,
+                    None,
+                    encountered_enums,
+                    custom_scalars,
+                )
+            } else {
+                type_
+            };
 
-                if normalization_info.plural {
-                    AST::ReadOnlyArray(Box::new(ast))
-                } else {
-                    ast
-                }
+            if normalization_info.plural {
+                AST::ReadOnlyArray(Box::new(ast))
+            } else {
+                ast
             }
-            ResolverOutputTypeInfo::EdgeTo(edge_to_resolver_return_type_info) => {
-                create_edge_to_return_type_ast(edge_to_resolver_return_type_info, runtime_imports)
-            }
-        });
+        }
+        ResolverOutputTypeInfo::EdgeTo(ref edge_to_resolver_return_type_info) => {
+            create_edge_to_return_type_ast(edge_to_resolver_return_type_info, runtime_imports)
+        }
+        ResolverOutputTypeInfo::Legacy => AST::Mixed,
+    };
 
     let return_type = if matches!(
         typegen_context.project_config.typegen_config.language,
@@ -453,10 +451,10 @@ fn generate_resolver_type(
         runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,
-            inner: Box::new(inner_type.unwrap_or(AST::Any)),
+            inner: Box::new(inner_type),
         }
     } else {
-        inner_type.unwrap_or(AST::Mixed)
+        inner_type
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
@@ -537,7 +535,7 @@ fn relay_resolver_field_type(
     live: bool,
 ) -> AST {
     let maybe_scalar_field =
-        if let Some(ResolverOutputTypeInfo::ScalarField) = resolver_metadata.output_type_info {
+        if let ResolverOutputTypeInfo::ScalarField = resolver_metadata.output_type_info {
             let field_id = resolver_metadata.get_field_id(typegen_context.schema);
             let field = typegen_context.schema.field(field_id);
             // Scalar fields that return `RelayResolverValue` should behave as "classic"

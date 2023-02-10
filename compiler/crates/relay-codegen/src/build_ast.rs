@@ -644,10 +644,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let args = self.build_arguments(field_arguments);
         let is_output_type = resolver_metadata
             .output_type_info
-            .as_ref()
-            .map_or(false, |type_info| {
-                type_info.normalization_ast_should_have_is_output_type_true()
-            });
+            .normalization_ast_should_have_is_output_type_true();
         Primitive::Key(self.object(object! {
             name: Primitive::String(field_name),
             args: match args {
@@ -1054,16 +1051,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Primitive::JSModuleDependency(resolver_js_module)
         };
 
-        let resolver_module = if let Some((field_id, plural)) = relay_resolver_metadata
-            .output_type_info
-            .as_ref()
-            .and_then(|info| match info {
+        let resolver_module = if let Some((field_id, plural)) =
+            match &relay_resolver_metadata.output_type_info {
                 ResolverOutputTypeInfo::ScalarField => None,
                 ResolverOutputTypeInfo::Composite(info) => info
                     .weak_object_instance_field
                     .map(|field_name| (field_name, info.plural)),
                 ResolverOutputTypeInfo::EdgeTo(_) => None,
-            }) {
+                ResolverOutputTypeInfo::Legacy => None,
+            } {
             let key = self.schema.field(field_id).name.item;
             Primitive::RelayResolverWeakObjectWrapper {
                 resolver: Box::new(resolver_module),
@@ -1095,7 +1091,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             path: Primitive::String(path),
         };
 
-        if let Some(ResolverOutputTypeInfo::Composite(normalization_info)) =
+        if let ResolverOutputTypeInfo::Composite(normalization_info) =
             &relay_resolver_metadata.output_type_info
         {
             let normalization_artifact_source_location = normalization_info

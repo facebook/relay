@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<33cdc79aab1834d93401cea9210b9c4c>>
+ * @generated SignedSource<<9772158c21f86b0aae601fcb550cc634>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {TodoModel as todoModelRelayModelInstanceResolverType} from "../TodoModel
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelRelayModelInstanceResolverType: (
   id: TodoModel__id$data['id'],
-) => LiveState<any>);
+) => LiveState<mixed>);
 declare export opaque type TodoModel____relay_model_instance$fragmentType: FragmentType;
 export type TodoModel____relay_model_instance$data = {|
   +__relay_model_instance: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof todoModelRelayModelInstanceResolverType>["read"]>,

@@ -51,13 +51,11 @@ fragment Foo_node on Node {
         #     field_path: "author.best_friend",
         #     field_arguments: [],
         #     live: false,
-        #     output_type_info: Some(
-        #         EdgeTo(
-        #             EdgeToResolverReturnTypeInfo {
-        #                 valid_typenames: None,
-        #                 plural: false,
-        #             },
-        #         ),
+        #     output_type_info: EdgeTo(
+        #         EdgeToResolverReturnTypeInfo {
+        #             valid_typenames: None,
+        #             plural: false,
+        #         },
         #     ),
         #     fragment_data_injection_mode: None,
         # }
@@ -88,13 +86,11 @@ fragment Foo_node on Node {
         #     field_path: "author.best_friend",
         #     field_arguments: [],
         #     live: false,
-        #     output_type_info: Some(
-        #         EdgeTo(
-        #             EdgeToResolverReturnTypeInfo {
-        #                 valid_typenames: None,
-        #                 plural: false,
-        #             },
-        #         ),
+        #     output_type_info: EdgeTo(
+        #         EdgeToResolverReturnTypeInfo {
+        #             valid_typenames: None,
+        #             plural: false,
+        #         },
         #     ),
         #     fragment_data_injection_mode: None,
         # }

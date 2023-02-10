@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f64ca221da51ca8cfe7e814ee1e345d4>>
+ * @generated SignedSource<<f078221dc7e57f12b045908e5daaeaa9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
   args: {|
     scale: ?number,
   |},
-) => LiveState<any>);
+) => LiveState<mixed>);
 export type LiveResolversTest9Query$variables = {|
   id: string,
   scale: number,

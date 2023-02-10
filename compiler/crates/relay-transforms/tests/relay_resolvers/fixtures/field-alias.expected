@@ -32,7 +32,7 @@ fragment Foo_user on User {
   #     field_path: "poppy",
   #     field_arguments: [],
   #     live: false,
-  #     output_type_info: None,
+  #     output_type_info: Legacy,
   #     fragment_data_injection_mode: None,
   # }
   

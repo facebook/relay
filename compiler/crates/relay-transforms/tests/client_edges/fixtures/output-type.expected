@@ -44,20 +44,18 @@ fragment Foo_user on User {
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
-    #     output_type_info: Some(
-    #         Composite(
-    #             ResolverNormalizationInfo {
-    #                 inner_type: Object(78),
-    #                 plural: false,
-    #                 normalization_operation: WithLocation {
-    #                     location: <generated>:59:70,
-    #                     item: OperationDefinitionName(
-    #                         "User__best_friend$normalization",
-    #                     ),
-    #                 },
-    #                 weak_object_instance_field: None,
+    #     output_type_info: Composite(
+    #         ResolverNormalizationInfo {
+    #             inner_type: Object(78),
+    #             plural: false,
+    #             normalization_operation: WithLocation {
+    #                 location: <generated>:59:70,
+    #                 item: OperationDefinitionName(
+    #                     "User__best_friend$normalization",
+    #                 ),
     #             },
-    #         ),
+    #             weak_object_instance_field: None,
+    #         },
     #     ),
     #     fragment_data_injection_mode: None,
     # }

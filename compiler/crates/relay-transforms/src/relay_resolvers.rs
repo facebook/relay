@@ -95,9 +95,12 @@ pub struct ResolverNormalizationInfo {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ResolverOutputTypeInfo {
+    /// Resolver returns an opaque scalar field
     ScalarField,
     Composite(ResolverNormalizationInfo),
+    /// Resolver returns one or more edges to items in the store.
     EdgeTo(EdgeToResolverReturnTypeInfo),
+    Legacy,
 }
 
 impl ResolverOutputTypeInfo {
@@ -106,6 +109,7 @@ impl ResolverOutputTypeInfo {
             ResolverOutputTypeInfo::ScalarField => true,
             ResolverOutputTypeInfo::Composite(_) => true,
             ResolverOutputTypeInfo::EdgeTo(_) => false,
+            ResolverOutputTypeInfo::Legacy => false,
         }
     }
 }
@@ -134,7 +138,7 @@ struct RelayResolverFieldMetadata {
     fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     field_path: StringKey,
     live: bool,
-    output_type_info: Option<ResolverOutputTypeInfo>,
+    output_type_info: ResolverOutputTypeInfo,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
@@ -148,7 +152,7 @@ pub struct RelayResolverMetadata {
     pub field_path: StringKey,
     pub field_arguments: Vec<Argument>,
     pub live: bool,
-    pub output_type_info: Option<ResolverOutputTypeInfo>,
+    pub output_type_info: ResolverOutputTypeInfo,
     /// A tuple with fragment name and field name we need read
     /// of that fragment to pass it to the resolver function.
     pub fragment_data_injection_mode: Option<(
@@ -508,19 +512,19 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                     }
                                 });
 
-                            Some(ResolverOutputTypeInfo::Composite(
+                            ResolverOutputTypeInfo::Composite(
                                 ResolverNormalizationInfo {
                                     inner_type,
                                     plural: schema_field.type_.is_list(),
                                     normalization_operation,
                                     weak_object_instance_field,
                                 },
-                            ))
+                            )
                         } else {
-                            Some(ResolverOutputTypeInfo::ScalarField)
+                            ResolverOutputTypeInfo::ScalarField
                         }
                     } else if inner_type.is_composite_type() {
-                        Some(ResolverOutputTypeInfo::EdgeTo({
+                        ResolverOutputTypeInfo::EdgeTo({
                             let valid_typenames = if inner_type.is_abstract_type()
                                 && self.program.schema.is_extension_type(inner_type)
                             {
@@ -540,9 +544,9 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                 valid_typenames,
                                 plural,
                             }
-                        }))
+                        })
                     } else {
-                        None
+                        ResolverOutputTypeInfo::Legacy
                     };
 
                     let resolver_field_metadata = RelayResolverFieldMetadata {

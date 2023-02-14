@@ -54,7 +54,7 @@ schema-diff = { path = "../schema-diff" }
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_bser = "0.3"
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
-sha-1 = "0.10"
+sha1 = "0.10.5"
 sha2 = "0.10"
 signedsource = { path = "../signedsource" }
 thiserror = "1.0.36"

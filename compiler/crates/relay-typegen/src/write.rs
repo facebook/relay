@@ -962,7 +962,7 @@ fn write_custom_scalar_imports(
     custom_scalars: CustomScalarsImports,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    for (name, path) in custom_scalars.iter() {
+    for (name, path) in custom_scalars.iter().sorted_by_key(|(key, _)| *key) {
         writer.write_import_type(&[name.lookup()], path.to_str().unwrap())?
     }
 

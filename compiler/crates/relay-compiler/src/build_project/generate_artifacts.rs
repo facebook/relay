@@ -23,7 +23,6 @@ use relay_transforms::Programs;
 use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::SplitOperationMetadata;
-use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use relay_transforms::UPDATABLE_DIRECTIVE;
 
 pub use super::artifact_content::ArtifactContent;
@@ -55,15 +54,12 @@ pub fn generate_artifacts(
         ..Default::default()
     };
     let mut operation_printer = OperationPrinter::new(&programs.operation_text, printer_options);
-    return group_operations(programs)
-        .into_iter()
-        .map(|(_, operations)| -> Artifact {
+    return group_operations(programs).into_values().map(|operations| {
             if let Some(normalization) = operations.normalization {
                 // We have a normalization AST... so we'll move forward with that
-                if let Some(directive) = normalization.directives.named(*DIRECTIVE_SPLIT_OPERATION)
+                if let Some(metadata) = SplitOperationMetadata::find(&normalization.directives)
                 {
                     // Generate normalization file for SplitOperation
-                    let metadata = SplitOperationMetadata::from(directive);
                     let source_file = metadata.location.source_location();
                     let source_hash = metadata.derived_from.and_then(|derived_from| source_hashes.get(&derived_from.into()).cloned());
                     let typegen_operation = if metadata.raw_response_type_generation_mode.is_some() {
@@ -73,7 +69,7 @@ pub fn generate_artifacts(
                     };
 
                     return Artifact {
-                        source_definition_names: metadata.parent_documents.into_iter().map(|name| name.into()).collect(),
+                        source_definition_names: metadata.parent_documents.iter().copied().collect(),
                         path: project_config
                             .path_for_artifact(source_file, normalization.name.item.0),
                         content: ArtifactContent::SplitOperation {

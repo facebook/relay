@@ -513,7 +513,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                         RawResponseGenerationMode::AllFieldsRequired,
                     ),
                 }
-                .to_directive(),
+                .into(),
             ];
 
             let operation = OperationDefinition {

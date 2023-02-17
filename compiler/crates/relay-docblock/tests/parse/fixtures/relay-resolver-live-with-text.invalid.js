@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// This will not throw, but it should
+// expected-to-throw
 
 /**
  * @RelayResolver

@@ -121,6 +121,11 @@ pub enum ErrorMessages {
         "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
     )]
     UnexpectedOutputType { field_name: StringKey },
+
+    #[error(
+        "The field @RelayResolver field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
+    )]
+    FieldWithUnexpectedData { field_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

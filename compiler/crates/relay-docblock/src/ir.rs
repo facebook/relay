@@ -148,6 +148,38 @@ pub struct PopulatedIrField {
     pub value: WithLocation<StringKey>,
 }
 
+impl TryFrom<IrField> for PopulatedIrField {
+    type Error = ();
+
+    fn try_from(ir_field: IrField) -> Result<Self, Self::Error> {
+        match ir_field.value {
+            Some(value) => Ok(PopulatedIrField {
+                key_location: ir_field.key_location,
+                value,
+            }),
+            None => Err(()),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct UnpopulatedIrField {
+    pub key_location: Location,
+}
+
+impl TryFrom<IrField> for UnpopulatedIrField {
+    type Error = WithLocation<StringKey>;
+
+    fn try_from(ir_field: IrField) -> Result<Self, Self::Error> {
+        match ir_field.value {
+            Some(value) => Err(value),
+            None => Ok(UnpopulatedIrField {
+                key_location: ir_field.key_location,
+            }),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum On {
     Type(PopulatedIrField),
@@ -212,7 +244,7 @@ trait ResolverIr {
     ) -> Option<RootFragment>;
     fn output_type(&self) -> Option<OutputType>;
     fn deprecated(&self) -> Option<IrField>;
-    fn live(&self) -> Option<IrField>;
+    fn live(&self) -> Option<UnpopulatedIrField>;
     fn named_import(&self) -> Option<StringKey>;
 
     fn to_graphql_schema_ast(
@@ -536,7 +568,7 @@ pub struct TerseRelayResolverIr {
     pub type_: WithLocation<StringKey>,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub deprecated: Option<IrField>,
-    pub live: Option<IrField>,
+    pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
     pub named_import: Option<StringKey>,
@@ -617,7 +649,7 @@ impl ResolverIr for TerseRelayResolverIr {
         self.deprecated
     }
 
-    fn live(&self) -> Option<IrField> {
+    fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
     }
 
@@ -652,7 +684,7 @@ pub struct RelayResolverIr {
     pub output_type: Option<OutputType>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
-    pub live: Option<IrField>,
+    pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
     pub named_import: Option<StringKey>,
@@ -779,7 +811,7 @@ impl ResolverIr for RelayResolverIr {
         self.deprecated
     }
 
-    fn live(&self) -> Option<IrField> {
+    fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
     }
 
@@ -813,7 +845,7 @@ pub struct StrongObjectIr {
     pub root_fragment: WithLocation<FragmentDefinitionName>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
-    pub live: Option<IrField>,
+    pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub named_import: Option<StringKey>,
 }
@@ -888,7 +920,7 @@ impl ResolverIr for StrongObjectIr {
         self.deprecated
     }
 
-    fn live(&self) -> Option<IrField> {
+    fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
     }
 
@@ -1042,7 +1074,7 @@ impl ResolverIr for WeakObjectIr {
         self.deprecated
     }
 
-    fn live(&self) -> Option<IrField> {
+    fn live(&self) -> Option<UnpopulatedIrField> {
         None
     }
 

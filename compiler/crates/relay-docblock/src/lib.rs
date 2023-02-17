@@ -62,6 +62,7 @@ use ir::PopulatedIrField;
 use ir::RelayResolverIr;
 use ir::StrongObjectIr;
 use ir::TerseRelayResolverIr;
+use ir::UnpopulatedIrField;
 use ir::WeakObjectIr;
 
 use crate::errors::ErrorMessages;
@@ -255,7 +256,7 @@ impl RelayResolverParser {
         ast_location: Location,
         definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     ) -> ParseResult<RelayResolverIr> {
-        let live = self.fields.get(&LIVE_FIELD).copied();
+        let live = self.parse_unpopulated_field(*LIVE_FIELD)?;
 
         let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast_location)?;
         let field = self.parse_field_definition(field_string)?;
@@ -306,6 +307,29 @@ impl RelayResolverParser {
             fragment_arguments,
             named_import,
         })
+    }
+
+    fn parse_unpopulated_field(
+        &mut self,
+        field_name: StringKey,
+    ) -> Result<Option<UnpopulatedIrField>, ()> {
+        let field = match self
+            .fields
+            .get(&field_name)
+            .copied()
+            .map(|field| -> Result<_, WithLocation<StringKey>> { field.try_into() })
+            .transpose()
+        {
+            Ok(live) => live,
+            Err(e) => {
+                self.errors.push(Diagnostic::error(
+                    ErrorMessages::FieldWithUnexpectedData { field_name },
+                    e.location,
+                ));
+                return Err(());
+            }
+        };
+        Ok(field)
     }
 
     fn parse_type_annotation(
@@ -762,7 +786,7 @@ impl RelayResolverParser {
             }
         }
 
-        let live = self.fields.get(&LIVE_FIELD).copied();
+        let live = self.parse_unpopulated_field(*LIVE_FIELD)?;
         let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
 
         let location = type_str.location;
@@ -800,7 +824,7 @@ impl RelayResolverParser {
     }
 
     fn parse_strong_object(
-        &self,
+        &mut self,
         ast_location: Location,
         type_: PopulatedIrField,
     ) -> ParseResult<StrongObjectIr> {
@@ -810,12 +834,14 @@ impl RelayResolverParser {
             format!("{}__{}", type_.value.item, self.options.id_field_name).intern(),
         );
 
+        let live = self.parse_unpopulated_field(*LIVE_FIELD)?;
+
         Ok(StrongObjectIr {
             type_,
             root_fragment: WithLocation::generated(fragment_name),
             description: self.description,
             deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
-            live: self.fields.get(&LIVE_FIELD).copied(),
+            live,
             location: ast_location,
             named_import: self.options.use_named_imports.then_some(type_.value.item),
         })

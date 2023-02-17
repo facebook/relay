@@ -17,6 +17,7 @@ path = "tests/to_schema_test.rs"
 [dependencies]
 common = { path = "../common" }
 docblock-syntax = { path = "../docblock-syntax" }
+docblock-shared = { path = "../docblock-shared" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }

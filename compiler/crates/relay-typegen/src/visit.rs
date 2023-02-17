@@ -16,6 +16,7 @@ use ::intern::Lookup;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
+use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
@@ -106,7 +107,6 @@ use crate::TYPE_BOOLEAN;
 use crate::TYPE_FLOAT;
 use crate::TYPE_ID;
 use crate::TYPE_INT;
-use crate::TYPE_RELAY_RESOLVER_VALUE;
 use crate::TYPE_STRING;
 use crate::VARIABLES;
 
@@ -527,7 +527,7 @@ fn import_relay_resolver_function_type(
 /// type of the resolver function.
 fn is_relay_resolver_type(typegen_context: &'_ TypegenContext<'_>, field: &Field) -> bool {
     if let Some(scalar_id) = field.type_.inner().get_scalar_id() {
-        typegen_context.schema.scalar(scalar_id).name.item == *TYPE_RELAY_RESOLVER_VALUE
+        typegen_context.schema.scalar(scalar_id).name.item == *RESOLVER_VALUE_SCALAR_NAME
     } else {
         false
     }

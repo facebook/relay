@@ -18,6 +18,15 @@ use common::NamedItem;
 use common::ObjectName;
 use common::Span;
 use common::WithLocation;
+use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
+use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
+use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
+use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
+use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
+use docblock_shared::LIVE_ARGUMENT_NAME;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
@@ -61,28 +70,15 @@ use crate::errors::ErrorMessagesWithData;
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
     static ref ID_TYPE: StringKey = "ID".intern();
-    static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("relay_resolver".intern());
     static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__RelayResolverModel".intern());
     static ref OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("RelayOutputType".intern());
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
-    static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName = ArgumentName("fragment_name".intern());
-    static ref INJECT_FRAGMENT_DATA_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("inject_fragment_data".intern());
-    static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
-    static ref IMPORT_NAME_ARGUMENT_NAME: ArgumentName = ArgumentName("import_name".intern());
-    static ref LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
-    static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("has_output_type".intern());
-    pub(crate) static ref RESOLVER_VALUE_SCALAR_NAME: StringKey = "RelayResolverValue".intern();
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
-    static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
-        DirectiveName("__RelayWeakObject".intern());
 }
 
 #[derive(Debug, PartialEq)]
@@ -491,7 +487,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 // `RelayResolverValue` (defined in the relay-extensions.graphql
                 // file) for this purpose.
                 TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(*RESOLVER_VALUE_SCALAR_NAME),
+                    name: string_key_as_identifier(RESOLVER_VALUE_SCALAR_NAME.0),
                 })
             },
             |output_type| output_type.inner().item.clone(),

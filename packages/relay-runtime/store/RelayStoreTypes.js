@@ -584,6 +584,15 @@ export type LogEvent =
       +cached: boolean,
     }
   | {
+      // Indicates getPendingOperationForFragment identified a pending operation.
+      // Useful for measuring how frequently RelayOperationTracker identifies a
+      // related operation on which to suspend.
+      +name: 'pendingoperation.found',
+      +fragment: ReaderFragment,
+      +fragmentOwner: RequestDescriptor,
+      +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+    }
+  | {
       +name: 'network.info',
       +networkRequestId: number,
       +info: mixed,

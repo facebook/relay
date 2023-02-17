@@ -30,10 +30,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub relay_resolver_model_syntax_enabled: bool,
 
-    /// Enable `@RelayResolver TypeName.field_name` syntax in Relay resolver docblocks.
-    #[serde(default)]
-    pub relay_resolver_enable_terse_syntax: bool,
-
     /// Enable deprecated `@outputType` on Relay Resolvers.
     #[serde(default)]
     pub relay_resolver_enable_output_type: FeatureFlag,

@@ -105,11 +105,6 @@ pub enum ErrorMessages {
     UnexpectedNonDot { found: char },
 
     #[error(
-        "Unexpected character `{found}`. Terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand, is not enabled in your project's config."
-    )]
-    UnexpectedTerseSyntax { found: char },
-
-    #[error(
         "Unexpected docblock field `{field_name}`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand."
     )]
     UnexpectedFieldInTerseSyntax { field_name: StringKey },

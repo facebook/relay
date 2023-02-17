@@ -69,7 +69,6 @@ use crate::errors::ErrorMessages;
 
 pub struct ParseOptions {
     pub relay_resolver_model_syntax_enabled: bool,
-    pub relay_resolver_enable_terse_syntax: bool,
     pub id_field_name: StringKey,
     pub enable_output_type: FeatureFlag,
 }
@@ -719,13 +718,6 @@ impl RelayResolverParser {
 
         match remaining_source.chars().next() {
             Some(maybe_dot) => {
-                if !self.options.relay_resolver_enable_terse_syntax {
-                    self.errors.push(Diagnostic::error(
-                        ErrorMessages::UnexpectedTerseSyntax { found: maybe_dot },
-                        type_str.location,
-                    ));
-                    return Err(());
-                }
                 if maybe_dot != '.' {
                     self.errors.push(Diagnostic::error(
                         ErrorMessages::UnexpectedNonDot { found: maybe_dot },

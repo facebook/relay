@@ -66,9 +66,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             Some(&executable_documents),
             ParseOptions {
                 relay_resolver_model_syntax_enabled: true,
-                relay_resolver_enable_terse_syntax: !fixture
-                    .content
-                    .contains("// relay:disable_relay_resolver_terse_syntax"),
                 id_field_name: "id".intern(),
                 enable_output_type: if fixture.content.contains("// relay:enable_output_type") {
                     FeatureFlag::Enabled

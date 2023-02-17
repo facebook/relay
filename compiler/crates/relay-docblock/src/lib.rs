@@ -68,7 +68,6 @@ use ir::WeakObjectIr;
 use crate::errors::ErrorMessages;
 
 pub struct ParseOptions {
-    pub use_named_imports: bool,
     pub relay_resolver_model_syntax_enabled: bool,
     pub relay_resolver_enable_terse_syntax: bool,
     pub id_field_name: StringKey,
@@ -273,11 +272,6 @@ impl RelayResolverParser {
 
         let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
 
-        // For the initial version the name of the export have to match
-        // the name of the resolver field. Adding JS parser capabilities will allow
-        // us to derive the name of the export from the source.
-        let named_import = self.options.use_named_imports.then_some(field.name.value);
-
         let maybe_output_type = self.output_type();
         if let Some(OutputType::Output(type_annotation)) = &maybe_output_type {
             if !self
@@ -305,7 +299,6 @@ impl RelayResolverParser {
             deprecated,
             live,
             fragment_arguments,
-            named_import,
         })
     }
 
@@ -809,7 +802,6 @@ impl RelayResolverParser {
                 ));
             }
         }
-        let named_import = self.options.use_named_imports.then_some(field.name.value);
         Ok(Some(TerseRelayResolverIr {
             field,
             type_: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
@@ -819,7 +811,6 @@ impl RelayResolverParser {
             deprecated,
             live,
             fragment_arguments,
-            named_import,
         }))
     }
 
@@ -843,7 +834,6 @@ impl RelayResolverParser {
             deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
             live,
             location: ast_location,
-            named_import: self.options.use_named_imports.then_some(type_.value.item),
         })
     }
 

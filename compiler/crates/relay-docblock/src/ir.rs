@@ -571,7 +571,6 @@ pub struct TerseRelayResolverIr {
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
-    pub named_import: Option<StringKey>,
 }
 
 impl ResolverIr for TerseRelayResolverIr {
@@ -654,7 +653,7 @@ impl ResolverIr for TerseRelayResolverIr {
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        self.named_import
+        Some(self.field.name.value)
     }
 }
 
@@ -687,7 +686,6 @@ pub struct RelayResolverIr {
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
-    pub named_import: Option<StringKey>,
 }
 
 impl ResolverIr for RelayResolverIr {
@@ -816,7 +814,7 @@ impl ResolverIr for RelayResolverIr {
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        self.named_import
+        Some(self.field.name.value)
     }
 }
 
@@ -847,7 +845,6 @@ pub struct StrongObjectIr {
     pub deprecated: Option<IrField>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
-    pub named_import: Option<StringKey>,
 }
 
 impl ResolverIr for StrongObjectIr {
@@ -925,7 +922,7 @@ impl ResolverIr for StrongObjectIr {
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        self.named_import
+        Some(self.type_.value.item)
     }
 }
 

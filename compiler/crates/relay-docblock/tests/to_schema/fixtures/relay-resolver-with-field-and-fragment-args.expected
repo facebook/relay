@@ -22,5 +22,5 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend type User {
-  greeting(first: Int = 10, userID: ID!, salutation: String!): RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js", fragment_name: "myRootFragment")
+  greeting(first: Int = 10, userID: ID!, salutation: String!): RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js", fragment_name: "myRootFragment", import_name: "greeting")
 }

@@ -85,6 +85,5 @@ RelayResolver(
         live: None,
         location: /path/to/test/fixture/relay-resolver.js:0:409,
         fragment_arguments: None,
-        named_import: None,
     },
 )

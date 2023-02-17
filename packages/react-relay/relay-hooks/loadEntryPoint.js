@@ -58,6 +58,7 @@ function loadEntryPoint<
         environmentProviderOptions,
       );
 
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       preloadedQueries[queryPropName] = loadQuery(
         environment,
         parameters,
@@ -82,6 +83,7 @@ function loadEntryPoint<
       const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
         entryPointDescription;
       // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[underconstrained-implicit-instantiation]
       preloadedEntryPoints[entryPointPropName] = loadEntryPoint(
         environmentProvider,
         nestedEntryPoint,

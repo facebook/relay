@@ -550,6 +550,7 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
           props={{version: 0}}
           // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
+          // $FlowFixMe[invalid-tuple-arity]
           environmentProvider={{
             getEnvironment,
           }}

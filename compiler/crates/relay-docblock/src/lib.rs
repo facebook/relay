@@ -844,7 +844,7 @@ impl RelayResolverParser {
     ) -> ParseResult<WeakObjectIr> {
         // TODO: Validate that no incompatible docblock fields are used.
         Ok(WeakObjectIr {
-            type_name: type_,
+            type_,
             description: self.description,
             deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
             location: ast_location,

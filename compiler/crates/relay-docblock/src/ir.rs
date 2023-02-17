@@ -929,7 +929,7 @@ impl ResolverIr for StrongObjectIr {
 /// Relay Resolver docblock representing a "model" type for a weak object
 #[derive(Debug, PartialEq)]
 pub struct WeakObjectIr {
-    pub type_name: PopulatedIrField,
+    pub type_: PopulatedIrField,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub location: Location,
@@ -938,7 +938,7 @@ pub struct WeakObjectIr {
 impl WeakObjectIr {
     // Generate the named GraphQL type (with an __relay_model_instance field).
     fn type_definition(&self, schema_info: SchemaInfo<'_, '_>) -> TypeSystemDefinition {
-        let span = self.type_name.value.location.span();
+        let span = self.type_.value.location.span();
 
         let mut directives = vec![
             ConstantDirective {
@@ -974,7 +974,7 @@ impl WeakObjectIr {
             })
         }
         TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-            name: as_identifier(self.type_name.value),
+            name: as_identifier(self.type_.value),
             interfaces: vec![],
             directives,
             fields: Some(List::generated(vec![generate_model_instance_field(
@@ -989,7 +989,7 @@ impl WeakObjectIr {
 
     // Generate a custom scalar definition based on the exported type.
     fn instance_scalar_type_definition(&self) -> TypeSystemDefinition {
-        let span = self.type_name.value.location.span();
+        let span = self.type_.value.location.span();
         TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
             name: Identifier {
                 span: *span,
@@ -1020,7 +1020,7 @@ impl WeakObjectIr {
                         colon: dummy_token(span),
                         value: ConstantValue::String(StringNode {
                             token: dummy_token(span),
-                            value: self.type_name.value.item,
+                            value: self.type_.value.item,
                         }),
                     },
                 ])),
@@ -1034,7 +1034,7 @@ impl WeakObjectIr {
         // TODO: Ensure this type does not already exist?
         format!(
             "{}{}",
-            self.type_name.value.item, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
+            self.type_.value.item, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
         )
         .intern()
     }

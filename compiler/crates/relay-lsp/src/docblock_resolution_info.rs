@@ -111,15 +111,8 @@ pub fn create_docblock_resolution_info(
             None
         }
         DocblockIr::WeakObjectType(weak_type_ir) => {
-            if weak_type_ir
-                .type_name
-                .value
-                .location
-                .contains(position_span)
-            {
-                return Some(DocblockResolutionInfo::Type(
-                    weak_type_ir.type_name.value.item,
-                ));
+            if weak_type_ir.type_.value.location.contains(position_span) {
+                return Some(DocblockResolutionInfo::Type(weak_type_ir.type_.value.item));
             }
 
             if let Some(deprecated) = weak_type_ir.deprecated {

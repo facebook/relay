@@ -2333,8 +2333,8 @@ fn create_edge_to_return_type_ast(
     // Mark that the DataID type is used, and must be imported.
     runtime_imports.data_id_type = true;
 
-    let inner_type = schema_field.type_.inner();
-    let plural = schema_field.type_.is_list();
+    let schema_type_reference = &schema_field.type_;
+    let inner_type = schema_type_reference.inner();
 
     let mut fields = vec![Prop::KeyValuePair(KeyValuePairProp {
         // TODO consider reading the id field from the config. This must be done
@@ -2370,13 +2370,9 @@ fn create_edge_to_return_type_ast(
         }))
     }
 
-    let inner_ast = AST::Nullable(Box::new(AST::ExactObject(ExactObject::new(fields))));
-
-    if plural {
-        AST::ReadOnlyArray(Box::new(inner_ast))
-    } else {
-        inner_ast
-    }
+    transform_type_reference_into_ast(schema_type_reference, |_| {
+        AST::ExactObject(ExactObject::new(fields))
+    })
 }
 
 fn expect_scalar_type(

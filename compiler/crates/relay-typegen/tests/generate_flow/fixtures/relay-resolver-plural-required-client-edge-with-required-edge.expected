@@ -14,7 +14,7 @@ query relayResolver_Query {
 # %extensions%
 
 extend type User {
-  best_friends: [User] @relay_resolver(fragment_name: "relayResolver_BestFriendResolverFragment_name", import_path: "./foo/bar/baz/BestFriendResolver.js")
+  best_friends: [User!]! @relay_resolver(fragment_name: "relayResolver_BestFriendResolverFragment_name", import_path: "./foo/bar/baz/BestFriendResolver.js")
 }
 ==================================== OUTPUT ===================================
 import type { RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$fragmentType } from "RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends.graphql";
@@ -38,13 +38,13 @@ import userBestFriendsResolverType from "BestFriendResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendsResolverType: (
   rootKey: relayResolver_BestFriendResolverFragment_name$key,
-) => ?$ReadOnlyArray<?{|
+) => $ReadOnlyArray<{|
   +id: DataID,
 |}>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +best_friends: ?$ReadOnlyArray<?{|
+    +best_friends: $ReadOnlyArray<{|
       +name: ?string,
     |}>,
   |},

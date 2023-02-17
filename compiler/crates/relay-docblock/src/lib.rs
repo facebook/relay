@@ -8,6 +8,7 @@
 mod errors;
 mod ir;
 
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
 use common::Diagnostic;
@@ -354,13 +355,13 @@ impl RelayResolverParser {
 
         let field_value = field.field_value;
         match self.fields.entry(field.field_name.item) {
-            std::collections::hash_map::Entry::Occupied(_) => self.errors.push(Diagnostic::error(
+            Entry::Occupied(_) => self.errors.push(Diagnostic::error(
                 ErrorMessages::DuplicateField {
                     field_name: field.field_name.item,
                 },
                 field.field_name.location,
             )),
-            std::collections::hash_map::Entry::Vacant(entry) => {
+            Entry::Vacant(entry) => {
                 entry.insert(IrField {
                     key_location: field.field_name.location,
                     value: field_value,

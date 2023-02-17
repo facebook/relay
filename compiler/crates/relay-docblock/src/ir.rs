@@ -186,16 +186,16 @@ impl OutputType {
 }
 
 pub enum FragmentDataInjectionMode {
-    /// For `id` and `__relay_model_instance ` resolvers we want to read just one field
-    /// of that fragment and pass it to the resolver
+    /// For `id` and `__relay_model_instance` resolvers, we want to read just one field
+    /// off of that fragment and pass it to the resolver
     Field(StringKey),
     // TODO: Add `FullData` mode for this
 }
 
 pub struct RootFragment {
     fragment: WithLocation<FragmentDefinitionName>,
-    // For Model resolvers we need to inject `id` , `__relay_model_instance ` fragment data
-    // the resolver function
+    // For Model resolvers, we need to pass the `id` or `__relay_model_instance` field
+    // from the fragment data to the resolver function
     inject_fragment_data: Option<FragmentDataInjectionMode>,
 }
 

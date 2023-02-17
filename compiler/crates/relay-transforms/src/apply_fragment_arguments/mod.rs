@@ -480,7 +480,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 }
             }
         }
-        directives.push(metadata.to_directive());
+        directives.push(metadata.into());
         let normalization_name = get_normalization_operation_name(name.item.0).intern();
         let operation = if is_base {
             None

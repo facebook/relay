@@ -1,0 +1,93 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// This will not throw, but it should
+
+/**
+ * @RelayResolver
+ *
+ * @onType User
+ * @fieldName favorite_page
+ * @edgeTo Page
+ * @rootFragment myRootFragment
+ * @live in the moment
+ */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
+==================================== OUTPUT ===================================
+RelayResolver(
+    RelayResolverIr {
+        field: FieldDefinitionStub {
+            name: Identifier {
+                span: 53:66,
+                token: Token {
+                    span: 53:66,
+                    kind: Identifier,
+                },
+                value: "favorite_page",
+            },
+            arguments: None,
+        },
+        on: Type(
+            PopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver-live-with-text.js:27:33,
+                value: WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-live-with-text.js:34:38,
+                    item: "User",
+                },
+            },
+        ),
+        root_fragment: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver-live-with-text.js:100:114,
+                item: FragmentDefinitionName(
+                    "myRootFragment",
+                ),
+            },
+        ),
+        output_type: Some(
+            EdgeTo(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-live-with-text.js:78:82,
+                    item: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 78:82,
+                                token: Token {
+                                    span: 78:82,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
+                            },
+                        },
+                    ),
+                },
+            ),
+        ),
+        description: None,
+        deprecated: None,
+        live: Some(
+            IrField {
+                key_location: /path/to/test/fixture/relay-resolver-live-with-text.js:119:123,
+                value: Some(
+                    WithLocation {
+                        location: /path/to/test/fixture/relay-resolver-live-with-text.js:124:137,
+                        item: "in the moment",
+                    },
+                ),
+            },
+        ),
+        location: /path/to/test/fixture/relay-resolver-live-with-text.js:0:138,
+        fragment_arguments: None,
+        named_import: None,
+    },
+)

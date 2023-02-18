@@ -8,6 +8,7 @@
 use std::env::current_dir;
 use std::ffi::OsStr;
 use std::fmt;
+use std::fs::create_dir_all;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -753,14 +754,16 @@ impl SingleProjectConfigFile {
         root_dir: PathBuf,
     ) -> std::result::Result<PathBuf, ConfigValidationError> {
         let mut paths = vec![];
-        if let Some(artifact_directory_path) = self.artifact_directory.clone() {
-            paths.push(
-                canonicalize(root_dir.join(artifact_directory_path.clone())).map_err(|_| {
-                    ConfigValidationError::ArtifactDirectoryNotExistent {
-                        path: artifact_directory_path,
-                    }
-                })?,
-            );
+        if let Some(artifact_directory_path) = &self.artifact_directory {
+            let path = root_dir.join(artifact_directory_path);
+            create_dir_all(&path).map_err(|err| {
+                ConfigValidationError::ArtifactDirectoryCreationError {
+                    path: artifact_directory_path.to_owned(),
+                    error: err,
+                }
+            })?;
+            // SAFE: We just created this directory
+            paths.push(canonicalize(&path).unwrap());
         }
         paths.push(canonicalize(root_dir.join(self.src.clone())).map_err(|_| {
             ConfigValidationError::SourceNotExistent {

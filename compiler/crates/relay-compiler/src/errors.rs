@@ -214,8 +214,11 @@ pub enum ConfigValidationError {
         error: regex::Error,
     },
 
-    #[error("The `artifactDirectory` does not exist at `{path}`.")]
-    ArtifactDirectoryNotExistent { path: PathBuf },
+    #[error("The `artifactDirectory` could not be created at `{path}`: {error}.")]
+    ArtifactDirectoryCreationError {
+        path: PathBuf,
+        error: std::io::Error,
+    },
 
     #[error("Unable to find common path for directories in the config file.")]
     CommonPathNotFound,

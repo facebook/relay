@@ -1593,10 +1593,18 @@ dependencies = [
  "intern",
  "pathdiff",
  "regex",
+ "schemars",
  "serde",
  "serde_json",
  "strum",
  "strum_macros",
+]
+
+[[package]]
+name = "relay-config-schema"
+version = "0.1.0"
+dependencies = [
+ "schemars",
 ]
 
 [[package]]

@@ -44,6 +44,7 @@ pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
 use relay_transforms::CustomTransformsConfig;
+use schemars::JsonSchema;
 use serde::de::Error as DeError;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -599,9 +600,9 @@ fn get_default_excludes() -> Vec<String> {
 }
 
 /// Schema of the compiler configuration JSON file.
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-struct MultiProjectConfigFile {
+pub struct MultiProjectConfigFile {
     /// Optional name for this config, might be used for logging or custom extra
     /// artifact generator code.
     #[serde(default)]
@@ -635,13 +636,14 @@ struct MultiProjectConfigFile {
     feature_flags: FeatureFlags,
 
     /// Watchman saved state config.
+    #[schemars(skip)]
     saved_state_config: Option<ScmAwareClockData>,
 
     /// Then name of the global __DEV__ variable to use in generated artifacts
     is_dev_variable_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
     #[serde(skip)]
@@ -891,9 +893,9 @@ impl SingleProjectConfigFile {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, JsonSchema)]
 #[serde(untagged)]
-enum ConfigFile {
+pub enum ConfigFile {
     /// Base case configuration (mostly of OSS) where the project
     /// have single schema, and single source directory
     SingleProject(SingleProjectConfigFile),
@@ -928,7 +930,7 @@ It also cannot be a single project config file due to:
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Deserialize, Serialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be

@@ -33,6 +33,7 @@ use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use schema_diff::definitions::SchemaChange;
 use schema_diff::detect_changes;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 use zstd::stream::read::Decoder as ZstdDecoder;
@@ -58,7 +59,7 @@ use crate::file_source::SourceControlUpdateStatus;
 pub type ProjectName = StringKey;
 
 /// Set of project names.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, JsonSchema)]
 #[serde(from = "DeserializableProjectSet")]
 pub struct ProjectSet(Vec<ProjectName>);
 

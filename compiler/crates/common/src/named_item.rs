@@ -12,6 +12,7 @@ use intern::impl_lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -45,7 +46,8 @@ pub trait Named {
     Ord,
     PartialEq,
     PartialOrd,
-    Serialize
+    Serialize,
+    JsonSchema
 )]
 pub struct DirectiveName(pub StringKey);
 

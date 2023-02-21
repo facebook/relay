@@ -6,11 +6,12 @@
  */
 
 use common::DiagnosticSeverity;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
 /// Levels for reporting errors in the compiler.
-#[derive(Copy, Clone, Debug, Deserialize, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum DiagnosticLevel {
     /// Report only errors
@@ -35,7 +36,7 @@ impl From<DiagnosticLevel> for DiagnosticSeverity {
 }
 
 /// Configuration for all diagnostic reporting in the compiler
-#[derive(Copy, Clone, Debug, Deserialize, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticReportConfig {
     /// Threshold for diagnostics to be critical to the compiler's execution.

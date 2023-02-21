@@ -5,10 +5,7 @@
 
 name: Docusaurus
 
-on:
-  push:
-    branches:
-      - main
+on: [pull_request, push]
 
 jobs:
   build-and-deploy:
@@ -19,9 +16,19 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Build Config Schema
-        run: | 
-          cargo run --bin relay-config-schema > website/static/relay-config.json
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.64.0
+          override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --features vendored --manifest-path compiler/Cargo.toml --bin relay-config-schema --release
+      
+      - name: Generate JSON Schema
+        run: ./compiler/target/release/relay-config-schema > website/static/relay-config-schema.json
 
       - name: Install and Build
         run: |

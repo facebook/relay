@@ -51,6 +51,7 @@ relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
+schemars = { version = "0.8.11", features = ["indexmap1"]}
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_bser = "0.3"
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }

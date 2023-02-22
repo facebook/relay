@@ -5,7 +5,10 @@
 
 name: Docusaurus
 
-on: [pull_request, push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
@@ -38,10 +41,10 @@ jobs:
           yarn build
         working-directory: website/
 
-      # - name: Deploy
-      #   uses: JamesIves/github-pages-deploy-action@3.7.1
-      #   with:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     BRANCH: gh-pages
-      #     FOLDER: website/build
-          # CLEAN: true
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: website/build
+          CLEAN: true

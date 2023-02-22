@@ -28,7 +28,9 @@ jobs:
           args: --features vendored --manifest-path compiler/Cargo.toml --bin relay-config-schema --release
       
       - name: Generate JSON Schema
-        run: ./compiler/target/release/relay-config-schema > website/static/relay-config-schema.json
+        run: |
+          ./compiler/target/release/relay-config-schema > website/static/relay-config-schema.json
+          node scripts/fixJsonSchema.js
 
       - name: Install and Build
         run: |

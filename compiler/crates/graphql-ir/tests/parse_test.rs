@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a9ea4300cb2f740289d5767d3f58b914>>
+ * @generated SignedSource<<9dade3d0ff881e265617477148740319>>
  */
 
 mod parse;
@@ -276,6 +276,27 @@ fn fragment_with_arguments_invalid_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-arguments-invalid-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-arguments-invalid-type.invalid.expected");
     test_fixture(transform_fixture, "fragment-with-arguments-invalid-type.invalid.graphql", "parse/fixtures/fragment-with-arguments-invalid-type.invalid.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_arguments_syntax() {
+    let input = include_str!("parse/fixtures/fragment-with-arguments-syntax.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-arguments-syntax.expected");
+    test_fixture(transform_fixture, "fragment-with-arguments-syntax.graphql", "parse/fixtures/fragment-with-arguments-syntax.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_both_arguments_and_directive_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-both-arguments-and-directive.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-both-arguments-and-directive.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-both-arguments-and-directive.invalid.graphql", "parse/fixtures/fragment-with-both-arguments-and-directive.invalid.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_both_variable_definition_and_directive_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-both-variable-definition-and-directive.invalid.graphql", "parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.expected", input, expected);
 }
 
 #[test]

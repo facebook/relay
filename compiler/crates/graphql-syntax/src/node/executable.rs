@@ -216,6 +216,7 @@ pub struct FragmentSpread {
     pub span: Span,
     pub spread: Token,
     pub name: Identifier,
+    pub arguments: Option<List<Argument>>,
     pub directives: Vec<Directive>,
 }
 

@@ -94,6 +94,12 @@ pub enum ValidationMessage {
     )]
     VariableDefinitionsAndArgumentDirective,
 
+    #[error("Cannot combine fragment arguments syntax with the '@arguments' directive")]
+    FragmentArgumentsAndArgumentDirective,
+
+    #[error("Unexpected fragment argument. Fragment argument syntax is not enabled.")]
+    OutsidePassedArgumentsMode,
+
     #[error(
         "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]

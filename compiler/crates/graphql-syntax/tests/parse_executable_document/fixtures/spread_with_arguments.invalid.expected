@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Test on User {
+  ...Bar(x: $x)
+  ...Foo()
+}
+==================================== ERROR ====================================
+✖︎ Expected a selection: field, inline fragment, or fragment spread
+
+  spread_with_arguments.invalid.graphql:3:9
+    2 │ fragment Test on User {
+    3 │   ...Bar(x: $x)
+      │         ^
+    4 │   ...Foo()

@@ -307,6 +307,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(error).not.toBeCalled();
           expect(callback).toHaveBeenCalledTimes(1);
           expect(
+            // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
             callback.mock.calls[0][0].data.node.flightComponent.readRoot(),
           ).toEqual([
             {

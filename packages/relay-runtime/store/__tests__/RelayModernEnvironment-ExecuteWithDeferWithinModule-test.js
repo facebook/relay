@@ -69,6 +69,7 @@ function createOperationLoader() {
       if (entry == null) {
         let resolveFn = (_x: NormalizationSplitOperation) => undefined;
         const promise = new Promise(resolve_ => {
+          // $FlowFixMe[incompatible-type]
           resolveFn = resolve_;
         });
         // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
@@ -174,6 +175,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _cacheConfig: CacheConfig,
         ) => {
           // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+          // $FlowFixMe[underconstrained-implicit-instantiation]
           return RelayObservable.create(sink => {
             dataSource = sink;
           });

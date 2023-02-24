@@ -189,11 +189,14 @@ class RelayMockPayloadGenerator {
     +mockClientData: ?boolean,
   }) {
     this._variables = options.variables;
+    // $FlowFixMe[cannot-spread-inexact]
+    // $FlowFixMe[incompatible-type]
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
       ...(options.mockResolvers ?? {}),
     };
     this._selectionMetadata = options.selectionMetadata ?? {};
+    // $FlowFixMe[incompatible-call]
     this._resolveValue = createValueResolver(this._mockResolvers);
     this._mockClientData = options.mockClientData ?? false;
   }
@@ -469,6 +472,7 @@ class RelayMockPayloadGenerator {
             if (mockData == null) {
               mockData = {};
             }
+            // $FlowFixMe[cannot-spread-indexer]
             mockData = {
               ...mockData,
               [TYPENAME_KEY]: typeName,
@@ -751,6 +755,7 @@ class RelayMockPayloadGenerator {
             data[applicationName]
           : null,
         // $FlowFixMe[incompatible-call]
+        // $FlowFixMe[incompatible-variance]
         fieldDefaultValue,
       );
     };

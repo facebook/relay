@@ -779,6 +779,7 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
+      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
       );
@@ -1245,6 +1246,7 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
+      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
       );
@@ -2107,6 +2109,7 @@ describe('check()', () => {
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+            // $FlowFixMe[incompatible-call]
             {
               kind: 'pluralLinked',
               handle,
@@ -2520,6 +2523,7 @@ describe('check()', () => {
             __id: 'client:1',
             __typename: 'FriendsConnection',
             edges: {
+              // $FlowFixMe[incompatible-type]
               __refs: [],
             },
           },

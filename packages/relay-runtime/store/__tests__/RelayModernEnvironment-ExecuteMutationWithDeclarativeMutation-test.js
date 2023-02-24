@@ -953,6 +953,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(complete).toBeCalled();
           expect(error).not.toBeCalled();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1002,6 +1003,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
           subject.complete();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1132,6 +1134,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(complete).toBeCalled();
           expect(error).not.toBeCalled();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1200,6 +1203,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
           subject.complete();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1296,6 +1300,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(error).not.toBeCalled();
           expect(complete).toBeCalled();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1364,6 +1369,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
           subject.complete();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1439,6 +1445,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             .subscribe(callbacks);
 
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1485,6 +1492,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(complete).toBeCalled();
           expect(error).not.toBeCalled();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1539,6 +1547,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(complete).toBeCalled();
           expect(error).not.toBeCalled();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
             {
               __typename: 'CommentsEdge',
@@ -1575,6 +1584,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(complete).toBeCalled();
           expect(error).not.toBeCalled();
           expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual(
             [],
           );
@@ -1871,6 +1881,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(complete).toBeCalled();
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
+        // $FlowExpectedError[incompatible-use]
         expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
           {
             __typename: 'CommentsEdge',
@@ -1917,6 +1928,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
         subject.complete();
         expect(callback.mock.calls.length).toBe(1);
+        // $FlowExpectedError[incompatible-use]
         expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
           {
             __typename: 'CommentsEdge',
@@ -2030,6 +2042,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(complete).toBeCalled();
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
+        // $FlowExpectedError[incompatible-use]
         expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
           {
             __typename: 'CommentsEdge',
@@ -2076,6 +2089,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
         subject.complete();
         expect(callback.mock.calls.length).toBe(1);
+        // $FlowExpectedError[incompatible-use]
         expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
           {
             __typename: 'CommentsEdge',
@@ -2145,6 +2159,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(complete).toBeCalled();
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
+        // $FlowExpectedError[incompatible-use]
         expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
           {
             __typename: 'CommentsEdge',
@@ -2205,6 +2220,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
         subject.complete();
         expect(callback.mock.calls.length).toBe(1);
+        // $FlowExpectedError[incompatible-use]
         expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
           {
             __typename: 'CommentsEdge',
@@ -2277,6 +2293,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           .subscribe(callbacks);
 
         expect(callback.mock.calls.length).toBe(1);
+        // $FlowExpectedError[incompatible-use]
         expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
           {
             __typename: 'CommentsEdge',
@@ -2320,6 +2337,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(complete).toBeCalled();
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
+        // $FlowExpectedError[incompatible-use]
         expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
           {
             __typename: 'CommentsEdge',

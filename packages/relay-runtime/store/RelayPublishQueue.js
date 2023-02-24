@@ -210,7 +210,6 @@ class RelayPublishQueue implements PublishQueue {
     sourceOperation?: OperationDescriptor,
   ): $ReadOnlyArray<RequestDescriptor> {
     const runWillClearGcHold =
-      // $FlowFixMe[incompatible-type]
       this._appliedOptimisticUpdates === 0 && !!this._gcHold;
     const runIsANoop =
       // this._pendingBackupRebase is true if an applied optimistic

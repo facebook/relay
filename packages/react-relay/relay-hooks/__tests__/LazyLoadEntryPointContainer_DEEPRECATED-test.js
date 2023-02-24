@@ -142,9 +142,7 @@ it('suspends while the query and component are pending', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -167,9 +165,7 @@ it('suspends while the component is loading', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -193,9 +189,7 @@ it('suspends while the query is loading', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -216,7 +210,6 @@ it('suspends then updates when the query and component load', () => {
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -272,7 +265,6 @@ it('renders synchronously when the query and component are already loaded', () =
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -304,9 +296,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -319,9 +309,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 1 /* different value */}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -351,7 +339,6 @@ it('re-renders and reloads when prefetch params change', () => {
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -365,7 +352,6 @@ it('re-renders and reloads when prefetch params change', () => {
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '_4'} /* different id */}
         />
       </React.Suspense>
@@ -546,9 +532,7 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
           // $FlowFixMe[invalid-tuple-arity]
           environmentProvider={{

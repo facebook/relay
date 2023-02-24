@@ -189,7 +189,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
 
   it('should throw and cache promise for pending operation affecting fragment owner', () => {
     environment.execute({operation: nodeOperation}).subscribe({});
-    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );
@@ -290,7 +289,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
 
   it('should read the data from the store once operation fully completed', () => {
     environment.execute({operation: nodeOperation}).subscribe({});
-    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );
@@ -359,7 +357,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       },
     );
     environment.execute({operation: paginationOperation}).subscribe({});
-    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );

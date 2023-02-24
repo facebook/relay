@@ -101,10 +101,8 @@ describe('execute() a query with @stream', () => {
       typename: string | $TEMPORARY$string<'MessagingParticipant'>,
     ) {
       if (typename === 'MessagingParticipant') {
-        // $FlowFixMe[prop-missing]
         return `${typename}:${String(data.id)}`;
       }
-      // $FlowFixMe[prop-missing]
       return data.id;
     }
 

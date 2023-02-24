@@ -88,7 +88,6 @@ describe('useBlockingPaginationFragment', () => {
     const {data, ...result} = useBlockingPaginationFragmentOriginal(
       fragmentNode,
       // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[prop-missing]
       fragmentRef,
     );
     loadNext = result.loadNext;

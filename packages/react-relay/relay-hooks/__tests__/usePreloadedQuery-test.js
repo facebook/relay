@@ -1115,9 +1115,7 @@ describe.each([
         );
         let data;
         function Component(props: any) {
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           data = usePreloadedQuery(query, props.prefetched);
-          // $FlowFixMe[incompatible-use] Error found while enabling LTI on this file
           return data.node?.name;
         }
         const renderer = TestRenderer.create(
@@ -1218,9 +1216,7 @@ describe.each([
         );
         let data;
         function Component(props: any) {
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           data = usePreloadedQuery(query, props.prefetched);
-          // $FlowFixMe[incompatible-use] Error found while enabling LTI on this file
           return data.node?.name;
         }
         const renderer = TestRenderer.create(

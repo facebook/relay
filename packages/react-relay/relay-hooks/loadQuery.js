@@ -119,6 +119,7 @@ function loadQuery<
   // allows us to capture the events that occur during the eager execution
   // of the operation, and then replay them to the Observable we
   // ultimately return.
+  // $FlowFixMe[underconstrained-implicit-instantiation]
   const executionSubject = new ReplaySubject();
   const returnedObservable = Observable.create<GraphQLResponse>(sink =>
     executionSubject.subscribe(sink),
@@ -143,6 +144,7 @@ function loadQuery<
     didMakeNetworkRequest = true;
 
     let observable;
+    // $FlowFixMe[underconstrained-implicit-instantiation]
     const subject = new ReplaySubject();
     if (RelayFeatureFlags.ENABLE_LOAD_QUERY_REQUEST_DEDUPING === true) {
       // Here, we are calling fetchQueryDeduped at the network layer level,

@@ -69,7 +69,6 @@ beforeEach(() => {
 
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
     // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-    // $FlowFixMe[underconstrained-implicit-instantiation]
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
@@ -125,8 +124,6 @@ describe('when loading and disposing same query multiple times', () => {
     }: {
       initialPreloadedQuery: $FlowFixMe,
     }) {
-      /* $FlowFixMe[underconstrained-implicit-instantiation] error exposed when
-       * improving flow typing of useQueryLoader */
       [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
         initialPreloadedQuery,

@@ -174,15 +174,9 @@ pub fn extract_feature_from_text(
                         &ast,
                         Some(&executable_definitions_in_file),
                         ParseOptions {
-                            use_named_imports: project_config
-                                .feature_flags
-                                .use_named_imports_for_relay_resolvers,
                             relay_resolver_model_syntax_enabled: project_config
                                 .feature_flags
                                 .relay_resolver_model_syntax_enabled,
-                            relay_resolver_enable_terse_syntax: project_config
-                                .feature_flags
-                                .relay_resolver_enable_terse_syntax,
                             id_field_name: project_config.schema_config.node_interface_id_field,
                             enable_output_type: project_config
                                 .feature_flags

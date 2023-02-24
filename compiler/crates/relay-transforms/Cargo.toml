@@ -109,6 +109,7 @@ path = "tests/validate_static_args_test.rs"
 [dependencies]
 common = { path = "../common" }
 dashmap = { version = "5.4", features = ["raw-api", "rayon", "serde"] }
+docblock-shared = { path = "../docblock-shared" }
 errors = { path = "../errors" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }

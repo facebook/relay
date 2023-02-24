@@ -36,7 +36,6 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
     // Note: We allow FetchFunction to directly return Error to indicate
     // a failure to fetch. To avoid handling this special case throughout the
     // Relay codebase, it is explicitly handled here.
-    // $FlowFixMe[incompatible-type]
     if (result instanceof Error) {
       return RelayObservable.create(sink => sink.error(result));
     }

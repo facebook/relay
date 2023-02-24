@@ -105,11 +105,6 @@ pub enum ErrorMessages {
     UnexpectedNonDot { found: char },
 
     #[error(
-        "Unexpected character `{found}`. Terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand, is not enabled in your project's config."
-    )]
-    UnexpectedTerseSyntax { found: char },
-
-    #[error(
         "Unexpected docblock field `{field_name}`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand."
     )]
     UnexpectedFieldInTerseSyntax { field_name: StringKey },
@@ -121,6 +116,11 @@ pub enum ErrorMessages {
         "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
     )]
     UnexpectedOutputType { field_name: StringKey },
+
+    #[error(
+        "The field @RelayResolver field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
+    )]
+    FieldWithUnexpectedData { field_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

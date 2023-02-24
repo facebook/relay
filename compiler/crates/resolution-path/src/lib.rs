@@ -56,7 +56,7 @@ extern crate assert_matches;
 /// children.
 ///
 /// By convention each `ResolvePosition` variant wraps a `[NODE_TYPE]Path`
-/// struct. The `[NODE_TYPE]Path` stucts can be thought of an edge between an
+/// struct. The `[NODE_TYPE]Path` structs can be thought of an edge between an
 /// child node (`inner`) and its parent (`parent`). By chaining these edges we can
 /// construct a type safe path from the leaf node up to the AST root.
 ///

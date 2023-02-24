@@ -26,18 +26,9 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
-    /// Use `named export` in Relay resolvers modules
-    /// this should allow defining multiple resolvers per module.
-    #[serde(default = "bool_true")]
-    pub use_named_imports_for_relay_resolvers: bool,
-
     /// Use `@RelayResolver ModelName` syntax in Relay resolvers.
     #[serde(default)]
     pub relay_resolver_model_syntax_enabled: bool,
-
-    /// Enable `@RelayResolver TypeName.field_name` syntax in Relay resolver docblocks.
-    #[serde(default)]
-    pub relay_resolver_enable_terse_syntax: bool,
 
     /// Enable deprecated `@outputType` on Relay Resolvers.
     #[serde(default)]
@@ -136,8 +127,4 @@ impl Display for FeatureFlag {
             FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
         }
     }
-}
-
-fn bool_true() -> bool {
-    true
 }

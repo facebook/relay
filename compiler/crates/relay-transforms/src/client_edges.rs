@@ -15,6 +15,8 @@ use common::Location;
 use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
+use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
@@ -47,7 +49,6 @@ use super::ValidationMessageWithData;
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
 use crate::relay_resolvers::get_bool_argument_is_true;
-use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use crate::RequiredMetadataDirective;
 use crate::ValidationMessage;
 use crate::REQUIRED_DIRECTIVE_NAME;
@@ -562,10 +563,9 @@ impl Transformer for ClientEdgesCleanupTransform {
 // accept an option.
 fn has_output_type(directive: Option<&DirectiveValue>) -> bool {
     match directive {
-        Some(directive) => get_bool_argument_is_true(
-            &directive.arguments,
-            *crate::relay_resolvers::RELAY_RESOLVER_HAS_OUTPUT_TYPE,
-        ),
+        Some(directive) => {
+            get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME)
+        }
         None => false,
     }
 }

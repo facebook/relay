@@ -10,10 +10,17 @@ use std::sync::Arc;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
-use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
+use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
+use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
+use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
+use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
+use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
+use docblock_shared::LIVE_ARGUMENT_NAME;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
@@ -34,7 +41,6 @@ use graphql_syntax::ConstantValue;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
-use lazy_static::lazy_static;
 use schema::ArgumentValue;
 use schema::Field;
 use schema::FieldID;
@@ -62,26 +68,6 @@ use crate::REQUIRED_DIRECTIVE_NAME;
 pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
     let transformed_fields_program = relay_resolvers_fields_transform(program, enabled)?;
     relay_resolvers_spread_transform(&transformed_fields_program)
-}
-
-lazy_static! {
-    pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("relay_resolver".intern());
-    pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("fragment_name".intern());
-    pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("import_path".intern());
-    pub static ref RELAY_RESOLVER_IMPORT_NAME_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("import_name".intern());
-    pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
-    pub static ref RELAY_RESOLVER_HAS_OUTPUT_TYPE: ArgumentName =
-        ArgumentName("has_output_type".intern());
-    pub static ref RELAY_RESOLVER_INJECT_FRAGMENT_DATA: ArgumentName =
-        ArgumentName("inject_fragment_data".intern());
-    pub static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
-        DirectiveName("__RelayWeakObject".intern());
-    static ref RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("__RelayResolverModel".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -634,30 +620,20 @@ fn get_resolver_info(
         .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .map(|directive| {
             let arguments = &directive.arguments;
-            let fragment_name = get_argument_value(
-                arguments,
-                *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
-                error_location,
-            )
-            .ok()
-            .map(FragmentDefinitionName);
-            let import_path = get_argument_value(
-                arguments,
-                *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-                error_location,
-            )?;
-            let live = get_bool_argument_is_true(arguments, *RELAY_RESOLVER_LIVE_ARGUMENT_NAME);
+            let fragment_name =
+                get_argument_value(arguments, *FRAGMENT_KEY_ARGUMENT_NAME, error_location)
+                    .ok()
+                    .map(FragmentDefinitionName);
+            let import_path =
+                get_argument_value(arguments, *IMPORT_PATH_ARGUMENT_NAME, error_location)?;
+            let live = get_bool_argument_is_true(arguments, *LIVE_ARGUMENT_NAME);
             let has_output_type =
-                get_bool_argument_is_true(arguments, *RELAY_RESOLVER_HAS_OUTPUT_TYPE);
-            let import_name = get_argument_value(
-                arguments,
-                *RELAY_RESOLVER_IMPORT_NAME_ARGUMENT_NAME,
-                error_location,
-            )
-            .ok();
+                get_bool_argument_is_true(arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
+            let import_name =
+                get_argument_value(arguments, *IMPORT_NAME_ARGUMENT_NAME, error_location).ok();
             let inject_fragment_data = get_argument_value(
                 arguments,
-                *RELAY_RESOLVER_INJECT_FRAGMENT_DATA,
+                *INJECT_FRAGMENT_DATA_ARGUMENT_NAME,
                 error_location,
             )
             .ok();
@@ -756,7 +732,7 @@ pub fn get_resolver_fragment_dependency_name(
         .and_then(|resolver_directive| {
             resolver_directive
                 .arguments
-                .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
+                .named(*FRAGMENT_KEY_ARGUMENT_NAME)
         })
         .filter(|_| {
             // Resolvers on relay model types use generated fragments, and
@@ -775,7 +751,7 @@ fn is_field_of_relay_model(schema: &SDLSchema, field: &Field) -> bool {
             _ => panic!("Expected parent to be an object, interface or union."),
         };
 
-        directives.named(*RESOLVER_MODEL_DIRECTIVE_NAME).is_some()
+        directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME).is_some()
     } else {
         false
     }

@@ -22,6 +22,7 @@ use common::SourceLocationKey;
 use common::WithDiagnostics;
 pub use lexer::TokenKind;
 pub use node::*;
+pub use parser::FragmentArgumentSyntaxKind;
 pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
 pub use syntax_error::SyntaxError;

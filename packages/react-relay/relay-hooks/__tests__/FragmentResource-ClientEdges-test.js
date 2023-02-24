@@ -142,11 +142,8 @@ describe('FragmentResource Client Edges behavior', () => {
         'componentDisplayName',
       );
     }).not.toThrow();
-    // $FlowFixMe[incompatible-use]
     expect(result?.data?.client_edge.name).toBe('Bob');
-    // $FlowFixMe[prop-missing]
     expect(result?.snapshot?.isMissingData).toBe(false);
-    // $FlowFixMe[prop-missing]
     expect(result?.snapshot?.missingClientEdges?.size ?? 0).toBe(0);
   });
 

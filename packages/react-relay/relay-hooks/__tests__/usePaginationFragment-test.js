@@ -185,7 +185,6 @@ describe.each([
   }
 
   function resolveQuery(payload: mixed) {
-    // $FlowFixMe[incompatible-call]
     dataSource.next(payload);
     dataSource.complete();
   }
@@ -213,7 +212,6 @@ describe.each([
     const source = RecordSource.create();
     const store = new Store(source);
     const fetchFn = jest.fn((_query, _variables, _cacheConfig) => {
-      // $FlowFixMe[incompatible-call]
       return Observable.create(sink => {
         dataSource = sink;
         unsubscribe = jest.fn();
@@ -224,7 +222,6 @@ describe.each([
     const environment = new Environment({
       getDataID: (data: {[string]: mixed}, typename: string) => {
         // This is the default, but making it explicit in case we need to override
-        // $FlowFixMe[prop-missing]
         return data.id;
       },
       // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
@@ -856,7 +853,6 @@ describe.each([
     });
 
     function expectRequestIsInFlight(expected: any) {
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(fetch).toBeCalledTimes(expected.requestCount);
       const fetchCall = fetch.mock.calls.find(call => {
         return (
@@ -938,7 +934,6 @@ describe.each([
             'Relay: Unexpected fetch on unmounted component',
           ),
         ).toEqual(true);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toHaveBeenCalledTimes(0);
       });
 
@@ -968,7 +963,6 @@ describe.each([
             'Relay: Unexpected fetch while using a null fragment ref',
           ),
         ).toEqual(true);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toHaveBeenCalledTimes(0);
       });
 
@@ -1011,7 +1005,6 @@ describe.each([
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toBeCalledTimes(1);
         expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1027,7 +1020,6 @@ describe.each([
         fetchQuery(environment, query).subscribe({});
 
         const callback = jest.fn();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         fetch.mockClear();
         renderFragment();
 
@@ -1044,7 +1036,6 @@ describe.each([
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toBeCalledTimes(0);
         expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1128,7 +1119,6 @@ describe.each([
               id: '1',
               name: 'Alice',
               friends: {
-                // $FlowFixMe[missing-empty-array-annot]
                 edges: [],
                 pageInfo: {
                   startCursor: null,
@@ -2195,7 +2185,6 @@ describe.each([
             jest.runAllTimers();
           });
           expect(unsubscribe).toHaveBeenCalledTimes(1);
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(fetch).toBeCalledTimes(1);
           expect(callback).toBeCalledTimes(0);
           expect(renderSpy).toBeCalledTimes(0);
@@ -2241,11 +2230,9 @@ describe.each([
           TestRenderer.act(() => {
             refetch({id: '4'});
           });
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(fetch).toBeCalledTimes(2); // loadNext and refetch
           expect(loadNextUnsubscribe).toHaveBeenCalledTimes(1); // loadNext is cancelled
           expect(unsubscribe).toHaveBeenCalledTimes(0); // refetch is not cancelled
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(callback).toBeCalledTimes(0);
           expect(renderSpy).toBeCalledTimes(0);
         });
@@ -2719,7 +2706,6 @@ describe.each([
             },
           ]);
 
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           fetch.mockClear();
           renderSpy.mockClear();
           // Call `capturedLoadNext`, which should be a no-op since it's
@@ -2730,7 +2716,6 @@ describe.each([
           });
 
           // Assert that calling `capturedLoadNext` is a no-op
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(fetch).toBeCalledTimes(0);
           expect(renderSpy).toBeCalledTimes(0);
 
@@ -2742,7 +2727,6 @@ describe.each([
           });
 
           // Assert that calling `loadNext` starts the request
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(fetch).toBeCalledTimes(1);
           expect(renderSpy).toBeCalledTimes(1);
         });
@@ -3337,7 +3321,6 @@ describe.each([
         refetchVariables: Variables,
         requestCount: number,
       }) {
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toBeCalledTimes(expected.requestCount);
         const fetchCall = fetch.mock.calls.find(call => {
           return (
@@ -3931,7 +3914,6 @@ describe.each([
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
         // Paginate after refetching
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         fetch.mockClear();
         TestRenderer.act(() => {
           loadNext(1);

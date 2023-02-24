@@ -18,6 +18,15 @@ use common::NamedItem;
 use common::ObjectName;
 use common::Span;
 use common::WithLocation;
+use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
+use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
+use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
+use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
+use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
+use docblock_shared::LIVE_ARGUMENT_NAME;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
@@ -61,28 +70,15 @@ use crate::errors::ErrorMessagesWithData;
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
     static ref ID_TYPE: StringKey = "ID".intern();
-    static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("relay_resolver".intern());
     static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__RelayResolverModel".intern());
     static ref OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("RelayOutputType".intern());
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
-    static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName = ArgumentName("fragment_name".intern());
-    static ref INJECT_FRAGMENT_DATA_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("inject_fragment_data".intern());
-    static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
-    static ref IMPORT_NAME_ARGUMENT_NAME: ArgumentName = ArgumentName("import_name".intern());
-    static ref LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
-    static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("has_output_type".intern());
-    pub(crate) static ref RESOLVER_VALUE_SCALAR_NAME: StringKey = "RelayResolverValue".intern();
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
-    static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
-        DirectiveName("__RelayWeakObject".intern());
 }
 
 #[derive(Debug, PartialEq)]
@@ -152,6 +148,38 @@ pub struct PopulatedIrField {
     pub value: WithLocation<StringKey>,
 }
 
+impl TryFrom<IrField> for PopulatedIrField {
+    type Error = ();
+
+    fn try_from(ir_field: IrField) -> Result<Self, Self::Error> {
+        match ir_field.value {
+            Some(value) => Ok(PopulatedIrField {
+                key_location: ir_field.key_location,
+                value,
+            }),
+            None => Err(()),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct UnpopulatedIrField {
+    pub key_location: Location,
+}
+
+impl TryFrom<IrField> for UnpopulatedIrField {
+    type Error = WithLocation<StringKey>;
+
+    fn try_from(ir_field: IrField) -> Result<Self, Self::Error> {
+        match ir_field.value {
+            Some(value) => Err(value),
+            None => Ok(UnpopulatedIrField {
+                key_location: ir_field.key_location,
+            }),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum On {
     Type(PopulatedIrField),
@@ -190,16 +218,16 @@ impl OutputType {
 }
 
 pub enum FragmentDataInjectionMode {
-    /// For `id` and `__relay_model_instance ` resolvers we want to read just one field
-    /// of that fragment and pass it to the resolver
+    /// For `id` and `__relay_model_instance` resolvers, we want to read just one field
+    /// off of that fragment and pass it to the resolver
     Field(StringKey),
     // TODO: Add `FullData` mode for this
 }
 
 pub struct RootFragment {
     fragment: WithLocation<FragmentDefinitionName>,
-    // For Model resolvers we need to inject `id` , `__relay_model_instance ` fragment data
-    // the resolver function
+    // For Model resolvers, we need to pass the `id` or `__relay_model_instance` field
+    // from the fragment data to the resolver function
     inject_fragment_data: Option<FragmentDataInjectionMode>,
 }
 
@@ -216,7 +244,7 @@ trait ResolverIr {
     ) -> Option<RootFragment>;
     fn output_type(&self) -> Option<OutputType>;
     fn deprecated(&self) -> Option<IrField>;
-    fn live(&self) -> Option<IrField>;
+    fn live(&self) -> Option<UnpopulatedIrField>;
     fn named_import(&self) -> Option<StringKey>;
 
     fn to_graphql_schema_ast(
@@ -491,7 +519,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 // `RelayResolverValue` (defined in the relay-extensions.graphql
                 // file) for this purpose.
                 TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(*RESOLVER_VALUE_SCALAR_NAME),
+                    name: string_key_as_identifier(RESOLVER_VALUE_SCALAR_NAME.0),
                 })
             },
             |output_type| output_type.inner().item.clone(),
@@ -540,10 +568,9 @@ pub struct TerseRelayResolverIr {
     pub type_: WithLocation<StringKey>,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub deprecated: Option<IrField>,
-    pub live: Option<IrField>,
+    pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
-    pub named_import: Option<StringKey>,
 }
 
 impl ResolverIr for TerseRelayResolverIr {
@@ -621,12 +648,12 @@ impl ResolverIr for TerseRelayResolverIr {
         self.deprecated
     }
 
-    fn live(&self) -> Option<IrField> {
+    fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        self.named_import
+        Some(self.field.name.value)
     }
 }
 
@@ -656,10 +683,9 @@ pub struct RelayResolverIr {
     pub output_type: Option<OutputType>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
-    pub live: Option<IrField>,
+    pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
-    pub named_import: Option<StringKey>,
 }
 
 impl ResolverIr for RelayResolverIr {
@@ -783,12 +809,12 @@ impl ResolverIr for RelayResolverIr {
         self.deprecated
     }
 
-    fn live(&self) -> Option<IrField> {
+    fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        self.named_import
+        Some(self.field.name.value)
     }
 }
 
@@ -817,9 +843,8 @@ pub struct StrongObjectIr {
     pub root_fragment: WithLocation<FragmentDefinitionName>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
-    pub live: Option<IrField>,
+    pub live: Option<UnpopulatedIrField>,
     pub location: Location,
-    pub named_import: Option<StringKey>,
 }
 
 impl ResolverIr for StrongObjectIr {
@@ -892,19 +917,19 @@ impl ResolverIr for StrongObjectIr {
         self.deprecated
     }
 
-    fn live(&self) -> Option<IrField> {
+    fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        self.named_import
+        Some(self.type_.value.item)
     }
 }
 
 /// Relay Resolver docblock representing a "model" type for a weak object
 #[derive(Debug, PartialEq)]
 pub struct WeakObjectIr {
-    pub type_name: PopulatedIrField,
+    pub type_: PopulatedIrField,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub location: Location,
@@ -913,7 +938,7 @@ pub struct WeakObjectIr {
 impl WeakObjectIr {
     // Generate the named GraphQL type (with an __relay_model_instance field).
     fn type_definition(&self, schema_info: SchemaInfo<'_, '_>) -> TypeSystemDefinition {
-        let span = self.type_name.value.location.span();
+        let span = self.type_.value.location.span();
 
         let mut directives = vec![
             ConstantDirective {
@@ -949,7 +974,7 @@ impl WeakObjectIr {
             })
         }
         TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-            name: as_identifier(self.type_name.value),
+            name: as_identifier(self.type_.value),
             interfaces: vec![],
             directives,
             fields: Some(List::generated(vec![generate_model_instance_field(
@@ -964,7 +989,7 @@ impl WeakObjectIr {
 
     // Generate a custom scalar definition based on the exported type.
     fn instance_scalar_type_definition(&self) -> TypeSystemDefinition {
-        let span = self.type_name.value.location.span();
+        let span = self.type_.value.location.span();
         TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
             name: Identifier {
                 span: *span,
@@ -995,7 +1020,7 @@ impl WeakObjectIr {
                         colon: dummy_token(span),
                         value: ConstantValue::String(StringNode {
                             token: dummy_token(span),
-                            value: self.type_name.value.item,
+                            value: self.type_.value.item,
                         }),
                     },
                 ])),
@@ -1009,7 +1034,7 @@ impl WeakObjectIr {
         // TODO: Ensure this type does not already exist?
         format!(
             "{}{}",
-            self.type_name.value.item, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
+            self.type_.value.item, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
         )
         .intern()
     }
@@ -1046,7 +1071,7 @@ impl ResolverIr for WeakObjectIr {
         self.deprecated
     }
 
-    fn live(&self) -> Option<IrField> {
+    fn live(&self) -> Option<UnpopulatedIrField> {
         None
     }
 

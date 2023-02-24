@@ -313,7 +313,6 @@ describe.each([
       queryWithLiteralArgs = createOperationDescriptor(
         gqlQueryWithLiteralArgs,
         {
-          // $FlowFixMe[prop-missing]
           id: variables.id,
         },
       );

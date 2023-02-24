@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5fbd64fc38cd2a1019191e1c81ac855c>>
+ * @generated SignedSource<<5b37e8122d1f8cbc3d144e5fbb7fb54b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolverType: (
   rootKey: QueryAllAstrologicalSignsResolver$key,
-) => $ReadOnlyArray<?{|
+) => ?$ReadOnlyArray<?{|
   +id: DataID,
 |}>);
 export type ResolverGCTestResolverClientEdgeToPluralClientQuery$variables = {||};

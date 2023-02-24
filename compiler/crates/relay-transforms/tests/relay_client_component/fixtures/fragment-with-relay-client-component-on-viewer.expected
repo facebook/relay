@@ -7,7 +7,24 @@ fragment ClientFragment on Viewer {
   isFbEmployee
 }
 ==================================== OUTPUT ===================================
-query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentDocuments: ["ServerComponentFragment"]) {
+query ClientFragment$normalization @__SplitOperationMetadata
+# SplitOperationMetadata {
+#     derived_from: Some(
+#         FragmentDefinitionName(
+#             "ClientFragment",
+#         ),
+#     ),
+#     location: fragment-with-relay-client-component-on-viewer.graphql:101:115,
+#     parent_documents: {
+#         FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "ServerComponentFragment",
+#             ),
+#         ),
+#     },
+#     raw_response_type_generation_mode: None,
+# }
+ {
   ...ClientFragment
 }
 

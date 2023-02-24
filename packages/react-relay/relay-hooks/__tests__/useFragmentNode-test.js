@@ -1549,7 +1549,6 @@ describe.each([
         }
         return user.id;
       };
-      // $FlowFixMe[incompatible-type]
       SingularRenderer = SideEffectfulComponent;
 
       // Render with profile_picture initially set to the default client record, with null uri

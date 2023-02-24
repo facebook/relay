@@ -64,6 +64,5 @@ TerseRelayResolver(
         live: None,
         location: /path/to/test/fixture/terse-relay-resolver.js:20:44,
         fragment_arguments: None,
-        named_import: None,
     },
 )

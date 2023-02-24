@@ -29,6 +29,5 @@ StrongObjectResolver(
         deprecated: None,
         live: None,
         location: /path/to/test/fixture/relay-resolver-strong-object.js:0:30,
-        named_import: None,
     },
 )

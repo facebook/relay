@@ -55,7 +55,7 @@ fn extend_schema_with_types(
                         schema_document.location.source_location(),
                     )?;
                 }
-                _ => panic!("Expected docblocks to only expose object extensions"),
+                _ => panic!("Expected docblocks to only expose object and scalar extensions"),
             }
         }
     }
@@ -93,7 +93,7 @@ fn extend_schema_with_fields<'a>(
                         schema_document.location.source_location(),
                     )?;
                 }
-                _ => panic!("Expected docblocks to only expose object extensions"),
+                _ => panic!("Expected docblocks to only expose object and interface extensions"),
             }
         }
     }

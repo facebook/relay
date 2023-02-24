@@ -8,17 +8,32 @@
 mod errors;
 mod ir;
 
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
-use common::DirectiveName;
 use common::FeatureFlag;
 use common::Location;
 use common::NamedItem;
 use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
+use docblock_shared::ARGUMENT_DEFINITIONS;
+use docblock_shared::ARGUMENT_TYPE;
+use docblock_shared::DEFAULT_VALUE;
+use docblock_shared::DEPRECATED_FIELD;
+use docblock_shared::EDGE_TO_FIELD;
+use docblock_shared::EMPTY_STRING;
+use docblock_shared::FIELD_NAME_FIELD;
+use docblock_shared::LIVE_FIELD;
+use docblock_shared::ON_INTERFACE_FIELD;
+use docblock_shared::ON_TYPE_FIELD;
+use docblock_shared::OUTPUT_TYPE_FIELD;
+use docblock_shared::PROVIDER_ARG_NAME;
+use docblock_shared::RELAY_RESOLVER_FIELD;
+use docblock_shared::ROOT_FRAGMENT_FIELD;
+use docblock_shared::WEAK_FIELD;
 use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockField;
 use docblock_syntax::DocblockSection;
@@ -38,44 +53,24 @@ use graphql_syntax::TypeAnnotation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
-pub use ir::Argument;
+use ir::Argument;
 pub use ir::DocblockIr;
 use ir::IrField;
 pub use ir::On;
 use ir::OutputType;
 use ir::PopulatedIrField;
-pub use ir::RelayResolverIr;
+use ir::RelayResolverIr;
 use ir::StrongObjectIr;
 use ir::TerseRelayResolverIr;
+use ir::UnpopulatedIrField;
 use ir::WeakObjectIr;
-use lazy_static::lazy_static;
 
 use crate::errors::ErrorMessages;
 
 pub struct ParseOptions {
-    pub use_named_imports: bool,
     pub relay_resolver_model_syntax_enabled: bool,
-    pub relay_resolver_enable_terse_syntax: bool,
     pub id_field_name: StringKey,
     pub enable_output_type: FeatureFlag,
-}
-
-lazy_static! {
-    static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
-    static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
-    static ref ON_TYPE_FIELD: StringKey = "onType".intern();
-    static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
-    static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
-    static ref DEPRECATED_FIELD: StringKey = "deprecated".intern();
-    static ref LIVE_FIELD: StringKey = "live".intern();
-    static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
-    static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();
-    static ref WEAK_FIELD: StringKey = "weak".intern();
-    static ref EMPTY_STRING: StringKey = "".intern();
-    static ref ARGUMENT_DEFINITIONS: DirectiveName = DirectiveName("argumentDefinitions".intern());
-    static ref ARGUMENT_TYPE: StringKey = "type".intern();
-    static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
-    static ref PROVIDER_ARG_NAME: StringKey = "provider".intern();
 }
 
 pub fn parse_docblock_ast(
@@ -259,7 +254,7 @@ impl RelayResolverParser {
         ast_location: Location,
         definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     ) -> ParseResult<RelayResolverIr> {
-        let live = self.fields.get(&LIVE_FIELD).copied();
+        let live = self.parse_unpopulated_field(*LIVE_FIELD)?;
 
         let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast_location)?;
         let field = self.parse_field_definition(field_string)?;
@@ -275,11 +270,6 @@ impl RelayResolverParser {
         self.validate_field_arguments(&field.arguments, field_string.location.source_location());
 
         let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
-
-        // For the initial version the name of the export have to match
-        // the name of the resolver field. Adding JS parser capabilities will allow
-        // us to derive the name of the export from the source.
-        let named_import = self.options.use_named_imports.then_some(field.name.value);
 
         let maybe_output_type = self.output_type();
         if let Some(OutputType::Output(type_annotation)) = &maybe_output_type {
@@ -308,8 +298,30 @@ impl RelayResolverParser {
             deprecated,
             live,
             fragment_arguments,
-            named_import,
         })
+    }
+
+    fn parse_unpopulated_field(
+        &mut self,
+        field_name: StringKey,
+    ) -> Result<Option<UnpopulatedIrField>, ()> {
+        let field = match self
+            .fields
+            .get(&field_name)
+            .copied()
+            .map(|field| -> Result<_, WithLocation<StringKey>> { field.try_into() })
+            .transpose()
+        {
+            Ok(live) => live,
+            Err(e) => {
+                self.errors.push(Diagnostic::error(
+                    ErrorMessages::FieldWithUnexpectedData { field_name },
+                    e.location,
+                ));
+                return Err(());
+            }
+        };
+        Ok(field)
     }
 
     fn parse_type_annotation(
@@ -359,13 +371,13 @@ impl RelayResolverParser {
 
         let field_value = field.field_value;
         match self.fields.entry(field.field_name.item) {
-            std::collections::hash_map::Entry::Occupied(_) => self.errors.push(Diagnostic::error(
+            Entry::Occupied(_) => self.errors.push(Diagnostic::error(
                 ErrorMessages::DuplicateField {
                     field_name: field.field_name.item,
                 },
                 field.field_name.location,
             )),
-            std::collections::hash_map::Entry::Vacant(entry) => {
+            Entry::Vacant(entry) => {
                 entry.insert(IrField {
                     key_location: field.field_name.location,
                     value: field_value,
@@ -706,13 +718,6 @@ impl RelayResolverParser {
 
         match remaining_source.chars().next() {
             Some(maybe_dot) => {
-                if !self.options.relay_resolver_enable_terse_syntax {
-                    self.errors.push(Diagnostic::error(
-                        ErrorMessages::UnexpectedTerseSyntax { found: maybe_dot },
-                        type_str.location,
-                    ));
-                    return Err(());
-                }
                 if maybe_dot != '.' {
                     self.errors.push(Diagnostic::error(
                         ErrorMessages::UnexpectedNonDot { found: maybe_dot },
@@ -766,7 +771,7 @@ impl RelayResolverParser {
             }
         }
 
-        let live = self.fields.get(&LIVE_FIELD).copied();
+        let live = self.parse_unpopulated_field(*LIVE_FIELD)?;
         let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
 
         let location = type_str.location;
@@ -789,7 +794,6 @@ impl RelayResolverParser {
                 ));
             }
         }
-        let named_import = self.options.use_named_imports.then_some(field.name.value);
         Ok(Some(TerseRelayResolverIr {
             field,
             type_: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
@@ -799,12 +803,11 @@ impl RelayResolverParser {
             deprecated,
             live,
             fragment_arguments,
-            named_import,
         }))
     }
 
     fn parse_strong_object(
-        &self,
+        &mut self,
         ast_location: Location,
         type_: PopulatedIrField,
     ) -> ParseResult<StrongObjectIr> {
@@ -814,14 +817,15 @@ impl RelayResolverParser {
             format!("{}__{}", type_.value.item, self.options.id_field_name).intern(),
         );
 
+        let live = self.parse_unpopulated_field(*LIVE_FIELD)?;
+
         Ok(StrongObjectIr {
             type_,
             root_fragment: WithLocation::generated(fragment_name),
             description: self.description,
             deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
-            live: self.fields.get(&LIVE_FIELD).copied(),
+            live,
             location: ast_location,
-            named_import: self.options.use_named_imports.then_some(type_.value.item),
         })
     }
 
@@ -832,7 +836,7 @@ impl RelayResolverParser {
     ) -> ParseResult<WeakObjectIr> {
         // TODO: Validate that no incompatible docblock fields are used.
         Ok(WeakObjectIr {
-            type_name: type_,
+            type_,
             description: self.description,
             deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
             location: ast_location,

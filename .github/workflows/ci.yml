@@ -144,26 +144,29 @@ jobs:
         working-directory: ./compiler/
 
   build-config-schema:
-    - name: Setup Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: 1.64.0
-        override: true
+    name: Build Relay Compiler Config JSON Schema
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.64.0
+          override: true
 
-    - uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --features vendored --manifest-path compiler/Cargo.toml --bin relay-config-schema --release
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --features vendored --manifest-path compiler/Cargo.toml --bin relay-config-schema --release
 
-    - name: Generate JSON Schema
-      run: |
-        ./compiler/target/release/relay-config-schema > relay-config-schema.json;
-        node scripts/fixJsonSchema.js;
-    - name: Upload JSON Schema
-      uses: actions/upload-artifact@v2
-      with:
-        name: relay-config-schema.json
-        path: ./relay-config-schema.json
+      - name: Generate JSON Schema
+        run: |
+          ./compiler/target/release/relay-config-schema > relay-config-schema.json;
+          node scripts/fixJsonSchema.js;
+      - name: Upload JSON Schema
+        uses: actions/upload-artifact@v2
+        with:
+          name: relay-config-schema.json
+          path: ./relay-config-schema.json
 
   build-compiler:
     name: Build Rust Compiler (${{ matrix.target.os }})

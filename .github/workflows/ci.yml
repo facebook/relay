@@ -157,7 +157,8 @@ jobs:
 
     - name: Generate JSON Schema
       run: |
-        ./compiler/target/release/relay-config-schema > relay-config-schema.json
+        ./compiler/target/release/relay-config-schema > relay-config-schema.json;
+        node scripts/fixJsonSchema.js;
     - name: Upload JSON Schema
       uses: actions/upload-artifact@v2
       with:

@@ -3,7 +3,7 @@
 
 const fs = require('fs');
 
-const schemaPath = './website/static/relay-config-schema.json';
+const schemaPath = './artifacts/relay-config-schema.json';
 
 const fileContents = fs.readFileSync(schemaPath, 'utf-8');
 const parsedFileContents = JSON.parse(fileContents);

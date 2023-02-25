@@ -416,7 +416,6 @@ describe('readUpdatableQuery', () => {
               __typename: 'User',
               id: '467',
               name: 'Gaius Octavius',
-              // $FlowFixMe[missing-empty-array-annot]
               parents: [],
             },
           ],
@@ -717,7 +716,6 @@ describe('readUpdatableQuery', () => {
             __typename: 'User',
             id: '467',
             name: 'Laius',
-            // $FlowFixMe[missing-empty-array-annot]
             parents: [],
           },
         ],
@@ -781,7 +779,6 @@ describe('readUpdatableQuery', () => {
             __typename: 'User',
             id: '467',
             name: 'Gaius Octavius',
-            // $FlowFixMe[missing-empty-array-annot]
             parents: [],
           },
         ],
@@ -910,7 +907,6 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery(
         // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
         updatableQuery2,
-        // $FlowFixMe[prop-missing] That's the point
         {id: '4', foo: 'bar'},
       ).updatableData;
       expect(updatableData.node?.__typename).toBe('Metahuman');

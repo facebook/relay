@@ -89,7 +89,6 @@ function updateProxyFromSelections<TData>(
             mutableUpdatableProxy,
             selection.alias ?? selection.name,
             {
-              // $FlowFixMe[incompatible-call] these getters and setters have different types on purpose
               get: createGetterForPluralLinkedField(
                 selection,
                 variables,

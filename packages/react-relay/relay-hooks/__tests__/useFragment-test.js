@@ -85,7 +85,6 @@ describe.each([
         >,
     fragmentRef: any,
   ) {
-    // $FlowFixMe[incompatible-call] non-generated fragmentRef is disallowd
     const data = useFragmentOriginal(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;
@@ -343,7 +342,6 @@ describe.each([
   });
 
   it('Returns [] when the fragment ref is [] (for plural fragments)', () => {
-    // $FlowFixMe[missing-empty-array-annot]
     const container = renderPluralFragment({usersRef: []});
     assertFragmentResults([]);
     container.unmount();

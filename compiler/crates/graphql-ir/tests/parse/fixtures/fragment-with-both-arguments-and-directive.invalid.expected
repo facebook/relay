@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragment on User {
+  ...Foo(size: [10]) @arguments(b: false)
+}
+
+fragment Foo($size: [Int], $b: Boolean!) on User {
+  profilePicture(size: $size) @include(if: $if) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Cannot combine fragment arguments syntax with the '@arguments' directive
+
+  fragment-with-both-arguments-and-directive.invalid.graphql:3:22
+    2 │ fragment TestFragment on User {
+    3 │   ...Foo(size: [10]) @arguments(b: false)
+      │                      ^^^^^^^^^^^^^^^^^^^^
+    4 │ }

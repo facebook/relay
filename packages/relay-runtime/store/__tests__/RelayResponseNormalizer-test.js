@@ -1847,7 +1847,6 @@ describe('RelayResponseNormalizer', () => {
 
     const getDataID = jest.fn((fieldValue, typename) => {
       return `${
-        // $FlowFixMe[prop-missing]
         typeof fieldValue === 'string' ? fieldValue : String(fieldValue.id)
       }:${String(typename)}`;
     });

@@ -274,7 +274,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
-          // $FlowFixMe
           nullthrows(nextID),
           operation.fragment.variables,
           operation.fragment.owner,
@@ -384,7 +383,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
-          // $FlowFixMe
           nullthrows(nextID),
           operation.fragment.variables,
           operation.fragment.owner,

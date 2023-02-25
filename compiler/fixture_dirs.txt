@@ -8,6 +8,7 @@ crates/graphql-ir/tests/parse_with_extensions
 crates/graphql-ir/tests/parse_with_provider
 crates/graphql-ir/tests/parse
 crates/graphql-syntax/tests/parse_document
+crates/graphql-syntax/tests/parse_document_with_features
 crates/graphql-syntax/tests/parse_executable_document_with_error_recovery
 crates/graphql-syntax/tests/parse_executable_document
 crates/graphql-syntax/tests/parse_schema_document

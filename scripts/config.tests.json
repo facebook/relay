@@ -28,7 +28,6 @@
       "jsModuleFormat": "commonjs",
       "featureFlags": {
         "enable_relay_resolver_transform": true,
-        "use_named_imports_for_relay_resolvers": true,
         "relay_resolver_model_syntax_enabled": true,
         "enable_flight_transform": true,
         "no_inline": {

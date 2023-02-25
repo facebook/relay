@@ -147,6 +147,8 @@ jobs:
     name: Build Relay Compiler Config JSON Schema
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:

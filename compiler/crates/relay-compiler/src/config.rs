@@ -145,6 +145,10 @@ pub struct Config {
     pub custom_transforms: Option<CustomTransformsConfig>,
 
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
+
+    /// The async function is called before the compiler connects to the file
+    /// source.
+    pub initialize_resources: Option<Box<dyn Fn() + Send + Sync>>,
 }
 
 pub enum FileSourceKind {
@@ -405,6 +409,7 @@ Example file:
             file_source_config: FileSourceKind::Watchman,
             custom_transforms: None,
             export_persisted_query_ids_to_file: None,
+            initialize_resources: None,
         };
 
         let mut validation_errors = Vec::new();

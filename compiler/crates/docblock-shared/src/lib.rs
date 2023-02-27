@@ -18,6 +18,8 @@ lazy_static! {
     pub static ref RESOLVER_VALUE_SCALAR_NAME: ScalarName =
         ScalarName("RelayResolverValue".intern());
     pub static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
+    pub static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__RelayResolverModel".intern());
     pub static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName =
         ArgumentName("fragment_name".intern());
     pub static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =

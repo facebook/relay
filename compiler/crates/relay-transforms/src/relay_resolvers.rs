@@ -20,6 +20,7 @@ use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
 use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -751,7 +752,9 @@ fn is_field_of_relay_model(schema: &SDLSchema, field: &Field) -> bool {
             _ => panic!("Expected parent to be an object, interface or union."),
         };
 
-        directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME).is_some()
+        directives
+            .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+            .is_some()
     } else {
         false
     }

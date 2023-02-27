@@ -25,6 +25,7 @@ use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
 use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::FragmentDefinitionName;
@@ -70,8 +71,6 @@ use crate::errors::ErrorMessagesWithData;
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
     static ref ID_TYPE: StringKey = "ID".intern();
-    static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("__RelayResolverModel".intern());
     static ref OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("RelayOutputType".intern());
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =

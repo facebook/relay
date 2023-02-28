@@ -275,7 +275,10 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
 
     expect(pendingOperationFoundEvents.length).toBe(1);
     const event = pendingOperationFoundEvents[0];
-    invariant(event.name === 'pendingoperation.found');
+    invariant(
+      event.name === 'pendingoperation.found',
+      "Expected log event to be 'pendingoperation.found'",
+    );
     expect(event.fragment.name).toBe(
       'FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name',
     );

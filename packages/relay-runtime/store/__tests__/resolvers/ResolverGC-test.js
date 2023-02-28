@@ -602,7 +602,7 @@ test('Resolver reading a client-edge to a client type (resolver marked dirty)', 
       /* Here we update the user to invalidate the astrological_sign resolver */
       environment.commitUpdate(store => {
         const user = store.get('1');
-        invariant(user != null);
+        invariant(user != null, 'Expected to find a user');
         user.setValue('some_value', 'some_field');
       });
     },

@@ -395,6 +395,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "docblock-shared"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "intern",
+ "lazy_static",
+]
+
+[[package]]
 name = "docblock-syntax"
 version = "0.0.0"
 dependencies = [
@@ -1586,6 +1595,7 @@ name = "relay-docblock"
 version = "0.0.0"
 dependencies = [
  "common",
+ "docblock-shared",
  "docblock-syntax",
  "extract-graphql",
  "fixture-tests",
@@ -1609,6 +1619,7 @@ dependencies = [
  "common",
  "crossbeam",
  "dashmap",
+ "docblock-shared",
  "docblock-syntax",
  "dunce",
  "extract-graphql",
@@ -1666,6 +1677,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "dashmap",
+ "docblock-shared",
  "errors",
  "fixture-tests",
  "fnv",
@@ -1694,6 +1706,7 @@ name = "relay-typegen"
 version = "0.0.0"
 dependencies = [
  "common",
+ "docblock-shared",
  "fixture-tests",
  "fnv",
  "graphql-ir",

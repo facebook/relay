@@ -149,7 +149,27 @@ Our task then is to make the “Load More” button actually load an additional 
 
 ### Augmenting the Fragment
 
-Before we modify our component, the fragment itself needs three extra pieces of information. First, we need the fragment to accept the page size and cursor as fragment arguments rather than being hard-coded:
+Before we modify our component, the fragment itself needs four extra pieces of information. First, we need to add the field ID to the fragment:
+```
+const StoryCommentsSectionFragment = graphql`
+  fragment StoryCommentsSectionFragment on Story
+    comments(after: $cursor, first: $count) {
+      edges {
+        node {
+          // change-line
+          id
+          ...CommentFragment
+        }
+      }
+      pageInfo {
+        hasNextPage
+      }
+    }
+  }
+`;
+```
+
+Next, we need the fragment to accept the page size and cursor as fragment arguments rather than being hard-coded:
 
 ```
 const StoryCommentsSectionFragment = graphql`
@@ -165,6 +185,7 @@ const StoryCommentsSectionFragment = graphql`
     comments(after: $cursor, first: $count) {
       edges {
         node {
+          id
           ...CommentFragment
         }
       }
@@ -205,6 +226,7 @@ const StoryCommentsSectionFragment = graphql`
     {
       edges {
         node {
+          id
           ...CommentFragment
         }
       }
@@ -245,7 +267,7 @@ As it stands, there’s no user feedback when you click the “Load More” butt
 To do that, we need to wrap our call to `loadNext` inside a React transition. Here’s the change’s we need to make:
 
 ```
-function StoryCommentsSection({story}) {
+export default function StoryCommentsSection({ story }: Props) {
   // change-line
   const [isPending, startTransition] = useTransition();
   const {data, loadNext} = usePaginationFragment(StoryCommentsSectionFragment, story);
@@ -255,20 +277,19 @@ function StoryCommentsSection({story}) {
   });
   // end-change
   return (
-    <>
-      {data.comments.edges.map(commentEdge =>
-        <Comment comment={commentEdge.node} />
-      )}
+    <div>
+      {data.comments.edges.map((edge) => (
+        <Comment key={edge.node.id} comment={edge.node} />
+      ))}
+      // change
       {data.comments.pageInfo.hasNextPage && (
         <LoadMoreCommentsButton
           onClick={onLoadMore}
-            // change-line
           disabled={isPending}
         />
       )}
-      // change-line
-      {isPending && <CommentsLoadingSpinner />}
-    </>
+      // end-change
+    </div>
   );
 }
 ```
@@ -326,16 +347,18 @@ Although we put the `topStory` and `topStories` fields at the top level of `Quer
 We need to modify the Newsfeed component to map over the edges and render each node:
 
 ```
-function Newsfeed() {
-  const data = useLazyLoadQuery(NewsfeedFragment, {});
+export default function Newsfeed({}) {
+  const data = useLazyLoadQuery<NewsfeedQueryType>(NewsfeedQuery, {});
   // change-line
-  const storyEdges = data.newsfeedStories.edges;
+  const storyEdges = data.viewer.newsfeedStories.edges;
   return (
-    <>
+    <div className="newsfeed">
+    // change
       {storyEdges.map(storyEdge =>
         <Story key={storyEdge.node.id} story={storyEdge.node} />
       )}
-    </>
+    // end-change
+    </div>
   );
 }
 ```
@@ -344,14 +367,14 @@ function Newsfeed() {
 
 Relay’s pagination features only work with fragments, not entire queries. This is because, although we’re directly issuing a query in this component in this simple example app, in real applications the query is generally issued at some high-level routing component, which would rarely be the same component that’s showing a paginated list.
 
-To get this to work, we just need to separate out the contents `NewsfeedQuery` into a fragment, which we’ll call `NewsfeedContentsFragment`:
+To get this to work, we'll need to sepearte out the contents `NewsfeedQuery` into a fragment. In order to separate our original query from our new fragment, we'll need to create a new React component. We'll call it `NewsfeedContents`. Go ahead and create a new file called `NewsfeedContents.tsx` in the directory `newsfeed/src/components`. Once done, open up the new file and add the following code:
 
 ```
-const NewsfeedQuery = graphql`
-  query NewsfeedQuery {
-    ...NewsfeedContentsFragment
-  }
-`;
+import * as React from "react";
+import Story from "./Story";
+import { graphql } from 'relay-runtime';
+import { NewsfeedContentsFragment$key } from "./__generated__/NewsfeedContentsFragment.graphql";
+import { useFragment } from "react-relay";
 
 const NewsfeedContentsFragment = graphql`
   fragment NewsfeedContentsFragment on Query {
@@ -367,22 +390,52 @@ const NewsfeedContentsFragment = graphql`
     }
   }
 `;
-```
 
-This is a good time to mention that every GraphQL schema contains a type called `Query` that represents the top-level fields available to queries. By defining a fragment `on Query`, we can spread it directly into the top level.
+type Props = {
+    query: NewsfeedContentsFragment$key,
+  }
 
-Within `Newsfeed`, we can call both `useLazyLoadQuery` and `useFragment`, though in real life these would generally be in different components:
-
-```
-export default function Newsfeed() {
-  // change-line
-  const queryData = useLazyLoadQuery(NewsfeedFragment, {});
-  // change-line
-  const data = useFragment(NewsfeedContentsFragment, queryData);
-  const storyEdges = data.newsfeedStories.edges;
-  ...
+export default function NewsfeedContents({ query }: Props) {
+    const data = useFragment(NewsfeedContentsFragment, query);
+    const storyEdges = data.viewer.newsfeedStories.edges;
+    return (
+    <div className="newsfeed">
+        {storyEdges.map(storyEdge =>
+            <Story key={storyEdge.node.id} story={storyEdge.node} />
+        )}
+    </div>
+    );
 }
 ```
+
+Note that `NewsfeedContents.tsx` now includes the `NewsfeedContentsFragment` which will be used for pagination in the upcoming steps. Additionally, we've added a Props object which will be needed for the `useFragment` function if you recall. Lastly, if you look at the `NewsfeedContents` function, it will look nearly identical to our previous `Newsfeed` function. Instead of using `useLazyLoadQuery`, we use `useFragment` to retrieve the data out of the fragment.
+
+Before moving on, we must do one more thing. Open up `Newsfeed.tsx` again. We'll need to do a bit of refactoring to support the new `NewsfeedContents` component. First, we'll need to spread the `NewsfeedContentsFragment` in the `NewsfeedQuery`. It should look like this:
+
+```
+const NewsfeedQuery = graphql`
+  query NewsfeedQuery {
+    ...NewsfeedContentsFragment
+  }
+`;
+```
+
+Lastly, we'll need to import `NewsfeedContents` and add the component to `Newsfeed`. The results should look like this:
+
+```
+// change
+import NewsfeedContents from "./NewsfeedContents"
+
+export default function Newsfeed(){
+  const queryData = useLazyLoadQuery<NewsfeedQueryType>(NewsfeedQuery, {});
+  return (
+    // change
+    <NewsfeedContents query={queryData}/>
+  )
+}
+```
+
+Here we just pass in the results from queryData via the props query.
 
 ### Step 4 — Augment the Fragment for Pagination
 
@@ -425,9 +478,9 @@ const NewsfeedContentsFragment = graphql`
 Now we need to modify the `NewsfeedContents` component to call `usePaginationFragment:`
 
 ```
-function NewsfeedContents({viewer}) {
+export default function NewsfeedContents({ query }: Props) {
   // change-line
-  const {data, loadNext} = usePaginationFragment(NewsfeedFragment, viewer);
+  const {data, loadNext} = usePaginationFragment(NewsfeedContentsFragment, query);
   const storyEdges = data.newsfeedStories.edges;
   return (
     <>
@@ -444,35 +497,36 @@ function NewsfeedContents({viewer}) {
 We’ve prepared a component called `InfiniteScrollTrigger` that detects when the bottom of the page is reached — we can use this to call `loadNext` at the appropriate time. It needs to know whether more pages exist and whether we’re currently loading the next page — we can retrieve these from the return value of `usePaginationFragment`:
 
 ```
-function NewsfeedContents({query}) {
-  const {
-    data,
-    loadNext,
-    // change-line
-    hasNext,
-    // change-line
-    isLoadingNext,
-  } = usePaginationFragment(NewsfeedContentsFragment, query);
-  // change
-  function onEndReached() {
-    loadNext(3);
-  }
-  // end-change
-  const storyEdges = data.viewer.newsfeedStories.edges;
-  return (
-    <>
-      {storyEdges.map(storyEdge =>
-        <Story key={storyEdge.node.id} story={storyEdge.node} />
-      )}
-      // change
-      <InfiniteScrollTrigger
-        onEndReached={onEndReached}
-        hasNext={hasNext}
-        isLoadingNext={isLoadingNext}
-      />
-      // end-change
-    </>
-  );
+// change-line
+import InfiniteScrollTrigger from "./InfiniteScrollTrigger";
+
+export default function NewsfeedContents({ query }: Props) {
+    const {
+        data,
+        loadNext,
+        // change
+        hasNext,
+        isLoadingNext,
+        // end-change
+    } = usePaginationFragment(NewsfeedContentsFragment, query);
+    function onEndReached() {
+        loadNext(3);
+      }
+    const storyEdges = data.viewer.newsfeedStories.edges;
+    return (
+    <div className="newsfeed">
+        {storyEdges.map(storyEdge =>
+            <Story key={storyEdge.node.id} story={storyEdge.node} />
+        )}
+        // change
+        <InfiniteScrollTrigger
+            onEndReached={onEndReached}
+            hasNext={hasNext}
+            isLoadingNext={isLoadingNext}
+        />
+        // end-change
+    </div>
+    );
 }
 ```
 

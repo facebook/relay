@@ -68,7 +68,6 @@ use ir::WeakObjectIr;
 use crate::errors::ErrorMessages;
 
 pub struct ParseOptions {
-    pub relay_resolver_model_syntax_enabled: bool,
     pub id_field_name: StringKey,
     pub enable_output_type: FeatureFlag,
 }
@@ -175,15 +174,6 @@ impl RelayResolverParser {
         // Currently, we expect Strong objects to be defined
         // as @RelayResolver StrongTypeName. No other fields are expected
         if let Some(type_name) = relay_resolver.value {
-            if !self.options.relay_resolver_model_syntax_enabled {
-                self.errors.push(Diagnostic::error(
-                    "Parsing Relay Models (@RelayResolver `StrongTypeName`) is not enabled.",
-                    relay_resolver.key_location,
-                ));
-
-                return Err(());
-            }
-
             self.parse_terse_relay_resolver(
                 ast.location,
                 PopulatedIrField {

@@ -267,7 +267,7 @@ trait ResolverIr {
 
         if let Some(deprecated) = self.deprecated() {
             directives.push(ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
                 arguments: deprecated.value.map(|value| {
@@ -365,7 +365,7 @@ trait ResolverIr {
         }
 
         ConstantDirective {
-            span: span.clone(),
+            span,
             at: dummy_token(span),
             name: string_key_as_identifier(RELAY_RESOLVER_DIRECTIVE_NAME.0),
             arguments: Some(List::generated(arguments)),
@@ -861,7 +861,7 @@ impl ResolverIr for StrongObjectIr {
                     type_: TypeAnnotation::Named(NamedTypeAnnotation {
                         name: string_key_as_identifier(*ID_TYPE),
                     }),
-                    exclamation: dummy_token(&span),
+                    exclamation: dummy_token(span),
                 })),
                 arguments: None,
                 directives: vec![],
@@ -879,8 +879,8 @@ impl ResolverIr for StrongObjectIr {
             name: as_identifier(self.type_.value),
             interfaces: vec![],
             directives: vec![ConstantDirective {
-                span: span.clone(),
-                at: dummy_token(&span),
+                span,
+                at: dummy_token(span),
                 name: string_key_as_identifier(RELAY_RESOLVER_MODEL_DIRECTIVE_NAME.0),
                 arguments: None,
             }],
@@ -941,19 +941,19 @@ impl WeakObjectIr {
 
         let mut directives = vec![
             ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(RELAY_RESOLVER_MODEL_DIRECTIVE_NAME.0),
                 arguments: None,
             },
             ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME.0),
                 arguments: None,
             },
             ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE.0),
                 arguments: None,
@@ -961,7 +961,7 @@ impl WeakObjectIr {
         ];
         if let Some(deprecated) = self.deprecated {
             directives.push(ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
                 arguments: deprecated.value.map(|value| {
@@ -991,17 +991,17 @@ impl WeakObjectIr {
         let span = self.type_.value.location.span();
         TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
             name: Identifier {
-                span: *span,
+                span,
                 token: dummy_token(span),
                 value: self.model_type_name(),
             },
             directives: vec![ConstantDirective {
-                span: *span,
+                span,
                 at: dummy_token(span),
                 name: as_identifier(WithLocation::generated(*CUSTOM_SCALAR_DIRECTIVE_NAME)),
                 arguments: Some(List::generated(vec![
                     ConstantArgument {
-                        span: *span,
+                        span,
                         name: as_identifier(WithLocation::generated(
                             *PATH_CUSTOM_SCALAR_ARGUMENT_NAME,
                         )),
@@ -1012,7 +1012,7 @@ impl WeakObjectIr {
                         }),
                     },
                     ConstantArgument {
-                        span: *span,
+                        span,
                         name: as_identifier(WithLocation::generated(
                             *EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME,
                         )),
@@ -1082,7 +1082,7 @@ impl ResolverIr for WeakObjectIr {
 fn string_argument(name: StringKey, value: WithLocation<StringKey>) -> ConstantArgument {
     let span = value.location.span();
     ConstantArgument {
-        span: span.clone(),
+        span,
         name: string_key_as_identifier(name),
         colon: dummy_token(span),
         value: ConstantValue::String(StringNode {
@@ -1095,7 +1095,7 @@ fn string_argument(name: StringKey, value: WithLocation<StringKey>) -> ConstantA
 fn true_argument(name: StringKey, location: Location) -> ConstantArgument {
     let span = location.span();
     ConstantArgument {
-        span: span.clone(),
+        span,
         name: string_key_as_identifier(name),
         colon: dummy_token(span),
         value: ConstantValue::Boolean(BooleanNode {
@@ -1108,7 +1108,7 @@ fn true_argument(name: StringKey, location: Location) -> ConstantArgument {
 fn string_key_as_identifier(value: StringKey) -> Identifier {
     Identifier {
         span: Span::empty(),
-        token: dummy_token(&Span::empty()),
+        token: dummy_token(Span::empty()),
         value,
     }
 }
@@ -1116,7 +1116,7 @@ fn string_key_as_identifier(value: StringKey) -> Identifier {
 fn as_identifier(value: WithLocation<StringKey>) -> Identifier {
     let span = value.location.span();
     Identifier {
-        span: span.clone(),
+        span,
         token: dummy_token(span),
         value: value.item,
     }
@@ -1125,7 +1125,7 @@ fn as_identifier(value: WithLocation<StringKey>) -> Identifier {
 fn obj_as_identifier(value: WithLocation<ObjectName>) -> Identifier {
     let span = value.location.span();
     Identifier {
-        span: span.clone(),
+        span,
         token: dummy_token(span),
         value: value.item.0,
     }
@@ -1138,9 +1138,9 @@ fn as_string_node(value: WithLocation<StringKey>) -> StringNode {
     }
 }
 
-fn dummy_token(span: &Span) -> Token {
+fn dummy_token(span: Span) -> Token {
     Token {
-        span: span.clone(),
+        span,
         kind: TokenKind::Empty,
     }
 }
@@ -1177,10 +1177,10 @@ fn generate_model_instance_field(
     mut directives: Vec<ConstantDirective>,
     location: Location,
 ) -> FieldDefinition {
-    let span = location.span().clone();
+    let span = location.span();
     directives.push(ConstantDirective {
         span,
-        at: dummy_token(&span),
+        at: dummy_token(span),
         name: string_key_as_identifier(schema_info.config.unselectable_directive_name.0),
         arguments: Some(List::generated(vec![string_argument(
             DEPRECATED_REASON_ARGUMENT_NAME.0,

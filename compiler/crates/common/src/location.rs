@@ -101,8 +101,8 @@ impl Location {
         self.source_location
     }
 
-    pub fn span(&self) -> &Span {
-        &self.span
+    pub fn span(&self) -> Span {
+        self.span
     }
 
     pub fn with_span(&self, span: Span) -> Self {

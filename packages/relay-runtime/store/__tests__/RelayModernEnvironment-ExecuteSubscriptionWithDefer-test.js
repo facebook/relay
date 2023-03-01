@@ -10,9 +10,8 @@
  */
 
 'use strict';
-import type {Snapshot} from '../RelayStoreTypes';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
-
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,

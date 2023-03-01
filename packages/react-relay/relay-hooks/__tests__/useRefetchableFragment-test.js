@@ -10,9 +10,8 @@
  */
 
 'use strict';
-import type {RefetchFn} from '../useRefetchableFragment';
-
 import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
+import type {RefetchFn} from '../useRefetchableFragment';
 
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
 const React = require('react');

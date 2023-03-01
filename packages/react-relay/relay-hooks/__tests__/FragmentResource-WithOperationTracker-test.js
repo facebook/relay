@@ -11,10 +11,9 @@
 
 'use strict';
 import type {
-  NormalizationSplitOperation,
   NormalizationRootNode,
+  NormalizationSplitOperation,
 } from '../../../relay-runtime/util/NormalizationNode';
-
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const {createFragmentResource} = require('../FragmentResource');

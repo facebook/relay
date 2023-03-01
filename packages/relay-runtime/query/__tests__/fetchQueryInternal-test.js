@@ -10,11 +10,10 @@
  */
 
 'use strict';
-import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
-import type {Subscription} from '../../network/RelayObservable';
-
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Subscription} from '../../network/RelayObservable';
 import type {Observer} from '../../network/RelayObservable';
+import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
 import type {
   fetchQueryInternalTest1Query$data,
   fetchQueryInternalTest1Query$variables,

@@ -10,11 +10,10 @@
  */
 
 'use strict';
-import type {ReadOnlyRecordProxy} from '../RelayStoreTypes';
-import type {Variables} from '../../util/RelayRuntimeTypes';
-import type {ReaderLinkedField} from '../../util/ReaderNode';
 import type {NormalizationLinkedField} from '../../util/NormalizationNode';
-
+import type {ReaderLinkedField} from '../../util/ReaderNode';
+import type {Variables} from '../../util/RelayRuntimeTypes';
+import type {ReadOnlyRecordProxy} from '../RelayStoreTypes';
 import type {
   DataCheckerTest10Query$data,
   DataCheckerTest10Query$variables,

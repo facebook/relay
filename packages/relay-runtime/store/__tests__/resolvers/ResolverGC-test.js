@@ -10,8 +10,6 @@
  */
 
 'use strict';
-import type {LogEvent} from '../../RelayStoreTypes';
-
 import type {GraphQLResponse} from '../../../network/RelayNetworkTypes';
 import type {ConcreteRequest} from '../../../util/RelayConcreteNode';
 import type {
@@ -19,6 +17,7 @@ import type {
   OperationType,
   VariablesOf,
 } from '../../../util/RelayRuntimeTypes';
+import type {LogEvent} from '../../RelayStoreTypes';
 import type {IEnvironment, Snapshot} from '../../RelayStoreTypes';
 
 const {HOUSE_ORDER} = require('./AstrologicalSignUtils');

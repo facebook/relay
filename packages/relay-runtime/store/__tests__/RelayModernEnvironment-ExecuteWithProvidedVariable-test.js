@@ -11,7 +11,6 @@
 
 'use strict';
 import type {Sink} from '../../network/RelayObservable';
-
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {OperationDescriptor, Snapshot} from '../RelayStoreTypes';
 

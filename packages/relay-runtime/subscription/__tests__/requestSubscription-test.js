@@ -10,10 +10,10 @@
  */
 
 'use strict';
-import type {Variables, CacheConfig} from '../../util/RelayRuntimeTypes';
-import type {RequestParameters} from '../../util/RelayConcreteNode';
-import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');

@@ -10,13 +10,13 @@
  */
 
 'use strict';
-import type {Variables, CacheConfig} from '../../util/RelayRuntimeTypes';
-import type {RequestParameters} from '../../util/RelayConcreteNode';
 import type {
-  UploadableMap,
   LogRequestInfoFunction,
+  UploadableMap,
 } from '../../network/RelayNetworkTypes';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,

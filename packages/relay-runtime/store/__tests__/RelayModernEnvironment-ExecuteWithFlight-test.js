@@ -11,11 +11,10 @@
 
 'use strict';
 import type {
-  ReactFlightServerTree,
   ReactFlightServerError,
+  ReactFlightServerTree,
 } from '../../network/RelayNetworkTypes';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
-
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,

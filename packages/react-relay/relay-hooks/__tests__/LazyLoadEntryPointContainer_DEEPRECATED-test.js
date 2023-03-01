@@ -11,16 +11,16 @@
 
 'use strict';
 import type {
-  Variables,
-  CacheConfig,
-} from '../../../relay-runtime/util/RelayRuntimeTypes';
-import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
-import type {ObservableFromValue} from '../../../relay-runtime/network/RelayObservable';
-import type {
-  UploadableMap,
-  LogRequestInfoFunction,
   GraphQLResponse,
+  LogRequestInfoFunction,
+  UploadableMap,
 } from '../../../relay-runtime/network/RelayNetworkTypes';
+import type {ObservableFromValue} from '../../../relay-runtime/network/RelayObservable';
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from '../../../relay-runtime/util/RelayRuntimeTypes';
 
 const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');

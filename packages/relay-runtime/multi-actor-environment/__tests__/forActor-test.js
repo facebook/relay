@@ -10,14 +10,14 @@
  */
 
 'use strict';
-import type {Variables, CacheConfig} from '../../util/RelayRuntimeTypes';
-import type {RequestParameters} from '../../util/RelayConcreteNode';
-import type {ObservableFromValue} from '../../network/RelayObservable';
 import type {
-  UploadableMap,
-  LogRequestInfoFunction,
   GraphQLResponse,
+  LogRequestInfoFunction,
+  UploadableMap,
 } from '../../network/RelayNetworkTypes';
+import type {ObservableFromValue} from '../../network/RelayObservable';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 
 const {create} = require('../../network/RelayNetwork');
 const {getActorIdentifier} = require('../ActorIdentifier');

@@ -11,15 +11,14 @@
 
 'use strict';
 import type {
-  Variables,
-  CacheConfig,
-} from '../../../relay-runtime/util/RelayRuntimeTypes';
+  LogRequestInfoFunction,
+  UploadableMap,
+} from '../../../relay-runtime/network/RelayNetworkTypes';
 import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
 import type {
-  UploadableMap,
-  LogRequestInfoFunction,
-} from '../../../relay-runtime/network/RelayNetworkTypes';
-
+  CacheConfig,
+  Variables,
+} from '../../../relay-runtime/util/RelayRuntimeTypes';
 import type {
   loadQueryStoreBehaviorTestQuery$data,
   loadQueryStoreBehaviorTestQuery$variables,

@@ -11,16 +11,15 @@
 
 'use strict';
 import type {
-  Variables,
-  CacheConfig,
-} from '../../../../relay-runtime/util/RelayRuntimeTypes';
-import type {RequestParameters} from '../../../../relay-runtime/util/RelayConcreteNode';
-import type {Sink} from '../../../../relay-runtime/network/RelayObservable';
-import type {
-  UploadableMap,
   LogRequestInfoFunction,
+  UploadableMap,
 } from '../../../../relay-runtime/network/RelayNetworkTypes';
-
+import type {Sink} from '../../../../relay-runtime/network/RelayObservable';
+import type {RequestParameters} from '../../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from '../../../../relay-runtime/util/RelayRuntimeTypes';
 import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 

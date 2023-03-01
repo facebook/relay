@@ -10,10 +10,9 @@
  */
 
 'use strict';
-import type {CacheConfig} from '../../../relay-runtime/util/RelayRuntimeTypes';
-import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
-
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {CacheConfig} from '../../../relay-runtime/util/RelayRuntimeTypes';
 import type {
   usePaginationFragmentTestStoryFragmentRefetchQuery$data,
   usePaginationFragmentTestStoryFragmentRefetchQuery$variables,

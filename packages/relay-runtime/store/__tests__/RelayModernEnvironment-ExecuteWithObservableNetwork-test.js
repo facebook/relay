@@ -10,8 +10,8 @@
  */
 
 'use strict';
-import type {Snapshot, RecordSourceSelectorProxy} from '../RelayStoreTypes';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {RecordSourceSelectorProxy, Snapshot} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,

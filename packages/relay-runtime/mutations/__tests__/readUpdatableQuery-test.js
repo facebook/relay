@@ -10,21 +10,20 @@
  */
 
 'use strict';
-import type {ReaderLinkedField} from '../../util/ReaderNode';
 import type {
-  NormalizationScalarField,
-  NormalizationLinkedField,
-} from '../../util/NormalizationNode';
-import type {ReadOnlyRecordProxy} from '../../store/RelayStoreTypes';
-import type {Variables, CacheConfig} from '../../util/RelayRuntimeTypes';
-import type {RequestParameters} from '../../util/RelayConcreteNode';
-import type {ObservableFromValue} from '../../network/RelayObservable';
-import type {
-  UploadableMap,
-  LogRequestInfoFunction,
   GraphQLResponse,
+  LogRequestInfoFunction,
+  UploadableMap,
 } from '../../network/RelayNetworkTypes';
-
+import type {ObservableFromValue} from '../../network/RelayObservable';
+import type {ReadOnlyRecordProxy} from '../../store/RelayStoreTypes';
+import type {
+  NormalizationLinkedField,
+  NormalizationScalarField,
+} from '../../util/NormalizationNode';
+import type {ReaderLinkedField} from '../../util/ReaderNode';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 import type {readUpdatableQueryTestRegularQuery} from './__generated__/readUpdatableQueryTestRegularQuery.graphql';
 import type {OpaqueScalarType} from './OpaqueScalarType';
 

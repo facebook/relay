@@ -11,7 +11,6 @@
 
 'use strict';
 import type {OperationType} from '../../relay-runtime/util/RelayRuntimeTypes';
-
 import type {
   EntryPoint,
   EntryPointComponent,

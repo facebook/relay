@@ -10,9 +10,8 @@
  */
 
 'use strict';
-import type {Snapshot} from '../RelayStoreTypes';
-
 import type {Disposable} from '../../util/RelayRuntimeTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   RelayModernStoreTest2Fragment$data,
   RelayModernStoreTest2Fragment$fragmentType,

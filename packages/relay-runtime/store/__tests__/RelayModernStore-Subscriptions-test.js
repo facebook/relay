@@ -11,7 +11,6 @@
 
 'use strict';
 import type {Snapshot} from '../RelayStoreTypes';
-
 import type {
   RelayModernStoreSubscriptionsTest1Fragment$data,
   RelayModernStoreSubscriptionsTest1Fragment$fragmentType,

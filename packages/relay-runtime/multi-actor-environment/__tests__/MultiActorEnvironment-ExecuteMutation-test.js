@@ -10,8 +10,8 @@
  */
 
 'use strict';
-import type {Snapshot} from '../../store/RelayStoreTypes';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../../store/RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');

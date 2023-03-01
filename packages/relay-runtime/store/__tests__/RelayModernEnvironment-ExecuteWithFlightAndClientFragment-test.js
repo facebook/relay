@@ -96,6 +96,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
 
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         reactFlightPayloadDeserializer = jest.fn(payload => {
           return {
             readRoot() {
@@ -103,8 +104,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           };
         });
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         complete = jest.fn();
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         error = jest.fn();
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         next = jest.fn();
         callbacks = {complete, error, next};
         fetch = (
@@ -118,23 +125,28 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         };
         operationLoader = {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           load: jest.fn(moduleName => {
             return new Promise(resolve => {
               resolveFragment = resolve;
             });
           }),
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           get: jest.fn(),
         };
         source = RelayRecordSource.create();
         // DataChecker receives its operationLoader from the store, not the
         // environment. So we have to pass it here as well.
         store = new RelayModernStore(source, {
+          // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
           operationLoader,
           gcReleaseBufferSize: 0,
         });
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
+          // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
           operationLoader,
           reactFlightPayloadDeserializer,
         });
@@ -143,6 +155,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
                 network: RelayNetwork.create(fetch),
+                // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
                 operationLoader,
                 store,
                 reactFlightPayloadDeserializer,

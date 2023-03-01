@@ -203,7 +203,9 @@ describe.each([
       jest.mock('scheduler', () =>
         jest.requireActual('scheduler/unstable_mock'),
       );
-      commitSpy = jest.fn();
+      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+       * enabling Flow LTI mode */
+      commitSpy = jest.fn<_, mixed>();
 
       fetchPolicy = 'store-or-network';
       renderPolicy = 'partial';
@@ -672,7 +674,7 @@ describe.each([
       it('throws error when error occurs during refetch', () => {
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         const initialUser = {
           id: '1',
@@ -1633,7 +1635,7 @@ describe.each([
       describe('multiple refetches', () => {
         const internalRuntime = require('relay-runtime').__internal;
         const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
-        const fetchSpy = jest.fn();
+        const fetchSpy = jest.fn<Array<any>, mixed>();
         jest
           .spyOn(internalRuntime, 'fetchQueryDeduped')
           .mockImplementation((...args) => {
@@ -3072,7 +3074,7 @@ describe.each([
       });
 
       describe('disposing', () => {
-        const unsubscribe = jest.fn();
+        const unsubscribe = jest.fn<[], mixed>();
         jest.doMock('relay-runtime', () => {
           const originalRuntime = jest.requireActual<any>('relay-runtime');
           const originalInternal = originalRuntime.__internal;

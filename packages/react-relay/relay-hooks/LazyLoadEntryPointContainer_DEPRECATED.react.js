@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {OperationType} from '../../relay-runtime/util/RelayRuntimeTypes';
 
 import type {
   EntryPoint,
@@ -98,7 +99,10 @@ function prepareEntryPoint<
       );
 
       // $FlowFixMe[underconstrained-implicit-instantiation]
-      preloadedQueries[queryPropName] = preloadQuery_DEPRECATED(
+      preloadedQueries[queryPropName] = preloadQuery_DEPRECATED<
+        OperationType,
+        mixed,
+      >(
         environment,
         parameters,
         variables,
@@ -119,11 +123,15 @@ function prepareEntryPoint<
         entryPointDescription;
       // $FlowFixMe[incompatible-call]
       // $FlowFixMe[underconstrained-implicit-instantiation]
-      preloadedEntryPoints[entryPointPropName] = prepareEntryPoint(
-        environmentProvider,
-        nestedEntryPoint,
-        nestedParams,
-      );
+      preloadedEntryPoints[entryPointPropName] = prepareEntryPoint<
+        _,
+        {...},
+        {...},
+        {...},
+        mixed,
+        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        _,
+      >(environmentProvider, nestedEntryPoint, nestedParams);
     });
   }
   return {

@@ -209,9 +209,12 @@ describe('ActorChange', () => {
 
   it('should render a fragment for actor', () => {
     const actorRenders = [];
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     const renderFn = jest.fn(data => {
       actorRenders.push(data);
     });
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     const renderViewerActorName = jest.fn();
 
     ReactTestRenderer.create(

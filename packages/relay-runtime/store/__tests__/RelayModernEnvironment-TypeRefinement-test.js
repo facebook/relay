@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   RelayModernEnvironmentTypeRefinementTest1Query$data,
   RelayModernEnvironmentTypeRefinementTest1Query$variables,
@@ -572,7 +573,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing');
 
     // Subscriptions are not notified of discriminator-only changes
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, callback);
     environment.commitUpdate(store => {
       const typeRecord = nullthrows(store.get(generateTypeID('User')));
@@ -629,7 +630,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing');
 
     // Subscriptions are not notified of discriminator-only changes
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, callback);
     environment.commitUpdate(store => {
       const typeRecord = nullthrows(store.get(generateTypeID('User')));
@@ -774,7 +775,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing');
 
     // Subscriptions are not notified of discriminator-only changes
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, callback);
     environment.commitUpdate(store => {
       const typeRecord = nullthrows(store.get(generateTypeID('User')));
@@ -831,7 +832,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing');
 
     // Subscriptions are not notified of discriminator-only changes
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, callback);
     environment.commitUpdate(store => {
       const typeRecord = nullthrows(store.get(generateTypeID('User')));

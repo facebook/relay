@@ -10,6 +10,14 @@
  */
 
 'use strict';
+import type {Variables, CacheConfig} from '../../util/RelayRuntimeTypes';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {ObservableFromValue} from '../../network/RelayObservable';
+import type {
+  UploadableMap,
+  LogRequestInfoFunction,
+  GraphQLResponse,
+} from '../../network/RelayNetworkTypes';
 
 import type {readUpdatableFragmentTestRegularQuery} from './__generated__/readUpdatableFragmentTestRegularQuery.graphql';
 
@@ -60,7 +68,16 @@ describe('readUpdatableFragment', () => {
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
 
-    const fetch = jest.fn();
+    const fetch = jest.fn<
+      [
+        RequestParameters,
+        Variables,
+        CacheConfig,
+        ?UploadableMap,
+        ?LogRequestInfoFunction,
+      ],
+      ObservableFromValue<GraphQLResponse>,
+    >();
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),
       store,

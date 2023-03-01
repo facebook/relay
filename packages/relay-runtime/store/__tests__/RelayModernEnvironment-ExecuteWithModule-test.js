@@ -120,8 +120,14 @@ describe('execute() a query with @module', () => {
       },
     };
 
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     complete = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     error = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     next = jest.fn();
     callbacks = {complete, error, next};
     fetch = (
@@ -156,6 +162,8 @@ describe('execute() a query with @module', () => {
       },
     });
     const operationSnapshot = environment.lookup(operation.fragment);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
   });
@@ -268,6 +276,8 @@ describe('execute() a query with @module', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
@@ -598,6 +608,8 @@ describe('execute() a query with @module', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 

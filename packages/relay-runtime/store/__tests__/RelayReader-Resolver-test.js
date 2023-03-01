@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {
   constant_dependent: UserConstantDependentResolver,
@@ -336,7 +337,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const cb = jest.fn();
+    const cb = jest.fn<[Snapshot], void>();
     const operation = createOperationDescriptor(FooQuery, {});
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
@@ -394,7 +395,7 @@ describe('Relay Resolver', () => {
       (UserConstantDependentResolver: any);
 
     expect(resolverInternals._relayResolverTestCallCount).toBe(undefined);
-    const cb = jest.fn();
+    const cb = jest.fn<[Snapshot], void>();
     const operation = createOperationDescriptor(FooQuery, {});
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
@@ -444,7 +445,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const cb = jest.fn();
+    const cb = jest.fn<[Snapshot], void>();
     const operation = createOperationDescriptor(FooQuery, {});
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
@@ -520,7 +521,7 @@ describe('Relay Resolver', () => {
       },
     });
 
-    const cb = jest.fn();
+    const cb = jest.fn<[Snapshot], void>();
     const operation = createOperationDescriptor(FooQuery, {});
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
@@ -602,7 +603,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const cb = jest.fn();
+    const cb = jest.fn<[Snapshot], void>();
     const operation = createOperationDescriptor(FooQuery, {});
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
@@ -659,7 +660,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const cb = jest.fn();
+    const cb = jest.fn<[Snapshot], void>();
     const operation = createOperationDescriptor(FooQuery, {});
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
@@ -732,7 +733,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const cb = jest.fn();
+    const cb = jest.fn<[Snapshot], void>();
     const operation = createOperationDescriptor(FooQuery, {});
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);

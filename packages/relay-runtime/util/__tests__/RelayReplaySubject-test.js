@@ -19,7 +19,7 @@ let subject;
 
 beforeEach(() => {
   // $FlowFixMe[underconstrained-implicit-instantiation]
-  subject = new RelayReplaySubject();
+  subject = new RelayReplaySubject<string>();
 });
 
 type Observer = {

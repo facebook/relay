@@ -10,6 +10,11 @@
  */
 
 'use strict';
+import type {
+  ReactFlightServerTree,
+  ReactFlightServerError,
+} from '../../network/RelayNetworkTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
@@ -83,16 +88,18 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
 
-        reactFlightPayloadDeserializer = jest.fn(payload => {
-          return {
-            readRoot() {
-              return payload;
-            },
-          };
-        });
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        reactFlightPayloadDeserializer = jest.fn(
+          (payload: ReactFlightServerTree) => {
+            return {
+              readRoot() {
+                return payload;
+              },
+            };
+          },
+        );
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -336,11 +343,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         describe('and ReactFlightServerErrorHandler is specified', () => {
           let reactFlightServerErrorHandler;
           beforeEach(() => {
-            reactFlightServerErrorHandler = jest.fn((status, errors) => {
-              const err = new Error(`${status}: ${errors[0].message}`);
-              err.stack = errors[0].stack;
-              throw err;
-            });
+            reactFlightServerErrorHandler = jest.fn(
+              (status: string, errors: Array<ReactFlightServerError>) => {
+                const err = new Error(`${status}: ${errors[0].message}`);
+                err.stack = errors[0].stack;
+                throw err;
+              },
+            );
             const multiActorEnvironment = new MultiActorEnvironment({
               createNetworkForActor: _actorID => RelayNetwork.create(fetch),
               createStoreForActor: _actorID => store,

@@ -10,6 +10,15 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
+import type {Variables, CacheConfig} from '../../util/RelayRuntimeTypes';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {ObservableFromValue} from '../../network/RelayObservable';
+import type {
+  UploadableMap,
+  LogRequestInfoFunction,
+  GraphQLResponse,
+} from '../../network/RelayNetworkTypes';
 
 const {
   MultiActorEnvironment,
@@ -57,7 +66,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
-        const fetch = jest.fn();
+        const fetch = jest.fn<
+          [
+            RequestParameters,
+            Variables,
+            CacheConfig,
+            ?UploadableMap,
+            ?LogRequestInfoFunction,
+          ],
+          ObservableFromValue<GraphQLResponse>,
+        >();
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
@@ -79,7 +97,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           {},
           operation.request,
         );
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(selector);
         environment.subscribe(snapshot, callback);
 
@@ -135,7 +153,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             {},
             operation.request,
           );
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           const snapshot = environment.lookup(selector);
           environment.subscribe(snapshot, callback);
 

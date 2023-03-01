@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {OperationType} from '../../relay-runtime/util/RelayRuntimeTypes';
 
 import type {
   EntryPoint,
@@ -57,7 +58,7 @@ function prepareEntryPoint<
       );
 
       // $FlowFixMe[underconstrained-implicit-instantiation]
-      preloadedQueries[queryPropName] = preloadQuery(
+      preloadedQueries[queryPropName] = preloadQuery<OperationType, mixed>(
         environment,
         parameters,
         variables,

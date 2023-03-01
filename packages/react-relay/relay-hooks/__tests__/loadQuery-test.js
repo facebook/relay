@@ -10,6 +10,15 @@
  */
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from '../../../relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  UploadableMap,
+  LogRequestInfoFunction,
+} from '../../../relay-runtime/network/RelayNetworkTypes';
 
 import type {
   loadQueryTestQuery$data,
@@ -92,13 +101,19 @@ describe('loadQuery', () => {
 
   beforeEach(() => {
     fetch = jest.fn(
-      (_query, _variables, _cacheConfig, _uploadables, _logRequestInfo) => {
+      (
+        _query: RequestParameters,
+        _variables: Variables,
+        _cacheConfig: CacheConfig,
+        _uploadables: ?UploadableMap,
+        _logRequestInfo: ?LogRequestInfoFunction,
+      ) => {
         const observable = Observable.create<$FlowFixMe>(_sink => {
           sink = _sink;
         });
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const originalSubscribe = observable.subscribe.bind(observable);
-        networkUnsubscribe = jest.fn();
+        networkUnsubscribe = jest.fn<[], $FlowFixMe>();
         jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
           const subscription = originalSubscribe(...args);
           jest
@@ -127,7 +142,7 @@ describe('loadQuery', () => {
       .spyOn(PreloadableQueryRegistry, 'onLoad')
       .mockImplementation((key, cb) => {
         executeOnloadCallback = cb;
-        disposeOnloadCallback = jest.fn();
+        disposeOnloadCallback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         return {dispose: disposeOnloadCallback};
       });
 

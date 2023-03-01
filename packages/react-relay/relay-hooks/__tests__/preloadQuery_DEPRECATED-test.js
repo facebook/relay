@@ -78,7 +78,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let operation;
 
         beforeEach(() => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           fetch = jest.fn((_query, _variables, _cacheConfig) => {
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             return Observable.create(_sink => {
               sink = _sink;
             });
@@ -105,6 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const environmentCheck = environment.check;
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           check = jest.fn((...args) =>
             environmentCheck.apply(environment, args),
           );
@@ -793,7 +796,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let variables;
 
         beforeEach(() => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           fetch = jest.fn((_query, _variables, _cacheConfig) => {
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             return Observable.create(_sink => {
               sink = _sink;
             });
@@ -942,7 +947,9 @@ describe('Preload queries that use provided variables', () => {
   let operation;
 
   beforeEach(() => {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       return Observable.create(_sink => {});
     });
 

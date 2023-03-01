@@ -240,8 +240,8 @@ describe.each([
       jest.mock('scheduler', () => {
         return jest.requireActual('scheduler/unstable_mock');
       });
-      commitSpy = jest.fn();
-      renderSpy = jest.fn();
+      commitSpy = jest.fn<any | [any], mixed>();
+      renderSpy = jest.fn<[any], mixed>();
 
       // Set up environment and base data
       environment = createMockEnvironment();

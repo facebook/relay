@@ -10,6 +10,10 @@
  */
 
 'use strict';
+import type {
+  NormalizationSplitOperation,
+  NormalizationRootNode,
+} from '../../../relay-runtime/util/NormalizationNode';
 
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
@@ -44,8 +48,8 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
 
   beforeEach(() => {
     operationLoader = {
-      load: jest.fn(),
-      get: jest.fn(),
+      load: jest.fn<[mixed], Promise<NormalizationSplitOperation>>(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     operationTracker = new RelayOperationTracker();
     logger = jest.fn<[LogEvent], void>();

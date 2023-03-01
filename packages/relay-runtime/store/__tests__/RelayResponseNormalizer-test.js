@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {ReactFlightServerError} from '../../network/RelayNetworkTypes';
 
 const {
   getActorIdentifier,
@@ -1845,15 +1846,25 @@ describe('RelayResponseNormalizer', () => {
   describe('User-defined getDataID', () => {
     let recordSource;
 
-    const getDataID = jest.fn((fieldValue, typename) => {
-      return `${
-        typeof fieldValue === 'string' ? fieldValue : String(fieldValue.id)
-      }:${String(typename)}`;
-    });
+    const getDataID = jest.fn(
+      (
+        fieldValue: string | {[string]: mixed},
+        typename: string | {[string]: mixed},
+      ) => {
+        return `${
+          typeof fieldValue === 'string' ? fieldValue : String(fieldValue.id)
+        }:${String(typename)}`;
+      },
+    );
 
-    const getNullAsDataID = jest.fn((fieldValue, typename) => {
-      return null;
-    });
+    const getNullAsDataID = jest.fn(
+      (
+        fieldValue: string | {[string]: mixed},
+        typename: string | {[string]: mixed},
+      ) => {
+        return null;
+      },
+    );
 
     beforeEach(() => {
       recordSource = new RelayRecordSource();
@@ -3700,7 +3711,10 @@ describe('RelayResponseNormalizer', () => {
 
     describe('when server errors are encountered', () => {
       describe('and ReactFlightServerErrorHandler is specified', () => {
-        const reactFlightServerErrorHandler = jest.fn();
+        const reactFlightServerErrorHandler = jest.fn<
+          [string, Array<ReactFlightServerError>],
+          void,
+        >();
         it('calls ReactFlightServerErrorHandler', () => {
           const payload: $FlowFixMe = {
             node: {

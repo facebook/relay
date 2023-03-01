@@ -67,6 +67,7 @@ beforeEach(() => {
 
   PreloadableQueryRegistry.clear();
 
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
     // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
     const observable = Observable.create(_sink => {
@@ -74,6 +75,8 @@ beforeEach(() => {
     });
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     networkUnsubscribe = jest.fn();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
       const subscription = originalSubscribe(...args);
@@ -103,6 +106,8 @@ beforeEach(() => {
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           const executeUnsubscribeFn = jest.fn();
           return {unsubscribe: executeUnsubscribeFn};
         });

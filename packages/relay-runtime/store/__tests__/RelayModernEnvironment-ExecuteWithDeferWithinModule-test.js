@@ -58,12 +58,14 @@ function createOperationLoader() {
     cache.set(moduleName, {kind: 'value', operation: operation});
   };
   const loader = {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     get: jest.fn(moduleName => {
       const entry = cache.get(moduleName);
       if (entry && entry.kind === 'value') {
         return entry.operation;
       }
     }),
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     load: jest.fn(moduleName => {
       let entry = cache.get(moduleName);
       if (entry == null) {
@@ -165,8 +167,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         complete = jest.fn();
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         error = jest.fn();
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         next = jest.fn();
         callbacks = {complete, error, next};
         fetch = (
@@ -207,6 +215,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
         const userSnapshot = environment.lookup(userSelector);
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         userCallback = jest.fn();
         environment.subscribe(userSnapshot, userCallback);
 
@@ -217,6 +227,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
         const actorSnapshot = environment.lookup(actorSelector);
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         actorCallback = jest.fn();
         environment.subscribe(actorSnapshot, actorCallback);
       });

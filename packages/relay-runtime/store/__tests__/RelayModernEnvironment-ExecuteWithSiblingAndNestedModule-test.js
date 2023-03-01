@@ -141,8 +141,14 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           variables = {id: '1'};
           operation = createOperationDescriptor(query, variables);
 
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           complete = jest.fn();
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           error = jest.fn();
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           next = jest.fn();
           callbacks = {complete, error, next};
           fetch = (
@@ -164,6 +170,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             get: jest.fn(),
           };
           source = RelayRecordSource.create();
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           logger = jest.fn();
           store = new RelayModernStore(source, {
             log: logger,
@@ -184,6 +192,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 });
 
           const operationSnapshot = environment.lookup(operation.fragment);
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           operationCallback = jest.fn();
           environment.subscribe(operationSnapshot, operationCallback);
         });
@@ -250,6 +260,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             outerRendererASelector,
           );
           expect(outerRendererASnapshot.isMissingData).toBe(true);
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           const outerRendererACallback = jest.fn();
           environment.subscribe(outerRendererASnapshot, outerRendererACallback);
 
@@ -263,6 +275,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             outerRendererBSelector,
           );
           expect(outerRendererBSnapshot.isMissingData).toBe(true);
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           const outerRendererBCallback = jest.fn();
           environment.subscribe(outerRendererBSnapshot, outerRendererBCallback);
 
@@ -395,6 +409,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             outerRendererASelector,
           );
           expect(outerRendererASnapshot.isMissingData).toBe(true);
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           const outerRendererACallback = jest.fn();
           environment.subscribe(outerRendererASnapshot, outerRendererACallback);
 
@@ -408,6 +424,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             outerRendererBSelector,
           );
           expect(outerRendererBSnapshot.isMissingData).toBe(true);
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           const outerRendererBCallback = jest.fn();
           environment.subscribe(outerRendererBSnapshot, outerRendererBCallback);
 
@@ -632,6 +650,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             outerRendererASelector,
           );
           expect(outerRendererASnapshot.isMissingData).toBe(true);
+          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
+           * when enabling Flow LTI mode */
           const outerRendererACallback = jest.fn();
           environment.subscribe(outerRendererASnapshot, outerRendererACallback);
 

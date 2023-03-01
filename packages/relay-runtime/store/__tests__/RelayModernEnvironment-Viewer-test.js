@@ -66,7 +66,11 @@ describe('Mutations on viewer', () => {
       },
     };
 
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     onCompleted = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     onError = jest.fn();
     const fetch = (
       _query: RequestParameters,
@@ -111,6 +115,8 @@ describe('Mutations on viewer', () => {
       {},
       operationDescriptor.request,
     );
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     const callback = jest.fn();
     const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);

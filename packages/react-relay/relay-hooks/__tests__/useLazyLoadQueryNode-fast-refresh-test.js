@@ -102,7 +102,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     // $FlowFixMe[incompatible-use]
-    renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
+    renderFn = jest.fn((result: mixed) => result?.node?.name ?? 'Empty');
   });
 
   afterEach(() => {

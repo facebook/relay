@@ -138,9 +138,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       });
     };
     operationLoader = {
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       load: jest.fn(moduleName => {
         return Promise.resolve();
       }),
+      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+       * enabling Flow LTI mode */
       get: jest.fn(),
     };
     source = RelayRecordSource.create();
@@ -157,9 +160,13 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       },
     });
     const actorOperationSnapshot = environment.lookup(actorOperation.fragment);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     actorOperationCallback = jest.fn();
     environment.subscribe(actorOperationSnapshot, actorOperationCallback);
     const userOperationSnapshot = environment.lookup(userOperation.fragment);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     userOperationCallback = jest.fn();
     environment.subscribe(userOperationSnapshot, userOperationCallback);
   });

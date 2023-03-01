@@ -84,7 +84,7 @@ describe('FragmentResource Client Edges behavior', () => {
       __fragmentOwner: query.request,
     };
 
-    release = jest.fn();
+    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     // $FlowFixMe[method-unbinding]
     environment.retain.mockImplementation((...args) => {

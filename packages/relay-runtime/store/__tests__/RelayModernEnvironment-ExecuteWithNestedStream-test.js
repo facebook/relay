@@ -116,8 +116,14 @@ describe('execute() a query with nested @stream', () => {
       },
     };
 
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     complete = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     error = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     next = jest.fn();
     callbacks = {complete, error, next};
     fetch = (
@@ -145,6 +151,8 @@ describe('execute() a query with nested @stream', () => {
 
     // Publish an initial root payload and a parent nested stream payload
     const initialSnapshot = environment.lookup(selector);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
 

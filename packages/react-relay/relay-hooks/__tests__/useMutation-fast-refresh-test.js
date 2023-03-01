@@ -68,7 +68,7 @@ describe('useLazyLoadQueryNode', () => {
         }
       }
     `;
-    isInFlightFn = jest.fn(val => val);
+    isInFlightFn = jest.fn((val: boolean) => val);
   });
 
   afterEach(() => {

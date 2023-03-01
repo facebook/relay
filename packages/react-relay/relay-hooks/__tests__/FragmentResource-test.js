@@ -624,6 +624,8 @@ describe('FragmentResource', () => {
 
       expect(getMissigDataEvents()).toEqual([expectedLogEvent]);
 
+      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+       * enabling Flow LTI mode */
       const mockSubscription = jest.fn();
       // Subscribing here will cause Fragment resource to write updated fragment
       // snapshots to its cache.
@@ -785,6 +787,8 @@ describe('FragmentResource', () => {
   describe('subscribe', () => {
     let callback;
     beforeEach(() => {
+      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+       * enabling Flow LTI mode */
       callback = jest.fn();
     });
 
@@ -1052,7 +1056,11 @@ describe('FragmentResource', () => {
           },
           __fragmentOwner: query.request,
         };
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         const callback1 = jest.fn();
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         const callback2 = jest.fn();
 
         let result = FragmentResource.read(
@@ -1550,6 +1558,8 @@ describe('FragmentResource', () => {
     let unsubscribe;
     let callback: JestMockFn<$ReadOnlyArray<mixed>, void>;
     beforeEach(() => {
+      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+       * enabling Flow LTI mode */
       unsubscribe = jest.fn();
       callback = jest.fn();
       jest.spyOn(environment, 'subscribe').mockImplementation(() => ({

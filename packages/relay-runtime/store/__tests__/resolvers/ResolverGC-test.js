@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {LogEvent} from '../../RelayStoreTypes';
 
 import type {GraphQLResponse} from '../../../network/RelayNetworkTypes';
 import type {ConcreteRequest} from '../../../util/RelayConcreteNode';
@@ -869,7 +870,7 @@ async function testResolverGC<T: OperationType>({
   );
   const operation = createOperationDescriptor(query, variables);
 
-  const mockLogger = jest.fn();
+  const mockLogger = jest.fn<[LogEvent], void>();
 
   const store = new LiveResolverStore(source, {
     gcReleaseBufferSize: 0,

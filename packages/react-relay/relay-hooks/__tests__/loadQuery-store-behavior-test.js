@@ -10,6 +10,15 @@
  */
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from '../../../relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  UploadableMap,
+  LogRequestInfoFunction,
+} from '../../../relay-runtime/network/RelayNetworkTypes';
 
 import type {
   loadQueryStoreBehaviorTestQuery$data,
@@ -95,7 +104,13 @@ let writeDataToStore;
 beforeEach(() => {
   operation = createOperationDescriptor(query, variables);
   fetch = jest.fn(
-    (_query, _variables, _cacheConfig, _uploadables, _logRequestInfo) => {
+    (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+      _uploadables: ?UploadableMap,
+      _logRequestInfo: ?LogRequestInfoFunction,
+    ) => {
       const observableCreate = Observable.create(
         (_sink: Sink<GraphQLSingularResponse>) => {
           sink = _sink;

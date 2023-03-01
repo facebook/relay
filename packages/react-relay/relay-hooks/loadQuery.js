@@ -120,7 +120,7 @@ function loadQuery<
   // of the operation, and then replay them to the Observable we
   // ultimately return.
   // $FlowFixMe[underconstrained-implicit-instantiation]
-  const executionSubject = new ReplaySubject();
+  const executionSubject = new ReplaySubject<GraphQLResponse>();
   const returnedObservable = Observable.create<GraphQLResponse>(sink =>
     executionSubject.subscribe(sink),
   );
@@ -145,7 +145,7 @@ function loadQuery<
 
     let observable;
     // $FlowFixMe[underconstrained-implicit-instantiation]
-    const subject = new ReplaySubject();
+    const subject = new ReplaySubject<GraphQLResponse>();
     if (RelayFeatureFlags.ENABLE_LOAD_QUERY_REQUEST_DEDUPING === true) {
       // Here, we are calling fetchQueryDeduped at the network layer level,
       // which ensures that only a single network request is active for a given

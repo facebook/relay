@@ -76,7 +76,7 @@ class TodoStore {
             description: action.payload,
             isCompleted: false,
             // $FlowFixMe[underconstrained-implicit-instantiation]
-            blockedBy: new Set(),
+            blockedBy: new Set<TodoID>(),
           },
         ];
         this._notify([COLLECTION_SUBSCRIBERS]);

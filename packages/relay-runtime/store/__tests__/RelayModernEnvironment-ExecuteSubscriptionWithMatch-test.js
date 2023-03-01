@@ -169,14 +169,24 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         complete = jest.fn();
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         error = jest.fn();
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         next = jest.fn();
         callbacks = {complete, error, next};
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetchFn = jest.fn((_query, _variables, _cacheConfig) =>
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           RelayObservable.create(sink => {}),
         );
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         subscribeFn = jest.fn((_query, _variables, _cacheConfig) =>
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           RelayObservable.create(sink => {
             dataSource = sink;
           }),
@@ -228,9 +238,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const fragmentSnapshot = environment.lookup(selector);
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         fragmentCallback = jest.fn();
         environment.subscribe(fragmentSnapshot, fragmentCallback);
         const operationSnapshot = environment.lookup(operation.fragment);
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         operationCallback = jest.fn();
         environment.subscribe(operationSnapshot, operationCallback);
       });
@@ -399,6 +413,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const initialMatchSnapshot = environment.lookup(matchSelector);
         // TODO T96653810: Correctly detect reading from root of mutation/subscription
         expect(initialMatchSnapshot.isMissingData).toBe(false); // should be true
+        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+         * enabling Flow LTI mode */
         const matchCallback = jest.fn();
         environment.subscribe(initialMatchSnapshot, matchCallback);
 

@@ -80,8 +80,14 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     complete = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     error = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     next = jest.fn();
     callbacks = {complete, error, next};
     fetch = (
@@ -110,6 +116,8 @@ describe('execute() a query with @module on a field with a nullable concrete typ
       operationLoader,
     });
     const operationSnapshot = environment.lookup(operation.fragment);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     operationCallback = jest.fn();
     environment.subscribe(operationSnapshot, operationCallback);
   });
@@ -214,6 +222,8 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     const matchCallback = jest.fn();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 

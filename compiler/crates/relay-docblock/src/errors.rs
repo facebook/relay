@@ -154,7 +154,7 @@ pub enum ErrorMessagesWithData {
         suggestions: Vec<StringKey>,
     },
 
-    #[error("The \"{type_name}\" is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
+    #[error("The type \"{type_name}\" is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
     TypeNotFound {
         type_name: StringKey,
         suggestions: Vec<StringKey>,

@@ -12,6 +12,9 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
+use schemars::schema::InstanceType;
+use schemars::schema::SchemaObject;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -52,6 +55,20 @@ impl StringKey {
 
     pub unsafe fn from_index(index: u32) -> Self {
         Self(StringId::from_index(index))
+    }
+}
+
+impl JsonSchema for StringKey {
+    fn schema_name() -> String {
+        "StringKey".to_owned()
+    }
+
+    fn json_schema(_: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        SchemaObject {
+            instance_type: Some(InstanceType::String.into()),
+            ..Default::default()
+        }
+        .into()
     }
 }
 

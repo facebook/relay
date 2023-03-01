@@ -24,6 +24,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use regex::Regex;
+use schemars::JsonSchema;
 use serde::de::Error;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -42,7 +43,7 @@ type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 pub type ProjectName = StringKey;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RemotePersistConfig {
     /// URL to send a POST request to to persist.
@@ -77,7 +78,7 @@ where
     Ok(Some(permits))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum LocalPersistAlgorithm {
     MD5,
     SHA1,
@@ -91,7 +92,7 @@ impl Default for LocalPersistAlgorithm {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct LocalPersistConfig {
     pub file: PathBuf,
@@ -100,7 +101,7 @@ pub struct LocalPersistConfig {
     pub algorithm: LocalPersistAlgorithm,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum PersistConfig {
     Remote(RemotePersistConfig),
@@ -146,7 +147,7 @@ pub enum SchemaLocation {
     Directory(PathBuf),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
     #[serde(default)]

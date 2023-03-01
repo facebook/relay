@@ -11,6 +11,7 @@ use common::ScalarName;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 use strum::IntoEnumIterator;
@@ -25,7 +26,8 @@ type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
     Clone,
     Serialize,
     Deserialize,
-    PartialEq
+    PartialEq,
+    JsonSchema
 )]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {
@@ -50,21 +52,21 @@ impl TypegenLanguage {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum CustomScalarType {
     Name(StringKey),
     Path(CustomScalarTypeImport),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 
 pub struct CustomScalarTypeImport {
     pub name: StringKey,
     pub path: PathBuf,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".
@@ -110,7 +112,7 @@ pub struct TypegenConfig {
     pub eager_es_modules: bool,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy, JsonSchema)]
 #[serde(deny_unknown_fields, tag = "phase")]
 pub struct FlowTypegenConfig {
     /// This option controls whether or not a catch-all entry is added to enum type definitions

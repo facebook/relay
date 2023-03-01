@@ -29,4 +29,5 @@ members = [
     "crates/schema-print",
     "crates/schema-validate",
     "crates/signedsource",
+    "crates/relay-config-schema"
 ]

@@ -44,6 +44,7 @@ pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
 use relay_transforms::CustomTransformsConfig;
+use schemars::JsonSchema;
 use serde::de::Error as DeError;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -604,9 +605,9 @@ fn get_default_excludes() -> Vec<String> {
 }
 
 /// Schema of the compiler configuration JSON file.
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-struct MultiProjectConfigFile {
+pub struct MultiProjectConfigFile {
     /// Optional name for this config, might be used for logging or custom extra
     /// artifact generator code.
     #[serde(default)]
@@ -640,16 +641,21 @@ struct MultiProjectConfigFile {
     feature_flags: FeatureFlags,
 
     /// Watchman saved state config.
+    #[schemars(skip)]
     saved_state_config: Option<ScmAwareClockData>,
 
     /// Then name of the global __DEV__ variable to use in generated artifacts
     is_dev_variable_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields, rename_all = "camelCase", default)]
+fn default_project_name() -> StringKey {
+    "default".intern()
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct SingleProjectConfigFile {
-    #[serde(skip)]
+    #[serde(skip, default = "default_project_name")]
     pub project_name: StringKey,
 
     /// Path to schema.graphql
@@ -664,24 +670,28 @@ pub struct SingleProjectConfigFile {
 
     /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
     /// Adding to the config, to show the warning, and not a parse error.
+    #[serde(default)]
     pub include: Vec<String>,
 
     /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
     /// Adding to the config, to show the warning, and not a parse error.
+    #[serde(default)]
     pub extensions: Vec<String>,
 
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
-    #[serde(alias = "exclude")]
+    #[serde(default, alias = "exclude")]
     pub excludes: Vec<String>,
 
     /// List of directories with schema extensions.
+    #[serde(default)]
     pub schema_extensions: Vec<PathBuf>,
 
     /// This option controls whether or not a catch-all entry is added to enum type definitions
     /// for values that may be added in the future. Enabling this means you will have to update
     /// your application whenever the GraphQL server schema adds new enum values to prevent it
     /// from breaking.
+    #[serde(default)]
     pub no_future_proof_enums: bool,
 
     /// The name of the language plugin (?) used for input files and artifacts
@@ -689,9 +699,11 @@ pub struct SingleProjectConfigFile {
 
     /// Mappings from custom scalars in your schema to built-in GraphQL
     /// types, for type emission purposes.
+    #[serde(default)]
     pub custom_scalars: FnvIndexMap<ScalarName, CustomScalarType>,
 
     /// This option enables emitting es modules artifacts.
+    #[serde(default)]
     pub eager_es_modules: bool,
 
     /// Query Persist Configuration
@@ -707,9 +719,11 @@ pub struct SingleProjectConfigFile {
     pub codegen_command: Option<String>,
 
     /// Formatting style for generated files.
+    #[serde(default)]
     pub js_module_format: JsModuleFormat,
 
     /// Extra configuration for the schema itself.
+    #[serde(default)]
     pub schema_config: SchemaConfig,
 
     /// Configuration for @module
@@ -896,9 +910,9 @@ impl SingleProjectConfigFile {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, JsonSchema)]
 #[serde(untagged)]
-enum ConfigFile {
+pub enum ConfigFile {
     /// Base case configuration (mostly of OSS) where the project
     /// have single schema, and single source directory
     SingleProject(SingleProjectConfigFile),
@@ -933,7 +947,7 @@ It also cannot be a single project config file due to:
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Deserialize, Serialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be

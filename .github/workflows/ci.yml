@@ -143,6 +143,31 @@ jobs:
         run: grep -r --include "*.rs" --files-without-match "@generated" crates | xargs rustfmt --check --config="skip_children=true"
         working-directory: ./compiler/
 
+  build-config-schema:
+    name: Build Relay Compiler Config JSON Schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.64.0
+          override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --features vendored --manifest-path compiler/Cargo.toml --bin relay-config-schema --release
+
+      - name: Generate JSON Schema
+        run: |
+          ./compiler/target/release/relay-config-schema > relay-config-schema.json;
+          node scripts/fixJsonSchema.js;
+      - name: Upload JSON Schema
+        uses: actions/upload-artifact@v2
+        with:
+          name: relay-config-schema.json
+          path: ./relay-config-schema.json
+
   build-compiler:
     name: Build Rust Compiler (${{ matrix.target.os }})
     strategy:
@@ -218,7 +243,7 @@ jobs:
     name: Publish to NPM
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.repository == 'facebook/relay'
-    needs: [js-tests, js-lint, typecheck, build-tests, build-compiler]
+    needs: [js-tests, js-lint, typecheck, build-tests, build-compiler, build-config-schema]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -253,6 +278,11 @@ jobs:
         with:
           name: relay-bin-win-x64
           path: artifacts/win-x64
+      - name: Download artifact relay-config-schema
+        uses: actions/download-artifact@v2
+        with:
+          name: relay-config-schema.json
+          path: artifacts/relay-config-schmea.json
       - name: Mark binaries as executable
         working-directory: artifacts
         run: |

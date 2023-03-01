@@ -12,12 +12,13 @@ use std::fmt::Result as FmtResult;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::Rollout;
+use crate::rollout::Rollout;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
@@ -77,7 +78,7 @@ pub struct FeatureFlags {
     pub emit_normalization_nodes_for_client_edges: bool,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize, JsonSchema)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature

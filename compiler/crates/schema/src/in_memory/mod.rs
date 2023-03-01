@@ -56,8 +56,8 @@ pub struct InMemorySchema {
     fetch_token_field_name: StringKey,
     is_fulfilled_field_name: StringKey,
 
-    string_type: Option<Type>,
-    id_type: Option<Type>,
+    string_type: Option<ScalarID>,
+    id_type: Option<ScalarID>,
 
     unchecked_argument_type_sentinel: Option<TypeReference<Type>>,
 
@@ -164,11 +164,11 @@ impl Schema for InMemorySchema {
     }
 
     fn is_string(&self, type_: Type) -> bool {
-        type_ == self.string_type.unwrap()
+        type_ == Type::Scalar(self.string_type.unwrap())
     }
 
     fn is_id(&self, type_: Type) -> bool {
-        type_ == self.id_type.unwrap()
+        type_ == Type::Scalar(self.id_type.unwrap())
     }
 
     fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
@@ -774,10 +774,16 @@ impl InMemorySchema {
         }
 
         // Step 2: define operation types, directives, and types
-        let string_type = *type_map
+        let string_type = type_map
             .get(&"String".intern())
-            .expect("Missing String type");
-        let id_type = *type_map.get(&"ID".intern()).expect("Missing ID type");
+            .expect("Missing String type")
+            .get_scalar_id()
+            .expect("Expected ID to be a Scalar");
+        let id_type = type_map
+            .get(&"ID".intern())
+            .expect("Missing ID type")
+            .get_scalar_id()
+            .expect("Expected ID to be a Scalar");
 
         let unchecked_argument_type_sentinel = Some(TypeReference::Named(
             *type_map

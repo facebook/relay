@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a7ef3d4f0259e3cbfa1e5483c95ca9bf>>
+ * @generated SignedSource<<1687dbfac842edc1efee5250cb8dd78b>>
  */
 
 mod to_schema;
@@ -178,6 +178,13 @@ fn terse_relay_resolver_interface() {
     let input = include_str!("to_schema/fixtures/terse-relay-resolver-interface.js");
     let expected = include_str!("to_schema/fixtures/terse-relay-resolver-interface.expected");
     test_fixture(transform_fixture, "terse-relay-resolver-interface.js", "to_schema/fixtures/terse-relay-resolver-interface.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_non_existent_type_invalid() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-non-existent-type.invalid.js", "to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.expected", input, expected);
 }
 
 #[test]

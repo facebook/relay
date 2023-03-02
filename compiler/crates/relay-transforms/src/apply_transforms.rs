@@ -546,7 +546,7 @@ fn apply_operation_text_transforms(
     });
     log_event.time("validate_selection_conflict", || {
         graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
-            &program, false,
+            &program, true,
         )
     })?;
     program = log_event.time("skip_client_extensions", || {

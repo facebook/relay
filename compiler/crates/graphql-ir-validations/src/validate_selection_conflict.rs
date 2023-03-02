@@ -60,7 +60,7 @@ struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
     further_optimization: bool,
-    verified_fields_pair: DashSet<(PointerAddress, PointerAddress)>,
+    verified_fields_pair: DashSet<(PointerAddress, PointerAddress, bool)>,
     _behavior: PhantomData<TBehavior>,
 }
 
@@ -245,7 +245,13 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
 
             let addr2 = existing_field.pointer_address();
-            if self.further_optimization && self.verified_fields_pair.contains(&(addr1, addr2)) {
+            if self.further_optimization
+                && self.verified_fields_pair.contains(&(
+                    addr1,
+                    addr2,
+                    parent_fields_mutually_exclusive,
+                ))
+            {
                 continue;
             }
 
@@ -364,9 +370,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 }
             }
 
-            // save the verified pair into cache
+            // Save the verified pair into cache. The same pair of fields can appear under different parent
+            // fields, and the validation rule differs according to `parent_fields_mutually_exclusive`.
             if self.further_optimization {
-                self.verified_fields_pair.insert((addr1, addr2));
+                self.verified_fields_pair
+                    .insert((addr1, addr2, parent_fields_mutually_exclusive));
             }
         }
         if errors.is_empty() {

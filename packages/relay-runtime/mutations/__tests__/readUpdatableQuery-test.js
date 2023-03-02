@@ -920,10 +920,10 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData = store.readUpdatableQuery(
-        updatableQuery2,
-        {id: '4', foo: 'bar'},
-      ).updatableData;
+      const updatableData = store.readUpdatableQuery(updatableQuery2, {
+        id: '4',
+        foo: 'bar',
+      }).updatableData;
       expect(updatableData.node?.__typename).toBe('Metahuman');
     });
   });

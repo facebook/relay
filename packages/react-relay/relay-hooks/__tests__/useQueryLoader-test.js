@@ -44,11 +44,11 @@ let environment;
 /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
  * enabling Flow LTI mode */
 const loadQuery = jest.fn().mockImplementation(() => {
-    releaseQuery = jest.fn();
-    return (lastLoadQueryReturnValue = {
-      releaseQuery,
-    });
+  releaseQuery = jest.fn();
+  return (lastLoadQueryReturnValue = {
+    releaseQuery,
   });
+});
 
 jest.mock('../loadQuery', () => ({
   loadQuery,
@@ -546,10 +546,9 @@ describe('useQueryLoader', () => {
 
       function concurrentRender() {
         ReactTestRenderer.act(() => {
-          instance = ReactTestRenderer.create(
-            <ConcurrentWrapper />,
-            {unstable_isConcurrent: true},
-          );
+          instance = ReactTestRenderer.create(<ConcurrentWrapper />, {
+            unstable_isConcurrent: true,
+          });
         });
       }
 

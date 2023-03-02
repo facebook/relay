@@ -194,10 +194,9 @@ it('does not dispose the entry point before the new component tree unsuspends in
 
     function concurrentRender() {
       ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
-          <ConcurrentWrapper />,
-          {unstable_isConcurrent: true},
-        );
+        instance = ReactTestRenderer.create(<ConcurrentWrapper />, {
+          unstable_isConcurrent: true,
+        });
       });
     }
 
@@ -262,10 +261,9 @@ it('disposes entry point references associated with previous suspensions when mu
 
     function concurrentRender() {
       ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
-          <ConcurrentWrapper />,
-          {unstable_isConcurrent: true},
-        );
+        instance = ReactTestRenderer.create(<ConcurrentWrapper />, {
+          unstable_isConcurrent: true,
+        });
       });
     }
 
@@ -364,10 +362,9 @@ it('disposes entry point references associated with subsequent suspensions when 
 
     function concurrentRender() {
       ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
-          <ConcurrentWrapper />,
-          {unstable_isConcurrent: true},
-        );
+        instance = ReactTestRenderer.create(<ConcurrentWrapper />, {
+          unstable_isConcurrent: true,
+        });
       });
     }
 

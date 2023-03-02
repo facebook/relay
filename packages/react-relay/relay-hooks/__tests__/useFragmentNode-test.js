@@ -443,13 +443,10 @@ describe.each([
           existing.update(elements);
           return existing;
         } else {
-          return TestRenderer.create(
-            elements,
-            {
-              unstable_isConcurrent: isConcurrent,
-              unstable_concurrentUpdatesByDefault: true,
-            },
-          );
+          return TestRenderer.create(elements, {
+            unstable_isConcurrent: isConcurrent,
+            unstable_concurrentUpdatesByDefault: true,
+          });
         }
       };
     });

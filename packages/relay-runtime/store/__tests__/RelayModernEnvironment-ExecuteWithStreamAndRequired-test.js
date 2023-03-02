@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -66,13 +68,13 @@ describe('execute() a query with @stream and @required', () => {
 
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    const complete = jest.fn();
+    const complete = jest.fn<[], mixed>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    const error = jest.fn();
+    const error = jest.fn<[Error], mixed>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    const next = jest.fn();
+    const next = jest.fn<[GraphQLResponse], mixed>();
 
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
@@ -100,7 +102,7 @@ describe('execute() a query with @stream and @required', () => {
     const initialSnapshot = environment.lookup(selector);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);

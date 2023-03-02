@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
+import type {PayloadError} from '../../network/RelayNetworkTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -68,10 +70,10 @@ describe('Mutations on viewer', () => {
 
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    onCompleted = jest.fn();
+    onCompleted = jest.fn<[{...}, ?Array<PayloadError>], void>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    onError = jest.fn();
+    onError = jest.fn<[Error], void>();
     const fetch = (
       _query: RequestParameters,
       _variables: Variables,
@@ -117,7 +119,7 @@ describe('Mutations on viewer', () => {
     );
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 

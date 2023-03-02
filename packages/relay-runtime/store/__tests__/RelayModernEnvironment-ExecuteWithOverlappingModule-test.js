@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 import type {
   HandleFieldPayload,
@@ -144,7 +146,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       }),
       /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
        * enabling Flow LTI mode */
-      get: jest.fn(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
@@ -162,12 +164,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
     const actorOperationSnapshot = environment.lookup(actorOperation.fragment);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    actorOperationCallback = jest.fn();
+    actorOperationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(actorOperationSnapshot, actorOperationCallback);
     const userOperationSnapshot = environment.lookup(userOperation.fragment);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    userOperationCallback = jest.fn();
+    userOperationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(userOperationSnapshot, userOperationCallback);
   });
 

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot, LogEvent} from '../RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
@@ -143,13 +144,13 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          complete = jest.fn();
+          complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          error = jest.fn();
+          error = jest.fn<$ReadOnlyArray<Error>, mixed>();
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          next = jest.fn();
+          next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
           callbacks = {complete, error, next};
           fetch = (
             _query: RequestParameters,
@@ -172,7 +173,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           source = RelayRecordSource.create();
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          logger = jest.fn();
+          logger = jest.fn<[LogEvent], void>();
           store = new RelayModernStore(source, {
             log: logger,
           });
@@ -194,7 +195,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const operationSnapshot = environment.lookup(operation.fragment);
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          operationCallback = jest.fn();
+          operationCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(operationSnapshot, operationCallback);
         });
 
@@ -262,7 +263,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           expect(outerRendererASnapshot.isMissingData).toBe(true);
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          const outerRendererACallback = jest.fn();
+          const outerRendererACallback = jest.fn<[Snapshot], void>();
           environment.subscribe(outerRendererASnapshot, outerRendererACallback);
 
           const outerRendererBSelector = nullthrows(
@@ -277,7 +278,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           expect(outerRendererBSnapshot.isMissingData).toBe(true);
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          const outerRendererBCallback = jest.fn();
+          const outerRendererBCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(outerRendererBSnapshot, outerRendererBCallback);
 
           logger.mockClear();
@@ -411,7 +412,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           expect(outerRendererASnapshot.isMissingData).toBe(true);
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          const outerRendererACallback = jest.fn();
+          const outerRendererACallback = jest.fn<[Snapshot], void>();
           environment.subscribe(outerRendererASnapshot, outerRendererACallback);
 
           const outerRendererBSelector = nullthrows(
@@ -426,7 +427,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           expect(outerRendererBSnapshot.isMissingData).toBe(true);
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          const outerRendererBCallback = jest.fn();
+          const outerRendererBCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(outerRendererBSnapshot, outerRendererBCallback);
 
           logger.mockClear();
@@ -652,7 +653,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           expect(outerRendererASnapshot.isMissingData).toBe(true);
           /* $FlowFixMe[underconstrained-implicit-instantiation] error found
            * when enabling Flow LTI mode */
-          const outerRendererACallback = jest.fn();
+          const outerRendererACallback = jest.fn<[Snapshot], void>();
           environment.subscribe(outerRendererASnapshot, outerRendererACallback);
 
           next.mockClear();

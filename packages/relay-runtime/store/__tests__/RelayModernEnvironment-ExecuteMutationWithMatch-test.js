@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {
@@ -173,13 +175,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        complete = jest.fn();
+        complete = jest.fn<[], mixed>();
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        error = jest.fn();
+        error = jest.fn<[Error], mixed>();
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        next = jest.fn();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -237,12 +239,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const fragmentSnapshot = environment.lookup(selector);
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        fragmentCallback = jest.fn();
+        fragmentCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(fragmentSnapshot, fragmentCallback);
         const operationSnapshot = environment.lookup(operation.fragment);
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        operationCallback = jest.fn();
+        operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
@@ -425,7 +427,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(initialMatchSnapshot.isMissingData).toBe(true);
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        const matchCallback = jest.fn();
+        const matchCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialMatchSnapshot, matchCallback);
 
         resolveFragment(markdownRendererNormalizationFragment);

@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -128,13 +130,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        complete = jest.fn();
+        complete = jest.fn<[], mixed>();
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        error = jest.fn();
+        error = jest.fn<[Error], mixed>();
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        next = jest.fn();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -180,7 +182,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const initialSnapshot = environment.lookup(selector);
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        callback = jest.fn();
+        callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);

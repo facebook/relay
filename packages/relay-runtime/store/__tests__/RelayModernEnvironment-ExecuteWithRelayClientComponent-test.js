@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
@@ -75,13 +77,13 @@ describe('execute() with @relay_client_component', () => {
 
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    complete = jest.fn();
+    complete = jest.fn<[], mixed>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    error = jest.fn();
+    error = jest.fn<[Error], mixed>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    next = jest.fn();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -98,10 +100,10 @@ describe('execute() with @relay_client_component', () => {
     operationLoader = {
       /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
        * enabling Flow LTI mode */
-      load: jest.fn(),
+      load: jest.fn<[mixed], Promise<?NormalizationRootNode>>(),
       /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
        * enabling Flow LTI mode */
-      get: jest.fn(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     operation = createOperationDescriptor(Query, {id: '1'});
   });

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {
@@ -126,13 +127,13 @@ describe('execute() a query with @module', () => {
 
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    complete = jest.fn();
+    complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    error = jest.fn();
+    error = jest.fn<$ReadOnlyArray<Error>, mixed>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    next = jest.fn();
+    next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -168,7 +169,7 @@ describe('execute() a query with @module', () => {
     const operationSnapshot = environment.lookup(operation.fragment);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    operationCallback = jest.fn();
+    operationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
@@ -282,7 +283,7 @@ describe('execute() a query with @module', () => {
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
@@ -614,7 +615,7 @@ describe('execute() a query with @module', () => {
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     subscription.unsubscribe();

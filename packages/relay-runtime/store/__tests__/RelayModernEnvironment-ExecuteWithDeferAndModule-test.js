@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {IActorEnvironment} from '../../multi-actor-environment/MultiActorEnvironmentTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
@@ -98,13 +100,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        complete = jest.fn();
+        complete = jest.fn<[], mixed>();
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        error = jest.fn();
+        error = jest.fn<[Error], mixed>();
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        next = jest.fn();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -150,7 +152,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const operationSnapshot = environment.lookup(operation.fragment);
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        operationCallback = jest.fn();
+        operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
@@ -159,7 +161,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
@@ -190,7 +192,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const initialSnapshot = environment.lookup(selector);
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);
@@ -248,7 +250,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const initialSnapshot = environment.lookup(selector);
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);
@@ -300,7 +302,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const initialSnapshot = environment.lookup(selector);
         /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
          * enabling Flow LTI mode */
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);

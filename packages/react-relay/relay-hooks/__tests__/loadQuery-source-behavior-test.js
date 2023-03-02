@@ -111,7 +111,7 @@ beforeEach(() => {
     const originalSubscribe = observable.subscribe.bind(observable);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    networkUnsubscribe = jest.fn();
+    networkUnsubscribe = jest.fn<[], $FlowFixMe>();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
       const subscription = originalSubscribe(...args);
       jest

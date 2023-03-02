@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
@@ -82,13 +84,13 @@ describe('execute() a query with @module on a field with a nullable concrete typ
 
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    complete = jest.fn();
+    complete = jest.fn<[], mixed>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    error = jest.fn();
+    error = jest.fn<any | [Error], mixed>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    next = jest.fn();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -118,7 +120,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     const operationSnapshot = environment.lookup(operation.fragment);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    operationCallback = jest.fn();
+    operationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
@@ -224,7 +226,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     expect(initialMatchSnapshot.isMissingData).toBe(true);
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(authorNormalizationFragment);

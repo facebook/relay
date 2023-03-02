@@ -180,8 +180,6 @@ it('does not dispose the entry point before the new component tree unsuspends in
     }
 
     function ComponentWithHook() {
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       [, entryPointLoaderCallback] = useEntryPointLoader<
         {...},
         {...},
@@ -198,7 +196,6 @@ it('does not dispose the entry point before the new component tree unsuspends in
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -267,7 +264,6 @@ it('disposes entry point references associated with previous suspensions when mu
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -291,8 +287,6 @@ it('disposes entry point references associated with previous suspensions when mu
     }
 
     function Inner({promise}: {promise: ?Promise<any>}) {
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       [, entryPointLoaderCallback] = useEntryPointLoader<
         {...},
         {...},
@@ -372,7 +366,6 @@ it('disposes entry point references associated with subsequent suspensions when 
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -397,8 +390,6 @@ it('disposes entry point references associated with subsequent suspensions when 
 
     let innerUnsuspendedCorrectly = false;
     function Inner({promise}: {promise: ?Promise<any>}) {
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       [, entryPointLoaderCallback] = useEntryPointLoader<
         {...},
         {...},

@@ -97,7 +97,6 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       preloadedQueries[queryPropName] = preloadQuery_DEPRECATED<
         OperationType,
         mixed,
@@ -120,8 +119,6 @@ function prepareEntryPoint<
       }
       const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
         entryPointDescription;
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       preloadedEntryPoints[entryPointPropName] = prepareEntryPoint<
         _,
         {...},

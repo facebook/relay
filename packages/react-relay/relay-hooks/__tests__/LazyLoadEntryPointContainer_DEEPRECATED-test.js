@@ -59,7 +59,6 @@ const query = graphql`
 `;
 
 // Only queries with an ID are preloadable
-// $FlowFixMe[cannot-write]
 query.params.id = '12345';
 
 const response = {

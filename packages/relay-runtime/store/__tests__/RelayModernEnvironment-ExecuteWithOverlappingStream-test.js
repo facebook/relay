@@ -123,14 +123,8 @@ describe('execute() a query with multiple @stream selections on the same record'
       },
     };
 
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     complete = jest.fn<[], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     error = jest.fn<[Error], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
@@ -161,8 +155,6 @@ describe('execute() a query with multiple @stream selections on the same record'
 
   it('calls next() and publishes the initial payload to the store', () => {
     const initialSnapshot = environment.lookup(selector);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
@@ -207,11 +199,7 @@ describe('execute() a query with multiple @stream selections on the same record'
 
   it('processes sequential payloads (all actors, then all viewedBy)', () => {
     const initialSnapshot = environment.lookup(selector);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const deferCallback = jest.fn<[Snapshot], void>();
 
     environment.subscribe(initialSnapshot, callback);
@@ -349,11 +337,7 @@ describe('execute() a query with multiple @stream selections on the same record'
 
   it('processes interleaved streamed payloads (actor/viewedBy/actor/viewedBy)', () => {
     const initialSnapshot = environment.lookup(selector);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const deferCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 

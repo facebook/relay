@@ -173,14 +173,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         complete = jest.fn<[], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         error = jest.fn<[Error], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
@@ -237,13 +231,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const fragmentSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         fragmentCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(fragmentSnapshot, fragmentCallback);
         const operationSnapshot = environment.lookup(operation.fragment);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
       });
@@ -425,8 +415,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
         const initialMatchSnapshot = environment.lookup(matchSelector);
         expect(initialMatchSnapshot.isMissingData).toBe(true);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const matchCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialMatchSnapshot, matchCallback);
 

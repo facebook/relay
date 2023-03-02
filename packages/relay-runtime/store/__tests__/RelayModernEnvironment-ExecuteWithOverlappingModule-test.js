@@ -144,8 +144,6 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       load: jest.fn(moduleName => {
         return Promise.resolve();
       }),
-      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-       * enabling Flow LTI mode */
       get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     source = RelayRecordSource.create();
@@ -162,13 +160,9 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       },
     });
     const actorOperationSnapshot = environment.lookup(actorOperation.fragment);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     actorOperationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(actorOperationSnapshot, actorOperationCallback);
     const userOperationSnapshot = environment.lookup(userOperation.fragment);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     userOperationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(userOperationSnapshot, userOperationCallback);
   });

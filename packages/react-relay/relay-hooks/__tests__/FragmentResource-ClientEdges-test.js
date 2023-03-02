@@ -240,16 +240,13 @@ describe('FragmentResource Client Edges behavior', () => {
     const originalClearTimeout = global.clearTimeout;
     try {
       // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
-      // $FlowFixMe[cannot-write]
       global.setTimeout = fn => {
         const id = nextTimeoutID++;
         timeouts.set(id, fn);
         return id;
       };
       // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
-      // $FlowFixMe[cannot-write]
       global.clearTimeout = id => {
-        // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
         timeouts.delete(id);
       };
       function runAllTimeouts() {
@@ -316,10 +313,8 @@ describe('FragmentResource Client Edges behavior', () => {
       expect(release).toBeCalledTimes(1);
     } finally {
       // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
-      // $FlowFixMe[cannot-write]
       global.setTimeout = originalSetTimeout;
       // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
-      // $FlowFixMe[cannot-write]
       global.clearTimeout = originalClearTimeout;
     }
   });

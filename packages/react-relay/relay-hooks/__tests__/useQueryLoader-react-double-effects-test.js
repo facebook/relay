@@ -122,7 +122,6 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         }
       }
     `;
-    // $FlowFixMe
     gqlQuery.params.cacheID = 'TestQuery';
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
@@ -190,7 +189,6 @@ describe.skip('useQueryLoader-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe
           {unstable_isConcurrent: true},
         );
       });

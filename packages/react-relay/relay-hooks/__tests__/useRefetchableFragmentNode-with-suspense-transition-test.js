@@ -262,7 +262,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             [ID_KEY]:
               owner.request.variables.id ?? owner.request.variables.nodeID,
             [FRAGMENTS_KEY]: {
-              // $FlowFixMe[invalid-computed-prop] Error found while enabling LTI on this file
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
@@ -315,7 +314,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               <Container owner={query} {...props} />
             </ContextProvider>
           </React.Suspense>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       };

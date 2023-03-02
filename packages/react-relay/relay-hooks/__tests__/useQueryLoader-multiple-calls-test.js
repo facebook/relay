@@ -75,8 +75,6 @@ beforeEach(() => {
     });
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     networkUnsubscribe = jest.fn<[], $FlowFixMe>();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
       const subscription = originalSubscribe(...args);
@@ -106,8 +104,6 @@ beforeEach(() => {
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
-          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
-           * when enabling Flow LTI mode */
           const executeUnsubscribeFn = jest.fn<$ReadOnlyArray<mixed>, mixed>();
           return {unsubscribe: executeUnsubscribeFn};
         });

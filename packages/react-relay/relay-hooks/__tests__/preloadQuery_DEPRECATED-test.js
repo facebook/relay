@@ -45,7 +45,6 @@ const query = graphql`
 `;
 
 // Only queries with an ID are preloadable
-// $FlowFixMe[cannot-write]
 query.params.id = '12345';
 
 const params = {
@@ -920,7 +919,6 @@ describe('Preload queries that use provided variables', () => {
   };
 
   // Only queries with an ID are preloadable
-  // $FlowFixMe[cannot-write]
   queryWithProvidedVar.params.id = '12346';
 
   const paramsWithProvidedVar = {

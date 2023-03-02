@@ -123,14 +123,10 @@ describe('Configs: NODE_DELETE', () => {
         deletedIDFieldName: 'deletedCommentId',
       },
     ];
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const optimisticUpdater = jest.fn<
       [RecordSourceSelectorProxy, ?{...}],
       void,
     >();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     const operationDescriptor = createOperationDescriptor(
       FeedbackCommentQuery,
@@ -145,8 +141,6 @@ describe('Configs: NODE_DELETE', () => {
         operationDescriptor.request,
       ),
     );
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
@@ -280,14 +274,10 @@ describe('Configs: RANGE_DELETE', () => {
       {},
     );
     environment.commitPayload(operationDescriptor, payload);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const optimisticUpdater = jest.fn<
       [RecordSourceSelectorProxy, ?{...}],
       void,
     >();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     const snapshot = store.lookup(
       createReaderSelector(
@@ -297,8 +287,6 @@ describe('Configs: RANGE_DELETE', () => {
         operationDescriptor.request,
       ),
     );
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
@@ -335,14 +323,10 @@ describe('Configs: RANGE_DELETE', () => {
   });
 
   it('handles config with deletedIDFieldName as path', () => {
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const optimisticUpdater = jest.fn<
       [RecordSourceSelectorProxy, ?{...}],
       void,
     >();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     const mutation = graphql`
       mutation commitMutationTest3Mutation($input: UnfriendInput) {
@@ -431,8 +415,6 @@ describe('Configs: RANGE_DELETE', () => {
         operationDescriptor.request,
       ),
     );
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
@@ -565,11 +547,7 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     };
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     callback = jest.fn<[Snapshot], void>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     optimisticUpdater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     updater = jest.fn();
     data = {
@@ -1229,8 +1207,6 @@ describe('commitMutation()', () => {
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
     onCompleted = jest.fn<_, void>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     onError = jest.fn<[Error], void>();
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
@@ -1256,8 +1232,6 @@ describe('commitMutation()', () => {
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),
     );
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
@@ -1580,8 +1554,6 @@ describe('commitMutation() cacheConfig', () => {
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),
     );
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
@@ -1609,8 +1581,6 @@ describe('commitMutation() cacheConfig', () => {
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),
     );
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 

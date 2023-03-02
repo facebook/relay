@@ -73,7 +73,6 @@ function createOperationLoader() {
       if (entry == null) {
         let resolveFn = (_x: NormalizationSplitOperation) => undefined;
         const promise = new Promise(resolve_ => {
-          // $FlowFixMe[incompatible-type]
           resolveFn = resolve_;
         });
         // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
@@ -169,14 +168,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         complete = jest.fn<[], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         error = jest.fn<[Error], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
@@ -185,7 +178,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _cacheConfig: CacheConfig,
         ) => {
           // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-          // $FlowFixMe[underconstrained-implicit-instantiation]
           return RelayObservable.create(sink => {
             dataSource = sink;
           });
@@ -217,8 +209,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
         const userSnapshot = environment.lookup(userSelector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         userCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(userSnapshot, userCallback);
 
@@ -229,8 +219,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
         const actorSnapshot = environment.lookup(actorSelector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         actorCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(actorSnapshot, actorCallback);
       });

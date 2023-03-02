@@ -263,19 +263,16 @@ describe('readUpdatableQuery', () => {
 
       expect(() => {
         if (updatableData.me != null) {
-          // $FlowFixMe[cannot-write] That's the point!
           updatableData.me.id = '5';
         }
       }).toThrowError();
       expect(() => {
         if (updatableData.me != null) {
-          // $FlowFixMe[cannot-write] That's the point!
           updatableData.me.__typename = 'Protoss';
         }
       }).toThrowError();
       expect(() => {
         if (updatableData.me != null) {
-          // $FlowFixMe[cannot-write] That's the point!
           updatableData.me.__id = '5';
         }
       }).toThrowError();
@@ -341,7 +338,6 @@ describe('readUpdatableQuery', () => {
         // descriptor.
         expect(() => {
           if (updatableData.node2 != null) {
-            // $FlowFixMe[prop-missing] that's the point!
             updatableData.node2.name = 'MetaZuck';
           }
         }).toThrowError();
@@ -762,7 +758,6 @@ describe('readUpdatableQuery', () => {
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
-          // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
           updatableData.node2.parents = [];
           expect(updatableData.node2.parents).toEqual([]);
           expect(
@@ -824,7 +819,6 @@ describe('readUpdatableQuery', () => {
             if (readOnlyData.node.__typename === 'User') {
               expect(() => {
                 /* eslint-disable-next-line ft-flow/no-flow-fix-me-comments */
-                // $FlowFixMe
                 updatableData.node2.parents = null;
               }).toThrowError();
             }
@@ -927,7 +921,6 @@ describe('readUpdatableQuery', () => {
 
     commitLocalUpdate(environment, store => {
       const updatableData = store.readUpdatableQuery(
-        // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
         updatableQuery2,
         {id: '4', foo: 'bar'},
       ).updatableData;

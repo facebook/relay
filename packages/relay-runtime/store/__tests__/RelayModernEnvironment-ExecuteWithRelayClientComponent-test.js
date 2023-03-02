@@ -75,14 +75,8 @@ describe('execute() with @relay_client_component', () => {
       }
     `;
 
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     complete = jest.fn<[], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     error = jest.fn<[Error], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
@@ -98,11 +92,7 @@ describe('execute() with @relay_client_component', () => {
     network = RelayNetwork.create(fetch);
     source = RelayRecordSource.create();
     operationLoader = {
-      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-       * enabling Flow LTI mode */
       load: jest.fn<[mixed], Promise<?NormalizationRootNode>>(),
-      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-       * enabling Flow LTI mode */
       get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     operation = createOperationDescriptor(Query, {id: '1'});

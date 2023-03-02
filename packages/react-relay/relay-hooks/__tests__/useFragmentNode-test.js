@@ -415,7 +415,6 @@ describe.each([
               <SingularContainer owner={singularQuery} {...props} />
             </ContextProvider>
           </React.Suspense>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {
             unstable_isConcurrent: isConcurrent,
             unstable_concurrentUpdatesByDefault: true,
@@ -446,7 +445,6 @@ describe.each([
         } else {
           return TestRenderer.create(
             elements,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
             {
               unstable_isConcurrent: isConcurrent,
               unstable_concurrentUpdatesByDefault: true,

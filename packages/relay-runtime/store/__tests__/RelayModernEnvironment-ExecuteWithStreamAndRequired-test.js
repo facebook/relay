@@ -66,14 +66,8 @@ describe('execute() a query with @stream and @required', () => {
     `;
     const variables = {id: '1', enableStream: true};
 
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const complete = jest.fn<[], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const error = jest.fn<[Error], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const next = jest.fn<[GraphQLResponse], mixed>();
 
     operation = createOperationDescriptor(query, variables);
@@ -100,8 +94,6 @@ describe('execute() a query with @stream and @required', () => {
 
   it('bubbles @required @stream nodes up to the parent', () => {
     const initialSnapshot = environment.lookup(selector);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 

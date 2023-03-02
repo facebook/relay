@@ -204,7 +204,6 @@ function preloadQueryDeduped<TQuery: OperationType>(
   } else if (prevQueryEntry == null || prevQueryEntry.kind !== 'network') {
     // Should fetch but we're not already fetching: fetch!
     const source = network.execute(params, variables, networkCacheConfig, null);
-    // $FlowFixMe[underconstrained-implicit-instantiation]
     const subject = new ReplaySubject<GraphQLResponse>();
     nextQueryEntry = {
       cacheKey,

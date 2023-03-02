@@ -384,7 +384,6 @@ describe('useQueryLoader', () => {
             <RelayEnvironmentProvider environment={environment}>
               <ConcurrentWrapper />
             </RelayEnvironmentProvider>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -455,7 +454,6 @@ describe('useQueryLoader', () => {
             <RelayEnvironmentProvider environment={environment}>
               <ConcurrentWrapper />
             </RelayEnvironmentProvider>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -467,8 +465,6 @@ describe('useQueryLoader', () => {
 
         triggerStateChange = (newPromise, newName) =>
           React.startTransition(() => {
-            /* $FlowFixMe[prop-missing] error exposed when improving flow
-             * typing of useQueryLoader */
             queryLoaderCallback({});
             setPromise(newPromise);
           });
@@ -552,7 +548,6 @@ describe('useQueryLoader', () => {
         ReactTestRenderer.act(() => {
           instance = ReactTestRenderer.create(
             <ConcurrentWrapper />,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -564,8 +559,6 @@ describe('useQueryLoader', () => {
 
         triggerStateChange = (newPromise, newName) =>
           React.startTransition(() => {
-            /* $FlowFixMe[prop-missing] error exposed when improving flow
-             * typing of useQueryLoader */
             queryLoaderCallback({});
             setPromise(newPromise);
           });
@@ -631,12 +624,8 @@ describe('useQueryLoader', () => {
     render();
     let firstDispose;
     ReactTestRenderer.act(() => {
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * useQueryLoader */
       queryLoaderCallback({});
       firstDispose = releaseQuery;
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * useQueryLoader */
       queryLoaderCallback({});
     });
     expect(loadQuery).toHaveBeenCalledTimes(2);
@@ -668,8 +657,6 @@ describe('useQueryLoader', () => {
     const outerInstance = ReactTestRenderer.create(<Outer />);
     expect(renderCount).toEqual(1);
     ReactTestRenderer.act(() => {
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * useQueryLoader */
       queryLoaderCallback({});
     });
     expect(renderCount).toEqual(2);
@@ -708,8 +695,6 @@ describe('useQueryLoader', () => {
     const outerInstance = ReactTestRenderer.create(<Outer />);
     expect(renderCount).toEqual(1);
     ReactTestRenderer.act(() => {
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * useQueryLoader */
       queryLoaderCallback({});
     });
     expect(renderCount).toEqual(2);
@@ -722,8 +707,6 @@ describe('useQueryLoader', () => {
     expect(outerInstance.toJSON()).toEqual('fallback');
 
     ReactTestRenderer.act(() => {
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * useQueryLoader */
       queryLoaderCallback({});
     });
     const secondDispose = releaseQuery;
@@ -765,8 +748,6 @@ describe('useQueryLoader', () => {
     expect(renderCount).toEqual(1);
     expect(outerInstance.toJSON()).toEqual('fallback');
     ReactTestRenderer.act(() => {
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * useQueryLoader */
       queryLoaderCallback({});
     });
 
@@ -783,8 +764,6 @@ describe('useQueryLoader', () => {
     expect(renderCount).toEqual(1);
     ReactTestRenderer.act(() => {
       instance.unmount();
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * useQueryLoader */
       queryLoaderCallback({});
       expect(releaseQuery).not.toHaveBeenCalled();
     });
@@ -797,8 +776,6 @@ describe('useQueryLoader', () => {
     render();
     expect(renderCount).toEqual(1);
     ReactTestRenderer.act(() => {
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * useQueryLoader */
       queryLoaderCallback({});
       expect(releaseQuery).not.toHaveBeenCalled();
       instance.unmount();
@@ -810,8 +787,6 @@ describe('useQueryLoader', () => {
   it('does not call loadQuery if the callback is called after the component unmounts', () => {
     render();
     ReactTestRenderer.act(() => instance.unmount());
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
     expect(loadQuery).not.toHaveBeenCalled();
   });

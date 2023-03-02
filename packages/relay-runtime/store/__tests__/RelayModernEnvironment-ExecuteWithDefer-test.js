@@ -93,14 +93,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         complete = jest.fn<[], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         error = jest.fn<[Error], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
@@ -141,8 +135,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('calls next() and publishes the initial payload to the store', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
@@ -172,8 +164,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('processes deferred payloads', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
@@ -215,8 +205,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('processes deferred payloads mixed with extensions-only payloads', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
@@ -308,8 +296,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         it('processes deferred payloads with scheduling', () => {
           const initialSnapshot = environment.lookup(selector);
-          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
-           * when enabling Flow LTI mode */
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(initialSnapshot, callback);
 
@@ -364,8 +350,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         it('processes deferred payloads that are available synchronously within the same scheduler step', () => {
           const initialSnapshot = environment.lookup(selector);
-          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
-           * when enabling Flow LTI mode */
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(initialSnapshot, callback);
 
@@ -416,8 +400,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         it('cancels processing of deferred payloads with scheduling', () => {
           const initialSnapshot = environment.lookup(selector);
-          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
-           * when enabling Flow LTI mode */
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(initialSnapshot, callback);
 
@@ -467,8 +449,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('calls complete() when server completes after deferred payload resolves', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
@@ -509,8 +489,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('calls complete() when server completes before deferred payload resolves', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
@@ -540,8 +518,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('calls error() when server errors after deferred payload resolves', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
@@ -584,8 +560,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('calls error() when server errors before deferred payload resolves', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
@@ -617,8 +591,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('calls error() when deferred payload is missing data', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
@@ -662,8 +634,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('warns if executed in non-streaming mode and processes deferred selections', () => {
         const initialSnapshot = environment.lookup(selector);
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 

@@ -18,7 +18,6 @@ const RelayReplaySubject = require('../RelayReplaySubject');
 let subject;
 
 beforeEach(() => {
-  // $FlowFixMe[underconstrained-implicit-instantiation]
   subject = new RelayReplaySubject<string>();
 });
 

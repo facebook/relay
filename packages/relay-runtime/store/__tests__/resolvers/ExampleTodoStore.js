@@ -75,7 +75,6 @@ class TodoStore {
             todoID: `todo-${this._state.length + 1}`,
             description: action.payload,
             isCompleted: false,
-            // $FlowFixMe[underconstrained-implicit-instantiation]
             blockedBy: new Set<TodoID>(),
           },
         ];

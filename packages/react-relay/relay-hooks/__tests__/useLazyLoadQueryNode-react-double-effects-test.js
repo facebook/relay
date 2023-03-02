@@ -166,7 +166,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
         {unstable_isConcurrent: true},
       );
     });
@@ -301,7 +300,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
         {unstable_isConcurrent: true},
       );
     });
@@ -426,7 +424,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe
           {unstable_isConcurrent: true},
         );
       });
@@ -610,7 +607,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe
           {unstable_isConcurrent: true},
         );
       });

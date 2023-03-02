@@ -176,7 +176,6 @@ describe('useRefetchableFragment', () => {
             <Container owner={query} {...props} />
           </ContextProvider>
         </React.Suspense>,
-        // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
         {unstable_isConcurrent: isConcurrent},
       );
     };

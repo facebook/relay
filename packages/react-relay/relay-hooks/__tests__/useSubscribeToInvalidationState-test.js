@@ -367,7 +367,6 @@ it('re-establishes subscription when callback changes', () => {
 
   const newCallback = jest.fn<Array<mixed>, void>();
   ReactTestRenderer.act(() => {
-    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     setCallback(newCallback);
   });
 

@@ -335,7 +335,6 @@ it('does not release or cancel the query before the new component tree unsuspend
           <RelayEnvironmentProvider environment={environment}>
             <ConcurrentWrapper />
           </RelayEnvironmentProvider>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -406,7 +405,6 @@ it('releases and cancels query references associated with previous suspensions w
           <RelayEnvironmentProvider environment={environment}>
             <ConcurrentWrapper />
           </RelayEnvironmentProvider>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -418,8 +416,6 @@ it('releases and cancels query references associated with previous suspensions w
 
       triggerStateChange = (newPromise, newName) =>
         React.startTransition(() => {
-          /* $FlowFixMe[prop-missing] error exposed when improving flow typing
-           * of useQueryLoader */
           queryLoaderCallback({});
           setPromise(newPromise);
         });
@@ -503,7 +499,6 @@ it('releases and cancels query references associated with subsequent suspensions
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -515,8 +510,6 @@ it('releases and cancels query references associated with subsequent suspensions
 
       triggerStateChange = (newPromise, newName) =>
         React.startTransition(() => {
-          /* $FlowFixMe[prop-missing] error exposed when improving flow typing
-           * of useQueryLoader */
           queryLoaderCallback({});
           setPromise(newPromise);
         });
@@ -582,12 +575,8 @@ it('should release and cancel prior queries if the callback is called multiple t
   render();
   let firstDispose;
   ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
     firstDispose = dispose;
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
   });
   expect(loadQuery).toHaveBeenCalledTimes(2);
@@ -619,8 +608,6 @@ it('should release and cancel queries on unmount if the callback is called, the 
   const outerInstance = ReactTestRenderer.create(<Outer />);
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
   });
   expect(renderCount).toEqual(2);
@@ -659,8 +646,6 @@ it('releases and cancels all queries if a the callback is called, the component 
   const outerInstance = ReactTestRenderer.create(<Outer />);
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
   });
   expect(renderCount).toEqual(2);
@@ -673,8 +658,6 @@ it('releases and cancels all queries if a the callback is called, the component 
   expect(outerInstance.toJSON()).toEqual('fallback');
 
   ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
   });
   const secondDispose = dispose;
@@ -716,8 +699,6 @@ it('releases and cancels all queries if the component suspends, another query is
   expect(renderCount).toEqual(1);
   expect(outerInstance.toJSON()).toEqual('fallback');
   ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
   });
 
@@ -734,8 +715,6 @@ it('releases and cancels the query on unmount if the component unmounts and then
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
     instance.unmount();
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
     expect(dispose).not.toHaveBeenCalled();
   });
@@ -748,8 +727,6 @@ it('releases and cancels the query on unmount if the callback is called and the 
   render();
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
     queryLoaderCallback({});
     expect(dispose).not.toHaveBeenCalled();
     instance.unmount();

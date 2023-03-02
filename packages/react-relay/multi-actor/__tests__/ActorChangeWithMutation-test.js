@@ -213,8 +213,6 @@ describe('ActorChange', () => {
     const renderFn = jest.fn(data => {
       actorRenders.push(data);
     });
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     const renderViewerActorName = jest.fn<[?string], void>();
 
     ReactTestRenderer.create(

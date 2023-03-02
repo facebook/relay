@@ -115,14 +115,8 @@ describe('execute() a query with @module if the module fragment is available syn
       }
     `;
 
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     complete = jest.fn<[], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     error = jest.fn<[Error], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
 
@@ -131,8 +125,6 @@ describe('execute() a query with @module if the module fragment is available syn
     // this subscription) the fragment in a partially-complete
     // state.
     observationSnapshot = environment.lookup(observationSelector);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     callback = jest.fn<[Snapshot], void>();
     environment.subscribe(observationSnapshot, callback);
 
@@ -250,14 +242,8 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
       }
     `;
 
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     complete = jest.fn<[], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     error = jest.fn<[Error], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
 
@@ -266,8 +252,6 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
     // this subscription) the fragment in a partially-complete
     // state.
     observationSnapshot = environment.lookup(observationSelector);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     callback = jest.fn<[Snapshot], void>();
     environment.subscribe(observationSnapshot, callback);
 
@@ -399,14 +383,8 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       operation.request,
     );
 
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     complete = jest.fn<[], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     error = jest.fn<[Error], mixed>();
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
 
@@ -415,8 +393,6 @@ describe('execute() a query with nested @module fragments, where the inner @modu
     // this subscription) the fragment in a partially-complete
     // state.
     observationSnapshot = environment.lookup(observationSelector);
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
     callback = jest.fn<[Snapshot], void>();
     environment.subscribe(observationSnapshot, callback);
 

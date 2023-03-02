@@ -330,7 +330,6 @@ describe.each([
         <TodoComponentWithInterfaceComponent todoID="todo-1" />
       </EnvironmentWrapper>,
     );
-    // $FlowFixMe[incompatible-call] Yes, it is compatible...
     const response = JSON.parse(renderer.toJSON() ?? '{}');
     jest.runAllImmediates();
 

@@ -56,7 +56,6 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       preloadedQueries[queryPropName] = preloadQuery<OperationType, mixed>(
         environment,
         parameters,

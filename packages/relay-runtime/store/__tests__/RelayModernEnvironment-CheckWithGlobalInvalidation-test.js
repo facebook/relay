@@ -66,14 +66,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         operation = createOperationDescriptor(ParentQuery, {size: 32});
 
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         complete = jest.fn<[], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         error = jest.fn<[Error], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (

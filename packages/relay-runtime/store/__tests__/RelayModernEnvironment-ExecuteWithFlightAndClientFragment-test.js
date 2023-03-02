@@ -106,14 +106,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           };
         });
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         complete = jest.fn<[], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         error = jest.fn<[Error], mixed>();
-        /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-         * enabling Flow LTI mode */
         next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
@@ -133,8 +127,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               resolveFragment = resolve;
             });
           }),
-          /* $FlowFixMe[underconstrained-implicit-instantiation] error found
-           * when enabling Flow LTI mode */
           get: jest.fn<[mixed], ?NormalizationRootNode>(),
         };
         source = RelayRecordSource.create();

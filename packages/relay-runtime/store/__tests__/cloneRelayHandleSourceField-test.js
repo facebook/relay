@@ -34,31 +34,24 @@ describe('cloneRelayHandleSourceField()', () => {
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
-    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
-    // $FlowFixMe[incompatible-use]
     const sourceField = selections.find(node => node.kind === LINKED_FIELD);
     const clone = cloneRelayHandleSourceField(
       (handleField: $FlowFixMe),
-      // $FlowFixMe[incompatible-call]
       selections,
       {},
     );
 
     expect(clone.kind).toBe(LINKED_FIELD);
     expect(clone.name).toBe(getRelayHandleKey('test', null, 'address'));
-    // $FlowFixMe[incompatible-use]
     expect(clone.selections).toEqual(sourceField.selections);
   });
 
   it('throws if the source field is not present', () => {
-    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
-    // $FlowFixMe[incompatible-use]
     selections = selections.filter(node => node.kind === LINKED_HANDLE);
 
     expect(() =>
-      // $FlowFixMe[incompatible-call]
       cloneRelayHandleSourceField((handleField: $FlowFixMe), selections, {}),
     ).toThrowError(
       'cloneRelayHandleSourceField: Expected a corresponding source field ' +

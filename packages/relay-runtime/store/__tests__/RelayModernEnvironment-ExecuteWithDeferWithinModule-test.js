@@ -10,13 +10,12 @@
  */
 
 'use strict';
-import type {Snapshot} from '../RelayStoreTypes';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
-
 import type {
   NormalizationRootNode,
   NormalizationSplitOperation,
 } from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,

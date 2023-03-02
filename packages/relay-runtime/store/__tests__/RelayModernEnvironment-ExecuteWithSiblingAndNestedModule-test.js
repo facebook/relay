@@ -10,9 +10,9 @@
  */
 
 'use strict';
-import type {Snapshot, LogEvent} from '../RelayStoreTypes';
 import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {LogEvent, Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,

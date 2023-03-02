@@ -10,9 +10,8 @@
  */
 
 'use strict';
-import type {Snapshot} from '../../store/RelayStoreTypes';
-
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../../store/RelayStoreTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {
   commitMutationTest4Query$data,

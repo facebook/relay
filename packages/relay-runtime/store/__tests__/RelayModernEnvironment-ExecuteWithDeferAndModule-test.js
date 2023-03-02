@@ -10,12 +10,12 @@
  */
 
 'use strict';
-import type {Snapshot} from '../RelayStoreTypes';
-import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {IActorEnvironment} from '../../multi-actor-environment/MultiActorEnvironmentTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {ConcreteRequest} from '../../util/RelayConcreteNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,

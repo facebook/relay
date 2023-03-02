@@ -10,9 +10,8 @@
  */
 
 'use strict';
-import type {Snapshot} from '../RelayStoreTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
-
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,

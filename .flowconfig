@@ -30,7 +30,7 @@ suppress_type=$FlowExpectedError
 format.bracket_spacing=false
 
 experimental.abstract_locations=true
-inference_mode=constrain_writes
+inference_mode=lti
 
 [lints]
 untyped-type-import=error

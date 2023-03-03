@@ -82,13 +82,15 @@ function loadEntryPoint<
       }
       const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
         entryPointDescription;
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[underconstrained-implicit-instantiation]
-      preloadedEntryPoints[entryPointPropName] = loadEntryPoint(
-        environmentProvider,
-        nestedEntryPoint,
-        nestedParams,
-      );
+      preloadedEntryPoints[entryPointPropName] = loadEntryPoint<
+        _,
+        {...},
+        {...},
+        {...},
+        mixed,
+        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        _,
+      >(environmentProvider, nestedEntryPoint, nestedParams);
     });
   }
 

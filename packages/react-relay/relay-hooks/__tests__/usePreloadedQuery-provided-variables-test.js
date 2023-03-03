@@ -10,8 +10,12 @@
  */
 
 'use strict';
-
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from '../../../relay-runtime/util/RelayRuntimeTypes';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
@@ -139,10 +143,15 @@ describe.each([
     };
     beforeEach(() => {
       dataSource = undefined;
-      fetch = jest.fn((_query, _variables, _cacheConfig) =>
-        Observable.create(sink => {
-          dataSource = sink;
-        }),
+      fetch = jest.fn(
+        (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) =>
+          Observable.create((sink: Sink<GraphQLResponse>) => {
+            dataSource = sink;
+          }),
       );
       environment = new Environment({
         // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file

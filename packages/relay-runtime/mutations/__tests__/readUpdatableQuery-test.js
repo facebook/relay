@@ -10,7 +10,20 @@
  */
 
 'use strict';
-
+import type {
+  GraphQLResponse,
+  LogRequestInfoFunction,
+  UploadableMap,
+} from '../../network/RelayNetworkTypes';
+import type {ObservableFromValue} from '../../network/RelayObservable';
+import type {ReadOnlyRecordProxy} from '../../store/RelayStoreTypes';
+import type {
+  NormalizationLinkedField,
+  NormalizationScalarField,
+} from '../../util/NormalizationNode';
+import type {ReaderLinkedField} from '../../util/ReaderNode';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 import type {readUpdatableQueryTestRegularQuery} from './__generated__/readUpdatableQueryTestRegularQuery.graphql';
 import type {OpaqueScalarType} from './OpaqueScalarType';
 
@@ -147,7 +160,16 @@ describe('readUpdatableQuery', () => {
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
 
-    const fetch = jest.fn();
+    const fetch = jest.fn<
+      [
+        RequestParameters,
+        Variables,
+        CacheConfig,
+        ?UploadableMap,
+        ?LogRequestInfoFunction,
+      ],
+      ObservableFromValue<GraphQLResponse>,
+    >();
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),
       store,
@@ -1136,36 +1158,59 @@ describe('readUpdatableQuery', () => {
     let handleScalarField;
 
     beforeEach(() => {
-      handleLinkedField = jest.fn((field, record, argValues) => {
-        if (
-          record != null &&
-          record.getType() === ROOT_TYPE &&
-          field.name === 'node' &&
-          argValues.hasOwnProperty('id')
-        ) {
-          return argValues.id;
-        }
-      });
-      handlePluralLinkedField = jest.fn((field, record, argValues) => {
-        if (
-          record != null &&
-          record.getType() === ROOT_TYPE &&
-          field.name === 'nodes' &&
-          argValues.hasOwnProperty('ids')
-        ) {
-          return argValues.ids;
-        }
-      });
-      handleScalarField = jest.fn((field, record) => {
-        if (field.name === 'lastName') {
-          return 'Hamill';
-        }
-      });
+      handleLinkedField = jest.fn(
+        (
+          field: NormalizationLinkedField | ReaderLinkedField,
+          record: ?ReadOnlyRecordProxy,
+          argValues: Variables,
+        ) => {
+          if (
+            record != null &&
+            record.getType() === ROOT_TYPE &&
+            field.name === 'node' &&
+            argValues.hasOwnProperty('id')
+          ) {
+            return argValues.id;
+          }
+        },
+      );
+      handlePluralLinkedField = jest.fn(
+        (
+          field: NormalizationLinkedField | ReaderLinkedField,
+          record: ?ReadOnlyRecordProxy,
+          argValues: Variables,
+        ) => {
+          if (
+            record != null &&
+            record.getType() === ROOT_TYPE &&
+            field.name === 'nodes' &&
+            argValues.hasOwnProperty('ids')
+          ) {
+            return argValues.ids;
+          }
+        },
+      );
+      handleScalarField = jest.fn(
+        (field: NormalizationScalarField, record: ?ReadOnlyRecordProxy) => {
+          if (field.name === 'lastName') {
+            return 'Hamill';
+          }
+        },
+      );
 
       const source = RelayRecordSource.create();
       const store = new RelayModernStore(source);
 
-      const fetch = jest.fn();
+      const fetch = jest.fn<
+        [
+          RequestParameters,
+          Variables,
+          CacheConfig,
+          ?UploadableMap,
+          ?LogRequestInfoFunction,
+        ],
+        ObservableFromValue<GraphQLResponse>,
+      >();
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,

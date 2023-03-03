@@ -111,7 +111,10 @@ describe.each([
   }
 
   beforeEach(() => {
-    renderSpy = jest.fn();
+    renderSpy = jest.fn<
+      [useFragmentTestUserFragment$data | useFragmentTestUsersFragment$data],
+      mixed,
+    >();
 
     // Set up environment and base data
     environment = createMockEnvironment();

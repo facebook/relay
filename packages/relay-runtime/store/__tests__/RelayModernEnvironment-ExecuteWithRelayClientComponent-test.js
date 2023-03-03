@@ -10,7 +10,8 @@
  */
 
 'use strict';
-
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -73,9 +74,9 @@ describe('execute() with @relay_client_component', () => {
       }
     `;
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -90,8 +91,8 @@ describe('execute() with @relay_client_component', () => {
     network = RelayNetwork.create(fetch);
     source = RelayRecordSource.create();
     operationLoader = {
-      load: jest.fn(),
-      get: jest.fn(),
+      load: jest.fn<[mixed], Promise<?NormalizationRootNode>>(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     operation = createOperationDescriptor(Query, {id: '1'});
   });

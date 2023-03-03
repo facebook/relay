@@ -10,6 +10,14 @@
  */
 
 'use strict';
+import type {
+  GraphQLResponse,
+  LogRequestInfoFunction,
+  UploadableMap,
+} from '../../network/RelayNetworkTypes';
+import type {ObservableFromValue} from '../../network/RelayObservable';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 
 const {create} = require('../../network/RelayNetwork');
 const {getActorIdentifier} = require('../ActorIdentifier');
@@ -17,7 +25,16 @@ const MultiActorEnvironment = require('../MultiActorEnvironment');
 
 test('forActor: creates an environment', () => {
   const actorIdentifer = getActorIdentifier('actor:1234');
-  const fetchFn = jest.fn();
+  const fetchFn = jest.fn<
+    [
+      RequestParameters,
+      Variables,
+      CacheConfig,
+      ?UploadableMap,
+      ?LogRequestInfoFunction,
+    ],
+    ObservableFromValue<GraphQLResponse>,
+  >();
   const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
@@ -31,7 +48,16 @@ test('forActor: creates an environment', () => {
 
 test('forActor: memoize an environment', () => {
   const actorIdentifer = getActorIdentifier('actor:1234');
-  const fetchFn = jest.fn();
+  const fetchFn = jest.fn<
+    [
+      RequestParameters,
+      Variables,
+      CacheConfig,
+      ?UploadableMap,
+      ?LogRequestInfoFunction,
+    ],
+    ObservableFromValue<GraphQLResponse>,
+  >();
   const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),

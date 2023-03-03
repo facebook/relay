@@ -624,7 +624,7 @@ describe('FragmentResource', () => {
 
       expect(getMissigDataEvents()).toEqual([expectedLogEvent]);
 
-      const mockSubscription = jest.fn();
+      const mockSubscription = jest.fn<[], void>();
       // Subscribing here will cause Fragment resource to write updated fragment
       // snapshots to its cache.
       const disposable = FragmentResource.subscribe(result, mockSubscription);
@@ -785,7 +785,7 @@ describe('FragmentResource', () => {
   describe('subscribe', () => {
     let callback;
     beforeEach(() => {
-      callback = jest.fn();
+      callback = jest.fn<[], void>();
     });
 
     it('subscribes to the fragment that was `read`', () => {
@@ -1052,8 +1052,8 @@ describe('FragmentResource', () => {
           },
           __fragmentOwner: query.request,
         };
-        const callback1 = jest.fn();
-        const callback2 = jest.fn();
+        const callback1 = jest.fn<[], void>();
+        const callback2 = jest.fn<[], void>();
 
         let result = FragmentResource.read(
           fragmentNode,
@@ -1550,7 +1550,7 @@ describe('FragmentResource', () => {
     let unsubscribe;
     let callback: JestMockFn<$ReadOnlyArray<mixed>, void>;
     beforeEach(() => {
-      unsubscribe = jest.fn();
+      unsubscribe = jest.fn<$ReadOnlyArray<mixed>, mixed>();
       callback = jest.fn();
       jest.spyOn(environment, 'subscribe').mockImplementation(() => ({
         dispose: unsubscribe,

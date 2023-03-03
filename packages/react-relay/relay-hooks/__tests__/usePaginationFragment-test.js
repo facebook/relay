@@ -10,7 +10,9 @@
  */
 
 'use strict';
-
+import type {Sink} from '../../../relay-runtime/network/RelayObservable';
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {CacheConfig} from '../../../relay-runtime/util/RelayRuntimeTypes';
 import type {
   usePaginationFragmentTestStoryFragmentRefetchQuery$data,
   usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
@@ -134,6 +136,8 @@ describe.each([
   }
 
   function usePaginationFragment(fragmentNode: any, fragmentRef: any) {
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     const {data, ...result} = usePaginationFragmentOriginal(
       fragmentNode,
       fragmentRef,
@@ -185,7 +189,6 @@ describe.each([
   }
 
   function resolveQuery(payload: mixed) {
-    // $FlowFixMe[incompatible-call]
     dataSource.next(payload);
     dataSource.complete();
   }
@@ -212,22 +215,27 @@ describe.each([
   function createMockEnvironment() {
     const source = RecordSource.create();
     const store = new Store(source);
-    const fetchFn = jest.fn((_query, _variables, _cacheConfig) => {
-      // $FlowFixMe[incompatible-call]
-      return Observable.create(sink => {
-        dataSource = sink;
-        unsubscribe = jest.fn();
-        // $FlowFixMe[incompatible-call]
-        return unsubscribe;
-      });
-    });
+    const fetchFn = jest.fn(
+      (
+        _query: RequestParameters,
+        _variables: Variables,
+        _cacheConfig: CacheConfig,
+      ) => {
+        return Observable.create((sink: Sink<mixed>) => {
+          dataSource = sink;
+          unsubscribe = jest.fn<[], mixed>();
+          // $FlowFixMe[incompatible-call]
+          return unsubscribe;
+        });
+      },
+    );
     const environment = new Environment({
       getDataID: (data: {[string]: mixed}, typename: string) => {
         // This is the default, but making it explicit in case we need to override
-        // $FlowFixMe[prop-missing]
         return data.id;
       },
       // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+      // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
       network: Network.create(fetchFn),
       store,
       handlerProvider: _name => {
@@ -237,7 +245,7 @@ describe.each([
     // $FlowFixMe[method-unbinding]
     const originalRetain = environment.retain;
     // $FlowFixMe[cannot-write]
-    environment.retain = jest.fn((...args) =>
+    environment.retain = jest.fn((...args: any) =>
       originalRetain.apply(environment, args),
     );
     return [environment, fetchFn];
@@ -247,7 +255,9 @@ describe.each([
     // Set up mocks
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
+    renderSpy = jest.fn<_, mixed>();
     // Set up environment and base data
     [environment, fetch] = createMockEnvironment();
 
@@ -846,7 +856,7 @@ describe.each([
     let release;
 
     beforeEach(() => {
-      release = jest.fn();
+      release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
@@ -856,7 +866,6 @@ describe.each([
     });
 
     function expectRequestIsInFlight(expected: any) {
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(fetch).toBeCalledTimes(expected.requestCount);
       const fetchCall = fetch.mock.calls.find(call => {
         return (
@@ -938,7 +947,6 @@ describe.each([
             'Relay: Unexpected fetch on unmounted component',
           ),
         ).toEqual(true);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toHaveBeenCalledTimes(0);
       });
 
@@ -973,7 +981,7 @@ describe.each([
       });
 
       it('does not load more if request is already in flight', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -1011,7 +1019,6 @@ describe.each([
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toBeCalledTimes(1);
         expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1026,8 +1033,7 @@ describe.each([
 
         fetchQuery(environment, query).subscribe({});
 
-        const callback = jest.fn();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+        const callback = jest.fn<[Error | null], void>();
         fetch.mockClear();
         renderFragment();
 
@@ -1044,7 +1050,6 @@ describe.each([
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toBeCalledTimes(0);
         expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1078,7 +1083,7 @@ describe.each([
             },
           },
         });
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
 
         const renderer = renderFragment();
         const expectedUser = {
@@ -1153,7 +1158,7 @@ describe.each([
       });
 
       it('loads and renders next items in connection', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -1288,7 +1293,7 @@ describe.each([
           },
         };
 
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment({owner: queryWithLiteralArgs});
         expectFragmentResults([
           {
@@ -1408,7 +1413,7 @@ describe.each([
       });
 
       it('loads more correctly when original variables do not include an id', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const viewer = environment.lookup(queryWithoutID.fragment).data?.viewer;
         const userRef =
           typeof viewer === 'object' && viewer != null ? viewer?.actor : null;
@@ -1548,7 +1553,7 @@ describe.each([
       });
 
       it('loads more with correct id from refetchable fragment when using a nested fragment', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
 
         // Populate store with data for query using nested fragment
         environment.commitPayload(queryNestedFragment, {
@@ -1731,7 +1736,7 @@ describe.each([
       });
 
       it('calls callback with error when error occurs during fetch', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -1776,7 +1781,7 @@ describe.each([
       });
 
       it('preserves pagination request if re-rendered with same fragment ref', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -1909,7 +1914,7 @@ describe.each([
 
       describe('extra variables', () => {
         it('loads and renders the next items in the connection when passing extra variables', () => {
-          const callback = jest.fn();
+          const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
             {
@@ -2031,7 +2036,7 @@ describe.each([
         });
 
         it('loads the next items in the connection and ignores any pagination vars passed as extra vars', () => {
-          const callback = jest.fn();
+          const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
             {
@@ -2156,7 +2161,7 @@ describe.each([
       describe('disposing', () => {
         it('cancels load more if component unmounts', () => {
           unsubscribe.mockClear();
-          const callback = jest.fn();
+          const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
             {
@@ -2195,7 +2200,6 @@ describe.each([
             jest.runAllTimers();
           });
           expect(unsubscribe).toHaveBeenCalledTimes(1);
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(fetch).toBeCalledTimes(1);
           expect(callback).toBeCalledTimes(0);
           expect(renderSpy).toBeCalledTimes(0);
@@ -2203,7 +2207,7 @@ describe.each([
 
         it('cancels load more if refetch is called', () => {
           unsubscribe.mockClear();
-          const callback = jest.fn();
+          const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
             {
@@ -2241,17 +2245,15 @@ describe.each([
           TestRenderer.act(() => {
             refetch({id: '4'});
           });
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(fetch).toBeCalledTimes(2); // loadNext and refetch
           expect(loadNextUnsubscribe).toHaveBeenCalledTimes(1); // loadNext is cancelled
           expect(unsubscribe).toHaveBeenCalledTimes(0); // refetch is not cancelled
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(callback).toBeCalledTimes(0);
           expect(renderSpy).toBeCalledTimes(0);
         });
 
         it('disposes ongoing request if environment changes', () => {
-          const callback = jest.fn();
+          const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
             {
@@ -2353,7 +2355,7 @@ describe.each([
         });
 
         it('disposes ongoing request if fragment ref changes', () => {
-          const callback = jest.fn();
+          const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
             {
@@ -2466,7 +2468,7 @@ describe.each([
         });
 
         it('disposes ongoing request on unmount', () => {
-          const callback = jest.fn();
+          const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
             {
@@ -2512,7 +2514,7 @@ describe.each([
         });
 
         it('disposes ongoing request if it is manually disposed', () => {
-          const callback = jest.fn();
+          const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
             {
@@ -2719,7 +2721,6 @@ describe.each([
             },
           ]);
 
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           fetch.mockClear();
           renderSpy.mockClear();
           // Call `capturedLoadNext`, which should be a no-op since it's
@@ -2730,7 +2731,6 @@ describe.each([
           });
 
           // Assert that calling `capturedLoadNext` is a no-op
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(fetch).toBeCalledTimes(0);
           expect(renderSpy).toBeCalledTimes(0);
 
@@ -2742,7 +2742,6 @@ describe.each([
           });
 
           // Assert that calling `loadNext` starts the request
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(fetch).toBeCalledTimes(1);
           expect(renderSpy).toBeCalledTimes(1);
         });
@@ -3085,7 +3084,7 @@ describe.each([
       });
 
       it('updates after pagination if more results are available', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -3205,7 +3204,7 @@ describe.each([
       });
 
       it('updates after pagination if no more results are available', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -3337,7 +3336,6 @@ describe.each([
         refetchVariables: Variables,
         requestCount: number,
       }) {
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toBeCalledTimes(expected.requestCount);
         const fetchCall = fetch.mock.calls.find(call => {
           return (
@@ -3931,7 +3929,6 @@ describe.each([
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
         // Paginate after refetching
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         fetch.mockClear();
         TestRenderer.act(() => {
           loadNext(1);
@@ -4097,7 +4094,7 @@ describe.each([
       });
 
       it('loads and renders next items in connection', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         const initialData = {
           fetch_id: 'fetch:a',

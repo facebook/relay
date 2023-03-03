@@ -175,7 +175,7 @@ describe('RelayOperationTracker', () => {
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
-      const callback = jest.fn();
+      const callback = jest.fn<[void], mixed>();
       result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.complete(MutationOperation1);
@@ -191,7 +191,7 @@ describe('RelayOperationTracker', () => {
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
-      const callback = jest.fn();
+      const callback = jest.fn<[void], mixed>();
       result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.update(MutationOperation2, new Set([QueryOperation1]));
@@ -221,7 +221,7 @@ describe('RelayOperationTracker', () => {
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
-      const callback = jest.fn();
+      const callback = jest.fn<[void], mixed>();
       result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.complete(MutationOperation1);

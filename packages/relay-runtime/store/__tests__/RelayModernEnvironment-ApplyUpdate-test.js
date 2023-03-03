@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RecordSourceProxy} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
@@ -81,7 +82,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           {},
           operation.request,
         );
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(selector);
         environment.subscribe(snapshot, callback);
 
@@ -106,7 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           {},
           operation.request,
         );
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(selector);
         environment.subscribe(snapshot, callback);
 
@@ -130,7 +131,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           {},
           operation.request,
         );
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(selector);
         environment.subscribe(snapshot, callback);
 
@@ -166,7 +167,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           {},
           operation.request,
         );
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(selector);
         expect(snapshot.data).toEqual(undefined);
         environment.subscribe(snapshot, callback);
@@ -267,7 +268,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             {},
             operation.request,
           );
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           const snapshot = environment.lookup(selector);
           environment.subscribe(snapshot, callback);
 
@@ -298,7 +299,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             {},
             operation.request,
           );
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           const snapshot = environment.lookup(selector);
           environment.subscribe(snapshot, callback);
 
@@ -334,7 +335,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             {},
             operation.request,
           );
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           const snapshot = environment.lookup(selector);
           environment.subscribe(snapshot, callback);
 
@@ -377,7 +378,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             {},
             operation.request,
           );
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           const snapshot = environment.lookup(selector);
           expect(snapshot.data).toEqual(undefined);
           environment.subscribe(snapshot, callback);

@@ -41,6 +41,8 @@ let update;
 let Container;
 let environment;
 
+/* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+ * enabling Flow LTI mode */
 const loadQuery = jest.fn().mockImplementation(() => {
   releaseQuery = jest.fn();
   return (lastLoadQueryReturnValue = {

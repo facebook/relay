@@ -115,7 +115,7 @@ describe('useLazyLoadQueryNode', () => {
   let errorBoundaryDidCatchFn;
 
   beforeEach(() => {
-    errorBoundaryDidCatchFn = jest.fn();
+    errorBoundaryDidCatchFn = jest.fn<[Error], mixed>();
 
     class ErrorBoundary extends React.Component<any, any> {
       state: any | {error: null} = {error: null};
@@ -172,10 +172,11 @@ describe('useLazyLoadQueryNode', () => {
       },
       store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
     });
-    release = jest.fn();
+    release = jest.fn<[mixed], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain.bind(environment);
     // $FlowFixMe[cannot-write]
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     environment.retain = jest.fn((...args) => {
       const originalDisposable = originalRetain(...args);
       return {
@@ -203,7 +204,7 @@ describe('useLazyLoadQueryNode', () => {
 
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
-    renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
+    renderFn = jest.fn((result: any) => result?.node?.name ?? 'Empty');
   });
 
   afterEach(() => {

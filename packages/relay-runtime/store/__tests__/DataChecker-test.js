@@ -10,7 +10,10 @@
  */
 
 'use strict';
-
+import type {NormalizationLinkedField} from '../../util/NormalizationNode';
+import type {ReaderLinkedField} from '../../util/ReaderNode';
+import type {Variables} from '../../util/RelayRuntimeTypes';
+import type {ReadOnlyRecordProxy} from '../RelayStoreTypes';
 import type {
   DataCheckerTest10Query$data,
   DataCheckerTest10Query$variables,
@@ -717,9 +720,9 @@ describe('check()', () => {
 
       loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -779,7 +782,6 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
-      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
       );
@@ -1187,9 +1189,9 @@ describe('check()', () => {
 
       loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -1246,7 +1248,6 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
-      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
       );
@@ -1946,9 +1947,15 @@ describe('check()', () => {
             }
           }
         `;
-        const handle = jest.fn((field, record, argValues) => {
-          return handleReturnValue;
-        });
+        const handle = jest.fn(
+          (
+            field: NormalizationLinkedField | ReaderLinkedField,
+            record: ?ReadOnlyRecordProxy,
+            argValues: Variables,
+          ) => {
+            return handleReturnValue;
+          },
+        );
         const status = check(
           () => source,
           () => target,
@@ -2099,9 +2106,15 @@ describe('check()', () => {
             }
           }
         `;
-        const handle = jest.fn((field, record, argValues) => {
-          return handleReturnValue;
-        });
+        const handle = jest.fn(
+          (
+            field: NormalizationLinkedField | ReaderLinkedField,
+            record: ?ReadOnlyRecordProxy,
+            argValues: Variables,
+          ) => {
+            return handleReturnValue;
+          },
+        );
         const status = check(
           () => source,
           () => target,
@@ -2523,7 +2536,6 @@ describe('check()', () => {
             __id: 'client:1',
             __typename: 'FriendsConnection',
             edges: {
-              // $FlowFixMe[incompatible-type]
               __refs: [],
             },
           },

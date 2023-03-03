@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../../RelayStoreTypes';
 
 const {
   live_external_greeting: LiveExternalGreeting,
@@ -159,7 +160,7 @@ test('Updates can be batched', () => {
 
   const snapshot = environment.lookup(operation.fragment);
 
-  const handler = jest.fn();
+  const handler = jest.fn<[Snapshot], void>();
   environment.subscribe(snapshot, handler);
 
   expect(handler.mock.calls.length).toBe(0);

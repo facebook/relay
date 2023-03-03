@@ -40,7 +40,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     // Set up mocks
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn();
+    renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();
 
     // Set up environment and base data
     environment = createMockEnvironment();

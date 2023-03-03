@@ -10,6 +10,17 @@
  */
 
 'use strict';
+import type {
+  GraphQLResponse,
+  LogRequestInfoFunction,
+  UploadableMap,
+} from '../../../relay-runtime/network/RelayNetworkTypes';
+import type {ObservableFromValue} from '../../../relay-runtime/network/RelayObservable';
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from '../../../relay-runtime/util/RelayRuntimeTypes';
 
 const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
@@ -106,7 +117,9 @@ class FakeJSResource<T> {
 beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     Observable.create(sink => {
       dataSource = sink;
     }),
@@ -122,6 +135,7 @@ beforeEach(() => {
     params: query.params,
   };
   entryPoint = {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     getPreloadProps: jest.fn(entryPointParams => {
       return {
         queries: {
@@ -280,6 +294,7 @@ it('renders synchronously when the query and component are already loaded', () =
 });
 
 it('re-renders without reloading when non-prefetch props change', () => {
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node?.name;
@@ -321,6 +336,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
 });
 
 it('re-renders and reloads when prefetch params change', () => {
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node?.name;
@@ -498,6 +514,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
 
 it('should use environment from `getEnvironment` prop to fetch a query', () => {
   entryPoint = {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     getPreloadProps: jest.fn(entryPointParams => {
       return {
         queries: {
@@ -513,8 +530,26 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
     }),
     root: (new FakeJSResource(): $FlowFixMe),
   };
-  const fetchFn = jest.fn();
-  const defaultFetchFn = jest.fn();
+  const fetchFn = jest.fn<
+    [
+      RequestParameters,
+      Variables,
+      CacheConfig,
+      ?UploadableMap,
+      ?LogRequestInfoFunction,
+    ],
+    ObservableFromValue<GraphQLResponse>,
+  >();
+  const defaultFetchFn = jest.fn<
+    [
+      RequestParameters,
+      Variables,
+      CacheConfig,
+      ?UploadableMap,
+      ?LogRequestInfoFunction,
+    ],
+    ObservableFromValue<GraphQLResponse>,
+  >();
   const defaultEnvironment = new Environment({
     network: Network.create(defaultFetchFn),
     store: new Store(new RecordSource()),

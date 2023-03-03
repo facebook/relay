@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useIsParentQueryActive = require('../useIsParentQueryActive');
@@ -44,10 +45,27 @@ let query;
 beforeEach(() => {
   const source = new RecordSource();
   const store = new Store(source);
-  fetch = jest.fn((_query, _variables, _cacheConfig) =>
-    Observable.create(sink => {
-      dataSource = sink;
-    }),
+  fetch = jest.fn(
+    (
+      _query: $FlowExpectedError,
+      _variables: $FlowExpectedError,
+      _cacheConfig: $FlowExpectedError,
+    ) =>
+      Observable.create(
+        (
+          sink: Sink<
+            | {
+                data: {__typename: string, id: string, name: string},
+                label: string,
+                path: Array<string>,
+              }
+            | {data: {node: {__typename: string, id: string}}}
+            | {data: {node: {__typename: string, id: string, name: string}}},
+          >,
+        ) => {
+          dataSource = sink;
+        },
+      ),
   );
   environment = new Environment({
     network: Network.create((fetch: $FlowFixMe)),
@@ -188,7 +206,7 @@ it('returns false when owner fetch completed', () => {
 });
 
 it('returns false when owner fetch errored', () => {
-  const onError = jest.fn();
+  const onError = jest.fn<[Error], mixed>();
   fetchQuery(environment, operation).subscribe({
     error: onError,
   });
@@ -295,7 +313,7 @@ it('updates the component when a pending owner fetch completes', () => {
 });
 
 it('updates the component when a pending owner fetch errors', () => {
-  const onError = jest.fn();
+  const onError = jest.fn<[Error], mixed>();
   fetchQuery(environment, operation).subscribe({
     error: onError,
   });

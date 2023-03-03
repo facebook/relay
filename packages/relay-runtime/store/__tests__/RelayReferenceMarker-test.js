@@ -511,9 +511,9 @@ describe('RelayReferenceMarker', () => {
       `;
       loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -888,9 +888,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -937,9 +937,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -985,9 +985,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -1077,9 +1077,9 @@ describe('RelayReferenceMarker', () => {
       `;
       loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };

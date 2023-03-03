@@ -11,9 +11,11 @@
 
 'use strict';
 import type {IActorEnvironment} from '../../multi-actor-environment/MultiActorEnvironmentTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {ConcreteRequest} from '../../util/RelayConcreteNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -96,9 +98,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
 
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -142,14 +144,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               });
 
         const operationSnapshot = environment.lookup(operation.fragment);
-        operationCallback = jest.fn();
+        operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
       it('calls next() and publishes the initial payload to the store', () => {
         const initialSnapshot = environment.lookup(selector);
 
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
@@ -178,7 +180,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('processes deferred payloads', () => {
         const initialSnapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);
@@ -234,7 +236,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('synchronously normalizes the deferred payload if the normalization fragment is available synchronously', () => {
         const initialSnapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);
@@ -284,7 +286,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('processes deferred payloads if the normalization fragment is delivered in same network response', () => {
         const initialSnapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);

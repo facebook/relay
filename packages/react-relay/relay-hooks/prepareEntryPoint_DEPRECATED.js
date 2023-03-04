@@ -40,6 +40,7 @@ function prepareEntryPoint<
 ): void {
   // Start loading the code for the entrypoint
   if (entryPoint.root.getModuleIfRequired() == null) {
+    // $FlowFixMe[unused-promise]
     entryPoint.root.load();
   }
   const preloadProps = entryPoint.getPreloadProps(entryPointParams);

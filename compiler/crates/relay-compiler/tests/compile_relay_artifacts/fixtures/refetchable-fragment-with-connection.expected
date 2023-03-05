@@ -348,8 +348,10 @@ fragment refetchableFragmentWithConnection_PaginationFragment_1G22uz on Node {
         "node"
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
-      "identifierField": "id",
-      "identifierQueryVariableName": "id"
+      "indentifierInfo": {
+        "identifierField": "id",
+        "identifierQueryVariableName": "id"
+      }
     }
   },
   "name": "refetchableFragmentWithConnection_PaginationFragment",

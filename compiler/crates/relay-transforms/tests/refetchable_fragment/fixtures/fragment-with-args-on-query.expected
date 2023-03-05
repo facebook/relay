@@ -54,8 +54,7 @@ fragment RefetchableFragment on Query @refetchable(queryName: "RefetchableFragme
 #         "RefetchableFragmentQuery",
 #     ),
 #     path: [],
-#     identifier_field: None,
-#     identifier_query_variable_name: None,
+#     identifier_info: None,
 # }
  {
   node(id: $id) {

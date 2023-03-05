@@ -76,12 +76,16 @@ export type ReaderPaginationFragment = {
   },
 };
 
+export type RefetchableIdentifierInfo = {
+  +identifierField: string,
+  +identifierQueryVariableName: string,
+};
+
 export type ReaderRefetchMetadata = {
   +connection?: ?ReaderPaginationMetadata,
   +operation: string | ConcreteRequest,
   +fragmentPathInResult: Array<string>,
-  +identifierField?: ?string,
-  +identifierQueryVariableName?: ?string,
+  +identifierInfo?: ?RefetchableIdentifierInfo,
 };
 
 // Stricter form of ConnectionMetadata

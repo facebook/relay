@@ -41,6 +41,7 @@ use super::validation_message::ValidationMessage;
 use super::QueryGenerator;
 use super::RefetchRoot;
 use super::RefetchableMetadata;
+use super::RefetchableIdentifierInfo;
 use super::CONSTANTS;
 use crate::root_variables::VariableMap;
 
@@ -120,8 +121,11 @@ fn build_refetch_operation(
                     RefetchableMetadata {
                         operation_name: query_name,
                         path: vec![CONSTANTS.node_field_name],
-                        identifier_field: Some(id_name),
-                        identifier_query_variable_name: Some(schema_config.node_interface_id_variable_name),
+                        identifier_info: Some(RefetchableIdentifierInfo {
+                            identifier_field: id_name,
+                            identifier_query_variable_name: schema_config
+                                .node_interface_id_variable_name,
+                        }),
                     },
                 ),
                 used_global_variables: build_used_global_variables(

@@ -355,8 +355,10 @@ import RefetchableFragmentQuery_graphql from './RefetchableFragmentQuery.graphql
         "node"
       ],
       "operation": RefetchableFragmentQuery_graphql,
-      "identifierField": "id",
-      "identifierQueryVariableName": "id"
+      "indentifierInfo": {
+        "identifierField": "id",
+        "identifierQueryVariableName": "id"
+      }
     }
   },
   "name": "refetchableFragmentWithConnectionEsModules_PaginationFragment",

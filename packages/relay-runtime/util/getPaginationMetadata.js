@@ -1,6 +1,4 @@
 /**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
@@ -50,14 +48,14 @@ function getPaginationMetadata(
     componentDisplayName,
     fragmentNode.name,
   );
-  const identifierField = refetchMetadata.identifierField;
+  const identifierInfo = refetchMetadata.identifierInfo;
   invariant(
-    identifierField == null || typeof identifierField === 'string',
+    identifierInfo?.identifierField == null || typeof identifierInfo.identifierField === 'string',
     'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
   );
   return {
     connectionPathInFragmentData,
-    identifierField,
+    identifierField: identifierInfo?.identifierField,
     paginationRequest,
     paginationMetadata,
     stream: connectionMetadata.stream === true,

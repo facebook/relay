@@ -38,7 +38,7 @@ More details about this script can be found at its [GitHub repository](https://g
 Install React and Relay using `yarn` or `npm`:
 
 ```sh
-yarn add react react-dom react-relay
+yarn add react react-dom react-relay relay-runtime
 ```
 
 ## Set up the compiler

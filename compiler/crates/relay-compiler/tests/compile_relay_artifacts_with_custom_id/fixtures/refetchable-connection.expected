@@ -319,7 +319,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback {
       ],
       "operation": require('RefetchableConnectionQuery.graphql'),
       "identifierField": "global_id",
-      "identifierQueryVariableName": "global_id"
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "refetchableConnection_RefetchableConnection_feedback",

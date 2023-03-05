@@ -73,7 +73,7 @@ fn build_refetch_operation(
                     operation_name: query_name,
                     path: vec![fetch_field_name],
                     identifier_field: Some(identifier_field_name),
-                    identifier_query_variable_name: Some(id_name),
+                    identifier_query_variable_name: Some(schema_config.node_interface_id_variable_name),
                 },
             ),
             selections: enforce_selections_with_id_field(

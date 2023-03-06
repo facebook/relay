@@ -108,7 +108,7 @@ struct SchemaInfo<'a, 'b> {
 
 impl DocblockIr {
     pub fn to_sdl_string(
-        &self,
+        self,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
     ) -> DiagnosticsResult<String> {
@@ -121,7 +121,7 @@ impl DocblockIr {
             .join("\n\n"))
     }
     pub fn to_graphql_schema_ast(
-        &self,
+        self,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
     ) -> DiagnosticsResult<SchemaDocument> {
@@ -262,9 +262,11 @@ pub struct RootFragment {
     inject_fragment_data: Option<FragmentDataInjectionMode>,
 }
 
-trait ResolverIr {
+trait ResolverIr: Sized {
+    /// Validate the ResolverIr against the schema and return the TypeSystemDefinition's
+    /// that need to be added to the schema.
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
@@ -279,7 +281,7 @@ trait ResolverIr {
     fn named_import(&self) -> Option<StringKey>;
 
     fn to_graphql_schema_ast(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<SchemaDocument> {
         Ok(SchemaDocument {
@@ -606,7 +608,7 @@ pub struct TerseRelayResolverIr {
 
 impl ResolverIr for TerseRelayResolverIr {
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let schema = schema_info.schema;
@@ -721,7 +723,7 @@ pub struct RelayResolverIr {
 
 impl ResolverIr for RelayResolverIr {
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let schema = schema_info.schema;
@@ -884,7 +886,7 @@ pub struct StrongObjectIr {
 
 impl ResolverIr for StrongObjectIr {
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let span = Span::empty();
@@ -1081,7 +1083,7 @@ impl WeakObjectIr {
 
 impl ResolverIr for WeakObjectIr {
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         Ok(vec![

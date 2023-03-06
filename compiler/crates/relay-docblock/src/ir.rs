@@ -870,7 +870,11 @@ impl ResolverTypeDefinitionIr for RelayResolverIr {
 /// Relay Resolver ID representing a "model" of a strong object
 #[derive(Debug, PartialEq)]
 pub struct StrongObjectIr {
-    pub type_: PopulatedIrField,
+    pub type_name: Identifier,
+    /// T146185439 The location of everything past @RelayResolver. Note that we use
+    /// this incorrectly to refer to the location of the type_name field. It is not!
+    /// It is the location of a longer string, e.g. "Foo implements Bar".
+    pub rhs_location: Location,
     pub root_fragment: WithLocation<FragmentDefinitionName>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
@@ -908,7 +912,7 @@ impl ResolverIr for StrongObjectIr {
             ),
         ];
         let type_ = TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-            name: as_identifier(self.type_.value),
+            name: self.type_name,
             interfaces: vec![],
             directives: vec![ConstantDirective {
                 span,
@@ -953,14 +957,18 @@ impl ResolverIr for StrongObjectIr {
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        Some(self.type_.value.item)
+        Some(self.type_name.value)
     }
 }
 
 /// Relay Resolver docblock representing a "model" type for a weak object
 #[derive(Debug, PartialEq)]
 pub struct WeakObjectIr {
-    pub type_: PopulatedIrField,
+    pub type_name: Identifier,
+    /// T146185439 The location of everything past @RelayResolver. Note that we use
+    /// this incorrectly to refer to the location of the type_name field. It is not!
+    /// It is the location of a longer string, e.g. "Foo implements Bar".
+    pub rhs_location: Location,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub location: Location,
@@ -969,7 +977,7 @@ pub struct WeakObjectIr {
 impl WeakObjectIr {
     // Generate the named GraphQL type (with an __relay_model_instance field).
     fn type_definition(&self, schema_info: SchemaInfo<'_, '_>) -> TypeSystemDefinition {
-        let span = self.type_.value.location.span();
+        let span = self.rhs_location.span();
 
         let mut directives = vec![
             ConstantDirective {
@@ -1005,7 +1013,7 @@ impl WeakObjectIr {
             })
         }
         TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-            name: as_identifier(self.type_.value),
+            name: self.type_name,
             interfaces: vec![],
             directives,
             fields: Some(List::generated(vec![generate_model_instance_field(
@@ -1020,7 +1028,7 @@ impl WeakObjectIr {
 
     // Generate a custom scalar definition based on the exported type.
     fn instance_scalar_type_definition(&self) -> TypeSystemDefinition {
-        let span = self.type_.value.location.span();
+        let span = self.rhs_location.span();
         TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
             name: Identifier {
                 span,
@@ -1051,7 +1059,7 @@ impl WeakObjectIr {
                         colon: dummy_token(span),
                         value: ConstantValue::String(StringNode {
                             token: dummy_token(span),
-                            value: self.type_.value.item,
+                            value: self.type_name.value,
                         }),
                     },
                 ])),
@@ -1065,7 +1073,7 @@ impl WeakObjectIr {
         // TODO: Ensure this type does not already exist?
         format!(
             "{}{}",
-            self.type_.value.item, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
+            self.type_name.value, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
         )
         .intern()
     }

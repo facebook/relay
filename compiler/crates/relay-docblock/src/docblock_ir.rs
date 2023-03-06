@@ -217,10 +217,11 @@ fn parse_strong_object_ir(
         FragmentDefinitionName(format!("{}__id", relay_resolver_field.value.item).intern());
 
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
-    assert_only_identifier(relay_resolver_field)?;
+    let identifier = assert_only_identifier(relay_resolver_field)?;
 
     Ok(StrongObjectIr {
-        type_: relay_resolver_field,
+        type_name: identifier,
+        rhs_location: relay_resolver_field.value.location,
         root_fragment: WithLocation::generated(fragment_name),
         description,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
@@ -237,10 +238,11 @@ fn parse_weak_object_ir(
     _weak_field: UnpopulatedIrField,
 ) -> DiagnosticsResult<WeakObjectIr> {
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
-    assert_only_identifier(relay_resolver_field)?;
+    let identifier = assert_only_identifier(relay_resolver_field)?;
 
     Ok(WeakObjectIr {
-        type_: relay_resolver_field,
+        type_name: identifier,
+        rhs_location: relay_resolver_field.value.location,
         description,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         location,
@@ -745,11 +747,11 @@ fn extract_identifier(relay_resolver_field: PopulatedIrField) -> DiagnosticsResu
     )
 }
 
-fn assert_only_identifier(relay_resolver_field: PopulatedIrField) -> DiagnosticsResult<()> {
+fn assert_only_identifier(relay_resolver_field: PopulatedIrField) -> DiagnosticsResult<Identifier> {
     // Extract the identifier, then assert that nothing unparsed remains
     let identifier = extract_identifier(relay_resolver_field)?;
     if identifier.value == relay_resolver_field.value.item {
-        Ok(())
+        Ok(identifier)
     } else {
         let user_provided = relay_resolver_field.value.item;
         let parsed = identifier.value;

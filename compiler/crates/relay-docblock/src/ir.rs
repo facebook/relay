@@ -65,8 +65,8 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
-use crate::errors::ErrorMessages;
 use crate::errors::ErrorMessagesWithData;
+use crate::errors::SchemaValidationErrorMessages;
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
@@ -513,7 +513,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 let field = schema.field(*field_id);
                 if field.name() == self.field_name().value {
                     return Err(vec![Diagnostic::error(
-                        ErrorMessages::ResolverImplementingInterfaceField {
+                        SchemaValidationErrorMessages::ResolverImplementingInterfaceField {
                             field_name: self.field_name().value,
                             interface_name: interface.name(),
                         },
@@ -618,7 +618,7 @@ impl ResolverIr for TerseRelayResolverIr {
             .name_with_location(self.location.source_location());
         if name.item == schema_info.config.node_interface_id_field {
             return Err(vec![Diagnostic::error(
-                ErrorMessages::ResolversCantImplementId {
+                SchemaValidationErrorMessages::ResolversCantImplementId {
                     id_field_name: name.item,
                 },
                 name.location,
@@ -733,7 +733,7 @@ impl ResolverIr for RelayResolverIr {
             .name_with_location(self.location.source_location());
         if name.item == schema_info.config.node_interface_id_field {
             return Err(vec![Diagnostic::error(
-                ErrorMessages::ResolversCantImplementId {
+                SchemaValidationErrorMessages::ResolversCantImplementId {
                     id_field_name: name.item,
                 },
                 name.location,
@@ -747,7 +747,7 @@ impl ResolverIr for RelayResolverIr {
                     .map(|t| schema.is_extension_type(t))
                 {
                     return Err(vec![Diagnostic::error(
-                        ErrorMessages::ClientEdgeToPluralServerType,
+                        SchemaValidationErrorMessages::ClientEdgeToPluralServerType,
                         edge_to_with_location.location,
                     )]);
                 }

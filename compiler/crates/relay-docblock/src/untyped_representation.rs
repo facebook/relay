@@ -16,7 +16,7 @@ use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockSection;
 use graphql_ir::reexport::StringKey;
 
-use crate::errors::ErrorMessages;
+use crate::errors::UntypedRepresentationErrorMessages;
 use crate::ir::IrField;
 use crate::DEPRECATED_FIELD;
 use crate::EDGE_TO_FIELD;
@@ -78,7 +78,7 @@ impl TryFrom<WithLocation<StringKey>> for AllowedFieldName {
             value if value == *OUTPUT_TYPE_FIELD => Ok(AllowedFieldName::OutputTypeField),
             value if value == *WEAK_FIELD => Ok(AllowedFieldName::WeakField),
             invalid_value => Err(Diagnostic::error(
-                ErrorMessages::UnknownField {
+                UntypedRepresentationErrorMessages::UnknownField {
                     field_name: invalid_value,
                 },
                 value.location,
@@ -117,7 +117,7 @@ pub(crate) fn parse_untyped_docblock_representation(
                     Ok(allowed_field_name) => match untyped_repr.fields.entry(allowed_field_name) {
                         Entry::Occupied(_) => {
                             errors.push(Diagnostic::error(
-                                ErrorMessages::DuplicateField {
+                                UntypedRepresentationErrorMessages::DuplicateField {
                                     field_name: allowed_field_name,
                                 },
                                 docblock_field.field_name.location,
@@ -139,7 +139,7 @@ pub(crate) fn parse_untyped_docblock_representation(
                 }
                 if untyped_repr.description.is_some() {
                     errors.push(Diagnostic::error(
-                        ErrorMessages::MultipleDescriptions,
+                        UntypedRepresentationErrorMessages::MultipleDescriptions,
                         free_text.location,
                     ));
                 } else {

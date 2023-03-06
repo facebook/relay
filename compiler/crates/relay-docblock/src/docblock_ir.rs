@@ -35,8 +35,8 @@ use graphql_syntax::List;
 use graphql_syntax::TypeAnnotation;
 use intern::Lookup;
 
-use crate::errors::ErrorMessages;
 use crate::errors::ErrorMessagesWithData;
+use crate::errors::IrParsingErrorMessages;
 use crate::ir::Argument;
 use crate::ir::IrField;
 use crate::ir::OutputType;
@@ -173,7 +173,7 @@ fn parse_relay_resolver_ir(
             .is_enabled_for(field_definition_stub.name.value)
         {
             return Err(vec![Diagnostic::error(
-                ErrorMessages::UnexpectedOutputType {
+                IrParsingErrorMessages::UnexpectedOutputType {
                     field_name: field_definition_stub.name.value,
                 },
                 output_type.key_location,
@@ -281,7 +281,7 @@ fn parse_terse_relay_resolver_ir(
         Some(dot) if dot == '.' => {}
         Some(other) => {
             return Err(vec![Diagnostic::error(
-                ErrorMessages::UnexpectedNonDot { found: other },
+                IrParsingErrorMessages::UnexpectedNonDot { found: other },
                 type_str
                     .location
                     .with_span(Span::new(span_start, span_start + 1)),
@@ -313,7 +313,7 @@ fn parse_terse_relay_resolver_ir(
         if fragment_type_condition.item != type_name.value {
             return Err(vec![
                 Diagnostic::error(
-                    ErrorMessages::MismatchRootFragmentTypeConditionTerseSyntax {
+                    IrParsingErrorMessages::MismatchRootFragmentTypeConditionTerseSyntax {
                         fragment_type_condition: fragment_type_condition.item,
                         type_name: type_name.value,
                     },
@@ -347,7 +347,7 @@ fn combine_on_type_on_interface_fields(
 ) -> Result<On, Diagnostic> {
     match (on_type_opt, on_interface_opt) {
         (None, None) => Err(Diagnostic::error(
-            ErrorMessages::ExpectedOneOrTheOther {
+            IrParsingErrorMessages::ExpectedOneOrTheOther {
                 field_1: AllowedFieldName::OnTypeField,
                 field_2: AllowedFieldName::OnInterfaceField,
             },
@@ -356,7 +356,7 @@ fn combine_on_type_on_interface_fields(
         (Some(on_type), None) => {
             let on_type: PopulatedIrField = on_type.try_into().map_err(|_| {
                 Diagnostic::error(
-                    ErrorMessages::MissingFieldValue {
+                    IrParsingErrorMessages::MissingFieldValue {
                         field_name: AllowedFieldName::OnTypeField,
                     },
                     on_type.key_location(),
@@ -368,7 +368,7 @@ fn combine_on_type_on_interface_fields(
                         Ok(On::Type(on_type))
                     } else {
                         Err(Diagnostic::error(
-                            ErrorMessages::MismatchRootFragmentTypeCondition {
+                            IrParsingErrorMessages::MismatchRootFragmentTypeCondition {
                                 fragment_type_condition: fragment_type_condition.item,
                                 on_field_value: on_type.value.item,
                                 on_field_name: AllowedFieldName::OnTypeField,
@@ -387,7 +387,7 @@ fn combine_on_type_on_interface_fields(
         (None, Some(on_interface)) => {
             let on_interface: PopulatedIrField = on_interface.try_into().map_err(|_| {
                 Diagnostic::error(
-                    ErrorMessages::MissingFieldValue {
+                    IrParsingErrorMessages::MissingFieldValue {
                         field_name: AllowedFieldName::OnInterfaceField,
                     },
                     on_interface.key_location(),
@@ -399,7 +399,7 @@ fn combine_on_type_on_interface_fields(
                         Ok(On::Interface(on_interface))
                     } else {
                         Err(Diagnostic::error(
-                            ErrorMessages::MismatchRootFragmentTypeCondition {
+                            IrParsingErrorMessages::MismatchRootFragmentTypeCondition {
                                 fragment_type_condition: fragment_type_condition.item,
                                 on_field_value: on_interface.value.item,
                                 on_field_name: AllowedFieldName::OnInterfaceField,
@@ -416,7 +416,7 @@ fn combine_on_type_on_interface_fields(
             }
         }
         (Some(on_type), Some(on_interface)) => Err(Diagnostic::error(
-            ErrorMessages::IncompatibleFields {
+            IrParsingErrorMessages::IncompatibleFields {
                 field_1: AllowedFieldName::OnTypeField,
                 field_2: AllowedFieldName::OnInterfaceField,
             },
@@ -440,7 +440,7 @@ fn combine_edge_to_and_output_type(
         }
         (Some(edge_to), Some(output_type)) => Err(vec![
             Diagnostic::error(
-                ErrorMessages::IncompatibleFields {
+                IrParsingErrorMessages::IncompatibleFields {
                     field_1: AllowedFieldName::EdgeToField,
                     field_2: AllowedFieldName::OutputTypeField,
                 },
@@ -465,7 +465,7 @@ fn parse_type_annotation(
         TypeAnnotation::List(item_type) => match &item_type.type_ {
             TypeAnnotation::NonNull(_) => {
                 return Err(vec![Diagnostic::error(
-                    ErrorMessages::UnexpectedNonNullableItemInListEdgeTo {},
+                    IrParsingErrorMessages::UnexpectedNonNullableItemInListEdgeTo {},
                     value.location,
                 )]);
             }
@@ -473,7 +473,7 @@ fn parse_type_annotation(
         },
         TypeAnnotation::NonNull(_) => {
             return Err(vec![Diagnostic::error(
-                ErrorMessages::UnexpectedNonNullableEdgeTo {},
+                IrParsingErrorMessages::UnexpectedNonNullableEdgeTo {},
                 value.location,
             )]);
         }
@@ -507,7 +507,12 @@ fn get_required_populated_field_named(
     location: Location,
 ) -> Result<PopulatedIrField, Diagnostic> {
     get_optional_populated_field_named(fields, field_name).and_then(|e| {
-        e.ok_or_else(|| Diagnostic::error(ErrorMessages::MissingField { field_name }, location))
+        e.ok_or_else(|| {
+            Diagnostic::error(
+                IrParsingErrorMessages::MissingField { field_name },
+                location,
+            )
+        })
     })
 }
 
@@ -517,7 +522,7 @@ fn try_into_unpopulated_field(
 ) -> Result<UnpopulatedIrField, Diagnostic> {
     field_value.try_into().map_err(|_| {
         Diagnostic::error(
-            ErrorMessages::FieldWithUnexpectedData { field_name },
+            IrParsingErrorMessages::FieldWithUnexpectedData { field_name },
             field_value.key_location(),
         )
     })
@@ -529,7 +534,7 @@ fn try_into_populated_field(
 ) -> Result<PopulatedIrField, Diagnostic> {
     field_value.try_into().map_err(|_| {
         Diagnostic::error(
-            ErrorMessages::FieldWithMissingData { field_name },
+            IrParsingErrorMessages::FieldWithMissingData { field_name },
             field_value.key_location(),
         )
     })
@@ -558,7 +563,7 @@ fn parse_fragment_definition(
             if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
                 return Err(vec![
                     Diagnostic::error(
-                        ErrorMessages::ConflictingArguments,
+                        IrParsingErrorMessages::ConflictingArguments,
                         Location::new(source_location, field_arg.name.span),
                     )
                     .annotate(
@@ -685,7 +690,7 @@ fn validate_field_arguments(
         for argument in field_arguments.items.iter() {
             if let Some(default_value) = &argument.default_value {
                 errors.push(Diagnostic::error(
-                    ErrorMessages::ArgumentDefaultValuesNoSupported,
+                    IrParsingErrorMessages::ArgumentDefaultValuesNoSupported,
                     Location::new(source_location, default_value.span()),
                 ));
             }
@@ -708,7 +713,7 @@ fn assert_all_fields_removed(
     } else {
         let field_string = format_remaining_fields(&fields);
         let mut err = Diagnostic::error(
-            ErrorMessages::LeftoverFields {
+            IrParsingErrorMessages::LeftoverFields {
                 resolver_type,
                 field_string,
             },
@@ -763,7 +768,7 @@ fn assert_only_identifier(relay_resolver_field: PopulatedIrField) -> Diagnostics
         let user_provided = relay_resolver_field.value.item;
         let parsed = identifier.value;
         Err(vec![Diagnostic::error(
-            ErrorMessages::RemainingCharsWhenParsingIdentifier {
+            IrParsingErrorMessages::RemainingCharsWhenParsingIdentifier {
                 user_provided,
                 parsed,
             },

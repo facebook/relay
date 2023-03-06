@@ -17,7 +17,7 @@ use crate::ON_INTERFACE_FIELD;
 use crate::ON_TYPE_FIELD;
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum ErrorMessages {
+pub enum UntypedRepresentationErrorMessages {
     #[error("Unexpected docblock field \"@{field_name}\"")]
     UnknownField { field_name: StringKey },
 
@@ -28,7 +28,10 @@ pub enum ErrorMessages {
         "Unexpected free text. Free text in a @RelayResolver docblock is treated as the field's human readable description. Only one description is permitted."
     )]
     MultipleDescriptions,
+}
 
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum IrParsingErrorMessages {
     #[error("Missing docblock field @{field_name}")]
     MissingField { field_name: AllowedFieldName },
 
@@ -55,6 +58,33 @@ pub enum ErrorMessages {
     #[error("Unexpected conflicting argument name. This field argument")]
     ConflictingArguments,
 
+    #[error(
+        "The compiler attempted to parse \"{user_provided}\" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after \"{parsed}\"."
+    )]
+    RemainingCharsWhenParsingIdentifier {
+        user_provided: StringKey,
+        parsed: StringKey,
+    },
+
+    #[error(
+        "The @RelayResolver field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
+    )]
+    FieldWithUnexpectedData { field_name: AllowedFieldName },
+
+    #[error("The @RelayResolver field `@{field_name}` requires data.")]
+    FieldWithMissingData { field_name: AllowedFieldName },
+
+    #[error(
+        "The compiler attempted to parse this @RelayResolver block as a {resolver_type}, but there were unexpected fields: {field_string}."
+    )]
+    LeftoverFields {
+        resolver_type: &'static str,
+        field_string: String,
+    },
+
+    #[error("Defining arguments with default values for resolver fields is not supported, yet.")]
+    ArgumentDefaultValuesNoSupported,
+
     #[error("Unexpected non-nullable type given in `@edgeTo`.")]
     UnexpectedNonNullableEdgeTo,
 
@@ -79,12 +109,22 @@ pub enum ErrorMessages {
     },
 
     #[error(
+        "Unexpected character `{found}`. Expected @RelayResolver field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
+    )]
+    UnexpectedNonDot { found: char },
+
+    #[error(
+        "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
+    )]
+    UnexpectedOutputType { field_name: StringKey },
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum SchemaValidationErrorMessages {
+    #[error(
         "Unexpected plural server type in `@edgeTo` field. Currently Relay Resolvers only support plural `@edgeTo` if the type is defined via Client Schema Extensions."
     )]
     ClientEdgeToPluralServerType,
-
-    #[error("Defining arguments with default values for resolver fields is not supported, yet.")]
-    ArgumentDefaultValuesNoSupported,
 
     #[error(
         "Unexpected Relay Resolver for a field which is defined in parent interface. The field `{field_name}` is defined by `{interface_name}`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concrete types."
@@ -94,42 +134,8 @@ pub enum ErrorMessages {
         interface_name: InterfaceName,
     },
 
-    #[error(
-        "Unexpected character `{found}`. Expected @RelayResolver field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
-    )]
-    UnexpectedNonDot { found: char },
-
-    #[error(
-        "The compiler attempted to parse \"{user_provided}\" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after \"{parsed}\"."
-    )]
-    RemainingCharsWhenParsingIdentifier {
-        user_provided: StringKey,
-        parsed: StringKey,
-    },
-
     #[error("Relay Resolvers may not be used to implement the `{id_field_name}` field.")]
     ResolversCantImplementId { id_field_name: StringKey },
-
-    #[error(
-        "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
-    )]
-    UnexpectedOutputType { field_name: StringKey },
-
-    #[error(
-        "The @RelayResolver field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
-    )]
-    FieldWithUnexpectedData { field_name: AllowedFieldName },
-
-    #[error("The @RelayResolver field `@{field_name}` requires data.")]
-    FieldWithMissingData { field_name: AllowedFieldName },
-
-    #[error(
-        "The compiler attempted to parse this @RelayResolver block as a {resolver_type}, but there were unexpected fields: {field_string}."
-    )]
-    LeftoverFields {
-        resolver_type: &'static str,
-        field_string: String,
-    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

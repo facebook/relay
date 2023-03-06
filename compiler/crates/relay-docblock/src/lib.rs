@@ -32,14 +32,14 @@ pub use ir::On;
 use ir::RelayResolverIr;
 use untyped_representation::parse_untyped_docblock_representation;
 
-pub struct ParseOptions {
-    pub enable_output_type: FeatureFlag,
+pub struct ParseOptions<'a> {
+    pub enable_output_type: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
-    parse_options: ParseOptions,
+    parse_options: ParseOptions<'_>,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     let untyped_representation = parse_untyped_docblock_representation(ast)?;
     parse_docblock_ir(

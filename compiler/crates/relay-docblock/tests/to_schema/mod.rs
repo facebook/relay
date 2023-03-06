@@ -66,9 +66,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             Some(&executable_documents),
             ParseOptions {
                 enable_output_type: if fixture.content.contains("// relay:enable_output_type") {
-                    FeatureFlag::Enabled
+                    &FeatureFlag::Enabled
                 } else {
-                    FeatureFlag::Disabled
+                    &FeatureFlag::Disabled
                 },
             },
         )?

@@ -75,10 +75,9 @@ fn parse_source(
         &ast,
         definitions,
         ParseOptions {
-            enable_output_type: project_config
+            enable_output_type: &project_config
                 .feature_flags
-                .relay_resolver_enable_output_type
-                .clone(),
+                .relay_resolver_enable_output_type,
         },
     )?;
     maybe_ir

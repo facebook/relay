@@ -65,9 +65,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                                 .content
                                 .contains("// relay:enable_output_type")
                             {
-                                FeatureFlag::Enabled
+                                &FeatureFlag::Enabled
                             } else {
-                                FeatureFlag::Disabled
+                                &FeatureFlag::Disabled
                             },
                         },
                     )

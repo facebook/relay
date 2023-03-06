@@ -55,7 +55,7 @@ use crate::RelayResolverIr;
 pub(crate) fn parse_docblock_ir(
     untyped_representation: UntypedDocblockRepresentation,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
-    parse_options: &ParseOptions,
+    parse_options: &ParseOptions<'_>,
     // The location corresponding to the entire docblock. Used for error messages like
     // "this field is missing".
     docblock_location: Location,
@@ -143,7 +143,7 @@ fn parse_relay_resolver_ir(
     description: Option<WithLocation<StringKey>>,
     location: Location,
     _resolver_field: UnpopulatedIrField,
-    parse_options: &ParseOptions,
+    parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<RelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;

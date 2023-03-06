@@ -21,7 +21,7 @@ interface IFoo {
 }
 `
 ==================================== ERROR ====================================
-✖︎ The type "User" is an object. Please use a client-defined interface instead.
+✖︎ The type `User` is an object. Please use a client-defined interface instead.
 
   /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-non-interface.js:2:19
     1 │ *

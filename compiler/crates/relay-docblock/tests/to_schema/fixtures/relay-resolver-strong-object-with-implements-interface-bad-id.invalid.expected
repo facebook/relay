@@ -21,7 +21,7 @@ interface IFoo {
 }
 `
 ==================================== ERROR ====================================
-✖︎ Expected interface IFoo to define an id: ID! field. It defines an id field, but its type is ID.
+✖︎ Expected interface `IFoo` to define an `id: ID!` field. It defines an id field, but its type is `ID`.
 
   /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-bad-id.invalid.js:2:19
     1 │ *

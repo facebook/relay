@@ -12,7 +12,7 @@
  * @RelayResolver Foo.bar: ID
  */
 ==================================== ERROR ====================================
-✖︎ The type "Foo" is not an existing GraphQL type.
+✖︎ The type `Foo` is not an existing GraphQL type.
 
   /path/to/test/fixture/terse-relay-resolver-non-existent-type.invalid.js:2:19
     1 │ *

@@ -29,7 +29,7 @@
  }
 `
 ==================================== ERROR ====================================
-✖︎ The compiler attempted to parse this @RelayResolver block as a terse resolver declaration, but there were unexpected fields: @fieldName, @onType, @onInterface, @edgeTo, @outputType, and @weak.
+✖︎ The compiler attempted to parse this `@RelayResolver` block as a terse resolver declaration, but there were unexpected fields: @fieldName, @onType, @onInterface, @edgeTo, @outputType, and @weak.
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:11:5
    10 │ *

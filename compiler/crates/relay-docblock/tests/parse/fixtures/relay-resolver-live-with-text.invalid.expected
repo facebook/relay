@@ -24,7 +24,7 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ The @RelayResolver field `@live` does not accept data. Remove everything after `@live`.
+✖︎ The `@RelayResolver` field `@live` does not accept data. Remove everything after `@live`.
 
   /path/to/test/fixture/relay-resolver-live-with-text.invalid.js:17:5
    16 │  * @rootFragment myRootFragment

@@ -24,7 +24,7 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ Unexpected `onType` and `onInterface`. Only one of these docblock fields should be defined on a given @RelayResolver.
+✖︎ Unexpected `@onType` and `@onInterface`. Only one of these docblock fields should be defined on a given `@RelayResolver`.
 
   /path/to/test/fixture/relay-resolver-on-type-and-on-interface.invalid.js:13:5
    12 │  *

@@ -23,7 +23,7 @@
  }
 `
 ==================================== ERROR ====================================
-✖︎ The compiler attempted to parse this @RelayResolver block as a strong object type declaration, but there were unexpected fields: @rootFragment.
+✖︎ The compiler attempted to parse this `@RelayResolver` block as a strong object type declaration, but there were unexpected fields: @rootFragment.
 
   /path/to/test/fixture/terse-relay-resolver-no-dot.invalid.js:11:5
    10 │ *

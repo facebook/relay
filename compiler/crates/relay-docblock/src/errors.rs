@@ -18,28 +18,28 @@ use crate::ON_TYPE_FIELD;
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum UntypedRepresentationErrorMessages {
-    #[error("Unexpected docblock field \"@{field_name}\"")]
+    #[error("Unexpected docblock field `@{field_name}`")]
     UnknownField { field_name: StringKey },
 
-    #[error("Unexpected duplicate docblock field \"@{field_name}\"")]
+    #[error("Unexpected duplicate docblock field `@{field_name}`")]
     DuplicateField { field_name: AllowedFieldName },
 
     #[error(
-        "Unexpected free text. Free text in a @RelayResolver docblock is treated as the field's human readable description. Only one description is permitted."
+        "Unexpected free text. Free text in a `@RelayResolver` docblock is treated as the field's human-readable description. Only one description is permitted."
     )]
     MultipleDescriptions,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum IrParsingErrorMessages {
-    #[error("Missing docblock field @{field_name}")]
+    #[error("Missing docblock field `@{field_name}`")]
     MissingField { field_name: AllowedFieldName },
 
-    #[error("Expected docblock field @{field_name} to have specified a value.")]
+    #[error("Expected docblock field `@{field_name}` to have specified a value.")]
     MissingFieldValue { field_name: AllowedFieldName },
 
     #[error(
-        "Unexpected `{field_1}` and `{field_2}`. Only one of these docblock fields should be defined on a given @RelayResolver."
+        "Unexpected `@{field_1}` and `@{field_2}`. Only one of these docblock fields should be defined on a given `@RelayResolver`."
     )]
     IncompatibleFields {
         field_1: AllowedFieldName,
@@ -47,7 +47,7 @@ pub enum IrParsingErrorMessages {
     },
 
     #[error(
-        "Expected either `{field_1}` or `{field_2}` to be defined in this @RelayResolver docblock."
+        "Expected either `@{field_1}` or `@{field_2}` to be defined in this `@RelayResolver` docblock."
     )]
     ExpectedOneOrTheOther {
         field_1: AllowedFieldName,
@@ -67,15 +67,15 @@ pub enum IrParsingErrorMessages {
     },
 
     #[error(
-        "The @RelayResolver field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
+        "The `@RelayResolver` field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
     )]
     FieldWithUnexpectedData { field_name: AllowedFieldName },
 
-    #[error("The @RelayResolver field `@{field_name}` requires data.")]
+    #[error("The `@RelayResolver` field `@{field_name}` requires data.")]
     FieldWithMissingData { field_name: AllowedFieldName },
 
     #[error(
-        "The compiler attempted to parse this @RelayResolver block as a {resolver_type}, but there were unexpected fields: {field_string}."
+        "The compiler attempted to parse this `@RelayResolver` block as a {resolver_type}, but there were unexpected fields: {field_string}."
     )]
     LeftoverFields {
         resolver_type: &'static str,
@@ -92,7 +92,7 @@ pub enum IrParsingErrorMessages {
     UnexpectedNonNullableItemInListEdgeTo,
 
     #[error(
-        "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in @{on_field_name} (`{on_field_value}`) are different. Please make sure these are exactly the same."
+        "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in `@{on_field_name}` (`{on_field_value}`) are different. Please make sure these are exactly the same."
     )]
     MismatchRootFragmentTypeCondition {
         fragment_type_condition: StringKey,
@@ -109,7 +109,7 @@ pub enum IrParsingErrorMessages {
     },
 
     #[error(
-        "Unexpected character `{found}`. Expected @RelayResolver field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
+        "Unexpected character \"{found}\". Expected `@RelayResolver` field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
     )]
     UnexpectedNonDot { found: char },
 
@@ -138,7 +138,7 @@ pub enum SchemaValidationErrorMessages {
     ResolversCantImplementId { id_field_name: StringKey },
 
     #[error(
-        "The type \"{non_interface_name}\" is {variant_name}. Please use a client-defined interface instead."
+        "The type `{non_interface_name}` is {variant_name}. Please use a client-defined interface instead."
     )]
     UnexpectedNonInterface {
         non_interface_name: StringKey,
@@ -146,15 +146,15 @@ pub enum SchemaValidationErrorMessages {
     },
 
     #[error(
-        "The interface {interface_name} is not defined in a client schema extension. Resolver types that implement interfaces can only implement client-defined interfaces."
+        "The interface `{interface_name}` is not defined in a client schema extension. Resolver types that implement interfaces can only implement client-defined interfaces."
     )]
     UnexpectedServerInterface { interface_name: InterfaceName },
 
-    #[error("Expected interface {interface_name} to define an id: ID! field.")]
+    #[error("Expected interface `{interface_name}` to define an `id: ID!` field.")]
     InterfaceWithNoIdField { interface_name: InterfaceName },
 
     #[error(
-        "Expected interface {interface_name} to define an id: ID! field. It defines an id field, but its type is {invalid_type_string}."
+        "Expected interface `{interface_name}` to define an `id: ID!` field. It defines an id field, but its type is `{invalid_type_string}`."
     )]
     InterfaceWithWrongIdField {
         interface_name: InterfaceName,
@@ -165,13 +165,13 @@ pub enum SchemaValidationErrorMessages {
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ErrorMessagesWithData {
     #[error(
-        "Invalid interface given for `onInterface`. \"{interface_name}\" is not an existing GraphQL interface.{suggestions}", suggestions = did_you_mean(suggestions))]
+        "Invalid interface given for `@onInterface`. `{interface_name}` is not an existing GraphQL interface.{suggestions}", suggestions = did_you_mean(suggestions))]
     InvalidOnInterface {
         interface_name: StringKey,
         suggestions: Vec<StringKey>,
     },
 
-    #[error("Invalid type given for `onType`. \"{type_name}\" is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
+    #[error("Invalid type given for `@onType`. `{type_name}` is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
     InvalidOnType {
         type_name: StringKey,
         suggestions: Vec<StringKey>,
@@ -187,13 +187,13 @@ pub enum ErrorMessagesWithData {
     )]
     OnInterfaceForType,
 
-    #[error("Fragment \"{fragment_name}\" not found.{suggestions}", suggestions = did_you_mean(suggestions))]
+    #[error("Fragment `{fragment_name}` not found.{suggestions}", suggestions = did_you_mean(suggestions))]
     FragmentNotFound {
         fragment_name: StringKey,
         suggestions: Vec<StringKey>,
     },
 
-    #[error("The type \"{type_name}\" is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
+    #[error("The type `{type_name}` is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
     TypeNotFound {
         type_name: StringKey,
         suggestions: Vec<StringKey>,

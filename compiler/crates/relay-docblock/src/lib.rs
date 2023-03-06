@@ -10,8 +10,10 @@ mod errors;
 mod ir;
 mod untyped_representation;
 
+use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
+use common::Location;
 use docblock_ir::parse_docblock_ir;
 use docblock_shared::DEPRECATED_FIELD;
 use docblock_shared::EDGE_TO_FIELD;
@@ -26,10 +28,12 @@ use docblock_shared::ROOT_FRAGMENT_FIELD;
 use docblock_shared::WEAK_FIELD;
 use docblock_syntax::DocblockAST;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::TypeSystemDefinition;
 use intern::Lookup;
 pub use ir::DocblockIr;
 pub use ir::On;
 use ir::RelayResolverIr;
+use schema::SDLSchema;
 use untyped_representation::parse_untyped_docblock_representation;
 
 pub struct ParseOptions<'a> {
@@ -64,4 +68,28 @@ pub fn resolver_maybe_defining_type(ast: &DocblockAST) -> bool {
                 false
             }
         })
+}
+
+pub fn extend_schema_with_resolver_type_system_definition(
+    definition: TypeSystemDefinition,
+    schema: &mut SDLSchema,
+    location: Location,
+) -> Result<(), Vec<Diagnostic>> {
+    Ok(match definition {
+        TypeSystemDefinition::ObjectTypeDefinition(extension) => {
+            schema.add_extension_object(extension, location.source_location())?
+        }
+        TypeSystemDefinition::ScalarTypeDefinition(extension) => {
+            schema.add_extension_scalar(extension, location.source_location())?;
+        }
+        TypeSystemDefinition::ObjectTypeExtension(extension) => {
+            schema.add_object_type_extension(extension, location.source_location())?;
+        }
+        TypeSystemDefinition::InterfaceTypeExtension(extension) => {
+            schema.add_interface_type_extension(extension, location.source_location())?;
+        }
+        _ => panic!(
+            "Expected docblocks to only expose object and scalar extensions, and object and interface definitions"
+        ),
+    })
 }

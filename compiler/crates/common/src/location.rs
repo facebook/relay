@@ -64,6 +64,10 @@ impl SourceLocationKey {
         path.pop();
         path
     }
+
+    pub fn is_generated(&self) -> bool {
+        matches!(self, SourceLocationKey::Generated)
+    }
 }
 
 /// An absolute source location describing both the file and position (span)

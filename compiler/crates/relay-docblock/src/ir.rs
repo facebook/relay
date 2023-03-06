@@ -82,7 +82,7 @@ lazy_static! {
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum DocblockIr {
     RelayResolver(RelayResolverIr),
     TerseRelayResolver(TerseRelayResolverIr),
@@ -122,6 +122,7 @@ impl DocblockIr {
             .collect::<Vec<String>>()
             .join("\n\n"))
     }
+
     pub fn to_graphql_schema_ast(
         self,
         schema: &SDLSchema,
@@ -213,13 +214,13 @@ impl TryFrom<IrField> for UnpopulatedIrField {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum On {
     Type(PopulatedIrField),
     Interface(PopulatedIrField),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Argument {
     pub name: Identifier,
     pub type_: TypeAnnotation,
@@ -597,7 +598,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct TerseRelayResolverIr {
     pub field: FieldDefinition,
     pub type_: WithLocation<StringKey>,
@@ -710,7 +711,7 @@ impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RelayResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
@@ -872,7 +873,7 @@ impl ResolverTypeDefinitionIr for RelayResolverIr {
 }
 
 /// Relay Resolver ID representing a "model" of a strong object
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StrongObjectIr {
     pub type_name: Identifier,
     /// T146185439 The location of everything past @RelayResolver. Note that we use
@@ -1096,7 +1097,7 @@ impl ResolverIr for StrongObjectIr {
 }
 
 /// Relay Resolver docblock representing a "model" type for a weak object
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct WeakObjectIr {
     pub type_name: Identifier,
     /// T146185439 The location of everything past @RelayResolver. Note that we use

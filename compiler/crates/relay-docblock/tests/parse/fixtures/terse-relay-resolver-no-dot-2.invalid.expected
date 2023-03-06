@@ -9,7 +9,7 @@
 // expected-to-throw
 
 /**
- * @RelayResolver User#favorite_page: Page
+ * @RelayResolver User&favorite_page: Page
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI
@@ -23,10 +23,10 @@
  }
 `
 ==================================== ERROR ====================================
-✖︎ The compiler attempted to parse "User#favorite_page: Page" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after "User".
+✖︎ The compiler attempted to parse "User&favorite_page: Page" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after "User".
 
-  /path/to/test/fixture/terse-relay-resolver-no-dot.invalid.js:11:19
+  /path/to/test/fixture/terse-relay-resolver-no-dot-2.invalid.js:11:19
    10 │ *
-   11 │  * @RelayResolver User#favorite_page: Page
+   11 │  * @RelayResolver User&favorite_page: Page
       │                   ^^^^^^^^^^^^^^^^^^^^^^^^
    12 │  * @rootFragment myRootFragment

@@ -8,7 +8,7 @@
 
 /**
  * @RelayResolver ClientUser
-*/
+ */
 ==================================== OUTPUT ===================================
 StrongObjectResolver(
     StrongObjectIr {
@@ -28,6 +28,6 @@ StrongObjectResolver(
         description: None,
         deprecated: None,
         live: None,
-        location: /path/to/test/fixture/relay-resolver-strong-object.js:0:30,
+        location: /path/to/test/fixture/relay-resolver-strong-object.js:0:31,
     },
 )

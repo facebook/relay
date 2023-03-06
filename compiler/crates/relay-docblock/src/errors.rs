@@ -99,6 +99,14 @@ pub enum ErrorMessages {
     )]
     UnexpectedNonDot { found: char },
 
+    #[error(
+        "The compiler attempted to parse \"{user_provided}\" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after \"{parsed}\"."
+    )]
+    RemainingCharsWhenParsingIdentifier {
+        user_provided: StringKey,
+        parsed: StringKey,
+    },
+
     #[error("Relay Resolvers may not be used to implement the `{id_field_name}` field.")]
     ResolversCantImplementId { id_field_name: StringKey },
 

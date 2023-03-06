@@ -224,7 +224,7 @@ fn parse_strong_object_ir(
     );
 
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
-    extract_identifier(relay_resolver_field)?;
+    assert_only_identifier(relay_resolver_field)?;
 
     Ok(StrongObjectIr {
         type_: relay_resolver_field,
@@ -236,15 +236,6 @@ fn parse_strong_object_ir(
     })
 }
 
-fn extract_identifier(relay_resolver_field: PopulatedIrField) -> DiagnosticsResult<Identifier> {
-    let type_str = relay_resolver_field.value;
-    parse_identifier(
-        type_str.item.lookup(),
-        type_str.location.source_location(),
-        type_str.location.span().start,
-    )
-}
-
 fn parse_weak_object_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
     description: Option<WithLocation<StringKey>>,
@@ -253,7 +244,7 @@ fn parse_weak_object_ir(
     _weak_field: UnpopulatedIrField,
 ) -> DiagnosticsResult<WeakObjectIr> {
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
-    extract_identifier(relay_resolver_field)?;
+    assert_only_identifier(relay_resolver_field)?;
 
     Ok(WeakObjectIr {
         type_: relay_resolver_field,
@@ -750,4 +741,31 @@ fn format_remaining_fields(fields: &HashMap<AllowedFieldName, IrField>) -> Strin
                 a + "@" + &b.to_string() + ", "
             }
         })
+}
+
+fn extract_identifier(relay_resolver_field: PopulatedIrField) -> DiagnosticsResult<Identifier> {
+    let type_str = relay_resolver_field.value;
+    parse_identifier(
+        type_str.item.lookup(),
+        type_str.location.source_location(),
+        type_str.location.span().start,
+    )
+}
+
+fn assert_only_identifier(relay_resolver_field: PopulatedIrField) -> DiagnosticsResult<()> {
+    // Extract the identifier, then assert that nothing unparsed remains
+    let identifier = extract_identifier(relay_resolver_field)?;
+    if identifier.value == relay_resolver_field.value.item {
+        Ok(())
+    } else {
+        let user_provided = relay_resolver_field.value.item;
+        let parsed = identifier.value;
+        Err(vec![Diagnostic::error(
+            ErrorMessages::RemainingCharsWhenParsingIdentifier {
+                user_provided,
+                parsed,
+            },
+            relay_resolver_field.value.location,
+        )])
+    }
 }

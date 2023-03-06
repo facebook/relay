@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e0e8a7805569c68cca1ad834fcd65f1c>>
+ * @generated SignedSource<<abb4a2de0d158572ff782384fc7ebf99>>
  */
 
 mod parse;
@@ -153,10 +153,31 @@ fn relay_resolver_strong_object() {
 }
 
 #[test]
+fn relay_resolver_strong_object_with_gibberish_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-strong-object-with-gibberish.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-strong-object-with-gibberish.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-gibberish.invalid.js", "parse/fixtures/relay-resolver-strong-object-with-gibberish.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-strong-object-with-implements.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-strong-object-with-implements.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements.invalid.js", "parse/fixtures/relay-resolver-strong-object-with-implements.invalid.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_terse_invalid_type_name() {
     let input = include_str!("parse/fixtures/relay-resolver-terse-invalid-type-name.js");
     let expected = include_str!("parse/fixtures/relay-resolver-terse-invalid-type-name.expected");
     test_fixture(transform_fixture, "relay-resolver-terse-invalid-type-name.js", "parse/fixtures/relay-resolver-terse-invalid-type-name.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_weak_object_with_gibberish_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-weak-object-with-gibberish.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-weak-object-with-gibberish.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-weak-object-with-gibberish.invalid.js", "parse/fixtures/relay-resolver-weak-object-with-gibberish.invalid.expected", input, expected);
 }
 
 #[test]
@@ -241,6 +262,13 @@ fn terse_relay_resolver_fragment_type_does_not_match_parent_invalid() {
     let input = include_str!("parse/fixtures/terse-relay-resolver-fragment-type-does-not-match-parent.invalid.js");
     let expected = include_str!("parse/fixtures/terse-relay-resolver-fragment-type-does-not-match-parent.invalid.expected");
     test_fixture(transform_fixture, "terse-relay-resolver-fragment-type-does-not-match-parent.invalid.js", "parse/fixtures/terse-relay-resolver-fragment-type-does-not-match-parent.invalid.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_no_dot_2_invalid() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-no-dot-2.invalid.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-no-dot-2.invalid.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-no-dot-2.invalid.js", "parse/fixtures/terse-relay-resolver-no-dot-2.invalid.expected", input, expected);
 }
 
 #[test]

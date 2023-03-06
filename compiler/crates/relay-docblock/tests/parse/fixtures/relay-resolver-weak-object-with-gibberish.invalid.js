@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// expected-to-throw
+
 /**
- * @RelayResolver ClientUser
+ * @RelayResolver ClientUser Foo Baz Baz Abracadabra
+ * @weak
  */

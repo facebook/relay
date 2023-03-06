@@ -24,6 +24,7 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::parse_field_definition;
 use graphql_syntax::parse_field_definition_stub;
 use graphql_syntax::parse_identifier;
+use graphql_syntax::parse_identifier_and_implements_interfaces;
 use graphql_syntax::parse_type;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::ExecutableDefinition;
@@ -213,11 +214,20 @@ fn parse_strong_object_ir(
     location: Location,
     relay_resolver_field: PopulatedIrField,
 ) -> DiagnosticsResult<StrongObjectIr> {
-    let fragment_name =
-        FragmentDefinitionName(format!("{}__id", relay_resolver_field.value.item).intern());
+    let type_str = relay_resolver_field.value;
+    let (identifier, implements_interfaces) = parse_identifier_and_implements_interfaces(
+        type_str.item.lookup(),
+        type_str.location.source_location(),
+        type_str.location.span().start,
+    )?;
+    if !implements_interfaces.is_empty() {
+        return Err(vec![Diagnostic::error(
+            "implements Interface syntax is not yet supported on strong objects",
+            relay_resolver_field.value.location,
+        )]);
+    }
 
-    // Validate that the right hand side of the @RelayResolver field is a valid identifier
-    let identifier = assert_only_identifier(relay_resolver_field)?;
+    let fragment_name = FragmentDefinitionName(format!("{}__id", identifier.value).intern());
 
     Ok(StrongObjectIr {
         type_name: identifier,

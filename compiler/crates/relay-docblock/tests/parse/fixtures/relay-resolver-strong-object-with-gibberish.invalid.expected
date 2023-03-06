@@ -12,10 +12,10 @@
  * @RelayResolver ClientUser Foo Baz Baz Abracadabra
  */
 ==================================== ERROR ====================================
-✖︎ The compiler attempted to parse "ClientUser Foo Baz Baz Abracadabra" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after "ClientUser".
+✖︎ Expected a end of file
 
-  /path/to/test/fixture/relay-resolver-strong-object-with-gibberish.invalid.js:11:19
+  /path/to/test/fixture/relay-resolver-strong-object-with-gibberish.invalid.js:11:30
    10 │ *
    11 │  * @RelayResolver ClientUser Foo Baz Baz Abracadabra
-      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │                              ^^^
    12 │

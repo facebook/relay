@@ -12,7 +12,7 @@
  * @RelayResolver ClientUser implements Foo
  */
 ==================================== ERROR ====================================
-✖︎ The compiler attempted to parse "ClientUser implements Foo" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after "ClientUser".
+✖︎ implements Interface syntax is not yet supported on strong objects
 
   /path/to/test/fixture/relay-resolver-strong-object-with-implements.invalid.js:11:19
    10 │ *

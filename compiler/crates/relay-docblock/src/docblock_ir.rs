@@ -220,12 +220,6 @@ fn parse_strong_object_ir(
         type_str.location.source_location(),
         type_str.location.span().start,
     )?;
-    if !implements_interfaces.is_empty() {
-        return Err(vec![Diagnostic::error(
-            "implements Interface syntax is not yet supported on strong objects",
-            relay_resolver_field.value.location,
-        )]);
-    }
 
     let fragment_name = FragmentDefinitionName(format!("{}__id", identifier.value).intern());
 
@@ -237,6 +231,7 @@ fn parse_strong_object_ir(
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
         location,
+        implements_interfaces,
     })
 }
 

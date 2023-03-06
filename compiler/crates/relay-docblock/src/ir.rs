@@ -23,6 +23,7 @@ use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
 use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
 use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
+use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
@@ -64,6 +65,7 @@ use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+use schema::TypeReference;
 
 use crate::errors::ErrorMessagesWithData;
 use crate::errors::SchemaValidationErrorMessages;
@@ -882,6 +884,134 @@ pub struct StrongObjectIr {
     pub deprecated: Option<IrField>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
+    /// The interfaces which the newly-created object implements
+    pub implements_interfaces: Vec<Identifier>,
+}
+
+impl StrongObjectIr {
+    /// Validate that each interface that the StrongObjectIr object implements is client
+    /// defined and contains an id: ID! field.
+    ///
+    /// We are implicitly assuming that the only types that implement this interface are
+    /// defined in strong resolvers! But, it is possible to implement a client interface
+    /// for types defined in schema extensions and for server types. This is bad, and we
+    /// should disallow it.
+    pub(crate) fn validate_implements_interfaces_against_schema(
+        &self,
+        schema: &SDLSchema,
+    ) -> DiagnosticsResult<()> {
+        let location = self.rhs_location;
+        let mut errors = vec![];
+
+        let id_type = schema
+            .field(schema.clientid_field())
+            .type_
+            .inner()
+            .get_scalar_id()
+            .expect("Expected __id field to be a scalar");
+        let non_null_id_type =
+            TypeReference::NonNull(Box::new(TypeReference::Named(Type::Scalar(id_type))));
+
+        for interface in &self.implements_interfaces {
+            let interface = match schema.get_type(interface.value) {
+                Some(Type::Interface(id)) => schema.interface(id),
+                None => {
+                    let suggester = GraphQLSuggestions::new(schema);
+                    errors.push(Diagnostic::error_with_data(
+                        ErrorMessagesWithData::TypeNotFound {
+                            type_name: interface.value,
+                            suggestions: suggester.interface_type_suggestions(interface.value),
+                        },
+                        location,
+                    ));
+                    continue;
+                }
+                Some(t) => {
+                    errors.push(
+                        Diagnostic::error(
+                            SchemaValidationErrorMessages::UnexpectedNonInterface {
+                                non_interface_name: interface.value,
+                                variant_name: t.get_variant_name(),
+                            },
+                            location,
+                        )
+                        .annotate_if_location_exists(
+                            "Defined here",
+                            match t {
+                                Type::Enum(enum_id) => schema.enum_(enum_id).name.location,
+                                Type::InputObject(input_object_id) => {
+                                    schema.input_object(input_object_id).name.location
+                                }
+                                Type::Object(object_id) => schema.object(object_id).name.location,
+                                Type::Scalar(scalar_id) => schema.scalar(scalar_id).name.location,
+                                Type::Union(union_id) => schema.union(union_id).name.location,
+                                Type::Interface(_) => {
+                                    panic!("Just checked this isn't an interface.")
+                                }
+                            },
+                        ),
+                    );
+                    continue;
+                }
+            };
+
+            if !interface.is_extension {
+                errors.push(
+                    Diagnostic::error(
+                        SchemaValidationErrorMessages::UnexpectedServerInterface {
+                            interface_name: interface.name.item,
+                        },
+                        location,
+                    )
+                    .annotate_if_location_exists("Defined here", interface.name.location),
+                );
+            } else {
+                let found_id_field = interface.fields.iter().find_map(|field_id| {
+                    let field = schema.field(*field_id);
+                    if field.name.item == *KEY_RESOLVER_ID_FIELD {
+                        Some(field)
+                    } else {
+                        None
+                    }
+                });
+                match found_id_field {
+                    Some(id_field) => {
+                        if id_field.type_ != non_null_id_type {
+                            let mut invalid_type_string = String::new();
+                            schema
+                                .write_type_string(&mut invalid_type_string, &id_field.type_)
+                                .expect("Failed to write type to string.");
+
+                            errors.push(
+                                Diagnostic::error(
+                                    SchemaValidationErrorMessages::InterfaceWithWrongIdField {
+                                        interface_name: interface.name.item,
+                                        invalid_type_string,
+                                    },
+                                    location,
+                                )
+                                .annotate("Defined here", interface.name.location),
+                            )
+                        }
+                    }
+                    None => errors.push(
+                        Diagnostic::error(
+                            SchemaValidationErrorMessages::InterfaceWithNoIdField {
+                                interface_name: interface.name.item,
+                            },
+                            location,
+                        )
+                        .annotate("Defined here", interface.name.location),
+                    ),
+                };
+            }
+        }
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
+    }
 }
 
 impl ResolverIr for StrongObjectIr {
@@ -890,6 +1020,8 @@ impl ResolverIr for StrongObjectIr {
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let span = Span::empty();
+
+        self.validate_implements_interfaces_against_schema(schema_info.schema)?;
 
         let fields = vec![
             FieldDefinition {
@@ -915,7 +1047,7 @@ impl ResolverIr for StrongObjectIr {
         ];
         let type_ = TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
             name: self.type_name,
-            interfaces: vec![],
+            interfaces: self.implements_interfaces,
             directives: vec![ConstantDirective {
                 span,
                 at: dummy_token(span),

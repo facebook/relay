@@ -136,6 +136,30 @@ pub enum SchemaValidationErrorMessages {
 
     #[error("Relay Resolvers may not be used to implement the `{id_field_name}` field.")]
     ResolversCantImplementId { id_field_name: StringKey },
+
+    #[error(
+        "The type \"{non_interface_name}\" is {variant_name}. Please use a client-defined interface instead."
+    )]
+    UnexpectedNonInterface {
+        non_interface_name: StringKey,
+        variant_name: &'static str,
+    },
+
+    #[error(
+        "The interface {interface_name} is not defined in a client schema extension. Resolver types that implement interfaces can only implement client-defined interfaces."
+    )]
+    UnexpectedServerInterface { interface_name: InterfaceName },
+
+    #[error("Expected interface {interface_name} to define an id: ID! field.")]
+    InterfaceWithNoIdField { interface_name: InterfaceName },
+
+    #[error(
+        "Expected interface {interface_name} to define an id: ID! field. It defines an id field, but its type is {invalid_type_string}."
+    )]
+    InterfaceWithWrongIdField {
+        interface_name: InterfaceName,
+        invalid_type_string: String,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

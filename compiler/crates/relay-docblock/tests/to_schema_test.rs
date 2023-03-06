@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1687dbfac842edc1efee5250cb8dd78b>>
+ * @generated SignedSource<<8cf2bea87a87f4c48d8c0b53b4e0c616>>
  */
 
 mod to_schema;
@@ -129,6 +129,55 @@ fn relay_resolver_strong_object() {
     let input = include_str!("to_schema/fixtures/relay-resolver-strong-object.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object.expected");
     test_fixture(transform_fixture, "relay-resolver-strong-object.js", "to_schema/fixtures/relay-resolver-strong-object.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_interface_bad_id_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-bad-id.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-bad-id.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-interface-bad-id.invalid.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-bad-id.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_interface_no_id_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-no-id.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-no-id.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-interface-no-id.invalid.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-no-id.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_interface_non_interface() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-interface-non-interface.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_non_existing_type() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-non-existing-type.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-non-existing-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-non-existing-type.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-non-existing-type.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_server_interface_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-server-interface.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-server-interface.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-server-interface.invalid.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-server-interface.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_multiple_implements() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-multiple-implements.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-multiple-implements.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-multiple-implements.js", "to_schema/fixtures/relay-resolver-strong-object-with-multiple-implements.expected", input, expected);
 }
 
 #[test]

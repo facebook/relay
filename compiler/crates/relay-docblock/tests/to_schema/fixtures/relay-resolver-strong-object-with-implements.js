@@ -5,8 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// expected-to-throw
-
 /**
- * @RelayResolver ClientUser implements Foo
+ * @RelayResolver ClientUser implements IFoo
  */
+
+// %extensions%
+
+graphql`
+
+interface IFoo {
+  id: ID!
+}
+`

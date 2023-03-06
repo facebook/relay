@@ -9,13 +9,13 @@
 // expected-to-throw
 
 /**
- * @RelayResolver ClientUser implements Foo
+ * @RelayResolver FriendGroup implements TweedUnit
  */
 ==================================== ERROR ====================================
-✖︎ implements Interface syntax is not yet supported on strong objects
+✖︎ The type "TweedUnit" is not an existing GraphQL type. Did you mean `FeedUnit`?
 
-  /path/to/test/fixture/relay-resolver-strong-object-with-implements.invalid.js:11:19
-   10 │ *
-   11 │  * @RelayResolver ClientUser implements Foo
-      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^
-   12 │
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-non-existing-type.js:2:19
+    1 │ *
+    2 │  * @RelayResolver FriendGroup implements TweedUnit
+      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │

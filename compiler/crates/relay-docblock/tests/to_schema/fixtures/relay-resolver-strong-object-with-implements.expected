@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver ClientUser implements IFoo
+ */
+
+// %extensions%
+
+graphql`
+
+interface IFoo {
+  id: ID!
+}
+`
+==================================== OUTPUT ===================================
+type ClientUser implements IFoo @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: Int @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-strong-object-with-implements.js", fragment_name: "ClientUser__id", inject_fragment_data: "id", import_name: "ClientUser") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

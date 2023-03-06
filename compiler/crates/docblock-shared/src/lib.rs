@@ -46,4 +46,7 @@ lazy_static! {
     pub static ref ARGUMENT_TYPE: StringKey = "type".intern();
     pub static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
     pub static ref PROVIDER_ARG_NAME: StringKey = "provider".intern();
+    // Note: this should **only** be used for resolvers! The id field for server
+    // types is configurable in the config, and thus cannot be hard-coded.
+    pub static ref KEY_RESOLVER_ID_FIELD: StringKey = "id".intern();
 }

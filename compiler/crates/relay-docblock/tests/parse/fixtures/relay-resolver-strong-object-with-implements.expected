@@ -7,7 +7,7 @@
  */
 
 /**
- * @RelayResolver ClientUser
+ * @RelayResolver ClientUser implements Foo
  */
 ==================================== OUTPUT ===================================
 StrongObjectResolver(
@@ -20,7 +20,7 @@ StrongObjectResolver(
             },
             value: "ClientUser",
         },
-        rhs_location: /path/to/test/fixture/relay-resolver-strong-object.js:20:30,
+        rhs_location: /path/to/test/fixture/relay-resolver-strong-object-with-implements.js:20:45,
         root_fragment: WithLocation {
             location: <generated>:0:0,
             item: FragmentDefinitionName(
@@ -30,7 +30,16 @@ StrongObjectResolver(
         description: None,
         deprecated: None,
         live: None,
-        location: /path/to/test/fixture/relay-resolver-strong-object.js:0:31,
-        implements_interfaces: [],
+        location: /path/to/test/fixture/relay-resolver-strong-object-with-implements.js:0:46,
+        implements_interfaces: [
+            Identifier {
+                span: 42:45,
+                token: Token {
+                    span: 42:45,
+                    kind: Identifier,
+                },
+                value: "Foo",
+            },
+        ],
     },
 )

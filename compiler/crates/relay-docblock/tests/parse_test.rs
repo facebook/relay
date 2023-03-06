@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<abb4a2de0d158572ff782384fc7ebf99>>
+ * @generated SignedSource<<808ccebf97208f983fbfd157e12804fe>>
  */
 
 mod parse;
@@ -160,10 +160,10 @@ fn relay_resolver_strong_object_with_gibberish_invalid() {
 }
 
 #[test]
-fn relay_resolver_strong_object_with_implements_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-strong-object-with-implements.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-strong-object-with-implements.invalid.expected");
-    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements.invalid.js", "parse/fixtures/relay-resolver-strong-object-with-implements.invalid.expected", input, expected);
+fn relay_resolver_strong_object_with_implements() {
+    let input = include_str!("parse/fixtures/relay-resolver-strong-object-with-implements.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-strong-object-with-implements.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements.js", "parse/fixtures/relay-resolver-strong-object-with-implements.expected", input, expected);
 }
 
 #[test]

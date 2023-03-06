@@ -26,7 +26,6 @@ use docblock_shared::ROOT_FRAGMENT_FIELD;
 use docblock_shared::WEAK_FIELD;
 use docblock_syntax::DocblockAST;
 use graphql_syntax::ExecutableDefinition;
-use intern::string_key::StringKey;
 use intern::Lookup;
 pub use ir::DocblockIr;
 pub use ir::On;
@@ -34,7 +33,6 @@ use ir::RelayResolverIr;
 use untyped_representation::parse_untyped_docblock_representation;
 
 pub struct ParseOptions {
-    pub id_field_name: StringKey,
     pub enable_output_type: FeatureFlag,
 }
 

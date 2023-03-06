@@ -61,7 +61,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                         &ast,
                         Some(&executable_documents),
                         ParseOptions {
-                            id_field_name: "id".intern(),
                             enable_output_type: if fixture
                                 .content
                                 .contains("// relay:enable_output_type")

@@ -118,7 +118,6 @@ pub(crate) fn parse_docblock_ir(
                     )?),
                     None => DocblockIr::StrongObjectResolver(parse_strong_object_ir(
                         &mut fields,
-                        parse_options,
                         description,
                         docblock_location,
                         populated_ir_field,
@@ -210,18 +209,12 @@ fn parse_relay_resolver_ir(
 
 fn parse_strong_object_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
-    parse_options: &ParseOptions,
     description: Option<WithLocation<StringKey>>,
     location: Location,
     relay_resolver_field: PopulatedIrField,
 ) -> DiagnosticsResult<StrongObjectIr> {
-    let fragment_name = FragmentDefinitionName(
-        format!(
-            "{}__{}",
-            relay_resolver_field.value.item, parse_options.id_field_name
-        )
-        .intern(),
-    );
+    let fragment_name =
+        FragmentDefinitionName(format!("{}__id", relay_resolver_field.value.item).intern());
 
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
     assert_only_identifier(relay_resolver_field)?;

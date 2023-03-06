@@ -12,6 +12,7 @@ use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
+use crate::untyped_representation::AllowedFieldName;
 use crate::ON_INTERFACE_FIELD;
 use crate::ON_TYPE_FIELD;
 
@@ -21,33 +22,34 @@ pub enum ErrorMessages {
     UnknownField { field_name: StringKey },
 
     #[error("Unexpected duplicate docblock field \"@{field_name}\"")]
-    DuplicateField { field_name: StringKey },
+    DuplicateField { field_name: AllowedFieldName },
 
     #[error(
         "Unexpected free text. Free text in a @RelayResolver docblock is treated as the field's human readable description. Only one description is permitted."
     )]
     MultipleDescriptions,
 
-    #[error("Missing docblock field \"@{field_name}\"")]
-    MissingField { field_name: StringKey },
+    #[error("Missing docblock field @{field_name}")]
+    MissingField { field_name: AllowedFieldName },
 
-    #[error("Expected docblock field \"@{field_name}\" to have specified a value.")]
-    MissingFieldValue { field_name: StringKey },
-
-    #[error(
-        "Unexpected `onType` and `onInterface`. Only one of these docblock fields should be defined on a given @RelayResolver."
-    )]
-    UnexpectedOnTypeAndOnInterface,
+    #[error("Expected docblock field @{field_name} to have specified a value.")]
+    MissingFieldValue { field_name: AllowedFieldName },
 
     #[error(
-        "Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock."
+        "Unexpected `{field_1}` and `{field_2}`. Only one of these docblock fields should be defined on a given @RelayResolver."
     )]
-    ExpectedOnTypeOrOnInterface,
+    IncompatibleFields {
+        field_1: AllowedFieldName,
+        field_2: AllowedFieldName,
+    },
 
     #[error(
-        "Unexpected `edgeTo` and `outputType`. Only one of these docblock fields should be defined on a given @RelayResolver."
+        "Expected either `{field_1}` or `{field_2}` to be defined in this @RelayResolver docblock."
     )]
-    UnexpectedEdgeToAndOutputType,
+    ExpectedOneOrTheOther {
+        field_1: AllowedFieldName,
+        field_2: AllowedFieldName,
+    },
 
     // The rest of this sentence is expected to be supplied by `.annotate`.
     #[error("Unexpected conflicting argument name. This field argument")]
@@ -60,19 +62,12 @@ pub enum ErrorMessages {
     UnexpectedNonNullableItemInListEdgeTo,
 
     #[error(
-        "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in @onInterface (`{interface_type}`) are different. Please make sure these are exactly the same."
+        "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in @{on_field_name} (`{on_field_value}`) are different. Please make sure these are exactly the same."
     )]
-    MismatchRootFragmentTypeConditionOnInterface {
+    MismatchRootFragmentTypeCondition {
         fragment_type_condition: StringKey,
-        interface_type: StringKey,
-    },
-
-    #[error(
-        "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in @onType (`{type_name}`) are different. Please make sure these are exactly the same."
-    )]
-    MismatchRootFragmentTypeConditionOnType {
-        fragment_type_condition: StringKey,
-        type_name: StringKey,
+        on_field_name: AllowedFieldName,
+        on_field_value: StringKey,
     },
 
     #[error(
@@ -104,11 +99,6 @@ pub enum ErrorMessages {
     )]
     UnexpectedNonDot { found: char },
 
-    #[error(
-        "Unexpected docblock field `{field_name}`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand."
-    )]
-    UnexpectedFieldInTerseSyntax { field_name: StringKey },
-
     #[error("Relay Resolvers may not be used to implement the `{id_field_name}` field.")]
     ResolversCantImplementId { id_field_name: StringKey },
 
@@ -118,9 +108,20 @@ pub enum ErrorMessages {
     UnexpectedOutputType { field_name: StringKey },
 
     #[error(
-        "The field @RelayResolver field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
+        "The @RelayResolver field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
     )]
-    FieldWithUnexpectedData { field_name: StringKey },
+    FieldWithUnexpectedData { field_name: AllowedFieldName },
+
+    #[error("The @RelayResolver field `@{field_name}` requires data.")]
+    FieldWithMissingData { field_name: AllowedFieldName },
+
+    #[error(
+        "The compiler attempted to parse this @RelayResolver block as a {resolver_type}, but there were unexpected fields: {field_string}."
+    )]
+    LeftoverFields {
+        resolver_type: &'static str,
+        field_string: String,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

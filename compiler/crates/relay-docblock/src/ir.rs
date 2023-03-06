@@ -88,6 +88,17 @@ pub enum DocblockIr {
     WeakObjectType(WeakObjectIr),
 }
 
+impl DocblockIr {
+    pub(crate) fn get_variant_name(&self) -> &'static str {
+        match self {
+            DocblockIr::RelayResolver(_) => "legacy resolver declaration",
+            DocblockIr::TerseRelayResolver(_) => "terse resolver declaration",
+            DocblockIr::StrongObjectResolver(_) => "strong object type declaration",
+            DocblockIr::WeakObjectType(_) => "weak object type declaration",
+        }
+    }
+}
+
 /// Wrapper over all schema-related values
 #[derive(Copy, Clone, Debug)]
 struct SchemaInfo<'a, 'b> {
@@ -136,9 +147,35 @@ impl DocblockIr {
     }
 }
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct IrField {
-    pub key_location: Location,
-    pub value: Option<WithLocation<StringKey>>,
+pub enum IrField {
+    PopulatedIrField(PopulatedIrField),
+    UnpopulatedIrField(UnpopulatedIrField),
+}
+
+impl IrField {
+    pub fn key_location(&self) -> Location {
+        match self {
+            IrField::PopulatedIrField(field) => field.key_location,
+            IrField::UnpopulatedIrField(field) => field.key_location,
+        }
+    }
+
+    pub(crate) fn value(&self) -> Option<WithLocation<StringKey>> {
+        match self {
+            IrField::PopulatedIrField(field) => Some(field.value),
+            IrField::UnpopulatedIrField(_) => None,
+        }
+    }
+
+    pub(crate) fn new(key_location: Location, value: Option<WithLocation<StringKey>>) -> IrField {
+        match value {
+            Some(value) => IrField::PopulatedIrField(PopulatedIrField {
+                key_location,
+                value,
+            }),
+            None => IrField::UnpopulatedIrField(UnpopulatedIrField { key_location }),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -151,12 +188,9 @@ impl TryFrom<IrField> for PopulatedIrField {
     type Error = ();
 
     fn try_from(ir_field: IrField) -> Result<Self, Self::Error> {
-        match ir_field.value {
-            Some(value) => Ok(PopulatedIrField {
-                key_location: ir_field.key_location,
-                value,
-            }),
-            None => Err(()),
+        match ir_field {
+            IrField::PopulatedIrField(field) => Ok(field),
+            IrField::UnpopulatedIrField(_) => Err(()),
         }
     }
 }
@@ -167,14 +201,12 @@ pub struct UnpopulatedIrField {
 }
 
 impl TryFrom<IrField> for UnpopulatedIrField {
-    type Error = WithLocation<StringKey>;
+    type Error = ();
 
     fn try_from(ir_field: IrField) -> Result<Self, Self::Error> {
-        match ir_field.value {
-            Some(value) => Err(value),
-            None => Ok(UnpopulatedIrField {
-                key_location: ir_field.key_location,
-            }),
+        match ir_field {
+            IrField::PopulatedIrField(_) => Err(()),
+            IrField::UnpopulatedIrField(field) => Ok(field),
         }
     }
 }
@@ -270,7 +302,7 @@ trait ResolverIr {
                 span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
-                arguments: deprecated.value.map(|value| {
+                arguments: deprecated.value().map(|value| {
                     List::generated(vec![string_argument(
                         DEPRECATED_REASON_ARGUMENT_NAME.0,
                         value,
@@ -964,7 +996,7 @@ impl WeakObjectIr {
                 span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
-                arguments: deprecated.value.map(|value| {
+                arguments: deprecated.value().map(|value| {
                     List::generated(vec![string_argument(
                         DEPRECATED_REASON_ARGUMENT_NAME.0,
                         value,

@@ -478,10 +478,7 @@ fn parse_type_annotation(
             )]);
         }
     };
-    Ok(WithLocation::new(
-        value.location.clone(),
-        valid_type_annotation,
-    ))
+    Ok(WithLocation::new(value.location, valid_type_annotation))
 }
 
 fn get_optional_unpopulated_field_named(

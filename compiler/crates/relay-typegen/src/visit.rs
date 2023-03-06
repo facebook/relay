@@ -1898,8 +1898,7 @@ pub(crate) fn raw_response_visit_selections(
                         spread_type,
                         typegen_context
                             .fragment_locations
-                            .location(&spread.fragment.item)
-                            .copied(),
+                            .location(&spread.fragment.item),
                     );
                     type_selections.push(TypeSelection::RawResponseFragmentSpread(
                         RawResponseFragmentSpread {

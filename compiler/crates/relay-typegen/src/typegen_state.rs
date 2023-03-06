@@ -124,8 +124,8 @@ impl FragmentLocations {
         )
     }
 
-    pub fn location(&self, fragment_name: &FragmentDefinitionName) -> Option<&Location> {
-        self.0.get(fragment_name)
+    pub fn location(&self, fragment_name: &FragmentDefinitionName) -> Option<Location> {
+        self.0.get(fragment_name).copied()
     }
 }
 

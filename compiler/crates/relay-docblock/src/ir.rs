@@ -908,7 +908,7 @@ impl ResolverIr for StrongObjectIr {
                 *INT_TYPE,
                 None,
                 self.directives(None, schema_info),
-                self.location().clone(),
+                self.location(),
             ),
         ];
         let type_ = TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
@@ -1021,7 +1021,7 @@ impl WeakObjectIr {
                 self.model_type_name(),
                 self.description.map(as_string_node),
                 vec![],
-                self.location().clone(),
+                self.location(),
             )])),
         })
     }

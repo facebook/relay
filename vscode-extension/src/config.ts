@@ -9,8 +9,8 @@ import {ConfigurationScope, workspace} from 'vscode';
 
 export type RelayProjectConfig = {
   name: string;
-  pathToConfig: string;
-  rootDirectory: string | null;
+  pathToConfig: string | null;
+  rootDirectory: string;
 };
 
 export type Config = {

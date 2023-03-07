@@ -90,7 +90,7 @@ function createContainerWithFragments<
     static getDerivedStateFromProps(
       nextProps: ContainerProps,
       prevState: ContainerState,
-    ): $Shape<ContainerState> | null {
+    ): Partial<ContainerState> | null {
       // Any props change could impact the query, so we mirror props in state.
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;

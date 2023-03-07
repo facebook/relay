@@ -98,7 +98,7 @@ type RefetchFnExact<TQuery: OperationType, TOptions = Options> = RefetchFnBase<
 type RefetchFnInexact<
   TQuery: OperationType,
   TOptions = Options,
-> = RefetchFnBase<$Shape<VariablesOf<TQuery>>, TOptions>;
+> = RefetchFnBase<Partial<VariablesOf<TQuery>>, TOptions>;
 
 type Action =
   | {

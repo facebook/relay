@@ -12,31 +12,33 @@ import {
 import {ServerOptions, LanguageClient} from 'vscode-languageclient/node';
 import {window} from 'vscode';
 import * as path from 'path';
-import {RelayExtensionContext} from './context';
+import {RelayProjectExtensionContext} from './context';
 import {createErrorHandler} from './errorHandler';
 import {LSPStatusBarFeature} from './lspStatusBarFeature';
 import {getConfig} from './config';
 
-export function createAndStartLanguageClient(context: RelayExtensionContext) {
+export function createAndStartLanguageClient(
+  context: RelayProjectExtensionContext,
+) {
   const config = getConfig();
 
-  context.primaryOutputChannel.appendLine(
-    `Using relay binary: ${context.relayBinaryExecutionOptions.binaryPath}`,
+  context.log(
+    `Using relay binary: ${context.project.binaryExecutionOptions.binaryPath}`,
   );
 
   const args = ['lsp', `--output=${config.lspOutputLevel}`];
 
-  if (config.pathToConfig) {
-    args.push(config.pathToConfig);
+  if (context.project.binaryExecutionOptions.pathToConfig) {
+    args.push(context.project.binaryExecutionOptions.pathToConfig);
   }
 
   const serverOptions: ServerOptions = {
     options: {
-      cwd: context.relayBinaryExecutionOptions.rootPath,
+      cwd: context.project.binaryExecutionOptions.rootPath,
     },
     command: path.resolve(
-      context.relayBinaryExecutionOptions.rootPath,
-      context.relayBinaryExecutionOptions.binaryPath,
+      context.project.binaryExecutionOptions.rootPath,
+      context.project.binaryExecutionOptions.binaryPath,
     ),
     args,
   };
@@ -53,16 +55,14 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
       {scheme: 'file', language: 'javascriptreact'},
     ],
 
-    outputChannel: context.lspOutputChannel,
+    outputChannel: context.project.lspOutputChannel,
 
     // Since we use stderr for debug logs, the "Something went wrong" popup
     // in VSCode shows up a lot. This tells vscode not to show it in any case.
     revealOutputChannelOn: RevealOutputChannelOn.Never,
 
     initializationFailedHandler: error => {
-      context?.primaryOutputChannel.appendLine(
-        `initializationFailedHandler ${error}`,
-      );
+      context?.log(`initializationFailedHandler ${error}`);
 
       return true;
     },
@@ -80,34 +80,34 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
 
   client.registerFeature(new LSPStatusBarFeature(context));
 
-  context.primaryOutputChannel.appendLine(
-    `Starting the Relay Language Server with these options: ${JSON.stringify(
+  context.log(
+    `Starting the Relay Langauge Server with these options: ${JSON.stringify(
       serverOptions,
+      null,
+      2,
     )}`,
   );
 
   // Start the client. This will also launch the server
   client.start();
-  context.client = client;
+  context.project.client = client;
 }
 
 type DidNotError = boolean;
 
 export async function killLanguageClient(
-  context: RelayExtensionContext,
+  context: RelayProjectExtensionContext,
 ): Promise<DidNotError> {
-  if (!context.client) {
+  if (!context.project.client) {
     return true;
   }
 
-  return context.client
+  return context.project.client
     .stop()
     .then(() => {
-      context.primaryOutputChannel.appendLine(
-        'Successfully stopped existing relay lsp client',
-      );
+      context.log('Successfully stopped existing relay lsp client');
 
-      context.client = null;
+      context.project.client = null;
 
       return true;
     })

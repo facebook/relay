@@ -8,6 +8,20 @@
 import {ExtensionContext, OutputChannel, StatusBarItem, Terminal} from 'vscode';
 import {LanguageClient} from 'vscode-languageclient/node';
 
+export type BinaryExecutionOptions = {
+  rootPath: string;
+  binaryPath: string;
+  pathToConfig: string | null;
+};
+
+export type RelayProject = {
+  name: string;
+  client: LanguageClient | null;
+  binaryExecutionOptions: BinaryExecutionOptions;
+  compilerTerminal: Terminal | null;
+  lspOutputChannel: OutputChannel;
+};
+
 // Mutable object to pass around to command handlers so they
 // can reference the current state of the extension
 //
@@ -22,13 +36,49 @@ import {LanguageClient} from 'vscode-languageclient/node';
 // https://code.visualstudio.com/api/extension-capabilities/common-capabilities#data-storage
 export type RelayExtensionContext = {
   statusBar: StatusBarItem;
-  client: LanguageClient | null;
-  lspOutputChannel: OutputChannel;
   extensionContext: ExtensionContext;
-  primaryOutputChannel: OutputChannel;
-  compilerTerminal: Terminal | null;
-  relayBinaryExecutionOptions: {
-    rootPath: string;
-    binaryPath: string;
-  };
+  /**
+   * This should only be used for APIs that need an `OutputChannel`.
+   * please use `log` instead
+   */
+  _outputChannel: OutputChannel;
+
+  log: (message: string) => void;
+
+  projects: RelayProject[];
 };
+
+// Take the `RelayExtensionContext` type and replace `projects` with a singular `project`
+export type RelayProjectExtensionContext = Omit<
+  RelayExtensionContext,
+  'projects'
+> & {
+  log: (message: string) => void;
+  project: RelayProject;
+};
+
+export function createProjectContextFromExtensionContext(
+  extensionContext: RelayExtensionContext,
+  project: RelayProject,
+): RelayProjectExtensionContext {
+  const {
+    // We're discarding project to build the project extension context
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    projects: _,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    _outputChannel,
+    ...rest
+  } = extensionContext;
+
+  const projectContext: RelayProjectExtensionContext = {
+    ...rest,
+    project,
+    _outputChannel,
+    log: message => {
+      // Using output channel directly here to avoid using parent formatting
+      _outputChannel.appendLine(`[Relay][${project.name}] — ${message}`);
+    },
+  };
+
+  return projectContext;
+}

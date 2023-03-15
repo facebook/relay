@@ -396,7 +396,7 @@ describe.each([
 
       const Fallback = () => {
         useEffect(() => {
-          Scheduler.unstable_yieldValue('Fallback');
+          Scheduler.log('Fallback');
         });
 
         return 'Fallback';

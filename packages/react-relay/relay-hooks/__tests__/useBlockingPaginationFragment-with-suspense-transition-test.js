@@ -94,14 +94,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       result.isPendingNext = isPendingNext;
 
       useEffect(() => {
-        Scheduler.log({data, ...result});
+        Scheduler.unstable_yieldValue({data, ...result});
       });
 
       return {data, ...result};
     }
 
     function assertYieldsWereCleared() {
-      const actualYields = Scheduler.unstable_clearLog();
+      const actualYields = Scheduler.unstable_clearYields();
       if (actualYields.length !== 0) {
         throw new Error(
           'Log of yielded values is not empty. ' +
@@ -135,7 +135,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     ) {
       assertYieldsWereCleared();
       Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-      const actualYields = Scheduler.unstable_clearLog();
+      const actualYields = Scheduler.unstable_clearYields();
       expect(actualYields.length).toEqual(expectedYields.length);
       expectedYields.forEach((expected, idx) =>
         assertYield(expected, actualYields[idx]),
@@ -429,7 +429,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       const Fallback = () => {
         useEffect(() => {
-          Scheduler.log('Fallback');
+          Scheduler.unstable_yieldValue('Fallback');
         });
 
         return 'Fallback';
@@ -1052,7 +1052,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         });
 
         Scheduler.unstable_flushNumberOfYields(1);
-        const actualYields = Scheduler.unstable_clearLog();
+        const actualYields = Scheduler.unstable_clearYields();
 
         if (flushFallback) {
           // Flushing fallbacks by running a timer could cause other side-effects

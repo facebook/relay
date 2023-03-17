@@ -183,6 +183,19 @@ impl fmt::Debug for Type {
     }
 }
 
+impl Type {
+    pub fn get_variant_name(&self) -> &'static str {
+        match self {
+            Type::Enum(_) => "an enum",
+            Type::InputObject(_) => "an input object",
+            Type::Interface(_) => "an interface",
+            Type::Object(_) => "an object",
+            Type::Scalar(_) => "a scalar",
+            Type::Union(_) => "a union",
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum TypeReference<T> {
     Named(T),
@@ -383,6 +396,19 @@ pub struct Argument {
     pub default_value: Option<ConstantValue>,
     pub description: Option<StringKey>,
     pub directives: Vec<DirectiveValue>,
+}
+
+impl Argument {
+    pub fn deprecated(&self) -> Option<Deprecation> {
+        self.directives
+            .named(*DIRECTIVE_DEPRECATED)
+            .map(|directive| Deprecation {
+                reason: directive
+                    .arguments
+                    .named(*ARGUMENT_REASON)
+                    .and_then(|reason| reason.value.get_string_literal()),
+            })
+    }
 }
 
 impl Named for Argument {

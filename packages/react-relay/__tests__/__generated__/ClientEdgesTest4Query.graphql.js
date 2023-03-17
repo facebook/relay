@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aeb241aff41839ee5b61c4a5cfed7c61>>
+ * @generated SignedSource<<8b4d0c7a6aa69c38d1679dea5b1b1582>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import {client_object as userClientObjectResolver} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeClientObjectResolver.js";
-// Type assertion validating that `userClientObjectResolver` resolver is correctly implemented.
+import type { DataID } from "relay-runtime";
+import {client_object as userClientObjectResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeClientObjectResolver.js";
+// Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientObjectResolver: (
+(userClientObjectResolverType: (
   args: {|
     id: string,
-  |}, 
-) => mixed);
+  |},
+) => ?{|
+  +id: DataID,
+|});
 export type ClientEdgesTest4Query$variables = {|
   id: string,
 |};
@@ -56,7 +59,25 @@ v1 = [
     "name": "id",
     "variableName": "id"
   }
-];
+],
+v2 = {
+  "alias": null,
+  "args": (v1/*: any*/),
+  "concreteType": "ClientObject",
+  "kind": "LinkedField",
+  "name": "client_object",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "description",
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -88,24 +109,7 @@ return {
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeClientObjectResolver').client_object,
                 "path": "me.client_object"
               },
-              "linkedField": {
-                "alias": null,
-                "args": (v1/*: any*/),
-                "concreteType": "ClientObject",
-                "kind": "LinkedField",
-                "name": "client_object",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "description",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
+              "linkedField": (v2/*: any*/)
             },
             "action": "THROW",
             "path": "me.client_object"
@@ -132,23 +136,23 @@ return {
         "plural": false,
         "selections": [
           {
+            "kind": "ClientEdgeToClientObject",
+            "backingField": {
+              "name": "client_object",
+              "args": (v1/*: any*/),
+              "fragment": null,
+              "kind": "RelayResolver",
+              "storageKey": null,
+              "isOutputType": false
+            },
+            "linkedField": (v2/*: any*/)
+          },
+          {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "name": "client_object",
-                "args": (v1/*: any*/),
-                "fragment": null,
-                "kind": "RelayResolver",
-                "storageKey": null
-              }
-            ]
           }
         ],
         "storageKey": null

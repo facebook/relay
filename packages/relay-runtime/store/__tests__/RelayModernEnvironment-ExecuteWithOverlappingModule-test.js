@@ -10,7 +10,8 @@
  */
 
 'use strict';
-
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -133,16 +134,16 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       _cacheConfig: CacheConfig,
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
     };
     operationLoader = {
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       load: jest.fn(moduleName => {
         return Promise.resolve();
       }),
-      get: jest.fn(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
@@ -158,10 +159,10 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       },
     });
     const actorOperationSnapshot = environment.lookup(actorOperation.fragment);
-    actorOperationCallback = jest.fn();
+    actorOperationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(actorOperationSnapshot, actorOperationCallback);
     const userOperationSnapshot = environment.lookup(userOperation.fragment);
-    userOperationCallback = jest.fn();
+    userOperationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(userOperationSnapshot, userOperationCallback);
   });
 

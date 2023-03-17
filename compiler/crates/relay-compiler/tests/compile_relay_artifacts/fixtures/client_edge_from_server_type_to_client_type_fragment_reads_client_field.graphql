@@ -1,0 +1,29 @@
+fragment clientEdgeFromServerTypeToClientTypeFragmentReadsClientField_resolver_fragment on Query {
+  me {
+    id
+  }
+
+  # Normalization AST should wrap this as a client field.
+  client_field
+}
+
+query clientEdgeFromServerTypeToClientTypeFragmentReadsClientField_Query {
+  client_edge {
+    name
+  }
+}
+
+# %extensions%
+
+type ClientType {
+  name: String
+}
+
+extend type Query {
+  client_edge: ClientType
+    @relay_resolver(
+      fragment_name: "clientEdgeFromServerTypeToClientTypeFragmentReadsClientField_resolver_fragment"
+      import_path: "./path/to/Resolver.js"
+    )
+  client_field: String
+}

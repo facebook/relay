@@ -61,7 +61,19 @@ describe('FragmentResource RelayResolver behavior', () => {
   let mockRequiredFieldLogger;
 
   beforeEach(() => {
-    mockRequiredFieldLogger = jest.fn();
+    mockRequiredFieldLogger = jest.fn<
+      [
+        | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
+        | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
+        | {
+            +error: Error,
+            +fieldPath: string,
+            +kind: 'relay_resolver.error',
+            +owner: string,
+          },
+      ],
+      void,
+    >();
     environment = createMockEnvironment({
       requiredFieldLogger: mockRequiredFieldLogger,
     });

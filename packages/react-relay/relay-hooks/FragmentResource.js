@@ -29,8 +29,8 @@ const {getQueryResourceForEnvironment} = require('./QueryResource');
 const SuspenseResource = require('./SuspenseResource');
 const invariant = require('invariant');
 const {
-  RelayFeatureFlags,
   __internal: {fetchQuery, getPromiseForActiveRequest},
+  RelayFeatureFlags,
   createOperationDescriptor,
   getFragmentIdentifier,
   getPendingOperationsForFragment,

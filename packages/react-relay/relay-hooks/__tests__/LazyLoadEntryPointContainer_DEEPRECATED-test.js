@@ -10,6 +10,17 @@
  */
 
 'use strict';
+import type {
+  GraphQLResponse,
+  LogRequestInfoFunction,
+  UploadableMap,
+} from '../../../relay-runtime/network/RelayNetworkTypes';
+import type {ObservableFromValue} from '../../../relay-runtime/network/RelayObservable';
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from '../../../relay-runtime/util/RelayRuntimeTypes';
 
 const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
@@ -106,7 +117,9 @@ class FakeJSResource<T> {
 beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     Observable.create(sink => {
       dataSource = sink;
     }),
@@ -122,6 +135,7 @@ beforeEach(() => {
     params: query.params,
   };
   entryPoint = {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     getPreloadProps: jest.fn(entryPointParams => {
       return {
         queries: {
@@ -142,9 +156,7 @@ it('suspends while the query and component are pending', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -167,9 +179,7 @@ it('suspends while the component is loading', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -183,8 +193,8 @@ it('suspends while the component is loading', () => {
 
 it('suspends while the query is loading', () => {
   function Component(props: any) {
-    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
-    return data.node.name;
+    const data = usePreloadedQuery(query, props.queries.prefetched);
+    return data.node?.name;
   }
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
@@ -193,9 +203,7 @@ it('suspends while the query is loading', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -216,7 +224,6 @@ it('suspends then updates when the query and component load', () => {
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -232,8 +239,8 @@ it('suspends then updates when the query and component load', () => {
   let receivedProps = null;
   function Component(props: any) {
     receivedProps = props;
-    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
-    return data.node.name;
+    const data = usePreloadedQuery(query, props.queries.prefetched);
+    return data.node?.name;
   }
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
@@ -256,8 +263,8 @@ it('renders synchronously when the query and component are already loaded', () =
   let receivedProps = null;
   function Component(props: any) {
     receivedProps = props;
-    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
-    return data.node.name;
+    const data = usePreloadedQuery(query, props.queries.prefetched);
+    return data.node?.name;
   }
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
@@ -272,7 +279,6 @@ it('renders synchronously when the query and component are already loaded', () =
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -288,9 +294,10 @@ it('renders synchronously when the query and component are already loaded', () =
 });
 
 it('re-renders without reloading when non-prefetch props change', () => {
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
-    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
-    return data.node.name;
+    const data = usePreloadedQuery(query, props.queries.prefetched);
+    return data.node?.name;
   });
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
@@ -304,9 +311,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -319,9 +324,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 1 /* different value */}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -333,9 +336,10 @@ it('re-renders without reloading when non-prefetch props change', () => {
 });
 
 it('re-renders and reloads when prefetch params change', () => {
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
-    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
-    return data.node.name;
+    const data = usePreloadedQuery(query, props.queries.prefetched);
+    return data.node?.name;
   });
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
@@ -351,7 +355,6 @@ it('re-renders and reloads when prefetch params change', () => {
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
         />
       </React.Suspense>
@@ -365,7 +368,6 @@ it('re-renders and reloads when prefetch params change', () => {
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
           props={otherProps}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '_4'} /* different id */}
         />
       </React.Suspense>
@@ -407,8 +409,8 @@ it('fetches and renders synchronously when the query data is cached, then update
   let receivedProps = null;
   function Component(props: any) {
     receivedProps = props;
-    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
-    return data.node.name;
+    const data = usePreloadedQuery(query, props.queries.prefetched);
+    return data.node?.name;
   }
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
@@ -477,8 +479,8 @@ it('renders synchronously when the query data and ast are cached, without fetchi
   let receivedProps = null;
   function Component(props: any) {
     receivedProps = props;
-    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
-    return data.node.name;
+    const data = usePreloadedQuery(query, props.queries.prefetched);
+    return data.node?.name;
   }
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
@@ -512,6 +514,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
 
 it('should use environment from `getEnvironment` prop to fetch a query', () => {
   entryPoint = {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     getPreloadProps: jest.fn(entryPointParams => {
       return {
         queries: {
@@ -527,8 +530,26 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
     }),
     root: (new FakeJSResource(): $FlowFixMe),
   };
-  const fetchFn = jest.fn();
-  const defaultFetchFn = jest.fn();
+  const fetchFn = jest.fn<
+    [
+      RequestParameters,
+      Variables,
+      CacheConfig,
+      ?UploadableMap,
+      ?LogRequestInfoFunction,
+    ],
+    ObservableFromValue<GraphQLResponse>,
+  >();
+  const defaultFetchFn = jest.fn<
+    [
+      RequestParameters,
+      Variables,
+      CacheConfig,
+      ?UploadableMap,
+      ?LogRequestInfoFunction,
+    ],
+    ObservableFromValue<GraphQLResponse>,
+  >();
   const defaultEnvironment = new Environment({
     network: Network.create(defaultFetchFn),
     store: new Store(new RecordSource()),
@@ -546,10 +567,9 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
       <React.Suspense fallback="Fallback">
         <LazyLoadEntryPointContainer_DEPRECATED
           entryPoint={entryPoint}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           props={{version: 0}}
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           entryPointParams={{id: '4'}}
+          // $FlowFixMe[invalid-tuple-arity]
           environmentProvider={{
             getEnvironment,
           }}

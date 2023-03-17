@@ -179,7 +179,7 @@ export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
  *   with a specific error
  */
 function createMockEnvironment(
-  config?: $Shape<EnvironmentConfig>,
+  config?: Partial<EnvironmentConfig>,
 ): RelayMockEnvironment {
   const store = config?.store ?? new Store(new RecordSource());
   const cache = new QueryResponseCache({

@@ -238,7 +238,8 @@ fragment RefetchableClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best
               "abstractKey": null
             },
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

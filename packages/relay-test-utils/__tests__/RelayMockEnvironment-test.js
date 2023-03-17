@@ -66,8 +66,8 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
   const renderAndAssert = (condition: ConditionToAssert) => {
     let data;
     function Component(props: $FlowFixMe) {
-      data = usePreloadedQuery<any>(query, props.prefetched);
-      return data.node.name;
+      data = usePreloadedQuery(query, props.prefetched);
+      return data.node?.name;
     }
     const renderer = TestRenderer.create(
       <RelayEnvironmentProvider environment={mockEnvironment}>

@@ -427,14 +427,6 @@ fn apply_normalization_transforms(
         print_stats("client_extensions_abstract_types", &program);
     }
 
-    program = log_event.time("remove_client_edge_selections", || {
-        remove_client_edge_selections(&program)
-    })?;
-
-    if let Some(print_stats) = maybe_print_stats {
-        print_stats("remove_client_edge_selections", &program);
-    }
-
     program = log_event.time("replace_updatable_fragment_spreads", || {
         replace_updatable_fragment_spreads(&program)
     });
@@ -554,7 +546,7 @@ fn apply_operation_text_transforms(
     });
     log_event.time("validate_selection_conflict", || {
         graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
-            &program, false,
+            &program, true,
         )
     })?;
     program = log_event.time("skip_client_extensions", || {

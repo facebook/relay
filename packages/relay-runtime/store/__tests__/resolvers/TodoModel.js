@@ -12,17 +12,15 @@
 'use strict';
 
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
-
-const {
-  TODO_STORE,
-  Selectors,
-} = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-
-import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
 import type {TodoDescription} from './TodoDescription';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
+import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
 
 const {createTodoDescription} = require('./TodoDescription');
-import type {DataID} from '../../../util/RelayRuntimeTypes';
+const {
+  Selectors,
+  TODO_STORE,
+} = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 
 /**
  * @RelayResolver TodoModel
@@ -72,7 +70,7 @@ function many_fancy_descriptions(
 /**
  * @RelayResolver Query.todo_model_null: TodoModel
  */
-function todo_model_null(): ?DataID {
+function todo_model_null(): ?ConcreteClientEdgeResolverReturnType<> {
   return null;
 }
 

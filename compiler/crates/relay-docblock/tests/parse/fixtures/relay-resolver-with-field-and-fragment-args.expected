@@ -172,6 +172,5 @@ RelayResolver(
                 },
             ],
         ),
-        named_import: None,
     },
 )

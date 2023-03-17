@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a7ef3d4f0259e3cbfa1e5483c95ca9bf>>
+ * @generated SignedSource<<8cf2bea87a87f4c48d8c0b53b4e0c616>>
  */
 
 mod to_schema;
@@ -132,6 +132,55 @@ fn relay_resolver_strong_object() {
 }
 
 #[test]
+fn relay_resolver_strong_object_with_implements() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_interface_bad_id_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-bad-id.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-bad-id.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-interface-bad-id.invalid.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-bad-id.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_interface_no_id_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-no-id.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-no-id.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-interface-no-id.invalid.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-no-id.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_interface_non_interface() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-interface-non-interface.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_non_existing_type() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-non-existing-type.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-non-existing-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-non-existing-type.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-non-existing-type.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_implements_server_interface_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-server-interface.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-server-interface.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-implements-server-interface.invalid.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-server-interface.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object_with_multiple_implements() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-multiple-implements.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-multiple-implements.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object-with-multiple-implements.js", "to_schema/fixtures/relay-resolver-strong-object-with-multiple-implements.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_with_args() {
     let input = include_str!("to_schema/fixtures/relay-resolver-with-args.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-with-args.expected");
@@ -178,6 +227,13 @@ fn terse_relay_resolver_interface() {
     let input = include_str!("to_schema/fixtures/terse-relay-resolver-interface.js");
     let expected = include_str!("to_schema/fixtures/terse-relay-resolver-interface.expected");
     test_fixture(transform_fixture, "terse-relay-resolver-interface.js", "to_schema/fixtures/terse-relay-resolver-interface.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_non_existent_type_invalid() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-non-existent-type.invalid.js", "to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.expected", input, expected);
 }
 
 #[test]

@@ -30,11 +30,11 @@ const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
 const {
+  __internal: {fetchQuery},
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   RelayFeatureFlags,
-  __internal: {fetchQuery},
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -240,8 +240,8 @@ describe.each([
       jest.mock('scheduler', () => {
         return jest.requireActual('scheduler/unstable_mock');
       });
-      commitSpy = jest.fn();
-      renderSpy = jest.fn();
+      commitSpy = jest.fn<any | [any], mixed>();
+      renderSpy = jest.fn<[any], mixed>();
 
       // Set up environment and base data
       environment = createMockEnvironment();
@@ -1549,7 +1549,6 @@ describe.each([
         }
         return user.id;
       };
-      // $FlowFixMe[incompatible-type]
       SingularRenderer = SideEffectfulComponent;
 
       // Render with profile_picture initially set to the default client record, with null uri

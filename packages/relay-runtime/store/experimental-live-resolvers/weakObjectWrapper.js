@@ -10,9 +10,8 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 const isLiveStateValue = require('./isLiveStateValue');
+const invariant = require('invariant');
 
 /**
  * Wrap the return `value` of the @live resolver that return @weak

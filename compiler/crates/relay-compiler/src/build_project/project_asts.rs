@@ -7,12 +7,13 @@
 
 use common::Diagnostic;
 use dependency_analyzer::get_reachable_ast;
+use dependency_analyzer::ExecutableDefinitionNameSet;
 use dependency_analyzer::ReachableAst;
 use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
-use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
 use relay_transforms::get_resolver_fragment_dependency_name;
 use schema::SDLSchema;
@@ -23,8 +24,8 @@ use crate::errors::BuildProjectError;
 use crate::GraphQLAsts;
 
 pub struct ProjectAsts {
-    pub changed_names: StringKeySet,
-    pub base_definition_names: StringKeySet,
+    pub changed_names: ExecutableDefinitionNameSet,
+    pub base_definition_names: ExecutableDefinitionNameSet,
     pub definitions: Vec<ExecutableDefinition>,
 }
 
@@ -51,8 +52,13 @@ pub fn get_project_asts(
             let base_definition_names = base_project_asts
                 .iter()
                 // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
-                .filter_map(|definition| definition.name())
-                .collect::<StringKeySet>();
+                .filter_map(|definition| {
+                    definition.name().map(|name| match definition {
+                        ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
+                        ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
+                    })
+                })
+                .collect::<ExecutableDefinitionNameSet>();
             (base_project_asts, base_definition_names)
         }
         None => (Vec::new(), Default::default()),
@@ -92,7 +98,7 @@ pub fn get_project_asts(
 fn find_changed_names(
     graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     project_config: &ProjectConfig,
-) -> StringKeySet {
+) -> ExecutableDefinitionNameSet {
     let mut changed_names = graphql_asts
         .get(&project_config.name)
         .map(|asts| asts.pending_definition_names.clone())
@@ -145,14 +151,14 @@ pub fn find_duplicates(
 /// this method will return a list of documents from the base projects
 fn find_base_resolver_fragment_asts(
     schema: &SDLSchema,
-    base_definition_asts: &StringKeySet,
+    base_definition_asts: &ExecutableDefinitionNameSet,
     base_project_asts: &[ExecutableDefinition],
 ) -> Vec<ExecutableDefinition> {
-    let mut base_resolver_fragments = StringKeySet::default();
+    let mut base_resolver_fragments = ExecutableDefinitionNameSet::default();
     for field in schema.fields() {
         if let Some(fragment_name) = get_resolver_fragment_dependency_name(field, schema) {
-            if base_definition_asts.contains(&fragment_name.0) {
-                base_resolver_fragments.insert(fragment_name.0);
+            if base_definition_asts.contains(&fragment_name.into()) {
+                base_resolver_fragments.insert(fragment_name.into());
             }
         }
     }
@@ -161,7 +167,8 @@ fn find_base_resolver_fragment_asts(
         .iter()
         .filter(|definition| match definition {
             ExecutableDefinition::Fragment(fragment) => {
-                base_resolver_fragments.contains(&fragment.name.value)
+                let name = FragmentDefinitionName(fragment.name.value).into();
+                base_resolver_fragments.contains(&name)
             }
             ExecutableDefinition::Operation(_) => false,
         })

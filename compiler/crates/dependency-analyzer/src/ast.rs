@@ -8,9 +8,11 @@
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::OperationDefinitionName;
 use graphql_syntax::*;
-use intern::string_key::StringKeyMap;
-use intern::string_key::StringKeySet;
+
+use crate::ExecutableDefinitionNameMap;
+use crate::ExecutableDefinitionNameSet;
 
 pub struct ReachableAst {
     /// The definitions that need to be compiled, includes the project
@@ -83,21 +85,25 @@ pub fn get_reachable_ast(
 /// Get fragment references of each definition
 pub fn get_definition_references<'a>(
     definitions: impl IntoIterator<Item = &'a ExecutableDefinition>,
-) -> StringKeyMap<StringKeySet> {
-    let mut result: StringKeyMap<StringKeySet> = Default::default();
+) -> ExecutableDefinitionNameMap<ExecutableDefinitionNameSet> {
+    let mut result: ExecutableDefinitionNameMap<ExecutableDefinitionNameSet> = Default::default();
     for definition in definitions {
         let name = definition.name().expect("Expect a name on an operation");
+        let name = match definition {
+            ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
+            ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
+        };
         let mut selections: Vec<_> = match definition {
             ExecutableDefinition::Operation(definition) => &definition.selections.items,
             ExecutableDefinition::Fragment(definition) => &definition.selections.items,
         }
         .iter()
         .collect();
-        let mut references: StringKeySet = Default::default();
+        let mut references: ExecutableDefinitionNameSet = Default::default();
         while let Some(selection) = selections.pop() {
             match selection {
                 Selection::FragmentSpread(selection) => {
-                    references.insert(selection.name.value);
+                    references.insert(FragmentDefinitionName(selection.name.value).into());
                 }
                 Selection::LinkedField(selection) => {
                     selections.extend(&selection.selections.items);

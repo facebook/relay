@@ -7,6 +7,7 @@
 
 use common::ArgumentName;
 use common::ScalarName;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
@@ -63,7 +64,7 @@ pub enum ValidationMessage {
         "Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use '{parent_name} @match(key: \"{document_name}_<localName>\")'."
     )]
     InvalidModuleSelectionWithoutKey {
-        document_name: StringKey,
+        document_name: ExecutableDefinitionName,
         parent_name: StringKey,
     },
 
@@ -81,7 +82,9 @@ pub enum ValidationMessage {
     #[error(
         "Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. '{document_name}_<localName>'."
     )]
-    InvalidMatchKeyArgument { document_name: StringKey },
+    InvalidMatchKeyArgument {
+        document_name: ExecutableDefinitionName,
+    },
 
     #[error(
         "@match used on incompatible field '{field_name}'. @match may only be used with fields that accept a 'supported: [String]' argument."

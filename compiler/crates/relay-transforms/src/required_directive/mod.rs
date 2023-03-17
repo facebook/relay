@@ -125,22 +125,22 @@ impl<'program> RequiredDirective<'program> {
         self.required_children_map = Default::default();
     }
 
-    fn assert_not_within_abstract_inline_fragment(&mut self, directive_location: &Location) {
+    fn assert_not_within_abstract_inline_fragment(&mut self, directive_location: Location) {
         if self.within_abstract_inline_fragment {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::RequiredWithinAbstractInlineFragment,
                 // TODO(T70172661): Also referece the location of the inline fragment, once they have a location.
-                *directive_location,
+                directive_location,
             ))
         }
     }
 
-    fn assert_not_within_inline_directive(&mut self, directive_location: &Location) {
+    fn assert_not_within_inline_directive(&mut self, directive_location: Location) {
         if let Some(location) = self.parent_inline_fragment_directive {
             self.errors.push(
                 Diagnostic::error(
                     ValidationMessage::RequiredWithinInlineDirective,
-                    *directive_location,
+                    directive_location,
                 )
                 .annotate("The fragment is annotated as @inline here.", location),
             )
@@ -208,8 +208,8 @@ impl<'program> RequiredDirective<'program> {
         let field_name = field.name_with_location(&self.program.schema);
 
         if let Some(metadata) = maybe_required {
-            self.assert_not_within_abstract_inline_fragment(&metadata.directive_location);
-            self.assert_not_within_inline_directive(&metadata.directive_location);
+            self.assert_not_within_abstract_inline_fragment(metadata.directive_location);
+            self.assert_not_within_inline_directive(metadata.directive_location);
             self.current_node_required_children.insert(
                 path_name,
                 RequiredField {

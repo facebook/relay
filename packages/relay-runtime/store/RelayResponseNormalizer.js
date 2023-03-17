@@ -20,6 +20,7 @@ import type {
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
+  NormalizationResolverField,
   NormalizationScalarField,
   NormalizationStream,
 } from '../util/NormalizationNode';
@@ -44,6 +45,7 @@ const {
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -308,17 +310,13 @@ class RelayResponseNormalizer {
           const fieldKey = getStorageKey(selection, this._variables);
           const handleKey = getHandleStorageKey(selection, this._variables);
           this._handleFieldPayloads.push({
-            /* $FlowFixMe[class-object-subtyping] added when improving typing
-             * for this parameters */
             args,
             dataID: RelayModernRecord.getDataID(record),
             fieldKey,
             handle: selection.handle,
             handleKey,
             handleArgs: selection.handleArgs
-              ? /* $FlowFixMe[class-object-subtyping] added when improving typing
-                 * for this parameters */
-                getArgumentValues(selection.handleArgs, this._variables)
+              ? getArgumentValues(selection.handleArgs, this._variables)
               : {},
           });
           break;
@@ -354,9 +352,10 @@ class RelayResponseNormalizer {
           this._normalizeActorChange(node, selection, record, data);
           break;
         case RELAY_RESOLVER:
-          if (selection.fragment != null) {
-            this._traverseSelections(selection.fragment, record, data);
-          }
+          this._normalizeResolver(selection, record, data);
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          this._normalizeResolver(selection.backingField, record, data);
           break;
         default:
           (selection: empty);
@@ -366,6 +365,16 @@ class RelayResponseNormalizer {
             selection.kind,
           );
       }
+    }
+  }
+
+  _normalizeResolver(
+    resolver: NormalizationResolverField,
+    record: Record,
+    data: PayloadData,
+  ) {
+    if (resolver.fragment != null) {
+      this._traverseSelections(resolver.fragment, record, data);
     }
   }
 

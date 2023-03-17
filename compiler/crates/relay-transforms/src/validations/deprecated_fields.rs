@@ -7,13 +7,12 @@
 
 use std::sync::Arc;
 
-use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticTag;
 use common::DiagnosticsResult;
-use common::DirectiveName;
-use common::NamedItem;
 use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::Directive;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::LinkedField;
 use graphql_ir::Program;
@@ -21,16 +20,9 @@ use graphql_ir::ScalarField;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use graphql_ir::Value;
-use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
-
-lazy_static! {
-    static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
-    static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
-}
 
 pub fn deprecated_fields(
     schema: &Arc<SDLSchema>,
@@ -67,14 +59,10 @@ impl<'a> DeprecatedFields<'a> {
         }
     }
 
-    fn validate_field(&mut self, field_id: &WithLocation<FieldID>) {
+    fn validate_field(&mut self, field_id: &WithLocation<FieldID>, arguments: &[Argument]) {
         let schema = &self.schema;
         let field_definition = schema.field(field_id.item);
-        if let Some(directive) = field_definition.directives.named(*DIRECTIVE_DEPRECATED) {
-            let deprecation_reason = directive
-                .arguments
-                .named(*ARGUMENT_REASON)
-                .and_then(|arg| arg.value.get_string_literal());
+        if let Some(deprecation) = field_definition.deprecated() {
             let parent_type = field_definition.parent_type.unwrap();
             let parent_name = schema.get_type_name(parent_type);
 
@@ -82,11 +70,31 @@ impl<'a> DeprecatedFields<'a> {
                 ValidationMessage::DeprecatedField {
                     field_name: field_definition.name.item,
                     parent_name,
-                    deprecation_reason,
+                    deprecation_reason: deprecation.reason,
                 },
                 field_id.location,
                 vec![DiagnosticTag::DEPRECATED],
             ));
+        }
+
+        for arg in arguments {
+            if let Some(arg_definition) = field_definition.arguments.named(arg.name.item) {
+                if let Some(directive) = arg_definition.deprecated() {
+                    let parent_type = field_definition.parent_type.unwrap();
+                    let parent_name = schema.get_type_name(parent_type);
+
+                    self.warnings.push(Diagnostic::hint(
+                        ValidationMessage::DeprecatedFieldArgument {
+                            argument_name: arg.name.item,
+                            field_name: field_definition.name.item,
+                            parent_name,
+                            deprecation_reason: directive.reason,
+                        },
+                        arg.name.location,
+                        vec![DiagnosticTag::DEPRECATED],
+                    ));
+                }
+            }
         }
     }
 }
@@ -97,15 +105,15 @@ impl<'a> DeprecatedFields<'a> {
 impl<'a> Validator for DeprecatedFields<'a> {
     const NAME: &'static str = "DeprecatedFields";
     const VALIDATE_ARGUMENTS: bool = false;
-    const VALIDATE_DIRECTIVES: bool = false;
+    const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
-        self.validate_field(&field.definition);
+        self.validate_field(&field.definition, &field.arguments);
         self.default_validate_linked_field(field)
     }
 
     fn validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
-        self.validate_field(&field.definition);
+        self.validate_field(&field.definition, &field.arguments);
         self.default_validate_scalar_field(field)
     }
 
@@ -116,5 +124,26 @@ impl<'a> Validator for DeprecatedFields<'a> {
         // Schema, and potentially some additional traversal in our validation
         // trait to traverse into potentially deep constant objects/arrays.
         self.default_validate_value(value)
+    }
+
+    fn validate_directive(&mut self, directive: &Directive) -> DiagnosticsResult<()> {
+        if let Some(directive_definition) = self.schema.get_directive(directive.name.item) {
+            for arg in &directive.arguments {
+                if let Some(arg_definition) = directive_definition.arguments.named(arg.name.item) {
+                    if let Some(deprecation) = arg_definition.deprecated() {
+                        self.warnings.push(Diagnostic::hint(
+                            ValidationMessage::DeprecatedDirectiveArgument {
+                                argument_name: arg.name.item,
+                                directive_name: directive.name.item,
+                                deprecation_reason: deprecation.reason,
+                            },
+                            arg.name.location,
+                            vec![DiagnosticTag::DEPRECATED],
+                        ));
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 }

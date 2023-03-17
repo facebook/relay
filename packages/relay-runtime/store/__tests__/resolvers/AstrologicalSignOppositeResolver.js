@@ -12,6 +12,7 @@
 'use strict';
 
 import type {AstrologicalSignOppositeResolver$key} from './__generated__/AstrologicalSignOppositeResolver.graphql';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
@@ -27,7 +28,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  */
 function opposite(
   rootKey: AstrologicalSignOppositeResolver$key,
-): string | null {
+): ConcreteClientEdgeResolverReturnType<> | null {
   const sign = readFragment(
     graphql`
       fragment AstrologicalSignOppositeResolver on AstrologicalSign {
@@ -36,7 +37,9 @@ function opposite(
     `,
     rootKey,
   );
-  return sign.self?.oppositeSignId ?? null;
+  return sign.self?.oppositeSignId != null
+    ? {id: sign.self.oppositeSignId}
+    : null;
 }
 
 module.exports = {

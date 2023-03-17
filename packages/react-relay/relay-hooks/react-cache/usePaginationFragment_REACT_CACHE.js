@@ -11,10 +11,8 @@
 
 'use strict';
 
-import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
-import type {Options} from './useRefetchableFragmentInternal_REACT_CACHE';
-
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
+import type {Options} from './useRefetchableFragmentInternal_REACT_CACHE';
 import type {RefetchFnDynamic} from './useRefetchableFragmentInternal_REACT_CACHE';
 import type {
   FragmentType,
@@ -22,9 +20,12 @@ import type {
   GraphQLTaggedNode,
   Observer,
   OperationType,
+  Variables,
 } from 'relay-runtime';
+import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useLoadMoreFunction = require('../useLoadMoreFunction');
+const useRelayEnvironment = require('../useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
 const {useCallback, useDebugValue, useState} = require('react');
@@ -33,12 +34,11 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
-const useRelayEnvironment = require('../useRelayEnvironment');
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
   data: TFragmentData,
-  loadNext: LoadMoreFn<TQuery>,
-  loadPrevious: LoadMoreFn<TQuery>,
+  loadNext: LoadMoreFn<TQuery['variables']>,
+  loadPrevious: LoadMoreFn<TQuery['variables']>,
   hasNext: boolean,
   hasPrevious: boolean,
   isLoadingNext: boolean,
@@ -87,7 +87,7 @@ function usePaginationFragment<
 
   // Backward pagination
   const [loadPrevious, hasPrevious, isLoadingPrevious, disposeFetchPrevious] =
-    useLoadMore<TQuery>({
+    useLoadMore<TQuery['variables']>({
       componentDisplayName,
       connectionPathInFragmentData,
       direction: 'backward',
@@ -101,19 +101,20 @@ function usePaginationFragment<
     });
 
   // Forward pagination
-  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] =
-    useLoadMore<TQuery>({
-      componentDisplayName,
-      connectionPathInFragmentData,
-      direction: 'forward',
-      fragmentData,
-      fragmentIdentifier,
-      fragmentNode,
-      fragmentRef,
-      identifierField,
-      paginationMetadata,
-      paginationRequest,
-    });
+  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] = useLoadMore<
+    TQuery['variables'],
+  >({
+    componentDisplayName,
+    connectionPathInFragmentData,
+    direction: 'forward',
+    fragmentData,
+    fragmentIdentifier,
+    fragmentNode,
+    fragmentRef,
+    identifierField,
+    paginationMetadata,
+    paginationRequest,
+  });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
     (variables: VariablesOf<TQuery>, options: void | Options) => {
@@ -147,7 +148,7 @@ function usePaginationFragment<
   };
 }
 
-function useLoadMore<TQuery: OperationType>(
+function useLoadMore<TVariables: Variables>(
   args: $Diff<
     UseLoadMoreFunctionArgs,
     {
@@ -156,7 +157,7 @@ function useLoadMore<TQuery: OperationType>(
       ...
     },
   >,
-): [LoadMoreFn<TQuery>, boolean, boolean, () => void] {
+): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
   const environment = useRelayEnvironment();
   const [isLoadingMore, reallySetIsLoadingMore] = useState(false);
   // Schedule this update since it must be observed by components at the same
@@ -178,7 +179,7 @@ function useLoadMore<TQuery: OperationType>(
     error: () => setIsLoadingMore(false),
   };
   const handleReset = () => setIsLoadingMore(false);
-  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TQuery>({
+  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({
     ...args,
     observer,
     onReset: handleReset,

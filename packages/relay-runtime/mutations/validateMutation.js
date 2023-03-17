@@ -21,6 +21,7 @@ import type {Variables} from '../util/RelayRuntimeTypes';
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -165,6 +166,7 @@ if (__DEV__) {
       case TYPE_DISCRIMINATOR:
         return validateAbstractKey(context, selection.abstractKey);
       case RELAY_RESOLVER:
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
       case LINKED_HANDLE:
       case SCALAR_HANDLE:
       case DEFER:

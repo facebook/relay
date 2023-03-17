@@ -94,6 +94,12 @@ pub enum ValidationMessage {
     )]
     VariableDefinitionsAndArgumentDirective,
 
+    #[error("Cannot combine fragment arguments syntax with the '@arguments' directive")]
+    FragmentArgumentsAndArgumentDirective,
+
+    #[error("Unexpected fragment argument. Fragment argument syntax is not enabled.")]
+    OutsidePassedArgumentsMode,
+
     #[error(
         "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]
@@ -417,6 +423,29 @@ pub enum ValidationMessage {
     DeprecatedField {
         parent_name: StringKey,
         field_name: StringKey,
+        deprecation_reason: Option<StringKey>,
+    },
+
+    #[error("The argument `{argument_name}` of the field `{parent_name}.{field_name}` is deprecated.{}",
+    match deprecation_reason {
+        Some(reason) => format!(" Deprecation reason: \"{}\"", reason),
+        None => "".to_string()
+    })]
+    DeprecatedFieldArgument {
+        argument_name: ArgumentName,
+        parent_name: StringKey,
+        field_name: StringKey,
+        deprecation_reason: Option<StringKey>,
+    },
+
+    #[error("The argument `{argument_name}` of the directive `@{directive_name}` is deprecated.{}",
+    match deprecation_reason {
+        Some(reason) => format!(" Deprecation reason: \"{}\"", reason),
+        None => "".to_string()
+    })]
+    DeprecatedDirectiveArgument {
+        argument_name: ArgumentName,
+        directive_name: DirectiveName,
         deprecation_reason: Option<StringKey>,
     },
 

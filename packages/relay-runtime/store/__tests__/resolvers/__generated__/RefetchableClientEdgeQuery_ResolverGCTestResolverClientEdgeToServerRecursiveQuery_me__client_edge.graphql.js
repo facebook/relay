@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<afdc3b6797241096bfdaa9b508f1d2f6>>
+ * @generated SignedSource<<0bb6f8d46d9b4cd925a53212bcd6b7a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,15 @@
 /*::
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { UserAnotherClientEdgeResolver$key } from "./UserAnotherClientEdgeResolver.graphql";
-import type { FragmentType } from "relay-runtime";
-import {another_client_edge as userAnotherClientEdgeResolver} from "../UserAnotherClientEdgeResolver.js";
-// Type assertion validating that `userAnotherClientEdgeResolver` resolver is correctly implemented.
+import type { FragmentType, DataID } from "relay-runtime";
+import {another_client_edge as userAnotherClientEdgeResolverType} from "../UserAnotherClientEdgeResolver.js";
+// Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolver: (
-  rootKey: UserAnotherClientEdgeResolver$key, 
-) => mixed);
+(userAnotherClientEdgeResolverType: (
+  rootKey: UserAnotherClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 declare export opaque type RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge$variables = any;
 export type RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge$data = {|

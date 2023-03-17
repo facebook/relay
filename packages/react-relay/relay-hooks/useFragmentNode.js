@@ -13,9 +13,9 @@
 
 import type {ReaderFragment} from 'relay-runtime';
 
-const useUnsafeRef_DEPRECATED = require('./useUnsafeRef_DEPRECATED');
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
 const useRelayEnvironment = require('./useRelayEnvironment');
+const useUnsafeRef_DEPRECATED = require('./useUnsafeRef_DEPRECATED');
 const {useEffect, useState} = require('react');
 const {getFragmentIdentifier} = require('relay-runtime');
 const warning = require('warning');

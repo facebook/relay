@@ -5673,10 +5673,10 @@ dns-packet@^5.2.2:
   dependencies:
     "@leichtgewicht/ip-codec" "^2.0.1"
 
-docusaurus-plugin-internaldocs-fb@1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-internaldocs-fb/-/docusaurus-plugin-internaldocs-fb-1.2.1.tgz#8a53abf436e5ca402f1ec47044524600969e4e8a"
-  integrity sha512-zNEMsHivOvCGnEE0DG51+6fmtvrrR4hpXgi9BDGLQVKGKTjARkQsJQyvaAdGJmYmXT285SItGbOwwW13Gibilg==
+docusaurus-plugin-internaldocs-fb@1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-internaldocs-fb/-/docusaurus-plugin-internaldocs-fb-1.4.0.tgz#d25b7d3629f797709a61441dc88d27d2e291ff7d"
+  integrity sha512-gnQzqprG9IJX/Awm4wWL0Tapv+iNHlTsaWlII1M41RVBlFsf3AXGGHwCbP1K5qBC48NJLFI2waOPbfPMjg384A==
   dependencies:
     "@mdx-js/mdx" "^2.1.1"
     "@mdx-js/react" "^1.6.22"

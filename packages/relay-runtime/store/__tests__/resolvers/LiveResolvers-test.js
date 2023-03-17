@@ -10,7 +10,11 @@
  */
 
 'use strict';
+import type {Snapshot} from '../../RelayStoreTypes';
 
+const {
+  live_external_greeting: LiveExternalGreeting,
+} = require('./LiveExternalGreeting');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
@@ -19,6 +23,9 @@ const {
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -28,12 +35,6 @@ const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
-const {
-  live_external_greeting: LiveExternalGreeting,
-} = require('./LiveExternalGreeting');
 
 disallowWarnings();
 disallowConsoleErrors();
@@ -159,7 +160,7 @@ test('Updates can be batched', () => {
 
   const snapshot = environment.lookup(operation.fragment);
 
-  const handler = jest.fn();
+  const handler = jest.fn<[Snapshot], void>();
   environment.subscribe(snapshot, handler);
 
   expect(handler.mock.calls.length).toBe(0);

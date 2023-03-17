@@ -23,10 +23,20 @@ The core team will be monitoring for pull requests. When we get one, we'll run s
 1. Fork the repo and create your branch from `main`.
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes (`yarn test` or `npm test`).
-5. Auto-format the code by running `yarn run prettier` or `npm run prettier`.
-6. Ensure there are no Flow errors (`flow`).
-7. If you haven't already, complete the CLA.
+4. If you haven't already, complete the CLA (see below).
+
+For JavaScript changes:
+
+1. Ensure the test suite passes (`yarn test` or `npm test`).
+2. Auto-format the code by running `yarn run prettier` or `npm run prettier`.
+3. Ensure there are no Flow errors (`flow`).
+
+For Rust changes:
+
+1. Ensure all rust code is formatted by running `cargo fmt` from within `./compiler`.
+2. If you've added or removed any fixture tests, ensure all generated tests are up to date by running `./scripts/update-fixtures.sh` from the repository root.
+3. Ensure all code typechecks by running `cargo check` from within `./compiler`.
+4. Ensure all tests pass by running `cargo test` from within `./compiler`.
 
 ### Contributor License Agreement (CLA)
 
@@ -46,19 +56,9 @@ If you have a question on how to use Relay, please get in touch with community m
 
 ## Style Guide
 
-We will eventually have a linter that will catch most styling issues that may exist in your code. Until then, looking at [Airbnb's Style Guide](https://github.com/airbnb/javascript) will guide you in the right direction.
+We use [Prettier](https://prettier.io/) to format JavaScript code and [Rustfmt](https://rust-lang.github.io/rustfmt/) to format Rust code.
 
-### Code Conventions
-
-* 2 spaces for indentation (no tabs).
-* 80 character line length strongly preferred.
-* Prefer `'` over `"`.
-* ES2015 syntax when possible.
-* `'use strict';`.
-* Use [Flow types](http://flowtype.org/).
-* Use semicolons;
-* Trailing commas,
-* Avd abbr wrds.
+To fix all JavaScript formatting errors run `yarn prettier`. To fix all Rust formatting errors, run `cargo fmt` from within `compiler/` followed by `./scipts/update-fixtures.sh` from the repository root to regenerated the unformatted generated tests.
 
 ## Development process for non-FB developers
 

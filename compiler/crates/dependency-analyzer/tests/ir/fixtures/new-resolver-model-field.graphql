@@ -23,5 +23,5 @@ type ClientUser @__RelayResolverModel {
 # This resolver's fragment is generated because it's on a @__RelayResolverModel type.
 # Dependency tracker should not look for this fragment.
 extend type ClientUser {
-  pop_star_name: String @relay_resolver(root_fragment: "this___is___generated", import_path: "PopStarNameResolver")
+  pop_star_name: String @relay_resolver(fragment_name: "this___is___generated", import_path: "PopStarNameResolver")
 }

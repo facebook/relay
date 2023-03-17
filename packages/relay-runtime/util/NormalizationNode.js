@@ -178,6 +178,13 @@ export type NormalizationResolverField = {
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +fragment: ?NormalizationInlineFragment,
   +storageKey: ?string,
+  +isOutputType: boolean,
+};
+
+export type NormalizationClientEdgeToClientObject = {
+  +kind: 'ClientEdgeToClientObject',
+  +linkedField: NormalizationLinkedField,
+  +backingField: NormalizationResolverField,
 };
 
 export type NormalizationClientComponent = {
@@ -195,6 +202,7 @@ export type NormalizationSelection =
   | NormalizationCondition
   | NormalizationClientComponent
   | NormalizationClientExtension
+  | NormalizationClientEdgeToClientObject
   | NormalizationDefer
   | NormalizationField
   | NormalizationFlightField

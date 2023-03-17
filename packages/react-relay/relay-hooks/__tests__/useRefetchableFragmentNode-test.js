@@ -39,21 +39,21 @@ import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
-const useRefetchableFragmentNode_LEGACY = require('../useRefetchableFragmentNode');
 const useRefetchableFragmentInternal_REACT_CACHE = require('../react-cache/useRefetchableFragmentInternal_REACT_CACHE');
+const useRefetchableFragmentNode_LEGACY = require('../useRefetchableFragmentNode');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
 const {
+  __internal: {fetchQuery},
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   Observable,
-  __internal: {fetchQuery},
+  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
-  RelayFeatureFlags,
 } = require('relay-runtime');
 const {
   createMockEnvironment,
@@ -203,7 +203,9 @@ describe.each([
       jest.mock('scheduler', () =>
         jest.requireActual('scheduler/unstable_mock'),
       );
-      commitSpy = jest.fn();
+      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+       * enabling Flow LTI mode */
+      commitSpy = jest.fn<_, mixed>();
 
       fetchPolicy = 'store-or-network';
       renderPolicy = 'partial';
@@ -313,7 +315,6 @@ describe.each([
       queryWithLiteralArgs = createOperationDescriptor(
         gqlQueryWithLiteralArgs,
         {
-          // $FlowFixMe[prop-missing]
           id: variables.id,
         },
       );
@@ -673,7 +674,7 @@ describe.each([
       it('throws error when error occurs during refetch', () => {
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-        const callback = jest.fn();
+        const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         const initialUser = {
           id: '1',
@@ -1634,7 +1635,7 @@ describe.each([
       describe('multiple refetches', () => {
         const internalRuntime = require('relay-runtime').__internal;
         const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
-        const fetchSpy = jest.fn();
+        const fetchSpy = jest.fn<Array<any>, mixed>();
         jest
           .spyOn(internalRuntime, 'fetchQueryDeduped')
           .mockImplementation((...args) => {
@@ -3073,7 +3074,7 @@ describe.each([
       });
 
       describe('disposing', () => {
-        const unsubscribe = jest.fn();
+        const unsubscribe = jest.fn<[], mixed>();
         jest.doMock('relay-runtime', () => {
           const originalRuntime = jest.requireActual<any>('relay-runtime');
           const originalInternal = originalRuntime.__internal;

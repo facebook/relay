@@ -10,8 +10,14 @@
  */
 
 'use strict';
+import type {
+  NormalizationRootNode,
+  NormalizationSplitOperation,
+} from '../../../relay-runtime/util/NormalizationNode';
+import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const {createFragmentResource} = require('../FragmentResource');
+const invariant = require('invariant');
 const {
   createOperationDescriptor,
   createReaderSelector,
@@ -37,16 +43,19 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
   let operationTracker;
   let viewerOperation;
   let nodeOperation;
+  let logger;
 
   beforeEach(() => {
     operationLoader = {
-      load: jest.fn(),
-      get: jest.fn(),
+      load: jest.fn<[mixed], Promise<NormalizationSplitOperation>>(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     operationTracker = new RelayOperationTracker();
+    logger = jest.fn<[LogEvent], void>();
     environment = createMockEnvironment({
       operationTracker,
       operationLoader,
+      log: logger,
     });
     NodeQuery = graphql`
       query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!) {
@@ -183,7 +192,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
 
   it('should throw and cache promise for pending operation affecting fragment owner', () => {
     environment.execute({operation: nodeOperation}).subscribe({});
-    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );
@@ -262,11 +270,31 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     }
     // Assert that promise from first read was cached
     expect(cached).toBe(thrown);
+
+    // Assert that we logged a 'pendingoperation.found' event.
+    const pendingOperationFoundEvents = logger.mock.calls
+      .map(([event]) => event)
+      .filter(event => event.name === 'pendingoperation.found');
+
+    expect(pendingOperationFoundEvents.length).toBe(1);
+    const event = pendingOperationFoundEvents[0];
+    invariant(
+      event.name === 'pendingoperation.found',
+      "Expected log event to be 'pendingoperation.found'",
+    );
+    expect(event.fragment.name).toBe(
+      'FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name',
+    );
+    expect(event.fragmentOwner.node.operation.name).toBe(
+      viewerOperation.request.node.operation.name,
+    );
+    expect(
+      event.pendingOperations.map(owner => owner.node.operation.name),
+    ).toEqual(['FragmentResourceWithOperationTrackerTestNodeQuery']);
   });
 
   it('should read the data from the store once operation fully completed', () => {
     environment.execute({operation: nodeOperation}).subscribe({});
-    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );
@@ -335,7 +363,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       },
     );
     environment.execute({operation: paginationOperation}).subscribe({});
-    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );

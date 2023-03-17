@@ -1,0 +1,271 @@
+==================================== INPUT ====================================
+fragment TestFragment(
+  $id: ID!
+  $size: [Int] = [100]
+) on User {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo(localId: $id)
+}
+
+fragment Foo($localId: ID!) on User {
+  id
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment-with-arguments-syntax.graphql:9:21,
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment-with-arguments-syntax.graphql:25:28,
+                        item: VariableName(
+                            "id",
+                        ),
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(4),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment-with-arguments-syntax.graphql:36:41,
+                        item: VariableName(
+                            "size",
+                        ),
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(0),
+                        ),
+                    ),
+                    default_value: Some(
+                        WithLocation {
+                            location: fragment-with-arguments-syntax.graphql:49:56,
+                            item: List(
+                                [
+                                    Int(
+                                        100,
+                                    ),
+                                ],
+                            ),
+                        },
+                    ),
+                    directives: [],
+                },
+            ],
+            used_global_variables: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment-with-arguments-syntax.graphql:92:104,
+                        item: VariableName(
+                            "PictureSize",
+                        ),
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(0),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            type_condition: Object(69),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: fragment-with-arguments-syntax.graphql:71:85,
+                        item: FieldID(474),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:86:90,
+                                item: ArgumentName(
+                                    "size",
+                                ),
+                            },
+                            value: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:92:104,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: fragment-with-arguments-syntax.graphql:92:104,
+                                            item: VariableName(
+                                                "PictureSize",
+                                            ),
+                                        },
+                                        type_: List(
+                                            Named(
+                                                Scalar(0),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:112:115,
+                                item: FieldID(179),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                LinkedField {
+                    alias: Some(
+                        WithLocation {
+                            location: fragment-with-arguments-syntax.graphql:122:136,
+                            item: "withDefaultArg",
+                        },
+                    ),
+                    definition: WithLocation {
+                        location: fragment-with-arguments-syntax.graphql:138:152,
+                        item: FieldID(474),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:153:157,
+                                item: ArgumentName(
+                                    "size",
+                                ),
+                            },
+                            value: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:159:164,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: fragment-with-arguments-syntax.graphql:159:164,
+                                            item: VariableName(
+                                                "size",
+                                            ),
+                                        },
+                                        type_: List(
+                                            Named(
+                                                Scalar(0),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:172:175,
+                                item: FieldID(179),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                FragmentSpread {
+                    fragment: WithLocation {
+                        location: fragment-with-arguments-syntax.graphql:185:188,
+                        item: FragmentDefinitionName(
+                            "Foo",
+                        ),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:189:196,
+                                item: ArgumentName(
+                                    "localId",
+                                ),
+                            },
+                            value: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:198:201,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: fragment-with-arguments-syntax.graphql:198:201,
+                                            item: VariableName(
+                                                "id",
+                                            ),
+                                        },
+                                        type_: NonNull(
+                                            Named(
+                                                Scalar(4),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment-with-arguments-syntax.graphql:215:218,
+                item: FragmentDefinitionName(
+                    "Foo",
+                ),
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment-with-arguments-syntax.graphql:219:227,
+                        item: VariableName(
+                            "localId",
+                        ),
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(4),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(69),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: fragment-with-arguments-syntax.graphql:246:248,
+                        item: FieldID(460),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

@@ -8,8 +8,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
+use intern::BuildIdHasher;
 use schema::SDLSchema;
 
 use crate::ir::ExecutableDefinition;
@@ -18,6 +17,7 @@ use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::OperationDefinition;
 use crate::ir::OperationDefinitionName;
+use crate::ExecutableDefinitionName;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
@@ -125,24 +125,34 @@ impl Program {
     pub fn merge_program(
         &mut self,
         other_program: &Self,
-        removed_definition_names: Option<&[StringKey]>,
+        removed_definition_names: Option<&[ExecutableDefinitionName]>,
     ) {
-        let mut operations: StringKeyMap<Arc<OperationDefinition>> = self
+        let mut operations: HashMap<
+            OperationDefinitionName,
+            Arc<OperationDefinition>,
+            BuildIdHasher<u32>,
+        > = self
             .operations
             .drain(..)
-            .map(|op| (op.name.item.0, op))
+            .map(|op| (op.name.item, op))
             .collect();
         for fragment in other_program.fragments() {
             self.fragments
                 .insert(fragment.name.item, Arc::clone(fragment));
         }
         for operation in other_program.operations() {
-            operations.insert(operation.name.item.0, Arc::clone(operation));
+            operations.insert(operation.name.item, Arc::clone(operation));
         }
         if let Some(removed_definition_names) = removed_definition_names {
             for removed in removed_definition_names {
-                self.fragments.remove(&FragmentDefinitionName(*removed));
-                operations.remove(removed);
+                match removed {
+                    ExecutableDefinitionName::OperationDefinitionName(name) => {
+                        operations.remove(name);
+                    }
+                    ExecutableDefinitionName::FragmentDefinitionName(name) => {
+                        self.fragments.remove(name);
+                    }
+                };
             }
         }
         self.operations

@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragment($size: [Int]) on User @argumentDefinitions(if: {type: "Boolean!"}) {
+  profilePicture(size: $size) @include(if: $if) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Cannot combine fragment variable definitions syntax with the '@argumentDefinitions' directive
+
+  fragment-with-both-variable-definition-and-directive.invalid.graphql:2:45
+    1 │ # expected-to-throw
+    2 │ fragment TestFragment($size: [Int]) on User @argumentDefinitions(if: {type: "Boolean!"}) {
+      │                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   profilePicture(size: $size) @include(if: $if) {
+
+  ℹ︎ variables are previously defined here
+
+  fragment-with-both-variable-definition-and-directive.invalid.graphql:2:22
+    1 │ # expected-to-throw
+    2 │ fragment TestFragment($size: [Int]) on User @argumentDefinitions(if: {type: "Boolean!"}) {
+      │                      ^^^^^^^^^^^^^^
+    3 │   profilePicture(size: $size) @include(if: $if) {

@@ -35,6 +35,7 @@ const {
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   CONNECTION,
@@ -188,14 +189,11 @@ class RelayMockPayloadGenerator {
     +mockClientData: ?boolean,
   }) {
     this._variables = options.variables;
-    // $FlowFixMe[cannot-spread-inexact]
-    // $FlowFixMe[incompatible-type]
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
       ...(options.mockResolvers ?? {}),
     };
     this._selectionMetadata = options.selectionMetadata ?? {};
-    // $FlowFixMe[incompatible-call]
     this._resolveValue = createValueResolver(this._mockResolvers);
     this._mockClientData = options.mockClientData ?? false;
   }
@@ -471,7 +469,6 @@ class RelayMockPayloadGenerator {
             if (mockData == null) {
               mockData = {};
             }
-            // $FlowFixMe[cannot-spread-indexer]
             mockData = {
               ...mockData,
               [TYPENAME_KEY]: typeName,
@@ -513,6 +510,16 @@ class RelayMockPayloadGenerator {
               defaultValues,
             );
           }
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          mockData = this._traverseSelections(
+            [selection.backingField],
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
           break;
         default:
           (selection: empty);
@@ -744,7 +751,6 @@ class RelayMockPayloadGenerator {
             data[applicationName]
           : null,
         // $FlowFixMe[incompatible-call]
-        // $FlowFixMe[incompatible-variance]
         fieldDefaultValue,
       );
     };

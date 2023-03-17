@@ -973,11 +973,11 @@ declare var describe: {
    *
    * @param {table} table of Test
    */
-  each<TArguments: Array<mixed> | mixed>(
-    table: $ReadOnlyArray<TArguments>,
+  each(
+    table: $ReadOnlyArray<Array<mixed> | mixed>,
   ): (
     name: JestTestName,
-    fn?: (...args: TArguments) => ?Promise<mixed>,
+    fn?: (...args: Array<any>) => ?Promise<mixed>,
   ) => void,
   ...
 };
@@ -1001,11 +1001,11 @@ declare var it: {
    *
    * @param {table} table of Test
    */
-  each<TArguments: Array<mixed> | mixed>(
-    table: $ReadOnlyArray<TArguments>,
+  each(
+    table: $ReadOnlyArray<Array<mixed> | mixed>,
   ): (
     name: JestTestName,
-    fn?: (...args: TArguments) => ?Promise<mixed>,
+    fn?: (...args: Array<any>) => ?Promise<mixed>,
   ) => void,
   /**
    * Only run this test
@@ -1019,11 +1019,11 @@ declare var it: {
     fn?: (done: () => void) => ?Promise<mixed>,
     timeout?: number,
   ): {
-    each<TArguments: Array<mixed> | mixed>(
-      table: $ReadOnlyArray<TArguments>,
+    each(
+      table: $ReadOnlyArray<Array<mixed> | mixed>,
     ): (
       name: JestTestName,
-      fn?: (...args: TArguments) => ?Promise<mixed>,
+      fn?: (...args: Array<any>) => ?Promise<mixed>,
     ) => void,
     ...
   },

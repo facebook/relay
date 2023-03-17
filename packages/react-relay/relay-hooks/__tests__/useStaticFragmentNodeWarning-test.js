@@ -11,7 +11,7 @@
 
 'use strict';
 
-const mockWarning = jest.fn();
+const mockWarning = jest.fn<$FlowFixMe & $ReadOnlyArray<mixed>, mixed>();
 jest.mock('warning', () => mockWarning);
 
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');

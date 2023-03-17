@@ -23,7 +23,7 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ Expected docblock field "@onInterface" to have specified a value.
+✖︎ Expected docblock field `@onInterface` to have specified a value.
 
   /path/to/test/fixture/relay-resolver-on-interface-no-value.invalid.js:13:5
    12 │  *

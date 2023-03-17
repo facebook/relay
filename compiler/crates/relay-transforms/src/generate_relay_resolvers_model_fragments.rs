@@ -7,9 +7,9 @@
 
 use std::sync::Arc;
 
-use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
+use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Program;
@@ -26,7 +26,6 @@ lazy_static! {
     // help us avoid potential collision with product code (__self, __instance can be used for something else)
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey =
         "__relay_model_instance".intern();
-    static ref RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName = DirectiveName("__RelayResolverModel".intern());
 }
 
 pub fn generate_relay_resolvers_model_fragments(
@@ -41,7 +40,7 @@ pub fn generate_relay_resolvers_model_fragments(
 
         if object
             .directives
-            .named(*RESOLVER_MODEL_DIRECTIVE_NAME)
+            .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
             .is_some()
         {
             let object_type = program.schema.get_type(object.name.item.0).unwrap();
@@ -52,7 +51,7 @@ pub fn generate_relay_resolvers_model_fragments(
                 .unwrap_or_else(|| {
                     panic!(
                         "Objects with directive @{} expected to have field `{}`.",
-                        *RESOLVER_MODEL_DIRECTIVE_NAME, *RESOLVER_MODEL_INSTANCE_FIELD_NAME
+                        *RELAY_RESOLVER_MODEL_DIRECTIVE_NAME, *RESOLVER_MODEL_INSTANCE_FIELD_NAME
                     )
                 });
 

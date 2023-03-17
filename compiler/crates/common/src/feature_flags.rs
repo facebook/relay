@@ -26,18 +26,9 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
-    /// Use `named export` in Relay resolvers modules
-    /// this should allow defining multiple resolvers per module.
-    #[serde(default = "bool_true")]
-    pub use_named_imports_for_relay_resolvers: bool,
-
-    /// Use `@RelayResolver ModelName` syntax in Relay resolvers.
+    /// Enable deprecated `@outputType` on Relay Resolvers.
     #[serde(default)]
-    pub relay_resolver_model_syntax_enabled: bool,
-
-    /// Enable `@RelayResolver TypeName.field_name` syntax in Relay resolver docblocks.
-    #[serde(default)]
-    pub relay_resolver_enable_terse_syntax: bool,
+    pub relay_resolver_enable_output_type: FeatureFlag,
 
     /// Enable hashing of the `supported` argument of 3D fields. Partial
     /// enabling of the feature flag checks the name based on the field type.
@@ -76,6 +67,10 @@ pub struct FeatureFlags {
     /// Print queries in compact form
     #[serde(default)]
     pub compact_query_text: FeatureFlag,
+
+    /// Create normalization nodes for client edges to client objects
+    #[serde(default)]
+    pub emit_normalization_nodes_for_client_edges: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
@@ -128,8 +123,4 @@ impl Display for FeatureFlag {
             FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
         }
     }
-}
-
-fn bool_true() -> bool {
-    true
 }

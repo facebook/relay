@@ -20,6 +20,7 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
@@ -105,7 +106,7 @@ pub fn relay_client_component(
     }
     if !transform.split_operations.is_empty() {
         for (_, (metadata, mut operation)) in transform.split_operations.drain() {
-            operation.directives.push(metadata.to_directive());
+            operation.directives.push(metadata.into());
             if let Some(prev_operation) =
                 next_program.operation(OperationDefinitionName(operation.name.item.0))
             {
@@ -132,11 +133,11 @@ struct RelayClientComponentTransform<'program, 'flag> {
     split_operations: StringKeyMap<(SplitOperationMetadata, OperationDefinition)>,
     node_interface_id: InterfaceID,
     /// Name of the document currently being transformed.
-    document_name: Option<StringKey>,
+    document_name: Option<ExecutableDefinitionName>,
     split_operation_filenames: StringKeySet,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FragmentDefinitionNameMap<Vec<StringKey>>,
+    no_inline_fragments: FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
 }
 
 impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
@@ -362,7 +363,7 @@ impl<'program, 'flag> Transformer for RelayClientComponentTransform<'program, 'f
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         assert!(self.split_operation_filenames.is_empty());
-        self.document_name = Some(operation.name.item.0);
+        self.document_name = Some(operation.name.item.into());
 
         let transformed = self.default_transform_operation(operation);
         if self.split_operation_filenames.is_empty() {
@@ -382,7 +383,7 @@ impl<'program, 'flag> Transformer for RelayClientComponentTransform<'program, 'f
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         assert!(self.split_operation_filenames.is_empty());
-        self.document_name = Some(fragment.name.item.0);
+        self.document_name = Some(fragment.name.item.into());
 
         let transformed = self.default_transform_fragment(fragment);
         if self.split_operation_filenames.is_empty() {

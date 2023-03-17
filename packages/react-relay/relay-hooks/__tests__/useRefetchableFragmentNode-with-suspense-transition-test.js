@@ -394,7 +394,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       describe('multiple refetches', () => {
         let fetchSpy;
         beforeEach(() => {
-          fetchSpy = jest.fn();
+          fetchSpy = jest.fn<Array<any>, mixed>();
           const internalRuntime = require('relay-runtime').__internal;
           const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
           jest

@@ -113,6 +113,7 @@ export type {GraphQLTaggedNode} from './query/GraphQLTag';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {RecordState} from './store/RelayRecordState';
 export type {
+  ConcreteClientEdgeResolverReturnType,
   ExecuteMutationConfig,
   FragmentMap,
   // DEPRECATED: use FragmentType instead of FragmentReference

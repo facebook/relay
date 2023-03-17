@@ -10,7 +10,7 @@
  */
 
 'use strict';
-
+import type {OperationType} from '../../relay-runtime/util/RelayRuntimeTypes';
 import type {
   EntryPoint,
   EntryPointComponent,
@@ -40,6 +40,7 @@ function prepareEntryPoint<
 ): void {
   // Start loading the code for the entrypoint
   if (entryPoint.root.getModuleIfRequired() == null) {
+    // $FlowFixMe[unused-promise]
     entryPoint.root.load();
   }
   const preloadProps = entryPoint.getPreloadProps(entryPointParams);
@@ -56,7 +57,7 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      preloadedQueries[queryPropName] = preloadQuery(
+      preloadedQueries[queryPropName] = preloadQuery<OperationType, mixed>(
         environment,
         parameters,
         variables,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a29f1d14c1cb2cd5a3af353a344fda91>>
+ * @generated SignedSource<<ca2f242cacca3be6caf5ff7e639f105c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,17 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import {hello_user as queryHelloUserResolver} from "../../../relay-runtime/store/__tests__/resolvers/HelloUserResolver.js";
-// Type assertion validating that `queryHelloUserResolver` resolver is correctly implemented.
+import type { DataID } from "relay-runtime";
+import {hello_user as queryHelloUserResolverType} from "../../../relay-runtime/store/__tests__/resolvers/HelloUserResolver.js";
+// Type assertion validating that `queryHelloUserResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloUserResolver: (
+(queryHelloUserResolverType: (
   args: {|
     id: string,
-  |}, 
-) => mixed);
+  |},
+) => ?{|
+  +id: DataID,
+|});
 export type ClientOnlyQueriesTest3Query$variables = {||};
 export type ClientOnlyQueriesTest3Query$data = {|
   +hello_user: ?{|
@@ -97,16 +100,12 @@ return {
     "name": "ClientOnlyQueriesTest3Query",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "hello_user",
-            "args": (v0/*: any*/),
-            "fragment": null,
-            "kind": "RelayResolver",
-            "storageKey": "hello_user(id:\"4\")"
-          }
-        ]
+        "name": "hello_user",
+        "args": (v0/*: any*/),
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": "hello_user(id:\"4\")",
+        "isOutputType": false
       }
     ]
   },

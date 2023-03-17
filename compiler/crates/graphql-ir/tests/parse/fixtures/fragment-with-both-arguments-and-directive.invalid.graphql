@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment TestFragment on User {
+  ...Foo(size: [10]) @arguments(b: false)
+}
+
+fragment Foo($size: [Int], $b: Boolean!) on User {
+  profilePicture(size: $size) @include(if: $if) {
+    uri
+  }
+}

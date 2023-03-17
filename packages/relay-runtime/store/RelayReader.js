@@ -710,92 +710,67 @@ class RelayReader {
     const applicationName = backingField.alias ?? backingField.name;
     const backingFieldData = {};
     this._traverseSelections([backingField], record, backingFieldData);
+    // At this point, backingFieldData is an object with a single key (applicationName)
+    // whose value is the value returned from the resolver, or a suspense sentinel.
 
-    let destinationDataID = backingFieldData[applicationName];
-    if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
-      data[applicationName] = destinationDataID;
+    const clientEdgeResolverResponse = backingFieldData[applicationName];
+    if (
+      clientEdgeResolverResponse == null ||
+      isSuspenseSentinel(clientEdgeResolverResponse)
+    ) {
+      data[applicationName] = clientEdgeResolverResponse;
       return;
     }
 
-    if (field.linkedField.plural) {
-      invariant(
-        Array.isArray(destinationDataID),
-        'Expected plural Client Edge Relay Resolver to return an array of IDs.',
-      );
-    } else {
-      invariant(
-        typeof destinationDataID === 'string',
-        'Expected a Client Edge Relay Resolver to return an ID of type `string`.',
-      );
-    }
+    const validClientEdgeResolverResponse =
+      assertValidClientEdgeResolverResponse(field, clientEdgeResolverResponse);
 
-    if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
-      // Client objects might use ids that are not globally unique and instead are just
-      // local within their type. ResolverCache will derive a namespaced ID for us.
-      if (backingField.normalizationInfo == null) {
-        const concreteType = field.concreteType;
-        invariant(
-          concreteType != null,
-          'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
-            'This indicates a bug in Relay.',
+    switch (validClientEdgeResolverResponse.kind) {
+      case 'PluralConcrete':
+        const storeIDs = getStoreIDsForPluralClientEdgeResolver(
+          field,
+          validClientEdgeResolverResponse.ids,
+          this._resolverCache,
         );
-        // @edgeTo case where we need to ensure that the record has `id` field
-        if (field.linkedField.plural) {
-          // $FlowFixMe[prop-missing]
-          destinationDataID = destinationDataID.map(id =>
-            this._resolverCache.ensureClientRecord(id, concreteType),
+        this._clientEdgeTraversalPath.push(null);
+        data[applicationName] = this._readLinkedIds(
+          field.linkedField,
+          storeIDs,
+          record,
+          data,
+        );
+        this._clientEdgeTraversalPath.pop();
+        break;
+
+      case 'SingularConcrete':
+        const [storeID, traversalPathSegment] =
+          getStoreIDAndTraversalPathSegmentForSingularClientEdgeResolver(
+            field,
+            validClientEdgeResolverResponse.id,
+            this._resolverCache,
           );
-        } else {
-          destinationDataID = this._resolverCache.ensureClientRecord(
-            destinationDataID,
-            concreteType,
-          );
-        }
-      } else {
-        // Normalization process in LiveResolverCache should take care of generating correct ID.
-      }
+        this._clientEdgeTraversalPath.push(traversalPathSegment);
 
-      this._clientEdgeTraversalPath.push(null);
-    } else {
-      invariant(
-        !field.linkedField.plural,
-        'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
-      );
-      // Not wrapping the push/pop in a try/finally because if we throw, the
-      // Reader object is not usable after that anyway.
-      this._clientEdgeTraversalPath.push({
-        readerClientEdge: field,
-        clientEdgeDestinationID: destinationDataID,
-      });
+        const prevData = data[applicationName];
+        invariant(
+          prevData == null || typeof prevData === 'object',
+          'RelayReader(): Expected data for field `%s` on record `%s` ' +
+            'to be an object, got `%s`.',
+          applicationName,
+          RelayModernRecord.getDataID(record),
+          prevData,
+        );
+        data[applicationName] = this._traverse(
+          field.linkedField,
+          storeID,
+          // $FlowFixMe[incompatible-variance]
+          prevData,
+        );
+        this._clientEdgeTraversalPath.pop();
+        break;
+      default:
+        (validClientEdgeResolverResponse.kind: empty);
     }
-
-    if (field.linkedField.plural) {
-      data[applicationName] = this._readLinkedIds(
-        field.linkedField,
-        // $FlowFixMe[incompatible-call]
-        destinationDataID,
-        record,
-        data,
-      );
-    } else {
-      const prevData = data[applicationName];
-      invariant(
-        prevData == null || typeof prevData === 'object',
-        'RelayReader(): Expected data for field `%s` on record `%s` ' +
-          'to be an object, got `%s`.',
-        applicationName,
-        RelayModernRecord.getDataID(record),
-        prevData,
-      );
-      data[applicationName] = this._traverse(
-        field.linkedField,
-        destinationDataID,
-        // $FlowFixMe[incompatible-variance]
-        prevData,
-      );
-    }
-
-    this._clientEdgeTraversalPath.pop();
   }
 
   _readFlightField(
@@ -926,7 +901,7 @@ class RelayReader {
 
   _readLinkedIds(
     field: ReaderLinkedField,
-    linkedIDs: ?Array<?DataID>,
+    linkedIDs: ?$ReadOnlyArray<?DataID>,
     record: Record,
     data: SelectorData,
   ): ?mixed {
@@ -1281,6 +1256,144 @@ function getResolverValue(
     }
   }
   return [resolverResult, resolverError];
+}
+
+type ValidClientEdgeResolverResponse =
+  | {
+      kind: 'PluralConcrete',
+      ids: $ReadOnlyArray<DataID>,
+    }
+  | {
+      kind: 'SingularConcrete',
+      id: DataID,
+    };
+
+function assertValidClientEdgeResolverResponse(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+  clientEdgeResolverResponse: mixed,
+): ValidClientEdgeResolverResponse {
+  if (field.linkedField.plural) {
+    invariant(
+      Array.isArray(clientEdgeResolverResponse),
+      'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
+    );
+    return {
+      kind: 'PluralConcrete',
+      ids: clientEdgeResolverResponse.map(response =>
+        extractIdFromResponse(
+          response,
+          'Expected this plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
+        ),
+      ),
+    };
+  } else {
+    return {
+      kind: 'SingularConcrete',
+      id: extractIdFromResponse(
+        clientEdgeResolverResponse,
+        'Expected this Client Edge Relay Resolver to return an ID of type `string` or an object with shape {id}.',
+      ),
+    };
+  }
+}
+
+// For weak objects:
+// The return value of a client edge resolver is the entire object (though,
+// strong objects become DataIDs or arrays thereof). However, when being read
+// out, these raw objects are turned into DataIDs or arrays thereof.
+//
+// For strong objects:
+// For a singular field, the return value of a client edge resolver is a DataID
+// (i.e. a string). If the edge points to a client type, we namespace the
+// ID with the typename by calling resolverCache.ensureClientRecord.
+function getStoreIDAndTraversalPathSegmentForSingularClientEdgeResolver(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+  clientEdgeResolverResponse: DataID,
+  resolverCache: ResolverCache,
+): [DataID, ClientEdgeTraversalInfo | null] {
+  if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
+    if (field.backingField.normalizationInfo == null) {
+      const concreteType = field.concreteType;
+      invariant(
+        concreteType != null,
+        'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
+          'This indicates a bug in Relay.',
+      );
+      // @edgeTo case where we need to ensure that the record has `id` field
+      return [
+        resolverCache.ensureClientRecord(
+          clientEdgeResolverResponse,
+          concreteType,
+        ),
+        null,
+      ];
+    } else {
+      // The normalization process in LiveResolverCache should take care of generating the correct ID.
+      return [clientEdgeResolverResponse, null];
+    }
+  } else {
+    return [
+      clientEdgeResolverResponse,
+      {
+        readerClientEdge: field,
+        clientEdgeDestinationID: clientEdgeResolverResponse,
+      },
+    ];
+  }
+}
+
+// For weak objects:
+// The return value of a client edge resolver is the entire object (though,
+// strong objects become DataIDs or arrays thereof). However, when being read
+// out, these raw objects are turned into DataIDs or arrays thereof.
+//
+// For strong objects:
+// For a plural field, the return value of a client edge resolver is an
+// array of DataID's. If the edge points to a client type, we namespace the
+// IDs with the typename by calling resolverCache.ensureClientRecord.
+function getStoreIDsForPluralClientEdgeResolver(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+  clientEdgeResolverResponse: $ReadOnlyArray<DataID>,
+  resolverCache: ResolverCache,
+): $ReadOnlyArray<DataID> {
+  if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
+    if (field.backingField.normalizationInfo == null) {
+      const concreteType = field.concreteType;
+      invariant(
+        concreteType != null,
+        'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
+          'This indicates a bug in Relay.',
+      );
+      // @edgeTo case where we need to ensure that the record has `id` field
+      return clientEdgeResolverResponse.map(id =>
+        resolverCache.ensureClientRecord(id, concreteType),
+      );
+    } else {
+      // The normalization process in LiveResolverCache should take care of generating the correct ID.
+      return clientEdgeResolverResponse;
+    }
+  } else {
+    invariant(
+      false,
+      'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+    );
+  }
+}
+
+function extractIdFromResponse(
+  individualResponse: mixed,
+  errorMessage: string,
+): string {
+  if (typeof individualResponse === 'string') {
+    return individualResponse;
+  } else if (
+    typeof individualResponse === 'object' &&
+    individualResponse != null &&
+    typeof individualResponse.id === 'string'
+  ) {
+    return individualResponse.id;
+  }
+  invariant(false, errorMessage);
 }
 
 module.exports = {read};

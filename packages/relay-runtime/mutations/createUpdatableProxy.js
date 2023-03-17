@@ -12,14 +12,14 @@
 'use strict';
 
 import type {
+  MissingFieldHandler,
   RecordProxy,
   RecordSourceProxy,
-  MissingFieldHandler,
 } from '../store/RelayStoreTypes';
 import type {
   ReaderLinkedField,
-  ReaderSelection,
   ReaderScalarField,
+  ReaderSelection,
 } from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -89,7 +89,6 @@ function updateProxyFromSelections<TData>(
             mutableUpdatableProxy,
             selection.alias ?? selection.name,
             {
-              // $FlowFixMe[incompatible-call] these getters and setters have different types on purpose
               get: createGetterForPluralLinkedField(
                 selection,
                 variables,

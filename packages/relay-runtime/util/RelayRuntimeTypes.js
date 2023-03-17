@@ -128,7 +128,7 @@ declare export opaque type ClientQuery<
 declare export opaque type Mutation<
   -TVariables: Variables,
   +TData,
-  TRawResponse = void,
+  TRawResponse = {...},
 >: Operation<TVariables, TData, TRawResponse>;
 
 /**
@@ -163,5 +163,5 @@ declare export opaque type Fragment<TFragmentType, +TData>: ReaderFragment;
 declare export opaque type RefetchableFragment<
   TFragmentType,
   +TData,
-  -TVariables: Variables,
+  TVariables: Variables,
 >: Fragment<TFragmentType, TData>;

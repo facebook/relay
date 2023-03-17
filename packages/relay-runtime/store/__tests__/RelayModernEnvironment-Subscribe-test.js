@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const {graphql} = require('../../query/GraphQLTag');
@@ -78,7 +79,7 @@ describe('subscribe()', () => {
         operation.request,
       ),
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
     setName('4', 'Mark'); // Zuck -> Mark
     expect(callback.mock.calls.length).toBe(1);
@@ -100,7 +101,7 @@ describe('subscribe()', () => {
         operation.request,
       ),
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = environment.subscribe(snapshot, callback);
     dispose();

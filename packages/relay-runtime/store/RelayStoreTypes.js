@@ -584,6 +584,15 @@ export type LogEvent =
       +cached: boolean,
     }
   | {
+      // Indicates getPendingOperationForFragment identified a pending operation.
+      // Useful for measuring how frequently RelayOperationTracker identifies a
+      // related operation on which to suspend.
+      +name: 'pendingoperation.found',
+      +fragment: ReaderFragment,
+      +fragmentOwner: RequestDescriptor,
+      +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+    }
+  | {
       +name: 'network.info',
       +networkRequestId: number,
       +info: mixed,
@@ -1247,3 +1256,12 @@ export type ReactFlightServerErrorHandler = (
   status: string,
   errors: Array<ReactFlightServerError>,
 ) => void;
+
+/**
+ * The return type of a client edge resolver pointing to a concrete type.
+ * T can be overridden to be more specific than a DataID, e.g. if the IDs
+ * can only come from a given set.
+ */
+export type ConcreteClientEdgeResolverReturnType<T = any> = {
+  +id: T & DataID,
+};

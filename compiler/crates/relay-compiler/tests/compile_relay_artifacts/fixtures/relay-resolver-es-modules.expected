@@ -122,7 +122,8 @@ import {pop_star_name as userPopStarNameResolver} from 'PopStarNameResolver';
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               }
             ],
             "type": "User",

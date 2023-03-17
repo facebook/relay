@@ -31,11 +31,11 @@ import type {
 const invariant = require('invariant');
 const React = require('react');
 const {
+  __internal: {fetchQueryDeduped},
   Observable,
   PreloadableQueryRegistry,
   RelayFeatureFlags,
   ReplaySubject,
-  __internal: {fetchQueryDeduped},
   createOperationDescriptor,
   getRequest,
   getRequestIdentifier,
@@ -119,7 +119,7 @@ function loadQuery<
   // allows us to capture the events that occur during the eager execution
   // of the operation, and then replay them to the Observable we
   // ultimately return.
-  const executionSubject = new ReplaySubject();
+  const executionSubject = new ReplaySubject<GraphQLResponse>();
   const returnedObservable = Observable.create<GraphQLResponse>(sink =>
     executionSubject.subscribe(sink),
   );
@@ -143,7 +143,7 @@ function loadQuery<
     didMakeNetworkRequest = true;
 
     let observable;
-    const subject = new ReplaySubject();
+    const subject = new ReplaySubject<GraphQLResponse>();
     if (RelayFeatureFlags.ENABLE_LOAD_QUERY_REQUEST_DEDUPING === true) {
       // Here, we are calling fetchQueryDeduped at the network layer level,
       // which ensures that only a single network request is active for a given

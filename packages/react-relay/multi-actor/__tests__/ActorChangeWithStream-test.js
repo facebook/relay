@@ -159,7 +159,6 @@ describe('ActorChange with @stream', () => {
       )>
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       return Observable.create(sink => {
         dataSource = sink;
       });

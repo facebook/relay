@@ -12,9 +12,9 @@
 'use strict';
 
 import type {
+  MissingFieldHandler,
   RecordSourceProxy,
   UpdatableData,
-  MissingFieldHandler,
 } from '../store/RelayStoreTypes';
 import type {UpdatableQuery, Variables} from '../util/RelayRuntimeTypes';
 

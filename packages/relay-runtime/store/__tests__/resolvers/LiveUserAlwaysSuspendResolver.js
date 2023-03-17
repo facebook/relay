@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {DataID} from 'relay-runtime';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {
@@ -25,7 +25,9 @@ const {
  * @edgeTo User
  * @live
  */
-function live_user_resolver_always_suspend(): LiveState<DataID> {
+function live_user_resolver_always_suspend(): LiveState<
+  ConcreteClientEdgeResolverReturnType<>,
+> {
   return {
     read() {
       return suspenseSentinel();

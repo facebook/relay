@@ -34,7 +34,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 hex = "0.4.3"
-indexmap = { version = "1.9.1", features = ["rayon", "serde-1"] }
+indexmap = { version = "1.9.2", features = ["arbitrary", "rayon", "serde-1"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.4"
@@ -54,14 +54,14 @@ schema-diff = { path = "../schema-diff" }
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_bser = "0.3"
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
-sha-1 = "0.10"
-sha2 = "0.10"
+sha1 = "0.10.5"
+sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }
 thiserror = "1.0.36"
-tokio = { version = "1.21.2", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.25.0", features = ["full", "test-util", "tracing"] }
 walkdir = "2.3"
 watchman_client = "0.8.0"
-zstd = { version = "0.11.2+zstd.1.5.2", features = ["zstdmt"] }
+zstd = { version = "0.11.2+zstd.1.5.2", features = ["experimental", "zstdmt"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

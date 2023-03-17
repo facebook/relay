@@ -10,17 +10,20 @@ use std::collections::HashMap;
 use std::fmt;
 
 use graphql_ir::*;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
-use intern::string_key::StringKeySet;
 use relay_transforms::get_resolver_fragment_dependency_name;
+use rustc_hash::FxHashMap;
+use rustc_hash::FxHashSet;
 use schema::SDLSchema;
 use schema::Schema;
 
+pub type ExecutableDefinitionNameSet = FxHashSet<ExecutableDefinitionName>;
+pub type ExecutableDefinitionNameMap<V> = FxHashMap<ExecutableDefinitionName, V>;
+pub type ExecutableDefinitionNameVec = Vec<ExecutableDefinitionName>;
+
 struct Node {
     ir: Option<ExecutableDefinition>,
-    parents: Vec<StringKey>,
-    children: Vec<StringKey>,
+    parents: ExecutableDefinitionNameVec,
+    children: ExecutableDefinitionNameVec,
 }
 
 impl fmt::Debug for Node {
@@ -42,8 +45,8 @@ impl fmt::Debug for Node {
 /// `implicit_dependencies`.
 pub fn get_reachable_ir(
     definitions: Vec<ExecutableDefinition>,
-    base_definition_names: StringKeySet,
-    changed_names: StringKeySet,
+    base_definition_names: ExecutableDefinitionNameSet,
+    changed_names: ExecutableDefinitionNameSet,
     schema: &SDLSchema,
 ) -> Vec<ExecutableDefinition> {
     if changed_names.is_empty() {
@@ -83,14 +86,14 @@ pub fn get_reachable_ir(
 fn build_dependency_graph(
     schema: &SDLSchema,
     definitions: Vec<ExecutableDefinition>,
-) -> StringKeyMap<Node> {
-    let mut dependency_graph: StringKeyMap<Node> =
+) -> ExecutableDefinitionNameMap<Node> {
+    let mut dependency_graph =
         HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
 
     for definition in definitions.into_iter() {
         let name = match &definition {
-            ExecutableDefinition::Operation(operation) => operation.name.item.0,
-            ExecutableDefinition::Fragment(fragment) => fragment.name.item.0,
+            ExecutableDefinition::Operation(operation) => operation.name.item.into(),
+            ExecutableDefinition::Fragment(fragment) => fragment.name.item.into(),
         };
 
         // Visit the selections of the IR to build it's `children`
@@ -136,10 +139,10 @@ fn build_dependency_graph(
 }
 
 fn update_dependency_graph(
-    current_node: StringKey,
-    parent_name: StringKey,
-    dependency_graph: &mut StringKeyMap<Node>,
-    children: &mut Vec<StringKey>,
+    current_node: ExecutableDefinitionName,
+    parent_name: ExecutableDefinitionName,
+    dependency_graph: &mut ExecutableDefinitionNameMap<Node>,
+    children: &mut ExecutableDefinitionNameVec,
 ) {
     match dependency_graph.get_mut(&current_node) {
         None => {
@@ -163,15 +166,15 @@ fn update_dependency_graph(
 // and the `parents` for nodes representing the children IR
 fn visit_selections(
     schema: &SDLSchema,
-    dependency_graph: &mut StringKeyMap<Node>,
+    dependency_graph: &mut ExecutableDefinitionNameMap<Node>,
     selections: &[Selection],
-    parent_name: StringKey,
-    children: &mut Vec<StringKey>,
+    parent_name: ExecutableDefinitionName,
+    children: &mut ExecutableDefinitionNameVec,
 ) {
     for selection in selections {
         match selection {
             Selection::FragmentSpread(node) => {
-                let current_node = node.fragment.item.0;
+                let current_node = node.fragment.item.into();
                 update_dependency_graph(current_node, parent_name, dependency_graph, children);
             }
             Selection::InlineFragment(node) => {
@@ -189,7 +192,7 @@ fn visit_selections(
                     schema,
                 ) {
                     update_dependency_graph(
-                        fragment_name.0,
+                        fragment_name.into(),
                         parent_name,
                         dependency_graph,
                         children,
@@ -209,7 +212,7 @@ fn visit_selections(
                     schema,
                 ) {
                     update_dependency_graph(
-                        fragment_name.0,
+                        fragment_name.into(),
                         parent_name,
                         dependency_graph,
                         children,
@@ -232,11 +235,11 @@ fn visit_selections(
 // From `key` of changed definition, recursively traverse up the dependency tree, and add all related nodes (ancestors
 // of changed definitions which are not from base definitions, and all of their descendants) into the `result`
 fn add_related_nodes(
-    visited: &mut StringKeySet,
-    result: &mut StringKeyMap<ExecutableDefinition>,
-    dependency_graph: &StringKeyMap<Node>,
-    base_definition_names: &StringKeySet,
-    key: StringKey,
+    visited: &mut ExecutableDefinitionNameSet,
+    result: &mut ExecutableDefinitionNameMap<ExecutableDefinition>,
+    dependency_graph: &ExecutableDefinitionNameMap<Node>,
+    base_definition_names: &ExecutableDefinitionNameSet,
+    key: ExecutableDefinitionName,
 ) {
     if !visited.insert(key) {
         return;
@@ -267,9 +270,9 @@ fn add_related_nodes(
 
 // Recursively add all descendants of current node into the `result`
 fn add_descendants(
-    result: &mut StringKeyMap<ExecutableDefinition>,
-    dependency_graph: &StringKeyMap<Node>,
-    key: StringKey,
+    result: &mut ExecutableDefinitionNameMap<ExecutableDefinition>,
+    dependency_graph: &ExecutableDefinitionNameMap<Node>,
+    key: ExecutableDefinitionName,
 ) {
     if result.contains_key(&key) {
         return;

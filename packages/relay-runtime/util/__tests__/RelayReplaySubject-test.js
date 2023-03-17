@@ -18,7 +18,7 @@ const RelayReplaySubject = require('../RelayReplaySubject');
 let subject;
 
 beforeEach(() => {
-  subject = new RelayReplaySubject();
+  subject = new RelayReplaySubject<string>();
 });
 
 type Observer = {

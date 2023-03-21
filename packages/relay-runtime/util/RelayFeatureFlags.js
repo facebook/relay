@@ -31,6 +31,7 @@ export type FeatureFlags = {
   USE_REACT_CACHE: boolean,
   USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: boolean,
+  LOG_MISSING_RECORDS_IN_PROD: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -51,6 +52,7 @@ const RelayFeatureFlags: FeatureFlags = {
   USE_REACT_CACHE: false,
   USE_REACT_CACHE_LEGACY_TIMEOUTS: true,
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: false,
+  LOG_MISSING_RECORDS_IN_PROD: false,
 };
 
 module.exports = RelayFeatureFlags;

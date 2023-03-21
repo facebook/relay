@@ -72,14 +72,14 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       };
 
       useLayoutEffect(() => {
-        Scheduler.unstable_yieldValue({data, isPending});
+        Scheduler.log({data, isPending});
       });
 
       return {data, ...result};
     }
 
     function assertYieldsWereCleared() {
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       if (actualYields.length !== 0) {
         throw new Error(
           'Log of yielded values is not empty. ' +
@@ -104,7 +104,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     ) {
       assertYieldsWereCleared();
       Scheduler.unstable_flushAllWithoutAsserting();
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       expect(actualYields.length).toEqual(expectedYields.length);
       expectedYields.forEach((expected, idx) =>
         assertYield(expected, actualYields[idx]),
@@ -114,7 +114,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     function expectNoYields() {
       assertYieldsWereCleared();
       Scheduler.unstable_flushAllWithoutAsserting();
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       expect(actualYields.length).toEqual(0);
     }
 
@@ -295,7 +295,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
       const Fallback = () => {
         useLayoutEffect(() => {
-          Scheduler.unstable_yieldValue('Fallback');
+          Scheduler.log('Fallback');
         });
 
         return 'Fallback';

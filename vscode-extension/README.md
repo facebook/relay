@@ -2,6 +2,15 @@
 
 The official extension to support Relay in VSCode.
 
+## Features
+
+- IntelliSense
+- Hover type information
+- Diagnostics (Errors, Warnings)
+- Go to Definition for fragments, fields, GraphQL types, etc.
+- GraphQL syntax highlighting within .graphql and JavaScript/TypeScript files.
+- Supports workspaces with multiple Relay projects. [Example](https://github.com/relayjs/relay-examples/blob/main/.vscode/settings.json)
+
 <p align="center">
   <img src="https://github.com/facebook/relay/raw/main/vscode-extension/readme/demo.gif"/>
 </p>
@@ -15,20 +24,49 @@ Search for "Relay GraphQL" in the VS Code extensions panel or install through [t
 - Make sure you have at least one Relay config file somewhere in your project.
   - We support standard config file formats (`.yml`, `.js`, `.json`), and the the `relay` field in your `package.json`
 - Make sure you have the `relay-compiler` installed in your project. The bare minimum for this extension is v13.
-- Make sure you are able to run the `relay-compiler` command from the command line. If `yarn relay-compiler` works, it's very likely that the extension will work. See more on [debugging below](#debugging).
+- Make sure you are able to run the `relay-compiler` command from the command line. If `yarn relay-compiler` works, it's very likely that the extension will work.
 - Remove / disable any conflicting GraphQL extensions you have installed.
 
 ## Configuration
 
-Some of the configuration options for this extension only apply depending on whether you have a single or multiple Relay configs in your project.
+### `relay.autoStartCompiler` (default: `false`)
 
-### Common Configuration Options
+Configures whether to automatically start the Relay Compiler in watch mode when you open a project.
 
-#### `relay.autoStartCompiler` (default: `false`)
+### `relay.projects` (default: `null`)
 
-Whether or not we should automatically start the Relay Compiler in watch mode when you open a project.
+An optional array of project configuration in the form `{name: string, rootDirectory: string, pathToConfig: string}`. If omitted, it is assumed your workspace uses a single Relay config and the compiler will search for your config file. This option should be used when your Relay project is in a sub-directory of your workspace or you have multiple Relay projects in your workspace.
 
-#### `relay.compilerOutputLevel` (default: `verbose`)
+**name**: The name of the project. This will be used to display messages related to the project's output.
+
+**rootDirectory**: A path relative to the root of your VSCode workspace for the extension to work from. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the Relay config is found.
+
+**pathToConfig**: Path to a Relay config relative to the `rootDirectory` config option. Without this, the compiler will search for your config. This option can be omitted if your Relay config is directly below your `rootDirectory`.
+
+For a multi-project example, assuming you have two `relay.config.js` files in your code tree, you would setup the configuration like so.
+
+```js
+"relay.projects": [
+  // Relay config is beneath rootDirectory (e.g. apps/first-project/relay.config.js) therefore
+  // no need to provide the pathToConfig option
+  {
+    name: "my-first-project",
+    rootDirectory: "apps/first-project/"
+  },
+  // Relay config is beneath a sub-directory, e.g. apps/second-project/config/relay.config.js
+  {
+    name: "my-second-project",
+    rootDirectory: "apps/second-project/",
+    pathToConfig: "config/"
+  }
+]
+```
+
+### `relay.pathToBinary` (default: `null`)
+
+A path to the Relay binary relative to the root of your workspace. If this is not specified, we will try to find one in your `node_modules` folder.
+
+### `relay.compilerOutputLevel` (default: `verbose`)
 
 Specify the output level of the Relay compiler. The available options are
 
@@ -37,7 +75,7 @@ Specify the output level of the Relay compiler. The available options are
 - verbose
 - debug
 
-#### `relay.lspOutputLevel` (default: `quiet-with-errors`)
+### `relay.lspOutputLevel` (default: `quiet-with-errors`)
 
 Specify the output level of the Relay language server. The available options are
 
@@ -45,39 +83,6 @@ Specify the output level of the Relay language server. The available options are
 - quiet-with-errors
 - verbose
 - debug
-
-#### `relay.pathToBinary` (default: `null`)
-
-A path to the Relay binary relative to the root of your project. If this is not specified, we will try to find one in your `node_modules` folder.
-
-### Single Relay Config Options
-
-#### `relay.name` (default: `default`)
-
-The name of the project. This will be used to display messages related to the project's output.
-
-#### `relay.rootDirectory` (default: Root of project)
-
-A path relative to the root of your VSCode project for the extension to work from. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the Relay config is found. This is helpful if your project is in a nested directory.
-
-#### `relay.pathToConfig` (default: `null`)
-
-Path to a Relay config relative to the `rootDirectory`. Without this, the compiler will search for your config. This is helpful if your Relay project is in a nested directory.
-
-### Multiple Relay Config Options
-
-#### `relay.projects` (default: `null`)
-
-An array of project configuration in the form `{name: string, rootDirectory: string, pathToConfig: string}`. If omitted, it is assumed your workspace uses a single Relay config and the compiler will search for your config file. But you can also use this configuration if your Relay config is in a nested directory. This configuration must be used if your workspace has multiple Relay projects, each with their own config file.
-
-## Features
-
-- IntelliSense
-- Hover type information
-- Diagnostics (Errors, Warnings)
-- Go to Definition for fragments, fields, GraphQL types, etc.
-- GraphQL syntax highlighting within .graphql and JavaScript/TypeScript files.
-- Supports workspaces with multiple Relay projects. [Example](https://github.com/relayjs/relay-examples/blob/main/.vscode/settings.json)
 
 ## Commands
 
@@ -88,6 +93,30 @@ An array of project configuration in the form `{name: string, rootDirectory: str
 ### Relay Compiler > v13
 
 We built the language server around the new Rust compiler. We do not have plans to support any version < v13.
+
+## Migration
+
+### Migrating from version 1.x to version 2.x
+
+The primary change between version 1 and version 2 of the extension is supporting workspaces with multiple Relay projects. If you previously weren't using the `relay.rootDirectory` or `relay.pathToConfig` options, no migration is necessary. If you were using these two options the extension will keep working, but you should migrate to the `relay.projects` configuration.
+
+Before:
+
+```
+"relay.rootDirectory": "apps/client/",
+"relay.pathToConfig": "apps/client/config",
+```
+
+After:
+
+```
+"relay.projects": [{
+  "name": "Client App",
+  "rootDirectory: "apps/client/",
+  "pathToConfig": "config"
+}]
+```
+
 
 ## Credits
 

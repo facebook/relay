@@ -92,15 +92,15 @@
             "properties": {
               "name": {
                 "type": "string",
-                "description": "The name of the project. We'll use this to display messages related to the project's output."
+                "description": "The name of the project. This will be used to display messages related to the project's output."
               },
               "rootDirectory": {
                 "type": "string",
-                "description": "A path relative to the root of your VSCode project for the extension to work from. The default value is the root of your project. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the relay config is found. This is helpful if your project is in a nested directory."
+                "description": "A path relative to the root of your VSCode workspace for the extension to work from. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the Relay config is found."
               },
               "pathToConfig": {
                 "type": "string",
-                "description": "Path to a relay config relative to the `rootDirectory`. Without this, the compiler will search for your config. This is helpful if your relay project is in a nested directory."
+                "description": "Path to a Relay config relative to the rootDirectory config option. Without this, the compiler will search for your config. This option can be omitted if your Relay config is directly below your rootDirectory."
               }
             }
           }
@@ -145,8 +145,11 @@
     "typecheck": "tsc --noEmit",
     "prettier-check": "prettier -c .",
     "lint": "eslint --max-warnings 0 .",
-    "vscode:prepublish": "tsc",
-    "build-local": "vsce package"
+    "vscode:prepublish": "rm -f tsconfig.tsbuildinfo && rm -rf out && yarn run esbuild-base -- --minify",
+    "build-local": "vsce package",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch"
   },
   "engines": {
     "vscode": "^1.60.0"
@@ -161,12 +164,13 @@
     "@types/vscode": "^1.60.0",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.0.0",
-    "eslint": "^8.12.0",
+    "@vscode/vsce": "^2.18.0",
+    "esbuild": "^0.17.12",
+    "eslint": "^8.35.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "prettier": "^2.6.2",
-    "typescript": "^4.6.3",
-    "vsce": "^2.7.0"
+    "typescript": "^4.6.3"
   }
 }

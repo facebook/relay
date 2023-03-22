@@ -117,7 +117,6 @@ After:
 }]
 ```
 
-
 ## Credits
 
 - [GraphQL Syntax](https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql-syntax) All of the GraphQL syntax highlighting is supported by this extension.

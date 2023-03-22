@@ -11,3 +11,5 @@ website-prototyping-tools/node_modules
 *.md
 src/flow/
 packages/relay-flight-experimental/
+# Extension has its own eslint config
+vscode-extension/

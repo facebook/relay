@@ -142,9 +142,9 @@ describe('ReactRelayQueryRenderer', () => {
         it('fetches the query only once, renders loading state', () => {
           environment.mockClear();
           function Child(props) {
-            // NOTE the unstable_yield method will move to the static renderer.
+            // NOTE the log method will move to the static renderer.
             // When React sync runs we need to update this.
-            Scheduler.unstable_yieldValue(props.children);
+            Scheduler.log(props.children);
             return props.children;
           }
 
@@ -173,7 +173,7 @@ describe('ReactRelayQueryRenderer', () => {
 
           // Flush some of the changes, but don't commit
           Scheduler.unstable_flushNumberOfYields(2);
-          expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
+          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,
@@ -214,7 +214,7 @@ describe('ReactRelayQueryRenderer', () => {
           function Child(props) {
             // NOTE the unstable_yield method will move to the static renderer.
             // When React sync runs we need to update this.
-            Scheduler.unstable_yieldValue(props.children);
+            Scheduler.log(props.children);
             return props.children;
           }
 
@@ -244,7 +244,7 @@ describe('ReactRelayQueryRenderer', () => {
 
           // Flush some of the changes, but don't commit
           Scheduler.unstable_flushNumberOfYields(2);
-          expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
+          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,
@@ -300,9 +300,9 @@ describe('ReactRelayQueryRenderer', () => {
           });
 
           function Child(props) {
-            // NOTE the unstable_yieldValue method will move to the static renderer.
+            // NOTE the log method will move to the static renderer.
             // When React sync runs we need to update this.
-            Scheduler.unstable_yieldValue(props.children);
+            Scheduler.log(props.children);
             return props.children;
           }
 
@@ -332,7 +332,7 @@ describe('ReactRelayQueryRenderer', () => {
 
           // Flush some of the changes, but don't commit
           Scheduler.unstable_flushNumberOfYields(2);
-          expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
+          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,

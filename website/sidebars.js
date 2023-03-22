@@ -80,6 +80,7 @@ const Guides = fbContent({
     'guides/client-schema-extensions',
     'guides/type-emission',
     'guided-tour/rendering/error-states',
+    'guides/fb/client-mutation-id-and-actor-id',
     GuidesRescuedFromOldTutorial,
     {
       EntryPoints: [

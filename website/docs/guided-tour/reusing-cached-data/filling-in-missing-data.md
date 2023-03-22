@@ -54,7 +54,7 @@ const missingFieldHandlers = [
     handle(field, record, argValues): ?string {
       if (
         record != null &&
-        record.__typename === ROOT_TYPE &&
+        record.getType() === ROOT_TYPE &&
         field.name === 'user' &&
         argValues.hasOwnProperty('id')
       ) {
@@ -63,7 +63,7 @@ const missingFieldHandlers = [
       }
       if (
         record != null &&
-        record.__typename === ROOT_TYPE &&
+        record.getType() === ROOT_TYPE &&
         field.name === 'story' &&
         argValues.hasOwnProperty('story_id')
       ) {

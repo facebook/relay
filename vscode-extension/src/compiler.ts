@@ -31,8 +31,6 @@ export function createAndStartCompiler(context: RelayProjectExtensionContext) {
     `${context.project.binaryExecutionOptions.binaryPath} ${args.join(' ')}`,
   );
 
-  terminal.show();
-
   context.extensionContext.subscriptions.push(terminal);
 
   context.project.compilerTerminal = terminal;

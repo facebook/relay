@@ -300,6 +300,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
     invariant(result != null, 'Expected to have promise for operation');
     const promiseCallback = jest.fn<[void], mixed>();
+    // $FlowFixMe[unused-promise]
     result.promise.then(promiseCallback);
     expect(promiseCallback).not.toBeCalled();
     environment.mock.complete(MutationOperation.request.node);

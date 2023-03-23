@@ -37,8 +37,7 @@ export function createErrorHandler(
         )
         .then(selected => {
           if (selected === 'Go to output') {
-            // eslint-disable-next-line no-underscore-dangle
-            context._outputChannel.show();
+            context.project.lspOutputChannel.show();
           }
         });
 

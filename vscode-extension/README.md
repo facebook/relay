@@ -94,6 +94,12 @@ Specify the output level of the Relay language server. The available options are
 
 We built the language server around the new Rust compiler. We do not have plans to support any version < v13.
 
+## Debugging
+
+### `Relay LSP client connection got closed unexpectedly`
+
+This toast message means that we failed to start the Relay compiler on your project. Viewing the output logs should give you the error output. In order to debug this, go to the project that failed and try to run the Relay compiler yourself (e.g. `yarn run relay-compiler`). Hopefully you'll get the same or a similar error here as well that will help you debug the problem. If you're able to run the Relay compiler locally, the extension should be able to as well.
+
 ## Migration
 
 ### Migrating from version 1.x to version 2.x

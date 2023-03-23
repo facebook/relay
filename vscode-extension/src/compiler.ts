@@ -22,8 +22,12 @@ export function createAndStartCompiler(context: RelayProjectExtensionContext) {
     args.push(context.project.binaryExecutionOptions.pathToConfig);
   }
 
+  const terminalPrefix = context.project.name
+    ? `[${context.project.name}]`
+    : '';
+
   const terminal = window.createTerminal({
-    name: 'Relay Compiler',
+    name: `${terminalPrefix} Relay Compiler`,
     cwd: context.project.binaryExecutionOptions.rootPath,
   });
 

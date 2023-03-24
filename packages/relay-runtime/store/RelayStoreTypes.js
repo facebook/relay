@@ -463,7 +463,7 @@ export interface RecordProxy {
     args?: ?Variables,
   ): RecordProxy;
   setLinkedRecords(
-    records: Array<?RecordProxy>,
+    records: $ReadOnlyArray<?RecordProxy>,
     name: string,
     args?: ?Variables,
   ): RecordProxy;

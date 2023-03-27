@@ -8,61 +8,6 @@ The Relay team is happy to announce the release of Relay v15 as well as v2 of th
 
 ## What's new in Relay 15?
 
-### Relay Resolver improvements
-
-A significant portion of our development effort since our last release has gone into improving [Relay Resolvers](https://relay.dev/docs/guides/relay-resolvers) (a mechanism for exposing derived data in the graph). It is worth noting that Relay Resolvers are still experimental and API changes might occur in the future.
-
-#### Terser docblock tags
-
-We've also created a simplified format of the docblock tags necessary to create a Relay Resolver. In many scenarios you can now use a simplified `ParentType.field_name: ReturnType` syntax to define what new field your Relay Resolver exposes.
-
-Before:
-
-```js
-/**
- * @RelayResolver
- * @onType User
- * @fieldName favorite_page
- * @rootFragment myRootFragment
- */
-```
-
-After:
-
-```js
-/**
- * @RelayResolver User.favorite_page: Page
- * @rootFragment myRootFragment
- */
-```
-
-#### Define multiple resolvers per file
-
-Prior to this release we only allowed a single Relay Resolver per file and required the Relay Resolver function to be the default export. In Relay 15 you're now able to define multiple Relay Resolvers per file and use named exports. In order to use this feature you'll need to enable the `use_named_imports_for_relay_resolvers` feature flag in your Relay config.
-
-```js
-/**
- * @RelayResolver User.favorite_page: Page
- * @rootFragment favoritePageFragment
- */
-function usersFavoritePage(){
-  ...
-}
-
-/**
- * @RelayResolver User.best_friend: Friend
- * @rootFragment bestFriendFragment
- */
-function usersBestFriend(){
-  ...
-}
-
-module.exports = {
-  usersFavoritePage,
-  usersBestFriend
-}
-```
-
 ### Support `@refetchable` on interfaces
 
 Previously it wasn't possible to add the `@refetchable` directive to fragments on server interface types. That support has now been added and will no longer error in the Relay compiler.
@@ -118,6 +63,61 @@ One of the few breaking changes in this release, the [missing field handlers](ht
 ### Flow type improvements
 
 Flow users will now get types inferred from `graphql` literals with more Relay APIs. No longer do Flow users need to explicitly type the return value of the `usePreloadedQuery`, `useQueryLoader`, `useRefetchableFragment`, `usePaginationFragment`, and `useBlockingPaginationFragment` API methods.
+
+### Relay Resolver improvements
+
+A significant portion of our development effort since our last release has gone into improving [Relay Resolvers](https://relay.dev/docs/guides/relay-resolvers) (a mechanism for exposing derived data in the graph). It is worth noting that Relay Resolvers are still experimental and API changes might occur in the future.
+
+#### Terser docblock tags
+
+We've also created a simplified format of the docblock tags necessary to create a Relay Resolver. In many scenarios you can now use a simplified `ParentType.field_name: ReturnType` syntax to define what new field your Relay Resolver exposes.
+
+Before:
+
+```js
+/**
+ * @RelayResolver
+ * @onType User
+ * @fieldName favorite_page
+ * @rootFragment myRootFragment
+ */
+```
+
+After:
+
+```js
+/**
+ * @RelayResolver User.favorite_page: Page
+ * @rootFragment myRootFragment
+ */
+```
+
+#### Define multiple resolvers per file
+
+Prior to this release we only allowed a single Relay Resolver per file and required the Relay Resolver function to be the default export. In Relay 15 you're now able to define multiple Relay Resolvers per file and use named exports.
+
+```js
+/**
+ * @RelayResolver User.favorite_page: Page
+ * @rootFragment favoritePageFragment
+ */
+function usersFavoritePage(){
+  ...
+}
+
+/**
+ * @RelayResolver User.best_friend: Friend
+ * @rootFragment bestFriendFragment
+ */
+function usersBestFriend(){
+  ...
+}
+
+module.exports = {
+  usersFavoritePage,
+  usersBestFriend
+}
+```
 
 ## What's new in the Relay VSCode Extension v2?
 

@@ -66,7 +66,6 @@ function usePaginationFragment_LEGACY<
     connectionPathInFragmentData,
     paginationRequest,
     paginationMetadata,
-    identifierField,
   } = getPaginationMetadata(fragmentNode, componentDisplayName);
 
   const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentNode<
@@ -85,7 +84,6 @@ function usePaginationFragment_LEGACY<
       fragmentIdentifier,
       fragmentNode,
       fragmentRef,
-      identifierField,
       paginationMetadata,
       paginationRequest,
     });
@@ -100,7 +98,6 @@ function usePaginationFragment_LEGACY<
       fragmentIdentifier,
       fragmentNode,
       fragmentRef,
-      identifierField,
       paginationMetadata,
       paginationRequest,
     });

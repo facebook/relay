@@ -76,7 +76,6 @@ function usePaginationFragment<
     connectionPathInFragmentData,
     paginationRequest,
     paginationMetadata,
-    identifierField,
   } = getPaginationMetadata(fragmentNode, componentDisplayName);
 
   const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentInternal<
@@ -95,7 +94,6 @@ function usePaginationFragment<
       fragmentIdentifier,
       fragmentNode,
       fragmentRef,
-      identifierField,
       paginationMetadata,
       paginationRequest,
     });
@@ -111,7 +109,6 @@ function usePaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    identifierField,
     paginationMetadata,
     paginationRequest,
   });

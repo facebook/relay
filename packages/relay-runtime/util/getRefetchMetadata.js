@@ -69,6 +69,11 @@ function getRefetchMetadata(
         typeof identifierInfo.identifierField === 'string',
       'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
     );
+    invariant(
+      identifierInfo.identifierQueryVariableName == null ||
+        typeof identifierInfo.identifierQueryVariableName === 'string',
+      'Relay: getRefetchMetadata(): Expected `identifierQueryVariableName` to be a string.',
+    );
   }
   return {
     fragmentRefPathInResponse,

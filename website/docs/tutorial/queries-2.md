@@ -219,7 +219,7 @@ You may also notice that this request is made only the first time you hover over
 <details>
 <summary>Deep dive: Caching and the Relay Store</summary>
 
-In contrast to most other systems, Relay’s caching is not based on queries, but on graph nodes. Relay maintains a local cache of all the nodes it has fetched called the Relay Store. Each node in the Store is identified and retrieved by its ID. If two queries ask for the same information, as identified by node IDs, then the second query will be fulfilled using the cached information retrieved for the first query, and not be fetched.
+In contrast to most other systems, Relay’s caching is not based on queries, but on graph nodes. Relay maintains a local cache of all the nodes it has fetched called the Relay Store. Each node in the Store is identified and retrieved by its ID. If two queries ask for the same information, as identified by node IDs, then the second query will be fulfilled using the cached information retrieved for the first query, and not be fetched.  Make sure to configure [missing field handlers](/docs/guided-tour/reusing-cached-data/filling-in-missing-data/) to take advantage of this caching behavior.
 
 Relay will garbage-collect nodes from the Store if they aren’t “reachable” from any queries that are used, or have been recently used, by any mounted components.
 </details>

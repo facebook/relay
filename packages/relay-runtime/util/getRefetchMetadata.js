@@ -63,7 +63,7 @@ function getRefetchMetadata(
     componentDisplayName,
   );
   const identifierInfo = refetchMetadata.identifierInfo;
-  if (identifierInfo) {
+  if (identifierInfo != null) {
     invariant(
       identifierInfo.identifierField == null ||
         typeof identifierInfo.identifierField === 'string',

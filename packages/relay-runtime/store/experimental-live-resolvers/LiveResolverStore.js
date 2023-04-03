@@ -212,7 +212,16 @@ class LiveResolverStore implements Store {
    * fluxStore.dispatch = wrapped;
    */
   batchLiveStateUpdates(callback: () => void) {
-    this._resolverCache.batchLiveStateUpdates(callback);
+    if (this.__log != null) {
+      this.__log({name: 'liveresolver.batch.start'});
+    }
+    try {
+      this._resolverCache.batchLiveStateUpdates(callback);
+    } finally {
+      if (this.__log != null) {
+        this.__log({name: 'liveresolver.batch.end'});
+      }
+    }
   }
 
   check(

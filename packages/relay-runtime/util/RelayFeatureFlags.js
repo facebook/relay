@@ -32,6 +32,15 @@ export type FeatureFlags = {
   USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: boolean,
   LOG_MISSING_RECORDS_IN_PROD: boolean,
+
+  // Configure RelayStoreSubscriptions to mark a subscription as affected by an
+  // update if there are any overlapping IDs other than ROOT_ID or VIWER_ID,
+  // even if none of the read fields were affected. The strict behavior (current
+  // default) requires eagerly reading fragments as they change which is
+  // incompatible with lazily notifying React of updats using `setState(() =>
+  // read())`, so we are experimenting with this loose behavior which should be
+  // more compatible.
+  ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -53,6 +62,7 @@ const RelayFeatureFlags: FeatureFlags = {
   USE_REACT_CACHE_LEGACY_TIMEOUTS: true,
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: false,
   LOG_MISSING_RECORDS_IN_PROD: false,
+  ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
 };
 
 module.exports = RelayFeatureFlags;

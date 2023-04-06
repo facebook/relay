@@ -258,6 +258,20 @@ fn relay_resolver_with_output_type_client_object() {
 }
 
 #[test]
+fn relay_resolver_with_output_type_relay_resolver_value() {
+    let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-relay-resolver-value.graphql", "generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_relay_resolver_value_required() {
+    let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-relay-resolver-value-required.graphql", "generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.expected", input, expected);
+}
+
+#[test]
 fn relay_weak_client_type() {
     let input = include_str!("generate_typescript/fixtures/relay-weak-client-type.graphql");
     let expected = include_str!("generate_typescript/fixtures/relay-weak-client-type.expected");

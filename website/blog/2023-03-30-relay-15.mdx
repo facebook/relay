@@ -4,13 +4,13 @@ author: The Relay Team
 hide_table_of_contents: false
 ---
 
-The Relay team is happy to announce the release of Relay v15 as well as v2 of the Relay VSCode extension. These releases are a long time coming and include lots of new feature, bug fixes and quality of life improvements. While this release is a major version bump and includes a couple breaking changes, few users should be affected and upgrading should be seamless for most use cases. You can find the full list of changes in the [v15 Release Notes](https://github.com/facebook/relay/releases/tag/v15.0.0).
+The Relay team is happy to announce the release of Relay v15 as well as v2 of the Relay VSCode extension. While these releases are major version bumps and includes a couple of breaking changes, we expect that most users will be unaffected and will experience a seamless upgrade. You can find the full list of changes in the [v15 Release Notes](https://github.com/facebook/relay/releases/tag/v15.0.0).
 
 ## What's new in Relay 15?
 
-### Support `@refetchable` on interfaces
+### Support for `@refetchable` on interfaces
 
-Previously it wasn't possible to add the `@refetchable` directive to fragments on server interface types. That support has now been added and will no longer error in the Relay compiler.
+Previously it wasn't possible to add the `@refetchable` directive on fragment definitions on server interface types.
 
 ```
 // schema.graphql
@@ -33,7 +33,7 @@ fragment RefetchableFragmentFoo on RefetchableInterfaceFoo
 
 ### Persisted query improvements
 
-For users who are using URL-based persisted queries, you can now specify custom headers to send with the request to persist your queries. For example, this can be used to send auth headers to your query persistence URL endpoint.
+If you use URL-based persisted queries, you can now specify custom headers to send with the request that persists the query. For example, this can be used to send auth headers to your query persistence URL endpoint.
 
 ```js
 persistConfig: {
@@ -44,7 +44,7 @@ persistConfig: {
 }
 ```
 
-And for users who are using file-based persisted queries a new feature flag, `compact_query_text` was added to remove all whitespace from persisted query output text. This can cause a substantial reduction in your persisted query text file (we've seen an example of reducing a single query text from 84kb to 31kb). This new feature flag can be enabled within your Relay config file.
+For file-based persisted queries, we added a new feature flag, `compact_query_text`, that removes all whitespace from the persisted query text. This can make the file more than 60% smaller. This new feature flag can be enabled within your Relay config file.
 
 ```js
 persistConfig: {
@@ -58,7 +58,11 @@ featureFlags: {
 
 ### Typesafe updates now support missing field handlers
 
-One of the few breaking changes in this release, the [missing field handlers](https://relay.dev/docs/guided-tour/reusing-cached-data/filling-in-missing-data) function signature has been changed. The `record` argument to the handler used to recieve a `Record` type (which is an untyped grabbag containing whatever the store has) but we now pass a `ReadOnlyRecordProxy` which is much more typesafe and provides a better interface. Furthermore, we also replaced the `field` argument of type `NormalizationLinkedField` with `CommonLinkedField`, which both a `ReaderLinkedField` and `NormalizationLinkedField` "implement".
+Typesafe updaters now support missing field handlers. Previously, if you selected `node(id: 4) { ... on User { name, __typename } }` in a typesafe updater, but that user was fetched in a different way (e.g. with `best_friend { name }`), you would not be able to access and mutate that user using the typesafe updater.
+
+In this release, we add support for missing field handlers in typesafe updaters, meaning that if a missing field handler is set up for node (as in [this example](https://relay.dev/docs/next/guided-tour/reusing-cached-data/filling-in-missing-data/#internaldocs-banner)), you will be able to update the user's name with this missing field handler.
+
+In order to support this, the signature of [missing field handlers](https://relay.dev/docs/guided-tour/reusing-cached-data/filling-in-missing-data) has been changed. The `record` argument to the handler used to recieve a `Record` type (which is an untyped grab-bag of data). It now receives a `ReadOnlyRecordProxy`. Furthermore, the field argument of type `NormalizationLinkedField` is now `CommonLinkedField`, which is a type containing the properties found in both `ReaderLinkedField` and `NormalizationLinkedField`.
 
 ### Flow type improvements
 
@@ -70,7 +74,7 @@ A significant portion of our development effort since our last release has gone 
 
 #### Terser docblock tags
 
-We've also created a simplified format of the docblock tags necessary to create a Relay Resolver. In many scenarios you can now use a simplified `ParentType.field_name: ReturnType` syntax to define what new field your Relay Resolver exposes.
+The annotation for Relay Resolver functions has been simplified. In many scenarios you can now use the `ParentType.field_name: ReturnType` syntax to define what new field your Relay Resolver exposes. Note that this syntax can only be used if your Relay resolver returns an existing GraphQL type.
 
 Before:
 
@@ -145,9 +149,5 @@ After:
 ```
 
 Note that your existing settings will continue to work in this release, but you should migrate to the new settings as they'll be removed in a future release.
-
-## What's next?
-
-TODO..
 
 Happy Querying!

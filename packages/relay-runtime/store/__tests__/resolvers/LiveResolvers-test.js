@@ -150,13 +150,24 @@ test('Updates can be batched', () => {
     `,
     {},
   );
+  const log = jest.fn();
   const store = new LiveResolverStore(source, {
     gcReleaseBufferSize: 0,
+    log,
   });
   const environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
     store,
+    log,
   });
+
+  function getBatchLogEventNames(): string[] {
+    return log.mock.calls
+      .map(log => log[0].name)
+      .filter(name => {
+        return name.startsWith('liveresolver.batch');
+      });
+  }
 
   const snapshot = environment.lookup(operation.fragment);
 
@@ -173,10 +184,17 @@ test('Updates can be batched', () => {
 
   let lastCallCount = handler.mock.calls.length;
 
+  expect(getBatchLogEventNames()).toEqual([]);
+
   // Update _with_ batching.
   store.batchLiveStateUpdates(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
+
+  expect(getBatchLogEventNames()).toEqual([
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+  ]);
 
   // We get notified once per batch! :)
   expect(handler.mock.calls.length - lastCallCount).toBe(1);
@@ -193,6 +211,13 @@ test('Updates can be batched', () => {
     });
   }).toThrowError('An Example Error');
 
+  expect(getBatchLogEventNames()).toEqual([
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+  ]);
+
   // We still notify our subscribers
   expect(handler.mock.calls.length - lastCallCount).toBe(1);
 
@@ -202,4 +227,16 @@ test('Updates can be batched', () => {
       store.batchLiveStateUpdates(() => {});
     });
   }).toThrow('Unexpected nested call to batchLiveStateUpdates.');
+
+  expect(getBatchLogEventNames()).toEqual([
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+    // Here we can see the nesting
+    'liveresolver.batch.start',
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+    'liveresolver.batch.end',
+  ]);
 });

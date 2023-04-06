@@ -1071,8 +1071,32 @@ impl InMemorySchema {
             )]);
         }
 
-        let object_id = Type::Object(ObjectID(self.objects.len() as u32));
-        self.type_map.insert(object_name.item, object_id);
+        let object_id = self.objects.len() as u32;
+        let object_type = Type::Object(ObjectID(self.objects.len() as u32));
+        self.type_map.insert(object_name.item, object_type);
+
+        let interfaces = object
+            .interfaces
+            .iter()
+            .map(|name| self.build_interface_id(name, &location_key))
+            .collect::<DiagnosticsResult<Vec<_>>>()?;
+
+        for interface_id in &interfaces {
+            // All interfaces implemented by this concrete object should exist, and this
+            // should be checked beforehand.
+            let interface_obj = self
+                .interfaces
+                .get_mut(interface_id.0 as usize)
+                .expect("Expected interface to exist");
+
+            if !interface_obj
+                .implementing_objects
+                .contains(&ObjectID(object_id))
+            {
+                interface_obj.implementing_objects.push(ObjectID(object_id))
+            }
+        }
+
         self.add_definition(
             &TypeSystemDefinition::ObjectTypeDefinition(object),
             &location_key,
@@ -1668,6 +1692,8 @@ fn expect_object_type_name(type_map: &TypeMap, object_id: ObjectID) -> StringKey
 
 #[cfg(test)]
 mod tests {
+    use common::Span;
+
     use super::*;
 
     #[test]
@@ -1675,5 +1701,53 @@ mod tests {
         let mut target = vec![10, 11];
         extend_without_duplicates(&mut target, vec![1, 10, 100]);
         assert_eq!(target, vec![10, 11, 1, 100]);
+    }
+
+    fn identifier_from_value(value: StringKey) -> Identifier {
+        Identifier {
+            span: Span { start: 0, end: 1 },
+            token: Token {
+                span: Span { start: 0, end: 1 },
+                kind: TokenKind::Identifier,
+            },
+            value,
+        }
+    }
+
+    #[test]
+    fn test_adding_extension_object() {
+        let mut schema = InMemorySchema::create_uninitialized();
+
+        schema
+            .add_interface(Interface {
+                name: WithLocation::generated(InterfaceName("ITunes".intern())),
+                is_extension: false,
+                implementing_interfaces: vec![],
+                implementing_objects: vec![],
+                fields: vec![],
+                directives: vec![],
+                interfaces: vec![],
+                description: None,
+            })
+            .unwrap();
+
+        schema
+            .add_extension_object(
+                ObjectTypeDefinition {
+                    name: identifier_from_value("EarlyModel".intern()),
+                    interfaces: vec![identifier_from_value("ITunes".intern())],
+                    directives: vec![],
+                    fields: None,
+                },
+                SourceLocationKey::Generated,
+            )
+            .unwrap();
+
+        let interface = schema.interface(InterfaceID(0));
+
+        assert!(
+            interface.implementing_objects.len() == 1,
+            "ITunes should have an implementing object"
+        );
     }
 }

@@ -52,6 +52,15 @@ const {ROOT_TYPE, Environment} = require('relay-runtime');
 const missingFieldHandlers = [
   {
     handle(field, record, argValues): ?string {
+      // Make sure to add a handler for the node field
+      if (
+        record != null &&
+        record.getType() === ROOT_TYPE &&
+        field.name === 'node' &&
+        argValues.hasOwnProperty('id')
+      ) {
+        return argValues.id
+      }
       if (
         record != null &&
         record.getType() === ROOT_TYPE &&

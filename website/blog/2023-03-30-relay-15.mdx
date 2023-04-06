@@ -1,10 +1,10 @@
 ---
-title: Relay v15.0 and VSCode Extension v2.0
+title: Relay v15.0
 author: The Relay Team
 hide_table_of_contents: false
 ---
 
-The Relay team is happy to announce the release of Relay v15 as well as v2 of the Relay VSCode extension. While these releases are major version bumps and includes a couple of breaking changes, we expect that most users will be unaffected and will experience a seamless upgrade. You can find the full list of changes in the [v15 Release Notes](https://github.com/facebook/relay/releases/tag/v15.0.0).
+The Relay team is happy to announce the release of Relay v15. While this release is a major version bump and includes a couple of breaking changes, we expect that most users will be unaffected and will experience a seamless upgrade. You can find the full list of changes in the [v15 Release Notes](https://github.com/facebook/relay/releases/tag/v15.0.0).
 
 ## What's new in Relay 15?
 
@@ -74,7 +74,7 @@ A significant portion of our development effort since our last release has gone 
 
 #### Terser docblock tags
 
-The annotation for Relay Resolver functions has been simplified. In many scenarios you can now use the `ParentType.field_name: ReturnType` syntax to define what new field your Relay Resolver exposes. Note that this syntax can only be used if your Relay resolver returns an existing GraphQL type.
+The annotation for Relay Resolver functions has been simplified. In many scenarios you can now use the `ParentType.field_name: ReturnType` syntax to define what new field your Relay Resolver exposes.
 
 Before:
 
@@ -96,6 +96,15 @@ After:
  */
 ```
 
+In the above example, the `Page` type is a schema type. If your Relay Resolver doesn't return a schema type, you can use fixed `RelayResolverValue` value as your return type
+
+```js
+/**
+ * @RelayResolver User.best_friend: RelayResolverValue
+ * @rootFragment myRootFragment
+ */
+```
+
 #### Define multiple resolvers per file
 
 Prior to this release we only allowed a single Relay Resolver per file and required the Relay Resolver function to be the default export. In Relay 15 you're now able to define multiple Relay Resolvers per file and use named exports.
@@ -110,7 +119,7 @@ function usersFavoritePage(){
 }
 
 /**
- * @RelayResolver User.best_friend: Friend
+ * @RelayResolver User.best_friend: RelayResolverValue
  * @rootFragment bestFriendFragment
  */
 function usersBestFriend(){
@@ -122,32 +131,5 @@ module.exports = {
   usersBestFriend
 }
 ```
-
-## What's new in the Relay VSCode Extension v2?
-
-The latest version of the [Relay VSCode Extension](https://marketplace.visualstudio.com/items?itemName=meta.relay) adds support for workspaces which contain multiple Relay configs in various subdirectories. Instead of only supporting a single Relay project at a time, you can now configure the `relay.projects` configuration to point to multiple Relay projects in a single workspace. This allows you to seamlessly switch between multiple projects and still be able to get field autocompletion, go to definition on fragments spreads, etc. And with the `relay.autoStartCompiler` you can have the Relay compiler run in watch mode on all projects in your workspace in parallel.
-
-If you were previously using the `relay.rootDirectory` or `relay.pathToConfig` configuration options, those have been deprecated and you'll want to migrate those to the `relay.projects` configuration instead.
-
-Before:
-
-```json
-// VSCode Settings
-"relay.rootDirectory": "path/to/app",
-"relay.pathToConfig": "config/relay.config.js"
-```
-
-After:
-
-```json
-// VSCode Settings
-"relay.projects": [{
-  "name": "my-app",
-  "rootDirectory": "path/to/app",
-  "pathToConfig": "config/relay.config.js"
-}]
-```
-
-Note that your existing settings will continue to work in this release, but you should migrate to the new settings as they'll be removed in a future release.
 
 Happy Querying!

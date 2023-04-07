@@ -117,34 +117,6 @@ We built the language server around the new Rust compiler. We do not have plans 
 
 This toast message means that we failed to start the Relay compiler on your project. Viewing the output logs should give you the error output. In order to debug this, go to the project that failed and try to run the Relay compiler yourself (e.g. `yarn run relay-compiler`). Hopefully you'll get the same or a similar error here as well that will help you debug the problem. If you're able to run the Relay compiler locally, the extension should be able to as well.
 
-<<<<<<< Updated upstream
-=======
-## Migration
-
-### Migrating from version 1.x to version 2.x
-
-The primary change between version 1 and version 2 of the extension is supporting workspaces with multiple Relay projects. If you previously weren't using the `relay.rootDirectory`, `relay.pathToConfig` or `relay.autoStartCompiler` options, no migration is necessary. If you were using these options the extension will keep working, but you should migrate to the `relay.projects` configuration.
-
-Before:
-
-```
-"relay.rootDirectory": "apps/client/",
-"relay.pathToConfig": "apps/client/config",
-"relay.autoStartCompiler": true,
-```
-
-After:
-
-```
-"relay.projects": [{
-  "name": "Client App",
-  "rootDirectory: "apps/client/",
-  "pathToConfig": "config",
-  "autoStartCompiler": true
-}]
-```
-
->>>>>>> Stashed changes
 ## Credits
 
 - [GraphQL Syntax](https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql-syntax) All of the GraphQL syntax highlighting is supported by this extension.

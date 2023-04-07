@@ -27,10 +27,17 @@ export function getConfig(scope?: ConfigurationScope): Config {
   // If a user has the 'pathToConfig' and 'rootDirectory' settings set, but doesn't have
   // the 'projects' config set, we just map those values into a project config to make downstream
   // code easier to reason about. This basically makes the internals of the
-  let projects = configuration.get<RelayProjectConfig[] | null | undefined>('projects');
-  const pathToConfig = configuration.get<string | null | undefined>('pathToConfig');
-  const rootDirectory = configuration.get<string | null | undefined>('rootDirectory');
-  const autoStartCompiler = configuration.get<boolean | null | undefined>('autoStartCompiler') ?? false;
+  let projects = configuration.get<RelayProjectConfig[] | null | undefined>(
+    'projects',
+  );
+  const pathToConfig = configuration.get<string | null | undefined>(
+    'pathToConfig',
+  );
+  const rootDirectory = configuration.get<string | null | undefined>(
+    'rootDirectory',
+  );
+  const autoStartCompiler =
+    configuration.get<boolean | null | undefined>('autoStartCompiler') ?? false;
   if (!Array.isArray(projects) && (pathToConfig || rootDirectory)) {
     projects = [
       {
@@ -47,10 +54,15 @@ export function getConfig(scope?: ConfigurationScope): Config {
     compilerOutputLevel: configuration.get('compilerOutputLevel') ?? 'info',
     lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errros',
     // Make sure the autoStartCompiler setting is explicitly set to a boolean either from the project config or the global setting
-    projects: projects ? projects.map(project => ({
-      ...project,
-      autoStartCompiler: typeof project.autoStartCompiler === 'boolean' ? project.autoStartCompiler : autoStartCompiler
-    })) : null,
+    projects: projects
+      ? projects.map(project => ({
+          ...project,
+          autoStartCompiler:
+            typeof project.autoStartCompiler === 'boolean'
+              ? project.autoStartCompiler
+              : autoStartCompiler,
+        }))
+      : null,
   };
 
   console.log(finalConfig);

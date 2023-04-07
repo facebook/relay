@@ -20,6 +20,7 @@ export type RelayProject = {
   binaryExecutionOptions: BinaryExecutionOptions;
   compilerTerminal: Terminal | null;
   lspOutputChannel: OutputChannel;
+  autoStartCompiler: boolean;
 };
 
 // Mutable object to pass around to command handlers so they

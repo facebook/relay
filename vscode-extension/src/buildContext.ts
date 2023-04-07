@@ -51,6 +51,7 @@ export async function buildRelayExtensionContext(
       rootDirectory: null,
       extensionContext,
       projectLog: relayLog,
+      autoStartCompiler: false
     });
 
     if (project) {
@@ -82,6 +83,7 @@ type BuildRelayProjectArgs = {
   rootDirectory: string | null;
   pathToConfig: string | null;
   extensionContext: ExtensionContext;
+  autoStartCompiler: boolean;
   projectLog: (message: string) => void;
 };
 
@@ -91,6 +93,7 @@ async function buildRelayProject({
   rootDirectory,
   extensionContext,
   projectLog,
+  autoStartCompiler
 }: BuildRelayProjectArgs): Promise<RelayProject | null> {
   let rootPath = workspace.rootPath || process.cwd();
   if (rootDirectory) {
@@ -110,6 +113,7 @@ async function buildRelayProject({
       name,
       compilerTerminal: null,
       client: null,
+      autoStartCompiler,
       binaryExecutionOptions: {
         rootPath,
         binaryPath,

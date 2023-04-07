@@ -9,7 +9,6 @@ import {ExtensionContext} from 'vscode';
 import {buildRelayExtensionContext} from './buildContext';
 import {registerCommands} from './commands/register';
 import {createAndStartCompiler} from './compiler';
-import {getConfig} from './config';
 
 import {
   createProjectContextFromExtensionContext,
@@ -34,26 +33,24 @@ export async function activate(extensionContext: ExtensionContext) {
 }
 
 function startProjects(context: RelayExtensionContext): void {
-  const config = getConfig();
-
-  if (!config.autoStartCompiler) {
-    context.log(
-      [
-        'Not starting the Relay Compiler.',
-        'Please enable relay.autoStartCompiler in your settings if you want the compiler to start when you open your project.',
-      ].join(' '),
-    );
-  }
-
   Object.values(context.projects).forEach(project => {
     const projectContext = createProjectContextFromExtensionContext(
       context,
       project,
     );
 
+    if (!project.autoStartCompiler) {
+      context.log(
+        [
+          `Not starting the Relay Compiler for the '${project.name}' project.`,
+          'Please enable {project}.autoStartCompiler in your settings if you want the compiler to start when you open this project.',
+        ].join(' '),
+      );
+    }
+
     createAndStartLanguageClient(projectContext);
 
-    if (config.autoStartCompiler) {
+    if (project.autoStartCompiler) {
       createAndStartCompiler(projectContext);
     }
   });

@@ -10,7 +10,8 @@ import {ConfigurationScope, workspace} from 'vscode';
 export type RelayProjectConfig = {
   name: string;
   pathToConfig: string | null;
-  rootDirectory: string;
+  rootDirectory: string | null;
+  autoStartCompiler: boolean;
 };
 
 export type Config = {
@@ -18,36 +19,41 @@ export type Config = {
   pathToRelay: string | null;
   lspOutputLevel: string;
   compilerOutputLevel: string;
-  autoStartCompiler: boolean;
 };
 
 export function getConfig(scope?: ConfigurationScope): Config {
   const configuration = workspace.getConfiguration('relay', scope);
 
-  // Support backward compatibility for existing configs. If a user has the 'pathToConfig'
-  // and 'rootDirectory' settings set, but doesn't have the 'projects' config set, map
-  // those values over to the new expected config.
-  let projects: RelayProjectConfig[] | null | undefined =
-    configuration.get('projects');
-  const pathToConfig: string | null | undefined =
-    configuration.get('pathToConfig');
-  const rootDirectory: string | null | undefined =
-    configuration.get('rootDirectory');
-  if (!Array.isArray(projects) && pathToConfig && rootDirectory) {
+  // If a user has the 'pathToConfig' and 'rootDirectory' settings set, but doesn't have
+  // the 'projects' config set, we just map those values into a project config to make downstream
+  // code easier to reason about. This basically makes the internals of the
+  let projects = configuration.get<RelayProjectConfig[] | null | undefined>('projects');
+  const pathToConfig = configuration.get<string | null | undefined>('pathToConfig');
+  const rootDirectory = configuration.get<string | null | undefined>('rootDirectory');
+  const autoStartCompiler = configuration.get<boolean | null | undefined>('autoStartCompiler') ?? false;
+  if (!Array.isArray(projects) && (pathToConfig || rootDirectory)) {
     projects = [
       {
         name: 'default',
-        pathToConfig,
-        rootDirectory,
+        pathToConfig: pathToConfig ?? null,
+        rootDirectory: rootDirectory ?? null,
+        autoStartCompiler: Boolean(autoStartCompiler),
       },
     ];
   }
 
-  return {
-    projects: projects ?? null,
+  const finalConfig: Config = {
     pathToRelay: configuration.get('pathToRelay') ?? null,
-    autoStartCompiler: configuration.get('autoStartCompiler') ?? false,
     compilerOutputLevel: configuration.get('compilerOutputLevel') ?? 'info',
     lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errros',
+    // Make sure the autoStartCompiler setting is explicitly set to a boolean either from the project config or the global setting
+    projects: projects ? projects.map(project => ({
+      ...project,
+      autoStartCompiler: typeof project.autoStartCompiler === 'boolean' ? project.autoStartCompiler : autoStartCompiler
+    })) : null,
   };
+
+  console.log(finalConfig);
+
+  return finalConfig;
 }

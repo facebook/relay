@@ -6,7 +6,6 @@
  */
 
 import {createAndStartCompiler, killCompiler} from '../compiler';
-import {getConfig} from '../config';
 import {
   createProjectContextFromExtensionContext,
   RelayExtensionContext,
@@ -19,8 +18,6 @@ import {
 export function handleRestartLanguageServerCommand(
   context: RelayExtensionContext,
 ): void {
-  const config = getConfig();
-
   Object.values(context.projects).forEach(project => {
     const projectContext = createProjectContextFromExtensionContext(
       context,
@@ -29,7 +26,7 @@ export function handleRestartLanguageServerCommand(
 
     // Was the relay compiler running? Should we auto start it based on their config?
     const shouldRestartCompiler =
-      Boolean(project.compilerTerminal) || config.autoStartCompiler;
+      Boolean(project.compilerTerminal) || project.autoStartCompiler;
 
     const compilerKilledSuccessfully = killCompiler(projectContext);
 

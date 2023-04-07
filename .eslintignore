@@ -11,3 +11,4 @@ website-prototyping-tools/node_modules
 *.md
 src/flow/
 packages/relay-flight-experimental/
+vscode-extension

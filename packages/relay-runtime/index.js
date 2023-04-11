@@ -43,6 +43,7 @@ const RelayModernRecord = require('./store/RelayModernRecord');
 const RelayModernSelector = require('./store/RelayModernSelector');
 const RelayModernStore = require('./store/RelayModernStore');
 const RelayOperationTracker = require('./store/RelayOperationTracker');
+const RelayOptimisticRecordSource = require('./store/RelayOptimisticRecordSource');
 const RelayRecordSource = require('./store/RelayRecordSource');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
 const ResolverFragments = require('./store/ResolverFragments');
@@ -363,6 +364,7 @@ module.exports = {
   __internal: {
     ResolverFragments,
     OperationTracker: RelayOperationTracker,
+    OptimisticRecordSource: RelayOptimisticRecordSource,
     createRelayContext: createRelayContext,
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,

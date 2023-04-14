@@ -16,9 +16,11 @@ import type {FragmentType} from '../RelayStoreTypes';
 const {readFragment} = require('../ResolverFragments');
 const invariant = require('invariant');
 
+type ResolverFn = ($FlowFixMe, ?$FlowFixMe) => mixed;
+
 /**
  *
- * This a High order function that returns a relay resolver that can read the data for
+ * This a higher order function that returns a relay resolver that can read the data for
  * the fragment`.
  *
  * - fragment: contains fragment Reader AST with resolver's data dependencies.
@@ -28,16 +30,15 @@ const invariant = require('invariant');
  * This will not call the `resolverFn` if the fragment data for it is null/undefined.
  * The the compiler generates calls to this function, ensuring the correct set of arguments.
  */
-function resolverDataInjector<
-  TFragmentType: FragmentType,
-  TData: ?{...},
-  TResolverFn: ($FlowFixMe, ?$FlowFixMe) => mixed,
->(
+function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
   fragment: Fragment<TFragmentType, TData>,
-  resolverFn: TResolverFn,
+  // Resolvers have their own type assertions, we don't want to confuse users
+  // with a type error in their generated code at this point.
+  _resolverFn: $FlowFixMe,
   fieldName?: string,
   isRequiredField?: boolean,
 ): (fragmentKey: TFragmentType, args: mixed) => mixed {
+  const resolverFn: ResolverFn = _resolverFn;
   return (fragmentKey: TFragmentType, args: mixed): mixed => {
     const data = readFragment(fragment, fragmentKey);
     if (fieldName != null) {

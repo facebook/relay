@@ -205,7 +205,7 @@ cd your-app-name
 yarn start
 ```
 
-If it works, your app will open at [localhost:3000](http://localhost:3000). Now when we write GraphQL in our app, Relay will detect it and generate code to represent our queries in `your-app-name/src/__generated__/`. We recommend checking in these generated files to source control.
+If it works, your app will open at [localhost:3000](http://localhost:3000). Now when we write GraphQL in our app, Relay will detect it and generate code to represent our queries in `your-app-name/src/__generated__/`.
 
 ### 4.2 Configure Relay Runtime
 

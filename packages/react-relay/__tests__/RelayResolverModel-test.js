@@ -31,6 +31,7 @@ const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   addTodo,
+  changeDescription,
   completeTodo,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
@@ -277,6 +278,41 @@ describe.each([
       jest.runAllImmediates();
     });
     expect(renderer.toJSON()).toEqual('Test todo - green');
+  });
+
+  test('read a field with arguments', () => {
+    function TodoComponentWithFieldWithArgumentsComponent(props: {
+      todoID: string,
+    }) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestFieldWithArgumentsQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              fancy_description {
+                text_with_prefix(prefix: "[x]")
+              }
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      return data?.todo_model?.fancy_description?.text_with_prefix;
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithFieldWithArgumentsComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('[x] Test todo');
+
+    TestRenderer.act(() => {
+      changeDescription('todo-1', 'Changed todo description text');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual('[x] Changed todo description text');
   });
 
   test('read interface field', () => {

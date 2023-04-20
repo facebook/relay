@@ -66,14 +66,14 @@ const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-export type Props = {
+export type Props = $ReadOnly<{
   cacheConfig?: ?CacheConfig,
   fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps<Object>) => React.Node,
   variables: Variables,
-};
+}>;
 
 type State = {
   error: Error | null,

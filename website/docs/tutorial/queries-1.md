@@ -83,7 +83,7 @@ Now that we’ve defined the query, we need to do two things.
 1. Run relay compiler so that it knows aboout the new Graphql query. [npm run relay.] 
 2. Modify our React component to fetch it and to use the data returned by the server.
 
-If you open package.json you will find the script relays is hooked up to run the relay-compiler. This is what npm run relay does. Once the compiler successfully updates/generated the new compiled query you will be able to find it in the __generated__ folder under src/components/ as NewsfeedQuery.graphql.ts. This project comes with precomputed fragments, so unless you do this step, you will not get the desired results.
+If you open package.json you will find the script `relay` is hooked up to run the relay-compiler. This is what npm run relay does. Once the compiler successfully updates/generated the new compiled query you will be able to find it in the __generated__ folder under src/components/ as NewsfeedQuery.graphql.ts. This project comes with precomputed fragments, so unless you do this step, you will not get the desired results.
 
 Next, Turn back to the `Newsfeed` component and start by deleting the placeholder data. Then replace it with this:
 

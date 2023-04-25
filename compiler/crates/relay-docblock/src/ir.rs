@@ -665,12 +665,12 @@ impl ResolverIr for TerseRelayResolverIr {
         object: Option<&Object>,
         _: SchemaInfo<'_, '_>,
     ) -> Option<RootFragment> {
-        get_root_fragment_for_object(object).or_else(|| {
-            self.root_fragment.map(|fragment| RootFragment {
+        self.root_fragment
+            .map(|fragment| RootFragment {
                 fragment,
                 inject_fragment_data: None,
             })
-        })
+            .or_else(|| get_root_fragment_for_object(object))
     }
 
     fn output_type(&self) -> Option<OutputType> {
@@ -1320,6 +1320,7 @@ fn dummy_token(span: Span) -> Token {
     }
 }
 
+// Here
 fn get_root_fragment_for_object(object: Option<&Object>) -> Option<RootFragment> {
     if object?
         .directives

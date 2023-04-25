@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8c829590b9a20caf63439cd36a113237>>
+ * @generated SignedSource<<2e5845b82e759855402d5ec1f62cd56f>>
  */
 
 mod to_schema;
@@ -241,6 +241,13 @@ fn terse_relay_resolver_with_output_type() {
     let input = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.js");
     let expected = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.expected");
     test_fixture(transform_fixture, "terse-relay-resolver-with-output-type.js", "to_schema/fixtures/terse-relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_with_root_fragment_on_model() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-with-root-fragment-on-model.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-with-root-fragment-on-model.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-with-root-fragment-on-model.js", "to_schema/fixtures/terse-relay-resolver-with-root-fragment-on-model.expected", input, expected);
 }
 
 #[test]

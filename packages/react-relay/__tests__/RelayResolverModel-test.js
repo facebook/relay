@@ -315,6 +315,33 @@ describe.each([
     expect(renderer.toJSON()).toEqual('[x] Changed todo description text');
   });
 
+  test('read a field with its own root fragment', () => {
+    function TodoComponentWithFieldWithRootFragmentComponent(props: {
+      todoID: string,
+    }) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestFieldWithRootFragmentQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              capitalized_id
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      return data?.todo_model?.capitalized_id;
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithFieldWithRootFragmentComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('TODO-1');
+  });
+
   test('read interface field', () => {
     function TodoComponentWithInterfaceComponent(props: {todoID: string}) {
       const data = useClientQuery(

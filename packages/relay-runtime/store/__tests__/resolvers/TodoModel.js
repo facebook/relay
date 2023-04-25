@@ -12,11 +12,14 @@
 'use strict';
 
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
+import type {TodoModelCapitalizedID$key} from './__generated__/TodoModelCapitalizedID.graphql';
 import type {TodoDescription} from './TodoDescription';
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
 
+const {readFragment} = require('../../ResolverFragments');
 const {createTodoDescription} = require('./TodoDescription');
+const {graphql} = require('relay-runtime');
 const {
   Selectors,
   TODO_STORE,
@@ -42,6 +45,24 @@ function TodoModel(id: string): LiveState<?TodoItem> {
  */
 function description(model: ?TodoItem): ?string {
   return model?.description;
+}
+
+/**
+ * @RelayResolver TodoModel.capitalized_id: String
+ * @rootFragment TodoModelCapitalizedID
+ *
+ * A resolver on a model type that reads its own rootFragment
+ */
+function capitalized_id(key: TodoModelCapitalizedID$key): ?string {
+  const todo = readFragment(
+    graphql`
+      fragment TodoModelCapitalizedID on TodoModel {
+        id
+      }
+    `,
+    key,
+  );
+  return todo.id.toUpperCase();
 }
 
 /**
@@ -96,6 +117,7 @@ function live_todo_description(args: {
 }
 
 module.exports = {
+  capitalized_id,
   todo_model_null,
   TodoModel,
   description,

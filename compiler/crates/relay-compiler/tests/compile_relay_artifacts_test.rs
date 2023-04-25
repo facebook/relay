@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ee27cc847ad47c04e69070e0dd743220>>
+ * @generated SignedSource<<f102f3a35dc23f176e3d4b53f6db4c2e>>
  */
 
 mod compile_relay_artifacts;
@@ -1270,6 +1270,13 @@ fn required_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/required-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required-directive.expected");
     test_fixture(transform_fixture, "required-directive.graphql", "compile_relay_artifacts/fixtures/required-directive.expected", input, expected);
+}
+
+#[test]
+fn resolver_with_root_fragment_on_model_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/resolver-with-root-fragment-on-model-type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/resolver-with-root-fragment-on-model-type.expected");
+    test_fixture(transform_fixture, "resolver-with-root-fragment-on-model-type.graphql", "compile_relay_artifacts/fixtures/resolver-with-root-fragment-on-model-type.expected", input, expected);
 }
 
 #[test]

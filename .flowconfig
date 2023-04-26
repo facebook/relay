@@ -29,8 +29,6 @@ suppress_type=$FlowExpectedError
 
 format.bracket_spacing=false
 
-experimental.abstract_locations=true
-
 [lints]
 untyped-type-import=error
 

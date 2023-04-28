@@ -136,10 +136,7 @@ class RelayModernEnvironment implements IEnvironment {
     this.requiredFieldLogger =
       config.requiredFieldLogger ?? defaultRequiredFieldLogger;
     this._defaultRenderPolicy =
-      config.UNSTABLE_defaultRenderPolicy ??
-      RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
-        ? 'partial'
-        : 'full';
+      config.UNSTABLE_defaultRenderPolicy ?? 'partial';
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
     this._network = wrapNetworkWithLogObserver(this, config.network);

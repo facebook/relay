@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<52d85aefbf1fda64034aa8843a96b49d>>
+ * @generated SignedSource<<c20008771d6d4306849f7999e985bb9b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -112,7 +112,7 @@ return {
               "kind": "RelayResolver",
               "name": "capitalized_id",
               "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id,
-              "path": "capitalized_id"
+              "path": "todo_model.capitalized_id"
             }
           ],
           "storageKey": null

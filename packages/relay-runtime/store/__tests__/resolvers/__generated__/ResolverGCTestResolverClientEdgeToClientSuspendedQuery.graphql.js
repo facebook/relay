@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5adf3b6239e3a00c98a2127e00a4ec6a>>
+ * @generated SignedSource<<74acc9bd540b801bc701b63ff92c5059>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -103,7 +103,7 @@ return {
               "kind": "RelayResolver",
               "name": "name",
               "resolverModule": require('./../AstrologicalSignNameResolver').name,
-              "path": "name"
+              "path": "virgo_suspends_when_counter_is_odd.name"
             }
           ],
           "storageKey": null

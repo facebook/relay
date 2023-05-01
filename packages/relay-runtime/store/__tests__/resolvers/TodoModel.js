@@ -13,6 +13,7 @@
 
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 import type {TodoModelCapitalizedID$key} from './__generated__/TodoModelCapitalizedID.graphql';
+import type {TodoModelCapitalizedIDLegacy$key} from './__generated__/TodoModelCapitalizedIDLegacy.graphql';
 import type {TodoDescription} from './TodoDescription';
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
@@ -57,6 +58,26 @@ function capitalized_id(key: TodoModelCapitalizedID$key): ?string {
   const todo = readFragment(
     graphql`
       fragment TodoModelCapitalizedID on TodoModel {
+        id
+      }
+    `,
+    key,
+  );
+  return todo.id.toUpperCase();
+}
+
+/**
+ * @RelayResolver
+ * @fieldName capitalized_id_legacy
+ * @onType TodoModel
+ * @rootFragment TodoModelCapitalizedIDLegacy
+ *
+ * Like `capitalized_id`, but implemented using the non-terse legacy syntax
+ */
+function capitalized_id_legacy(key: TodoModelCapitalizedIDLegacy$key): ?string {
+  const todo = readFragment(
+    graphql`
+      fragment TodoModelCapitalizedIDLegacy on TodoModel {
         id
       }
     `,
@@ -118,6 +139,7 @@ function live_todo_description(args: {
 
 module.exports = {
   capitalized_id,
+  capitalized_id_legacy,
   todo_model_null,
   TodoModel,
   description,

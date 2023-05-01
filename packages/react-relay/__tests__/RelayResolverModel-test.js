@@ -342,6 +342,35 @@ describe.each([
     expect(renderer.toJSON()).toEqual('TODO-1');
   });
 
+  test('read a field with its own root fragment defined using legacy non-terse syntax', () => {
+    function TodoComponentWithFieldWithRootFragmentComponent(props: {
+      todoID: string,
+    }) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestFieldWithRootFragmentLegacyQuery(
+            $id: ID!
+          ) {
+            todo_model(todoID: $id) {
+              capitalized_id_legacy
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      return data?.todo_model?.capitalized_id_legacy;
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithFieldWithRootFragmentComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('TODO-1');
+  });
+
   test('read interface field', () => {
     function TodoComponentWithInterfaceComponent(props: {todoID: string}) {
       const data = useClientQuery(

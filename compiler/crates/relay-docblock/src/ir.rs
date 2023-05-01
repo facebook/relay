@@ -1320,7 +1320,6 @@ fn dummy_token(span: Span) -> Token {
     }
 }
 
-// Here
 fn get_root_fragment_for_object(object: Option<&Object>) -> Option<RootFragment> {
     if object?
         .directives

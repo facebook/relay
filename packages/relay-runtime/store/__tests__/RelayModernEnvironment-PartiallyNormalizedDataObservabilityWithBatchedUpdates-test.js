@@ -341,6 +341,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
     promise = new Promise(_resolve => (resolve = _resolve));
     operationLoader = {
       // $FlowFixMe[incompatible-type-arg] Error found while enabling LTI on this file
+      // $FlowFixMe[prop-missing]
       load: () => promise,
       get: jest.fn(),
     };

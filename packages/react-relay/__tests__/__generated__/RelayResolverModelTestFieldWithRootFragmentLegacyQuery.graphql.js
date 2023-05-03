@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c20008771d6d4306849f7999e985bb9b>>
+ * @generated SignedSource<<edf362573f261e6b20c9e7a0eb37495a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
-import type { TodoModelCapitalizedID$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModelCapitalizedID.graphql";
+import type { TodoModelCapitalizedIDLegacy$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModelCapitalizedIDLegacy.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -30,23 +30,23 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
 ) => ?{|
   +id: DataID,
 |});
-import {capitalized_id as todoModelCapitalizedIdResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
-// Type assertion validating that `todoModelCapitalizedIdResolverType` resolver is correctly implemented.
+import {capitalized_id_legacy as todoModelCapitalizedIdLegacyResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
+// Type assertion validating that `todoModelCapitalizedIdLegacyResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelCapitalizedIdResolverType: (
-  rootKey: TodoModelCapitalizedID$key,
-) => ?string);
-export type RelayResolverModelTestFieldWithRootFragmentQuery$variables = {|
+(todoModelCapitalizedIdLegacyResolverType: (
+  rootKey: TodoModelCapitalizedIDLegacy$key,
+) => mixed);
+export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables = {|
   id: string,
 |};
-export type RelayResolverModelTestFieldWithRootFragmentQuery$data = {|
+export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data = {|
   +todo_model: ?{|
-    +capitalized_id: ?string,
+    +capitalized_id_legacy: ?$Call<<R>((...empty[]) => R) => R, typeof todoModelCapitalizedIdLegacyResolverType>,
   |},
 |};
-export type RelayResolverModelTestFieldWithRootFragmentQuery = {|
-  response: RelayResolverModelTestFieldWithRootFragmentQuery$data,
-  variables: RelayResolverModelTestFieldWithRootFragmentQuery$variables,
+export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery = {|
+  response: RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data,
+  variables: RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables,
 |};
 */
 
@@ -79,7 +79,7 @@ return {
     "metadata": {
       "hasClientEdges": true
     },
-    "name": "RelayResolverModelTestFieldWithRootFragmentQuery",
+    "name": "RelayResolverModelTestFieldWithRootFragmentLegacyQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -107,12 +107,12 @@ return {
               "fragment": {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "TodoModelCapitalizedID"
+                "name": "TodoModelCapitalizedIDLegacy"
               },
               "kind": "RelayResolver",
-              "name": "capitalized_id",
-              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id,
-              "path": "todo_model.capitalized_id"
+              "name": "capitalized_id_legacy",
+              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id_legacy,
+              "path": "todo_model.capitalized_id_legacy"
             }
           ],
           "storageKey": null
@@ -126,7 +126,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "RelayResolverModelTestFieldWithRootFragmentQuery",
+    "name": "RelayResolverModelTestFieldWithRootFragmentLegacyQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -147,7 +147,7 @@ return {
           "plural": false,
           "selections": [
             {
-              "name": "capitalized_id",
+              "name": "capitalized_id_legacy",
               "args": null,
               "fragment": {
                 "kind": "InlineFragment",
@@ -159,7 +159,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": true
+              "isOutputType": false
             },
             (v2/*: any*/)
           ],
@@ -169,10 +169,10 @@ return {
     ]
   },
   "params": {
-    "cacheID": "2fb513931cd5c8f2e4c1ec5a01ed6081",
+    "cacheID": "f3f20658365422d00657b857562271d6",
     "id": null,
     "metadata": {},
-    "name": "RelayResolverModelTestFieldWithRootFragmentQuery",
+    "name": "RelayResolverModelTestFieldWithRootFragmentLegacyQuery",
     "operationKind": "query",
     "text": null
   }
@@ -180,10 +180,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "63d4f2846eb83fcbc57a5ce5abea136b";
+  (node/*: any*/).hash = "6f12681d0454d3c2f6c9ecf245085a85";
 }
 
 module.exports = ((node/*: any*/)/*: ClientQuery<
-  RelayResolverModelTestFieldWithRootFragmentQuery$variables,
-  RelayResolverModelTestFieldWithRootFragmentQuery$data,
+  RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables,
+  RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data,
 >*/);

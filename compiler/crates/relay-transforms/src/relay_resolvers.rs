@@ -575,11 +575,17 @@ impl Transformer for RelayResolverFieldTransform<'_> {
                     .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
+                let field_name = client_edge_metadata
+                    .linked_field
+                    .alias_or_name(&self.program.schema);
+
+                self.path.push(field_name.lookup());
                 let selections_field = self
                     .default_transform_linked_field(client_edge_metadata.linked_field)
                     .unwrap_or_else(|| {
                         Selection::LinkedField(Arc::new(client_edge_metadata.linked_field.clone()))
                     });
+                self.path.pop();
 
                 let selections = vec![backing_id_field, selections_field];
 

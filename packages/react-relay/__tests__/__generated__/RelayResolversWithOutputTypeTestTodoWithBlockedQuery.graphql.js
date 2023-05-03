@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7f89eba01d5fcdaff6b15a832d0496b1>>
+ * @generated SignedSource<<988c66ae7bbf9606e18c220b403a2af6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -144,7 +144,7 @@ return {
                 "kind": "RelayResolver",
                 "name": "blocked_by",
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
-                "path": "blocked_by",
+                "path": "todo.blocked_by",
                 "normalizationInfo": {
                   "concreteType": "Todo",
                   "plural": true,

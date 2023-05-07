@@ -119,7 +119,7 @@ export type SubscribeFunction = (
 ) => RelayObservable<GraphQLResponse>;
 
 export type Uploadable = File | Blob;
-export type UploadableMap = {[key: string]: Uploadable};
+export type UploadableMap = {[key: string]: Uploadable  | Array<Uploadable>};
 
 /**
  * React Flight tree created on the server.

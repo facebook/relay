@@ -346,6 +346,34 @@ describe.each([
     expect(renderer.toJSON()).toEqual('NULL!');
   });
 
+  // Ensure we don't:
+  // 1. Wrap a suspense value coming from a @weak model resolver
+  // 2. Don't try to normalize a suspense sentinel as a model value
+  test('@weak model client edge suspends', () => {
+    function TodoComponentWithNullWeakClientEdge(props: {todoID: string}) {
+      useClientQuery(
+        graphql`
+          query RelayResolverModelTestSuspendedWeakClientEdgeQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              fancy_description_suspends {
+                text_with_prefix(prefix: "[x]")
+              }
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      invariant(false, 'Expected to suspend.');
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithNullWeakClientEdge todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('Loading...');
+  });
+
   test('read a field with its own root fragment', () => {
     function TodoComponentWithFieldWithRootFragmentComponent(props: {
       todoID: string,

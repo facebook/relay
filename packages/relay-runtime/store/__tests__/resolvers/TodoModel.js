@@ -11,12 +11,12 @@
 
 'use strict';
 
-import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 import type {TodoModelCapitalizedID$key} from './__generated__/TodoModelCapitalizedID.graphql';
 import type {TodoModelCapitalizedIDLegacy$key} from './__generated__/TodoModelCapitalizedIDLegacy.graphql';
 import type {TodoDescription} from './TodoDescription';
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {readFragment} = require('../../ResolverFragments');
 const {createTodoDescription} = require('./TodoDescription');
@@ -25,6 +25,9 @@ const {
   Selectors,
   TODO_STORE,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 
 /**
  * @RelayResolver TodoModel
@@ -104,6 +107,23 @@ function fancy_description_null(model: ?TodoItem): ?TodoDescription {
 }
 
 /**
+ * @RelayResolver TodoModel.fancy_description_suspends: TodoDescription
+ * @live
+ */
+function fancy_description_suspends(
+  model: ?TodoItem,
+): LiveState<TodoDescription> {
+  return {
+    read() {
+      return suspenseSentinel();
+    },
+    subscribe() {
+      return () => {};
+    },
+  };
+}
+
+/**
  * @RelayResolver TodoModel.many_fancy_descriptions: [TodoDescription]
  */
 function many_fancy_descriptions(
@@ -152,6 +172,7 @@ module.exports = {
   description,
   fancy_description,
   fancy_description_null,
+  fancy_description_suspends,
   many_fancy_descriptions,
   live_todo_description,
 };

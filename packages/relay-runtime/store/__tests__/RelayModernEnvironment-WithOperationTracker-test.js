@@ -12,6 +12,7 @@
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
@@ -385,7 +386,7 @@ describe.each([true, false])(
       invariant(tracker != null, 'Tracker should be defined');
       environment.execute({operation: QueryOperation1}).subscribe({});
 
-      const query1Subscription = jest.fn();
+      const query1Subscription = jest.fn<[Snapshot], void>();
 
       environment.subscribe(
         environment.lookup(QueryOperation1.fragment),
@@ -446,7 +447,7 @@ describe.each([true, false])(
       invariant(tracker != null, 'Tracker should be defined');
       environment.execute({operation: QueryOperation1}).subscribe({});
 
-      const query1Subscription = jest.fn();
+      const query1Subscription = jest.fn<[Snapshot], void>();
 
       environment.subscribe(
         environment.lookup(QueryOperation1.fragment),

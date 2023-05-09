@@ -10,7 +10,7 @@
  */
 
 'use strict';
-import type {Snapshot} from '../../RelayStoreTypes';
+import type {LogEvent, Snapshot} from '../../RelayStoreTypes';
 
 const {
   live_external_greeting: LiveExternalGreeting,
@@ -150,7 +150,7 @@ test('Updates can be batched', () => {
     `,
     {},
   );
-  const log = jest.fn();
+  const log = jest.fn<[LogEvent], void>();
   const store = new LiveResolverStore(source, {
     gcReleaseBufferSize: 0,
     log,
@@ -163,7 +163,9 @@ test('Updates can be batched', () => {
 
   function getBatchLogEventNames(): string[] {
     return log.mock.calls
-      .map(log => log[0].name)
+      .map(log => {
+        return (log[0].name: string);
+      })
       .filter(name => {
         return name.startsWith('liveresolver.batch');
       });

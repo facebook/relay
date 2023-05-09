@@ -13,7 +13,7 @@
 
 import type {LogEvent} from '../../RelayStoreTypes';
 
-export opaque type TodoID = string;
+export opaque type TodoID: string = string;
 
 export type TodoItem = {
   todoID: TodoID,

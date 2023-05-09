@@ -156,7 +156,7 @@ fn find_base_resolver_fragment_asts(
 ) -> Vec<ExecutableDefinition> {
     let mut base_resolver_fragments = ExecutableDefinitionNameSet::default();
     for field in schema.fields() {
-        if let Some(fragment_name) = get_resolver_fragment_dependency_name(field, schema) {
+        if let Some(fragment_name) = get_resolver_fragment_dependency_name(field) {
             if base_definition_asts.contains(&fragment_name.into()) {
                 base_resolver_fragments.insert(fragment_name.into());
             }

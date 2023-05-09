@@ -31,6 +31,8 @@ lazy_static! {
     pub static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
     pub static ref INJECT_FRAGMENT_DATA_ARGUMENT_NAME: ArgumentName =
         ArgumentName("inject_fragment_data".intern());
+    pub static ref GENERATED_FRAGMENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("generated_fragment".intern());
     pub static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
     pub static ref ON_TYPE_FIELD: StringKey = "onType".intern();
     pub static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();

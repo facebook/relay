@@ -16,6 +16,7 @@ import type {RelayResolverModelTestFragment$key} from './__generated__/RelayReso
 import type {RelayResolverModelTestInterfaceFragment$key} from './__generated__/RelayResolverModelTestInterfaceFragment.graphql';
 import type {RelayResolverModelTestWithPluralFragment$key} from './__generated__/RelayResolverModelTestWithPluralFragment.graphql';
 
+const invariant = require('invariant');
 const React = require('react');
 const {
   RelayEnvironmentProvider,
@@ -313,6 +314,36 @@ describe.each([
       jest.runAllImmediates();
     });
     expect(renderer.toJSON()).toEqual('[x] Changed todo description text');
+  });
+
+  // If a resolver that returns a weak model returns null, that should result in
+  // the edge beign null, not just the model field.
+  test('@weak model client edge returns null', () => {
+    function TodoComponentWithNullWeakClientEdge(props: {todoID: string}) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestNullWeakClientEdgeQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              fancy_description_null {
+                text_with_prefix(prefix: "[x]")
+              }
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      invariant(data.todo_model != null, 'Expected todo model to be defiend.');
+      return data.todo_model.fancy_description_null == null
+        ? 'NULL!'
+        : 'NOT NULL!';
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithNullWeakClientEdge todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('NULL!');
   });
 
   test('read a field with its own root fragment', () => {

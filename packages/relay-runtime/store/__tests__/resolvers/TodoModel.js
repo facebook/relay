@@ -97,6 +97,13 @@ function fancy_description(model: ?TodoItem): ?TodoDescription {
 }
 
 /**
+ * @RelayResolver TodoModel.fancy_description_null: TodoDescription
+ */
+function fancy_description_null(model: ?TodoItem): ?TodoDescription {
+  return null;
+}
+
+/**
  * @RelayResolver TodoModel.many_fancy_descriptions: [TodoDescription]
  */
 function many_fancy_descriptions(
@@ -144,6 +151,7 @@ module.exports = {
   TodoModel,
   description,
   fancy_description,
+  fancy_description_null,
   many_fancy_descriptions,
   live_todo_description,
 };

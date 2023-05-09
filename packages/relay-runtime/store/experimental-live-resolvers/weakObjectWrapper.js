@@ -52,6 +52,9 @@ function weakObjectWrapper<TKey, TArgs>(
 ): (key: TKey, args?: TArgs) => mixed {
   return (...args) => {
     const data = resolverFn.apply(null, args);
+    if (data == null) {
+      return data;
+    }
     if (isPlural) {
       invariant(
         Array.isArray(data),

@@ -55,7 +55,6 @@ const RelayObservable = require('../network/RelayObservable');
 const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const defaultGetDataID = require('./defaultGetDataID');
 const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
 const OperationExecutor = require('./OperationExecutor');

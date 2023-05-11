@@ -173,7 +173,7 @@ describe('ReactRelayQueryRenderer', () => {
 
           // Flush some of the changes, but don't commit
           Scheduler.unstable_flushNumberOfYields(2);
-          expect(Scheduler.unstable_clearYields()).toEqual(['A', 'B']);
+          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,

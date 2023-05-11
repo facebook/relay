@@ -200,9 +200,7 @@ describe.each([
       // Set up mocks
       jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
       jest.mock('warning');
-      jest.mock('scheduler', () =>
-        jest.requireActual('scheduler/unstable_mock'),
-      );
+      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
       /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
        * enabling Flow LTI mode */
       commitSpy = jest.fn<_, mixed>();

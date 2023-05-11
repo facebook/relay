@@ -347,7 +347,7 @@ describe('useQueryLoader', () => {
   });
 
   beforeEach(() => {
-    jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+    jest.mock('scheduler');
   });
 
   afterEach(() => {

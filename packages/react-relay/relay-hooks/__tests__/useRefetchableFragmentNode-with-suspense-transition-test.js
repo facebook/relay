@@ -180,9 +180,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       // Set up mocks
       jest.resetModules();
       jest.mock('warning');
-      jest.mock('scheduler', () => {
-        return jest.requireActual('scheduler/unstable_mock');
-      });
+      jest.mock('scheduler');
 
       // Supress `act` warnings since we are intentionally not
       // using it for most tests here. `act` currently always

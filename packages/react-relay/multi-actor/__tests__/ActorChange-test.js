@@ -166,6 +166,7 @@ describe('ActorChange', () => {
   >;
 
   beforeEach(() => {
+    jest.dontMock('scheduler');
     multiActorEnvironment = new MultiActorEnvironment({
       createNetworkForActor: actorIdentifier =>
         Network.create((...args) => fetchFnForActor(actorIdentifier, ...args)),

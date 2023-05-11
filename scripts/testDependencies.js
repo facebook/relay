@@ -22,7 +22,9 @@ if (module.parent) {
   const packagePaths = fs
     .readdirSync(packagesRoot)
     .map(filepath => path.join(packagesRoot, filepath))
-    .filter(filepath => fs.statSync(filepath).isDirectory());
+    .filter(filepath => fs.statSync(filepath).isDirectory())
+    // Filter out __mocks__
+    .filter(filepath => fs.existsSync(path.join(filepath, 'package.json')));
 
   const errors = testDependencies(topLevelPackagePath, packagePaths);
   if (errors.length !== 0) {

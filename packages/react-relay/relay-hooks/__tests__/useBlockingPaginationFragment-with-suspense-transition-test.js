@@ -194,9 +194,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       // Set up mocks
       jest.resetModules();
       jest.mock('warning');
-      jest.mock('scheduler', () => {
-        return jest.requireActual('scheduler/unstable_mock');
-      });
+      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
 
       // Supress `act` warnings since we are intentionally not
       // using it for most tests here. `act` currently always

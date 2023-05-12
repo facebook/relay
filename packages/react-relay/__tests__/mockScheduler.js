@@ -12,9 +12,8 @@
 const invariant = require('invariant');
 const Scheduler = require('scheduler/unstable_mock');
 
-// The version of scheduler we get internally is always the latest. However, on
-// GitHub we get the version is a transitive dependency from
-// `react-test-renderer`.
+// The version of scheduler we get internally is always the latest. However, the
+// version we get on GitHub is a transitive dependency from `react-test-renderer`.
 //
 // Some methods in the unstable_mock have been renamed between these two
 // versions. This mock file provides a centralized place to reconcile those

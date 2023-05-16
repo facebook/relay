@@ -237,9 +237,7 @@ describe.each([
     }
 
     beforeEach(() => {
-      jest.mock('scheduler', () => {
-        return jest.requireActual('scheduler/unstable_mock');
-      });
+      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
       commitSpy = jest.fn<any | [any], mixed>();
       renderSpy = jest.fn<[any], mixed>();
 

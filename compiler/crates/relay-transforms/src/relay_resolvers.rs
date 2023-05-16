@@ -14,13 +14,13 @@ use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
+use docblock_shared::GENERATED_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
 use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
 use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
-use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -575,11 +575,17 @@ impl Transformer for RelayResolverFieldTransform<'_> {
                     .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
+                let field_name = client_edge_metadata
+                    .linked_field
+                    .alias_or_name(&self.program.schema);
+
+                self.path.push(field_name.lookup());
                 let selections_field = self
                     .default_transform_linked_field(client_edge_metadata.linked_field)
                     .unwrap_or_else(|| {
                         Selection::LinkedField(Arc::new(client_edge_metadata.linked_field.clone()))
                     });
+                self.path.pop();
 
                 let selections = vec![backing_id_field, selections_field];
 
@@ -719,10 +725,7 @@ pub(crate) fn get_bool_argument_is_true(
 
 // If the field is a resolver, return its user defined fragment name. Does not
 // return generated fragment names.
-pub fn get_resolver_fragment_dependency_name(
-    field: &Field,
-    schema: &SDLSchema,
-) -> Option<FragmentDefinitionName> {
+pub fn get_resolver_fragment_dependency_name(field: &Field) -> Option<FragmentDefinitionName> {
     if !field.is_extension {
         return None;
     }
@@ -730,34 +733,20 @@ pub fn get_resolver_fragment_dependency_name(
     field
         .directives
         .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .filter(|resolver_directive| {
+            let generated = resolver_directive
+                .arguments
+                .named(*GENERATED_FRAGMENT_ARGUMENT_NAME)
+                .and_then(|arg| arg.value.get_bool_literal())
+                .unwrap_or(false);
+            !generated
+        })
         .and_then(|resolver_directive| {
             resolver_directive
                 .arguments
                 .named(*FRAGMENT_KEY_ARGUMENT_NAME)
         })
-        .filter(|_| {
-            // Resolvers on relay model types use generated fragments, and
-            // therefore have no user-defined fragment dependency.
-            !is_field_of_relay_model(schema, field)
-        })
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
-}
-
-fn is_field_of_relay_model(schema: &SDLSchema, field: &Field) -> bool {
-    if let Some(parent_type) = field.parent_type {
-        let directives = match parent_type {
-            schema::Type::Object(object_id) => &schema.object(object_id).directives,
-            schema::Type::Interface(interface_id) => &schema.interface(interface_id).directives,
-            schema::Type::Union(union_id) => &schema.union(union_id).directives,
-            _ => panic!("Expected parent to be an object, interface or union."),
-        };
-
-        directives
-            .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
-            .is_some()
-    } else {
-        false
-    }
 }
 
 fn to_camel_case(non_camelized_string: String) -> String {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4c8ae6c8320ef3ba5464f80d8fff1afd>>
+ * @generated SignedSource<<854ac84b500428562e2f3baa3ad4d13b>>
  */
 
 mod client_edges;
@@ -87,6 +87,20 @@ fn nested_client_edges_with_variables() {
     let input = include_str!("client_edges/fixtures/nested-client-edges-with-variables.graphql");
     let expected = include_str!("client_edges/fixtures/nested-client-edges-with-variables.expected");
     test_fixture(transform_fixture, "nested-client-edges-with-variables.graphql", "client_edges/fixtures/nested-client-edges-with-variables.expected", input, expected);
+}
+
+#[test]
+fn nested_path() {
+    let input = include_str!("client_edges/fixtures/nested-path.graphql");
+    let expected = include_str!("client_edges/fixtures/nested-path.expected");
+    test_fixture(transform_fixture, "nested-path.graphql", "client_edges/fixtures/nested-path.expected", input, expected);
+}
+
+#[test]
+fn nested_path_with_alias() {
+    let input = include_str!("client_edges/fixtures/nested-path-with-alias.graphql");
+    let expected = include_str!("client_edges/fixtures/nested-path-with-alias.expected");
+    test_fixture(transform_fixture, "nested-path-with-alias.graphql", "client_edges/fixtures/nested-path-with-alias.expected", input, expected);
 }
 
 #[test]

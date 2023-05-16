@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c973463fca19795ae508004fea0d511e>>
+ * @generated SignedSource<<6d185a788053879d1664d51e00209ef3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -136,7 +136,7 @@ return {
                 "kind": "RelayResolver",
                 "name": "fancy_description",
                 "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', false), '__relay_model_instance', false),
-                "path": "fancy_description",
+                "path": "todo_model.fancy_description",
                 "normalizationInfo": {
                   "concreteType": "TodoDescription",
                   "plural": false,
@@ -162,7 +162,7 @@ return {
                     "kind": "RelayResolver",
                     "name": "text_with_prefix",
                     "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text_with_prefix, '__relay_model_instance', false),
-                    "path": "text_with_prefix"
+                    "path": "todo_model.fancy_description.text_with_prefix"
                   }
                 ],
                 "storageKey": null

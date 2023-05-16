@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<24fa5ee0d2e80d42d10009eafb0c982d>>
+ * @generated SignedSource<<ff3bd5a7cdc39858438274e36f7cafb4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -101,7 +101,7 @@ return {
                 "kind": "RelayResolver",
                 "name": "name",
                 "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
-                "path": "name"
+                "path": "all_astrological_signs.name"
               }
             ],
             "storageKey": null

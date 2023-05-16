@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6e65673ce9a8489063228677cb3a8ba1>>
+ * @generated SignedSource<<298ab823bbc4a50af1d0f85833def4e6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -107,7 +107,7 @@ return {
             "kind": "RelayResolver",
             "name": "text",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', false),
-            "path": "text"
+            "path": "fancy_description.text"
           },
           {
             "alias": null,
@@ -116,7 +116,7 @@ return {
             "kind": "RelayResolver",
             "name": "color",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').color, '__relay_model_instance', false),
-            "path": "color"
+            "path": "fancy_description.color"
           }
         ],
         "storageKey": null

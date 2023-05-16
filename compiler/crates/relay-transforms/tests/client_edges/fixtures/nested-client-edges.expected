@@ -58,7 +58,7 @@ fragment Foo_user on User {
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: None,
-        #     field_path: "best_friend",
+        #     field_path: "best_friend.best_friend",
         #     field_arguments: [],
         #     live: false,
         #     output_type_info: EdgeTo,

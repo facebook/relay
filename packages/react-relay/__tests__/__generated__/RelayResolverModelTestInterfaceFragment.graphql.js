@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2e452547adee3384123090730327ab6b>>
+ * @generated SignedSource<<cb75ca681d8081bebde7e910232afbc1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -135,7 +135,7 @@ return {
               "kind": "RelayResolver",
               "name": "some_interface",
               "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', false),
-              "path": "some_interface",
+              "path": "fancy_description.some_interface",
               "normalizationInfo": {
                 "concreteType": null,
                 "plural": false,
@@ -163,7 +163,7 @@ return {
               "kind": "RelayResolver",
               "name": "some_client_type_with_interface",
               "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_client_type_with_interface, '__relay_model_instance', false),
-              "path": "some_client_type_with_interface",
+              "path": "fancy_description.some_client_type_with_interface",
               "normalizationInfo": {
                 "concreteType": "ClientTypeWithNestedClientInterface",
                 "plural": false,

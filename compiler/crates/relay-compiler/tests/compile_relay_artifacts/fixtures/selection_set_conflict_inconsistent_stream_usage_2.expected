@@ -21,7 +21,7 @@ query selectionSetConflictInconsistentStreamUsage2Query {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Field 'edges' is marked with @stream in multiple places. Please use an alias to distinguish them'
+✖︎ Field 'edges' is marked with @stream in multiple places. Please use an alias to distinguish them.
 
   selection_set_conflict_inconsistent_stream_usage_2.graphql:7:11
     6 │         ... on FriendsConnection {

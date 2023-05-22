@@ -11,3 +11,5 @@ website-prototyping-tools/node_modules
 *.md
 src/flow/
 packages/relay-flight-experimental/
+# The VSCode Extension gets linted with a separate setup
+vscode-extension

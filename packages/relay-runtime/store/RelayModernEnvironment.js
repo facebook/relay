@@ -55,7 +55,6 @@ const RelayObservable = require('../network/RelayObservable');
 const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const defaultGetDataID = require('./defaultGetDataID');
 const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
 const OperationExecutor = require('./OperationExecutor');
@@ -136,10 +135,7 @@ class RelayModernEnvironment implements IEnvironment {
     this.requiredFieldLogger =
       config.requiredFieldLogger ?? defaultRequiredFieldLogger;
     this._defaultRenderPolicy =
-      config.UNSTABLE_defaultRenderPolicy ??
-      RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
-        ? 'partial'
-        : 'full';
+      config.UNSTABLE_defaultRenderPolicy ?? 'partial';
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
     this._network = wrapNetworkWithLogObserver(this, config.network);

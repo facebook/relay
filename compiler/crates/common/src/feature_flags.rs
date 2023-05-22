@@ -55,9 +55,6 @@ pub struct FeatureFlags {
     pub text_artifacts: FeatureFlag,
 
     #[serde(default)]
-    pub enable_client_edges: FeatureFlag,
-
-    #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
 
     /// Enable support for the experimental `@alias` directive on fragment spreads.

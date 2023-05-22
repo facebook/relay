@@ -82,9 +82,7 @@ describe('ReactRelayFragmentContainer', () => {
   }
 
   beforeEach(() => {
-    jest.mock('scheduler', () => {
-      return jest.requireActual('scheduler/unstable_mock');
-    });
+    jest.mock('scheduler', () => require('./mockScheduler'));
     environment = createMockEnvironment();
     UserQuery = graphql`
       query ReactRelayFragmentContainerTestUserQuery($id: ID!) {

@@ -11,16 +11,23 @@
 
 'use strict';
 
-import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
+import type {TodoModelCapitalizedID$key} from './__generated__/TodoModelCapitalizedID.graphql';
+import type {TodoModelCapitalizedIDLegacy$key} from './__generated__/TodoModelCapitalizedIDLegacy.graphql';
 import type {TodoDescription} from './TodoDescription';
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
+const {readFragment} = require('../../ResolverFragments');
 const {createTodoDescription} = require('./TodoDescription');
+const {graphql} = require('relay-runtime');
 const {
   Selectors,
   TODO_STORE,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 
 /**
  * @RelayResolver TodoModel
@@ -45,6 +52,44 @@ function description(model: ?TodoItem): ?string {
 }
 
 /**
+ * @RelayResolver TodoModel.capitalized_id: String
+ * @rootFragment TodoModelCapitalizedID
+ *
+ * A resolver on a model type that reads its own rootFragment
+ */
+function capitalized_id(key: TodoModelCapitalizedID$key): ?string {
+  const todo = readFragment(
+    graphql`
+      fragment TodoModelCapitalizedID on TodoModel {
+        id
+      }
+    `,
+    key,
+  );
+  return todo.id.toUpperCase();
+}
+
+/**
+ * @RelayResolver
+ * @fieldName capitalized_id_legacy
+ * @onType TodoModel
+ * @rootFragment TodoModelCapitalizedIDLegacy
+ *
+ * Like `capitalized_id`, but implemented using the non-terse legacy syntax
+ */
+function capitalized_id_legacy(key: TodoModelCapitalizedIDLegacy$key): ?string {
+  const todo = readFragment(
+    graphql`
+      fragment TodoModelCapitalizedIDLegacy on TodoModel {
+        id
+      }
+    `,
+    key,
+  );
+  return todo.id.toUpperCase();
+}
+
+/**
  * @RelayResolver TodoModel.fancy_description: TodoDescription
  */
 function fancy_description(model: ?TodoItem): ?TodoDescription {
@@ -52,6 +97,30 @@ function fancy_description(model: ?TodoItem): ?TodoDescription {
     return null;
   }
   return createTodoDescription(model.description, model.isCompleted);
+}
+
+/**
+ * @RelayResolver TodoModel.fancy_description_null: TodoDescription
+ */
+function fancy_description_null(model: ?TodoItem): ?TodoDescription {
+  return null;
+}
+
+/**
+ * @RelayResolver TodoModel.fancy_description_suspends: TodoDescription
+ * @live
+ */
+function fancy_description_suspends(
+  model: ?TodoItem,
+): LiveState<TodoDescription> {
+  return {
+    read() {
+      return suspenseSentinel();
+    },
+    subscribe() {
+      return () => {};
+    },
+  };
 }
 
 /**
@@ -96,10 +165,14 @@ function live_todo_description(args: {
 }
 
 module.exports = {
+  capitalized_id,
+  capitalized_id_legacy,
   todo_model_null,
   TodoModel,
   description,
   fancy_description,
+  fancy_description_null,
+  fancy_description_suspends,
   many_fancy_descriptions,
   live_todo_description,
 };

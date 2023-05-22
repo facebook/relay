@@ -150,8 +150,8 @@
     "vscode:prepublish": "rm -f tsconfig.tsbuildinfo && rm -rf out && yarn run esbuild-base -- --minify",
     "build-local": "vsce package",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
-    "esbuild": "npm run esbuild-base -- --sourcemap",
-    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch"
+    "esbuild": "yarn run esbuild-base --sourcemap",
+    "esbuild-watch": "yarn run esbuild-base --sourcemap --watch"
   },
   "engines": {
     "vscode": "^1.60.0"

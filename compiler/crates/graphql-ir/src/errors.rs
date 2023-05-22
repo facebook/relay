@@ -334,6 +334,16 @@ pub enum ValidationMessage {
         filters_arg_name: ArgumentName,
     },
 
+    #[error(
+        "Expected the `{filters_arg_name}` argument to `@{connection_directive_name}` to be a list of argument names to the connection field to use to identify the connection, got `{invalid_name}`. Not specifying `filters` is often recommended and will use all fields."
+    )]
+    InvalidConnectionFiltersArgNotAnArgument {
+        connection_directive_name: DirectiveName,
+        connection_field_name: StringKey,
+        filters_arg_name: ArgumentName,
+        invalid_name: StringKey,
+    },
+
     #[error("@stream_connection does not support aliasing the '{field_name}' field.")]
     UnsupportedAliasingInStreamConnection { field_name: StringKey },
 

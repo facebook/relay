@@ -19,6 +19,7 @@ use common::ObjectName;
 use common::Span;
 use common::WithLocation;
 use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
+use docblock_shared::GENERATED_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
 use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
@@ -260,6 +261,7 @@ pub enum FragmentDataInjectionMode {
 
 pub struct RootFragment {
     fragment: WithLocation<FragmentDefinitionName>,
+    generated: bool,
     // For Model resolvers, we need to pass the `id` or `__relay_model_instance` field
     // from the fragment data to the resolver function
     inject_fragment_data: Option<FragmentDataInjectionMode>,
@@ -337,6 +339,13 @@ trait ResolverIr: Sized {
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
                 root_fragment.fragment.map(|x| x.0),
             ));
+
+            if root_fragment.generated {
+                arguments.push(true_argument(
+                    GENERATED_FRAGMENT_ARGUMENT_NAME.0,
+                    Location::generated(),
+                ))
+            }
 
             if let Some(inject_fragment_data) = root_fragment.inject_fragment_data {
                 match inject_fragment_data {
@@ -665,12 +674,13 @@ impl ResolverIr for TerseRelayResolverIr {
         object: Option<&Object>,
         _: SchemaInfo<'_, '_>,
     ) -> Option<RootFragment> {
-        get_root_fragment_for_object(object).or_else(|| {
-            self.root_fragment.map(|fragment| RootFragment {
+        self.root_fragment
+            .map(|fragment| RootFragment {
                 fragment,
+                generated: false,
                 inject_fragment_data: None,
             })
-        })
+            .or_else(|| get_root_fragment_for_object(object))
     }
 
     fn output_type(&self) -> Option<OutputType> {
@@ -829,12 +839,13 @@ impl ResolverIr for RelayResolverIr {
         object: Option<&Object>,
         _: SchemaInfo<'_, '_>,
     ) -> Option<RootFragment> {
-        get_root_fragment_for_object(object).or_else(|| {
-            self.root_fragment.map(|fragment| RootFragment {
+        self.root_fragment
+            .map(|fragment| RootFragment {
                 fragment,
+                generated: false,
                 inject_fragment_data: None,
             })
-        })
+            .or_else(|| get_root_fragment_for_object(object))
     }
 
     fn output_type(&self) -> Option<OutputType> {
@@ -1073,6 +1084,7 @@ impl ResolverIr for StrongObjectIr {
     ) -> Option<RootFragment> {
         Some(RootFragment {
             fragment: self.root_fragment,
+            generated: true,
             inject_fragment_data: Some(FragmentDataInjectionMode::Field(
                 schema_info.config.node_interface_id_field,
             )),
@@ -1335,6 +1347,7 @@ fn get_root_fragment_for_object(object: Option<&Object>) -> Option<RootFragment>
                 )
                 .intern(),
             )),
+            generated: true,
             inject_fragment_data: Some(FragmentDataInjectionMode::Field(
                 *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
             )),

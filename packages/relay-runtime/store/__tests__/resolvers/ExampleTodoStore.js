@@ -13,7 +13,7 @@
 
 import type {LogEvent} from '../../RelayStoreTypes';
 
-export opaque type TodoID = string;
+export opaque type TodoID: string = string;
 
 export type TodoItem = {
   todoID: TodoID,
@@ -38,6 +38,13 @@ type ACTION =
   | {
       type: 'REMOVE_TODO',
       payload: TodoID,
+    }
+  | {
+      type: 'CHANGE_TODO_DESCRIPTION',
+      payload: {
+        todoID: TodoID,
+        description: string,
+      },
     }
   | {
       type: 'BLOCKED_BY',
@@ -122,6 +129,20 @@ class TodoStore {
             return {
               ...todo,
               blockedBy,
+            };
+          } else {
+            return todo;
+          }
+        });
+        this._notify([action.payload.todoID]);
+        break;
+      }
+      case 'CHANGE_TODO_DESCRIPTION': {
+        this._state = this._state.map(todo => {
+          if (todo.todoID === action.payload.todoID) {
+            return {
+              ...todo,
+              description: action.payload.description,
             };
           } else {
             return todo;
@@ -217,6 +238,16 @@ function blockedBy(todoID: string, blockedBy: string) {
   });
 }
 
+function changeDescription(todoID: string, description: string) {
+  TODO_STORE.dispatch({
+    type: 'CHANGE_TODO_DESCRIPTION',
+    payload: {
+      todoID,
+      description,
+    },
+  });
+}
+
 module.exports = {
   TODO_STORE,
   Selectors,
@@ -225,4 +256,5 @@ module.exports = {
   completeTodo,
   removeTodo,
   blockedBy,
+  changeDescription,
 };

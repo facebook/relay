@@ -16,6 +16,7 @@ import type {RelayResolverModelTestFragment$key} from './__generated__/RelayReso
 import type {RelayResolverModelTestInterfaceFragment$key} from './__generated__/RelayResolverModelTestInterfaceFragment.graphql';
 import type {RelayResolverModelTestWithPluralFragment$key} from './__generated__/RelayResolverModelTestWithPluralFragment.graphql';
 
+const invariant = require('invariant');
 const React = require('react');
 const {
   RelayEnvironmentProvider,
@@ -31,6 +32,7 @@ const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   addTodo,
+  changeDescription,
   completeTodo,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
@@ -277,6 +279,155 @@ describe.each([
       jest.runAllImmediates();
     });
     expect(renderer.toJSON()).toEqual('Test todo - green');
+  });
+
+  test('read a field with arguments', () => {
+    function TodoComponentWithFieldWithArgumentsComponent(props: {
+      todoID: string,
+    }) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestFieldWithArgumentsQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              fancy_description {
+                text_with_prefix(prefix: "[x]")
+              }
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      return data?.todo_model?.fancy_description?.text_with_prefix;
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithFieldWithArgumentsComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('[x] Test todo');
+
+    TestRenderer.act(() => {
+      changeDescription('todo-1', 'Changed todo description text');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual('[x] Changed todo description text');
+  });
+
+  // If a resolver that returns a weak model returns null, that should result in
+  // the edge beign null, not just the model field.
+  test('@weak model client edge returns null', () => {
+    function TodoComponentWithNullWeakClientEdge(props: {todoID: string}) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestNullWeakClientEdgeQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              fancy_description_null {
+                text_with_prefix(prefix: "[x]")
+              }
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      invariant(data.todo_model != null, 'Expected todo model to be defiend.');
+      return data.todo_model.fancy_description_null == null
+        ? 'NULL!'
+        : 'NOT NULL!';
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithNullWeakClientEdge todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('NULL!');
+  });
+
+  // Ensure we don't:
+  // 1. Wrap a suspense value coming from a @weak model resolver
+  // 2. Don't try to normalize a suspense sentinel as a model value
+  test('@weak model client edge suspends', () => {
+    function TodoComponentWithNullWeakClientEdge(props: {todoID: string}) {
+      useClientQuery(
+        graphql`
+          query RelayResolverModelTestSuspendedWeakClientEdgeQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              fancy_description_suspends {
+                text_with_prefix(prefix: "[x]")
+              }
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      invariant(false, 'Expected to suspend.');
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithNullWeakClientEdge todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('Loading...');
+  });
+
+  test('read a field with its own root fragment', () => {
+    function TodoComponentWithFieldWithRootFragmentComponent(props: {
+      todoID: string,
+    }) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestFieldWithRootFragmentQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              capitalized_id
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      return data?.todo_model?.capitalized_id;
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithFieldWithRootFragmentComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('TODO-1');
+  });
+
+  test('read a field with its own root fragment defined using legacy non-terse syntax', () => {
+    function TodoComponentWithFieldWithRootFragmentComponent(props: {
+      todoID: string,
+    }) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestFieldWithRootFragmentLegacyQuery(
+            $id: ID!
+          ) {
+            todo_model(todoID: $id) {
+              capitalized_id_legacy
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      return data?.todo_model?.capitalized_id_legacy;
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithFieldWithRootFragmentComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('TODO-1');
   });
 
   test('read interface field', () => {

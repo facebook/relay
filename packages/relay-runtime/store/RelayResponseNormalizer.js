@@ -56,14 +56,12 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {generateClientID, isClientID} = require('./ClientID');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   ROOT_ID,
-  ROOT_TYPE,
   TYPENAME_KEY,
   getArgumentValues,
   getHandleStorageKey,

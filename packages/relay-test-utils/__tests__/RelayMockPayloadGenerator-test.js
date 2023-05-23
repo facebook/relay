@@ -22,8 +22,9 @@ function testGeneratedData<TVariables: Variables, TData, TRawResponse>(
   query: Query<TVariables, TData, TRawResponse>,
   mockResolvers: ?MockResolvers,
   options: ?{mockClientData?: boolean},
+  variables: Variables = {},
 ): void {
-  const operation = createOperationDescriptor(query, {});
+  const operation = createOperationDescriptor(query, variables);
   const payload = RelayMockPayloadGenerator.generate(
     operation,
     mockResolvers,
@@ -1688,4 +1689,53 @@ describe('with @relay_test_operation', () => {
       });
     });
   });
+});
+
+test('Query with @no_inline fragment spread with literal argument', () => {
+  const query = graphql`
+    query RelayMockPayloadGeneratorTest58Query {
+      node(id: "4") {
+        ...RelayMockPayloadGeneratorTest_fragment59 @arguments(cond: true)
+      }
+    }
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest_fragment59 on User
+    @argumentDefinitions(cond: {type: "Boolean", defaultValue: false})
+    @no_inline(raw_response_type: true) {
+      id
+      name @include(if: $cond)
+    }
+  `;
+  testGeneratedData(query, undefined, {
+    mockClientData: false,
+  });
+});
+
+test('Query with @no_inline fragment spread with variable argument', () => {
+  const query = graphql`
+    query RelayMockPayloadGeneratorTest60Query($cond: Boolean!) {
+      node(id: "4") {
+        ...RelayMockPayloadGeneratorTest_fragment61 @arguments(cond: $cond)
+      }
+    }
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest_fragment61 on User
+    @argumentDefinitions(cond: {type: "Boolean", defaultValue: false})
+    @no_inline(raw_response_type: true) {
+      id
+      name @include(if: $cond)
+    }
+  `;
+  testGeneratedData(
+    query,
+    undefined,
+    {
+      mockClientData: false,
+    },
+    {
+      cond: true,
+    },
+  );
 });

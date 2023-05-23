@@ -26,6 +26,7 @@ import type {
 
 const invariant = require('invariant');
 const {
+  __internal,
   RelayConcreteNode,
   TYPENAME_KEY,
   getModuleComponentKey,
@@ -314,8 +315,7 @@ class RelayMockPayloadGenerator {
           break;
         }
 
-        case CLIENT_COMPONENT:
-        case FRAGMENT_SPREAD: {
+        case CLIENT_COMPONENT: {
           mockData = this._traverseSelections(
             selection.fragment.selections,
             typeName,
@@ -324,6 +324,24 @@ class RelayMockPayloadGenerator {
             mockData,
             defaultValues,
           );
+          break;
+        }
+        case FRAGMENT_SPREAD: {
+          const prevVariables = this._variables;
+          this._variables = __internal.getLocalVariables(
+            this._variables,
+            selection.fragment.argumentDefinitions,
+            selection.args,
+          );
+          mockData = this._traverseSelections(
+            selection.fragment.selections,
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
+          this._variables = prevVariables;
           break;
         }
 

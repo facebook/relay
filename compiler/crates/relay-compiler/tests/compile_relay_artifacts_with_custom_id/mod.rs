@@ -76,7 +76,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
         hash_supported_argument: FeatureFlag::Disabled,
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,

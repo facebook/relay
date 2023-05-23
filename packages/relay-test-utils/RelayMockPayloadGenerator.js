@@ -40,7 +40,6 @@ const {
   CONDITION,
   CONNECTION,
   DEFER,
-  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -495,8 +494,6 @@ class RelayMockPayloadGenerator {
         case SCALAR_HANDLE:
         case LINKED_HANDLE:
           break;
-        case FLIGHT_FIELD:
-          throw new Error('Flight fields are not yet supported.');
         case ACTOR_CHANGE:
           throw new Error('ActorChange fields are not yet supported.');
         case RELAY_RESOLVER:

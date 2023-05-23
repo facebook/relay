@@ -102,7 +102,6 @@ const RelayConcreteNode = {
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',
-  FLIGHT_FIELD: 'FlightField',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',
   INLINE_DATA_FRAGMENT_SPREAD: 'InlineDataFragmentSpread',

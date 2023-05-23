@@ -45,7 +45,6 @@ const RelayModernRecord = require('./RelayModernRecord');
 const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
@@ -729,15 +728,7 @@ function updateTargetFromSource(
       }
     }
     if (sourceRecord && targetRecord) {
-      // ReactFlightClientResponses are lazy and only materialize when readRoot
-      // is called when we read the field, so if the record is a Flight field
-      // we always use the new record's data regardless of whether
-      // it actually changed. Let React take care of reconciliation instead.
-      const nextRecord =
-        RelayModernRecord.getType(targetRecord) ===
-        RelayStoreReactFlightUtils.REACT_FLIGHT_TYPE_NAME
-          ? sourceRecord
-          : RelayModernRecord.update(targetRecord, sourceRecord);
+      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {

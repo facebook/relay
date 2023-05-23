@@ -42,7 +42,7 @@ fragment Foo_user on ClientUser {
    {
     ...BestFriendFragment @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(518),
+    #     field_id: FieldID(517),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,
@@ -66,7 +66,7 @@ fragment Foo_user on ClientUser {
        {
         ...BestFriendFragment @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(518),
+        #     field_id: FieldID(517),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: None,

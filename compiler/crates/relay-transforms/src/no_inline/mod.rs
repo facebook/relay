@@ -28,7 +28,6 @@ use lazy_static::lazy_static;
 
 use crate::ValidationMessage;
 use crate::MATCH_CONSTANTS;
-use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
 
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
@@ -157,10 +156,10 @@ impl<'f, 'p> Validator for RequiredNoInlineValidator<'f, 'p> {
         // If the fragment spread isn't used for @module or @relay_client_component
         // then explicit @no_inline is required.
         if spread.directives.is_empty()
-            || !spread.directives.iter().any(|directive| {
-                directive.name.item == MATCH_CONSTANTS.module_directive_name
-                    || directive.name.item == *RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME
-            })
+            || !spread
+                .directives
+                .iter()
+                .any(|directive| directive.name.item == MATCH_CONSTANTS.module_directive_name)
         {
             Err(vec![
                 Diagnostic::error(

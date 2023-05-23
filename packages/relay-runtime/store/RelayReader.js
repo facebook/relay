@@ -16,7 +16,6 @@ import type {
   ReaderAliasedFragmentSpread,
   ReaderClientEdgeToClientObject,
   ReaderClientEdgeToServerObject,
-  ReaderFlightField,
   ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
@@ -57,7 +56,6 @@ const {
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
-  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -75,7 +73,6 @@ const {
 } = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
-const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
   CLIENT_EDGE_TRAVERSAL_PATH,
   FRAGMENT_OWNER_KEY,
@@ -452,13 +449,6 @@ class RelayReader {
           }
           break;
         }
-        case FLIGHT_FIELD:
-          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
-            this._readFlightField(selection, record, data);
-          } else {
-            throw new Error('Flight fields are not yet supported.');
-          }
-          break;
         case ACTOR_CHANGE:
           this._readActorChange(selection, record, data);
           break;
@@ -773,40 +763,6 @@ class RelayReader {
       default:
         (validClientEdgeResolverResponse.kind: empty);
     }
-  }
-
-  _readFlightField(
-    field: ReaderFlightField,
-    record: Record,
-    data: SelectorData,
-  ): ?mixed {
-    const applicationName = field.alias ?? field.name;
-    const storageKey = getStorageKey(field, this._variables);
-    const reactFlightClientResponseRecordID =
-      RelayModernRecord.getLinkedRecordID(record, storageKey);
-    if (reactFlightClientResponseRecordID == null) {
-      data[applicationName] = reactFlightClientResponseRecordID;
-      if (reactFlightClientResponseRecordID === undefined) {
-        this._markDataAsMissing();
-      }
-      return reactFlightClientResponseRecordID;
-    }
-    const reactFlightClientResponseRecord = this._recordSource.get(
-      reactFlightClientResponseRecordID,
-    );
-    this._seenRecords.add(reactFlightClientResponseRecordID);
-    if (reactFlightClientResponseRecord == null) {
-      data[applicationName] = reactFlightClientResponseRecord;
-      if (reactFlightClientResponseRecord === undefined) {
-        this._markDataAsMissing();
-      }
-      return reactFlightClientResponseRecord;
-    }
-    const clientResponse = getReactFlightClientResponse(
-      reactFlightClientResponseRecord,
-    );
-    data[applicationName] = clientResponse;
-    return clientResponse;
   }
 
   _readScalar(

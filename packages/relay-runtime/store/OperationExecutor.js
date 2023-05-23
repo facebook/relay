@@ -16,7 +16,6 @@ import type {
   GraphQLResponse,
   GraphQLResponseWithData,
   GraphQLSingularResponse,
-  ReactFlightServerTree,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
@@ -34,9 +33,6 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
-  ReactFlightClientResponse,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
   RequestDescriptor,
@@ -87,8 +83,6 @@ export type ExecuteConfig<TMutation: MutationParameters> = {
   +operationLoader: ?OperationLoader,
   +operationTracker: OperationTracker,
   +optimisticConfig: ?OptimisticResponseConfig<TMutation>,
-  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
-  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +scheduler?: ?TaskScheduler,
   +shouldProcessClientComponents?: ?boolean,
   +sink: Sink<GraphQLResponse>,
@@ -146,8 +140,6 @@ class Executor<TMutation: MutationParameters> {
   _optimisticUpdates: null | Array<OptimisticUpdate<TMutation>>;
   _pendingModulePayloadsCount: number;
   +_getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
-  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
-  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _shouldProcessClientComponents: ?boolean;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
@@ -177,8 +169,6 @@ class Executor<TMutation: MutationParameters> {
     operationLoader,
     operationTracker,
     optimisticConfig,
-    reactFlightPayloadDeserializer,
-    reactFlightServerErrorHandler,
     scheduler,
     shouldProcessClientComponents,
     sink,
@@ -211,8 +201,6 @@ class Executor<TMutation: MutationParameters> {
     this._subscriptions = new Map();
     this._updater = updater;
     this._isClientPayload = isClientPayload === true;
-    this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
-    this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
     this._isSubscriptionOperation =
       this._operation.request.node.params.operationKind === 'subscription';
     this._shouldProcessClientComponents = shouldProcessClientComponents;
@@ -284,26 +272,6 @@ class Executor<TMutation: MutationParameters> {
     this._completeOperationTracker();
     this._disposeRetainedData();
   }
-
-  _deserializeReactFlightPayloadWithLogging = (
-    tree: ReactFlightServerTree,
-  ): ReactFlightClientResponse => {
-    const reactFlightPayloadDeserializer = this._reactFlightPayloadDeserializer;
-    invariant(
-      typeof reactFlightPayloadDeserializer === 'function',
-      'OperationExecutor: Expected reactFlightPayloadDeserializer to be available when calling _deserializeReactFlightPayloadWithLogging.',
-    );
-    const [duration, result] = withDuration(() => {
-      return reactFlightPayloadDeserializer(tree);
-    });
-    this._log({
-      name: 'execute.flight.payload_deserialize',
-      executeId: this._executeId,
-      operationName: this._operation.request.node.params.name,
-      duration,
-    });
-    return result;
-  };
 
   _updateActiveState(): void {
     let activeState;
@@ -615,11 +583,6 @@ class Executor<TMutation: MutationParameters> {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer:
-            this._reactFlightPayloadDeserializer != null
-              ? this._deserializeReactFlightPayloadWithLogging
-              : null,
-          reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
         },
@@ -726,11 +689,6 @@ class Executor<TMutation: MutationParameters> {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: followupPayload.path,
-        reactFlightPayloadDeserializer:
-          this._reactFlightPayloadDeserializer != null
-            ? this._deserializeReactFlightPayloadWithLogging
-            : null,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
@@ -809,11 +767,6 @@ class Executor<TMutation: MutationParameters> {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer:
-            this._reactFlightPayloadDeserializer != null
-              ? this._deserializeReactFlightPayloadWithLogging
-              : null,
-          reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
@@ -1267,11 +1220,6 @@ class Executor<TMutation: MutationParameters> {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: placeholder.path,
-        reactFlightPayloadDeserializer:
-          this._reactFlightPayloadDeserializer != null
-            ? this._deserializeReactFlightPayloadWithLogging
-            : null,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
@@ -1499,11 +1447,6 @@ class Executor<TMutation: MutationParameters> {
       actorIdentifier: this._actorIdentifier,
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
-      reactFlightPayloadDeserializer:
-        this._reactFlightPayloadDeserializer != null
-          ? this._deserializeReactFlightPayloadWithLogging
-          : null,
-      reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
     });

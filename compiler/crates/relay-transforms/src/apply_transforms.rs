@@ -180,13 +180,6 @@ fn apply_common_transforms(
         )
     })?;
 
-    if project_config.feature_flags.enable_flight_transform {
-        program = log_event.time("react_flight", || react_flight(&program))?;
-        program = log_event.time("relay_client_component", || {
-            relay_client_component(&program, &project_config.feature_flags)
-        })?;
-    }
-
     program = log_event.time("relay_actor_change_transform", || {
         relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;

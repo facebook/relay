@@ -101,7 +101,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     ];
 
     let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
         hash_supported_argument: FeatureFlag::Limited {
             allowlist: hash_supported_argument_allowlist.into_iter().collect(),
         },

@@ -1890,8 +1890,7 @@ pub(crate) fn raw_response_visit_selections(
     for selection in selections {
         match selection {
             Selection::FragmentSpread(spread) => {
-                // @relay_client_component generate fragment spreads without
-                // @no_inline if no_inline isn't enabled for the fragment.
+                // TODO: this may be stale after removal of Flight and @relay_client_component
                 if NoInlineFragmentSpreadMetadata::find(&spread.directives).is_some() {
                     let spread_type = spread.fragment.item.0;
                     imported_raw_response_types.0.insert(

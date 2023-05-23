@@ -20,8 +20,6 @@ import type {
   INetwork,
   PayloadData,
   PayloadError,
-  ReactFlightServerError,
-  ReactFlightServerTree,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
@@ -655,13 +653,6 @@ export type ExecuteAsyncModuleLogEvent = {
   +duration: number,
 };
 
-export type ExecuteFlightPayloadDeserializeLogEvent = {
-  +name: 'execute.flight.payload_deserialize',
-  +executeId: number,
-  +operationName: string,
-  +duration: number,
-};
-
 export type ExecuteErrorLogEvent = {
   +name: 'execute.error',
   +executeId: number,
@@ -741,7 +732,6 @@ export type LogEvent =
   | ExecuteStartLogEvent
   | ExecuteNextLogEvent
   | ExecuteAsyncModuleLogEvent
-  | ExecuteFlightPayloadDeserializeLogEvent
   | ExecuteErrorLogEvent
   | ExecuteCompleteLogEvent
   | StorePublishLogEvent
@@ -1001,7 +991,7 @@ export type HandleFieldPayload = {
 
 /**
  * A payload that represents data necessary to process the results of an object
- * with a `@module` fragment spread, or a Flight field's:
+ * with a `@module` fragment spread:
  *
  * ## @module Fragment Spread
  * - args: Local arguments from the parent
@@ -1016,20 +1006,6 @@ export type HandleFieldPayload = {
  * which can in turn be used to normalize and publish the data. The dataID and
  * typeName can also be used to construct a root record for normalization.
  *
- * ## Flight fields
- * In Flight, data for additional components rendered by the requested server
- * component are included in the response returned by a Flight compliant server.
- *
- * - data: Data used by additional components rendered by the server component
- *     being requested.
- * - dataID: For Flight fields, this should always be ROOT_ID. This is because
- *     the query data isn't relative to the parent record–it's root data.
- * - operationReference: The query's module that will be later used by an
- *     operation loader.
- * - variables: The query's variables.
- * - typeName: For Flight fields, this should always be ROOT_TYPE. This is
- *     because the query data isn't relative to the parent record–it's
- *     root data.
  */
 export type ModuleImportPayload = {
   +kind: 'ModuleImportPayload',
@@ -1289,35 +1265,6 @@ export interface PublishQueue {
    */
   run(sourceOperation?: OperationDescriptor): $ReadOnlyArray<RequestDescriptor>;
 }
-
-/**
- * ReactFlightDOMRelayClient processes a ReactFlightServerTree into a
- * ReactFlightClientResponse object. readRoot() can suspend.
- */
-export type ReactFlightClientResponse = {readRoot: () => mixed, ...};
-
-export type ReactFlightReachableExecutableDefinitions = {
-  +module: mixed,
-  +variables: Variables,
-};
-
-/**
- * A user-supplied function that takes a ReactFlightServerTree
- * (after successful execution on the server), and deserializes it into a
- * ReactFlightClientResponse object.
- */
-export type ReactFlightPayloadDeserializer = (
-  tree: ReactFlightServerTree,
-) => ReactFlightClientResponse;
-
-/**
- * An optionally user-supplied function that handles errors returned by the
- * server's JS runtime while executing a React Server Component.
- */
-export type ReactFlightServerErrorHandler = (
-  status: string,
-  errors: Array<ReactFlightServerError>,
-) => void;
 
 /**
  * The return type of a client edge resolver pointing to a concrete type.

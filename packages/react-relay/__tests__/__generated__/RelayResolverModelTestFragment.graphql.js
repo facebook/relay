@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<19da233b1c78ecb651f98cba61096243>>
+ * @generated SignedSource<<298ab823bbc4a50af1d0f85833def4e6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,25 +21,26 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import type { TodoModel__fancy_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql";
+import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionColorResolverType: (
-  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'], 
+  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
 ) => mixed);
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextResolverType: (
-  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'], 
+  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
 ) => ?string);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionResolverType: (
-  __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'], 
-) => ?TodoModel__fancy_description$normalization['__relay_model_instance']);
+  __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+) => ?TodoDescription);
 declare export opaque type RelayResolverModelTestFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestFragment$data = {|
   +fancy_description: ?{|
@@ -106,7 +107,7 @@ return {
             "kind": "RelayResolver",
             "name": "text",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', false),
-            "path": "text"
+            "path": "fancy_description.text"
           },
           {
             "alias": null,
@@ -115,7 +116,7 @@ return {
             "kind": "RelayResolver",
             "name": "color",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').color, '__relay_model_instance', false),
-            "path": "color"
+            "path": "fancy_description.color"
           }
         ],
         "storageKey": null

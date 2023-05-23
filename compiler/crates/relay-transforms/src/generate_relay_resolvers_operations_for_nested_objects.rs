@@ -13,6 +13,8 @@ use common::DiagnosticsResult;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
+use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
@@ -35,8 +37,6 @@ use schema::Type;
 use crate::get_normalization_operation_name;
 use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
-use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
-use crate::relay_resolvers::RELAY_RESOLVER_HAS_OUTPUT_TYPE;
 use crate::SplitOperationMetadata;
 use crate::ValidationMessage;
 
@@ -469,7 +469,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
 
         if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
             let has_output_type =
-                get_bool_argument_is_true(&directive.arguments, *RELAY_RESOLVER_HAS_OUTPUT_TYPE);
+                get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
             if !has_output_type {
                 continue;
             }
@@ -513,7 +513,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                         RawResponseGenerationMode::AllFieldsRequired,
                     ),
                 }
-                .to_directive(),
+                .into(),
             ];
 
             let operation = OperationDefinition {

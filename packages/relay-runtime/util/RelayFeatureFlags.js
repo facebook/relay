@@ -16,7 +16,6 @@ import type {Disposable} from '../util/RelayRuntimeTypes';
 export type FeatureFlags = {
   ENABLE_CLIENT_EDGES: boolean,
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
-  ENABLE_PARTIAL_RENDERING_DEFAULT: boolean,
   ENABLE_REACT_FLIGHT_COMPONENT_FIELD: boolean,
   ENABLE_RELAY_RESOLVERS: boolean,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean,
@@ -31,12 +30,21 @@ export type FeatureFlags = {
   USE_REACT_CACHE: boolean,
   USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: boolean,
+  LOG_MISSING_RECORDS_IN_PROD: boolean,
+
+  // Configure RelayStoreSubscriptions to mark a subscription as affected by an
+  // update if there are any overlapping IDs other than ROOT_ID or VIWER_ID,
+  // even if none of the read fields were affected. The strict behavior (current
+  // default) requires eagerly reading fragments as they change which is
+  // incompatible with lazily notifying React of updats using `setState(() =>
+  // read())`, so we are experimenting with this loose behavior which should be
+  // more compatible.
+  ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
   ENABLE_CLIENT_EDGES: false,
   ENABLE_VARIABLE_CONNECTION_KEY: false,
-  ENABLE_PARTIAL_RENDERING_DEFAULT: true,
   ENABLE_REACT_FLIGHT_COMPONENT_FIELD: false,
   ENABLE_RELAY_RESOLVERS: false,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: false,
@@ -51,6 +59,8 @@ const RelayFeatureFlags: FeatureFlags = {
   USE_REACT_CACHE: false,
   USE_REACT_CACHE_LEGACY_TIMEOUTS: true,
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: false,
+  LOG_MISSING_RECORDS_IN_PROD: false,
+  ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
 };
 
 module.exports = RelayFeatureFlags;

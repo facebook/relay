@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<baaea5d2cf3e09ed115e943b109296b5>>
+ * @generated SignedSource<<d3c2a0c72e60755fd27cd45811f19080>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,17 +19,20 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { DataID } from "relay-runtime";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
 import {live_external_greeting as queryLiveExternalGreetingResolverType} from "../LiveExternalGreeting.js";
 // Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolverType: (
-  rootKey: LiveExternalGreetingFragment$key, 
-) => LiveState<any>);
+  rootKey: LiveExternalGreetingFragment$key,
+) => LiveState<mixed>);
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserSuspendsWhenOddResolverType: () => LiveState<any>);
+(queryLiveUserSuspendsWhenOddResolverType: () => LiveState<?{|
+  +id: DataID,
+|}>);
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {|
   +greeting: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveExternalGreetingResolverType>["read"]>,
@@ -49,7 +52,8 @@ var v0 = {
   "args": null,
   "fragment": null,
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 };
 return {
   "fragment": {
@@ -127,7 +131,8 @@ return {
           "abstractKey": null
         },
         "kind": "RelayResolver",
-        "storageKey": null
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

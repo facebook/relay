@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {LogEvent} from '../../../relay-runtime/store/RelayStoreTypes';
 
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
@@ -35,8 +36,20 @@ let logger;
 let requiredFieldLogger;
 
 beforeEach(() => {
-  logger = jest.fn();
-  requiredFieldLogger = jest.fn();
+  logger = jest.fn<[LogEvent], void>();
+  requiredFieldLogger = jest.fn<
+    [
+      | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
+      | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
+      | {
+          +error: Error,
+          +fieldPath: string,
+          +kind: 'relay_resolver.error',
+          +owner: string,
+        },
+    ],
+    void,
+  >();
 
   environment = createMockEnvironment({
     log: logger,
@@ -111,7 +124,7 @@ test('Logs if a @required(action: LOG) field is null', () => {
 });
 
 test('Throws if a @required(action: THROW) field is present and then goes missing', () => {
-  const callback = jest.fn();
+  const callback = jest.fn<[], void>();
   environment.commitPayload(query, {
     node: {
       __typename: 'User',

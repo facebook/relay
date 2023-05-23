@@ -11,9 +11,9 @@
 
 'use strict';
 
-import type {Options} from './useRefetchableFragmentNode';
-
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
+import type {RefetchFn} from './useRefetchableFragment';
+import type {Options} from './useRefetchableFragmentNode';
 import type {
   FragmentType,
   GraphQLResponse,
@@ -32,7 +32,6 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
-import type {RefetchFn} from './useRefetchableFragment';
 
 // This separate type export is only needed as long as we are injecting
 // a separate hooks implementation in ./HooksImplementation -- it can

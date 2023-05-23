@@ -84,7 +84,7 @@ describe('FragmentResource Client Edges behavior', () => {
       __fragmentOwner: query.request,
     };
 
-    release = jest.fn();
+    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     // $FlowFixMe[method-unbinding]
     environment.retain.mockImplementation((...args) => {
@@ -142,11 +142,8 @@ describe('FragmentResource Client Edges behavior', () => {
         'componentDisplayName',
       );
     }).not.toThrow();
-    // $FlowFixMe[incompatible-use]
     expect(result?.data?.client_edge.name).toBe('Bob');
-    // $FlowFixMe[prop-missing]
     expect(result?.snapshot?.isMissingData).toBe(false);
-    // $FlowFixMe[prop-missing]
     expect(result?.snapshot?.missingClientEdges?.size ?? 0).toBe(0);
   });
 

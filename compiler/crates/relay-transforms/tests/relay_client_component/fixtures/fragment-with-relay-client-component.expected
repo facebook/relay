@@ -9,7 +9,24 @@ fragment ClientFragment on User {
   name
 }
 ==================================== OUTPUT ===================================
-query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentDocuments: ["ServerComponentFragment"]) {
+query ClientFragment$normalization @__SplitOperationMetadata
+# SplitOperationMetadata {
+#     derived_from: Some(
+#         FragmentDefinitionName(
+#             "ClientFragment",
+#         ),
+#     ),
+#     location: fragment-with-relay-client-component.graphql:104:118,
+#     parent_documents: {
+#         FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "ServerComponentFragment",
+#             ),
+#         ),
+#     },
+#     raw_response_type_generation_mode: None,
+# }
+ {
   ...ClientFragment
 }
 

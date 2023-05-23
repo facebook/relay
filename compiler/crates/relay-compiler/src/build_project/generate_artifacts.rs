@@ -11,6 +11,7 @@ use std::sync::Arc;
 use common::NamedItem;
 use common::SourceLocationKey;
 use fnv::FnvHashMap;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
@@ -22,7 +23,6 @@ use relay_transforms::Programs;
 use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::SplitOperationMetadata;
-use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use relay_transforms::UPDATABLE_DIRECTIVE;
 
 pub use super::artifact_content::ArtifactContent;
@@ -32,7 +32,7 @@ use crate::config::ProjectConfig;
 
 /// Represents a generated output artifact.
 pub struct Artifact {
-    pub source_definition_names: Vec<StringKey>,
+    pub source_definition_names: Vec<ExecutableDefinitionName>,
     pub path: PathBuf,
     pub content: ArtifactContent,
     /// The source file responsible for generating this file.
@@ -54,17 +54,14 @@ pub fn generate_artifacts(
         ..Default::default()
     };
     let mut operation_printer = OperationPrinter::new(&programs.operation_text, printer_options);
-    return group_operations(programs)
-        .into_iter()
-        .map(|(_, operations)| -> Artifact {
+    return group_operations(programs).into_values().map(|operations| {
             if let Some(normalization) = operations.normalization {
                 // We have a normalization AST... so we'll move forward with that
-                if let Some(directive) = normalization.directives.named(*DIRECTIVE_SPLIT_OPERATION)
+                if let Some(metadata) = SplitOperationMetadata::find(&normalization.directives)
                 {
                     // Generate normalization file for SplitOperation
-                    let metadata = SplitOperationMetadata::from(directive);
                     let source_file = metadata.location.source_location();
-                    let source_hash = metadata.derived_from.and_then(|derived_from| source_hashes.get(&derived_from.0).cloned());
+                    let source_hash = metadata.derived_from.and_then(|derived_from| source_hashes.get(&derived_from.into()).cloned());
                     let typegen_operation = if metadata.raw_response_type_generation_mode.is_some() {
                         Some(Arc::clone(normalization))
                     } else {
@@ -72,7 +69,7 @@ pub fn generate_artifacts(
                     };
 
                     return Artifact {
-                        source_definition_names: metadata.parent_documents.into_iter().map(|name| name.into()).collect(),
+                        source_definition_names: metadata.parent_documents.iter().copied().collect(),
                         path: project_config
                             .path_for_artifact(source_file, normalization.name.item.0),
                         content: ArtifactContent::SplitOperation {
@@ -91,11 +88,11 @@ pub fn generate_artifacts(
                         .source
                         .fragment(source_name)
                         .expect("Expected the source document for the SplitOperation to exist.");
-                    let source_hash = source_hashes.get(&source_name.0).cloned().unwrap();
+                    let source_hash = source_hashes.get(&source_name.into()).cloned().unwrap();
 
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        source_name.0,
+                        source_name.into(),
                         project_config,
                         &operations,
                         source_hash,
@@ -120,12 +117,12 @@ pub fn generate_artifacts(
                     )
                 } else {
                     let source_hash = source_hashes
-                        .get(&normalization.name.item.0)
+                        .get(&normalization.name.item.into())
                         .cloned()
                         .unwrap();
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        normalization.name.item.0,
+                        normalization.name.item.into(),
                         project_config,
                         &operations,
                         source_hash,
@@ -141,11 +138,11 @@ pub fn generate_artifacts(
                     .is_some()
                 {
                     let source_hash = source_hashes
-                        .get(&reader.name.item.0)
+                        .get(&reader.name.item.into())
                         .cloned()
                         .unwrap();
                     return generate_updatable_query_artifact(
-                        reader.name.item.0,
+                        reader.name.item.into(),
                         project_config,
                         &operations,
                         source_hash,
@@ -161,7 +158,7 @@ pub fn generate_artifacts(
             {
                 client_edges_directive.source_name.item
             } else {
-                reader_fragment.name.item.0
+                reader_fragment.name.item.into()
             };
 
             let source_hash = source_hashes.get(&source_name).cloned();
@@ -179,7 +176,7 @@ pub fn generate_artifacts(
 
 fn generate_normalization_artifact(
     operation_printer: &mut OperationPrinter<'_>,
-    source_definition_name: StringKey,
+    source_definition_name: ExecutableDefinitionName,
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
@@ -209,7 +206,7 @@ fn generate_normalization_artifact(
 }
 
 fn generate_updatable_query_artifact(
-    source_definition_name: StringKey,
+    source_definition_name: ExecutableDefinitionName,
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
@@ -236,7 +233,7 @@ fn generate_reader_artifact(
     programs: &Programs,
     reader_fragment: &Arc<FragmentDefinition>,
     source_hash: Option<String>,
-    source_definition_names: Vec<StringKey>,
+    source_definition_names: Vec<ExecutableDefinitionName>,
 ) -> Artifact {
     let name = reader_fragment.name.item;
     let typegen_fragment = programs

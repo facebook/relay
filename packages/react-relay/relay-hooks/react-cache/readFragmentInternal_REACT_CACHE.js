@@ -27,6 +27,7 @@ const {getQueryResourceForEnvironment} = require('../QueryResource');
 const invariant = require('invariant');
 const {
   __internal: {fetchQuery: fetchQueryInternal},
+  RelayFeatureFlags,
   createOperationDescriptor,
   getPendingOperationsForFragment,
   getSelector,
@@ -268,7 +269,7 @@ function readFragmentInternal_REACT_CACHE(
     data = state.snapshots.map(s => s.data);
   }
 
-  if (__DEV__) {
+  if (RelayFeatureFlags.LOG_MISSING_RECORDS_IN_PROD || __DEV__) {
     if (
       fragmentRef != null &&
       (data === undefined ||

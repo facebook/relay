@@ -11,14 +11,12 @@
 
 'use strict';
 
-import type {Record} from '../RelayStoreTypes';
 import type {DataID} from '../../util/RelayRuntimeTypes';
-
-const invariant = require('invariant');
-
-const {RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS} = require('../RelayStoreUtils');
+import type {Record} from '../RelayStoreTypes';
 
 const RelayModernRecord = require('../RelayModernRecord');
+const {RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS} = require('../RelayStoreUtils');
+const invariant = require('invariant');
 
 function getOutputTypeRecordIDs(record: Record): $ReadOnlySet<DataID> | null {
   const maybeOutputTypeRecordIDs = RelayModernRecord.getValue(
@@ -34,11 +32,8 @@ function getOutputTypeRecordIDs(record: Record): $ReadOnlySet<DataID> | null {
     RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
     typeof maybeOutputTypeRecordIDs,
   );
-  const outputTypeRecordIDs: $ReadOnlySet<DataID> = new Set(
-    maybeOutputTypeRecordIDs,
-  );
 
-  return outputTypeRecordIDs;
+  return maybeOutputTypeRecordIDs;
 }
 
 module.exports = getOutputTypeRecordIDs;

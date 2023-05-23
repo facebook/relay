@@ -27,7 +27,7 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ Invalid type given for `onType`. "Loser" is not an existing GraphQL type. Did you mean `User`?
+✖︎ Invalid type given for `@onType`. `Loser` is not an existing GraphQL type. Did you mean `User`?
 
   /path/to/test/fixture/relay-resolver-on-invalid-type.invalid.js:4:12
     3 │  *

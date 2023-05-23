@@ -26,6 +26,7 @@ use dashmap::DashSet;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
+use graphql_ir::ExecutableDefinitionName;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
@@ -556,7 +557,7 @@ impl CompilerState {
     pub fn get_dirty_definitions(
         &self,
         config: &Config,
-    ) -> FnvHashMap<ProjectName, Vec<StringKey>> {
+    ) -> FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>> {
         if self.dirty_artifact_paths.is_empty() {
             return Default::default();
         }

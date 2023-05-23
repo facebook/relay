@@ -25,21 +25,22 @@ fragment Foo_user on User {
   nearest_neighbor {
     ... @__ClientEdgeMetadataDirective
     # ServerObject {
-    #     query_name: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
+    #     query_name: OperationDefinitionName(
+    #         "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
+    #     ),
     #     unique_id: 0,
     # }
      {
       ...BestFriendResolverFragment_name @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_parent_type: "User",
+      #     field_id: FieldID(517),
       #     import_path: "BestFriendResolver",
       #     import_name: None,
-      #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "nearest_neighbor.best_friend",
       #     field_arguments: [],
       #     live: false,
-      #     output_type_info: None,
+      #     output_type_info: EdgeTo,
       #     fragment_data_injection_mode: None,
       # }
        @waterfall
@@ -54,7 +55,11 @@ fragment RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend on Us
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-within-non-client-edge.graphql:9:17,
-#         item: "Foo_user",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
 #     },
 # }
  @__RefetchableMetadata
@@ -80,7 +85,11 @@ query ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-within-non-client-edge.graphql:9:17,
-#         item: "Foo_user",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
 #     },
 # }
  {

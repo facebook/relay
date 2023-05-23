@@ -128,7 +128,7 @@ declare export opaque type ClientQuery<
 declare export opaque type Mutation<
   -TVariables: Variables,
   +TData,
-  TRawResponse = void,
+  TRawResponse = {...},
 >: Operation<TVariables, TData, TRawResponse>;
 
 /**

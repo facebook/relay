@@ -83,14 +83,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
-        enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
-        use_named_imports_for_relay_resolvers: true,
-        relay_resolver_model_syntax_enabled: false,
-        relay_resolver_enable_terse_syntax: false,
         emit_normalization_nodes_for_client_edges: true,
+        relay_resolver_enable_output_type: FeatureFlag::Disabled,
     };
 
     let project_config = ProjectConfig {

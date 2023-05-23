@@ -10,7 +10,8 @@
  */
 
 'use strict';
-
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {RecordSourceSelectorProxy} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -55,11 +56,13 @@ describe('execute() with handler and updater', () => {
     `;
     operation = createOperationDescriptor(query, {});
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       RelayObservable.create(sink => {
         subject = sink;
       }),
@@ -93,7 +96,7 @@ describe('execute() with handler and updater', () => {
   });
 
   it('calls next() and runs updater when payloads return', () => {
-    const updater = jest.fn();
+    const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     environment.executeSubscription({operation, updater}).subscribe(callbacks);
     subject.next({
       data: {

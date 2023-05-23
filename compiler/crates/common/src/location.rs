@@ -64,6 +64,10 @@ impl SourceLocationKey {
         path.pop();
         path
     }
+
+    pub fn is_generated(&self) -> bool {
+        matches!(self, SourceLocationKey::Generated)
+    }
 }
 
 /// An absolute source location describing both the file and position (span)
@@ -101,8 +105,8 @@ impl Location {
         self.source_location
     }
 
-    pub fn span(&self) -> &Span {
-        &self.span
+    pub fn span(&self) -> Span {
+        self.span
     }
 
     pub fn with_span(&self, span: Span) -> Self {

@@ -117,7 +117,7 @@ The object that `useLazyLoadQuery` returns has the same shape as the query. For 
     summary: "The annual Yak of the Year awards ceremony ...",
     poster: {
       name: "Baller Bovine Board",
-      profilePic: {
+      profilePicture: {
         url: '/images/baller_bovine_board.jpg',
       },
     },
@@ -229,7 +229,7 @@ If we look inside `__generated__/NewsfeedQuery.graphql` we’ll see the followin
 ```
 export type NewsfeedQuery$data = {
   readonly topStory: {
-    readonly author: {
+    readonly poster: {
       readonly name: string | null;
       readonly profilePicture: {
         readonly url: string;

@@ -17,11 +17,12 @@ path = "tests/ir_test.rs"
 [dependencies]
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-intern = { path = "../intern" }
 relay-transforms = { path = "../relay-transforms" }
+rustc-hash = "1.1.0"
 schema = { path = "../schema" }
 
 [dev-dependencies]
 common = { path = "../common" }
 fixture-tests = { path = "../fixture-tests" }
+intern = { path = "../intern" }
 relay-test-schema = { path = "../relay-test-schema" }

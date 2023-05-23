@@ -15,16 +15,20 @@ use common::Location;
 use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
+use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -45,7 +49,6 @@ use super::ValidationMessageWithData;
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
 use crate::relay_resolvers::get_bool_argument_is_true;
-use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use crate::RequiredMetadataDirective;
 use crate::ValidationMessage;
 use crate::REQUIRED_DIRECTIVE_NAME;
@@ -68,7 +71,7 @@ lazy_static! {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ClientEdgeMetadataDirective {
     ServerObject {
-        query_name: StringKey,
+        query_name: OperationDefinitionName,
         unique_id: u32,
     },
     ClientObject {
@@ -81,7 +84,7 @@ associated_data_impl!(ClientEdgeMetadataDirective);
 /// Metadata directive attached to generated queries
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ClientEdgeGeneratedQueryMetadataDirective {
-    pub source_name: WithLocation<StringKey>,
+    pub source_name: WithLocation<ExecutableDefinitionName>,
 }
 associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
@@ -160,7 +163,7 @@ pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> Diagnost
 
 struct ClientEdgesTransform<'program, 'sc> {
     path: Vec<&'program str>,
-    document_name: Option<WithLocation<StringKey>>,
+    document_name: Option<WithLocation<ExecutableDefinitionName>>,
     query_names: StringKeyMap<usize>,
     program: &'program Program,
     new_fragments: Vec<Arc<FragmentDefinition>>,
@@ -185,7 +188,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         }
     }
 
-    fn generate_query_name(&mut self) -> StringKey {
+    fn generate_query_name(&mut self) -> OperationDefinitionName {
         let document_name = self.document_name.expect("We are within a document");
         let name_root = format!(
             "ClientEdgeQuery_{}_{}",
@@ -205,14 +208,14 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .or_insert(0);
 
         match num {
-            0 => name_root,
-            n => format!("{}_{}", name_root, n).intern(),
+            0 => OperationDefinitionName(name_root),
+            n => OperationDefinitionName(format!("{}_{}", name_root, n).intern()),
         }
     }
 
     fn generate_client_edge_query(
         &mut self,
-        generated_query_name: StringKey,
+        generated_query_name: OperationDefinitionName,
         field_type: Type,
         selections: Vec<Selection>,
     ) {
@@ -452,7 +455,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name.map(|x| x.0));
+        self.document_name = Some(fragment.name.map(|name| name.into()));
         let new_fragment = self.default_transform_fragment(fragment);
         self.document_name = None;
         new_fragment
@@ -462,7 +465,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name.map(|x| x.0));
+        self.document_name = Some(operation.name.map(|name| name.into()));
         let new_operation = self.default_transform_operation(operation);
         self.document_name = None;
         new_operation
@@ -513,12 +516,12 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
     }
 }
 
-fn make_refetchable_directive(query_name: StringKey) -> Directive {
+fn make_refetchable_directive(query_name: OperationDefinitionName) -> Directive {
     Directive {
         name: WithLocation::generated(*REFETCHABLE_NAME),
         arguments: vec![Argument {
             name: WithLocation::generated(*QUERY_NAME_ARG),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name))),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name.0))),
         }],
         data: None,
     }
@@ -560,10 +563,9 @@ impl Transformer for ClientEdgesCleanupTransform {
 // accept an option.
 fn has_output_type(directive: Option<&DirectiveValue>) -> bool {
     match directive {
-        Some(directive) => get_bool_argument_is_true(
-            &directive.arguments,
-            *crate::relay_resolvers::RELAY_RESOLVER_HAS_OUTPUT_TYPE,
-        ),
+        Some(directive) => {
+            get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME)
+        }
         None => false,
     }
 }

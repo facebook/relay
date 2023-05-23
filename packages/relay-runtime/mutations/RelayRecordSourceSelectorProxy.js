@@ -14,10 +14,10 @@
 import type {
   FragmentType,
   HasUpdatableSpread,
+  MissingFieldHandler,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
-  MissingFieldHandler,
   SingularReaderSelector,
   UpdatableData,
 } from '../store/RelayStoreTypes';

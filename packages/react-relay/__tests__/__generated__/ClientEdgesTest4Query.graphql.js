@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c6beeed00ed846e757a9b5264cd89d6d>>
+ * @generated SignedSource<<8b4d0c7a6aa69c38d1679dea5b1b1582>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import {client_object as userClientObjectResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeClientObjectResolver.js";
 // Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientObjectResolverType: (
   args: {|
     id: string,
-  |}, 
-) => mixed);
+  |},
+) => ?{|
+  +id: DataID,
+|});
 export type ClientEdgesTest4Query$variables = {|
   id: string,
 |};
@@ -139,7 +142,8 @@ return {
               "args": (v1/*: any*/),
               "fragment": null,
               "kind": "RelayResolver",
-              "storageKey": null
+              "storageKey": null,
+              "isOutputType": false
             },
             "linkedField": (v2/*: any*/)
           },

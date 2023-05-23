@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4bce2586e1c1861973156ec488eb1c55>>
+ * @generated SignedSource<<988c66ae7bbf9606e18c220b403a2af6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,13 +27,13 @@ import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__test
 (queryTodoResolverType: (
   args: {|
     todoID: string,
-  |}, 
+  |},
 ) => LiveState<?Query__todo$normalization>);
 import {blocked_by as todoBlockedByResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
 // Type assertion validating that `todoBlockedByResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoBlockedByResolverType: (
-  rootKey: TodoBlockedByResolverFragment$key, 
+  rootKey: TodoBlockedByResolverFragment$key,
 ) => $ReadOnlyArray<?Todo__blocked_by$normalization>);
 import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 import type { Todo__blocked_by$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql";
@@ -89,7 +89,8 @@ v2 = {
         "abstractKey": null
       },
       "kind": "RelayResolver",
-      "storageKey": null
+      "storageKey": null,
+      "isOutputType": false
     }
   ],
   "type": "Todo",
@@ -143,7 +144,7 @@ return {
                 "kind": "RelayResolver",
                 "name": "blocked_by",
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
-                "path": "blocked_by",
+                "path": "todo.blocked_by",
                 "normalizationInfo": {
                   "concreteType": "Todo",
                   "plural": true,
@@ -188,7 +189,8 @@ return {
           "args": (v1/*: any*/),
           "fragment": null,
           "kind": "RelayResolver",
-          "storageKey": null
+          "storageKey": null,
+          "isOutputType": true
         },
         "linkedField": {
           "alias": null,
@@ -205,7 +207,8 @@ return {
                 "args": null,
                 "fragment": (v2/*: any*/),
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": true
               },
               "linkedField": {
                 "alias": null,
@@ -222,7 +225,8 @@ return {
                       "args": null,
                       "fragment": (v2/*: any*/),
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": true
                     },
                     "linkedField": {
                       "alias": null,
@@ -280,7 +284,8 @@ return {
                                     "abstractKey": null
                                   },
                                   "kind": "RelayResolver",
-                                  "storageKey": null
+                                  "storageKey": null,
+                                  "isOutputType": false
                                 }
                               ],
                               "storageKey": null
@@ -297,7 +302,8 @@ return {
                     "args": null,
                     "fragment": (v2/*: any*/),
                     "kind": "RelayResolver",
-                    "storageKey": null
+                    "storageKey": null,
+                    "isOutputType": false
                   }
                 ],
                 "storageKey": null

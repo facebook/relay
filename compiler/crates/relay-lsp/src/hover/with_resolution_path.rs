@@ -7,6 +7,7 @@
 
 use common::DirectiveName;
 use common::NamedItem;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Value;
@@ -21,7 +22,6 @@ use intern::Lookup;
 use lsp_types::Hover;
 use lsp_types::HoverContents;
 use lsp_types::MarkedString;
-use relay_transforms::RELAY_RESOLVER_DIRECTIVE_NAME;
 use resolution_path::ArgumentPath;
 use resolution_path::ArgumentRoot;
 use resolution_path::ConstantArgPath;

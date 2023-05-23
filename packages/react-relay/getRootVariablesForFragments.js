@@ -32,7 +32,6 @@ function getRootVariablesForFragments<TProps: {...}>(
         ? selector.selectors[0]?.owner.variables ?? {}
         : selector?.owner.variables ?? {};
     rootVariables = {
-      // $FlowFixMe[exponential-spread]
       ...rootVariables,
       ...fragmentOwnerVariables,
     };

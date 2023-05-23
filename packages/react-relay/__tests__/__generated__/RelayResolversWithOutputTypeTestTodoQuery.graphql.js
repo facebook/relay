@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<03dd72cf2d41f18368ac5c670817ae76>>
+ * @generated SignedSource<<4574da14e49da2cd2c7a51dfe63919b2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__test
 (queryTodoResolverType: (
   args: {|
     todoID: string,
-  |}, 
+  |},
 ) => LiveState<?Query__todo$normalization>);
 import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoQuery$variables = {|
@@ -79,7 +79,8 @@ v2 = {
         "abstractKey": null
       },
       "kind": "RelayResolver",
-      "storageKey": null
+      "storageKey": null,
+      "isOutputType": false
     }
   ],
   "type": "Todo",
@@ -145,7 +146,8 @@ return {
           "args": (v1/*: any*/),
           "fragment": null,
           "kind": "RelayResolver",
-          "storageKey": null
+          "storageKey": null,
+          "isOutputType": true
         },
         "linkedField": {
           "alias": null,
@@ -162,7 +164,8 @@ return {
                 "args": null,
                 "fragment": (v2/*: any*/),
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": true
               },
               "linkedField": {
                 "alias": null,
@@ -220,7 +223,8 @@ return {
                               "abstractKey": null
                             },
                             "kind": "RelayResolver",
-                            "storageKey": null
+                            "storageKey": null,
+                            "isOutputType": false
                           }
                         ],
                         "storageKey": null
@@ -237,7 +241,8 @@ return {
               "args": null,
               "fragment": (v2/*: any*/),
               "kind": "RelayResolver",
-              "storageKey": null
+              "storageKey": null,
+              "isOutputType": false
             }
           ],
           "storageKey": null

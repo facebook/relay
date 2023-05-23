@@ -17,8 +17,8 @@ import type {INetwork} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type {
   ExecuteMutationConfig,
-  MissingFieldHandler,
   LogFunction,
+  MissingFieldHandler,
   MutationParameters,
   OperationAvailability,
   OperationDescriptor,

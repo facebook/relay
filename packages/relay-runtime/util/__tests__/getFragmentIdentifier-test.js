@@ -11,6 +11,7 @@
 
 'use strict';
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
+
 const {graphql} = require('../../query/GraphQLTag');
 const getFragmentIdentifier = require('../getFragmentIdentifier');
 const RelayFeatureFlags = require('../RelayFeatureFlags');

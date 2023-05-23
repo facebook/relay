@@ -760,6 +760,7 @@ class Executor<TMutation: MutationParameters> {
   _processAsyncOptimisticModuleImport(
     moduleImportPayload: ModuleImportPayload,
   ): void {
+    // $FlowFixMe[unused-promise]
     this._expectOperationLoader()
       .load(moduleImportPayload.operationReference)
       .then(operation => {

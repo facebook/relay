@@ -64,7 +64,7 @@ const variables = {
 
 beforeEach(() => {
   environment = createMockEnvironment();
-  isInFlightFn = jest.fn();
+  isInFlightFn = jest.fn<[boolean], mixed>();
 
   CommentCreateMutation = graphql`
     mutation useMutationTest1Mutation($input: CommentCreateInput) {
@@ -327,8 +327,8 @@ it('returns in-flight state that tracks all current mutations when disposed or e
 });
 
 it('calls onCompleted when mutation responses contains server errors', () => {
-  const onError = jest.fn();
-  const onCompleted = jest.fn();
+  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   render(environment, CommentCreateMutation);
   commit({variables, onError, onCompleted});
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -371,8 +371,8 @@ it('calls onCompleted when mutation responses contains server errors', () => {
   expect(isInFlightFn).toBeCalledWith(false);
 });
 it('calls onError when mutation errors in commitMutation', () => {
-  const onError = jest.fn();
-  const onCompleted = jest.fn();
+  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   const throwingUpdater = () => {
     throw new Error('<error0>');
   };
@@ -390,8 +390,8 @@ it('calls onError when mutation errors in commitMutation', () => {
 });
 
 it('calls onComplete when mutation successfully resolved', () => {
-  const onError = jest.fn();
-  const onCompleted = jest.fn();
+  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   render(environment, CommentCreateMutation);
   commit({variables, onError, onCompleted});
 
@@ -551,7 +551,7 @@ describe('unmount', () => {
   });
 
   it('does not dispose previous in-flight mutaiton ', () => {
-    const onCompleted = jest.fn();
+    const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     render(environment, CommentCreateMutation);
     commit({variables, onCompleted});
     ReactTestRenderer.act(() => instance.unmount());

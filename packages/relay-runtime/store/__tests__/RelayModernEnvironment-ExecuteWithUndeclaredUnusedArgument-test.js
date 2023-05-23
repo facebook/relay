@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Sink} from '../../network/RelayObservable';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -75,10 +76,28 @@ describe('query with undeclared, unused fragment argument', () => {
       }
     `;
     operation = createOperationDescriptor(query, {id: '4'});
-    fetch = jest.fn((_query, _variables, _cacheConfig) =>
-      RelayObservable.create(sink => {
-        subject = sink;
-      }),
+    fetch = jest.fn(
+      (
+        _query: $FlowExpectedError,
+        _variables: $FlowExpectedError,
+        _cacheConfig: $FlowExpectedError,
+      ) =>
+        RelayObservable.create(
+          (
+            sink: Sink<{
+              data: {
+                node: {
+                  __typename: string,
+                  id: string,
+                  name: string,
+                  profilePicture: {uri: string},
+                },
+              },
+            }>,
+          ) => {
+            subject = sink;
+          },
+        ),
     );
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);

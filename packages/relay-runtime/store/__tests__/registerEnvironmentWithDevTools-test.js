@@ -28,7 +28,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
   environmentType => {
     describe(environmentType, () => {
       it('should register environment with DevTools', () => {
-        const registerEnvironment = jest.fn();
+        const registerEnvironment = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         global.__RELAY_DEVTOOLS_HOOK__ = {
           registerEnvironment,
         };

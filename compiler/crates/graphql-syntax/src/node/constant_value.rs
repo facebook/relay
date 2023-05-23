@@ -44,6 +44,13 @@ impl ConstantValue {
             _ => None,
         }
     }
+
+    pub fn get_bool_literal(&self) -> Option<bool> {
+        match self {
+            ConstantValue::Boolean(BooleanNode { value, .. }) => Some(*value),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for ConstantValue {

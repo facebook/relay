@@ -11,8 +11,8 @@
 
 'use strict';
 
-import type {JSResourceReference} from 'JSResourceReference';
 import type {NormalizationSplitOperation} from './NormalizationNode';
+import type {JSResourceReference} from 'JSResourceReference';
 
 const {
   getModuleComponentKey,

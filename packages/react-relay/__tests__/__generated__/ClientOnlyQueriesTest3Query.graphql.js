@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f02463510a4af073802e09c07737dcc>>
+ * @generated SignedSource<<ca2f242cacca3be6caf5ff7e639f105c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,17 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import {hello_user as queryHelloUserResolverType} from "../../../relay-runtime/store/__tests__/resolvers/HelloUserResolver.js";
 // Type assertion validating that `queryHelloUserResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloUserResolverType: (
   args: {|
     id: string,
-  |}, 
-) => mixed);
+  |},
+) => ?{|
+  +id: DataID,
+|});
 export type ClientOnlyQueriesTest3Query$variables = {||};
 export type ClientOnlyQueriesTest3Query$data = {|
   +hello_user: ?{|
@@ -101,7 +104,8 @@ return {
         "args": (v0/*: any*/),
         "fragment": null,
         "kind": "RelayResolver",
-        "storageKey": "hello_user(id:\"4\")"
+        "storageKey": "hello_user(id:\"4\")",
+        "isOutputType": false
       }
     ]
   },

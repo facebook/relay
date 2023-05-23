@@ -76,11 +76,11 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   let loaderRenderLogs: Array<string>;
 
   beforeEach(() => {
-    jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+    jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
 
     environment = createMockEnvironment();
 
-    release = jest.fn();
+    release = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
@@ -93,7 +93,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn();
+    cancelNetworkRequest = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
     (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<672f54ba02b4d62e4d624bf3114bb9e5>>
+ * @generated SignedSource<<1aba9b07c641d36e60acc46f1a0f1c38>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,10 +23,10 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
 // Type assertion validating that `userCustomGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCustomGreetingResolverType: (
-  rootKey: UserCustomGreetingResolver$key, 
+  rootKey: UserCustomGreetingResolver$key,
   args: {|
     salutation: string,
-  |}, 
+  |},
 ) => mixed);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,
@@ -160,21 +160,24 @@ return {
             "args": (v1/*: any*/),
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "name": "custom_greeting",
             "args": (v3/*: any*/),
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
-            "storageKey": "custom_greeting(salutation:\"Greetz\")"
+            "storageKey": "custom_greeting(salutation:\"Greetz\")",
+            "isOutputType": false
           },
           {
             "name": "custom_greeting",
             "args": (v4/*: any*/),
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
-            "storageKey": "custom_greeting(salutation:\"Willkommen\")"
+            "storageKey": "custom_greeting(salutation:\"Willkommen\")",
+            "isOutputType": false
           },
           {
             "alias": null,

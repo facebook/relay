@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c38047a9c00466116dcc8931f1fc8db8>>
+ * @generated SignedSource<<b655845da1ed599a60c8b6b27c7df4b2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ import {live_counter_with_possible_missing_fragment_data as queryLiveCounterWith
 // Type assertion validating that `queryLiveCounterWithPossibleMissingFragmentDataResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveCounterWithPossibleMissingFragmentDataResolverType: (
-  rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key, 
-) => LiveState<any>);
+  rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key,
+) => LiveState<mixed>);
 export type LiveResolversTestWithGCQuery$variables = {||};
 export type LiveResolversTestWithGCQuery$data = {|
   +live_counter_with_possible_missing_fragment_data: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveCounterWithPossibleMissingFragmentDataResolverType>["read"]>,
@@ -95,7 +95,8 @@ var node/*: ConcreteRequest*/ = {
           "abstractKey": null
         },
         "kind": "RelayResolver",
-        "storageKey": null
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

@@ -5,25 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::hash::Hash;
+
 use common::ArgumentName;
 use common::DirectiveName;
 use common::Location;
-use common::NamedItem;
-use common::WithLocation;
-use graphql_ir::Argument;
-use graphql_ir::ConstantValue;
-use graphql_ir::Directive;
+use graphql_ir::associated_data_impl;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
-use graphql_ir::OperationDefinitionName;
-use graphql_ir::Value;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use rustc_hash::FxHashSet;
 
 lazy_static! {
     pub static ref DIRECTIVE_SPLIT_OPERATION: DirectiveName =
-        DirectiveName("__splitOperation".intern());
+        SplitOperationMetadata::directive_name();
     static ref ARG_DERIVED_FROM: ArgumentName = ArgumentName("derivedFrom".intern());
     static ref ARG_PARENT_DOCUMENTS: ArgumentName = ArgumentName("parentDocuments".intern());
     static ref ARG_RAW_RESPONSE_TYPE: ArgumentName = ArgumentName("rawResponseType".intern());
@@ -53,6 +49,7 @@ lazy_static! {
 ///   ...F @module
 /// }
 /// ```
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SplitOperationMetadata {
     /// Name of the fragment that this split operation represents. This is used
     /// to determine the name of the generated artifact.
@@ -70,119 +67,27 @@ pub struct SplitOperationMetadata {
     pub raw_response_type_generation_mode: Option<RawResponseGenerationMode>,
 }
 
+// associated_data_impl requires Hash, and we cannot derive Hash since HashSet iteration
+// order is unstable.
+impl Hash for SplitOperationMetadata {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // We should only have a single SplitOperationMetadata per unique derived_from or
+        // location. In addition, Hash implementations only requires this property.
+        //   k1 == k2 -> hash(k1) == hash(k2)
+        self.derived_from.hash(state);
+        self.location.hash(state);
+    }
+}
+
+associated_data_impl!(SplitOperationMetadata);
+
 /// For split operations. This will define the mode for the type generation of RawResponse type
 /// With Relay resolvers we may need to require all keys to be presented in the response shape.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum RawResponseGenerationMode {
     /// All keys are optional
     AllFieldsOptional,
     /// All keys in the raw response type are required
     /// (values can still be optional, based on the schema type)
     AllFieldsRequired,
-}
-
-impl SplitOperationMetadata {
-    pub fn to_directive(&self) -> Directive {
-        let mut arguments = vec![];
-        if let Some(derived_from) = self.derived_from {
-            arguments.push(Argument {
-                name: WithLocation::generated(*ARG_DERIVED_FROM),
-                value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                    derived_from.0,
-                ))),
-            })
-        }
-        arguments.push(Argument {
-            name: WithLocation::generated(*ARG_PARENT_DOCUMENTS),
-            value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                self.parent_documents
-                    .iter()
-                    .cloned()
-                    .map(|name| ConstantValue::String(name.into()))
-                    .collect(),
-            ))),
-        });
-
-        match self.raw_response_type_generation_mode {
-            Some(RawResponseGenerationMode::AllFieldsOptional) => {
-                arguments.push(Argument {
-                    name: WithLocation::generated(*ARG_RAW_RESPONSE_TYPE),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::Null())),
-                });
-            }
-            Some(RawResponseGenerationMode::AllFieldsRequired) => {
-                arguments.push(Argument {
-                    name: WithLocation::generated(*ARG_RAW_RESPONSE_TYPE_STRICT),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::Null())),
-                });
-            }
-            None => {}
-        }
-
-        Directive {
-            name: WithLocation::new(self.location, *DIRECTIVE_SPLIT_OPERATION),
-            arguments,
-            data: None,
-        }
-    }
-}
-
-impl From<&Directive> for SplitOperationMetadata {
-    fn from(directive: &Directive) -> Self {
-        debug_assert!(directive.name.item == *DIRECTIVE_SPLIT_OPERATION);
-        let location = directive.name.location;
-        let derived_from_arg = directive.arguments.named(*ARG_DERIVED_FROM);
-        let derived_from = derived_from_arg
-            .map(|arg| FragmentDefinitionName(arg.value.item.expect_string_literal()));
-        let parent_documents_arg = directive
-            .arguments
-            .named(*ARG_PARENT_DOCUMENTS)
-            .expect("Expected parent_documents arg to exist");
-        let is_raw_response_type = directive.arguments.named(*ARG_RAW_RESPONSE_TYPE).is_some();
-        let is_raw_response_type_strict = directive
-            .arguments
-            .named(*ARG_RAW_RESPONSE_TYPE_STRICT)
-            .is_some();
-
-        let raw_response_type_generation_mode =
-            match (is_raw_response_type_strict, is_raw_response_type) {
-                (true, false) => Some(RawResponseGenerationMode::AllFieldsRequired),
-                (false, true) => Some(RawResponseGenerationMode::AllFieldsOptional),
-                (false, false) => None,
-                _ => {
-                    panic!("Only one of raw_response_type arguments is expected.")
-                }
-            };
-
-        if let Value::Constant(ConstantValue::List(source_definition_names)) =
-            &parent_documents_arg.value.item
-        {
-            let parent_documents = source_definition_names
-                .iter()
-                .map(|val| {
-                    if let ConstantValue::String(name) = val {
-                        // TODO: replace to_directive and from_directive with associated_data_impl (T143638419)
-                        // Note: we are assuming that the string key is an OperationDefinition here,
-                        // but we don't know that!
-                        // We don't actually rely on this piece of knowledge (e.g. ExecutableDefinitionName
-                        // could be a union instead of an enum), but in the future we get rid of this function and
-                        // use the data: Option<Any> field instead of serializing to parameters.
-                        ExecutableDefinitionName::OperationDefinitionName(OperationDefinitionName(
-                            *name,
-                        ))
-                    } else {
-                        panic!("Expected item in the parent sources to be a StringKey.")
-                    }
-                })
-                .collect();
-            Self {
-                derived_from,
-                location,
-                parent_documents,
-                raw_response_type_generation_mode,
-            }
-        } else {
-            panic!("Expected parent sources to be a constant of list.");
-        }
-    }
 }

@@ -76,5 +76,6 @@ module.exports = {
 
     // Custom rules for our own codebase
     'relay-internal/no-mixed-import-and-require': 'error',
+    'relay-internal/sort-imports': 'error',
   },
 };

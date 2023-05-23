@@ -41,6 +41,7 @@ let update;
 let Container;
 let environment;
 
+// $FlowFixMe[underconstrained-implicit-instantiation]
 const loadQuery = jest.fn().mockImplementation(() => {
   dispose = jest.fn();
   return {
@@ -296,7 +297,7 @@ describe('when an initial preloaded query is passed', () => {
 });
 
 beforeEach(() => {
-  jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+  jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
 });
 
 afterEach(() => {

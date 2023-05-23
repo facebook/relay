@@ -27,8 +27,8 @@ import userPopStarNameResolverType from "PopStarNameResolver";
   args: {|
     count: ?number,
     greeting: string,
-  |}, 
-) => LiveState<any>);
+  |},
+) => LiveState<mixed>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|

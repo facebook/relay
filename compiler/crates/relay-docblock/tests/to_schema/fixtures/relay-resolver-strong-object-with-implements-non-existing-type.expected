@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver FriendGroup implements TweedUnit
+ */
+==================================== ERROR ====================================
+✖︎ The type `TweedUnit` is not an existing GraphQL type. Did you mean `FeedUnit`?
+
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-non-existing-type.js:2:19
+    1 │ *
+    2 │  * @RelayResolver FriendGroup implements TweedUnit
+      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │

@@ -17,3 +17,6 @@ pub use ast::get_definition_references;
 pub use ast::get_reachable_ast;
 pub use ast::ReachableAst;
 pub use ir::get_reachable_ir;
+pub use ir::ExecutableDefinitionNameMap;
+pub use ir::ExecutableDefinitionNameSet;
+pub use ir::ExecutableDefinitionNameVec;

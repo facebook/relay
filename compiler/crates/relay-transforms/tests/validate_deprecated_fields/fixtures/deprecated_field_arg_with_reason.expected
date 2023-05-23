@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+fragment Foo on MyNewType {
+  some_old_field(my_arg: "Hello")
+}
+%extensions%
+type MyNewType {
+  some_old_field(my_arg: String! @deprecated(reason: "Not supported any more.")): String
+}
+==================================== OUTPUT ===================================
+ℹ The argument `my_arg` of the field `MyNewType.some_old_field` is deprecated. Deprecation reason: "Not supported any more."
+
+  deprecated_field_arg_with_reason.graphql:2:18
+    1 │ fragment Foo on MyNewType {
+    2 │   some_old_field(my_arg: "Hello")
+      │                  ^^^^^^
+    3 │ }

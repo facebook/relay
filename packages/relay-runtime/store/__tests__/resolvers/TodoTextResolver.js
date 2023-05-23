@@ -11,11 +11,11 @@
 
 'use strict';
 
-import type {TodoTextResolverFragment$key} from './__generated__/TodoTextResolverFragment.graphql';
 import type {Todo__text$normalization as ReturnType} from './__generated__/Todo__text$normalization.graphql.js';
+import type {TodoTextResolverFragment$key} from './__generated__/TodoTextResolverFragment.graphql';
 
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
 const {graphql} = require('relay-runtime');
+const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
  * @RelayResolver

@@ -11,12 +11,12 @@
 
 'use strict';
 
-import type {JSResourceReference} from 'JSResourceReference';
 import type {
   EntryPoint,
   EntryPointProps,
   PreloadedEntryPoint,
 } from '../../EntryPointTypes.flow';
+import type {JSResourceReference} from 'JSResourceReference';
 
 declare function mockJSResource<TModule>(
   module: TModule,

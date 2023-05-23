@@ -139,7 +139,7 @@ class RelayRecordProxy implements RecordProxy {
   }
 
   setLinkedRecords(
-    records: Array<?RecordProxy>,
+    records: $ReadOnlyArray<?RecordProxy>,
     name: string,
     args?: ?Arguments,
   ): RecordProxy {

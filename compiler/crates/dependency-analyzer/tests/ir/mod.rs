@@ -15,7 +15,6 @@ use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
-use relay_transforms::DependencySet;
 use schema::SDLSchema;
 
 fn format_definition(def: ExecutableDefinition) -> String {
@@ -47,22 +46,32 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .split(',')
         .map(|name| name.trim())
         .filter(|name| !name.is_empty())
-        .map(|name| name.intern())
+        .flat_map(|name| {
+            // Note: this is a bit of a hack! Here, we don't know whether the stringkey represents
+            // a fragment or operation name, so we mark both "a fragment named X" and "a query named
+            // X" as having changed.
+            vec![
+                FragmentDefinitionName(name.intern()).into(),
+                OperationDefinitionName(name.intern()).into(),
+            ]
+        })
         .collect();
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let mut asts = parse_executable(parts[0], source_location)
         .unwrap()
         .definitions;
-    let mut base_names: DependencySet = Default::default();
+    let mut base_names: ExecutableDefinitionNameSet = Default::default();
     for part in parts.iter().skip(1) {
         let defs = parse_executable(part, source_location).unwrap().definitions;
         for def in defs {
             base_names.insert(match &def {
                 graphql_syntax::ExecutableDefinition::Operation(node) => {
-                    node.name.clone().unwrap().value
+                    OperationDefinitionName(node.name.clone().unwrap().value).into()
                 }
-                graphql_syntax::ExecutableDefinition::Fragment(node) => node.name.value,
+                graphql_syntax::ExecutableDefinition::Fragment(node) => {
+                    FragmentDefinitionName(node.name.value).into()
+                }
             });
             asts.push(def);
         }

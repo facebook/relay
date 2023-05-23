@@ -27,7 +27,7 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 
 const {useContext} = React;
 
-describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
+describe('ReactRelayRefetchContainer with fragment ownership', () => {
   let TestChildComponent;
   let TestComponent;
   let TestChildContainer;

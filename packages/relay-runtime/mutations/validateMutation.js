@@ -21,8 +21,8 @@ import type {Variables} from '../util/RelayRuntimeTypes';
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
-  CLIENT_EXTENSION,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
+  CLIENT_EXTENSION,
   CONDITION,
   DEFER,
   FLIGHT_FIELD,

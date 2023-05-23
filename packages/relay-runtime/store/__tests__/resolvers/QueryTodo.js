@@ -12,13 +12,12 @@
 'use strict';
 
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
+import type {Query__todo$normalization as ReturnType} from './__generated__/Query__todo$normalization.graphql';
 
 const {
-  TODO_STORE,
   Selectors,
+  TODO_STORE,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-
-import type {Query__todo$normalization as ReturnType} from './__generated__/Query__todo$normalization.graphql';
 /**
  * @RelayResolver
  * @onType Query

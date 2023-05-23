@@ -243,7 +243,8 @@ fragment RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me_
               "abstractKey": null
             },
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

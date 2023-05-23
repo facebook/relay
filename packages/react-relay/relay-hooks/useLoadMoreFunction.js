@@ -29,8 +29,8 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const invariant = require('invariant');
 const {useCallback, useEffect, useState} = require('react');
 const {
-  ConnectionInterface,
   __internal: {fetchQuery},
+  ConnectionInterface,
   createOperationDescriptor,
   getPaginationVariables,
   getSelector,
@@ -42,7 +42,7 @@ export type LoadMoreFn<TVariables: Variables> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
-    UNSTABLE_extraVariables?: $Shape<TVariables>,
+    UNSTABLE_extraVariables?: Partial<TVariables>,
   },
 ) => Disposable;
 
@@ -125,7 +125,7 @@ function useLoadMoreFunction<TVariables: Variables>(
     (
       count: number,
       options: void | {
-        UNSTABLE_extraVariables?: $Shape<TVariables>,
+        UNSTABLE_extraVariables?: Partial<TVariables>,
         onComplete?: (Error | null) => void,
       },
     ) => {

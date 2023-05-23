@@ -32,6 +32,7 @@ const invariant = require('invariant');
 const {useDebugValue, useEffect, useMemo, useRef, useState} = require('react');
 const {
   __internal: {fetchQuery: fetchQueryInternal},
+  RelayFeatureFlags,
   areEqualSelectors,
   createOperationDescriptor,
   getPendingOperationsForFragment,
@@ -565,7 +566,7 @@ function useFragmentInternal_REACT_CACHE(
     data = state.snapshot.data;
   }
 
-  if (__DEV__) {
+  if (RelayFeatureFlags.LOG_MISSING_RECORDS_IN_PROD || __DEV__) {
     if (
       fragmentRef != null &&
       (data === undefined ||

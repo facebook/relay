@@ -30,8 +30,6 @@ describe('cloneRelayHandleSourceField()', () => {
       }
     `;
     // Get the selections on `me`.
-    // $FlowFixMe[incompatible-use]
-    // $FlowFixMe[prop-missing]
     selections = TestQuery.operation.selections[0].selections;
   });
 
@@ -50,7 +48,6 @@ describe('cloneRelayHandleSourceField()', () => {
     expect(clone.kind).toBe(LINKED_FIELD);
     expect(clone.name).toBe(getRelayHandleKey('test', null, 'address'));
     // $FlowFixMe[incompatible-use]
-    // $FlowFixMe[prop-missing]
     expect(clone.selections).toEqual(sourceField.selections);
   });
 

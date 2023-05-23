@@ -71,7 +71,7 @@ impl TextSource {
         Range::new(start_position, end_position)
     }
 
-    pub fn to_span_range(&self, span: &Span) -> lsp_types::Range {
+    pub fn to_span_range(&self, span: Span) -> lsp_types::Range {
         let start = span.start as usize;
         let end = span.end as usize;
         // Zero-indexed line offset in the document
@@ -122,7 +122,7 @@ mod test {
     fn to_range_test() {
         let span = Span::new(0, 5);
         let text_source = TextSource::new("source", 0, 0);
-        let range = text_source.to_span_range(&span);
+        let range = text_source.to_span_range(span);
         assert_eq!(range.start, lsp_types::Position::new(0, 0));
         assert_eq!(range.end, lsp_types::Position::new(0, 5));
     }
@@ -140,7 +140,7 @@ fn foo() {
             0,
             0,
         );
-        let range = text_source.to_span_range(&span);
+        let range = text_source.to_span_range(span);
         assert_eq!(range.start, lsp_types::Position::new(1, 0));
         assert_eq!(range.end, lsp_types::Position::new(3, 1));
     }
@@ -157,7 +157,7 @@ fn foo() {
             0,
             0,
         );
-        let range = text_source.to_span_range(&span);
+        let range = text_source.to_span_range(span);
         assert_eq!(range.start, lsp_types::Position::new(2, 4));
         assert_eq!(range.end, lsp_types::Position::new(2, 9));
     }

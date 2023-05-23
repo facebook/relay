@@ -22,6 +22,7 @@ use common::SourceLocationKey;
 use common::WithDiagnostics;
 pub use lexer::TokenKind;
 pub use node::*;
+pub use parser::FragmentArgumentSyntaxKind;
 pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
 pub use syntax_error::SyntaxError;
@@ -143,6 +144,17 @@ pub fn parse_identifier(
     let features = ParserFeatures::default();
     let parser = Parser::with_offset(source, source_location, features, offset);
     parser.parse_identifier_result()
+}
+
+/// Parses a GraphQL identifier followed optionally by `implements Foo & Bar`.
+pub fn parse_identifier_and_implements_interfaces(
+    source: &str,
+    source_location: SourceLocationKey,
+    offset: u32,
+) -> DiagnosticsResult<(Identifier, Vec<Identifier>)> {
+    let features = ParserFeatures::default();
+    let parser = Parser::with_offset(source, source_location, features, offset);
+    parser.parse_identifier_and_implements_interfaces_result()
 }
 
 /// Parses a GraphQL document that's restricted to type system definitions

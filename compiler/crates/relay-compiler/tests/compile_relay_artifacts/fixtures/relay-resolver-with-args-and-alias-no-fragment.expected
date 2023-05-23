@@ -128,7 +128,8 @@ extend type User {
                     ],
                     "fragment": null,
                     "kind": "RelayResolver",
-                    "storageKey": "pop_star_name(scale:1.5)"
+                    "storageKey": "pop_star_name(scale:1.5)",
+                    "isOutputType": false
                   },
                   {
                     "name": "pop_star_name",
@@ -141,7 +142,8 @@ extend type User {
                     ],
                     "fragment": null,
                     "kind": "RelayResolver",
-                    "storageKey": "pop_star_name(scale:2.5)"
+                    "storageKey": "pop_star_name(scale:2.5)",
+                    "isOutputType": false
                   }
                 ]
               }

@@ -45,6 +45,7 @@ const {
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -59,7 +60,6 @@ const {
   SCALAR_HANDLE,
   STREAM,
   TYPE_DISCRIMINATOR,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {generateClientID, isClientID} = require('./ClientID');
@@ -310,17 +310,13 @@ class RelayResponseNormalizer {
           const fieldKey = getStorageKey(selection, this._variables);
           const handleKey = getHandleStorageKey(selection, this._variables);
           this._handleFieldPayloads.push({
-            /* $FlowFixMe[class-object-subtyping] added when improving typing
-             * for this parameters */
             args,
             dataID: RelayModernRecord.getDataID(record),
             fieldKey,
             handle: selection.handle,
             handleKey,
             handleArgs: selection.handleArgs
-              ? /* $FlowFixMe[class-object-subtyping] added when improving typing
-                 * for this parameters */
-                getArgumentValues(selection.handleArgs, this._variables)
+              ? getArgumentValues(selection.handleArgs, this._variables)
               : {},
           });
           break;

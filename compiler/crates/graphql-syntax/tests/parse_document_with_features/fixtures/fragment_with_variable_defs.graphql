@@ -1,0 +1,3 @@
+fragment Test($x: Int = 3) on User {
+  ...Bar
+}

@@ -1,0 +1,6 @@
+fragment Foo on User {
+  id @my_directive(my_arg: "Hello")
+}
+%extensions%
+
+directive @my_directive(my_arg: String! @deprecated) on FIELD

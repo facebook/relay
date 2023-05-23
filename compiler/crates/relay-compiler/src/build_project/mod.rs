@@ -41,9 +41,9 @@ use fnv::FnvHashSet;
 pub use generate_artifacts::generate_artifacts;
 pub use generate_artifacts::Artifact;
 pub use generate_artifacts::ArtifactContent;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
-use intern::string_key::StringKey;
 use log::debug;
 use log::info;
 use log::warn;
@@ -309,7 +309,7 @@ pub async fn commit_project(
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,
     // Definitions that are removed from the previous artifact map
-    removed_definition_names: Vec<StringKey>,
+    removed_definition_names: Vec<ExecutableDefinitionName>,
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: DashSet<PathBuf, FnvBuildHasher>,
     source_control_update_status: Arc<SourceControlUpdateStatus>,

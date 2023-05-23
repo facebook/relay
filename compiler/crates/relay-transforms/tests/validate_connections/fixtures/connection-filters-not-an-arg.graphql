@@ -1,0 +1,26 @@
+# expected-to-throw
+
+query NodeQuery($id: ID!, $ordering: String) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $ordering)
+        @connection(key: "NodeQuery_comments", filters: ["ordering"]) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

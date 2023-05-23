@@ -192,7 +192,6 @@ describe('ActorChange', () => {
       )>
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       return Observable.create(sink => {
         dataSource = sink;
       });
@@ -210,10 +209,11 @@ describe('ActorChange', () => {
 
   it('should render a fragment for actor', () => {
     const actorRenders = [];
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     const renderFn = jest.fn(data => {
       actorRenders.push(data);
     });
-    const renderViewerActorName = jest.fn();
+    const renderViewerActorName = jest.fn<[?string], void>();
 
     ReactTestRenderer.create(
       <ComponentWrapper

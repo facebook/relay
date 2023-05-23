@@ -114,7 +114,8 @@ extend interface SomeInterface {
                   "abstractKey": "__isSomeInterface"
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               }
             ],
             "storageKey": null

@@ -36,7 +36,22 @@ extend type User {
     )
 }
 ==================================== OUTPUT ===================================
-query User__pop_star_name$normalization @__splitOperation(parentDocuments: ["User__pop_star_name$normalization"], rawResponseTypeStrict: null) {
+query User__pop_star_name$normalization @__SplitOperationMetadata
+# SplitOperationMetadata {
+#     derived_from: None,
+#     location: output-type-with-relay-resolver-fields.graphql:204:217,
+#     parent_documents: {
+#         OperationDefinitionName(
+#             OperationDefinitionName(
+#                 "User__pop_star_name$normalization",
+#             ),
+#         ),
+#     },
+#     raw_response_type_generation_mode: Some(
+#         AllFieldsRequired,
+#     ),
+# }
+ {
   name
   stage_name
 }

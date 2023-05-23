@@ -15,13 +15,15 @@ use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable_with_features;
+use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
 use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let features = ParserFeatures {
-        enable_variable_definitions: true,
+        fragment_argument_capability:
+            FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
     };
     let ast = parse_executable_with_features(fixture.content, source_location, features).unwrap();
     let mut sources = FnvHashMap::default();

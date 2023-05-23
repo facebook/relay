@@ -18,7 +18,7 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ Missing docblock field "@fieldName"
+✖︎ Missing docblock field `@fieldName`
 
   /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:10:3
    10 │ *

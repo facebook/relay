@@ -6,15 +6,19 @@
  */
 
 use std::collections::hash_map::Entry;
+use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
 
 use common::Diagnostic;
 use common::SourceLocationKey;
+use dependency_analyzer::ExecutableDefinitionNameSet;
+use dependency_analyzer::ExecutableDefinitionNameVec;
 use fnv::FnvHashMap;
+use graphql_ir::ExecutableDefinitionName;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeySet;
 
 use crate::compiler_state::GraphQLSources;
 use crate::compiler_state::ProjectName;
@@ -26,9 +30,9 @@ use crate::file_source::LocatedGraphQLSource;
 pub struct GraphQLAsts {
     asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>>,
     /// Names of fragments and operations that are updated or created
-    pub pending_definition_names: StringKeySet,
+    pub pending_definition_names: ExecutableDefinitionNameSet,
     /// Names of fragments and operations that are deleted
-    pub removed_definition_names: Vec<StringKey>,
+    pub removed_definition_names: ExecutableDefinitionNameVec,
 }
 
 impl GraphQLAsts {
@@ -45,7 +49,7 @@ impl GraphQLAsts {
 
     pub fn from_graphql_sources_map(
         graphql_sources_map: &FnvHashMap<ProjectName, GraphQLSources>,
-        dirty_definitions_map: &FnvHashMap<ProjectName, Vec<StringKey>>,
+        dirty_definitions_map: &FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>>,
     ) -> Result<FnvHashMap<ProjectName, GraphQLAsts>> {
         graphql_sources_map
             .iter()
@@ -64,12 +68,12 @@ impl GraphQLAsts {
     /// Additionally collects the set of definition names that updated, given the compiler state
     pub fn from_graphql_sources(
         graphql_sources: &GraphQLSources,
-        dirty_definitions: Option<&Vec<StringKey>>,
+        dirty_definitions: Option<&Vec<ExecutableDefinitionName>>,
     ) -> Result<Self> {
         let mut syntax_errors = Vec::new();
 
         let mut asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>> = Default::default();
-        let mut pending_definition_names: StringKeySet = Default::default();
+        let mut pending_definition_names: ExecutableDefinitionNameSet = HashSet::default();
         let mut removed_definition_names = Vec::new();
 
         if let Some(dirty_definitions) = dirty_definitions {
@@ -95,7 +99,12 @@ impl GraphQLAsts {
                     Ok(document) => {
                         for def in &document.definitions {
                             if let Some(name) = def.name() {
-                                pending_definition_names.insert(name);
+                                match def {
+                                    ExecutableDefinition::Operation(_) => pending_definition_names
+                                        .insert(OperationDefinitionName(name).into()),
+                                    ExecutableDefinition::Fragment(_) => pending_definition_names
+                                        .insert(FragmentDefinitionName(name).into()),
+                                };
                             } else {
                                 syntax_errors.push(Diagnostic::error(
                                     "Expected operation to have a name (e.g. 'query <Name>')",
@@ -128,7 +137,16 @@ impl GraphQLAsts {
                             let name = def.name();
                             if let Some(def_name) = name {
                                 if !definitions_for_file.iter().any(|def| def.name() == name) {
-                                    removed_definition_names.push(def_name);
+                                    match def {
+                                        ExecutableDefinition::Operation(_) => {
+                                            removed_definition_names
+                                                .push(OperationDefinitionName(def_name).into())
+                                        }
+                                        ExecutableDefinition::Fragment(_) => {
+                                            removed_definition_names
+                                                .push(FragmentDefinitionName(def_name).into())
+                                        }
+                                    }
                                 }
                             }
                         }

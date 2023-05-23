@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d49b60a4b3cb712045ae4cbfc08f233d>>
+ * @generated SignedSource<<c5a859aea5428334c761593e8d12cb3f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,6 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { RelayResolverModelTestInterfaceFragment$fragmentType } from "./RelayResolverModelTestInterfaceFragment.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
@@ -25,8 +26,10 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
 (queryTodoModelResolverType: (
   args: {|
     todoID: string,
-  |}, 
-) => mixed);
+  |},
+) => ?{|
+  +id: DataID,
+|});
 export type RelayResolverModelTestTodoWithInterfaceQuery$variables = {|
   id: string,
 |};
@@ -148,7 +151,8 @@ return {
           "args": (v1/*: any*/),
           "fragment": null,
           "kind": "RelayResolver",
-          "storageKey": null
+          "storageKey": null,
+          "isOutputType": false
         },
         "linkedField": {
           "alias": null,
@@ -178,14 +182,16 @@ return {
                         "abstractKey": null
                       },
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": false
                     }
                   ],
                   "type": "TodoModel",
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": true
               },
               "linkedField": {
                 "alias": null,
@@ -202,7 +208,8 @@ return {
                       "args": null,
                       "fragment": (v3/*: any*/),
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": true
                     },
                     "linkedField": {
                       "alias": null,
@@ -222,7 +229,8 @@ return {
                       "args": null,
                       "fragment": (v3/*: any*/),
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": true
                     },
                     "linkedField": {
                       "alias": null,

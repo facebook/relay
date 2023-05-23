@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -102,11 +104,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         };
         operation = createOperationDescriptor(query, variables);
 
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetch = jest.fn((_query, _variables, _cacheConfig) => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           return RelayObservable.create(sink => {
             dataSource = sink;
           });
@@ -134,7 +138,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('publishes initial results to the store', () => {
         const operationSnapshot = environment.lookup(operation.fragment);
-        const operationCallback = jest.fn();
+        const operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
 
         environment.execute({operation}).subscribe(callbacks);
@@ -254,7 +258,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             getSingularSelector(fragment, operationSnapshot.data?.node),
           );
           const snapshot = environment.lookup(selector);
-          callback = jest.fn();
+          callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
         });
 

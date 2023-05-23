@@ -106,7 +106,7 @@ pub fn relay_client_component(
     }
     if !transform.split_operations.is_empty() {
         for (_, (metadata, mut operation)) in transform.split_operations.drain() {
-            operation.directives.push(metadata.to_directive());
+            operation.directives.push(metadata.into());
             if let Some(prev_operation) =
                 next_program.operation(OperationDefinitionName(operation.name.item.0))
             {

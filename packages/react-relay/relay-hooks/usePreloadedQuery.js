@@ -16,8 +16,7 @@ import type {
   PreloadedQueryInner,
   PreloadedQueryInner_DEPRECATED,
 } from './EntryPointTypes.flow';
-
-import type {RenderPolicy, Variables, Query} from 'relay-runtime';
+import type {Query, RenderPolicy, Variables} from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');

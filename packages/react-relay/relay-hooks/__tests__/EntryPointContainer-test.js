@@ -106,7 +106,9 @@ class FakeJSResource<T> {
 }
 
 beforeEach(() => {
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     Observable.create(sink => {
       dataSource = sink;
     }),
@@ -349,7 +351,6 @@ it('renders synchronously when the component has already loaded and the data arr
 });
 
 it('warns if the entryPointReference has already been disposed', () => {
-  // $FlowFixMe[incompatible-type]
   // $FlowFixMe[incompatible-call]
   entryPointReference = loadEntryPoint(
     {

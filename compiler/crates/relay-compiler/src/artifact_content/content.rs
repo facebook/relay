@@ -824,22 +824,22 @@ fn write_export_generated_node(
     variable_node: &str,
     forced_type: Option<String>,
 ) -> FmtResult {
-    if typegen_config.eager_es_modules {
-        writeln!(section, "export default {};", variable_node)
-    } else {
-        match (typegen_config.language, forced_type) {
-            (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
-                writeln!(section, "module.exports = {};", variable_node)
-            }
-            (TypegenLanguage::Flow, Some(forced_type)) => writeln!(
-                section,
-                "module.exports = (({}/*: any*/)/*: {}*/);",
-                variable_node, forced_type
-            ),
-            (TypegenLanguage::TypeScript, _) => {
-                writeln!(section, "export default {};", variable_node)
-            }
+    let export_value = match (typegen_config.language, forced_type) {
+        (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
+            variable_node.to_string()
         }
+        (TypegenLanguage::TypeScript, _) => {
+            // TODO: Support force_type for TypeScript
+            variable_node.to_string()
+        }
+        (TypegenLanguage::Flow, Some(forced_type)) => {
+            format!("(({}/*: any*/)/*: {}*/)", variable_node, forced_type)
+        }
+    };
+    if typegen_config.eager_es_modules || typegen_config.language == TypegenLanguage::TypeScript {
+        writeln!(section, "export default {};", export_value)
+    } else {
+        writeln!(section, "module.exports = {};", export_value)
     }
 }
 

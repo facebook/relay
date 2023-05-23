@@ -26,14 +26,14 @@ const {
  * @onType Query
  * @live
  */
-function live_user_suspends_when_odd(): LiveState<DataID> {
+function live_user_suspends_when_odd(): LiveState<{|+id: DataID|}> {
   return {
     read() {
       const number = Selectors.getNumber(GLOBAL_STORE.getState());
       if (number % 2 !== 0) {
         return suspenseSentinel();
       } else {
-        return String(number);
+        return {id: String(number)};
       }
     },
     subscribe(cb): () => void {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d4ab6a7ce10e02d43fe2fbda71986cfa>>
+ * @generated SignedSource<<de5105ea489141bdb741bd5481e90fc3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {undefined_field as queryUndefinedFieldResolverType} from "../resolvers/U
 // Type assertion validating that `queryUndefinedFieldResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryUndefinedFieldResolverType: (
-  rootKey: UndefinedFieldResolver$key, 
+  rootKey: UndefinedFieldResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest15Query$variables = {||};
 export type RelayReaderResolverTest15Query$data = {|
@@ -106,7 +106,8 @@ var node/*: ConcreteRequest*/ = {
           "abstractKey": null
         },
         "kind": "RelayResolver",
-        "storageKey": null
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

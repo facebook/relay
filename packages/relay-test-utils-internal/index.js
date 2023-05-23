@@ -48,11 +48,12 @@ const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
 function cannotReadPropertyOfUndefined__DEPRECATED(
   propertyName: string,
 ): string {
-  if (process.version.match(/^v16\.(.+)$/)) {
-    return `Cannot read properties of undefined (reading '${propertyName}')`;
-  } else {
+  const matches = process.version.match(/^v(\d+)\./);
+  const majorVersion = matches == null ? null : parseInt(matches[1], 10);
+  if (majorVersion == null || majorVersion < 16) {
     return `Cannot read property '${propertyName}' of undefined`;
   }
+  return `Cannot read properties of undefined (reading '${propertyName}')`;
 }
 
 /**

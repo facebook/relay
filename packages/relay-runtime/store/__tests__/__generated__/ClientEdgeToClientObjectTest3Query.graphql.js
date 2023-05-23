@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8a0e4327a5ec1e118a6662c3b194e5cc>>
+ * @generated SignedSource<<cd5a70e4257fe53d6ec5fc976cc78731>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,20 +18,23 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./../resolvers/__generated__/UserAstrologicalSignResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
-  rootKey: AstrologicalSignNameResolver$key, 
+  rootKey: AstrologicalSignNameResolver$key,
 ) => mixed);
 import {astrological_sign as userAstrologicalSignResolverType} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
-  rootKey: UserAstrologicalSignResolver$key, 
-) => mixed);
+  rootKey: UserAstrologicalSignResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type ClientEdgeToClientObjectTest3Query$variables = {||};
 export type ClientEdgeToClientObjectTest3Query$data = {|
   +me: ?{|
@@ -123,7 +126,7 @@ return {
                   "kind": "RelayResolver",
                   "name": "name",
                   "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
-                  "path": "me.name"
+                  "path": "me.astrological_sign.name"
                 },
                 (v1/*: any*/)
               ],
@@ -189,7 +192,8 @@ return {
                 "abstractKey": null
               },
               "kind": "RelayResolver",
-              "storageKey": null
+              "storageKey": null,
+              "isOutputType": false
             },
             "linkedField": {
               "alias": null,
@@ -218,14 +222,16 @@ return {
                           "abstractKey": null
                         },
                         "kind": "RelayResolver",
-                        "storageKey": null
+                        "storageKey": null,
+                        "isOutputType": false
                       }
                     ],
                     "type": "AstrologicalSign",
                     "abstractKey": null
                   },
                   "kind": "RelayResolver",
-                  "storageKey": null
+                  "storageKey": null,
+                  "isOutputType": false
                 },
                 (v1/*: any*/),
                 (v2/*: any*/)

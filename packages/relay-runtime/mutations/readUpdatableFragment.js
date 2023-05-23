@@ -14,9 +14,9 @@
 import type {
   FragmentType,
   HasUpdatableSpread,
+  MissingFieldHandler,
   RecordSourceProxy,
   UpdatableData,
-  MissingFieldHandler,
 } from '../store/RelayStoreTypes';
 import type {UpdatableFragment} from '../util/RelayRuntimeTypes';
 

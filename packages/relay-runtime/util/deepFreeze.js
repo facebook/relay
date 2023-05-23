@@ -20,7 +20,6 @@
 function deepFreeze<T: {...}>(object: T): T {
   Object.freeze(object);
   Object.getOwnPropertyNames(object).forEach(name => {
-    // $FlowFixMe[prop-missing]
     const property = object[name];
     if (
       property &&

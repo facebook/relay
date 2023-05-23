@@ -47,7 +47,7 @@ fn main() {
     for test_case in test_cases.into_iter() {
         let mut res = String::new();
         printer
-            .write_span(&mut res, &test_case.into(), EXAMPLE, 0)
+            .write_span(&mut res, test_case.into(), EXAMPLE, 0)
             .unwrap();
         println!("{}\n ---------\n", res);
     }

@@ -22,11 +22,11 @@ import type {IEnvironment, Variables} from 'relay-runtime';
 import usePaginationFragment from '../usePaginationFragment';
 import {
   fragmentData,
-  refetchableFragmentInput,
   keyAnotherNonNullable,
   keyAnotherNullable,
   keyNonNullable,
   keyNullable,
+  refetchableFragmentInput,
 } from './utils';
 
 type ExpectedReturnType<
@@ -47,6 +47,8 @@ type ExpectedReturnType<
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
+// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-cast]
 (usePaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
@@ -113,9 +115,12 @@ const {loadNext} = usePaginationFragment(
 );
 // Accepts extraVariables
 loadNext(10, {
+  // $FlowFixMe[prop-missing]
+  // $FlowFixMe[incompatible-call]
   UNSTABLE_extraVariables: extraVariables,
 });
 
+// $FlowFixMe[prop-missing]
 loadNext(10, {
   // $FlowExpectedError: doesn't accept variables not available in the Flow type
   UNSTABLE_extraVariables: invalidVariables,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dee8522e088bb080efbf516d9d771a29>>
+ * @generated SignedSource<<c09d5a62512d940511897afe1b02b4ab>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {always_throws_transitively as userAlwaysThrowsTransitivelyResolverType} 
 // Type assertion validating that `userAlwaysThrowsTransitivelyResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAlwaysThrowsTransitivelyResolverType: (
-  rootKey: UserAlwaysThrowsTransitivelyResolver$key, 
+  rootKey: UserAlwaysThrowsTransitivelyResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest13Query$variables = {||};
 export type RelayReaderResolverTest13Query$data = {|
@@ -110,14 +110,16 @@ var node/*: ConcreteRequest*/ = {
                     "abstractKey": null
                   },
                   "kind": "RelayResolver",
-                  "storageKey": null
+                  "storageKey": null,
+                  "isOutputType": false
                 }
               ],
               "type": "User",
               "abstractKey": null
             },
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

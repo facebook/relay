@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:use_named_imports
-
 /**
  * @RelayResolver
  *
@@ -68,8 +66,5 @@ RelayResolver(
         live: None,
         location: /path/to/test/fixture/relay-resolver-named-export.js:0:393,
         fragment_arguments: None,
-        named_import: Some(
-            "favorite_page",
-        ),
     },
 )

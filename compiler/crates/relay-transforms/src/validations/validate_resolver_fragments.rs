@@ -8,6 +8,8 @@
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
+use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
@@ -21,8 +23,6 @@ use schema::Schema;
 
 use crate::relay_resolvers::get_argument_value;
 use crate::ValidationMessage;
-use crate::RELAY_RESOLVER_DIRECTIVE_NAME;
-use crate::RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME;
 
 pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
     ValidateResolverFragments::new(&program.schema).validate_program(program)
@@ -51,7 +51,7 @@ impl ValidateResolverFragments {
                             let arguments = &directive.arguments;
                             get_argument_value(
                                 arguments,
-                                *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
+                                *FRAGMENT_KEY_ARGUMENT_NAME,
                                 field.name.location,
                             )
                             .ok()

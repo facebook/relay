@@ -65,7 +65,7 @@ beforeEach(() => {
   const store = new Store(source);
 
   environment = createMockEnvironment({store});
-  callback = jest.fn();
+  callback = jest.fn<$ReadOnlyArray<mixed>, void>();
 
   function Renderer({
     initialDataIDs,
@@ -365,9 +365,8 @@ it('re-establishes subscription when callback changes', () => {
 
   expect(callback).toHaveBeenCalledTimes(1);
 
-  const newCallback = jest.fn();
+  const newCallback = jest.fn<Array<mixed>, void>();
   ReactTestRenderer.act(() => {
-    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     setCallback(newCallback);
   });
 

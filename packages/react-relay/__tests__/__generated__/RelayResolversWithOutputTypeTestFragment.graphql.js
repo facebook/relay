@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0cd0f48638045e0bd8fb054368882fcf>>
+ * @generated SignedSource<<3667cd860cf304ea0aa637b1d9d43854>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {text as todoTextResolverType} from "../../../relay-runtime/store/__tests
 // Type assertion validating that `todoTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoTextResolverType: (
-  rootKey: TodoTextResolverFragment$key, 
+  rootKey: TodoTextResolverFragment$key,
 ) => ?Todo__text$normalization);
 declare export opaque type RelayResolversWithOutputTypeTestFragment$fragmentType: FragmentType;
 export type RelayResolversWithOutputTypeTestFragment$data = {|

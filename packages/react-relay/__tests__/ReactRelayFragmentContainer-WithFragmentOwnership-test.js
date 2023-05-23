@@ -21,7 +21,7 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
-describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
+describe('ReactRelayFragmentContainer with fragment ownership', () => {
   let TestComponent;
   let TestContainer;
   let UserFragment;

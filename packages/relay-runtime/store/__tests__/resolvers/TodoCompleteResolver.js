@@ -13,8 +13,8 @@
 
 import type {TodoCompleteResolverFragment$key} from './__generated__/TodoCompleteResolverFragment.graphql';
 
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
 const {graphql} = require('relay-runtime');
+const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
  * @RelayResolver

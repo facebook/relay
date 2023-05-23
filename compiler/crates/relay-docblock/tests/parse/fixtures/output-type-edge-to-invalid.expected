@@ -29,15 +29,7 @@ graphql`
  }
 `
 ==================================== ERROR ====================================
-✖︎ Unexpected `edgeTo` and `outputType`. Only one of these docblock fields should be defined on a given @RelayResolver.
-
-  /path/to/test/fixture/output-type-edge-to-invalid.js:16:5
-   15 │  * @outputType ClientPage
-   16 │  * @edgeTo Page
-      │     ^^^^^^
-   17 │  * @rootFragment myRootFragment
-
-  ℹ︎  @outputType found here
+✖︎ Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `favorite_page`.
 
   /path/to/test/fixture/output-type-edge-to-invalid.js:15:5
    14 │  * @fieldName favorite_page

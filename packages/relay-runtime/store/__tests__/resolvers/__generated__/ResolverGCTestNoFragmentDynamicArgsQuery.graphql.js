@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8a6598acc65efd958e5430b98b8fdcd5>>
+ * @generated SignedSource<<a569afede10e2153160c585fce5ca6e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
 (queryHelloResolverType: (
   args: {|
     world: string,
-  |}, 
+  |},
 ) => mixed);
 export type ResolverGCTestNoFragmentDynamicArgsQuery$variables = {|
   world: string,
@@ -92,7 +92,8 @@ return {
             "args": (v1/*: any*/),
             "fragment": null,
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           }
         ]
       }

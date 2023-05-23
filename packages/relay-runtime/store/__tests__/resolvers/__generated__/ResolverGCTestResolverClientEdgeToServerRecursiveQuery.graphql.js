@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50cb60039e90b2e3d0a323769d7cbd4e>>
+ * @generated SignedSource<<a2c94e5a9091fec95899603295127b90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,20 +18,25 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { UserAnotherClientEdgeResolver$key } from "./UserAnotherClientEdgeResolver.graphql";
 import type { UserClientEdgeResolver$key } from "./UserClientEdgeResolver.graphql";
 import {another_client_edge as userAnotherClientEdgeResolverType} from "../UserAnotherClientEdgeResolver.js";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAnotherClientEdgeResolverType: (
-  rootKey: UserAnotherClientEdgeResolver$key, 
-) => mixed);
+  rootKey: UserAnotherClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolverType: (
-  rootKey: UserClientEdgeResolver$key, 
-) => mixed);
+  rootKey: UserClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$data = {|
   +me: ?{|
@@ -125,7 +130,7 @@ return {
                     "kind": "RelayResolver",
                     "name": "another_client_edge",
                     "resolverModule": require('./../UserAnotherClientEdgeResolver').another_client_edge,
-                    "path": "me.another_client_edge"
+                    "path": "me.client_edge.another_client_edge"
                   },
                   "linkedField": {
                     "alias": null,
@@ -179,7 +184,8 @@ return {
               "abstractKey": null
             },
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           (v1/*: any*/)
         ],

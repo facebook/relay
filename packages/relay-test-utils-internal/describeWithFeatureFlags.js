@@ -47,7 +47,7 @@ declare var describe: {
 };
 
 function describeWithFeatureFlags(
-  flagSets: Array<$Shape<FeatureFlags>>,
+  flagSets: Array<Partial<FeatureFlags>>,
   description: string,
   body: () => void,
 ): void {

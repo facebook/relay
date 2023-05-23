@@ -45,7 +45,7 @@ describe('PreloadableQueryRegistry', () => {
       jest.resetModules();
     });
     it('should synchronously execute a callback when the ConcreteRequest given by the same key is loaded', () => {
-      const callback = jest.fn();
+      const callback = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
       PreloadableQueryRegistry.onLoad(id1, callback);
@@ -59,7 +59,7 @@ describe('PreloadableQueryRegistry', () => {
 
     it('dedupes callbacks passed to onLoad', () => {
       // the internal representation is a set.
-      const callback = jest.fn();
+      const callback = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
       PreloadableQueryRegistry.onLoad(id1, callback);
@@ -69,7 +69,7 @@ describe('PreloadableQueryRegistry', () => {
     });
 
     it('should execute the callback passed to onLoad callback many times', () => {
-      const callback = jest.fn();
+      const callback = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
       PreloadableQueryRegistry.onLoad(id1, callback);
@@ -83,7 +83,7 @@ describe('PreloadableQueryRegistry', () => {
     });
 
     it('should return a Disposable that, if executed, prevents the callback from being executed', () => {
-      const callback = jest.fn();
+      const callback = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -95,8 +95,8 @@ describe('PreloadableQueryRegistry', () => {
     });
 
     it('should support multiple callbacks', () => {
-      const cb1 = jest.fn();
-      const cb2 = jest.fn();
+      const cb1 = jest.fn<[ConcreteRequest], void>();
+      const cb2 = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -115,10 +115,10 @@ describe('PreloadableQueryRegistry', () => {
     });
 
     it('should call a subsequent callback even if the previous threw an error', () => {
-      const cb1 = jest.fn().mockImplementation(() => {
+      const cb1 = jest.fn<[ConcreteRequest], empty>().mockImplementation(() => {
         throw new Error('error');
       });
-      const cb2 = jest.fn();
+      const cb2 = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
       PreloadableQueryRegistry.onLoad(id1, cb1);
@@ -130,7 +130,7 @@ describe('PreloadableQueryRegistry', () => {
     it('should throw an error in the next tick after an uncaught error', () => {
       jest.useFakeTimers();
       const error = new Error('Not the droids you were looking for');
-      const cb1 = jest.fn().mockImplementation(() => {
+      const cb1 = jest.fn<[ConcreteRequest], empty>().mockImplementation(() => {
         throw error;
       });
       const id1 = generateUniqueId();

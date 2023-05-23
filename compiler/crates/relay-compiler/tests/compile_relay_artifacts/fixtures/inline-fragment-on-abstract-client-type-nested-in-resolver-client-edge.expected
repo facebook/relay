@@ -131,7 +131,8 @@ extend type Query {
             "abstractKey": null
           },
           "kind": "RelayResolver",
-          "storageKey": null
+          "storageKey": null,
+          "isOutputType": false
         },
         "linkedField": {
           "alias": null,

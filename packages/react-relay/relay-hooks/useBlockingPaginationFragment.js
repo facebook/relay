@@ -11,15 +11,15 @@
 
 'use strict';
 
-import type {Options} from './useRefetchableFragmentNode';
-
+import type {RefetchableFragment} from '../../relay-runtime/util/RelayRuntimeTypes';
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
+import type {Options} from './useRefetchableFragmentNode';
 import type {
+  Disposable,
   FragmentType,
   GraphQLResponse,
-  Variables,
   Observer,
-  Disposable,
+  Variables,
 } from 'relay-runtime';
 
 const useLoadMoreFunction = require('./useLoadMoreFunction');
@@ -32,7 +32,6 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
-import type {RefetchableFragment} from '../../relay-runtime/util/RelayRuntimeTypes';
 
 type RefetchVariables<TVariables, TKey> =
   // NOTE: This $Call ensures that the type of the variables is either:
@@ -40,7 +39,7 @@ type RefetchVariables<TVariables, TKey> =
   //   - non-nullable if the provided ref type is nullable, and the caller need to provide the full set of variables
   // prettier-ignore
   $Call<
-    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) => $Shape<TVariables>)
+    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) => Partial<TVariables>)
     & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => TVariables),
     TKey,
   >;
@@ -158,6 +157,7 @@ function useBlockingPaginationFragment<
     (variables: TVariables, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
+      // $FlowFixMe[incompatible-variance]
       return refetch(variables, {...options, __environment: undefined});
     },
     [disposeFetchNext, disposeFetchPrevious, refetch],

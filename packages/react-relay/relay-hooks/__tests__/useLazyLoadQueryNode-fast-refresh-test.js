@@ -102,7 +102,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     // $FlowFixMe[incompatible-use]
-    renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
+    renderFn = jest.fn((result: mixed) => result?.node?.name ?? 'Empty');
   });
 
   afterEach(() => {
@@ -111,7 +111,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
   });
 
   it('force a refetch in fast refresh', () => {
-    // $FlowFixMe[cannot-resolve-module] This module is not available on www.
+    // $FlowFixMe[cannot-resolve-module] (site=www)
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     const V1 = function (props: {variables: {id: string}}) {

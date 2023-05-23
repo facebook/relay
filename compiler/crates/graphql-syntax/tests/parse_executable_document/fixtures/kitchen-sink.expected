@@ -584,6 +584,7 @@ ExecutableDocument {
                                                                             },
                                                                             value: "frag",
                                                                         },
+                                                                        arguments: None,
                                                                         directives: [
                                                                             Directive {
                                                                                 span: 274:291,

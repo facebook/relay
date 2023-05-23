@@ -10,7 +10,11 @@
  */
 
 'use strict';
+import type {Snapshot} from '../../RelayStoreTypes';
 
+const {
+  live_external_greeting: LiveExternalGreeting,
+} = require('./LiveExternalGreeting');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
@@ -19,6 +23,9 @@ const {
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -28,12 +35,6 @@ const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
-const {
-  live_external_greeting: LiveExternalGreeting,
-} = require('./LiveExternalGreeting');
 
 disallowWarnings();
 disallowConsoleErrors();
@@ -149,17 +150,28 @@ test('Updates can be batched', () => {
     `,
     {},
   );
+  const log = jest.fn();
   const store = new LiveResolverStore(source, {
     gcReleaseBufferSize: 0,
+    log,
   });
   const environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
     store,
+    log,
   });
+
+  function getBatchLogEventNames(): string[] {
+    return log.mock.calls
+      .map(log => log[0].name)
+      .filter(name => {
+        return name.startsWith('liveresolver.batch');
+      });
+  }
 
   const snapshot = environment.lookup(operation.fragment);
 
-  const handler = jest.fn();
+  const handler = jest.fn<[Snapshot], void>();
   environment.subscribe(snapshot, handler);
 
   expect(handler.mock.calls.length).toBe(0);
@@ -172,10 +184,17 @@ test('Updates can be batched', () => {
 
   let lastCallCount = handler.mock.calls.length;
 
+  expect(getBatchLogEventNames()).toEqual([]);
+
   // Update _with_ batching.
   store.batchLiveStateUpdates(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
+
+  expect(getBatchLogEventNames()).toEqual([
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+  ]);
 
   // We get notified once per batch! :)
   expect(handler.mock.calls.length - lastCallCount).toBe(1);
@@ -192,6 +211,13 @@ test('Updates can be batched', () => {
     });
   }).toThrowError('An Example Error');
 
+  expect(getBatchLogEventNames()).toEqual([
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+  ]);
+
   // We still notify our subscribers
   expect(handler.mock.calls.length - lastCallCount).toBe(1);
 
@@ -201,4 +227,16 @@ test('Updates can be batched', () => {
       store.batchLiveStateUpdates(() => {});
     });
   }).toThrow('Unexpected nested call to batchLiveStateUpdates.');
+
+  expect(getBatchLogEventNames()).toEqual([
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+    // Here we can see the nesting
+    'liveresolver.batch.start',
+    'liveresolver.batch.start',
+    'liveresolver.batch.end',
+    'liveresolver.batch.end',
+  ]);
 });

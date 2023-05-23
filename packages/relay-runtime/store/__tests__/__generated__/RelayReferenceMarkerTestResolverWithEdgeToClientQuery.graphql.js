@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0920ad814189744095343fb4c383d896>>
+ * @generated SignedSource<<3418ca4ec85276525ed889c967bff1d2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { QueryAllAstrologicalSignsResolver$key } from "./../resolvers/__generated__/QueryAllAstrologicalSignsResolver.graphql";
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolverType: (
-  rootKey: QueryAllAstrologicalSignsResolver$key, 
-) => mixed);
+  rootKey: QueryAllAstrologicalSignsResolver$key,
+) => ?$ReadOnlyArray<?{|
+  +id: DataID,
+|}>);
 export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables = {||};
 export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data = {|
   +all_astrological_signs: ?$ReadOnlyArray<?{|
@@ -126,7 +129,8 @@ return {
             "abstractKey": null
           },
           "kind": "RelayResolver",
-          "storageKey": null
+          "storageKey": null,
+          "isOutputType": false
         },
         "linkedField": (v1/*: any*/)
       }

@@ -178,6 +178,7 @@ export type NormalizationResolverField = {
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +fragment: ?NormalizationInlineFragment,
   +storageKey: ?string,
+  +isOutputType: boolean,
 };
 
 export type NormalizationClientEdgeToClientObject = {

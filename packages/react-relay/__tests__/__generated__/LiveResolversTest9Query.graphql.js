@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a940079f7870d2d9ff15bbf56eda6b26>>
+ * @generated SignedSource<<f078221dc7e57f12b045908e5daaeaa9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType: (
-  rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key, 
+  rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key,
   args: {|
     scale: ?number,
-  |}, 
-) => LiveState<any>);
+  |},
+) => LiveState<mixed>);
 export type LiveResolversTest9Query$variables = {|
   id: string,
   scale: number,
@@ -161,7 +161,8 @@ return {
                         "abstractKey": null
                       },
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": false
                     },
                     {
                       "name": "user_profile_picture_uri_with_scale",
@@ -192,14 +193,16 @@ return {
                         "abstractKey": null
                       },
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": false
                     }
                   ],
                   "type": "User",
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               }
             ],
             "type": "User",

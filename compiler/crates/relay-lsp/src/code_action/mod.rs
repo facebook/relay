@@ -162,7 +162,7 @@ fn get_code_actions(
                 return None;
             };
 
-            let code_action_range = get_code_action_range(range, &operation_name.span);
+            let code_action_range = get_code_action_range(range, operation_name.span);
             Some(create_code_actions(
                 "Rename Operation",
                 operation_name.value.lookup(),
@@ -209,7 +209,7 @@ fn create_code_actions(
         .collect::<Vec<_>>()
 }
 
-fn get_code_action_range(range: Range, span: &Span) -> Range {
+fn get_code_action_range(range: Range, span: Span) -> Range {
     Range {
         start: Position {
             line: range.start.line,

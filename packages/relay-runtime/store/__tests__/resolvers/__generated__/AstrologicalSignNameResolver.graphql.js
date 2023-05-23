@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6bd8d234598f283aac62c07ac8038a27>>
+ * @generated SignedSource<<0384f2d8116fd6046b2f9761e7952eca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {self as astrologicalSignSelfResolverType} from "../AstrologicalSignSelfR
 // Type assertion validating that `astrologicalSignSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignSelfResolverType: (
-  rootKey: AstrologicalSignSelfResolver$key, 
+  rootKey: AstrologicalSignSelfResolver$key,
 ) => mixed);
 declare export opaque type AstrologicalSignNameResolver$fragmentType: FragmentType;
 export type AstrologicalSignNameResolver$data = {|

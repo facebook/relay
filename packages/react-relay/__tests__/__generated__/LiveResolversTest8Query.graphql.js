@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<57bf5f0e15960e55a8172f38cde113ac>>
+ * @generated SignedSource<<67a36241918af609fd8c418891066e31>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ import {resolver_that_throws as userResolverThatThrowsResolverType} from "../../
 // Type assertion validating that `userResolverThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userResolverThatThrowsResolverType: (
-  rootKey: ResolverThatThrows$key, 
-) => LiveState<any>);
+  rootKey: ResolverThatThrows$key,
+) => LiveState<mixed>);
 export type LiveResolversTest8Query$variables = {|
   id: string,
 |};
@@ -149,7 +149,8 @@ return {
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               }
             ],
             "type": "User",

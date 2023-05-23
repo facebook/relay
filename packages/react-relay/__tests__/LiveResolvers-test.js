@@ -925,7 +925,20 @@ describe.each([
         </RelayEnvironmentProvider>
       );
     }
-    const requiredFieldLogger = jest.fn();
+    const requiredFieldLogger = jest.fn<
+      | $FlowFixMe
+      | [
+          | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
+          | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
+          | {
+              +error: Error,
+              +fieldPath: string,
+              +kind: 'relay_resolver.error',
+              +owner: string,
+            },
+        ],
+      void,
+    >();
     function createEnvironment(source: MutableRecordSource) {
       return new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),

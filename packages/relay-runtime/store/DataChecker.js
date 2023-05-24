@@ -34,7 +34,6 @@ const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator'
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const getOperation = require('../util/getOperation');
 const RelayConcreteNode = require('../util/RelayConcreteNode');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {isClientID} = require('./ClientID');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
@@ -68,7 +67,7 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-const {ROOT_ID, getModuleOperationKey, getStorageKey, getArgumentValues} =
+const {getModuleOperationKey, getStorageKey, getArgumentValues} =
   RelayStoreUtils;
 
 /**

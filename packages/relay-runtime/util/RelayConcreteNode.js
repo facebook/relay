@@ -47,16 +47,26 @@ export type ProvidedVariablesType = {+[key: string]: {get(): mixed}};
  * If `text` format is provided, a `cacheID` as a hash of the text should be set
  * to be used for local caching.
  */
-export type RequestParameters = {
-  +cacheID?: string,
-  +id: string | null,
-  +text: string | null,
-  // common fields
-  +name: string,
-  +operationKind: 'mutation' | 'query' | 'subscription',
-  +providedVariables?: ProvidedVariablesType,
-  +metadata: {[key: string]: mixed, ...},
-};
+export type RequestParameters =
+  | {
+      +id: string,
+      +text: string | null,
+      // common fields
+      +name: string,
+      +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: ProvidedVariablesType,
+      +metadata: {[key: string]: mixed, ...},
+    }
+  | {
+      +cacheID: string,
+      +id: null,
+      +text: string | null,
+      // common fields
+      +name: string,
+      +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: ProvidedVariablesType,
+      +metadata: {[key: string]: mixed, ...},
+    };
 
 export type ClientRequestParameters = {
   +cacheID: string,

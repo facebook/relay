@@ -1870,20 +1870,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         // Construct metadata object
         let mut params_object = vec![];
 
-        match (&request_parameters.text, request_parameters.id) {
-            (Some(ref text), _) => {
-                params_object.push(ObjectEntry {
-                    key: CODEGEN_CONSTANTS.cache_id,
-                    value: Primitive::RawString(md5(&text)),
-                });
-            }
-            (None, None) => {
-                params_object.push(ObjectEntry {
-                    key: CODEGEN_CONSTANTS.cache_id,
-                    value: Primitive::RawString(md5(operation.name.item.0.lookup())),
-                });
-            }
-            _ => (),
+        if let Some(ref text) = &request_parameters.text {
+            params_object.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.cache_id,
+                value: Primitive::RawString(md5(&text)),
+            });
+        } else if request_parameters.id.is_none() {
+            params_object.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.cache_id,
+                value: Primitive::RawString(md5(operation.name.item.0.lookup())),
+            });
         }
 
         params_object.push(ObjectEntry {

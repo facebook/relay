@@ -101,6 +101,9 @@ pub struct LocalPersistConfig {
 
     #[serde(default)]
     pub algorithm: LocalPersistAlgorithm,
+
+    #[serde(default)]
+    pub include_query_text: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -108,6 +111,15 @@ pub struct LocalPersistConfig {
 pub enum PersistConfig {
     Remote(RemotePersistConfig),
     Local(LocalPersistConfig),
+}
+
+impl PersistConfig {
+    pub fn include_query_text(&self) -> bool {
+        match self {
+            PersistConfig::Remote(remote_config) => remote_config.include_query_text,
+            PersistConfig::Local(local_config) => local_config.include_query_text,
+        }
+    }
 }
 
 impl<'de> Deserialize<'de> for PersistConfig {

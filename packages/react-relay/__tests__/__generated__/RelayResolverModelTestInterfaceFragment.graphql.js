@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cb75ca681d8081bebde7e910232afbc1>>
+ * @generated SignedSource<<57e89c13b129c09e8a960dfb532e4433>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,13 +30,13 @@ import {some_client_type_with_interface as todoDescriptionSomeClientTypeWithInte
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionSomeClientTypeWithInterfaceResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-) => ?TodoDescription__some_client_type_with_interface$normalization);
+) => TodoDescription__some_client_type_with_interface$normalization);
 import {some_interface as todoDescriptionSomeInterfaceResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionSomeInterfaceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionSomeInterfaceResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-) => ?TodoDescription__some_interface$normalization);
+) => TodoDescription__some_interface$normalization);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

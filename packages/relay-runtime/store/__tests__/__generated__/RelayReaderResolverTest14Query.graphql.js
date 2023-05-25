@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1cb32f6ea5b2d1b32c45d946001c7db5>>
+ * @generated SignedSource<<398c6aa5d99cacc51917e134c70a596e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {throw_before_read as queryThrowBeforeReadResolverType} from "../resolver
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryThrowBeforeReadResolverType: (
   rootKey: ThrowBeforeReadResolver$key,
-) => mixed);
+) => ?mixed);
 export type RelayReaderResolverTest14Query$variables = {||};
 export type RelayReaderResolverTest14Query$data = {|
   +throw_before_read: ?$Call<<R>((...empty[]) => R) => R, typeof queryThrowBeforeReadResolverType>,

@@ -1,14 +1,14 @@
 ==================================== INPUT ====================================
-fragment fragmentOnNodeInterface_RefetchableFragment on Node
+fragment fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment on Node
   @refetchable(queryName: "RefetchableFragmentQuery") {
   global_id
   ... on User {
     name
-    ...fragmentOnNodeInterface_ProfilePicture
+    ...fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture
   }
 }
 
-fragment fragmentOnNodeInterface_ProfilePicture on User {
+fragment fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -49,7 +49,7 @@ fragment fragmentOnNodeInterface_ProfilePicture on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "fragmentOnNodeInterface_RefetchableFragment"
+            "name": "fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment"
           }
         ],
         "storageKey": null
@@ -168,23 +168,23 @@ query RefetchableFragmentQuery(
 ) {
   node(global_id: $global_id) {
     __typename
-    ...fragmentOnNodeInterface_RefetchableFragment
+    ...fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment
     global_id
   }
 }
 
-fragment fragmentOnNodeInterface_ProfilePicture on User {
+fragment fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment fragmentOnNodeInterface_RefetchableFragment on Node {
+fragment fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment on Node {
   __isNode: __typename
   global_id
   ... on User {
     name
-    ...fragmentOnNodeInterface_ProfilePicture
+    ...fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture
   }
 }
 
@@ -198,7 +198,7 @@ fragment fragmentOnNodeInterface_RefetchableFragment on Node {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "fragmentOnNodeInterface_ProfilePicture",
+  "name": "fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -250,7 +250,7 @@ fragment fragmentOnNodeInterface_RefetchableFragment on Node {
       }
     }
   },
-  "name": "fragmentOnNodeInterface_RefetchableFragment",
+  "name": "fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment",
   "selections": [
     {
       "alias": null,
@@ -272,7 +272,7 @@ fragment fragmentOnNodeInterface_RefetchableFragment on Node {
         {
           "args": null,
           "kind": "FragmentSpread",
-          "name": "fragmentOnNodeInterface_ProfilePicture"
+          "name": "fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture"
         }
       ],
       "type": "User",

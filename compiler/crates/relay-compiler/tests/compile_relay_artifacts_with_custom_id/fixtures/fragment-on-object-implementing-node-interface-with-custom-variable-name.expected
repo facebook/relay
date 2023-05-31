@@ -1,14 +1,13 @@
 ==================================== INPUT ====================================
-fragment fragmentOnNodeInterface_RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+# use-custom-variable-name
+fragment fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_RefetchableFragment on User
+@refetchable(queryName: "RefetchableFragmentQuery") {
   global_id
-  ... on User {
-    name
-    ...fragmentOnNodeInterface_ProfilePicture
-  }
+  name
+  ...fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_ProfilePicture
 }
 
-fragment fragmentOnNodeInterface_ProfilePicture on User {
+fragment fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
@@ -49,7 +48,7 @@ fragment fragmentOnNodeInterface_ProfilePicture on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "fragmentOnNodeInterface_RefetchableFragment"
+            "name": "fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_RefetchableFragment"
           }
         ],
         "storageKey": null
@@ -95,10 +94,6 @@ fragment fragmentOnNodeInterface_ProfilePicture on User {
             "kind": "ScalarField",
             "name": "__typename",
             "storageKey": null
-          },
-          {
-            "kind": "TypeDiscriminator",
-            "abstractKey": "__isNode"
           },
           {
             "alias": null,
@@ -168,24 +163,21 @@ query RefetchableFragmentQuery(
 ) {
   node(global_id: $global_id) {
     __typename
-    ...fragmentOnNodeInterface_RefetchableFragment
+    ...fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_RefetchableFragment
     global_id
   }
 }
 
-fragment fragmentOnNodeInterface_ProfilePicture on User {
+fragment fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_ProfilePicture on User {
   profilePicture(size: $size) {
     uri
   }
 }
 
-fragment fragmentOnNodeInterface_RefetchableFragment on Node {
-  __isNode: __typename
+fragment fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_RefetchableFragment on User {
   global_id
-  ... on User {
-    name
-    ...fragmentOnNodeInterface_ProfilePicture
-  }
+  name
+  ...fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_ProfilePicture
 }
 
 
@@ -198,7 +190,7 @@ fragment fragmentOnNodeInterface_RefetchableFragment on Node {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "fragmentOnNodeInterface_ProfilePicture",
+  "name": "fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_ProfilePicture",
   "selections": [
     {
       "alias": null,
@@ -246,11 +238,11 @@ fragment fragmentOnNodeInterface_RefetchableFragment on Node {
       "operation": require('RefetchableFragmentQuery.graphql'),
       "identifierInfo": {
         "identifierField": "global_id",
-        "identifierQueryVariableName": "id"
+        "identifierQueryVariableName": "variable_name"
       }
     }
   },
-  "name": "fragmentOnNodeInterface_RefetchableFragment",
+  "name": "fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_RefetchableFragment",
   "selections": [
     {
       "alias": null,
@@ -260,25 +252,18 @@ fragment fragmentOnNodeInterface_RefetchableFragment on Node {
       "storageKey": null
     },
     {
-      "kind": "InlineFragment",
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "name",
-          "storageKey": null
-        },
-        {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "fragmentOnNodeInterface_ProfilePicture"
-        }
-      ],
-      "type": "User",
-      "abstractKey": null
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "fragmentOnObjectImplementingNodeInterfaceWithCustomVariableName_ProfilePicture"
     }
   ],
-  "type": "Node",
-  "abstractKey": "__isNode"
+  "type": "User",
+  "abstractKey": null
 }

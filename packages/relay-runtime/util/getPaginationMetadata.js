@@ -14,6 +14,7 @@
 import type {ReaderFragment, ReaderPaginationMetadata} from './ReaderNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
+const getIdentifierInfo = require('./getIdentifierInfo');
 const getRefetchMetadata = require('./getRefetchMetadata');
 const invariant = require('invariant');
 
@@ -50,14 +51,15 @@ function getPaginationMetadata(
     componentDisplayName,
     fragmentNode.name,
   );
-  const identifierField = refetchMetadata.identifierField;
+  const identifierInfo = getIdentifierInfo(refetchMetadata);
   invariant(
-    identifierField == null || typeof identifierField === 'string',
+    identifierInfo?.identifierField == null ||
+      typeof identifierInfo.identifierField === 'string',
     'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
   );
   return {
     connectionPathInFragmentData,
-    identifierField,
+    identifierField: identifierInfo?.identifierField,
     paginationRequest,
     paginationMetadata,
     stream: connectionMetadata.stream === true,

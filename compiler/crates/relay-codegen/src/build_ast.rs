@@ -433,10 +433,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     ),
                 operation: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(refetch_metadata.operation_name.into())),
             };
-            if let Some(identifier_field) = refetch_metadata.identifier_field {
+            if let Some(identifier_info) = &refetch_metadata.identifier_info {
                 refetch_object.push(ObjectEntry {
-                    key: CODEGEN_CONSTANTS.identifier_field,
-                    value: Primitive::String(identifier_field),
+                    key: CODEGEN_CONSTANTS.identifier_info,
+                    value: Primitive::Key(self.object(object! {
+                        identifier_field:  Primitive::String(identifier_info.identifier_field),
+                        identifier_query_variable_name:  Primitive::String(identifier_info.identifier_query_variable_name),
+                    })),
                 });
             }
 

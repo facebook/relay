@@ -110,8 +110,11 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {
@@ -138,8 +141,11 @@ fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User 
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {

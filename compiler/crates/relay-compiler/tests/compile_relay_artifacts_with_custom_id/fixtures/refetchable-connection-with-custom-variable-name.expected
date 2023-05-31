@@ -1,13 +1,14 @@
 ==================================== INPUT ====================================
-fragment refetchableConnection_RefetchableConnection_feedback on Feedback
-  @refetchable(queryName: "RefetchableConnectionQuery") {
-  id
+# use-custom-variable-name
+fragment refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback on Feedback
+@refetchable(queryName: "RefetchableConnectionQuery") {
+  global_id
   comments(first: $count, after: $cursor)
     @connection(key: "RefetchableConnection_comments") {
     edges {
       cursor
       node {
-        id
+        global_id
       }
     }
     pageInfo {
@@ -33,7 +34,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id"
+        "name": "global_id"
       }
     ],
     "kind": "Fragment",
@@ -45,8 +46,8 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback
         "args": [
           {
             "kind": "Variable",
-            "name": "id",
-            "variableName": "id"
+            "name": "global_id",
+            "variableName": "global_id"
           }
         ],
         "concreteType": null,
@@ -57,7 +58,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "refetchableConnection_RefetchableConnection_feedback"
+            "name": "refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback"
           }
         ],
         "storageKey": null
@@ -82,7 +83,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "id"
+        "name": "global_id"
       }
     ],
     "kind": "Operation",
@@ -93,8 +94,8 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback
         "args": [
           {
             "kind": "Variable",
-            "name": "id",
-            "variableName": "id"
+            "name": "global_id",
+            "variableName": "global_id"
           }
         ],
         "concreteType": null,
@@ -113,7 +114,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "id",
+            "name": "global_id",
             "storageKey": null
           },
           {
@@ -165,7 +166,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "id",
+                            "name": "global_id",
                             "storageKey": null
                           },
                           {
@@ -253,22 +254,22 @@ QUERY:
 query RefetchableConnectionQuery(
   $count: Int
   $cursor: ID
-  $id: ID!
+  $global_id: ID!
 ) {
-  node(id: $id) {
+  node(global_id: $global_id) {
     __typename
-    ...refetchableConnection_RefetchableConnection_feedback
-    id
+    ...refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback
+    global_id
   }
 }
 
-fragment refetchableConnection_RefetchableConnection_feedback on Feedback {
-  id
+fragment refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback on Feedback {
+  global_id
   comments(first: $count, after: $cursor) {
     edges {
       cursor
       node {
-        id
+        global_id
         __typename
       }
     }
@@ -319,18 +320,18 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback {
       ],
       "operation": require('RefetchableConnectionQuery.graphql'),
       "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
+        "identifierField": "global_id",
+        "identifierQueryVariableName": "variable_name"
       }
     }
   },
-  "name": "refetchableConnection_RefetchableConnection_feedback",
+  "name": "refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback",
   "selections": [
     {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "id",
+      "name": "global_id",
       "storageKey": null
     },
     {
@@ -368,7 +369,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "id",
+                  "name": "global_id",
                   "storageKey": null
                 },
                 {

@@ -18,6 +18,8 @@ import type {
 } from '../../EntryPointTypes.flow';
 import type {JSResourceReference} from 'JSResourceReference';
 
+import {NestedRelayEntryPoint} from '../../NestedRelayEntryPointBuilderUtils';
+
 declare function mockJSResource<TModule>(
   module: TModule,
 ): JSResourceReference<TModule>;
@@ -65,14 +67,14 @@ type BadParentEntrypointParams = $ReadOnly<{}>;
   getPreloadProps(_params: BadParentEntrypointParams) {
     return {
       entryPoints: {
-        nestedComponent: {
-          entryPoint: NestedEntryPoint,
+        nestedComponent: NestedRelayEntryPoint({
           /**
            $FlowExpectedError The entryPointParams here should be of type
             NestedEntrypointPreloadParams, but it does not contain subEntrypointPreloadParam
           */
+          entryPoint: NestedEntryPoint,
           entryPointParams: Object.freeze({}),
-        },
+        }),
       },
     };
   },
@@ -90,13 +92,13 @@ type GoodParentEntrypointParams = $ReadOnly<{}>;
   getPreloadProps(_params: GoodParentEntrypointParams) {
     return {
       entryPoints: {
-        nestedComponent: {
+        nestedComponent: NestedRelayEntryPoint({
           entryPoint: NestedEntryPoint,
           // No flow error since this matches NestedEntrypointPreloadParams
           entryPointParams: {
             subEntrypointPreloadParam: 'test',
           },
-        },
+        }),
       },
     };
   },

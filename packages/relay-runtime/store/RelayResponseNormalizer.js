@@ -217,7 +217,7 @@ class RelayResponseNormalizer {
       switch (selection.kind) {
         case SCALAR_FIELD:
         case LINKED_FIELD:
-          this._normalizeField(node, selection, record, data);
+          this._normalizeField(selection, record, data);
           break;
         case CONDITION:
           const conditionValue = Boolean(
@@ -301,7 +301,7 @@ class RelayResponseNormalizer {
           });
           break;
         case MODULE_IMPORT:
-          this._normalizeModuleImport(node, selection, record, data);
+          this._normalizeModuleImport(selection, record, data);
           break;
         case DEFER:
           this._normalizeDefer(selection, record, data);
@@ -322,7 +322,7 @@ class RelayResponseNormalizer {
           this._traverseSelections(selection.fragment, record, data);
           break;
         case ACTOR_CHANGE:
-          this._normalizeActorChange(node, selection, record, data);
+          this._normalizeActorChange(selection, record, data);
           break;
         case RELAY_RESOLVER:
           this._normalizeResolver(selection, record, data);
@@ -422,7 +422,6 @@ class RelayResponseNormalizer {
   }
 
   _normalizeModuleImport(
-    parent: NormalizationNode,
     moduleImport: NormalizationModuleImport,
     record: Record,
     data: PayloadData,
@@ -464,7 +463,6 @@ class RelayResponseNormalizer {
   }
 
   _normalizeField(
-    parent: NormalizationNode,
     selection: NormalizationLinkedField | NormalizationScalarField,
     record: Record,
     data: PayloadData,
@@ -556,7 +554,6 @@ class RelayResponseNormalizer {
   }
 
   _normalizeActorChange(
-    parent: NormalizationNode,
     selection: NormalizationActorChange,
     record: Record,
     data: PayloadData,
@@ -676,7 +673,6 @@ class RelayResponseNormalizer {
     );
     if (__DEV__) {
       this._validateConflictingLinkedFieldsWithIdenticalId(
-        record,
         RelayModernRecord.getLinkedRecordID(record, storageKey),
         nextID,
         storageKey,
@@ -758,7 +754,6 @@ class RelayResponseNormalizer {
       if (__DEV__) {
         if (prevIDs) {
           this._validateConflictingLinkedFieldsWithIdenticalId(
-            record,
             prevIDs[nextIndex],
             nextID,
             storageKey,
@@ -828,7 +823,6 @@ class RelayResponseNormalizer {
    * Warns if a single response contains conflicting fields with the same id
    */
   _validateConflictingLinkedFieldsWithIdenticalId(
-    record: Record,
     prevID: ?DataID,
     nextID: DataID,
     storageKey: string,

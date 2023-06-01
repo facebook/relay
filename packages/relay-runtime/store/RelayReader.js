@@ -281,11 +281,7 @@ class RelayReader {
     return this._variables[name];
   }
 
-  _maybeReportUnexpectedNull(
-    fieldPath: string,
-    action: 'LOG' | 'THROW',
-    _record: Record,
-  ) {
+  _maybeReportUnexpectedNull(fieldPath: string, action: 'LOG' | 'THROW') {
     if (this._missingRequiredFields?.action === 'THROW') {
       // Chained @required directives may cause a parent `@required(action:
       // THROW)` field to become null, so the first missing field we
@@ -332,7 +328,7 @@ class RelayReader {
           if (fieldValue == null) {
             const {action} = selection;
             if (action !== 'NONE') {
-              this._maybeReportUnexpectedNull(selection.path, action, record);
+              this._maybeReportUnexpectedNull(selection.path, action);
             }
             // We are going to throw, or our parent is going to get nulled out.
             // Either way, sibling values are going to be ignored, so we can

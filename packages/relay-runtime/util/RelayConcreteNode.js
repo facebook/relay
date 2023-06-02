@@ -43,14 +43,14 @@ export type ProvidedVariablesType = {+[key: string]: {get(): mixed}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.
- * The operation can either be provided as a persisted `id` or `text`. If given
- * in `text` format, a `cacheID` as a hash of the text should be set to be used
- * for local caching.
+ * The operation can either be provided as a persisted `id` or `text` or both.
+ * If `text` format is provided, a `cacheID` as a hash of the text should be set
+ * to be used for local caching.
  */
 export type RequestParameters =
   | {
       +id: string,
-      +text: null,
+      +text: string | null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',

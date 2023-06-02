@@ -81,22 +81,12 @@ export type RefetchableIdentifierInfo = {
   +identifierQueryVariableName: string,
 };
 
-export type ReaderRefetchMetadata =
-  | {
-      +connection?: ?ReaderPaginationMetadata,
-      +operation: string | ConcreteRequest,
-      +fragmentPathInResult: Array<string>,
-      +identifierInfo?: ?RefetchableIdentifierInfo,
-    }
-  | {
-      // TODO(T154006492) Legacy form of ConnectionMetadata included for
-      // backwards compatibility while we rollout compiler changes to emit
-      // RefetchableIdentifierInfo
-      +connection?: ?ReaderPaginationMetadata,
-      +operation: string | ConcreteRequest,
-      +fragmentPathInResult: Array<string>,
-      +identifierField?: ?string,
-    };
+export type ReaderRefetchMetadata = {
+  +connection?: ?ReaderPaginationMetadata,
+  +operation: string | ConcreteRequest,
+  +fragmentPathInResult: Array<string>,
+  +identifierInfo?: ?RefetchableIdentifierInfo,
+};
 
 // Stricter form of ConnectionMetadata
 export type ReaderPaginationMetadata = {

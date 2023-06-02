@@ -18,7 +18,6 @@ import type {
 } from './ReaderNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
-const getIdentifierInfo = require('./getIdentifierInfo');
 const invariant = require('invariant');
 
 function getRefetchMetadata(
@@ -63,7 +62,7 @@ function getRefetchMetadata(
       'this is likely a bug in Relay.',
     componentDisplayName,
   );
-  const identifierInfo = getIdentifierInfo(refetchMetadata);
+  const identifierInfo = refetchMetadata.identifierInfo;
   if (identifierInfo != null) {
     invariant(
       identifierInfo.identifierField == null ||

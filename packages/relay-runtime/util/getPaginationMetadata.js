@@ -14,7 +14,6 @@
 import type {ReaderFragment, ReaderPaginationMetadata} from './ReaderNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
-const getIdentifierInfo = require('./getIdentifierInfo');
 const getRefetchMetadata = require('./getRefetchMetadata');
 const invariant = require('invariant');
 
@@ -51,7 +50,7 @@ function getPaginationMetadata(
     componentDisplayName,
     fragmentNode.name,
   );
-  const identifierInfo = getIdentifierInfo(refetchMetadata);
+  const identifierInfo = refetchMetadata.identifierInfo;
   invariant(
     identifierInfo?.identifierField == null ||
       typeof identifierInfo.identifierField === 'string',

@@ -1813,11 +1813,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         )
                     };
 
+                let variable_name =
+                    (provider.original_variable_name.to_string() + "_provider").intern();
+
                 Some(ObjectEntry {
                     key: def.name.item.0,
                     value: Primitive::JSModuleDependency(JSModuleDependency {
                         path: provider_module,
-                        import_name: ModuleImportName::Default(provider.module_name),
+                        import_name: ModuleImportName::Default(variable_name),
                     }),
                 })
             })

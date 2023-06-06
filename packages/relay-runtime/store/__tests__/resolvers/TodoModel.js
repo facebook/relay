@@ -29,11 +29,13 @@ const {
   suspenseSentinel,
 } = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 
+type TodoModelType = ?TodoItem;
+
 /**
  * @RelayResolver TodoModel
  * @live
  */
-function TodoModel(id: string): LiveState<?TodoItem> {
+function TodoModel(id: string): LiveState<TodoModelType> {
   return {
     read() {
       return Selectors.getTodo(TODO_STORE.getState(), id);
@@ -47,7 +49,7 @@ function TodoModel(id: string): LiveState<?TodoItem> {
 /**
  * @RelayResolver TodoModel.description: String
  */
-function description(model: ?TodoItem): ?string {
+function description(model: TodoModelType): ?string {
   return model?.description;
 }
 
@@ -92,7 +94,7 @@ function capitalized_id_legacy(key: TodoModelCapitalizedIDLegacy$key): ?string {
 /**
  * @RelayResolver TodoModel.fancy_description: TodoDescription
  */
-function fancy_description(model: ?TodoItem): ?TodoDescription {
+function fancy_description(model: TodoModelType): ?TodoDescription {
   if (model == null) {
     return null;
   }
@@ -102,7 +104,7 @@ function fancy_description(model: ?TodoItem): ?TodoDescription {
 /**
  * @RelayResolver TodoModel.fancy_description_null: TodoDescription
  */
-function fancy_description_null(model: ?TodoItem): ?TodoDescription {
+function fancy_description_null(model: TodoModelType): ?TodoDescription {
   return null;
 }
 
@@ -111,7 +113,7 @@ function fancy_description_null(model: ?TodoItem): ?TodoDescription {
  * @live
  */
 function fancy_description_suspends(
-  model: ?TodoItem,
+  model: TodoModelType,
 ): LiveState<TodoDescription> {
   return {
     read() {
@@ -127,7 +129,7 @@ function fancy_description_suspends(
  * @RelayResolver TodoModel.many_fancy_descriptions: [TodoDescription]
  */
 function many_fancy_descriptions(
-  model: ?TodoItem,
+  model: TodoModelType,
 ): $ReadOnlyArray<TodoDescription> {
   if (model == null) {
     return [];

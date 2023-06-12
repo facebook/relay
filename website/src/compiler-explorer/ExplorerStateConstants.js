@@ -38,12 +38,6 @@ fragment AgeFragment on User {
 
 export const FEATURE_FLAGS = [
   {
-    key: 'enable_flight_transform',
-    label: 'Flight Transforms',
-    kind: 'bool',
-    default: true,
-  },
-  {
     key: 'hash_supported_argument',
     label: 'Hash Supported Argument',
     kind: 'enum',
@@ -65,12 +59,6 @@ export const FEATURE_FLAGS = [
   {
     key: 'text_artifacts',
     label: 'Text Artifacts',
-    kind: 'enum',
-    default: true,
-  },
-  {
-    key: 'enable_client_edges',
-    label: 'Client Edges',
     kind: 'enum',
     default: true,
   },

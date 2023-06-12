@@ -10,7 +10,10 @@
  */
 
 'use strict';
-import type {LogEvent} from '../../../relay-runtime/store/RelayStoreTypes';
+import type {
+  LogEvent,
+  RequiredFieldLoggerEvent,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
@@ -37,19 +40,7 @@ let requiredFieldLogger;
 
 beforeEach(() => {
   logger = jest.fn<[LogEvent], void>();
-  requiredFieldLogger = jest.fn<
-    [
-      | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
-      | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
-      | {
-          +error: Error,
-          +fieldPath: string,
-          +kind: 'relay_resolver.error',
-          +owner: string,
-        },
-    ],
-    void,
-  >();
+  requiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
 
   environment = createMockEnvironment({
     log: logger,

@@ -1167,11 +1167,7 @@ export type MissingFieldHandler =
       ) => ?Array<?DataID>,
     };
 
-/**
- * A handler for events related to @required fields. Currently reports missing
- * fields with either `action: LOG` or `action: THROW`.
- */
-export type RequiredFieldLogger = (
+export type RequiredFieldLoggerEvent =
   | {
       +kind: 'missing_field.log',
       +owner: string,
@@ -1187,8 +1183,12 @@ export type RequiredFieldLogger = (
       +owner: string,
       +fieldPath: string,
       +error: Error,
-    },
-) => void;
+    };
+/**
+ * A handler for events related to @required fields. Currently reports missing
+ * fields with either `action: LOG` or `action: THROW`.
+ */
+export type RequiredFieldLogger = (event: RequiredFieldLoggerEvent) => void;
 
 /**
  * The results of normalizing a query.

@@ -12,6 +12,7 @@
 'use strict';
 
 import type {IEnvironment} from 'relay-runtime';
+import type {RequiredFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 
 const React = require('react');
@@ -926,17 +927,7 @@ describe.each([
       );
     }
     const requiredFieldLogger = jest.fn<
-      | $FlowFixMe
-      | [
-          | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
-          | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
-          | {
-              +error: Error,
-              +fieldPath: string,
-              +kind: 'relay_resolver.error',
-              +owner: string,
-            },
-        ],
+      $FlowFixMe | [RequiredFieldLoggerEvent],
       void,
     >();
     function createEnvironment(source: MutableRecordSource) {

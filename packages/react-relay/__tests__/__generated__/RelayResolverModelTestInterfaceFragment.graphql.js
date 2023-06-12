@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<922e386b6a7af4125fca4a3667451e40>>
+ * @generated SignedSource<<601c203cc431f4e2111fc34d8f5b5739>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,13 +30,13 @@ import {some_client_type_with_interface as todoDescriptionSomeClientTypeWithInte
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionSomeClientTypeWithInterfaceResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-) => TodoDescription__some_client_type_with_interface$normalization);
+) => ?TodoDescription__some_client_type_with_interface$normalization);
 import {some_interface as todoDescriptionSomeInterfaceResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionSomeInterfaceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionSomeInterfaceResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-) => TodoDescription__some_interface$normalization);
+) => ?TodoDescription__some_interface$normalization);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -46,13 +46,13 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
 declare export opaque type RelayResolverModelTestInterfaceFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestInterfaceFragment$data = {|
   +fancy_description: ?{|
-    +some_client_type_with_interface: {|
+    +some_client_type_with_interface: ?{|
       +client_interface: {|
         +__typename: string,
         +description: ?string,
       |},
     |},
-    +some_interface: {|
+    +some_interface: ?{|
       +__typename: string,
       +description: ?string,
     |},

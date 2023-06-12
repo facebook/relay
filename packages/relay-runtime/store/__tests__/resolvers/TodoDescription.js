@@ -59,7 +59,7 @@ function color(instance: TodoDescription): string {
 }
 
 /**
- * @RelayResolver TodoDescription.some_interface: ClientInterface!
+ * @RelayResolver TodoDescription.some_interface: ClientInterface
  */
 function some_interface(
   instance: TodoDescription,
@@ -71,7 +71,7 @@ function some_interface(
 }
 
 /**
- * @RelayResolver TodoDescription.some_client_type_with_interface: ClientTypeWithNestedClientInterface!
+ * @RelayResolver TodoDescription.some_client_type_with_interface: ClientTypeWithNestedClientInterface
  */
 function some_client_type_with_interface(
   instance: TodoDescription,

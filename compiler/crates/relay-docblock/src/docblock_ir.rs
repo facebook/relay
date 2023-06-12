@@ -295,6 +295,13 @@ fn parse_terse_relay_resolver_ir(
         span_start + 1,
     )?;
 
+    if let TypeAnnotation::NonNull(non_null) = field.type_ {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::FieldWithNonNullType,
+            Location::new(type_str.location.source_location(), non_null.span),
+        )]);
+    }
+
     validate_field_arguments(&field.arguments, location.source_location())?;
 
     let (fragment_type_condition, fragment_arguments) = parse_fragment_definition(

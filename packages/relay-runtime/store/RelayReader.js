@@ -577,7 +577,6 @@ class RelayReader {
             field,
             this._variables,
             key,
-            this._fragmentName,
           );
           return {
             resolverResult,
@@ -590,7 +589,6 @@ class RelayReader {
           field,
           this._variables,
           null,
-          this._fragmentName,
         );
         return {
           resolverResult,
@@ -646,7 +644,10 @@ class RelayReader {
     // the errors can be attached to this read's snapshot. This allows the error
     // to be logged.
     if (resolverError) {
-      this._resolverErrors.push(resolverError);
+      this._resolverErrors.push({
+        field: {path: field.path, owner: this._fragmentName},
+        error: resolverError,
+      });
     }
 
     // The resolver itself creates a record in the store. We record that we've
@@ -1175,8 +1176,7 @@ function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
   fragmentKey: mixed,
-  ownerName: string,
-) {
+): [mixed, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
     typeof field.resolverModule === 'function'
@@ -1201,12 +1201,7 @@ function getResolverValue(
     if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
       resolverResult = undefined;
     } else {
-      // `field.path` is typed as nullable while we rollout compiler changes.
-      const path = field.path ?? '[UNKNOWN]';
-      resolverError = {
-        field: {path, owner: ownerName},
-        error: e,
-      };
+      resolverError = e;
     }
   }
   return [resolverResult, resolverError];

@@ -23,7 +23,6 @@ import type {
   MutableRecordSource,
   Record,
   RecordSource,
-  RelayResolverError,
   SingularReaderSelector,
   Snapshot,
 } from '../RelayStoreTypes';
@@ -115,7 +114,7 @@ class LiveResolverCache implements ResolverCache {
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
-    ?RelayResolverError,
+    ?Error,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
     ?DataIDSet /** Set of dirty records after read */,
@@ -292,7 +291,7 @@ class LiveResolverCache implements ResolverCache {
     // $FlowFixMe[incompatible-type] - casting mixed
     const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
     // $FlowFixMe[incompatible-type] - casting mixed
-    const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
+    const error: ?Error = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
 
     let suspenseID = null;
 

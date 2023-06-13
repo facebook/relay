@@ -578,11 +578,7 @@ class RelayReader {
             this._variables,
             key,
           );
-          return {
-            resolverResult,
-            snapshot: snapshot,
-            error: resolverError,
-          };
+          return {resolverResult, snapshot, error: resolverError};
         });
       } else {
         const [resolverResult, resolverError] = getResolverValue(
@@ -590,11 +586,7 @@ class RelayReader {
           this._variables,
           null,
         );
-        return {
-          resolverResult,
-          snapshot: undefined,
-          error: resolverError,
-        };
+        return {resolverResult, snapshot: undefined, error: resolverError};
       }
     };
 
@@ -613,6 +605,31 @@ class RelayReader {
       getDataForResolverFragment,
     );
 
+    this._propogateResolverMetadata(
+      field.path,
+      cachedSnapshot,
+      resolverError,
+      seenRecord,
+      suspenseID,
+      updatedDataIDs,
+    );
+
+    const applicationName = field.alias ?? field.name;
+    data[applicationName] = result;
+    return result;
+  }
+
+  // Reading a resolver field can uncover missing data, errors, suspense,
+  // additional seen records and updated dataIDs. All of these facts must be
+  // represented in the snapshot we return for this fragment.
+  _propogateResolverMetadata(
+    fieldPath: string,
+    cachedSnapshot: ?Snapshot,
+    resolverError: ?Error,
+    seenRecord: ?DataID,
+    suspenseID: ?DataID,
+    updatedDataIDs: ?DataIDSet,
+  ) {
     // The resolver's root fragment (if there is one) may be missing data, have
     // errors, or be in a suspended state. Here we propagate those cases
     // upwards to mimic the behavior of having traversed into that fragment directly.
@@ -645,7 +662,7 @@ class RelayReader {
     // to be logged.
     if (resolverError) {
       this._resolverErrors.push({
-        field: {path: field.path, owner: this._fragmentName},
+        field: {path: fieldPath, owner: this._fragmentName},
         error: resolverError,
       });
     }
@@ -665,7 +682,7 @@ class RelayReader {
     if (suspenseID != null) {
       this._isMissingData = true;
       this._missingLiveResolverFields.push({
-        path: `${this._fragmentName}.${field.path}`,
+        path: `${this._fragmentName}.${fieldPath}`,
         liveStateID: suspenseID,
       });
     }
@@ -674,10 +691,6 @@ class RelayReader {
         this._updatedDataIDs.add(recordID);
       }
     }
-
-    const applicationName = field.alias ?? field.name;
-    data[applicationName] = result;
-    return result;
   }
 
   _readClientEdge(

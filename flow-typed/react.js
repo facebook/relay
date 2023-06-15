@@ -16,7 +16,7 @@
 // the types of useTransition, startTranstion, and useDeferredValue used only in test.
 declare module react {
   declare export var DOM: any;
-  declare export var PropTypes: ReactPropTypes;
+  declare export var PropTypes: any;
   declare export var version: string;
 
   declare export function checkPropTypes<V>(

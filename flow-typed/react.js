@@ -107,12 +107,12 @@ declare module react {
   ): React$AbstractComponent<Config, Instance>;
 
   declare export function memo<Config, Instance = mixed>(
-    component: React$AbstractComponent<Config, Instance>,
+    component_: React$AbstractComponent<Config, Instance>,
     equal?: (Config, Config) => boolean,
   ): React$AbstractComponent<Config, Instance>;
 
   declare export function lazy<Config, Instance = mixed>(
-    component: () => Promise<{
+    component_: () => Promise<{
       default: React$AbstractComponent<Config, Instance>,
       ...
     }>,

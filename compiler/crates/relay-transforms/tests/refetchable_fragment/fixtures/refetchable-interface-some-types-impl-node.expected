@@ -54,5 +54,4 @@ fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "Re
 # }
  {
   id
-  __token
 }

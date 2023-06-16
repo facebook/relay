@@ -54,5 +54,4 @@ fragment RefetchableFragment on NonNodeStory @refetchable(queryName: "Refetchabl
     ...ProfilePicture
   }
   fetch_id
-  __token
 }

@@ -78,7 +78,6 @@ fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "Re
 # }
  {
   id
-  __token
 }
 
 fragment RefetchableFragment2 on RefetchableInterface2 @refetchable(queryName: "RefetchableFragmentQuery2") @__RefetchableMetadata
@@ -100,5 +99,4 @@ fragment RefetchableFragment2 on RefetchableInterface2 @refetchable(queryName: "
  {
   __typename
   not_id
-  __token
 }

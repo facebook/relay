@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<78d2548c61fb6ef49166b87871b6e52c>>
+ * @generated SignedSource<<2e4ae25f68052d1b3f1d5a0327a06554>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTestStoryFragment$fragmentType: FragmentType;
 type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = any;
 export type usePaginationFragmentTestStoryFragment$data = {|
-  +__token: string,
   +comments: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
@@ -172,13 +171,6 @@ return {
       "args": null,
       "kind": "ScalarField",
       "name": "fetch_id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "__token",
       "storageKey": null
     }
   ],

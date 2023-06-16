@@ -50,6 +50,7 @@ fn build_refetch_operation(
     query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
+    
     let id_name = schema_config.node_interface_id_field;
 
     if let Some(identifier_field_name) = get_fetchable_field_name(fragment, schema)? {
@@ -60,6 +61,12 @@ fn build_refetch_operation(
             format!("fetch__{}", schema.get_type_name(fragment.type_condition)).intern();
         let (fetch_field_id, id_arg) =
             get_fetch_field_id_and_id_arg(fragment, schema, query_type, fetch_field_name)?;
+
+
+        let fetch_token_field = match schema_config.enable_token_field {
+            true => Some(schema.fetch_token_field()),
+            false => None,
+        };
 
         let fragment = Arc::new(FragmentDefinition {
             name: fragment.name,
@@ -87,7 +94,7 @@ fn build_refetch_operation(
             selections: enforce_selections_with_id_field(
                 fragment,
                 identifier_field_id,
-                schema.fetch_token_field(),
+                fetch_token_field
             ),
         });
         let mut variable_definitions = build_operation_variable_definitions(&fragment);
@@ -227,7 +234,7 @@ fn has_field(selections: &[Selection], field_id: FieldID) -> bool {
 fn enforce_selections_with_id_field(
     fragment: &FragmentDefinition,
     identifier_field_id: FieldID,
-    fetch_token_field_id: FieldID,
+    fetch_token_field_id: Option<FieldID>,
 ) -> Vec<Selection> {
     let mut next_selections = fragment.selections.clone();
     if !has_field(&next_selections, identifier_field_id) {
@@ -238,13 +245,18 @@ fn enforce_selections_with_id_field(
             directives: vec![],
         })));
     }
-    if !has_field(&next_selections, fetch_token_field_id) {
-        next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
-            alias: None,
-            definition: WithLocation::generated(fetch_token_field_id),
-            arguments: vec![],
-            directives: vec![],
-        })));
+    match fetch_token_field_id {
+        Some(fetch_token_field_id) => {
+            if !has_field(&next_selections, fetch_token_field_id) {
+                next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
+                    alias: None,
+                    definition: WithLocation::new(fragment.name.location, fetch_token_field_id),
+                    arguments: vec![],
+                    directives: vec![],
+                })));
+            }
+        }
+        None => {}
     }
     next_selections
 }

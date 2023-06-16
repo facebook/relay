@@ -154,13 +154,6 @@ fragment fragmentOnNonNodeFetchableType_ProfilePicture on User {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "__token",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
             "name": "id",
             "storageKey": null
           }
@@ -204,7 +197,6 @@ fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory {
     id
   }
   fetch_id
-  __token
 }
 
 
@@ -292,13 +284,6 @@ fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory {
       "args": null,
       "kind": "ScalarField",
       "name": "fetch_id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "__token",
       "storageKey": null
     }
   ],

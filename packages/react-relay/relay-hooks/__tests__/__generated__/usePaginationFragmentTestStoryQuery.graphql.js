@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f1fc019d705bbceebe63c5c272af6c89>>
+ * @generated SignedSource<<6f9740295cde0d77668c74f29279d7cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -192,13 +192,6 @@ return {
             "name": "fetch_id",
             "storageKey": null
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__token",
-            "storageKey": null
-          },
           (v3/*: any*/)
         ],
         "storageKey": null
@@ -206,12 +199,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4f3e70176552d390bebe4d2886c17745",
+    "cacheID": "3cb446084b7d394d00b3150a5ce104cb",
     "id": null,
     "metadata": {},
     "name": "usePaginationFragmentTestStoryQuery",
     "operationKind": "query",
-    "text": "query usePaginationFragmentTestStoryQuery(\n  $id: ID!\n) {\n  nonNodeStory(id: $id) {\n    ...usePaginationFragmentTestStoryFragment\n    id\n  }\n}\n\nfragment usePaginationFragmentTestStoryFragment on NonNodeStory {\n  comments(first: 10) {\n    edges {\n      node {\n        id\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  fetch_id\n  __token\n}\n"
+    "text": "query usePaginationFragmentTestStoryQuery(\n  $id: ID!\n) {\n  nonNodeStory(id: $id) {\n    ...usePaginationFragmentTestStoryFragment\n    id\n  }\n}\n\nfragment usePaginationFragmentTestStoryFragment on NonNodeStory {\n  comments(first: 10) {\n    edges {\n      node {\n        id\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  fetch_id\n}\n"
   }
 };
 })();

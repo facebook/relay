@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<10e1a861ea49f1a624859dad7a53c95a>>
+ * @generated SignedSource<<2319a3d7450db8fb50d547d5a91ab33b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -129,13 +129,6 @@ return {
             "name": "fetch_id",
             "storageKey": null
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__token",
-            "storageKey": null
-          },
           (v2/*: any*/)
         ],
         "storageKey": null
@@ -143,12 +136,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "48452883758b52f03c316637a58a7bf9",
+    "cacheID": "2b1fe038fd3a80f4e81b56e3b864e547",
     "id": null,
     "metadata": {},
     "name": "useRefetchableFragmentNodeTest1Query",
     "operationKind": "query",
-    "text": "query useRefetchableFragmentNodeTest1Query(\n  $id: ID!\n) {\n  nonNodeStory(id: $id) {\n    ...useRefetchableFragmentNodeTest1Fragment\n    id\n  }\n}\n\nfragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory {\n  actor {\n    __typename\n    name\n    id\n  }\n  fetch_id\n  __token\n}\n"
+    "text": "query useRefetchableFragmentNodeTest1Query(\n  $id: ID!\n) {\n  nonNodeStory(id: $id) {\n    ...useRefetchableFragmentNodeTest1Fragment\n    id\n  }\n}\n\nfragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory {\n  actor {\n    __typename\n    name\n    id\n  }\n  fetch_id\n}\n"
   }
 };
 })();

@@ -50,7 +50,6 @@ fn build_refetch_operation(
     query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
-    
     let id_name = schema_config.node_interface_id_field;
 
     if let Some(identifier_field_name) = get_fetchable_field_name(fragment, schema)? {
@@ -61,7 +60,6 @@ fn build_refetch_operation(
             format!("fetch__{}", schema.get_type_name(fragment.type_condition)).intern();
         let (fetch_field_id, id_arg) =
             get_fetch_field_id_and_id_arg(fragment, schema, query_type, fetch_field_name)?;
-
 
         let fetch_token_field = match schema_config.enable_token_field {
             true => Some(schema.fetch_token_field()),
@@ -94,7 +92,7 @@ fn build_refetch_operation(
             selections: enforce_selections_with_id_field(
                 fragment,
                 identifier_field_id,
-                fetch_token_field
+                fetch_token_field,
             ),
         });
         let mut variable_definitions = build_operation_variable_definitions(&fragment);

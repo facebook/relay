@@ -436,21 +436,18 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_RelayResponseNormalizerTestFragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_RelayResponseNormalizerTestFragment:
-              'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_RelayResponseNormalizerTestFragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayResponseNormalizerTestFragment:
+            'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -462,8 +459,7 @@ describe('RelayResponseNormalizer', () => {
           args: null,
           operationReference:
             'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
-          dataID:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          dataID: 'client:1:nameRenderer(supported:"34hjiS")',
           kind: 'ModuleImportPayload',
           data: {
             __typename: 'MarkdownUserNameRenderer',
@@ -519,21 +515,18 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_RelayResponseNormalizerTestFragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_RelayResponseNormalizerTestFragment:
-              'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_RelayResponseNormalizerTestFragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayResponseNormalizerTestFragment:
+            'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -545,8 +538,7 @@ describe('RelayResponseNormalizer', () => {
           args: null,
           operationReference:
             'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
-          dataID:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          dataID: 'client:1:nameRenderer(supported:"34hjiS")',
           kind: 'ModuleImportPayload',
           data: {
             __typename: 'MarkdownUserNameRenderer',
@@ -594,18 +586,15 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'CustomNameRenderer',
-            // note: 'customField' data not processed, there is no selection on this type
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'CustomNameRenderer',
+          // note: 'customField' data not processed, there is no selection on this type
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -638,8 +627,7 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            null,
+          'nameRenderer(supported:"34hjiS")': null,
         },
         'client:root': {
           __id: 'client:root',

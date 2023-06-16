@@ -281,7 +281,7 @@ fn apply_reader_transforms(
         generate_data_driven_dependency_metadata(&program)
     });
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &project_config.feature_flags)
+        hash_supported_argument(&program)
     })?;
 
     program = apply_after_custom_transforms(
@@ -425,7 +425,7 @@ fn apply_normalization_transforms(
     });
 
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &project_config.feature_flags)
+        hash_supported_argument(&program)
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("hash_supported_argument", &program);

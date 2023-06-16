@@ -734,23 +734,20 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'PlainUserNameRenderer',
-            __module_component_DataCheckerTest4Fragment:
-              'PlainUserNameRenderer.react',
-            __module_operation_DataCheckerTest4Fragment:
-              'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
-            plaintext: 'plain name',
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'PlainUserNameRenderer',
+          __module_component_DataCheckerTest4Fragment:
+            'PlainUserNameRenderer.react',
+          __module_operation_DataCheckerTest4Fragment:
+            'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
+          plaintext: 'plain name',
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -798,23 +795,20 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_DataCheckerTest4Fragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_DataCheckerTest4Fragment:
-              'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
-            markdown: 'markdown payload',
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_DataCheckerTest4Fragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_DataCheckerTest4Fragment:
+            'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
+          markdown: 'markdown payload',
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -860,18 +854,15 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            // NOTE: markdown/data fields are missing, data not processed.
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          // NOTE: markdown/data fields are missing, data not processed.
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -914,19 +905,16 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            // NOTE: 'markdown' field missing
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          // NOTE: 'markdown' field missing
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -971,19 +959,16 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            markdown: 'markdown text',
-            // NOTE: 'data' field missing
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          markdown: 'markdown text',
+          // NOTE: 'data' field missing
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1021,18 +1006,15 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'CustomNameRenderer',
-            customField: 'custom value',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'CustomNameRenderer',
+          customField: 'custom value',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1069,8 +1051,7 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            null,
+          'nameRenderer(supported:"34hjiS")': null,
         },
         'client:root': {
           __id: 'client:root',

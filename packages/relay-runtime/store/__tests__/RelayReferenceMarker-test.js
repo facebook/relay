@@ -526,23 +526,20 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'PlainUserNameRenderer',
-            __module_component_RelayReferenceMarkerTest3Fragment:
-              'PlainUserNameRenderer.react',
-            __module_operation_RelayReferenceMarkerTest3Fragment:
-              'RelayReferenceMarkerTestPlainUserNameRenderer_name$normalization.graphql',
-            plaintext: 'plain name',
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'PlainUserNameRenderer',
+          __module_component_RelayReferenceMarkerTest3Fragment:
+            'PlainUserNameRenderer.react',
+          __module_operation_RelayReferenceMarkerTest3Fragment:
+            'RelayReferenceMarkerTestPlainUserNameRenderer_name$normalization.graphql',
+          plaintext: 'plain name',
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -566,7 +563,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
         'client:root',
         'data',
       ]);
@@ -579,23 +576,20 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_RelayReferenceMarkerTest3Fragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_RelayReferenceMarkerTest3Fragment:
-              'RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_RelayReferenceMarkerTest3Fragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayReferenceMarkerTest3Fragment:
+            'RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql',
+          markdown: 'markdown payload',
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -619,7 +613,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
         'client:root',
         'data',
       ]);
@@ -634,18 +628,15 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            // NOTE: markdown/data fields are missing, data not processed.
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          // NOTE: markdown/data fields are missing, data not processed.
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -668,7 +659,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
         'client:root',
       ]);
     });
@@ -680,23 +671,20 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_RelayReferenceMarkerTest3Fragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_RelayReferenceMarkerTest3Fragment:
-              'RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql',
-            // NOTE: 'markdown' field missing
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_RelayReferenceMarkerTest3Fragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayReferenceMarkerTest3Fragment:
+            'RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql',
+          // NOTE: 'markdown' field missing
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -720,7 +708,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
         'client:root',
         'data',
       ]);
@@ -733,19 +721,16 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            markdown: 'markdown text',
-            // NOTE: 'data' field missing
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          markdown: 'markdown text',
+          // NOTE: 'data' field missing
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -764,7 +749,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
         'client:root',
       ]);
     });
@@ -775,18 +760,15 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'CustomNameRenderer',
-            customField: 'custom value',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'CustomNameRenderer',
+          customField: 'custom value',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -805,7 +787,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
         'client:root',
       ]);
     });
@@ -816,8 +798,7 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            null,
+          'nameRenderer(supported:"34hjiS")': null,
         },
         'client:root': {
           __id: 'client:root',

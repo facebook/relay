@@ -52,7 +52,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         }
         return Ok("TODO".to_string());
     }
-    let hash_supported_argument_allowlist = vec!["UserNameRenderer".intern()];
     let no_inline_allowlist = vec![
         "autoFilledArgumentOnMatchPlainUserNameRenderer_name".intern(),
         "autoFilledArgumentOnMatchMarkdownUserNameRenderer_name".intern(),
@@ -101,9 +100,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     ];
 
     let feature_flags = FeatureFlags {
-        hash_supported_argument: FeatureFlag::Limited {
-            allowlist: hash_supported_argument_allowlist.into_iter().collect(),
-        },
+        hash_supported_argument: FeatureFlag::Enabled,
         // test SplitOperations that do not use @no-inline D28460294
         no_inline: FeatureFlag::Limited {
             allowlist: no_inline_allowlist.into_iter().collect(),

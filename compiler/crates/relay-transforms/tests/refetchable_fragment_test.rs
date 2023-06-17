@@ -62,6 +62,13 @@ fn fragment_on_non_node_fetchable_type() {
 }
 
 #[test]
+fn fragment_on_non_node_fetchable_type_with_token_field() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.expected");
+    test_fixture(transform_fixture, "fragment-on-non-node-fetchable-type-with-token-field.graphql", "refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.expected", input, expected);
+}
+
+#[test]
 fn fragment_on_object_implementing_node_interface() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-on-object-implementing-node-interface.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-on-object-implementing-node-interface.expected");

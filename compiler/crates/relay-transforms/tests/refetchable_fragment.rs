@@ -8,6 +8,7 @@
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
 use relay_config::DeferStreamInterface;
+use relay_config::ProjectConfig;
 use relay_transforms::transform_connections;
 use relay_transforms::transform_refetchable_fragment;
 use relay_transforms::ConnectionInterface;
@@ -21,12 +22,17 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             false,
         );
         let base_fragments = Default::default();
-        transform_refetchable_fragment(
-            &program,
-            &Default::default(),
-            &base_fragments,
-            false,
-            vec![],
-        )
+        let schema_config = if fixture.content.contains("// enable-token-field: true") {
+            let mut schema_config: relay_config::SchemaConfig = Default::default();
+            schema_config.enable_token_field = true;
+            schema_config
+        } else {
+            Default::default()
+        };
+        let project_config = ProjectConfig {
+            schema_config,
+            ..Default::default()
+        };
+        transform_refetchable_fragment(&program, &project_config, &base_fragments, false, vec![])
     })
 }

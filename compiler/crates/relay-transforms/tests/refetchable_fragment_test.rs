@@ -4,7 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+<<<<<<< HEAD
  * @generated SignedSource<<733f08cd406c19e1403b12a718566e81>>
+=======
+ * @generated SignedSource<<f2a33e9f40621feaf83bba7d98a60d9b>>
+>>>>>>> 7e5452881068 (update fixtures)
  */
 
 mod refetchable_fragment;

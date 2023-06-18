@@ -26,6 +26,7 @@ use dashmap::DashSet;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
+use graphql_ir::ExecutableDefinitionName;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
@@ -177,14 +178,6 @@ impl<V: Source + Clone> IncrementalSources<V> {
                     }
                 }
             }
-        }
-    }
-
-    /// Remove deleted sources from both pending sources and processed sources.
-    fn remove_sources(&mut self, removed_sources: &[PathBuf]) {
-        for source in removed_sources {
-            self.pending.remove(source);
-            self.processed.remove(source);
         }
     }
 
@@ -564,7 +557,7 @@ impl CompilerState {
     pub fn get_dirty_definitions(
         &self,
         config: &Config,
-    ) -> FnvHashMap<ProjectName, Vec<StringKey>> {
+    ) -> FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>> {
         if self.dirty_artifact_paths.is_empty() {
             return Default::default();
         }
@@ -685,7 +678,9 @@ impl CompilerState {
         }
         for project_name in project_set {
             let entry = source_map.entry(project_name).or_default();
-            entry.remove_sources(&removed_sources);
+            for source in &removed_sources {
+                entry.pending.insert(source.clone(), "".to_string());
+            }
             entry.merge_pending_sources(&added_sources);
         }
         Ok(())

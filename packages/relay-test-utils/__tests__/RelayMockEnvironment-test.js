@@ -67,7 +67,7 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
     let data;
     function Component(props: $FlowFixMe) {
       data = usePreloadedQuery(query, props.prefetched);
-      return data.node.name;
+      return data.node?.name;
     }
     const renderer = TestRenderer.create(
       <RelayEnvironmentProvider environment={mockEnvironment}>

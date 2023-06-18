@@ -25,6 +25,7 @@ pub mod saved_state;
 pub mod status_reporter;
 
 pub use build_project::add_to_mercurial;
+pub use build_project::artifact_writer::ArtifactDifferenceShardedWriter;
 pub use build_project::artifact_writer::ArtifactDifferenceWriter;
 pub use build_project::artifact_writer::ArtifactFileWriter;
 pub use build_project::artifact_writer::ArtifactValidationWriter;

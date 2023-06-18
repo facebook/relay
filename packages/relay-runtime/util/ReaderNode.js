@@ -76,11 +76,16 @@ export type ReaderPaginationFragment = {
   },
 };
 
+export type RefetchableIdentifierInfo = {
+  +identifierField: string,
+  +identifierQueryVariableName: string,
+};
+
 export type ReaderRefetchMetadata = {
   +connection?: ?ReaderPaginationMetadata,
   +operation: string | ConcreteRequest,
   +fragmentPathInResult: Array<string>,
-  +identifierField?: ?string,
+  +identifierInfo?: ?RefetchableIdentifierInfo,
 };
 
 // Stricter form of ConnectionMetadata
@@ -212,14 +217,6 @@ export type ReaderScalarField = {
   +storageKey?: ?string,
 };
 
-export type ReaderFlightField = {
-  +kind: 'FlightField',
-  +alias: ?string,
-  +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +storageKey: ?string,
-};
-
 export type ReaderDefer = {
   +kind: 'Defer',
   +selections: $ReadOnlyArray<ReaderSelection>,
@@ -247,7 +244,7 @@ type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear
 type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
 export type ResolverNormalizationInfo = {
-  +concreteType: string,
+  +concreteType: string | null,
   +plural: boolean,
   +normalizationNode: NormalizationSelectableNode,
 };
@@ -276,7 +273,7 @@ export type ReaderRelayLiveResolver = {
 
 export type ReaderClientEdgeToClientObject = {
   +kind: 'ClientEdgeToClientObject',
-  +concreteType: string,
+  +concreteType: string | null,
   +linkedField: ReaderLinkedField,
   +backingField:
     | ReaderRelayResolver
@@ -302,7 +299,6 @@ export type ReaderSelection =
   | ReaderDefer
   | ReaderField
   | ReaderActorChange
-  | ReaderFlightField
   | ReaderFragmentSpread
   | ReaderAliasedFragmentSpread
   | ReaderInlineDataFragmentSpread

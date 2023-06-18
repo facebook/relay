@@ -25,7 +25,7 @@ use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use schema::Schema;
 
-use crate::client_edges::ClientEdgeMetadataDirective;
+use crate::ClientEdgeMetadata;
 
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments
 /// the generated result is used by codegen only to generate `ClientExtension` nodes.
@@ -57,13 +57,34 @@ impl<'program> ClientExtensionsTransform<'program> {
         }
     }
 
-    // TODO(T63388023): Returns a typed directive
-    fn build_client_extension_directive(&self) -> Directive {
-        Directive {
-            name: WithLocation::generated(*CLIENT_EXTENSION_DIRECTIVE_NAME),
-            arguments: Default::default(),
-            data: None,
-        }
+    fn transform_client_edge(
+        &mut self,
+        fragment: &InlineFragment,
+        metadata: ClientEdgeMetadata<'_>,
+    ) -> Transformed<Selection> {
+        // Backing field should always be a RelayResolver. We can't wrap a
+        // resolver. If its a scalar (no fragment) we don't need to wrap
+        // anything because normalizer ignores the field itself.
+        // If it's an inline fragment, on a server type, we can traverse in
+
+        // Here we transform each field and then ignore the case that the
+        // transform has identified either selection as being a client extension
+        // by calling `unwrap_or_else` with the untransformed value. This ensures the
+        // selections get deeply transformed, but that neither of the direct
+        // fields of the client edge get wrapped with a client extension inline
+        // fragment or deleted.
+        let backing_field = self
+            .transform_selection(&metadata.backing_field)
+            .unwrap_or_else(|| metadata.backing_field.clone());
+
+        let selections = self
+            .transform_linked_field(metadata.linked_field)
+            .unwrap_or_else(|| Selection::LinkedField(Arc::new(metadata.linked_field.clone())));
+
+        Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+            selections: vec![backing_field, selections],
+            ..fragment.clone()
+        })))
     }
 }
 
@@ -120,7 +141,7 @@ impl Transformer for ClientExtensionsTransform<'_> {
             if !client_selections.is_empty() {
                 server_selections.push(Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: None,
-                    directives: vec![self.build_client_extension_directive()],
+                    directives: vec![build_client_extension_directive()],
                     selections: client_selections,
                     spread_location: Location::generated(),
                 })));
@@ -145,14 +166,14 @@ impl Transformer for ClientExtensionsTransform<'_> {
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         // Client Edges are modeled in the IR as inline fragments. If we
-        // traverse into those fragements, and pull its contents out into a
+        // traverse into those fragments, and pull its contents out into a
         // separate inline fragment (without this directive) we will have lost
         // the fact that these selections belong to the client edge.
         //
         // Client edges are all explicitly handled for each artifact type, so we
         // don't need to handle them specifically as client schema extensions.
-        if ClientEdgeMetadataDirective::find(&fragment.directives).is_some() {
-            return Transformed::Keep;
+        if let Some(metadata) = ClientEdgeMetadata::find(fragment) {
+            return self.transform_client_edge(fragment, metadata);
         }
         if let Some(type_condition) = fragment.type_condition {
             if self.program.schema.is_extension_type(type_condition) {
@@ -186,5 +207,14 @@ impl Transformer for ClientExtensionsTransform<'_> {
         } else {
             Transformed::Keep
         }
+    }
+}
+
+// TODO(T63388023): Returns a typed directive
+fn build_client_extension_directive() -> Directive {
+    Directive {
+        name: WithLocation::generated(*CLIENT_EXTENSION_DIRECTIVE_NAME),
+        arguments: Default::default(),
+        data: None,
     }
 }

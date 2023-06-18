@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -67,11 +69,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           foo: 'bar', // should be filtered from network fetch
         });
 
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetch = jest.fn((_query, _variables, _cacheConfig) =>
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           RelayObservable.create(sink => {
             subject = sink;
           }),
@@ -79,6 +83,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
         const multiActorEnvironment = new MultiActorEnvironment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
         });
@@ -86,10 +91,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environmentType === 'MultiActorEnvironment'
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 network: RelayNetwork.create(fetch),
                 store,
               });
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetchSourceMock = jest.fn(sink =>
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           fetch(
             operation.request.node.params,
             operation.request.variables,
@@ -166,7 +174,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
         const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment

@@ -27,11 +27,7 @@ const {
   isRelayModernEnvironment,
 } = require('relay-runtime');
 
-type OnDataChange = ({
-  error?: Error,
-  snapshot?: Snapshot,
-  ...
-}) => void;
+type OnDataChange = ({error?: Error, snapshot?: Snapshot, ...}) => void;
 
 /** The external API of 'fetch' **/
 export type FetchOptions = {
@@ -63,7 +59,7 @@ class ReactRelayQueryFetcher {
   _snapshot: ?Snapshot; // results of the root fragment;
   _error: ?Error; // fetch error
   _cacheSelectionReference: ?Disposable;
-  _callOnDataChangeWhenSet: boolean = false;
+  _didFetchFinish: boolean = false;
 
   constructor(args?: {
     cacheSelectionReference: ?Disposable,
@@ -101,6 +97,19 @@ class ReactRelayQueryFetcher {
       }
     }
     return null;
+  }
+
+  getFetchResult(): ?{error?: Error, snapshot?: Snapshot} {
+    if (this._didFetchFinish) {
+      // We don't reset '_didFetchFinish' because another callback may be set
+      if (this._error != null) {
+        return {error: this._error};
+      } else if (this._snapshot != null) {
+        return {snapshot: this._snapshot};
+      }
+    } else {
+      return null;
+    }
   }
 
   execute({
@@ -152,8 +161,8 @@ class ReactRelayQueryFetcher {
         this._fetchOptions.onDataChangeCallbacks || [];
       this._fetchOptions.onDataChangeCallbacks.push(onDataChange);
 
-      if (this._callOnDataChangeWhenSet) {
-        // We don't reset '_callOnDataChangeWhenSet' because another callback may be set
+      if (this._didFetchFinish) {
+        // We don't reset '_didFetchFinish' because another callback may be set
         if (this._error != null) {
           onDataChange({error: this._error});
         } else if (this._snapshot != null) {
@@ -216,7 +225,7 @@ class ReactRelayQueryFetcher {
         next: () => {
           // If we received a response,
           // Make a note that to notify the callback when it's later added.
-          this._callOnDataChangeWhenSet = true;
+          this._didFetchFinish = true;
           this._error = null;
 
           // Only notify of the first result if `next` is being called **asynchronously**
@@ -226,7 +235,7 @@ class ReactRelayQueryFetcher {
         error: err => {
           // If we received a response when we didn't have a change callback,
           // Make a note that to notify the callback when it's later added.
-          this._callOnDataChangeWhenSet = true;
+          this._didFetchFinish = true;
           this._error = err;
           this._snapshot = null;
 

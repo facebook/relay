@@ -22,10 +22,29 @@ use crate::syntax_error::SyntaxError;
 
 type ParseResult<T> = Result<T, ()>;
 
+#[derive(Default, PartialEq)]
+pub enum FragmentArgumentSyntaxKind {
+    #[default]
+    None,
+    OnlyFragmentVariableDefinitions,
+    SpreadArgumentsAndFragmentVariableDefinitions,
+}
+
 #[derive(Default)]
 pub struct ParserFeatures {
-    /// Enable the experimental fragment variables definitions syntax
-    pub enable_variable_definitions: bool,
+    /// Whether and how to enable the experimental fragment variables definitions syntax
+    pub fragment_argument_capability: FragmentArgumentSyntaxKind,
+}
+
+impl ParserFeatures {
+    fn supports_variable_definition_syntax(&self) -> bool {
+        self.fragment_argument_capability != FragmentArgumentSyntaxKind::None
+    }
+
+    fn supports_spread_arguments_syntax(&self) -> bool {
+        self.fragment_argument_capability
+            == FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions
+    }
 }
 
 pub struct Parser<'a> {
@@ -172,6 +191,19 @@ impl<'a> Parser<'a> {
         let identifier = self.parse_identifier();
         if self.errors.is_empty() {
             Ok(identifier.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    pub fn parse_identifier_and_implements_interfaces_result(
+        mut self,
+    ) -> DiagnosticsResult<(Identifier, Vec<Identifier>)> {
+        let identifier = self.parse_identifier();
+        let impls = self.parse_implements_interfaces();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok((identifier.unwrap(), impls.unwrap()))
         } else {
             Err(self.errors)
         }
@@ -972,7 +1004,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let fragment = self.parse_keyword("fragment")?;
         let name = self.parse_identifier()?;
-        let variable_definitions = if self.features.enable_variable_definitions {
+        let variable_definitions = if self.features.supports_variable_definition_syntax() {
             self.parse_optional_delimited_nonempty_list(
                 TokenKind::OpenParen,
                 TokenKind::CloseParen,
@@ -1239,7 +1271,23 @@ impl<'a> Parser<'a> {
         let (name, alias) = if self.peek_token_kind() == TokenKind::Colon {
             let colon = self.parse_kind(TokenKind::Colon)?;
             let alias = name;
-            let name = self.parse_identifier()?;
+            let name = {
+                match self.peek_token_kind() {
+                    TokenKind::Identifier => self.parse_identifier()?,
+                    token_kind => {
+                        let name = self.empty_identifier();
+                        self.record_error(Diagnostic::error(
+                            format!(
+                                "Incomplete field alias, expected {} but found {}",
+                                TokenKind::Identifier,
+                                token_kind
+                            ),
+                            Location::new(self.source_location, Span::new(start, name.span.end)),
+                        ));
+                        name
+                    }
+                }
+            };
             (
                 name,
                 Some(Alias {
@@ -1283,11 +1331,17 @@ impl<'a> Parser<'a> {
         if !is_on_keyword && self.peek_token_kind() == TokenKind::Identifier {
             // fragment spread
             let name = self.parse_identifier()?;
+            let arguments = if self.features.supports_spread_arguments_syntax() {
+                self.parse_optional_arguments()?
+            } else {
+                None
+            };
             let directives = self.parse_directives()?;
             Ok(Selection::FragmentSpread(FragmentSpread {
                 span: Span::new(start, self.end_index),
                 spread,
                 name,
+                arguments,
                 directives,
             }))
         } else {
@@ -1387,12 +1441,7 @@ impl<'a> Parser<'a> {
                             Span::new(start, self.peek().span.start),
                         ),
                     ));
-                    let empty_token = self.empty_token();
-                    Identifier {
-                        span: empty_token.span,
-                        token: empty_token,
-                        value: "".intern(),
-                    }
+                    self.empty_identifier()
                 })()
             };
 
@@ -1808,17 +1857,12 @@ impl<'a> Parser<'a> {
                 }
             }
             _ => {
-                let token = self.empty_token();
-                let error = Diagnostic::error(
+                let identifier = self.empty_identifier();
+                self.record_error(Diagnostic::error(
                     SyntaxError::Expected(TokenKind::Identifier),
-                    Location::new(self.source_location, token.span),
-                );
-                self.record_error(error);
-                Identifier {
-                    span: token.span,
-                    token,
-                    value: "".intern(),
-                }
+                    Location::new(self.source_location, identifier.span),
+                ));
+                identifier
             }
         }
     }
@@ -2067,6 +2111,15 @@ impl<'a> Parser<'a> {
         Token {
             span: Span::new(index, index),
             kind: TokenKind::Empty,
+        }
+    }
+
+    fn empty_identifier(&self) -> Identifier {
+        let token = self.empty_token();
+        Identifier {
+            span: token.span,
+            token,
+            value: "".intern(),
         }
     }
 }

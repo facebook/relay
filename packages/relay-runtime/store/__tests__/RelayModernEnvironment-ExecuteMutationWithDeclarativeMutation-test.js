@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -97,7 +99,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             queryVariables,
           );
 
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           fetch = jest.fn((_query, _variables, _cacheConfig) =>
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             RelayObservable.create(sink => {
               subject = sink;
             }),
@@ -105,6 +109,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           source = RelayRecordSource.create();
           store = new RelayModernStore(source);
           const multiActorEnvironment = new MultiActorEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             createNetworkForActor: _actorID => RelayNetwork.create(fetch),
             createStoreForActor: _actorID => store,
           });
@@ -112,12 +117,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new RelayModernEnvironment({
+                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: RelayNetwork.create(fetch),
                   store,
                 });
-          complete = jest.fn();
-          error = jest.fn();
-          next = jest.fn();
+          complete = jest.fn<[], mixed>();
+          error = jest.fn<[Error], mixed>();
+          next = jest.fn<[GraphQLResponse], mixed>();
           callbacks = {complete, error, next};
 
           environment.execute({operation: queryOperation}).subscribe({});
@@ -145,7 +151,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               },
             },
           });
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -180,7 +186,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               },
             },
           });
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -235,8 +241,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               },
             },
           });
-          const serverCallback = jest.fn();
-          const clientCallback = jest.fn();
+          const serverCallback = jest.fn<[Snapshot], void>();
+          const clientCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(serverSnapshot, serverCallback);
           environment.subscribe(clientSnapshot, clientCallback);
 
@@ -363,7 +369,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           );
 
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           fetch = jest.fn((_query, _variables, _cacheConfig) =>
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             RelayObservable.create(sink => {
               subject = sink;
             }),
@@ -371,6 +379,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           source = RelayRecordSource.create();
           store = new RelayModernStore(source);
           const multiActorEnvironment = new MultiActorEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             createNetworkForActor: _actorID => RelayNetwork.create(fetch),
             createStoreForActor: _actorID => store,
           });
@@ -378,12 +387,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new RelayModernEnvironment({
+                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: RelayNetwork.create(fetch),
                   store,
                 });
-          complete = jest.fn();
-          error = jest.fn();
-          next = jest.fn();
+          complete = jest.fn<[], mixed>();
+          error = jest.fn<[Error], mixed>();
+          next = jest.fn<[GraphQLResponse], mixed>();
           callbacks = {complete, error, next};
 
           environment
@@ -441,8 +451,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           });
 
-          const firstCallback = jest.fn();
-          const secondCallback = jest.fn();
+          const firstCallback = jest.fn<[Snapshot], void>();
+          const secondCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(firstCommentSnapshot, firstCallback);
           environment.subscribe(firstCommentSnapshot, secondCallback);
 
@@ -495,8 +505,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           });
 
-          const firstCallback = jest.fn();
-          const secondCallback = jest.fn();
+          const firstCallback = jest.fn<[Snapshot], void>();
+          const secondCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(firstCommentSnapshot, firstCallback);
           environment.subscribe(firstCommentSnapshot, secondCallback);
 
@@ -556,8 +566,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               },
             },
           });
-          const serverCallback = jest.fn();
-          const clientCallback = jest.fn();
+          const serverCallback = jest.fn<[Snapshot], void>();
+          const clientCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(serverSnapshot, serverCallback);
           environment.subscribe(clientSnapshot, clientCallback);
 
@@ -825,11 +835,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         );
 
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetch = jest.fn((_query, _variables, _cacheConfig) => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           return RelayObservable.create(sink => {
             subject = sink;
           });
@@ -837,6 +849,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
         const multiActorEnvironment = new MultiActorEnvironment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
         });
@@ -844,6 +857,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environmentType === 'MultiActorEnvironment'
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 network: RelayNetwork.create(fetch),
                 store,
               });
@@ -919,7 +933,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       describe('append and prepend edges', () => {
         it('commits the mutation and inserts comment edges into the connection', () => {
           const snapshot = environment.lookup(operation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -1036,7 +1050,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         it('does not insert nodes into connections where that node already exists', () => {
           const snapshot = environment.lookup(operation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -1089,7 +1103,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         it('commits the mutation and inserts multiple comment edges into the connection', () => {
           const snapshot = environment.lookup(operation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -1252,7 +1266,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         it('commits the mutation and inserts multiple comment edges on a field with args into the connection', () => {
           const snapshot = environment.lookup(operation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -1418,7 +1432,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         it('inserts an comment edge during optmistic update, and reverts and inserts new edge when server payload resolves', () => {
           const snapshot = environment.lookup(operation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -1519,7 +1533,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       describe('delete edges', () => {
         it('commits the mutation and deletes comment edges from the connection from a single id', () => {
           const snapshot = environment.lookup(operation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -1556,7 +1570,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         it('commits the mutation and deletes comment edges from the connection from a list of ids', () => {
           const snapshot = environment.lookup(operation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
 
           environment
@@ -1762,11 +1776,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         );
 
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetch = jest.fn((_query, _variables, _cacheConfig) => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           return RelayObservable.create(sink => {
             subject = sink;
           });
@@ -1774,6 +1790,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
         environment = new RelayModernEnvironment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           network: RelayNetwork.create(fetch),
           store,
         });
@@ -1848,7 +1865,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('commits the mutation, creates edges for the comment and inserts the edges into the connection', () => {
         const snapshot = environment.lookup(operation.fragment);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment
@@ -1960,7 +1977,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('does not insert nodes into connections where that node already exists', () => {
         const snapshot = environment.lookup(operation.fragment);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment
@@ -2010,7 +2027,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('works when the edge name is a literal', () => {
         const snapshot = environment.lookup(operation.fragment);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment
@@ -2121,7 +2138,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('handles lists of nodes', () => {
         const snapshot = environment.lookup(operation.fragment);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment
@@ -2268,7 +2285,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('creates and inserts a comment edge during optmistic update', () => {
         const snapshot = environment.lookup(operation.fragment);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment
@@ -2361,7 +2378,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('warns when the server returns an null for the node', () => {
         const snapshot = environment.lookup(operation.fragment);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment

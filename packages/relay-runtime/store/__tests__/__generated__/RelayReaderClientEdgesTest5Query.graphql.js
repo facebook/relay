@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e3d36e34acd7b1adeec7b695e00fdd41>>
+ * @generated SignedSource<<d4911450098c6d0c08d34516b830157e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { UserClientEdgeResolver$key } from "./../resolvers/__generated__/UserClientEdgeResolver.graphql";
-import {client_edge as userClientEdgeResolver} from "../resolvers/UserClientEdgeResolver.js";
-// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolver: (
-  rootKey: UserClientEdgeResolver$key, 
-) => mixed);
+(userClientEdgeResolverType: (
+  rootKey: UserClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type RelayReaderClientEdgesTest5Query$variables = {||};
 export type RelayReaderClientEdgesTest5Query$data = {|
   +me: ?{|
@@ -161,7 +164,8 @@ return {
                       "abstractKey": null
                     },
                     "kind": "RelayResolver",
-                    "storageKey": null
+                    "storageKey": null,
+                    "isOutputType": false
                   },
                   (v1/*: any*/)
                 ],

@@ -179,7 +179,7 @@ export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
  *   with a specific error
  */
 function createMockEnvironment(
-  config?: $Shape<EnvironmentConfig>,
+  config?: Partial<EnvironmentConfig>,
 ): RelayMockEnvironment {
   const store = config?.store ?? new Store(new RecordSource());
   const cache = new QueryResponseCache({
@@ -222,7 +222,8 @@ function createMockEnvironment(
       cachedPayload = cache.get(cacheID, variables);
     }
     if (cachedPayload !== null) {
-      return Observable.from(cachedPayload);
+      // $FlowFixMe[incompatible-call]
+      return Observable.from<GraphQLSingularResponse>(cachedPayload);
     }
 
     const currentOperation = pendingOperations.find(
@@ -241,11 +242,11 @@ function createMockEnvironment(
           op => op !== currentOperation,
         );
         if (result instanceof Error) {
-          return Observable.create<empty>(sink => {
+          return Observable.create<GraphQLSingularResponse>(sink => {
             sink.error(result);
           });
         } else {
-          return Observable.from(result);
+          return Observable.from<GraphQLSingularResponse>(result);
         }
       }
     }

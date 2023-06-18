@@ -17,7 +17,6 @@ import FbUsePaginationFragmentReturnValue from './fb/FbUsePaginationFragmentRetu
 You can use `usePaginationFragment` to render a fragment that uses a `@connection` and paginate over it:
 
 ```js
-import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsList_user$key} from 'FriendsList_user.graphql';
 
 const React = require('React');
@@ -38,7 +37,7 @@ function FriendsList(props: Props) {
     isLoadingNext,
     isLoadingPrevious,
     refetch, // For refetching connection
-  } = usePaginationFragment<FriendsListPaginationQuery, _>(
+  } = usePaginationFragment(
     graphql`
       fragment FriendsListComponent_user on User
       @refetchable(queryName: "FriendsListPaginationQuery") {
@@ -86,11 +85,6 @@ module.exports = FriendsList;
         * Note that you *do not* need to manually specify a pagination query yourself. The `@refetchable` directive will autogenerate a query with the specified `queryName`. This will also generate Flow types for the query, available to import from the generated file: `<queryName>.graphql.js`.
 * `fragmentReference`: The *fragment reference* is an opaque Relay object that Relay uses to read the data for the fragment from the store; more specifically, it contains information about which particular object instance the data should be read from.
     * The type of the fragment reference can be imported from the generated Flow types, from the file `<fragment_name>.graphql.js`, and can be used to declare the type of your `Props`. The name of the fragment reference type will be: `<fragment_name>$key`. We use our [lint rule](https://github.com/relayjs/eslint-plugin-relay) to enforce that the type of the fragment reference prop is correctly declared.
-
-### Flow Type Parameters
-
-* `TQuery`: Type parameter that should corresponds the Flow type for the `@refetchable` pagination query. This type is available to import from the the auto-generated file: `<queryName>.graphql.js`.
-* `TFragmentRef`: Type parameter corresponds to the type of the fragment reference argument (i.e. `<fragment_name>$key`). This type usually does not need to be explicitly specified, and can be passed as `_` to let Flow infer the concrete type.
 
 ### Return Value
 

@@ -1,0 +1,16 @@
+fragment TestFragment(
+  $id: ID!
+  $size: [Int] = [100]
+) on User {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo(localId: $id)
+}
+
+fragment Foo($localId: ID!) on User {
+  id
+}

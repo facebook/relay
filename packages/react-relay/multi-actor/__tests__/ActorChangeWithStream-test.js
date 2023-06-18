@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
 import type {
   IActorEnvironment,
@@ -157,6 +158,7 @@ describe('ActorChange with @stream', () => {
         | CacheConfig
       )>
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return Observable.create(sink => {
         dataSource = sink;
       });

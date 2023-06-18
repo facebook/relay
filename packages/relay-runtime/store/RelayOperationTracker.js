@@ -11,7 +11,6 @@
 
 'use strict';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
-
 import type {RequestDescriptor} from './RelayStoreTypes';
 
 const invariant = require('invariant');
@@ -172,7 +171,7 @@ class RelayOperationTracker {
       };
     }
     let resolve;
-    const promise = new Promise(r => {
+    const promise = new Promise<void>(r => {
       resolve = r;
     });
     invariant(

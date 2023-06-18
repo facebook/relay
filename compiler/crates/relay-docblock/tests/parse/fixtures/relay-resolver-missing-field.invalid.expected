@@ -21,7 +21,7 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock.
+✖︎ Expected either `@onType` or `@onInterface` to be defined in this `@RelayResolver` docblock.
 
   /path/to/test/fixture/relay-resolver-missing-field.invalid.js:10:3
    10 │ *

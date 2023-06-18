@@ -1,0 +1,63 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    stage_name
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+type PopStarName {
+  name: String
+  stage_name: String
+}
+
+extend type User {
+  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== OUTPUT ===================================
+query User__pop_star_name$normalization @__SplitOperationMetadata
+# SplitOperationMetadata {
+#     derived_from: None,
+#     location: output-type-client-type.graphql:81:94,
+#     parent_documents: {
+#         OperationDefinitionName(
+#             OperationDefinitionName(
+#                 "User__pop_star_name$normalization",
+#             ),
+#         ),
+#     },
+#     raw_response_type_generation_mode: Some(
+#         AllFieldsRequired,
+#     ),
+# }
+ {
+  name
+  stage_name
+}
+
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    stage_name
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}

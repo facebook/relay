@@ -125,11 +125,11 @@ function createNode(
 
   const id = topScope.generateUidIdentifier(definitionName);
 
-  const expHash = t.MemberExpression(id, t.Identifier('hash'));
+  const expHash = t.MemberExpression(t.cloneNode(id), t.Identifier('hash'));
   const expWarn = warnNeedsRebuild(t, definitionName, options.buildCommand);
   const expWarnIfOutdated = t.LogicalExpression(
     '&&',
-    expHash,
+    t.cloneNode(expHash),
     t.LogicalExpression(
       '&&',
       t.BinaryExpression('!==', expHash, t.StringLiteral(hash)),
@@ -145,34 +145,41 @@ function createNode(
     const program = path.findParent(parent => parent.isProgram());
     program.unshiftContainer('body', importDeclaration);
 
-    const expAssignAndCheck = t.SequenceExpression([expWarnIfOutdated, id]);
+    const expAssignAndCheck = t.SequenceExpression([
+      expWarnIfOutdated,
+      t.cloneNode(id),
+    ]);
 
     let expAssign;
     if (options.isDevVariable != null) {
       expAssign = t.ConditionalExpression(
         t.Identifier(options.isDevVariable),
         expAssignAndCheck,
-        id,
+        t.cloneNode(id),
       );
     } else if (options.isDevelopment) {
       expAssign = expAssignAndCheck;
     } else {
-      expAssign = id;
+      expAssign = t.cloneNode(id);
     }
 
     path.replaceWith(expAssign);
   } else {
-    topScope.push({id});
+    topScope.push({id: t.cloneNode(id)});
 
     const requireGraphQLModule = t.CallExpression(t.Identifier('require'), [
       t.StringLiteral(requiredPath),
     ]);
 
-    const expAssignProd = t.AssignmentExpression('=', id, requireGraphQLModule);
+    const expAssignProd = t.AssignmentExpression(
+      '=',
+      t.cloneNode(id),
+      requireGraphQLModule,
+    );
     const expAssignAndCheck = t.SequenceExpression([
       expAssignProd,
       expWarnIfOutdated,
-      id,
+      t.cloneNode(id),
     ]);
 
     let expAssign;
@@ -191,9 +198,9 @@ function createNode(
     const expVoid0 = t.UnaryExpression('void', t.NumericLiteral(0));
     path.replaceWith(
       t.ConditionalExpression(
-        t.BinaryExpression('!==', id, expVoid0),
-        id,
-        expAssign,
+        t.BinaryExpression('!==', t.cloneNode(id), expVoid0),
+        t.cloneNode(id),
+        t.cloneNode(expAssign),
       ),
     );
   }

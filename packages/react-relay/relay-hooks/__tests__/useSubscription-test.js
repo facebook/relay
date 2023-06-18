@@ -41,10 +41,12 @@ describe('useSubscription', () => {
     variables: {},
     subscription: CommentCreateSubscription,
   };
-  const dispose = jest.fn();
-  const requestSubscription = jest.fn((_passedEnv, _passedConfig) => ({
-    dispose,
-  }));
+  const dispose = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const requestSubscription = jest.fn(
+    (_passedEnv: any, _passedConfig: any) => ({
+      dispose,
+    }),
+  );
   const relayRuntime = require('relay-runtime');
   jest.mock('relay-runtime', () => {
     return {

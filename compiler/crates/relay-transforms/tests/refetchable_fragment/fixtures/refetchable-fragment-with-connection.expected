@@ -62,12 +62,17 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
 # )
  @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {

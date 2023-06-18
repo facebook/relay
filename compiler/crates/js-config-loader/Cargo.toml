@@ -16,4 +16,4 @@ serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_dep
 thiserror = "1.0.36"
 
 [dev-dependencies]
-tempfile = "3.3"
+tempfile = "3.5"

@@ -64,7 +64,7 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
   // Use a ref to prevent rendering twice when data changes
   // because of props change
   const dataRef = useRef<?SelectorData>(null);
-  const [, forceUpdate] = useState(null);
+  const [, forceUpdate] = useState<?SelectorData>(null);
   const cleanupFnRef = useRef<null | (() => void)>(null);
 
   const snapshot = useMemo(() => {

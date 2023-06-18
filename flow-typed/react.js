@@ -16,7 +16,7 @@
 // the types of useTransition, startTranstion, and useDeferredValue used only in test.
 declare module react {
   declare export var DOM: any;
-  declare export var PropTypes: ReactPropTypes;
+  declare export var PropTypes: any;
   declare export var version: string;
 
   declare export function checkPropTypes<V>(
@@ -107,12 +107,12 @@ declare module react {
   ): React$AbstractComponent<Config, Instance>;
 
   declare export function memo<Config, Instance = mixed>(
-    component: React$AbstractComponent<Config, Instance>,
+    component_: React$AbstractComponent<Config, Instance>,
     equal?: (Config, Config) => boolean,
   ): React$AbstractComponent<Config, Instance>;
 
   declare export function lazy<Config, Instance = mixed>(
-    component: () => Promise<{
+    component_: () => Promise<{
       default: React$AbstractComponent<Config, Instance>,
       ...
     }>,

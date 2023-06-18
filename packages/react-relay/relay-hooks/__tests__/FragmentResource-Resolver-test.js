@@ -11,6 +11,8 @@
 
 'use strict';
 
+import type {RequiredFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
+
 const {
   getFragmentResourceForEnvironment,
 } = require('react-relay/relay-hooks/FragmentResource');
@@ -61,7 +63,7 @@ describe('FragmentResource RelayResolver behavior', () => {
   let mockRequiredFieldLogger;
 
   beforeEach(() => {
-    mockRequiredFieldLogger = jest.fn();
+    mockRequiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
     environment = createMockEnvironment({
       requiredFieldLogger: mockRequiredFieldLogger,
     });

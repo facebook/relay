@@ -35,12 +35,17 @@ fragment ProfilePicture on User {
 
 fragment RefetchableFragment on NonNodeStory @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [
 #         "fetch__NonNodeStory",
 #     ],
-#     identifier_field: Some(
-#         "fetch_id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "fetch_id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {

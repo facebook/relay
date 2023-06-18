@@ -1,0 +1,25 @@
+fragment clientEdgeFromServerTypeToClientType_resolver_fragment on Query {
+  me {
+    id
+  }
+}
+
+query clientEdgeFromServerTypeToClientType_Query {
+  client_edge {
+    name
+  }
+}
+
+# %extensions%
+
+type ClientType {
+  name: String
+}
+
+extend type Query {
+  client_edge: ClientType
+    @relay_resolver(
+      fragment_name: "clientEdgeFromServerTypeToClientType_resolver_fragment"
+      import_path: "./path/to/Resolver.js"
+    )
+}

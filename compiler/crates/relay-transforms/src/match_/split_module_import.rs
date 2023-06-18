@@ -88,7 +88,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
         } else {
             let mut next_program = program.clone();
             for (_, (metadata, mut operation)) in self.split_operations.drain() {
-                operation.directives.push(metadata.to_directive());
+                operation.directives.push(metadata.into());
                 next_program.insert_operation(Arc::new(operation))
             }
             TransformedValue::Replace(next_program)

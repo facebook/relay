@@ -60,7 +60,7 @@ struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
     further_optimization: bool,
-    verified_fields_pair: DashSet<(PointerAddress, PointerAddress)>,
+    verified_fields_pair: DashSet<(PointerAddress, PointerAddress, bool)>,
     _behavior: PhantomData<TBehavior>,
 }
 
@@ -245,7 +245,13 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
 
             let addr2 = existing_field.pointer_address();
-            if self.further_optimization && self.verified_fields_pair.contains(&(addr1, addr2)) {
+            if self.further_optimization
+                && self.verified_fields_pair.contains(&(
+                    addr1,
+                    addr2,
+                    parent_fields_mutually_exclusive,
+                ))
+            {
                 continue;
             }
 
@@ -364,9 +370,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 }
             }
 
-            // save the verified pair into cache
+            // Save the verified pair into cache. The same pair of fields can appear under different parent
+            // fields, and the validation rule differs according to `parent_fields_mutually_exclusive`.
             if self.further_optimization {
-                self.verified_fields_pair.insert((addr1, addr2));
+                self.verified_fields_pair
+                    .insert((addr1, addr2, parent_fields_mutually_exclusive));
             }
         }
         if errors.is_empty() {
@@ -441,28 +449,37 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         location_b: Location,
         arguments_b: &[Argument],
     ) -> Diagnostic {
+        let arguments_a_printed = graphql_text_printer::print_arguments(
+            &self.program.schema,
+            arguments_a,
+            graphql_text_printer::PrinterOptions::default(),
+        );
+        let arguments_b_printed = graphql_text_printer::print_arguments(
+            &self.program.schema,
+            arguments_b,
+            graphql_text_printer::PrinterOptions::default(),
+        );
+
         Diagnostic::error(
             ValidationMessage::InvalidSameFieldWithDifferentArguments {
                 field_name,
-                arguments_a: graphql_text_printer::print_arguments(
-                    &self.program.schema,
-                    arguments_a,
-                    graphql_text_printer::PrinterOptions::default(),
-                ),
+                arguments_a: arguments_a_printed.clone(),
             },
             location_a,
         )
         .annotate(
             format!(
                 "which conflicts with this field with applied argument values {}",
-                graphql_text_printer::print_arguments(
-                    &self.program.schema,
-                    arguments_b,
-                    graphql_text_printer::PrinterOptions::default()
-                ),
+                &arguments_b_printed,
             ),
             location_b,
         )
+        .metadata_for_machine("err", "InvalidSameFieldWithDifferentArguments")
+        .metadata_for_machine("field_name", field_name.lookup())
+        .metadata_for_machine("arg_a", arguments_a_printed)
+        .metadata_for_machine("arg_b", arguments_b_printed)
+        .metadata_for_machine("loc_a", format!("{:?}", location_a))
+        .metadata_for_machine("loc_b", format!("{:?}", location_b))
     }
 }
 
@@ -595,12 +612,12 @@ enum ValidationMessage {
     },
 
     #[error(
-        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'"
+        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use an alias to distinguish the two fields."
     )]
     StreamConflictOnlyUsedInOnePlace { response_key: StringKey },
 
     #[error(
-        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
+        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them."
     )]
     StreamConflictUsedInMultiplePlaces { response_key: StringKey },
 }

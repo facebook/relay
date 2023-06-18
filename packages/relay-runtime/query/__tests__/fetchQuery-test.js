@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {RequiredFieldLoggerEvent} from '../../store/RelayStoreTypes';
 import type {fetchQueryTest1Query$data} from './__generated__/fetchQueryTest1Query.graphql';
 import type {RequestParameters} from 'relay-runtime';
 
@@ -239,7 +240,7 @@ describe('fetchQuery', () => {
 
 describe('fetchQuery with missing @required value', () => {
   it('provides data snapshot on next', () => {
-    const requiredFieldLogger = jest.fn();
+    const requiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
     const environment = createMockEnvironment({
       requiredFieldLogger,
     });
@@ -251,7 +252,7 @@ describe('fetchQuery with missing @required value', () => {
       }
     `;
 
-    const observer = {next: jest.fn()};
+    const observer = {next: jest.fn<[$FlowFixMe], mixed>()};
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     expect(observer.next).not.toHaveBeenCalled();
     const queryNode = getRequest(query);
@@ -274,7 +275,7 @@ describe('fetchQuery with missing @required value', () => {
   });
 
   it('throws on resolution', () => {
-    const requiredFieldLogger = jest.fn();
+    const requiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
     const environment = createMockEnvironment({requiredFieldLogger});
     const query = graphql`
       query fetchQueryTest3Query {
@@ -284,7 +285,10 @@ describe('fetchQuery with missing @required value', () => {
       }
     `;
 
-    const observer = {next: jest.fn(), error: jest.fn()};
+    const observer = {
+      next: jest.fn<[$FlowFixMe], mixed>(),
+      error: jest.fn<[Error], mixed>(),
+    };
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     const queryNode = getRequest(query);
 
@@ -323,7 +327,10 @@ describe('fetchQuery with missing @required value', () => {
       }
     `;
 
-    const observer = {next: jest.fn(), error: jest.fn()};
+    const observer = {
+      next: jest.fn<[$FlowFixMe], mixed>(),
+      error: jest.fn<[Error], mixed>(),
+    };
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     const queryNode = getRequest(query);
     environment.mock.nextValue(queryNode, {
@@ -345,6 +352,7 @@ test('client-only query with error', () => {
   });
   const environment = new Environment({
     store: new Store(new RecordSource()),
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     network: Network.create(fetchFn),
   });
   const query = graphql`
@@ -352,7 +360,10 @@ test('client-only query with error', () => {
       client_root_field
     }
   `;
-  const observer = {next: jest.fn(), error: jest.fn()};
+  const observer = {
+    next: jest.fn<[empty], mixed>(),
+    error: jest.fn<[Error], mixed>(),
+  };
 
   // $FlowExpectedError[incompatible-call] - fetch query is expecting a fetchable query, `fetchQueryTest5Query` is client-only
   fetchQuery<{...}, empty, mixed>(environment, query, {}).subscribe(observer);

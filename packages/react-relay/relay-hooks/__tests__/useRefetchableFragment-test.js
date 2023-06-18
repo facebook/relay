@@ -10,8 +10,8 @@
  */
 
 'use strict';
-
 import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
+import type {RefetchFn} from '../useRefetchableFragment';
 
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
 const React = require('react');
@@ -39,10 +39,8 @@ describe('useRefetchableFragment', () => {
   let Renderer;
 
   function useRefetchableFragment(fragmentNode: any, fragmentRef: any) {
-    const [data, refetch] = useRefetchableFragmentOriginal<any, any>(
+    const [data, refetch] = useRefetchableFragmentOriginal(
       fragmentNode,
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[prop-missing]
       fragmentRef,
     );
     renderSpy(data, refetch);
@@ -85,7 +83,7 @@ describe('useRefetchableFragment', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn();
+    renderSpy = jest.fn<[any, RefetchFn<any, any>], mixed>();
 
     // Set up environment and base data
     environment = createMockEnvironment();

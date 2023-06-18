@@ -143,7 +143,7 @@ pub fn write_selections(
     mut result: &mut impl Write,
 ) -> FmtResult {
     let mut printer = Printer::new(schema, &mut result, PrinterOptions::default());
-    printer.print_selections(selections)
+    printer.print_selections(selections, "unknown".intern())
 }
 
 pub fn write_selection(
@@ -222,7 +222,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, "{} {}", operation.kind, operation.name.item)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
         self.print_directives(&operation.directives, None, None)?;
-        self.print_selections(&operation.selections)
+        self.print_selections(&operation.selections, operation.name.item.0)
     }
 
     fn print_fragment(mut self, fragment: &FragmentDefinition) -> FmtResult {
@@ -243,10 +243,10 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             None,
             Some(&fragment.variable_definitions),
         )?;
-        self.print_selections(&fragment.selections)
+        self.print_selections(&fragment.selections, fragment_name.0)
     }
 
-    fn print_selections(&mut self, selections: &[Selection]) -> FmtResult {
+    fn print_selections(&mut self, selections: &[Selection], name: StringKey) -> FmtResult {
         let len = selections.len();
         if len > 0 {
             self.print_optional_space()?;
@@ -266,7 +266,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             write!(self.writer, "}}")?;
         } else {
             panic!(
-                "Cannot print empty selections. Please, check transforms that may produce invalid selections."
+                "Cannot print empty selections for {}. Please, check transforms that may produce invalid selections.",
+                name
             );
         }
         Ok(())
@@ -306,7 +307,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         self.print_alias_and_name(&field.alias, schema_field.name.item)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions, None)?;
-        self.print_selections(&field.selections)?;
+        self.print_selections(&field.selections, schema_field.name.item)?;
         Ok(())
     }
 
@@ -342,7 +343,17 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             )?;
         };
         self.print_directives(&field.directives, conditions, None)?;
-        self.print_selections(&field.selections)
+
+        let name = if let Some(type_condition) = field.type_condition {
+            format!(
+                "... on {}",
+                self.schema.get_type_name(type_condition).lookup()
+            )
+            .intern()
+        } else {
+            "...".intern()
+        };
+        self.print_selections(&field.selections, name)
     }
 
     fn print_condition(
@@ -351,7 +362,25 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         accum_conditions: Option<Vec<&Condition>>,
     ) -> FmtResult {
         let mut accum_conditions: Vec<&Condition> = accum_conditions.unwrap_or_default();
-        accum_conditions.push(condition);
+        // GraphQL spec doesn't allow repeated include or skip. See
+        // https://spec.graphql.org/October2021/#sec-Directives-Are-Unique-Per-Location
+        // To work around it, we extract repeated conditions into an inline fragment.
+        let mut has_repeated_condition = false;
+        for cond in &accum_conditions {
+            if cond.passing_value == condition.passing_value {
+                has_repeated_condition = true;
+            }
+        }
+        if has_repeated_condition {
+            write!(self.writer, "...")?;
+            self.print_directives(&[], Some(accum_conditions), None)?;
+            write!(self.writer, " {{")?;
+            self.indentation += 1;
+            self.print_new_line(false)?;
+            accum_conditions = vec![condition];
+        } else {
+            accum_conditions.push(condition);
+        }
 
         let mut is_first_selection = true;
         for selection in condition.selections.iter() {
@@ -366,6 +395,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     Some(accum_conditions.iter().rev().cloned().collect()),
                 )?;
             }
+        }
+        if has_repeated_condition {
+            self.indentation -= 1;
+            self.print_new_line(false)?;
+            write!(self.writer, "}}")?;
         }
         Ok(())
     }

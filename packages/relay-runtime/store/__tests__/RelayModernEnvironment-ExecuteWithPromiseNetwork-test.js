@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const {graphql} = require('../../query/GraphQLTag');
@@ -58,9 +60,9 @@ describe('execute() with Promise network', () => {
       foo: 'bar', // should be filtered from network fetch
     });
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = jest.fn(
       () =>
@@ -79,8 +81,11 @@ describe('execute() with Promise network', () => {
   it('fetches queries', () => {
     environment.execute({operation}).subscribe(callbacks);
     expect(fetch.mock.calls.length).toBe(1);
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][0]).toEqual(query.params);
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][2]).toEqual({});
   });
 
@@ -96,8 +101,11 @@ describe('execute() with Promise network', () => {
     );
     environment.execute({operation}).subscribe(callbacks);
     expect(fetch.mock.calls.length).toBe(1);
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][0]).toEqual(query.params);
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
+    // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
     expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
   });
 
@@ -137,7 +145,7 @@ describe('execute() with Promise network', () => {
       operation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);

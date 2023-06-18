@@ -12,14 +12,14 @@
 'use strict';
 
 import type {
+  MissingFieldHandler,
   RecordProxy,
   RecordSourceProxy,
-  MissingFieldHandler,
 } from '../store/RelayStoreTypes';
 import type {
   ReaderLinkedField,
-  ReaderSelection,
   ReaderScalarField,
+  ReaderSelection,
 } from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -33,7 +33,6 @@ const {
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
-  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -89,7 +88,6 @@ function updateProxyFromSelections<TData>(
             mutableUpdatableProxy,
             selection.alias ?? selection.name,
             {
-              // $FlowFixMe[incompatible-call] these getters and setters have different types on purpose
               get: createGetterForPluralLinkedField(
                 selection,
                 variables,
@@ -203,7 +201,6 @@ function updateProxyFromSelections<TData>(
       case CLIENT_EDGE_TO_CLIENT_OBJECT:
       case CLIENT_EDGE_TO_SERVER_OBJECT:
       case DEFER:
-      case FLIGHT_FIELD:
       case MODULE_IMPORT:
       case RELAY_LIVE_RESOLVER:
       case REQUIRED_FIELD:
@@ -235,7 +232,7 @@ function createSetterForPluralLinkedField(
         'Do not assign null to plural linked fields; assign an empty array instead.',
       );
     } else {
-      const recordProxies = newValue.map(item => {
+      const recordProxies = newValue.map((item): ?RecordProxy => {
         if (item == null) {
           throw new Error(
             'When assigning an array of items, none of the items should be null or undefined.',
@@ -300,7 +297,7 @@ function createGetterForPluralLinkedField(
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
   missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
-): () => ?$FlowFixMe {
+): () => $FlowFixMe {
   return function () {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
     let linkedRecords = updatableProxyRootRecord.getLinkedRecords(

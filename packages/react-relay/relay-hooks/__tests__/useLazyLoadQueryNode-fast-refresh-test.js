@@ -102,7 +102,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     // $FlowFixMe[incompatible-use]
-    renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
+    renderFn = jest.fn((result: mixed) => result?.node?.name ?? 'Empty');
   });
 
   afterEach(() => {
@@ -111,12 +111,12 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
   });
 
   it('force a refetch in fast refresh', () => {
-    // $FlowFixMe[cannot-resolve-module] This module is not available on www.
+    // $FlowFixMe[cannot-resolve-module] (site=www)
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     const V1 = function (props: {variables: {id: string}}) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
-      const result = useLazyLoadQueryNode<_>({
+      const result = useLazyLoadQueryNode<any>({
         query: _query,
         fetchPolicy: 'network-only',
         fetchObservable: fetchQuery(environment, _query),
@@ -153,6 +153,8 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     );
 
     const data = environment.lookup(query.fragment).data;
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
 
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -160,7 +162,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     renderFn.mockClear();
     function V2(props: any) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
-      const result = useLazyLoadQueryNode<_>({
+      const result = useLazyLoadQueryNode<any>({
         query: _query,
         fetchObservable: fetchQuery(environment, _query),
         fetchPolicy: 'network-only',

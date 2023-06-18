@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../../store/RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -103,20 +105,23 @@ describe('executeMutation()', () => {
     operation = createOperationDescriptor(CreateCommentMutation, variables);
     queryOperation = createOperationDescriptor(CommentQuery, queryVariables);
 
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       RelayObservable.create(sink => {
         subject = sink;
       }),
     );
     environment = new MultiActorEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       createNetworkForActor: _id => RelayNetwork.create(fetch),
     }).forActor(
       // $FlowFixMe
       'actor:12345',
     );
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
   });
 
@@ -136,7 +141,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment
@@ -170,7 +175,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment
@@ -206,7 +211,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     const subscription = environment
@@ -237,7 +242,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment
@@ -287,7 +292,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment
@@ -345,7 +350,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment
@@ -383,7 +388,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment
@@ -421,7 +426,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     const subscription = environment
@@ -479,6 +484,7 @@ describe('executeMutation()', () => {
       queryOperation.request,
     );
     environment = new MultiActorEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       createNetworkForActor: _id => RelayNetwork.create(fetch),
       treatMissingFieldsAsNull: true,
     }).forActor(
@@ -487,7 +493,7 @@ describe('executeMutation()', () => {
     );
 
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     expectWarningWillFire(

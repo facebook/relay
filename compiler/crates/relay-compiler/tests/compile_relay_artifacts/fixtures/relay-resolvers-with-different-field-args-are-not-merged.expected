@@ -145,7 +145,8 @@ extend type User {
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": "pop_star_name(some_arg:10)"
+                "storageKey": "pop_star_name(some_arg:10)",
+                "isOutputType": false
               },
               {
                 "name": "pop_star_name",
@@ -171,7 +172,8 @@ extend type User {
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": "pop_star_name(some_arg:20)"
+                "storageKey": "pop_star_name(some_arg:20)",
+                "isOutputType": false
               }
             ],
             "type": "User",

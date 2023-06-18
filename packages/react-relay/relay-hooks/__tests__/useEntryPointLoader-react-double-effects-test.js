@@ -94,7 +94,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       getEnvironment: () => environment,
     };
 
-    release = jest.fn();
+    release = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
@@ -107,7 +107,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn();
+    cancelNetworkRequest = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
     (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
@@ -162,17 +162,22 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
     loaderRenderLogs = [];
     LoaderComponent = function (props: any) {
-      const [entryPointRef] = useEntryPointLoader(
-        environmentProvider,
-        props.entryPoint,
-        {
-          TEST_ONLY__initialEntryPointData: {
-            entryPointParams:
-              props.initialEntryPointRef != null ? variables : null,
-            entryPointReference: props.initialEntryPointRef,
-          },
+      // $FlowFixMe[underconstrained-implicit-instantiation]
+      const [entryPointRef] = useEntryPointLoader<
+        _,
+        {...},
+        {...},
+        {...},
+        mixed,
+        _,
+        _,
+      >(environmentProvider, props.entryPoint, {
+        TEST_ONLY__initialEntryPointData: {
+          entryPointParams:
+            props.initialEntryPointRef != null ? variables : null,
+          entryPointReference: props.initialEntryPointRef,
         },
-      );
+      });
 
       let entryPointRefId;
       if (entryPointRef == null) {
@@ -194,6 +199,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       }
       if (props.suspendWholeTree === true) {
         return (
+          // $FlowFixMe[underconstrained-implicit-instantiation]
           <EntryPointContainer entryPointReference={entryPointRef} props={{}} />
         );
       }

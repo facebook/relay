@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {RefetchableIdentifierInfo} from '../../relay-runtime/util/ReaderNode';
 import type {LoaderFn} from './useQueryLoader';
 import type {
   ConcreteRequest,
@@ -100,7 +101,7 @@ type RefetchFnExact<TQuery: OperationType, TOptions = Options> = RefetchFnBase<
 type RefetchFnInexact<
   TQuery: OperationType,
   TOptions = Options,
-> = RefetchFnBase<$Shape<VariablesOf<TQuery>>, TOptions>;
+> = RefetchFnBase<Partial<VariablesOf<TQuery>>, TOptions>;
 
 type Action =
   | {
@@ -173,8 +174,10 @@ function useRefetchableFragmentNode<
   componentDisplayName: string,
 ): ReturnType<TQuery, TKey, InternalOptions> {
   const parentEnvironment = useRelayEnvironment();
-  const {refetchableRequest, fragmentRefPathInResponse, identifierField} =
-    getRefetchMetadata(fragmentNode, componentDisplayName);
+  const {refetchableRequest, fragmentRefPathInResponse} = getRefetchMetadata(
+    fragmentNode,
+    componentDisplayName,
+  );
   const fragmentIdentifier = getFragmentIdentifier(
     fragmentNode,
     parentFragmentRef,
@@ -207,10 +210,19 @@ function useRefetchableFragmentNode<
   const shouldReset =
     environment !== mirroredEnvironment ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
-  const [queryRef, loadQuery, disposeQuery] =
-    useQueryLoader<TQuery>(refetchableRequest);
+  const [queryRef, loadQuery, disposeQuery] = useQueryLoader<
+    TQuery['variables'],
+    TQuery['response'],
+    TQuery['rawResponse'],
+  >((refetchableRequest: $FlowFixMe));
 
   let fragmentRef = parentFragmentRef;
+
+  const {identifierInfo} = getRefetchMetadata(
+    fragmentNode,
+    componentDisplayName,
+  );
+
   if (shouldReset) {
     dispatch({
       type: 'reset',
@@ -236,6 +248,7 @@ function useRefetchableFragmentNode<
       debugPreviousIDAndTypename = debugFunctions.getInitialIDAndType(
         refetchQuery.request.variables,
         fragmentRefPathInResponse,
+        identifierInfo?.identifierQueryVariableName,
         environment,
       );
     }
@@ -342,7 +355,7 @@ function useRefetchableFragmentNode<
     fragmentIdentifier,
     fragmentNode,
     fragmentRefPathInResponse,
-    identifierField,
+    identifierInfo,
     loadQuery,
     parentFragmentRef,
     refetchableRequest,
@@ -378,17 +391,17 @@ function useRefetchFunction<TQuery: OperationType>(
   fragmentIdentifier: string,
   fragmentNode: ReaderFragment,
   fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
-  identifierField: ?string,
+  identifierInfo: ?RefetchableIdentifierInfo,
   loadQuery: LoaderFn<TQuery>,
   parentFragmentRef: mixed,
   refetchableRequest: ConcreteRequest,
 ): RefetchFn<TQuery, InternalOptions> {
   const isMountedRef = useIsMountedRef();
   const identifierValue =
-    identifierField != null &&
+    identifierInfo?.identifierField != null &&
     fragmentData != null &&
     typeof fragmentData === 'object'
-      ? fragmentData[identifierField]
+      ? fragmentData[identifierInfo.identifierField]
       : null;
   return useCallback(
     (
@@ -455,8 +468,10 @@ function useRefetchFunction<TQuery: OperationType>(
       // If the query needs an identifier value ('id' or similar) and one
       // was not explicitly provided, read it from the fragment data.
       if (
-        identifierField != null &&
-        !providedRefetchVariables.hasOwnProperty('id')
+        identifierInfo != null &&
+        !providedRefetchVariables.hasOwnProperty(
+          identifierInfo.identifierQueryVariableName,
+        )
       ) {
         // @refetchable fragments are guaranteed to have an `id` selection
         // if the type is Node, implements Node, or is @fetchable. Double-check
@@ -466,11 +481,13 @@ function useRefetchFunction<TQuery: OperationType>(
             false,
             'Relay: Expected result to have a string  ' +
               '`%s` in order to refetch, got `%s`.',
-            identifierField,
+            identifierInfo.identifierField,
             identifierValue,
           );
         }
-        (refetchVariables: $FlowFixMe).id = identifierValue;
+        (refetchVariables: $FlowFixMe)[
+          identifierInfo.identifierQueryVariableName
+        ] = identifierValue;
       }
 
       const refetchQuery = createOperationDescriptor(
@@ -519,10 +536,11 @@ if (__DEV__) {
     getInitialIDAndType(
       memoRefetchVariables: ?Variables,
       fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+      identifierQueryVariableName: ?string,
       environment: IEnvironment,
     ): ?DebugIDandTypename {
       const {Record} = require('relay-runtime');
-      const id = memoRefetchVariables?.id;
+      const id = memoRefetchVariables?.[identifierQueryVariableName ?? 'id'];
       if (
         fragmentRefPathInResponse.length !== 1 ||
         fragmentRefPathInResponse[0] !== 'node' ||

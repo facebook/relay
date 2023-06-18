@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation LikeMutation($feedbackId: ID! $userID: String!) {
+  feedbackLikeStrict(input: {
+    userID: $userID
+    feedbackId: $feedbackId
+  }) {
+    __typename
+  }
+}
+
+mutation LikeMutationReverse($feedbackId: ID! $userID: String!) {
+  feedbackLikeStrict(input: {
+    feedbackId: $feedbackId
+    userID: $userID
+  }) {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variable was defined as type 'String!' but used where a variable of type 'ID!' is expected.
+
+  complex-object-with-invalid-fields.invalid.graphql:4:13
+    3 │   feedbackLikeStrict(input: {
+    4 │     userID: $userID
+      │             ^^^^^^^
+    5 │     feedbackId: $feedbackId
+
+
+✖︎ Variable was defined as type 'String!' but used where a variable of type 'ID!' is expected.
+
+  complex-object-with-invalid-fields.invalid.graphql:14:13
+   13 │     feedbackId: $feedbackId
+   14 │     userID: $userID
+      │             ^^^^^^^
+   15 │   }) {

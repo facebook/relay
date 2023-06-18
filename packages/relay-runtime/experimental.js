@@ -11,18 +11,14 @@
 
 'use strict';
 
-const LiveResolverStore = require('./store/experimental-live-resolvers/LiveResolverStore');
-const {
-  isSuspenseSentinel,
-  suspenseSentinel,
-} = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
-const weakObjectWrapper = require('./store/experimental-live-resolvers/weakObjectWrapper');
+const {
+  weakObjectWrapper,
+  weakObjectWrapperLive,
+} = require('./store/experimental-live-resolvers/weakObjectWrapper');
 
 module.exports = {
   resolverDataInjector,
-  isSuspenseSentinel,
-  LiveResolverStore,
   weakObjectWrapper,
-  suspenseSentinel,
+  weakObjectWrapperLive,
 };

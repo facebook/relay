@@ -134,11 +134,15 @@ function useLoadEntryPoint<
   const entryPointLoaderCallback = useCallback(
     (params: TEntryPointParams) => {
       if (isMountedRef.current) {
-        const updatedEntryPointReference = loadEntryPoint(
-          environmentProvider,
-          entryPoint,
-          params,
-        );
+        const updatedEntryPointReference = loadEntryPoint<
+          TEntryPointParams,
+          TPreloadedQueries,
+          TPreloadedEntryPoints,
+          TRuntimeProps,
+          TExtraProps,
+          TEntryPointComponent,
+          TEntryPoint,
+        >(environmentProvider, entryPoint, params);
         undisposedEntryPointReferencesRef.current.add(
           updatedEntryPointReference,
         );

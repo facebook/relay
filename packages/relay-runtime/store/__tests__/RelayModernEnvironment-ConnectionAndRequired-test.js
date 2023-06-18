@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -77,11 +79,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         };
         operation = createOperationDescriptor(query, variables);
 
-        const complete = jest.fn();
-        const error = jest.fn();
-        const next = jest.fn();
+        const complete = jest.fn<[], mixed>();
+        const error = jest.fn<[Error], mixed>();
+        const next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           return RelayObservable.create(sink => {
             dataSource = sink;
           });
@@ -89,6 +93,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const source = RelayRecordSource.create();
         const store = new RelayModernStore(source);
         const multiActorEnvironment = new MultiActorEnvironment({
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
         });
@@ -96,6 +101,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environmentType === 'MultiActorEnvironment'
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 network: RelayNetwork.create(fetch),
                 store,
               });
@@ -103,7 +109,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('When a field is @required and a @connection _and_ null, it bubbles null up to its parent', () => {
         const operationSnapshot = environment.lookup(operation.fragment);
-        const operationCallback = jest.fn();
+        const operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
 
         environment.execute({operation}).subscribe(callbacks);

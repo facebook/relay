@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0ca1fdb35aff7435674d234f070c70fe>>
+ * @generated SignedSource<<9dade3d0ff881e265617477148740319>>
  */
 
 mod parse;
@@ -59,6 +59,20 @@ fn argument_definitions_typo_invalid() {
     let input = include_str!("parse/fixtures/argument_definitions_typo.invalid.graphql");
     let expected = include_str!("parse/fixtures/argument_definitions_typo.invalid.expected");
     test_fixture(transform_fixture, "argument_definitions_typo.invalid.graphql", "parse/fixtures/argument_definitions_typo.invalid.expected", input, expected);
+}
+
+#[test]
+fn complex_object_with_invalid_constant_fields_invalid() {
+    let input = include_str!("parse/fixtures/complex-object-with-invalid-constant-fields.invalid.graphql");
+    let expected = include_str!("parse/fixtures/complex-object-with-invalid-constant-fields.invalid.expected");
+    test_fixture(transform_fixture, "complex-object-with-invalid-constant-fields.invalid.graphql", "parse/fixtures/complex-object-with-invalid-constant-fields.invalid.expected", input, expected);
+}
+
+#[test]
+fn complex_object_with_invalid_fields_invalid() {
+    let input = include_str!("parse/fixtures/complex-object-with-invalid-fields.invalid.graphql");
+    let expected = include_str!("parse/fixtures/complex-object-with-invalid-fields.invalid.expected");
+    test_fixture(transform_fixture, "complex-object-with-invalid-fields.invalid.graphql", "parse/fixtures/complex-object-with-invalid-fields.invalid.expected", input, expected);
 }
 
 #[test]
@@ -262,6 +276,27 @@ fn fragment_with_arguments_invalid_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-arguments-invalid-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-arguments-invalid-type.invalid.expected");
     test_fixture(transform_fixture, "fragment-with-arguments-invalid-type.invalid.graphql", "parse/fixtures/fragment-with-arguments-invalid-type.invalid.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_arguments_syntax() {
+    let input = include_str!("parse/fixtures/fragment-with-arguments-syntax.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-arguments-syntax.expected");
+    test_fixture(transform_fixture, "fragment-with-arguments-syntax.graphql", "parse/fixtures/fragment-with-arguments-syntax.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_both_arguments_and_directive_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-both-arguments-and-directive.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-both-arguments-and-directive.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-both-arguments-and-directive.invalid.graphql", "parse/fixtures/fragment-with-both-arguments-and-directive.invalid.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_both_variable_definition_and_directive_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-both-variable-definition-and-directive.invalid.graphql", "parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.expected", input, expected);
 }
 
 #[test]

@@ -9,13 +9,13 @@
  * @oncall relay
  */
 
-import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 import type {
   DataChunk,
   GraphModeResponse,
   RecordChunk,
 } from './RelayExperimentalGraphResponseTransform';
 import type {MutableRecordSource, Record} from './RelayStoreTypes';
+import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayModernRecord = require('./RelayModernRecord');
 const invariant = require('invariant');

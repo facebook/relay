@@ -28,7 +28,6 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -79,13 +78,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let operation;
 
         beforeEach(() => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           fetch = jest.fn((_query, _variables, _cacheConfig) => {
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             return Observable.create(_sink => {
               sink = _sink;
             });
           });
 
           const multiActorEnvironment = new MultiActorEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             createNetworkForActor: _actorID => Network.create(fetch),
             createStoreForActor: _actorID =>
               new Store(new RecordSource(), {
@@ -96,6 +98,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
+                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: Network.create(fetch),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
@@ -104,6 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const environmentCheck = environment.check;
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           check = jest.fn((...args) =>
             environmentCheck.apply(environment, args),
           );
@@ -792,12 +796,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let variables;
 
         beforeEach(() => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           fetch = jest.fn((_query, _variables, _cacheConfig) => {
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             return Observable.create(_sink => {
               sink = _sink;
             });
           });
           const multiActorEnvironment = new MultiActorEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             createNetworkForActor: _actorID => Network.create(fetch),
             createStoreForActor: _actorID =>
               new Store(new RecordSource(), {
@@ -809,6 +816,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
+                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: Network.create(fetch),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
@@ -847,7 +855,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch).toBeCalledTimes(1);
           });
           it('does not trigger timers', () => {
-            jest.useFakeTimers('legacy');
+            jest.useFakeTimers();
             preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -939,11 +947,14 @@ describe('Preload queries that use provided variables', () => {
   let operation;
 
   beforeEach(() => {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       return Observable.create(_sink => {});
     });
 
     environment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: Network.create(fetch),
       store: new Store(new RecordSource()),
     });

@@ -10,7 +10,7 @@
  */
 
 'use strict';
-
+import type {OperationType} from '../../relay-runtime/util/RelayRuntimeTypes';
 import type {
   EntryPoint,
   EntryPointComponent,
@@ -85,8 +85,10 @@ function prepareEntryPoint<
   }
   const preloadProps = entryPoint.getPreloadProps(entryPointParams);
   const {queries, entryPoints, extraProps} = preloadProps;
-  const preloadedQueries: $Shape<TPreloadedQueries> = {};
-  const preloadedEntryPoints: $Shape<TPreloadedEntryPoints> = {};
+  // $FlowFixMe[incompatible-type]
+  const preloadedQueries: Partial<TPreloadedQueries> = {};
+  // $FlowFixMe[incompatible-type]
+  const preloadedEntryPoints: Partial<TPreloadedEntryPoints> = {};
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
     queriesPropNames.forEach(queryPropName => {
@@ -97,7 +99,10 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      preloadedQueries[queryPropName] = preloadQuery_DEPRECATED(
+      preloadedQueries[queryPropName] = preloadQuery_DEPRECATED<
+        OperationType,
+        mixed,
+      >(
         environment,
         parameters,
         variables,
@@ -116,11 +121,15 @@ function prepareEntryPoint<
       }
       const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
         entryPointDescription;
-      preloadedEntryPoints[entryPointPropName] = prepareEntryPoint(
-        environmentProvider,
-        nestedEntryPoint,
-        nestedParams,
-      );
+      preloadedEntryPoints[entryPointPropName] = prepareEntryPoint<
+        _,
+        {...},
+        {...},
+        {...},
+        mixed,
+        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        _,
+      >(environmentProvider, nestedEntryPoint, nestedParams);
     });
   }
   return {

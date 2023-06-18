@@ -39,16 +39,15 @@ use serde_json::Value;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
+use crate::utils::is_file_uri_in_dir;
 
 pub(crate) fn on_code_action(
     state: &impl GlobalState,
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
-    if !uri
-        .path()
-        .starts_with(state.root_dir().to_string_lossy().as_ref())
-    {
+
+    if !is_file_uri_in_dir(state.root_dir(), &uri) {
         return Err(LSPRuntimeError::ExpectedError);
     }
 
@@ -163,7 +162,7 @@ fn get_code_actions(
                 return None;
             };
 
-            let code_action_range = get_code_action_range(range, &operation_name.span);
+            let code_action_range = get_code_action_range(range, operation_name.span);
             Some(create_code_actions(
                 "Rename Operation",
                 operation_name.value.lookup(),
@@ -210,7 +209,7 @@ fn create_code_actions(
         .collect::<Vec<_>>()
 }
 
-fn get_code_action_range(range: Range, span: &Span) -> Range {
+fn get_code_action_range(range: Range, span: Span) -> Range {
     Range {
         start: Position {
             line: range.start.line,

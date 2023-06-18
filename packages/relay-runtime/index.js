@@ -95,10 +95,6 @@ export type {
   LogRequestInfoFunction,
   PayloadData,
   PayloadError,
-  ReactFlightPayloadData,
-  ReactFlightPayloadQuery,
-  ReactFlightServerTree,
-  ReactFlightServerError,
   SubscribeFunction,
   Uploadable,
   UploadableMap,
@@ -110,10 +106,10 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
-export type {TaskScheduler} from './store/OperationExecutor';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {RecordState} from './store/RelayRecordState';
 export type {
+  ConcreteClientEdgeResolverReturnType,
   ExecuteMutationConfig,
   FragmentMap,
   // DEPRECATED: use FragmentType instead of FragmentReference
@@ -142,9 +138,6 @@ export type {
   PluralReaderSelector,
   Props,
   PublishQueue,
-  ReactFlightClientResponse,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
   ReaderSelector,
   ReadOnlyRecordProxy,
   ReadOnlyRecordSourceProxy,
@@ -160,6 +153,7 @@ export type {
   Snapshot,
   StoreUpdater,
   UpdatableData,
+  TaskScheduler,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,
@@ -170,7 +164,6 @@ export type {
   NormalizationArgument,
   NormalizationDefer,
   NormalizationField,
-  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
@@ -187,7 +180,6 @@ export type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
-  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragment,
   ReaderInlineDataFragmentSpread,
@@ -364,6 +356,7 @@ module.exports = {
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
+    getLocalVariables: RelayConcreteVariables.getLocalVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,
     fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,

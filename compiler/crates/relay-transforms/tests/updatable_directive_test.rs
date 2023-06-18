@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cbb760c92a070de1f59e662694d57dbb>>
+ * @generated SignedSource<<04bba5dd6952e840a3ddf09a94de7667>>
  */
 
 mod updatable_directive;
@@ -122,6 +122,27 @@ fn non_assignable_fragment_spreads_invalid() {
     let input = include_str!("updatable_directive/fixtures/non-assignable-fragment-spreads.invalid.graphql");
     let expected = include_str!("updatable_directive/fixtures/non-assignable-fragment-spreads.invalid.expected");
     test_fixture(transform_fixture, "non-assignable-fragment-spreads.invalid.graphql", "updatable_directive/fixtures/non-assignable-fragment-spreads.invalid.expected", input, expected);
+}
+
+#[test]
+fn required_invalid() {
+    let input = include_str!("updatable_directive/fixtures/required.invalid.graphql");
+    let expected = include_str!("updatable_directive/fixtures/required.invalid.expected");
+    test_fixture(transform_fixture, "required.invalid.graphql", "updatable_directive/fixtures/required.invalid.expected", input, expected);
+}
+
+#[test]
+fn resolver_linked_invalid() {
+    let input = include_str!("updatable_directive/fixtures/resolver-linked.invalid.graphql");
+    let expected = include_str!("updatable_directive/fixtures/resolver-linked.invalid.expected");
+    test_fixture(transform_fixture, "resolver-linked.invalid.graphql", "updatable_directive/fixtures/resolver-linked.invalid.expected", input, expected);
+}
+
+#[test]
+fn resolver_scalar_invalid() {
+    let input = include_str!("updatable_directive/fixtures/resolver-scalar.invalid.graphql");
+    let expected = include_str!("updatable_directive/fixtures/resolver-scalar.invalid.expected");
+    test_fixture(transform_fixture, "resolver-scalar.invalid.graphql", "updatable_directive/fixtures/resolver-scalar.invalid.expected", input, expected);
 }
 
 #[test]

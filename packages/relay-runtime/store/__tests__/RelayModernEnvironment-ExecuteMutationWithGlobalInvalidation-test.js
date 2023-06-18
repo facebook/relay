@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -92,7 +93,9 @@ describe('executeMutation() with global invalidation', () => {
       queryVariables,
     );
 
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       RelayObservable.create(sink => {
         subject = sink;
       }),
@@ -106,11 +109,12 @@ describe('executeMutation() with global invalidation', () => {
     });
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
     });
-    complete = jest.fn();
-    error = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
     callbacks = {complete, error};
   });
 
@@ -122,7 +126,7 @@ describe('executeMutation() with global invalidation', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment
@@ -159,7 +163,7 @@ describe('executeMutation() with global invalidation', () => {
         queryOperation.request,
       );
       const snapshot = environment.lookup(selector);
-      const callback = jest.fn();
+      const callback = jest.fn<[Snapshot], void>();
       environment.subscribe(snapshot, callback);
 
       environment
@@ -231,7 +235,7 @@ describe('executeMutation() with global invalidation', () => {
         queryOperation.request,
       );
       const snapshot = environment.lookup(selector);
-      const callback = jest.fn();
+      const callback = jest.fn<[Snapshot], void>();
       environment.subscribe(snapshot, callback);
 
       environment
@@ -289,7 +293,7 @@ describe('executeMutation() with global invalidation', () => {
         queryOperation.request,
       );
       const snapshot = environment.lookup(selector);
-      const callback = jest.fn();
+      const callback = jest.fn<[Snapshot], void>();
       environment.subscribe(snapshot, callback);
 
       environment

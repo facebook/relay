@@ -100,12 +100,11 @@ impl TypePath {
         while let Some(path_item) = type_path.pop() {
             if type_path.is_empty() {
                 return match path_item {
-                    TypePathItem::LinkedField { name } => schema
-                        .named_field(type_, name)
-                        .map(|field_id| (type_, schema.field(field_id))),
-                    TypePathItem::ScalarField { name } => schema
-                        .named_field(type_, name)
-                        .map(|field_id| (type_, schema.field(field_id))),
+                    TypePathItem::LinkedField { name } | TypePathItem::ScalarField { name } => {
+                        schema
+                            .named_field(type_, name)
+                            .map(|field_id| (type_, schema.field(field_id)))
+                    }
                     _ => None,
                 };
             } else {

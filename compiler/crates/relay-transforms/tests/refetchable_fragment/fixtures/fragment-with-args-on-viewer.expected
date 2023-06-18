@@ -48,11 +48,13 @@ fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragm
   size: {type: "[Int]"}
 ) @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [
 #         "viewer",
 #     ],
-#     identifier_field: None,
+#     identifier_info: None,
 # }
  {
   actor {

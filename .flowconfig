@@ -20,6 +20,7 @@ module.system.haste.paths.excludes=.*/__mocks__/.*
 module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 munge_underscores=true
+conditional_type=true
 
 suppress_type=$FlowIssue
 suppress_type=$FlowFixMe
@@ -28,8 +29,6 @@ suppress_type=$FlowFixMeState
 suppress_type=$FlowExpectedError
 
 format.bracket_spacing=false
-
-experimental.abstract_locations=true
 
 [lints]
 untyped-type-import=error
@@ -44,4 +43,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.192.0
+^0.209.0

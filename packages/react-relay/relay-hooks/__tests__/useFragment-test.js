@@ -85,7 +85,6 @@ describe.each([
         >,
     fragmentRef: any,
   ) {
-    // $FlowFixMe[incompatible-call] non-generated fragmentRef is disallowd
     const data = useFragmentOriginal(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;
@@ -112,7 +111,10 @@ describe.each([
   }
 
   beforeEach(() => {
-    renderSpy = jest.fn();
+    renderSpy = jest.fn<
+      [useFragmentTestUserFragment$data | useFragmentTestUsersFragment$data],
+      mixed,
+    >();
 
     // Set up environment and base data
     environment = createMockEnvironment();

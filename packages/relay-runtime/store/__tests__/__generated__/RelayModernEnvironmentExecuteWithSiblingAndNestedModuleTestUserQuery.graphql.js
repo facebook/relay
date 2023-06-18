@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f5f41f100bd95f46a6bed660636c8408>>
+ * @generated SignedSource<<e6e12005a35bb2cacc4e12bf70a963db>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -66,9 +66,7 @@ v2 = [
   {
     "kind": "Literal",
     "name": "supported",
-    "value": [
-      "MarkdownUserNameRenderer"
-    ]
+    "value": "2aTHRe"
   }
 ],
 v3 = {
@@ -89,9 +87,7 @@ v4 = [
   {
     "kind": "Literal",
     "name": "supported",
-    "value": [
-      "PlainUserNameRenderer"
-    ]
+    "value": "1AwQS7"
   }
 ],
 v5 = {
@@ -143,7 +139,7 @@ return {
                 "selections": [
                   (v3/*: any*/)
                 ],
-                "storageKey": "nameRenderer(supported:[\"MarkdownUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"2aTHRe\")"
               },
               {
                 "alias": "outerRendererB",
@@ -155,7 +151,7 @@ return {
                 "selections": [
                   (v5/*: any*/)
                 ],
-                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
             ],
             "type": "User",
@@ -197,7 +193,7 @@ return {
                   (v6/*: any*/),
                   (v3/*: any*/)
                 ],
-                "storageKey": "nameRenderer(supported:[\"MarkdownUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"2aTHRe\")"
               },
               {
                 "alias": "outerRendererB",
@@ -210,7 +206,7 @@ return {
                   (v6/*: any*/),
                   (v5/*: any*/)
                 ],
-                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
             ],
             "type": "User",

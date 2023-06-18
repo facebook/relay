@@ -26,12 +26,11 @@ const testFragment = graphql\`
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
 'use strict';
 
 var _TestFragment;
-
 const {graphql} = require('relay-runtime');
-
 const testFragment =
   _TestFragment !== void 0
     ? _TestFragment
@@ -77,10 +76,10 @@ function SomeTopLevelView() {
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
 'use strict';
 
 var _ExampleQuery;
-
 function SomeTopLevelView() {
   const _graphql = 'unrelated';
   return (
@@ -130,12 +129,11 @@ const testMutation = graphql\`
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
 'use strict';
 
 var _TestMutation;
-
 const {graphql} = require('relay-runtime');
-
 const testMutation =
   _TestMutation !== void 0
     ? _TestMutation
@@ -169,12 +167,11 @@ const testQuery = graphql\`
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
 'use strict';
 
 var _TestQuery;
-
 const {graphql} = require('relay-runtime');
-
 const testQuery =
   _TestQuery !== void 0
     ? _TestQuery

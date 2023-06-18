@@ -1,0 +1,113 @@
+==================================== INPUT ====================================
+fragment Test on User {
+  ...Bar(x: $x)
+}
+==================================== OUTPUT ===================================
+Document {
+    location: spread_with_arguments.graphql:0:42,
+    definitions: [
+        ExecutableDefinition(
+            FragmentDefinition {
+                location: spread_with_arguments.graphql:0:41,
+                fragment: Token {
+                    span: 0:8,
+                    kind: Identifier,
+                },
+                name: Identifier {
+                    span: 9:13,
+                    token: Token {
+                        span: 9:13,
+                        kind: Identifier,
+                    },
+                    value: "Test",
+                },
+                variable_definitions: None,
+                type_condition: TypeCondition {
+                    span: 14:21,
+                    on: Token {
+                        span: 14:16,
+                        kind: Identifier,
+                    },
+                    type_: Identifier {
+                        span: 17:21,
+                        token: Token {
+                            span: 17:21,
+                            kind: Identifier,
+                        },
+                        value: "User",
+                    },
+                },
+                directives: [],
+                selections: List {
+                    span: 22:41,
+                    start: Token {
+                        span: 22:23,
+                        kind: OpenBrace,
+                    },
+                    items: [
+                        FragmentSpread {
+                            span: 26:39,
+                            spread: Token {
+                                span: 26:29,
+                                kind: Spread,
+                            },
+                            name: Identifier {
+                                span: 29:32,
+                                token: Token {
+                                    span: 29:32,
+                                    kind: Identifier,
+                                },
+                                value: "Bar",
+                            },
+                            arguments: Some(
+                                List {
+                                    span: 32:39,
+                                    start: Token {
+                                        span: 32:33,
+                                        kind: OpenParen,
+                                    },
+                                    items: [
+                                        Argument {
+                                            span: 33:38,
+                                            name: Identifier {
+                                                span: 33:34,
+                                                token: Token {
+                                                    span: 33:34,
+                                                    kind: Identifier,
+                                                },
+                                                value: "x",
+                                            },
+                                            colon: Token {
+                                                span: 34:35,
+                                                kind: Colon,
+                                            },
+                                            value: Variable(
+                                                VariableIdentifier {
+                                                    span: 36:38,
+                                                    token: Token {
+                                                        span: 37:38,
+                                                        kind: Identifier,
+                                                    },
+                                                    name: "x",
+                                                },
+                                            ),
+                                        },
+                                    ],
+                                    end: Token {
+                                        span: 38:39,
+                                        kind: CloseParen,
+                                    },
+                                },
+                            ),
+                            directives: [],
+                        },
+                    ],
+                    end: Token {
+                        span: 40:41,
+                        kind: CloseBrace,
+                    },
+                },
+            },
+        ),
+    ],
+}

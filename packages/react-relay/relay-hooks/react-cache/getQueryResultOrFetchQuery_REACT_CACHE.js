@@ -25,8 +25,8 @@ const SuspenseResource = require('../SuspenseResource');
 const {getCacheForType, getCacheSignal} = require('./RelayReactCache');
 const invariant = require('invariant');
 const {
-  RelayFeatureFlags,
   __internal: {fetchQuery: fetchQueryInternal},
+  RelayFeatureFlags,
 } = require('relay-runtime');
 const warning = require('warning');
 
@@ -127,7 +127,7 @@ const noopOnCommit = () => {
   return () => undefined;
 };
 
-const noopPromise = new Promise(() => {});
+const noopPromise = new Promise<void>(() => {});
 
 function getQueryCacheKey(
   operation: OperationDescriptor,
@@ -375,7 +375,7 @@ function executeOperationAndKeepUpToDate(
   customFetchObservable?: Observable<GraphQLResponse>,
 ) {
   let resolvePromise;
-  const promise = new Promise(r => {
+  const promise = new Promise<void>(r => {
     resolvePromise = r;
   });
   // $FlowExpectedError[prop-missing] Expando to annotate Promises.

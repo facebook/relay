@@ -31,11 +31,11 @@ const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
-  resetStore,
   addTodo,
+  blockedBy,
   completeTodo,
   removeTodo,
-  blockedBy,
+  resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
@@ -275,6 +275,26 @@ describe.each([
     }
 
     return data.many_todos?.map((todo, index) => {
+      return <TodoComponent key={index} fragmentKey={todo} />;
+    });
+  }
+
+  function ManyLiveTodosComponent() {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolversWithOutputTypeTestManyLiveTodosQuery {
+          many_live_todos {
+            ...RelayResolversWithOutputTypeTestFragment
+          }
+        }
+      `,
+      {},
+    );
+    if (data.many_live_todos?.length === 0) {
+      return 'No Items';
+    }
+
+    return data.many_live_todos?.map((todo, index) => {
       return <TodoComponent key={index} fragmentKey={todo} />;
     });
   }
@@ -712,6 +732,46 @@ describe.each([
       'is not completed',
       'style: bold',
       'color: color is red',
+      'Todo 3',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+  });
+
+  test('rendering live list', () => {
+    addTodo('Todo 1');
+    addTodo('Todo 2');
+    addTodo('Todo 3');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <ManyLiveTodosComponent />
+      </EnvironmentWrapper>,
+    );
+
+    expect(renderer.toJSON()).toEqual([
+      'Todo 1',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'Todo 2',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'Todo 3',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+
+    TestRenderer.act(() => {
+      removeTodo('todo-1');
+      removeTodo('todo-2');
+      jest.runAllImmediates();
+    });
+
+    expect(renderer.toJSON()).toEqual([
       'Todo 3',
       'is not completed',
       'style: bold',

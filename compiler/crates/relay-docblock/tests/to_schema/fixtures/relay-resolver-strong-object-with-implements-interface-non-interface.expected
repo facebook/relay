@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver ClientUser implements User
+ */
+
+// %extensions%
+
+graphql`
+
+interface IFoo {
+  id: ID
+}
+`
+==================================== ERROR ====================================
+✖︎ The type `User` is an object. Please use a client-defined interface instead.
+
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-non-interface.js:2:19
+    1 │ *
+    2 │  * @RelayResolver ClientUser implements User
+      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │

@@ -33,9 +33,9 @@ const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
+  __internal,
   RecordSource,
   Store,
-  __internal,
   createOperationDescriptor,
   getFragment,
   graphql,
@@ -51,7 +51,7 @@ const {
 const defaultFetchPolicy = 'network-only';
 
 function expectToBeRendered(
-  renderFn: JestMockFn<Array<any>, any>,
+  renderFn: JestMockFn<$ReadOnlyArray<any>, any>,
   readyState: ?SelectorData,
 ) {
   // Ensure useEffect is called before other timers
@@ -89,7 +89,6 @@ function expectToHaveFetched(
 type Props = {
   variables: {...},
   fetchPolicy?: FetchPolicy,
-  key?: number,
   extraData?: number,
 };
 
@@ -111,11 +110,12 @@ describe('useLazyLoadQueryNode', () => {
   let variables;
   let Container;
   let setProps;
+  let setKey;
   let logs: Array<LogEvent>;
   let errorBoundaryDidCatchFn;
 
   beforeEach(() => {
-    errorBoundaryDidCatchFn = jest.fn();
+    errorBoundaryDidCatchFn = jest.fn<[Error], mixed>();
 
     class ErrorBoundary extends React.Component<any, any> {
       state: any | {error: null} = {error: null};
@@ -135,7 +135,7 @@ describe('useLazyLoadQueryNode', () => {
 
     const Renderer = (props: Props) => {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
-      const data = useLazyLoadQueryNode<_>({
+      const data = useLazyLoadQueryNode<any>({
         query: _query,
         fetchObservable: __internal.fetchQuery(environment, _query),
         fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
@@ -144,10 +144,12 @@ describe('useLazyLoadQueryNode', () => {
       return renderFn(data);
     };
 
-    Container = (props: Props) => {
+    Container = (props: Props, key?: number) => {
       const [nextProps, setNextProps] = React.useState(props);
+      const [nextKey, setNextKey] = React.useState(key);
       setProps = setNextProps;
-      return <Renderer {...nextProps} />;
+      setKey = setNextKey;
+      return <Renderer {...nextProps} key={nextKey} />;
     };
 
     render = (env: RelayMockEnvironment, children: React.Node) => {
@@ -170,10 +172,11 @@ describe('useLazyLoadQueryNode', () => {
       },
       store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
     });
-    release = jest.fn();
+    release = jest.fn<[mixed], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain.bind(environment);
     // $FlowFixMe[cannot-write]
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     environment.retain = jest.fn((...args) => {
       const originalDisposable = originalRetain(...args);
       return {
@@ -201,7 +204,7 @@ describe('useLazyLoadQueryNode', () => {
 
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
-    renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
+    renderFn = jest.fn((result: any) => result?.node?.name ?? 'Empty');
   });
 
   afterEach(() => {
@@ -232,6 +235,7 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     const data = environment.lookup(query.fragment).data;
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
   });
 
@@ -311,6 +315,7 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     const data = environment.lookup(query.fragment).data;
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
   });
 
@@ -368,6 +373,7 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     const data = environment.lookup(query.fragment).data;
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
   });
 
@@ -465,7 +471,7 @@ describe('useLazyLoadQueryNode', () => {
     // Render the component
     const instance = render(
       environment,
-      <Container key={0} variables={variables} />,
+      <Container variables={variables} key={0} />,
     );
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -491,6 +497,7 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     const data = environment.lookup(query.fragment).data;
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
@@ -498,7 +505,8 @@ describe('useLazyLoadQueryNode', () => {
 
     ReactTestRenderer.act(() => {
       // Pass a new key to force a re-mount
-      setProps({variables, key: 1});
+      setProps({variables});
+      setKey(1);
       jest.runAllImmediates();
     });
 
@@ -512,6 +520,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(environment.execute).toHaveBeenCalledTimes(0);
 
     // Expect to still be able to render the same data
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
@@ -547,6 +556,7 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     const data = environment.lookup(query.fragment).data;
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
@@ -660,6 +670,7 @@ describe('useLazyLoadQueryNode', () => {
 
     // Assert that the component unsuspended and mounted
     const data = environment.lookup(query.fragment).data;
+    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
 
     // Assert request was created
@@ -754,7 +765,8 @@ describe('useLazyLoadQueryNode', () => {
       // force re-rendering of the component, to read from the QueryResource
       // by default, error responses do not trigger react updates
       ReactTestRenderer.act(() => {
-        setProps({variables, key: 1});
+        setProps({variables});
+        setKey(1);
       });
 
       // This time, error boundary will render the error
@@ -784,6 +796,7 @@ describe('useLazyLoadQueryNode', () => {
 
       const data = environment.lookup(query.fragment).data;
 
+      // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
       expectToBeRendered(renderFn, data);
 
       expect(errorBoundaryDidCatchFn).not.toBeCalled();
@@ -799,13 +812,15 @@ describe('useLazyLoadQueryNode', () => {
       // force re-rendering of the component, to read from the QueryResource
       // by default, error responses do not trigger react updates
       ReactTestRenderer.act(() => {
-        setProps({variables, key: 1});
+        setProps({variables});
+        setKey(1);
       });
 
       // error boundary should not display that error
       expect(errorBoundaryDidCatchFn).not.toBeCalled();
 
       // and we also should re-render the same view as for the initial response
+      // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
       expectToBeRendered(renderFn, data);
     });
   });
@@ -846,7 +861,7 @@ describe('useLazyLoadQueryNode', () => {
           gqlOnlyFragmentsQuery,
           props.variables,
         );
-        const data = useLazyLoadQueryNode<_>({
+        const data = useLazyLoadQueryNode<any>({
           componentDisplayName: 'TestDisplayName',
           fetchObservable: __internal.fetchQuery(environment, _query),
           fetchPolicy: 'store-or-network',
@@ -879,6 +894,7 @@ describe('useLazyLoadQueryNode', () => {
         },
       });
 
+      // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
       expectToBeRendered(renderFn, {
         node: {
           id: variables.id,

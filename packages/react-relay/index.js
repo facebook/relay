@@ -20,6 +20,7 @@ const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
 const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
 const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
 const {loadQuery} = require('./relay-hooks/loadQuery');
+const ProfilerContext = require('./relay-hooks/ProfilerContext');
 const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
 const useClientQuery = require('./relay-hooks/useClientQuery');
 const useEntryPointLoader = require('./relay-hooks/useEntryPointLoader');
@@ -34,7 +35,6 @@ const useRelayEnvironment = require('./relay-hooks/useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./relay-hooks/useSubscribeToInvalidationState');
 const useSubscription = require('./relay-hooks/useSubscription');
 const RelayRuntime = require('relay-runtime');
-const ProfilerContext = require('./relay-hooks/ProfilerContext');
 
 export type {
   $FragmentRef,

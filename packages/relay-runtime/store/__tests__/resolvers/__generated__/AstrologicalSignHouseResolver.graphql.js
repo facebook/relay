@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a3756689401b29415c792490a645a907>>
+ * @generated SignedSource<<f26b5c144b7f7b1b492fa9fff70c730e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { AstrologicalSignSelfResolver$key } from "./AstrologicalSignSelfResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import {self as astrologicalSignSelfResolver} from "../AstrologicalSignSelfResolver.js";
-// Type assertion validating that `astrologicalSignSelfResolver` resolver is correctly implemented.
+import {self as astrologicalSignSelfResolverType} from "../AstrologicalSignSelfResolver.js";
+// Type assertion validating that `astrologicalSignSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignSelfResolver: (
-  rootKey: AstrologicalSignSelfResolver$key, 
-) => mixed);
+(astrologicalSignSelfResolverType: (
+  rootKey: AstrologicalSignSelfResolver$key,
+) => ?mixed);
 declare export opaque type AstrologicalSignHouseResolver$fragmentType: FragmentType;
 export type AstrologicalSignHouseResolver$data = {|
-  +self: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignSelfResolver>,
+  +self: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignSelfResolverType>,
   +$fragmentType: AstrologicalSignHouseResolver$fragmentType,
 |};
 export type AstrologicalSignHouseResolver$key = {

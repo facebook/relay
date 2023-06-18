@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e6e013e5a940a0fd86da240869d01352>>
+ * @generated SignedSource<<68602b619358802cc771045830c89845>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,19 +20,19 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { ResolverThatThrows$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/ResolverThatThrows.graphql";
-import {resolver_that_throws as userResolverThatThrowsResolver} from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
-// Type assertion validating that `userResolverThatThrowsResolver` resolver is correctly implemented.
+import {resolver_that_throws as userResolverThatThrowsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
+// Type assertion validating that `userResolverThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userResolverThatThrowsResolver: (
-  rootKey: ResolverThatThrows$key, 
-) => LiveState<any>);
+(userResolverThatThrowsResolverType: (
+  rootKey: ResolverThatThrows$key,
+) => LiveState<?mixed>);
 export type LiveResolversTest8Query$variables = {|
   id: string,
 |};
 export type LiveResolversTest8Query$data = {|
   +node: ?{|
     +name?: ?string,
-    +resolver_that_throws?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userResolverThatThrowsResolver>["read"]>,
+    +resolver_that_throws?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userResolverThatThrowsResolverType>["read"]>,
   |},
 |};
 export type LiveResolversTest8Query = {|
@@ -149,7 +149,8 @@ return {
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               }
             ],
             "type": "User",

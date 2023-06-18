@@ -7,6 +7,10 @@
  * @format
  */
 
+code {
+  border: none;
+}
+
 html[data-theme="light"] {
   --main-bg-color: var(--ifm-color-primary);
   --light-bg-color: #f9f6ef;
@@ -532,4 +536,17 @@ a.hash-link {
 blockquote {
   background-color: var(--blockquote-background-color);
   border-radius: var(--ifm-global-radius);
+}
+
+summary {
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+.bigCallToAction {
+  margin: 12px;
+  padding: 12px;
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid var(--ifm-color-primary);
+  font-size: 1.6rem;
 }

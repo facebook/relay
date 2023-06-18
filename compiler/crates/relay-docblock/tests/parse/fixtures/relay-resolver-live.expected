@@ -1,0 +1,84 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver
+ *
+ * @onType User
+ * @fieldName favorite_page
+ * @edgeTo Page
+ * @rootFragment myRootFragment
+ * @live
+ */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
+==================================== OUTPUT ===================================
+RelayResolver(
+    RelayResolverIr {
+        field: FieldDefinitionStub {
+            name: Identifier {
+                span: 53:66,
+                token: Token {
+                    span: 53:66,
+                    kind: Identifier,
+                },
+                value: "favorite_page",
+            },
+            arguments: None,
+        },
+        on: Type(
+            PopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver-live.js:27:33,
+                value: WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-live.js:34:38,
+                    item: "User",
+                },
+            },
+        ),
+        root_fragment: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver-live.js:100:114,
+                item: FragmentDefinitionName(
+                    "myRootFragment",
+                ),
+            },
+        ),
+        output_type: Some(
+            EdgeTo(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-live.js:78:82,
+                    item: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 78:82,
+                                token: Token {
+                                    span: 78:82,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
+                            },
+                        },
+                    ),
+                },
+            ),
+        ),
+        description: None,
+        deprecated: None,
+        live: Some(
+            UnpopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver-live.js:119:123,
+            },
+        ),
+        location: /path/to/test/fixture/relay-resolver-live.js:0:124,
+        fragment_arguments: None,
+    },
+)

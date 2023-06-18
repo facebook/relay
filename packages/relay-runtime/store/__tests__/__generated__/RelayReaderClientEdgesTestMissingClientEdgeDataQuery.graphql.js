@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86f14783baa931721000095df273e36a>>
+ * @generated SignedSource<<28dc1edbb2ec2314aabe23194a8ab253>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserReadsClientEdgeResolver$key } from "./../resolvers/__generated__/UserReadsClientEdgeResolver.graphql";
-import {reads_client_edge as userReadsClientEdgeResolver} from "../resolvers/UserReadsClientEdgeResolver.js";
-// Type assertion validating that `userReadsClientEdgeResolver` resolver is correctly implemented.
+import {reads_client_edge as userReadsClientEdgeResolverType} from "../resolvers/UserReadsClientEdgeResolver.js";
+// Type assertion validating that `userReadsClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userReadsClientEdgeResolver: (
-  rootKey: UserReadsClientEdgeResolver$key, 
-) => mixed);
+(userReadsClientEdgeResolverType: (
+  rootKey: UserReadsClientEdgeResolver$key,
+) => ?mixed);
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {||};
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {|
   +me: ?{|
-    +reads_client_edge: ?$Call<<R>((...empty[]) => R) => R, typeof userReadsClientEdgeResolver>,
+    +reads_client_edge: ?$Call<<R>((...empty[]) => R) => R, typeof userReadsClientEdgeResolverType>,
   |},
 |};
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery = {|
@@ -110,14 +110,16 @@ var node/*: ConcreteRequest*/ = {
                     "abstractKey": null
                   },
                   "kind": "RelayResolver",
-                  "storageKey": null
+                  "storageKey": null,
+                  "isOutputType": false
                 }
               ],
               "type": "User",
               "abstractKey": null
             },
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

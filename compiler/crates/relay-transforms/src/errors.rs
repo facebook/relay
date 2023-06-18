@@ -8,47 +8,18 @@
 use common::ArgumentName;
 use common::DiagnosticDisplay;
 use common::DirectiveName;
+use common::InterfaceName;
+use common::ObjectName;
 use common::WithDiagnosticData;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::VariableName;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessage {
-    #[error(
-        "Invalid use of @relay_client_component on an inline fragment, @relay_client_component is only supported on fragment spreads."
-    )]
-    InvalidRelayClientComponentOnInlineFragment,
-
-    #[error(
-        "Invalid use of @relay_client_component on a scalar field, @relay_client_component is only supported on fragment spreads."
-    )]
-    InvalidRelayClientComponentOnScalarField,
-
-    #[error("@relay_client_component is not compatible with these {}: `{}`",
-         if incompatible_directives.len() > 1 { "directives" } else { "directive" },
-         incompatible_directives
-             .iter()
-             .map(|name| name.0.lookup())
-             .collect::<Vec<_>>()
-             .join("`, `"))
-     ]
-    IncompatibleRelayClientComponentDirectives {
-        incompatible_directives: Vec<DirectiveName>,
-    },
-
-    #[error("@relay_client_component is not compatible with @arguments.")]
-    InvalidRelayClientComponentWithArguments,
-
     #[error("This fragment spread already has a split normalization file generated.")]
     DuplicateRelayClientComponentSplitOperation,
-
-    #[error(
-        "@relay_client_component can only be used on fragments on Viewer or Query, or whose type implements the Node interface. If the fragment's type is a union type, all members of that union must implement Node."
-    )]
-    InvalidRelayClientComponentNonNodeFragment,
 
     #[error(
         "The Relay Resolver backing this field has an `@relay_resolver` directive with an invalid '{key}' argument. Expected a literal string value."
@@ -63,7 +34,7 @@ pub enum ValidationMessage {
     #[error(
         "Unexpected directive on Relay Resolver field. Relay Resolver fields do not currently support directives."
     )]
-    RelayResolverUnexpectedDirective {},
+    RelayResolverUnexpectedDirective,
 
     #[error(
         "The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named '{fragment_name}'."
@@ -98,7 +69,7 @@ pub enum ValidationMessage {
     #[error(
         "Unexpected Relay Resolver field. The Relay Resolvers feature flag is not currently enabled for this project."
     )]
-    RelayResolversDisabled {},
+    RelayResolversDisabled,
 
     #[error(
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
@@ -121,7 +92,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
+        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective {
         fragment_name: FragmentDefinitionName,
@@ -194,6 +165,19 @@ pub enum ValidationMessage {
         type_kind: StringKey,
         field_name: StringKey,
         type_name: StringKey,
+    },
+
+    #[error(
+        "No types implement the client interface {interface_name}. For a client interface to be used as a @RelayResolver @outputType, at least one Object type must implement the interface."
+    )]
+    RelayResolverClientInterfaceMustBeImplemented { interface_name: InterfaceName },
+
+    #[error(
+        "The interface {interface_name} is being used as an @outputType of a @RelayResolver. For this to be valid, all Object types that implement the interface must be client types. However, the {object_name}, which implements {interface_name}, is a server type."
+    )]
+    RelayResolverClientInterfaceImplementingTypeMustBeClientTypes {
+        interface_name: InterfaceName,
+        object_name: ObjectName,
     },
 
     #[error(

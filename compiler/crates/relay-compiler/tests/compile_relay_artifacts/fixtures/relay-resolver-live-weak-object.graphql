@@ -1,0 +1,21 @@
+query relayResolverLiveWeakObject_Query {
+  client_types {
+    __typename
+  }
+}
+
+# %extensions%
+
+scalar MyClientTypeModel @__RelayCustomScalar(path: "/path/to/test/fixture/weak-type.js", export_name: "MyClientType")
+
+type MyClientType @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: MyClientTypeModel
+}
+
+extend type Query {
+  client_types: MyClientType @relay_resolver(
+      import_path: "./path/to/ClientTypeResolver.js"
+      has_output_type: true
+      live: true,
+    )
+}

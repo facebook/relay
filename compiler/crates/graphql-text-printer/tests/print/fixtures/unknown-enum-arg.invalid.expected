@@ -6,4 +6,4 @@ fragment UserFragment on User {
   }
 }
 ==================================== ERROR ====================================
-Diagnostic(DiagnosticData { message: ExpectedValueMatchingType("Environment"), location: unknown-enum-arg.invalid.graphql:77:95, related_information: [], tags: [], severity: Error, data: [] })
+Diagnostic(DiagnosticData { message: ExpectedValueMatchingType("Environment"), location: unknown-enum-arg.invalid.graphql:77:95, related_information: [], tags: [], severity: Error, data: [], machine_readable: {} })

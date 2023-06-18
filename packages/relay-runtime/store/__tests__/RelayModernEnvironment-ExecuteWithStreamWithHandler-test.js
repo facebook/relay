@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -113,15 +115,16 @@ describe('execute() a query with @stream with handler', () => {
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -144,7 +147,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('calls next() and publishes the initial payload to the store', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -174,7 +177,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('processes streamed payloads', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -235,7 +238,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('processes @stream payloads when the parent record has been deleted', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -289,7 +292,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('processes @stream payloads when the streamed field has been deleted on the parent record', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -354,7 +357,7 @@ describe('execute() a query with @stream with handler', () => {
       'target index has changed on the parent record ()',
     () => {
       const initialSnapshot = environment.lookup(selector);
-      const callback = jest.fn();
+      const callback = jest.fn<[Snapshot], void>();
       environment.subscribe(initialSnapshot, callback);
 
       environment.execute({operation}).subscribe(callbacks);
@@ -425,7 +428,7 @@ describe('execute() a query with @stream with handler', () => {
       'an index other than the target has changed on the parent record ()',
     () => {
       const initialSnapshot = environment.lookup(selector);
-      const callback = jest.fn();
+      const callback = jest.fn<[Snapshot], void>();
       environment.subscribe(initialSnapshot, callback);
 
       environment.execute({operation}).subscribe(callbacks);
@@ -513,7 +516,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('processes streamed payloads that arrive out of order', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -576,7 +579,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('processes streamed payloads relative to the most recent root payload', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -638,7 +641,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('calls complete() when server completes after streamed payload resolves', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -679,7 +682,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('calls complete() when server completes before streamed payload resolves', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -709,7 +712,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('calls error() when server errors after streamed payload resolves', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -752,7 +755,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('calls error() when server errors before streamed payload resolves', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -784,7 +787,7 @@ describe('execute() a query with @stream with handler', () => {
 
   it('calls error() when streamed payload is missing data', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);

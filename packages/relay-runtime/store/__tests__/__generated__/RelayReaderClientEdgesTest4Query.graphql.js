@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b34da7799c839c816c44f793c4ad308>>
+ * @generated SignedSource<<75f61164d73fa4c9cafabd8f73cae583>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,20 +18,25 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { UserAnotherClientEdgeResolver$key } from "./../resolvers/__generated__/UserAnotherClientEdgeResolver.graphql";
 import type { UserClientEdgeResolver$key } from "./../resolvers/__generated__/UserClientEdgeResolver.graphql";
-import {another_client_edge as userAnotherClientEdgeResolver} from "../resolvers/UserAnotherClientEdgeResolver.js";
-// Type assertion validating that `userAnotherClientEdgeResolver` resolver is correctly implemented.
+import {another_client_edge as userAnotherClientEdgeResolverType} from "../resolvers/UserAnotherClientEdgeResolver.js";
+// Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolver: (
-  rootKey: UserAnotherClientEdgeResolver$key, 
-) => mixed);
-import {client_edge as userClientEdgeResolver} from "../resolvers/UserClientEdgeResolver.js";
-// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+(userAnotherClientEdgeResolverType: (
+  rootKey: UserAnotherClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
+import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolver: (
-  rootKey: UserClientEdgeResolver$key, 
-) => mixed);
+(userClientEdgeResolverType: (
+  rootKey: UserClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type RelayReaderClientEdgesTest4Query$variables = {||};
 export type RelayReaderClientEdgesTest4Query$data = {|
   +me: ?{|
@@ -113,7 +118,7 @@ return {
                     "kind": "RelayResolver",
                     "name": "another_client_edge",
                     "resolverModule": require('./../resolvers/UserAnotherClientEdgeResolver').another_client_edge,
-                    "path": "me.another_client_edge"
+                    "path": "me.client_edge.another_client_edge"
                   },
                   "linkedField": {
                     "alias": null,
@@ -161,7 +166,8 @@ return {
               "abstractKey": null
             },
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

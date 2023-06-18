@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -88,10 +89,14 @@ describe('execute()', () => {
     operation = createOperationDescriptor(CommentCreateSubscription, variables);
     queryOperation = createOperationDescriptor(CommentQuery, queryVariables);
 
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetchFn = jest.fn((_query, _variables, _cacheConfig) =>
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       RelayObservable.create(sink => {}),
     );
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     subscribeFn = jest.fn((_query, _variables, _cacheConfig) =>
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       RelayObservable.create(sink => {
         dataSource = sink;
       }),
@@ -99,11 +104,12 @@ describe('execute()', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetchFn, subscribeFn),
       store,
     });
-    complete = jest.fn();
-    error = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
     callbacks = {complete, error};
   });
 
@@ -124,7 +130,7 @@ describe('execute()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment
@@ -189,7 +195,7 @@ describe('execute()', () => {
       queryOperation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     const subscription = environment

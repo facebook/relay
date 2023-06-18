@@ -10,8 +10,9 @@
  */
 
 'use strict';
-
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -169,14 +170,18 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetchFn = jest.fn((_query, _variables, _cacheConfig) =>
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           RelayObservable.create(sink => {}),
         );
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         subscribeFn = jest.fn((_query, _variables, _cacheConfig) =>
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           RelayObservable.create(sink => {
             dataSource = sink;
           }),
@@ -193,6 +198,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         store = new RelayModernStore(source);
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID =>
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             RelayNetwork.create(fetchFn, subscribeFn),
           createStoreForActor: _actorID => store,
           operationLoader,
@@ -208,6 +214,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environmentType === 'MultiActorEnvironment'
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 network: RelayNetwork.create(fetchFn, subscribeFn),
                 store,
                 operationLoader,
@@ -226,10 +233,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const fragmentSnapshot = environment.lookup(selector);
-        fragmentCallback = jest.fn();
+        fragmentCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(fragmentSnapshot, fragmentCallback);
         const operationSnapshot = environment.lookup(operation.fragment);
-        operationCallback = jest.fn();
+        operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
@@ -272,7 +279,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
-          // $FlowFixMe
           nullthrows(nextID),
           operation.fragment.variables,
           operation.fragment.owner,
@@ -285,7 +291,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               actor: {
                 name: 'actor-name',
                 nameRenderer: {
-                  __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                  __id: 'client:4:nameRenderer(supported:"34hjiS")',
                   __fragmentPropName: 'name',
                   __fragments: {
                     RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name:
@@ -382,7 +388,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
-          // $FlowFixMe
           nullthrows(nextID),
           operation.fragment.variables,
           operation.fragment.owner,
@@ -399,7 +404,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const initialMatchSnapshot = environment.lookup(matchSelector);
         // TODO T96653810: Correctly detect reading from root of mutation/subscription
         expect(initialMatchSnapshot.isMissingData).toBe(false); // should be true
-        const matchCallback = jest.fn();
+        const matchCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialMatchSnapshot, matchCallback);
 
         resolveFragment(markdownRendererNormalizationFragment);
@@ -725,6 +730,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           };
 
           environment = new RelayModernEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             network: RelayNetwork.create(fetchFn, subscribeFn),
             store,
             operationLoader,

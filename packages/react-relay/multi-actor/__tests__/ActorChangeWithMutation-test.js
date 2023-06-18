@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
 import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
@@ -190,6 +191,7 @@ describe('ActorChange', () => {
         | CacheConfig
       )>
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return Observable.create(sink => {
         dataSource = sink;
       });
@@ -207,10 +209,11 @@ describe('ActorChange', () => {
 
   it('should render a fragment for actor', () => {
     const actorRenders = [];
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     const renderFn = jest.fn(data => {
       actorRenders.push(data);
     });
-    const renderViewerActorName = jest.fn();
+    const renderViewerActorName = jest.fn<[?string], void>();
 
     ReactTestRenderer.create(
       <ComponentWrapper

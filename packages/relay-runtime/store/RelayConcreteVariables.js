@@ -124,7 +124,6 @@ function getLocalVariables(
   const nextVariables = {...currentVariables};
   const nextArgs = args ? getArgumentValues(args, currentVariables) : {};
   argumentDefinitions.forEach(def => {
-    // $FlowFixMe[cannot-write]
     const value = nextArgs[def.name] ?? def.defaultValue;
     nextVariables[def.name] = value;
   });

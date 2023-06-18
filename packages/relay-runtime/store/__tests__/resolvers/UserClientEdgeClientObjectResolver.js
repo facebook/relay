@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {DataID} from 'relay-runtime';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 /**
  * @RelayResolver
@@ -19,11 +19,13 @@ import type {DataID} from 'relay-runtime';
  * @edgeTo ClientObject
  * @onType User
  */
-function client_object(args: {id: string}): ?DataID {
+function client_object(args: {
+  id: string,
+}): ?ConcreteClientEdgeResolverReturnType<> {
   if (args.id === '0') {
     return null;
   }
-  return args.id;
+  return {id: args.id};
 }
 
 module.exports = {

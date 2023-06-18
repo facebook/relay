@@ -10,10 +10,18 @@ use std::sync::Arc;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
-use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
+use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
+use docblock_shared::GENERATED_FRAGMENT_ARGUMENT_NAME;
+use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
+use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
+use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
+use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
+use docblock_shared::LIVE_ARGUMENT_NAME;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
@@ -34,12 +42,12 @@ use graphql_syntax::ConstantValue;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
-use lazy_static::lazy_static;
 use schema::ArgumentValue;
 use schema::Field;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 
 use super::ValidationMessage;
 use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
@@ -63,37 +71,33 @@ pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Pr
     relay_resolvers_spread_transform(&transformed_fields_program)
 }
 
-lazy_static! {
-    pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("relay_resolver".intern());
-    pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("fragment_name".intern());
-    pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("import_path".intern());
-    pub static ref RELAY_RESOLVER_IMPORT_NAME_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("import_name".intern());
-    pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
-    pub static ref RELAY_RESOLVER_HAS_OUTPUT_TYPE: ArgumentName =
-        ArgumentName("has_output_type".intern());
-    pub static ref RELAY_RESOLVER_INJECT_FRAGMENT_DATA: ArgumentName =
-        ArgumentName("inject_fragment_data".intern());
-    pub static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
-        DirectiveName("__RelayWeakObject".intern());
-}
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ResolverNormalizationInfo {
-    pub type_name: StringKey,
+    pub inner_type: Type,
     pub plural: bool,
     pub normalization_operation: WithLocation<OperationDefinitionName>,
-    pub weak_object_instance_field: Option<StringKey>,
+    pub weak_object_instance_field: Option<FieldID>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-
 pub enum ResolverOutputTypeInfo {
-    ScalarField(FieldID),
+    /// Resolver returns an opaque scalar field
+    ScalarField,
     Composite(ResolverNormalizationInfo),
+    /// Resolver returns one or more edges to items in the store.
+    EdgeTo,
+    Legacy,
+}
+
+impl ResolverOutputTypeInfo {
+    pub fn normalization_ast_should_have_is_output_type_true(&self) -> bool {
+        match self {
+            ResolverOutputTypeInfo::ScalarField => true,
+            ResolverOutputTypeInfo::Composite(_) => true,
+            ResolverOutputTypeInfo::EdgeTo => false,
+            ResolverOutputTypeInfo::Legacy => false,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -110,21 +114,20 @@ struct RelayResolverFieldMetadata {
     fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     field_path: StringKey,
     live: bool,
-    output_type_info: Option<ResolverOutputTypeInfo>,
+    output_type_info: ResolverOutputTypeInfo,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayResolverMetadata {
-    pub field_parent_type: StringKey,
+    field_id: FieldID,
     pub import_path: StringKey,
     pub import_name: Option<StringKey>,
-    pub field_name: StringKey,
     pub field_alias: Option<StringKey>,
     pub field_path: StringKey,
     pub field_arguments: Vec<Argument>,
     pub live: bool,
-    pub output_type_info: Option<ResolverOutputTypeInfo>,
+    pub output_type_info: ResolverOutputTypeInfo,
     /// A tuple with fragment name and field name we need read
     /// of that fragment to pass it to the resolver function.
     pub fragment_data_injection_mode: Option<(
@@ -135,10 +138,39 @@ pub struct RelayResolverMetadata {
 associated_data_impl!(RelayResolverMetadata);
 
 impl RelayResolverMetadata {
-    pub fn generate_local_resolver_name(&self) -> StringKey {
+    pub fn field<'schema>(&self, schema: &'schema SDLSchema) -> &'schema Field {
+        schema.field(self.field_id)
+    }
+
+    pub fn field_name(&self, schema: &SDLSchema) -> StringKey {
+        self.field(schema).name.item
+    }
+
+    pub fn field_parent_type_name(&self, schema: &SDLSchema) -> StringKey {
+        let parent_type = self
+            .field(schema)
+            .parent_type
+            .expect("Expected parent type");
+        match parent_type {
+            Type::Interface(interface_id) => schema.interface(interface_id).name.item.0,
+            Type::Object(object_id) => schema.object(object_id).name.item.0,
+            _ => panic!("Unexpected parent type for resolver."),
+        }
+    }
+
+    pub fn generate_local_resolver_name(&self, schema: &SDLSchema) -> StringKey {
         to_camel_case(format!(
             "{}_{}_resolver",
-            self.field_parent_type, self.field_name
+            self.field_parent_type_name(schema),
+            self.field_name(schema)
+        ))
+        .intern()
+    }
+    pub fn generate_local_resolver_type_name(&self, schema: &SDLSchema) -> StringKey {
+        to_camel_case(format!(
+            "{}_{}_resolver_type",
+            self.field_parent_type_name(schema),
+            self.field_name(schema)
         ))
         .intern()
     }
@@ -202,14 +234,12 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     }
                 });
 
-            let schema_field = self.program.schema.field(field.definition().item);
             let resolver_metadata = RelayResolverMetadata {
-                field_parent_type: field_metadata.field_parent_type,
                 import_path: field_metadata.import_path,
                 import_name: field_metadata.import_name,
-                field_name: schema_field.name.item,
-                field_alias: field.alias().map(|alias| alias.item),
+                field_alias: field.alias().map(|field_alias| field_alias.item),
                 field_path: field_metadata.field_path,
+                field_id: field.definition().item,
                 field_arguments,
                 live: field_metadata.live,
                 output_type_info: field_metadata.output_type_info.clone(),
@@ -285,19 +315,11 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
                     .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
-                let selections_field = match client_edge_metadata.selections {
-                    Selection::LinkedField(linked_field) => self
-                        .default_transform_linked_field(linked_field)
-                        .unwrap_or_else(|| {
-                            Selection::LinkedField(
-                                #[allow(clippy::clone_on_ref_ptr)]
-                                linked_field.clone(),
-                            )
-                        }),
-                    _ => panic!(
-                        "Expected the Client Edges transform to always make the second selection the linked field."
-                    ),
-                };
+                let selections_field = self
+                    .default_transform_linked_field(client_edge_metadata.linked_field)
+                    .unwrap_or_else(|| {
+                        Selection::LinkedField(Arc::new(client_edge_metadata.linked_field.clone()))
+                    });
 
                 let selections = vec![backing_id_field, selections_field];
 
@@ -357,17 +379,17 @@ impl<'program> RelayResolverFieldTransform<'program> {
         &mut self,
         field: &impl IrField,
     ) -> Option<Vec<Directive>> {
-        let field_type = self.program.schema.field(field.definition().item);
+        let schema_field = self.program.schema.field(field.definition().item);
 
         get_resolver_info(
             &self.program.schema,
-            field_type,
+            schema_field,
             field.definition().location,
         )
         .and_then(|info| {
             if !self.enabled {
                 self.errors.push(Diagnostic::error(
-                    ValidationMessage::RelayResolversDisabled {},
+                    ValidationMessage::RelayResolversDisabled,
                     field.alias_or_name_location(),
                 ));
                 return None;
@@ -390,66 +412,80 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         });
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(
-                            ValidationMessage::RelayResolverUnexpectedDirective {},
+                            ValidationMessage::RelayResolverUnexpectedDirective,
                             directive.name.location,
                         ));
                     }
+
+                    let parent_type = schema_field.parent_type.unwrap();
+                    let inner_type = schema_field.type_.inner();
+
                     if let Some(fragment_name) = fragment_name {
-                        if self.program.fragment(fragment_name).is_none() {
-                            self.errors.push(Diagnostic::error(
-                                ValidationMessage::InvalidRelayResolverFragmentName {
-                                    fragment_name,
-                                },
-                                // We don't have locations for directives in schema files.
-                                // So we send them to the field name, rather than the directive value.
-                                field_type.name.location,
-                            ));
-                            return None;
+                        match self.program.fragment(fragment_name) {
+                            Some(fragment_definition) => {
+                                if !self.program.schema.are_overlapping_types(
+                                    fragment_definition.type_condition,
+                                    parent_type,
+                                ) {
+                                    // This invariant is enforced when we generate docblock IR, but we double check here to
+                                    // ensure no later transforms break that invariant, and that manually written test
+                                    // schemas gets this right.
+                                    panic!("Invalid type condition on `{}`, the fragment backing the Relay Resolver field `{}`.", fragment_name, schema_field.name.item);
+                                }
+                            }
+                            None => {
+                                self.errors.push(Diagnostic::error(
+                                    ValidationMessage::InvalidRelayResolverFragmentName {
+                                        fragment_name,
+                                    },
+                                    // We don't have locations for directives in schema files.
+                                    // So we send them to the field name, rather than the directive value.
+                                    schema_field.name.location,
+                                ));
+                                return None;
+                            }
                         }
                     }
-                    let parent_type = field_type.parent_type.unwrap();
 
                     let output_type_info = if has_output_type {
-                        if field_type.type_.inner().is_composite_type() {
+                        if inner_type.is_composite_type() {
                             let normalization_operation = generate_name_for_nested_object_operation(
                                 &self.program.schema,
                                 self.program.schema.field(field.definition().item),
                             );
 
                             let weak_object_instance_field =
-                                field_type.type_.inner().get_object_id().and_then(|id| {
+                                inner_type.get_object_id().and_then(|id| {
                                     let object = self.program.schema.object(id);
                                     if object
                                         .directives
                                         .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
                                         .is_some()
                                     {
-                                        let field_id = object.fields.get(0).unwrap();
                                         // This is expect to be `__relay_model_instance`
                                         // TODO: Add validation/panic to assert that weak object has only
                                         // one field here, and it's a magic relay instance field.
-                                        Some(self.program.schema.field(*field_id).name.item)
+                                        Some(*object.fields.get(0).unwrap())
                                     } else {
                                         None
                                     }
                                 });
 
-                            Some(ResolverOutputTypeInfo::Composite(
+                            ResolverOutputTypeInfo::Composite(
                                 ResolverNormalizationInfo {
-                                    type_name: self
-                                        .program
-                                        .schema
-                                        .get_type_name(field_type.type_.inner()),
-                                    plural: field_type.type_.is_list(),
+                                    inner_type,
+                                    plural: schema_field.type_.is_list(),
                                     normalization_operation,
                                     weak_object_instance_field,
                                 },
-                            ))
+                            )
                         } else {
-                            Some(ResolverOutputTypeInfo::ScalarField(field.definition().item))
+                            ResolverOutputTypeInfo::ScalarField
                         }
+                    } else if inner_type.is_composite_type() {
+                        ResolverOutputTypeInfo::EdgeTo
                     } else {
-                        None
+                        ResolverOutputTypeInfo::Legacy
                     };
 
                     let resolver_field_metadata = RelayResolverFieldMetadata {
@@ -539,19 +575,17 @@ impl Transformer for RelayResolverFieldTransform<'_> {
                     .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
-                let selections_field = match client_edge_metadata.selections {
-                    Selection::LinkedField(linked_field) => self
-                        .default_transform_linked_field(linked_field)
-                        .unwrap_or_else(|| {
-                            Selection::LinkedField(
-                                #[allow(clippy::clone_on_ref_ptr)]
-                                linked_field.clone(),
-                            )
-                        }),
-                    _ => panic!(
-                        "Expected the Client Edges transform to always make the second selection the linked field."
-                    ),
-                };
+                let field_name = client_edge_metadata
+                    .linked_field
+                    .alias_or_name(&self.program.schema);
+
+                self.path.push(field_name.lookup());
+                let selections_field = self
+                    .default_transform_linked_field(client_edge_metadata.linked_field)
+                    .unwrap_or_else(|| {
+                        Selection::LinkedField(Arc::new(client_edge_metadata.linked_field.clone()))
+                    });
+                self.path.pop();
 
                 let selections = vec![backing_id_field, selections_field];
 
@@ -593,30 +627,20 @@ fn get_resolver_info(
         .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .map(|directive| {
             let arguments = &directive.arguments;
-            let fragment_name = get_argument_value(
-                arguments,
-                *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
-                error_location,
-            )
-            .ok()
-            .map(FragmentDefinitionName);
-            let import_path = get_argument_value(
-                arguments,
-                *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-                error_location,
-            )?;
-            let live = get_bool_argument_is_true(arguments, *RELAY_RESOLVER_LIVE_ARGUMENT_NAME);
+            let fragment_name =
+                get_argument_value(arguments, *FRAGMENT_KEY_ARGUMENT_NAME, error_location)
+                    .ok()
+                    .map(FragmentDefinitionName);
+            let import_path =
+                get_argument_value(arguments, *IMPORT_PATH_ARGUMENT_NAME, error_location)?;
+            let live = get_bool_argument_is_true(arguments, *LIVE_ARGUMENT_NAME);
             let has_output_type =
-                get_bool_argument_is_true(arguments, *RELAY_RESOLVER_HAS_OUTPUT_TYPE);
-            let import_name = get_argument_value(
-                arguments,
-                *RELAY_RESOLVER_IMPORT_NAME_ARGUMENT_NAME,
-                error_location,
-            )
-            .ok();
+                get_bool_argument_is_true(arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
+            let import_name =
+                get_argument_value(arguments, *IMPORT_NAME_ARGUMENT_NAME, error_location).ok();
             let inject_fragment_data = get_argument_value(
                 arguments,
-                *RELAY_RESOLVER_INJECT_FRAGMENT_DATA,
+                *INJECT_FRAGMENT_DATA_ARGUMENT_NAME,
                 error_location,
             )
             .ok();
@@ -699,7 +723,9 @@ pub(crate) fn get_bool_argument_is_true(
     }
 }
 
-pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionName> {
+// If the field is a resolver, return its user defined fragment name. Does not
+// return generated fragment names.
+pub fn get_resolver_fragment_dependency_name(field: &Field) -> Option<FragmentDefinitionName> {
     if !field.is_extension {
         return None;
     }
@@ -707,10 +733,18 @@ pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionNam
     field
         .directives
         .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .filter(|resolver_directive| {
+            let generated = resolver_directive
+                .arguments
+                .named(*GENERATED_FRAGMENT_ARGUMENT_NAME)
+                .and_then(|arg| arg.value.get_bool_literal())
+                .unwrap_or(false);
+            !generated
+        })
         .and_then(|resolver_directive| {
             resolver_directive
                 .arguments
-                .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
+                .named(*FRAGMENT_KEY_ARGUMENT_NAME)
         })
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
 }

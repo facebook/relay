@@ -111,14 +111,16 @@ extend type Query {
                         "abstractKey": null
                       },
                       "kind": "RelayResolver",
-                      "storageKey": null
+                      "storageKey": null,
+                      "isOutputType": false
                     }
                   ],
                   "type": "ClientUser",
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               },
               {
                 "alias": null,

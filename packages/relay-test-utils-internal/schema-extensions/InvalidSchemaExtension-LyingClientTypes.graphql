@@ -1,0 +1,13 @@
+# This serves as a fixture to show that we currently do not
+# catch the following invalid GraphQL: a client interface and a
+# client type which claims to implement that interface, but
+# does not contain all the fields.
+# See [the spec](https://spec.graphql.org/October2021/#sec-Objects).
+
+interface GoodClientInterface {
+  name: String
+}
+
+type BadClientType implements GoodClientInterface {
+  not_name: String
+}

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -65,15 +66,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         operation = createOperationDescriptor(ParentQuery, {size: 32});
 
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
+          // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
           return RelayObservable.create(sink => {
             dataSource = sink;
           });

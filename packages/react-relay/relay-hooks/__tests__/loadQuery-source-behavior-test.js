@@ -101,13 +101,15 @@ beforeEach(() => {
   });
   PreloadableQueryRegistry.clear();
 
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
+    // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
-    networkUnsubscribe = jest.fn();
+    networkUnsubscribe = jest.fn<[], $FlowFixMe>();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
       const subscription = originalSubscribe(...args);
       jest
@@ -118,6 +120,7 @@ beforeEach(() => {
     return observable;
   });
 
+  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
   environment = createMockEnvironment({network: Network.create(fetch)});
   const store = environment.getStore();
   const operation = createOperationDescriptor(query, variables);
@@ -145,7 +148,11 @@ beforeEach(() => {
     });
 
   writeDataToStore = () => {
-    loadQuery(environment, preloadableConcreteRequest, variables);
+    loadQuery<$FlowFixMe, _>(
+      environment,
+      preloadableConcreteRequest,
+      variables,
+    );
     sink.next(response);
     sink.complete();
     PreloadableQueryRegistry.set(ID, query);
@@ -159,8 +166,9 @@ beforeEach(() => {
   callLoadQuery = <TQuery: OperationType>(
     queryAstOrRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
     options?: LoadQueryOptions,
+    // $FlowFixMe[missing-local-annot]
   ) => {
-    const loadedQuery = loadQuery(
+    const loadedQuery = loadQuery<$FlowFixMe, _>(
       environment,
       queryAstOrRequest,
       variables,
@@ -417,7 +425,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         // calls to load will get disposed
 
         // Start initial load of query
-        const queryRef1 = loadQuery(
+        const queryRef1 = loadQuery<$FlowFixMe, _>(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -438,7 +446,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         expect(environment.executeWithSource).toBeCalledTimes(1);
 
         // Start second load of query
-        const queryRef2 = loadQuery(
+        const queryRef2 = loadQuery<$FlowFixMe, _>(
           environment,
           preloadableConcreteRequest,
           variables,

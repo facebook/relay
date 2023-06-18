@@ -26,6 +26,7 @@ import type {
 
 const invariant = require('invariant');
 const {
+  __internal,
   RelayConcreteNode,
   TYPENAME_KEY,
   getModuleComponentKey,
@@ -35,11 +36,11 @@ const {
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   CONNECTION,
   DEFER,
-  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -97,7 +98,7 @@ function createIdGenerator() {
   };
 }
 
-const DEFAULT_MOCK_RESOLVERS = {
+const DEFAULT_MOCK_RESOLVERS: MockResolvers = {
   ID(context: MockResolverContext, generateId: () => number) {
     return `<${
       context.parentType != null && context.parentType !== DEFAULT_MOCK_TYPENAME
@@ -188,14 +189,11 @@ class RelayMockPayloadGenerator {
     +mockClientData: ?boolean,
   }) {
     this._variables = options.variables;
-    // $FlowFixMe[cannot-spread-inexact]
-    // $FlowFixMe[incompatible-type]
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
       ...(options.mockResolvers ?? {}),
     };
     this._selectionMetadata = options.selectionMetadata ?? {};
-    // $FlowFixMe[incompatible-call]
     this._resolveValue = createValueResolver(this._mockResolvers);
     this._mockClientData = options.mockClientData ?? false;
   }
@@ -317,8 +315,7 @@ class RelayMockPayloadGenerator {
           break;
         }
 
-        case CLIENT_COMPONENT:
-        case FRAGMENT_SPREAD: {
+        case CLIENT_COMPONENT: {
           mockData = this._traverseSelections(
             selection.fragment.selections,
             typeName,
@@ -327,6 +324,24 @@ class RelayMockPayloadGenerator {
             mockData,
             defaultValues,
           );
+          break;
+        }
+        case FRAGMENT_SPREAD: {
+          const prevVariables = this._variables;
+          this._variables = __internal.getLocalVariables(
+            this._variables,
+            selection.fragment.argumentDefinitions,
+            selection.args,
+          );
+          mockData = this._traverseSelections(
+            selection.fragment.selections,
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
+          this._variables = prevVariables;
           break;
         }
 
@@ -471,7 +486,6 @@ class RelayMockPayloadGenerator {
             if (mockData == null) {
               mockData = {};
             }
-            // $FlowFixMe[cannot-spread-indexer]
             mockData = {
               ...mockData,
               [TYPENAME_KEY]: typeName,
@@ -498,8 +512,6 @@ class RelayMockPayloadGenerator {
         case SCALAR_HANDLE:
         case LINKED_HANDLE:
           break;
-        case FLIGHT_FIELD:
-          throw new Error('Flight fields are not yet supported.');
         case ACTOR_CHANGE:
           throw new Error('ActorChange fields are not yet supported.');
         case RELAY_RESOLVER:
@@ -513,6 +525,16 @@ class RelayMockPayloadGenerator {
               defaultValues,
             );
           }
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          mockData = this._traverseSelections(
+            [selection.backingField],
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
           break;
         default:
           (selection: empty);
@@ -744,7 +766,6 @@ class RelayMockPayloadGenerator {
             data[applicationName]
           : null,
         // $FlowFixMe[incompatible-call]
-        // $FlowFixMe[incompatible-variance]
         fieldDefaultValue,
       );
     };

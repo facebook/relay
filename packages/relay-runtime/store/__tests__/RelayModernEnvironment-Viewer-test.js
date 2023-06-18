@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {PayloadError} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -66,13 +68,14 @@ describe('Mutations on viewer', () => {
       },
     };
 
-    onCompleted = jest.fn();
-    onError = jest.fn();
+    onCompleted = jest.fn<[{...}, ?Array<PayloadError>], void>();
+    onError = jest.fn<[Error], void>();
     const fetch = (
       _query: RequestParameters,
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -110,7 +113,7 @@ describe('Mutations on viewer', () => {
       {},
       operationDescriptor.request,
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     const snapshot = environment.lookup(selector);
     environment.subscribe(snapshot, callback);
 

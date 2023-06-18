@@ -52,7 +52,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         }
         return Ok("TODO".to_string());
     }
-    let hash_supported_argument_allowlist = vec!["UserNameRenderer".intern()];
     let no_inline_allowlist = vec![
         "autoFilledArgumentOnMatchPlainUserNameRenderer_name".intern(),
         "autoFilledArgumentOnMatchMarkdownUserNameRenderer_name".intern(),
@@ -101,10 +100,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     ];
 
     let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
-        hash_supported_argument: FeatureFlag::Limited {
-            allowlist: hash_supported_argument_allowlist.into_iter().collect(),
-        },
+        hash_supported_argument: FeatureFlag::Enabled,
         // test SplitOperations that do not use @no-inline D28460294
         no_inline: FeatureFlag::Limited {
             allowlist: no_inline_allowlist.into_iter().collect(),
@@ -113,13 +109,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
-        enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
-        use_named_imports_for_relay_resolvers: false,
-        relay_resolver_model_syntax_enabled: false,
-        relay_resolver_enable_terse_syntax: false,
+        emit_normalization_nodes_for_client_edges: true,
+        relay_resolver_enable_output_type: FeatureFlag::Disabled,
     };
 
     let default_project_config = ProjectConfig {

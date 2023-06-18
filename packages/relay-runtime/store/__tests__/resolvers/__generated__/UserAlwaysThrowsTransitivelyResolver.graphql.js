@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9daeee1dae3b67e6e15e47e8c9620d0b>>
+ * @generated SignedSource<<7ddb36c6c21d7b530c9ad98902c7cc1a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { UserAlwaysThrowsResolver$key } from "./UserAlwaysThrowsResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import {always_throws as userAlwaysThrowsResolver} from "../UserAlwaysThrowsResolver.js";
-// Type assertion validating that `userAlwaysThrowsResolver` resolver is correctly implemented.
+import {always_throws as userAlwaysThrowsResolverType} from "../UserAlwaysThrowsResolver.js";
+// Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolver: (
-  rootKey: UserAlwaysThrowsResolver$key, 
-) => mixed);
+(userAlwaysThrowsResolverType: (
+  rootKey: UserAlwaysThrowsResolver$key,
+) => ?mixed);
 declare export opaque type UserAlwaysThrowsTransitivelyResolver$fragmentType: FragmentType;
 export type UserAlwaysThrowsTransitivelyResolver$data = {|
-  +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolver>,
+  +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolverType>,
   +$fragmentType: UserAlwaysThrowsTransitivelyResolver$fragmentType,
 |};
 export type UserAlwaysThrowsTransitivelyResolver$key = {

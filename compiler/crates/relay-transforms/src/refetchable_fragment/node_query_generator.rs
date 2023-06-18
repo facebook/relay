@@ -17,6 +17,7 @@ use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Value;
@@ -39,6 +40,7 @@ use super::build_used_global_variables;
 use super::validation_message::ValidationMessage;
 use super::QueryGenerator;
 use super::RefetchRoot;
+use super::RefetchableIdentifierInfo;
 use super::RefetchableMetadata;
 use super::CONSTANTS;
 use crate::root_variables::VariableMap;
@@ -47,7 +49,7 @@ fn build_refetch_operation(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let id_name = schema_config.node_interface_id_field;
@@ -119,7 +121,11 @@ fn build_refetch_operation(
                     RefetchableMetadata {
                         operation_name: query_name,
                         path: vec![CONSTANTS.node_field_name],
-                        identifier_field: Some(id_name),
+                        identifier_info: Some(RefetchableIdentifierInfo {
+                            identifier_field: id_name,
+                            identifier_query_variable_name: schema_config
+                                .node_interface_id_variable_name,
+                        }),
                     },
                 ),
                 used_global_variables: build_used_global_variables(
@@ -144,7 +150,7 @@ fn build_refetch_operation(
             if let Some(id_argument) = variable_definitions.named(VariableName(id_name)) {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
-                        fragment_name: fragment.name.item.0,
+                        fragment_name: fragment.name.item,
                     },
                     id_argument.name.location,
                 )]);
@@ -200,7 +206,7 @@ fn get_node_field_id_and_id_arg<'s>(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidNodeSchemaForRefetchableFragmentOnNode {
-            fragment_name: fragment.name.item.0,
+            fragment_name: fragment.name.item,
         },
         fragment.name.location,
     )])
@@ -252,6 +258,6 @@ fn enforce_selections_with_id_field(
 }
 
 pub const NODE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {
-    description: "the Node interface or types implementing the Node interface",
+    description: "the Node interface, object types that implement the Node interface, interfaces whose implementing objects all implement Node, and unions whose members all implement Node",
     build_refetch_operation,
 };

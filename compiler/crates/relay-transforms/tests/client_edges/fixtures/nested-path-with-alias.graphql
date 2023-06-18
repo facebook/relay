@@ -1,0 +1,25 @@
+fragment Foo_user on ClientUser {
+  bff: best_friend {
+    bffs_bff: best_friend {
+      id
+    }
+  }
+}
+
+fragment BestFriendFragment on ClientUser {
+  id
+}
+
+# %extensions%
+
+type ClientUser {
+  id: ID
+}
+
+extend type ClientUser {
+  best_friend: ClientUser
+    @relay_resolver(
+      fragment_name: "BestFriendFragment"
+      import_path: "BestFriendResolver"
+    )
+}

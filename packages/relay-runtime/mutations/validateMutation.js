@@ -21,10 +21,10 @@ import type {Variables} from '../util/RelayRuntimeTypes';
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
-  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -136,7 +136,6 @@ if (__DEV__) {
         return;
       case SCALAR_FIELD:
       case LINKED_FIELD:
-      case FLIGHT_FIELD:
         return validateField(optimisticResponse, selection, context);
       case ACTOR_CHANGE:
         return validateField(
@@ -165,6 +164,7 @@ if (__DEV__) {
       case TYPE_DISCRIMINATOR:
         return validateAbstractKey(context, selection.abstractKey);
       case RELAY_RESOLVER:
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
       case LINKED_HANDLE:
       case SCALAR_HANDLE:
       case DEFER:
@@ -242,21 +242,6 @@ if (__DEV__) {
             return;
           }
         }
-      case FLIGHT_FIELD:
-        if (
-          optimisticResponse[fieldName] === null ||
-          (hasOwnProperty.call(optimisticResponse, fieldName) &&
-            optimisticResponse[fieldName] === undefined)
-        ) {
-          return;
-        }
-        throw new Error(
-          'validateMutation: Flight fields are not compatible with ' +
-            'optimistic updates, as React does not have the component code ' +
-            'necessary to process new data on the client. Instead, you ' +
-            'should update your code to require a full refetch of the Flight ' +
-            'field so your UI can be updated.',
-        );
     }
   };
 

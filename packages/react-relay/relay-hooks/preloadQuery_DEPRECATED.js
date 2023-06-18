@@ -45,7 +45,7 @@ const STORE_OR_NETWORK_DEFAULT: PreloadFetchPolicy = 'store-or-network';
 
 const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
   ? new WeakMap<IEnvironment, Map<string, PendingQueryEntry>>()
-  : new Map();
+  : new Map<IEnvironment, Map<string, PendingQueryEntry>>();
 
 type PendingQueryEntry =
   | $ReadOnly<{
@@ -204,7 +204,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   } else if (prevQueryEntry == null || prevQueryEntry.kind !== 'network') {
     // Should fetch but we're not already fetching: fetch!
     const source = network.execute(params, variables, networkCacheConfig, null);
-    const subject = new ReplaySubject();
+    const subject = new ReplaySubject<GraphQLResponse>();
     nextQueryEntry = {
       cacheKey,
       fetchKey,

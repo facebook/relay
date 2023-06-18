@@ -12,6 +12,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use errors::validate;
 use errors::validate_map;
 use graphql_ir::Condition;
@@ -23,6 +24,7 @@ use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
+use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
@@ -309,9 +311,42 @@ impl<'a> Validator for UpdatableDirective<'a> {
         }
     }
 
+    fn validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
+        let field_def = self.program.schema.field(field.definition.item);
+        if field_def
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .is_some()
+        {
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::UpdatableDisallowRelayResolvers,
+                    field.definition.location,
+                )
+                .annotate("The field is defined here:", field_def.name.location),
+            ]);
+        }
+        self.default_validate_scalar_field(field)
+    }
+
     fn validate_linked_field(&mut self, linked_field: &LinkedField) -> DiagnosticsResult<()> {
         let fragment_spreads = filter_fragment_spreads(linked_field.selections.iter());
         let inline_fragments = filter_inline_fragments(linked_field.selections.iter());
+
+        let field_def = self.program.schema.field(linked_field.definition.item);
+        if field_def
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .is_some()
+        {
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::UpdatableDisallowRelayResolvers,
+                    linked_field.definition.location,
+                )
+                .annotate("The field is defined here:", field_def.name.location),
+            ]);
+        }
 
         validate!(
             self.validate_fragment_spreads_with_parent(linked_field, fragment_spreads),

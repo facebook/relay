@@ -35,6 +35,7 @@ class FakeJSResource<T> {
 
     this.getModuleId = jest.fn(() => 'TheModuleID');
     this.getModuleIfRequired = jest.fn(() => this._resource);
+    // $FlowFixMe[incompatible-type-arg]
     this.load = jest.fn(() => {
       return new Promise(resolve => {
         this._resolve = resolve;
@@ -78,16 +79,22 @@ test('it should preload entry point with queries', () => {
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  const preloadedEntryPoint = loadEntryPoint(
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {...},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
     {
       getEnvironment: () => env,
     },
     entryPoint,
     {id: 'my-id'},
   );
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(networkSpy).toBeCalledTimes(1);
   expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
@@ -128,7 +135,15 @@ test('it should unwrap an entry point wrapping a module with default exports', (
       default: fakeModule,
     }): $FlowFixMe),
   };
-  const preloadedEntryPoint = loadEntryPoint(
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {...},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
     {
       getEnvironment: () => env,
     },
@@ -167,7 +182,15 @@ test('it should return the module from an entry point that just returns the modu
     },
     root: (new FakeJSResource(fakeModule): $FlowFixMe),
   };
-  const preloadedEntryPoint = loadEntryPoint(
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {...},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
     {
       getEnvironment: () => env,
     },
@@ -179,13 +202,17 @@ test('it should return the module from an entry point that just returns the modu
 
 describe('with respect to loadQuery', () => {
   let mockLoadedQuery;
-  const loadQuery = jest.fn().mockImplementation(() => {
-    return mockLoadedQuery;
-  });
+  const loadQuery = jest
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
+    .fn<_, {dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>}>()
+    .mockImplementation(() => {
+      return mockLoadedQuery;
+    });
   beforeEach(() => {
     jest.mock('../loadQuery', () => ({loadQuery}));
     mockLoadedQuery = {
-      dispose: jest.fn(),
+      dispose: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
     };
   });
   afterEach(() => {
@@ -231,7 +258,7 @@ describe('with respect to loadQuery', () => {
       root: (new FakeJSResource(null): $FlowFixMe),
     };
 
-    loadEntryPoint(
+    loadEntryPoint<_, {...}, {...}, {...}, mixed, $FlowFixMe, _>(
       {
         getEnvironment: () => env,
       },
@@ -273,7 +300,15 @@ describe('with respect to loadQuery', () => {
       root: (new FakeJSResource(null): $FlowFixMe),
     };
 
-    const preloadedEntryPoint = loadEntryPoint(
+    const preloadedEntryPoint = loadEntryPoint<
+      _,
+      {...},
+      {...},
+      {...},
+      mixed,
+      $FlowFixMe,
+      _,
+    >(
       {
         getEnvironment: () => env,
       },
@@ -332,16 +367,22 @@ test('it should preload entry point with nested entry points', () => {
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  const preloadedEntryPoint = loadEntryPoint(
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {...},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
     {
       getEnvironment: () => env,
     },
     entryPoint,
     {id: 'my-id'},
   );
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
@@ -418,7 +459,15 @@ test('it should preload entry point with both queries and nested entry points', 
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  const preloadedEntryPoint = loadEntryPoint(
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {...},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
     {
       getEnvironment: () => env,
     },
@@ -428,9 +477,7 @@ test('it should preload entry point with both queries and nested entry points', 
   expect(networkSpy).toBeCalledTimes(2);
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
   expect(preloadedEntryPoint.queries.myTestQuery.variables).toEqual({
@@ -506,12 +553,20 @@ test('it should dispose nested entry points', () => {
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  const preloadedEntryPoint = loadEntryPoint(
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {...},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
     {
       getEnvironment: () => env,
     },
+    // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
     entryPoint,
-    // $FlowFixMe[prop-missing]
     {},
   );
   const nestedEntryPointDisposeSpy = jest.spyOn(
@@ -557,7 +612,16 @@ test('with `getEnvironment` function', () => {
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const getEnvironment = jest.fn(() => env);
-  const preloadedEntryPoint = loadEntryPoint(
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {...},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     {
       getEnvironment,
     },

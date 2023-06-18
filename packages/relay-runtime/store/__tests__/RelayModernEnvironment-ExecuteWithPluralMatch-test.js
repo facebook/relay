@@ -196,7 +196,7 @@ describe('execute() a query with plural @match', () => {
       node: {
         nameRenderers: [
           {
-            __id: 'client:1:nameRenderers(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"]):0',
+            __id: 'client:1:nameRenderers(supported:"34hjiS"):0',
 
             __fragmentPropName: 'name',
 

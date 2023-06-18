@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f102f3a35dc23f176e3d4b53f6db4c2e>>
+ * @generated SignedSource<<2a17651ff486f00579270758059a000e>>
  */
 
 mod compile_relay_artifacts;
@@ -465,13 +465,6 @@ fn fields_with_null_argument_values() {
     let input = include_str!("compile_relay_artifacts/fixtures/fields-with-null-argument-values.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fields-with-null-argument-values.expected");
     test_fixture(transform_fixture, "fields-with-null-argument-values.graphql", "compile_relay_artifacts/fixtures/fields-with-null-argument-values.expected", input, expected);
-}
-
-#[test]
-fn flight_props_transform() {
-    let input = include_str!("compile_relay_artifacts/fixtures/flight-props-transform.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/flight-props-transform.expected");
-    test_fixture(transform_fixture, "flight-props-transform.graphql", "compile_relay_artifacts/fixtures/flight-props-transform.expected", input, expected);
 }
 
 #[test]
@@ -969,20 +962,6 @@ fn query_with_raw_response_type_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected");
     test_fixture(transform_fixture, "query-with-raw-response-type-directive.graphql", "compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected", input, expected);
-}
-
-#[test]
-fn query_with_relay_client_component() {
-    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.expected");
-    test_fixture(transform_fixture, "query-with-relay-client-component.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component.expected", input, expected);
-}
-
-#[test]
-fn query_with_relay_client_component_with_argument_definitions() {
-    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.expected");
-    test_fixture(transform_fixture, "query-with-relay-client-component-with-argument-definitions.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.expected", input, expected);
 }
 
 #[test]

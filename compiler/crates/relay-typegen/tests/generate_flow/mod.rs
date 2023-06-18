@@ -61,7 +61,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             .into_iter()
             .collect(),
         },
-        enable_flight_transform: true,
         enable_relay_resolver_transform: true,
         actor_change_support: FeatureFlag::Enabled,
         enable_fragment_aliases: FeatureFlag::Enabled,

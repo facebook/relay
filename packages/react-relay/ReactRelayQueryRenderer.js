@@ -37,11 +37,7 @@ const {
 type RetryCallbacks = {
   handleDataChange:
     | null
-    | (({
-        error?: Error,
-        snapshot?: Snapshot,
-        ...
-      }) => void),
+    | (({error?: Error, snapshot?: Snapshot, ...}) => void),
   handleRetryAfterError: null | ((error: Error) => void),
 };
 

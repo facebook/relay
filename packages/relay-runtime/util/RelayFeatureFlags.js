@@ -16,7 +16,6 @@ import type {Disposable} from '../util/RelayRuntimeTypes';
 export type FeatureFlags = {
   ENABLE_CLIENT_EDGES: boolean,
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
-  ENABLE_REACT_FLIGHT_COMPONENT_FIELD: boolean,
   ENABLE_RELAY_RESOLVERS: boolean,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean,
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: boolean,
@@ -45,7 +44,6 @@ export type FeatureFlags = {
 const RelayFeatureFlags: FeatureFlags = {
   ENABLE_CLIENT_EDGES: false,
   ENABLE_VARIABLE_CONNECTION_KEY: false,
-  ENABLE_REACT_FLIGHT_COMPONENT_FIELD: false,
   ENABLE_RELAY_RESOLVERS: false,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: false,
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: false,

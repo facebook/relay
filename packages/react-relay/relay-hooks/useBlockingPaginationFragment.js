@@ -89,7 +89,6 @@ function useBlockingPaginationFragment<
 
   const {
     connectionPathInFragmentData,
-    identifierField,
     paginationRequest,
     paginationMetadata,
     stream,
@@ -132,7 +131,6 @@ function useBlockingPaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    identifierField,
     paginationMetadata,
     paginationRequest,
   });
@@ -148,7 +146,6 @@ function useBlockingPaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    identifierField,
     paginationMetadata,
     paginationRequest,
   });

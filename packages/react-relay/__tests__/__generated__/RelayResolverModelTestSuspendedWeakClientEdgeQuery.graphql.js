@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f7b5176fe46493afbb52ea359e23365>>
+ * @generated SignedSource<<c19ade5590a4094928027855d3310f1a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -136,7 +136,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "fancy_description_suspends",
-                "resolverModule": require('relay-runtime/experimental').weakObjectWrapperLive(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description_suspends, '__relay_model_instance', false), '__relay_model_instance', false),
+                "resolverModule": require('relay-runtime/experimental').weakObjectWrapperLive(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description_suspends, '__relay_model_instance', true), '__relay_model_instance', false),
                 "path": "todo_model.fancy_description_suspends",
                 "normalizationInfo": {
                   "concreteType": "TodoDescription",
@@ -162,7 +162,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "name": "text_with_prefix",
-                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text_with_prefix, '__relay_model_instance', false),
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text_with_prefix, '__relay_model_instance', true),
                     "path": "todo_model.fancy_description_suspends.text_with_prefix"
                   }
                 ],

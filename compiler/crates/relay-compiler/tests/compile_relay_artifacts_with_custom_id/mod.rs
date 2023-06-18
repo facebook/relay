@@ -49,6 +49,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         return Ok("TODO".to_string());
     }
 
+    let node_interface_query_variable_name =
+        if fixture.content.contains("# use-custom-variable-name") {
+            Some("variable_name".intern())
+        } else {
+            None
+        };
+
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let (base, schema) = match parts.as_slice() {
         [base, extensions] => (
@@ -76,7 +83,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
         hash_supported_argument: FeatureFlag::Disabled,
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
@@ -90,12 +96,16 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
     };
 
+    let default_schema_config = SchemaConfig::default();
+
     let project_config = ProjectConfig {
         name: "test".intern(),
         feature_flags: Arc::new(feature_flags),
         schema_config: SchemaConfig {
             node_interface_id_field: "global_id".intern(),
-            ..Default::default()
+            node_interface_id_variable_name: node_interface_query_variable_name
+                .unwrap_or(default_schema_config.node_interface_id_variable_name),
+            ..default_schema_config
         },
         js_module_format: JsModuleFormat::Haste,
         ..Default::default()

@@ -72,12 +72,8 @@ function usePaginationFragment<
   );
   const componentDisplayName = 'usePaginationFragment()';
 
-  const {
-    connectionPathInFragmentData,
-    paginationRequest,
-    paginationMetadata,
-    identifierField,
-  } = getPaginationMetadata(fragmentNode, componentDisplayName);
+  const {connectionPathInFragmentData, paginationRequest, paginationMetadata} =
+    getPaginationMetadata(fragmentNode, componentDisplayName);
 
   const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentInternal<
     TQuery,
@@ -95,7 +91,6 @@ function usePaginationFragment<
       fragmentIdentifier,
       fragmentNode,
       fragmentRef,
-      identifierField,
       paginationMetadata,
       paginationRequest,
     });
@@ -111,7 +106,6 @@ function usePaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    identifierField,
     paginationMetadata,
     paginationRequest,
   });

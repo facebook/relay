@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b0fbedca512e7d606beba6273c4d54fa>>
+ * @generated SignedSource<<8a09277ddc3f7ad739707b988f4a0fc5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { NormalizationSplitOperation } from 'relay-runtime';
 
 import type { TodoDescription } from "../TodoDescription.js";
 export type TodoModel__fancy_description_null$normalization = {|
-  +__relay_model_instance: ?TodoDescription,
+  +__relay_model_instance: TodoDescription,
 |};
 
 */

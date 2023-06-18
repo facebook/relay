@@ -12,6 +12,7 @@
 'use strict';
 
 import type {IEnvironment} from 'relay-runtime';
+import type {RequiredFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 
 const React = require('react');
@@ -926,17 +927,7 @@ describe.each([
       );
     }
     const requiredFieldLogger = jest.fn<
-      | $FlowFixMe
-      | [
-          | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
-          | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
-          | {
-              +error: Error,
-              +fieldPath: string,
-              +kind: 'relay_resolver.error',
-              +owner: string,
-            },
-        ],
+      $FlowFixMe | [RequiredFieldLoggerEvent],
       void,
     >();
     function createEnvironment(source: MutableRecordSource) {
@@ -989,12 +980,33 @@ describe.each([
     requiredFieldLogger.mockReset();
 
     // Render with complete data
-    expect(() => {
-      TestRenderer.create(<TestComponent environment={environment} id="2" />);
-    }).toThrow(
-      'The resolver should throw earlier. It should have missing data.',
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <TestComponent environment={environment} id="2" />,
+      );
+    });
+
+    if (renderer == null) {
+      throw new Error('Renderer is expected to be defined.');
+    }
+
+    expect(requiredFieldLogger.mock.calls).toEqual([
+      [
+        {
+          error: new Error(
+            'The resolver should throw earlier. It should have missing data.',
+          ),
+          fieldPath: 'node.resolver_that_throws',
+          kind: 'relay_resolver.error',
+          owner: 'LiveResolversTest8Query',
+        },
+      ],
+    ]);
+
+    expect(renderer.toJSON()).toEqual(
+      'Bob: Unknown resolver_that_throws value',
     );
-    expect(requiredFieldLogger.mock.calls).toEqual([]);
   });
 
   test('apply optimistic updates to live resolver field', () => {
@@ -1471,7 +1483,7 @@ describe.each([
       expect(() => {
         GLOBAL_STORE.dispatch({type: 'INCREMENT'});
       }).toThrowError(
-        'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true,"__resolverError":null}`',
+        'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
       );
       expect(renderer.toJSON()).toEqual('Loading...');
     });

@@ -23,7 +23,7 @@ graphql`
 ==================================== OUTPUT ===================================
 type MyType @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: Int @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-with-root-fragment-on-model.js", fragment_name: "MyType__id", generated_fragment: true, inject_fragment_data: "id", import_name: "MyType") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-with-root-fragment-on-model.js", fragment_name: "MyType__id", generated_fragment: true, inject_fragment_data: "id", import_name: "MyType") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 

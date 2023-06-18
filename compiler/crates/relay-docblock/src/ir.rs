@@ -1051,7 +1051,7 @@ impl ResolverIr for StrongObjectIr {
             },
             generate_model_instance_field(
                 schema_info,
-                *INT_TYPE,
+                RESOLVER_VALUE_SCALAR_NAME.0,
                 None,
                 self.directives(None, schema_info),
                 self.location(),
@@ -1381,9 +1381,13 @@ fn generate_model_instance_field(
 
     FieldDefinition {
         name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
-        type_: TypeAnnotation::Named(NamedTypeAnnotation {
-            name: string_key_as_identifier(type_name),
-        }),
+        type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
+            span,
+            type_: TypeAnnotation::Named(NamedTypeAnnotation {
+                name: string_key_as_identifier(type_name),
+            }),
+            exclamation: dummy_token(span),
+        })),
         arguments: None,
         directives,
         description,

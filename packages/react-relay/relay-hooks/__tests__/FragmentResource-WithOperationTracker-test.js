@@ -245,7 +245,7 @@ describe.each([true, false])(
       environment.mock.complete(nodeOperation);
 
       const fragmentRef = {
-        __id: 'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
+        __id: 'client:user-id-1:nameRenderer(supported:"1AwQS7")',
         __fragments: {
           FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name:
             {},
@@ -348,7 +348,7 @@ describe.each([true, false])(
       const snapshot = FragmentResource.read(
         PlainUserNameRenderer_name,
         {
-          __id: 'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
+          __id: 'client:user-id-1:nameRenderer(supported:"1AwQS7")',
           __fragments: {
             FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name:
               {},
@@ -429,7 +429,7 @@ describe.each([true, false])(
       });
       expect(operationLoader.load).toBeCalledTimes(2);
       const fragmentRef = {
-        __id: 'client:user-id-2:nameRenderer(supported:["PlainUserNameRenderer"])',
+        __id: 'client:user-id-2:nameRenderer(supported:"1AwQS7")',
         __fragments: {
           FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name:
             {},

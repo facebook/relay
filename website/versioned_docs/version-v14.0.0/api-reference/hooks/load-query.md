@@ -80,7 +80,7 @@ The exact format of the return value is *unstable and highly likely to change*. 
 ### Behavior
 
 * `loadQuery()` will fetch data if passed a query, or data and the query if passed a preloadable concrete request. Once both the query and data are available, the data from the query will be written to the store. This differs from the behavior of `preloadQuery_DEPRECATED`, which would only write data to the store if the query was passed to `usePreloadedQuery`.
-* the query reference returned from `loadQuery` will be retained by the relay store, preventing it the data from being garbage collected. Once you call `.dispose()` on the query reference, it can be garbage collected.
+* the query reference returned from `loadQuery` will be retained by the relay store, preventing the data from being garbage collected. Once you call `.dispose()` on the query reference, it can be garbage collected.
 * `loadQuery()` will throw an error if it is called during React's render phase.
 
 

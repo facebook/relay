@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<da22b374622841fbb18b01980ba527d4>>
+ * @generated SignedSource<<58a8b637878fc6d4fbbbef4f648f28ef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {human_readable_color as todoTextColorHumanReadableColorResolverType} fro
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoTextColorHumanReadableColorResolverType: (
   rootKey: TodoTextColorResolverFragment$key,
-) => mixed);
+) => ?mixed);
 declare export opaque type RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType: FragmentType;
 export type RelayResolversWithOutputTypeTestTextColorComponentFragment$data = {|
   +human_readable_color: ?$Call<<R>((...empty[]) => R) => R, typeof todoTextColorHumanReadableColorResolverType>,

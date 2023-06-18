@@ -21,8 +21,6 @@ use relay_codegen::QueryID;
 use relay_codegen::TopLevelStatement;
 use relay_codegen::CODEGEN_CONSTANTS;
 use relay_transforms::is_operation_preloadable;
-use relay_transforms::ReactFlightLocalComponentsMetadata;
-use relay_transforms::RelayClientComponentMetadata;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
 use relay_typegen::generate_fragment_type_exports_section;
@@ -178,11 +176,20 @@ pub fn generate_operation(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
+
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
+        if project_config
+            .persist
+            .as_ref()
+            .map_or(false, |config| config.include_query_text())
+        {
+            request_parameters.text = text.clone();
+        }
     } else {
         request_parameters.text = text.clone();
-    };
+    }
+
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
@@ -234,16 +241,6 @@ pub fn generate_operation(
         RelayDataDrivenDependencyMetadata::find(&operation_fragment.directives);
     if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
-    }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&operation_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
     }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
@@ -581,16 +578,6 @@ fn generate_read_only_fragment(
     {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
     }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&reader_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&reader_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
-    }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
 
@@ -920,26 +907,6 @@ fn write_data_driven_dependency_annotation(
         .flatten()
     {
         writeln!(section, "@indirectDataDrivenDependency {} {}", key, value)?;
-    }
-    Ok(())
-}
-
-fn write_react_flight_server_annotation(
-    section: &mut CommentAnnotationsSection,
-    flight_local_components_metadata: &ReactFlightLocalComponentsMetadata,
-) -> FmtResult {
-    for item in &flight_local_components_metadata.components {
-        writeln!(section, "@ReactFlightServerDependency {}", item)?;
-    }
-    Ok(())
-}
-
-fn write_react_flight_client_annotation(
-    section: &mut CommentAnnotationsSection,
-    relay_client_component_metadata: &RelayClientComponentMetadata,
-) -> FmtResult {
-    for value in &relay_client_component_metadata.split_operation_filenames {
-        writeln!(section, "@ReactFlightClientDependency {}", value)?;
     }
     Ok(())
 }

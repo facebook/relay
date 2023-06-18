@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1aba9b07c641d36e60acc46f1a0f1c38>>
+ * @generated SignedSource<<08d6b73283bde960d43757086940429c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
   args: {|
     salutation: string,
   |},
-) => mixed);
+) => ?mixed);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,
 |};

@@ -330,9 +330,8 @@ fn generate_resolver_type(
             if is_relay_resolver_type(typegen_context, schema_field) {
                 AST::Mixed
             } else {
-                transform_type_reference_into_ast(&schema_field.type_, |type_| {
-                    expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
-                })
+                let type_ = &schema_field.type_.inner();
+                expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             }
         }
         ResolverOutputTypeInfo::Composite(normalization_info) => {
@@ -341,37 +340,22 @@ fn generate_resolver_type(
                 Some(normalization_info.normalization_operation.location),
             );
 
-            let type_ = AST::Nullable(Box::new(AST::RawType(
-                normalization_info.normalization_operation.item.0,
-            )));
-
-            let ast = if let Some(field_type) = normalization_info.weak_object_instance_field {
-                transform_type_reference_into_ast(
-                    &typegen_context.schema.field(field_type).type_,
-                    |type_| {
-                        expect_scalar_type(
-                            typegen_context,
-                            encountered_enums,
-                            custom_scalars,
-                            type_,
-                        )
-                    },
-                )
+            if let Some(field_type) = normalization_info.weak_object_instance_field {
+                let type_ = &typegen_context.schema.field(field_type).type_.inner();
+                expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             } else {
-                type_
-            };
-
-            if normalization_info.plural {
-                AST::ReadOnlyArray(Box::new(ast))
-            } else {
-                ast
+                AST::RawType(normalization_info.normalization_operation.item.0)
             }
         }
-        ResolverOutputTypeInfo::EdgeTo => {
-            create_edge_to_return_type_ast(schema_field, typegen_context.schema, runtime_imports)
-        }
+        ResolverOutputTypeInfo::EdgeTo => create_edge_to_return_type_ast(
+            &schema_field.type_.inner(),
+            typegen_context.schema,
+            runtime_imports,
+        ),
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
     };
+
+    let ast = transform_type_reference_into_ast(&schema_field.type_, |_| inner_ast);
 
     let return_type = if matches!(
         typegen_context.project_config.typegen_config.language,
@@ -383,10 +367,10 @@ fn generate_resolver_type(
         runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,
-            inner: Box::new(inner_ast),
+            inner: Box::new(ast),
         }
     } else {
-        inner_ast
+        ast
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
@@ -1890,8 +1874,7 @@ pub(crate) fn raw_response_visit_selections(
     for selection in selections {
         match selection {
             Selection::FragmentSpread(spread) => {
-                // @relay_client_component generate fragment spreads without
-                // @no_inline if no_inline isn't enabled for the fragment.
+                // TODO: this may be stale after removal of Flight and @relay_client_component
                 if NoInlineFragmentSpreadMetadata::find(&spread.directives).is_some() {
                     let spread_type = spread.fragment.item.0;
                     imported_raw_response_types.0.insert(
@@ -2325,15 +2308,12 @@ fn has_typename_selection(selections: &[TypeSelection]) -> bool {
 }
 
 fn create_edge_to_return_type_ast(
-    schema_field: &Field,
+    inner_type: &Type,
     schema: &SDLSchema,
     runtime_imports: &mut RuntimeImports,
 ) -> AST {
     // Mark that the DataID type is used, and must be imported.
     runtime_imports.data_id_type = true;
-
-    let schema_type_reference = &schema_field.type_;
-    let inner_type = schema_type_reference.inner();
 
     let mut fields = vec![Prop::KeyValuePair(KeyValuePairProp {
         // TODO consider reading the id field from the config. This must be done
@@ -2343,10 +2323,10 @@ fn create_edge_to_return_type_ast(
         read_only: true,
         optional: false,
     })];
-    if inner_type.is_abstract_type() && schema.is_extension_type(inner_type) {
+    if inner_type.is_abstract_type() && schema.is_extension_type(*inner_type) {
         // Note: there is currently no way to create a resolver that returns an abstract
         // client type, so this branch will not be hit until we enable that feature.
-        let interface_id = schema_field.type_.inner().get_interface_id().expect(
+        let interface_id = inner_type.get_interface_id().expect(
             "Only interfaces are supported here. This indicates a bug in the Relay compiler.",
         );
         let valid_typenames = schema
@@ -2369,9 +2349,7 @@ fn create_edge_to_return_type_ast(
         }))
     }
 
-    transform_type_reference_into_ast(schema_type_reference, |_| {
-        AST::ExactObject(ExactObject::new(fields))
-    })
+    AST::ExactObject(ExactObject::new(fields))
 }
 
 fn expect_scalar_type(

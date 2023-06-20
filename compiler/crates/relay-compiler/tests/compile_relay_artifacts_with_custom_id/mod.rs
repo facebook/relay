@@ -83,7 +83,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let feature_flags = FeatureFlags {
-        hash_supported_argument: FeatureFlag::Disabled,
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
         enable_3d_branch_arg_generation: true,

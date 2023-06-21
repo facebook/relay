@@ -57,6 +57,7 @@ use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::AdditionalValidations;
+use crate::compiler_state::CompilerState;
 use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
@@ -76,6 +77,9 @@ type PostArtifactsWriter = Box<
 
 type OperationPersisterCreator =
     Box<dyn Fn(&ProjectConfig) -> Option<Box<dyn OperationPersister + Send + Sync>> + Send + Sync>;
+
+type UpdateCompilerStateFromSavedState =
+    Option<Box<dyn Fn(&mut CompilerState, &Config) + Send + Sync>>;
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
@@ -149,6 +153,9 @@ pub struct Config {
     /// The async function is called before the compiler connects to the file
     /// source.
     pub initialize_resources: Option<Box<dyn Fn() + Send + Sync>>,
+
+    /// Runs in `try_saved_state` when the compiler state is initialized from saved state.
+    pub update_compiler_state_from_saved_state: UpdateCompilerStateFromSavedState,
 }
 
 pub enum FileSourceKind {
@@ -410,6 +417,7 @@ Example file:
             custom_transforms: None,
             export_persisted_query_ids_to_file: None,
             initialize_resources: None,
+            update_compiler_state_from_saved_state: None,
         };
 
         let mut validation_errors = Vec::new();

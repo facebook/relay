@@ -55,6 +55,8 @@ pub use config::ProjectConfig;
 pub use config::RemotePersistConfig;
 pub use config::SchemaLocation;
 pub use file_source::source_for_location;
+pub use file_source::ExternalFileSourceResult;
+pub use file_source::File;
 pub use file_source::FileCategorizer;
 pub use file_source::FileGroup;
 pub use file_source::FileSource;

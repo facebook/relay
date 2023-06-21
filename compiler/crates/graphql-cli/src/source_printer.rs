@@ -21,7 +21,7 @@ impl SourcePrinter {
     pub fn write_span<W: Write>(
         &self,
         writer: &mut W,
-        span: &Span,
+        span: Span,
         source: &str,
         line_offset: usize,
     ) -> std::fmt::Result {
@@ -31,7 +31,7 @@ impl SourcePrinter {
     pub fn write_span_with_highlight_style<W: Write>(
         &self,
         writer: &mut W,
-        span: &Span,
+        span: Span,
         source: &str,
         line_offset: usize,
         highlight_style: Style,

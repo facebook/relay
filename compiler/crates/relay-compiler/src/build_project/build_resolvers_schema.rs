@@ -9,7 +9,7 @@ use common::DiagnosticsResult;
 use docblock_syntax::DocblockAST;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
-use graphql_syntax::TypeSystemDefinition;
+use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use schema::SDLSchema;
 
 use crate::compiler_state::CompilerState;
@@ -46,17 +46,11 @@ fn extend_schema_with_types(
 
     for schema_document in type_definitions {
         for definition in schema_document.definitions {
-            match definition {
-                TypeSystemDefinition::ObjectTypeDefinition(extension) => schema
-                    .add_extension_object(extension, schema_document.location.source_location())?,
-                TypeSystemDefinition::ScalarTypeDefinition(extension) => {
-                    schema.add_extension_scalar(
-                        extension,
-                        schema_document.location.source_location(),
-                    )?;
-                }
-                _ => panic!("Expected docblocks to only expose object and scalar extensions"),
-            }
+            extend_schema_with_resolver_type_system_definition(
+                definition,
+                schema,
+                schema_document.location,
+            )?;
         }
     }
 
@@ -80,21 +74,11 @@ fn extend_schema_with_fields<'a>(
 
     for schema_document in field_definitions {
         for definition in schema_document.definitions {
-            match definition {
-                TypeSystemDefinition::ObjectTypeExtension(extension) => {
-                    schema.add_object_type_extension(
-                        extension,
-                        schema_document.location.source_location(),
-                    )?;
-                }
-                TypeSystemDefinition::InterfaceTypeExtension(extension) => {
-                    schema.add_interface_type_extension(
-                        extension,
-                        schema_document.location.source_location(),
-                    )?;
-                }
-                _ => panic!("Expected docblocks to only expose object and interface extensions"),
-            }
+            extend_schema_with_resolver_type_system_definition(
+                definition,
+                schema,
+                schema_document.location,
+            )?;
         }
     }
 

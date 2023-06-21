@@ -26,3 +26,11 @@ graphql`
    name
  }
 `
+
+// %extensions%
+
+graphql`
+  type ClientPage {
+    foo: String
+  }
+`

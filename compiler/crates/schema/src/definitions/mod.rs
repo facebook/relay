@@ -183,6 +183,19 @@ impl fmt::Debug for Type {
     }
 }
 
+impl Type {
+    pub fn get_variant_name(&self) -> &'static str {
+        match self {
+            Type::Enum(_) => "an enum",
+            Type::InputObject(_) => "an input object",
+            Type::Interface(_) => "an interface",
+            Type::Object(_) => "an object",
+            Type::Scalar(_) => "a scalar",
+            Type::Union(_) => "a union",
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum TypeReference<T> {
     Named(T),

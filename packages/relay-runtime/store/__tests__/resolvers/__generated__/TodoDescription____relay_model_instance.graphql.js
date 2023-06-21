@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bbd7681432e4c8f628555263920da56a>>
+ * @generated SignedSource<<a657f77bb6c676eb5b9b7078cb2533e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { TodoDescription } from "../TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TodoDescription____relay_model_instance$fragmentType: FragmentType;
 export type TodoDescription____relay_model_instance$data = {|
-  +__relay_model_instance: ?TodoDescription,
+  +__relay_model_instance: TodoDescription,
   +$fragmentType: TodoDescription____relay_model_instance$fragmentType,
 |};
 export type TodoDescription____relay_model_instance$key = {

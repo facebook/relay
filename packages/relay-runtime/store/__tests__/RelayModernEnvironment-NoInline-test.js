@@ -10,6 +10,13 @@
  */
 
 'use strict';
+import type {
+  LogRequestInfoFunction,
+  UploadableMap,
+} from '../../network/RelayNetworkTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -94,15 +101,39 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       let callbacks;
 
       beforeEach(() => {
-        fetch = jest.fn((_query, _variables, _cacheConfig) =>
-          RelayObservable.create(sink => {
-            subject = sink;
-          }),
+        fetch = jest.fn(
+          (
+            _query: ?(
+              | LogRequestInfoFunction
+              | UploadableMap
+              | RequestParameters
+              | Variables
+              | CacheConfig
+            ),
+            _variables: ?(
+              | LogRequestInfoFunction
+              | UploadableMap
+              | RequestParameters
+              | Variables
+              | CacheConfig
+            ),
+            _cacheConfig: ?(
+              | LogRequestInfoFunction
+              | UploadableMap
+              | RequestParameters
+              | Variables
+              | CacheConfig
+            ),
+          ) =>
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
+            RelayObservable.create(sink => {
+              subject = sink;
+            }),
         );
         callbacks = {
-          complete: jest.fn(),
-          error: jest.fn(),
-          next: jest.fn(),
+          complete: jest.fn<[], mixed>(),
+          error: jest.fn<[Error], mixed>(),
+          next: jest.fn<[GraphQLResponse], mixed>(),
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
@@ -1079,7 +1110,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         beforeEach(() => {
           fragmentToReturn = null;
           operationLoader = {
-            load: jest.fn(moduleName => {
+            load: jest.fn((moduleName: mixed) => {
               return new Promise(resolve => {
                 resolveFragment = resolve;
               });
@@ -1089,6 +1120,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           store = new RelayModernStore(source, {
             gcReleaseBufferSize: 0,
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+            // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
             operationLoader,
           });
           environment = new RelayModernEnvironment({
@@ -1096,6 +1128,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             network: RelayNetwork.create(fetch),
             store,
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+            // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
             operationLoader,
           });
         });

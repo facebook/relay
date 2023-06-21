@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<250e4ece52c71a593e9f193980c0bc45>>
+ * @generated SignedSource<<eaf3bd56fdc4295c387b61f823f2bafc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
   args: {|
     scale: ?number,
   |},
-) => mixed);
+) => ?mixed);
 export type RelayReaderResolverTest16Query$variables = {|
   scale: number,
 |};

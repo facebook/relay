@@ -10,8 +10,8 @@
  */
 
 'use strict';
-
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -129,9 +129,9 @@ describe('execute() a query with nested @match', () => {
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    error = jest.fn<$ReadOnlyArray<Error>, mixed>();
+    next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -165,7 +165,7 @@ describe('execute() a query with nested @match', () => {
       },
     });
     const operationSnapshot = environment.lookup(operation.fragment);
-    operationCallback = jest.fn();
+    operationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
@@ -216,7 +216,7 @@ describe('execute() a query with nested @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         outerRenderer: {
-          __id: 'client:1:nameRenderer(supported:["MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:"2aTHRe")',
           __fragmentPropName: 'name',
 
           __fragments: {
@@ -307,7 +307,7 @@ describe('execute() a query with nested @match', () => {
     // initial outer fragment snapshot is tested above
     const initialOuterMatchSnapshot = environment.lookup(outerMatchSelector);
     expect(initialOuterMatchSnapshot.isMissingData).toBe(true);
-    const outerMatchCallback = jest.fn();
+    const outerMatchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialOuterMatchSnapshot, outerMatchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
@@ -337,7 +337,7 @@ describe('execute() a query with nested @match', () => {
               {},
           },
 
-          __id: 'client:2:nameRenderer(supported:["PlainUserNameRenderer"])',
+          __id: 'client:2:nameRenderer(supported:"1AwQS7")',
           __module_component: 'PlainUserNameRenderer.react',
         },
       },
@@ -351,7 +351,7 @@ describe('execute() a query with nested @match', () => {
     );
     const initialInnerMatchSnapshot = environment.lookup(innerMatchSelector);
     expect(initialInnerMatchSnapshot.isMissingData).toBe(true);
-    const innerMatchCallback = jest.fn();
+    const innerMatchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialInnerMatchSnapshot, innerMatchCallback);
 
     resolveFragment(plaintextRendererNormalizationFragment);

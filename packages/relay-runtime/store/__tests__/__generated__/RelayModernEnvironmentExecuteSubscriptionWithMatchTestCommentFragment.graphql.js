@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9a2a8da93a2831b0276225229d4ed1a5>>
+ * @generated SignedSource<<9b956e78be808809ccfe725ba1b108fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -77,10 +77,7 @@ var node/*: ReaderFragment*/ = {
             {
               "kind": "Literal",
               "name": "supported",
-              "value": [
-                "PlainUserNameRenderer",
-                "MarkdownUserNameRenderer"
-              ]
+              "value": "34hjiS"
             }
           ],
           "concreteType": null,
@@ -117,7 +114,7 @@ var node/*: ReaderFragment*/ = {
               "abstractKey": null
             }
           ],
-          "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+          "storageKey": "nameRenderer(supported:\"34hjiS\")"
         }
       ],
       "storageKey": null

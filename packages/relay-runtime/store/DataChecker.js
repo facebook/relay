@@ -13,7 +13,6 @@
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
-  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
@@ -28,7 +27,6 @@ import type {
   MutableRecordSource,
   NormalizationSelector,
   OperationLoader,
-  ReactFlightReachableExecutableDefinitions,
   RecordSource,
 } from './RelayStoreTypes';
 
@@ -36,14 +34,12 @@ const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator'
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const getOperation = require('../util/getOperation');
 const RelayConcreteNode = require('../util/RelayConcreteNode');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {isClientID} = require('./ClientID');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {TYPE_SCHEMA_TYPE, generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
@@ -60,7 +56,6 @@ const {
   CLIENT_EXTENSION,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
   DEFER,
-  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -72,7 +67,7 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-const {ROOT_ID, getModuleOperationKey, getStorageKey, getArgumentValues} =
+const {getModuleOperationKey, getStorageKey, getArgumentValues} =
   RelayStoreUtils;
 
 /**
@@ -451,13 +446,6 @@ class DataChecker {
             this._handleMissing();
           } // else: if it does or doesn't implement, we don't need to check or skip anything else
           break;
-        case FLIGHT_FIELD:
-          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
-            this._checkFlightField(selection, dataID);
-          } else {
-            throw new Error('Flight fields are not yet supported.');
-          }
-          break;
         case CLIENT_COMPONENT:
           if (this._shouldProcessClientComponents === false) {
             break;
@@ -600,57 +588,6 @@ class DataChecker {
       this._mutator = prevMutator;
       this._recordSourceProxy = prevRecordSourceProxy;
     }
-  }
-
-  _checkFlightField(field: NormalizationFlightField, dataID: DataID): void {
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
-
-    if (linkedID == null) {
-      if (linkedID === undefined) {
-        this._handleMissing();
-        return;
-      }
-      return;
-    }
-
-    const tree = this._mutator.getValue(
-      linkedID,
-      RelayStoreReactFlightUtils.REACT_FLIGHT_TREE_STORAGE_KEY,
-    );
-    const reachableExecutableDefinitions = this._mutator.getValue(
-      linkedID,
-      RelayStoreReactFlightUtils.REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
-    );
-
-    if (tree == null || !Array.isArray(reachableExecutableDefinitions)) {
-      this._handleMissing();
-      return;
-    }
-
-    const operationLoader = this._operationLoader;
-    invariant(
-      operationLoader !== null,
-      'DataChecker: Expected an operationLoader to be configured when using ' +
-        'React Flight.',
-    );
-    // In Flight, the variables that are in scope for reachable executable
-    // definitions aren't the same as what's in scope for the outer query.
-    const prevVariables = this._variables;
-    // $FlowFixMe[incompatible-cast]
-    for (const definition of (reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions>)) {
-      this._variables = definition.variables;
-      const normalizationRootNode = operationLoader.get(definition.module);
-      if (normalizationRootNode != null) {
-        const operation = getOperation(normalizationRootNode);
-        this._traverseSelections(operation.selections, ROOT_ID);
-      } else {
-        // If the fragment is not available, we assume that the data cannot have
-        // been processed yet and must therefore be missing.
-        this._handleMissing();
-      }
-    }
-    this._variables = prevVariables;
   }
 
   // For abstract types defined in the client schema extension, we won't be

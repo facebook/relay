@@ -146,6 +146,17 @@ pub fn parse_identifier(
     parser.parse_identifier_result()
 }
 
+/// Parses a GraphQL identifier followed optionally by `implements Foo & Bar`.
+pub fn parse_identifier_and_implements_interfaces(
+    source: &str,
+    source_location: SourceLocationKey,
+    offset: u32,
+) -> DiagnosticsResult<(Identifier, Vec<Identifier>)> {
+    let features = ParserFeatures::default();
+    let parser = Parser::with_offset(source, source_location, features, offset);
+    parser.parse_identifier_and_implements_interfaces_result()
+}
+
 /// Parses a GraphQL document that's restricted to type system definitions
 /// including schema definition, type definitions and type system extensions.
 pub fn parse_directive(

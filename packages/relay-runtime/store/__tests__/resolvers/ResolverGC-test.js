@@ -10,7 +10,6 @@
  */
 
 'use strict';
-
 import type {GraphQLResponse} from '../../../network/RelayNetworkTypes';
 import type {ConcreteRequest} from '../../../util/RelayConcreteNode';
 import type {
@@ -18,6 +17,7 @@ import type {
   OperationType,
   VariablesOf,
 } from '../../../util/RelayRuntimeTypes';
+import type {LogEvent} from '../../RelayStoreTypes';
 import type {IEnvironment, Snapshot} from '../../RelayStoreTypes';
 
 const {HOUSE_ORDER} = require('./AstrologicalSignUtils');
@@ -602,7 +602,7 @@ test('Resolver reading a client-edge to a client type (resolver marked dirty)', 
       /* Here we update the user to invalidate the astrological_sign resolver */
       environment.commitUpdate(store => {
         const user = store.get('1');
-        invariant(user != null);
+        invariant(user != null, 'Expected to find a user');
         user.setValue('some_value', 'some_field');
       });
     },
@@ -869,7 +869,7 @@ async function testResolverGC<T: OperationType>({
   );
   const operation = createOperationDescriptor(query, variables);
 
-  const mockLogger = jest.fn();
+  const mockLogger = jest.fn<[LogEvent], void>();
 
   const store = new LiveResolverStore(source, {
     gcReleaseBufferSize: 0,

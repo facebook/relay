@@ -73,15 +73,15 @@ RelayResolver(
         ),
         description: None,
         deprecated: Some(
-            IrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated.js:119:129,
-                value: Some(
-                    WithLocation {
+            PopulatedIrField(
+                PopulatedIrField {
+                    key_location: /path/to/test/fixture/relay-resolver-deprecated.js:119:129,
+                    value: WithLocation {
                         location: /path/to/test/fixture/relay-resolver-deprecated.js:130:159,
                         item: "This one is not used any more",
                     },
-                ),
-            },
+                },
+            ),
         ),
         live: None,
         location: /path/to/test/fixture/relay-resolver-deprecated.js:0:160,

@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -64,9 +66,9 @@ describe('execute() a query with @stream and @required', () => {
     `;
     const variables = {id: '1', enableStream: true};
 
-    const complete = jest.fn();
-    const error = jest.fn();
-    const next = jest.fn();
+    const complete = jest.fn<[], mixed>();
+    const error = jest.fn<[Error], mixed>();
+    const next = jest.fn<[GraphQLResponse], mixed>();
 
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
@@ -92,7 +94,7 @@ describe('execute() a query with @stream and @required', () => {
 
   it('bubbles @required @stream nodes up to the parent', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);

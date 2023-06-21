@@ -18,6 +18,8 @@ lazy_static! {
     pub static ref RESOLVER_VALUE_SCALAR_NAME: ScalarName =
         ScalarName("RelayResolverValue".intern());
     pub static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
+    pub static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__RelayResolverModel".intern());
     pub static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName =
         ArgumentName("fragment_name".intern());
     pub static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
@@ -29,6 +31,8 @@ lazy_static! {
     pub static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
     pub static ref INJECT_FRAGMENT_DATA_ARGUMENT_NAME: ArgumentName =
         ArgumentName("inject_fragment_data".intern());
+    pub static ref GENERATED_FRAGMENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("generated_fragment".intern());
     pub static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
     pub static ref ON_TYPE_FIELD: StringKey = "onType".intern();
     pub static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
@@ -44,4 +48,7 @@ lazy_static! {
     pub static ref ARGUMENT_TYPE: StringKey = "type".intern();
     pub static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
     pub static ref PROVIDER_ARG_NAME: StringKey = "provider".intern();
+    // Note: this should **only** be used for resolvers! The id field for server
+    // types is configurable in the config, and thus cannot be hard-coded.
+    pub static ref KEY_RESOLVER_ID_FIELD: StringKey = "id".intern();
 }

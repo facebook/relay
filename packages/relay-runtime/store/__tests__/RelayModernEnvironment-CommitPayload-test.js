@@ -10,6 +10,15 @@
  */
 
 'use strict';
+import type {
+  GraphQLResponse,
+  LogRequestInfoFunction,
+  UploadableMap,
+} from '../../network/RelayNetworkTypes';
+import type {ObservableFromValue} from '../../network/RelayObservable';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -55,7 +64,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         (store: $FlowFixMe).notify = jest.fn(store.notify.bind(store));
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         (store: $FlowFixMe).publish = jest.fn(store.publish.bind(store));
-        const fetch = jest.fn();
+        const fetch = jest.fn<
+          [
+            RequestParameters,
+            Variables,
+            CacheConfig,
+            ?UploadableMap,
+            ?LogRequestInfoFunction,
+          ],
+          ObservableFromValue<GraphQLResponse>,
+        >();
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
@@ -70,7 +88,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('applies server updates', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(operation.fragment);
         environment.subscribe(snapshot, callback);
 
@@ -103,7 +121,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
         operation = createOperationDescriptor(query, {});
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(operation.fragment);
         environment.subscribe(snapshot, callback);
 
@@ -149,7 +167,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
         operation = createOperationDescriptor(query, {});
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(operation.fragment);
         environment.subscribe(snapshot, callback);
 
@@ -173,7 +191,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('rebases optimistic updates', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(operation.fragment);
         environment.subscribe(snapshot, callback);
 
@@ -229,8 +247,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
 
-        const queryCallback = jest.fn();
-        const fragmentCallback = jest.fn();
+        const queryCallback = jest.fn<[Snapshot], void>();
+        const fragmentCallback = jest.fn<[Snapshot], void>();
         const querySnapshot = environment.lookup(operation.fragment);
         const fragmentSnapshot = environment.lookup(selector);
         environment.subscribe(querySnapshot, queryCallback);
@@ -310,8 +328,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
 
-        const queryCallback = jest.fn();
-        const fragmentCallback = jest.fn();
+        const queryCallback = jest.fn<[Snapshot], void>();
+        const fragmentCallback = jest.fn<[Snapshot], void>();
         const querySnapshot = environment.lookup(operation.fragment);
         const fragmentSnapshot = environment.lookup(selector);
         environment.subscribe(querySnapshot, queryCallback);
@@ -375,7 +393,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         it('applies server updates', () => {
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           const snapshot = environment.lookup(operation.fragment);
           environment.subscribe(snapshot, callback);
 

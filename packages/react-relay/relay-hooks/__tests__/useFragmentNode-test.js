@@ -50,7 +50,7 @@ disallowWarnings();
 const {useEffect, useMemo, useState} = React;
 
 function assertYieldsWereCleared(_scheduler: any) {
-  const actualYields = _scheduler.unstable_clearYields();
+  const actualYields = _scheduler.unstable_clearLog();
   if (actualYields.length !== 0) {
     throw new Error(
       'Log of yielded values is not empty. ' +
@@ -61,7 +61,7 @@ function assertYieldsWereCleared(_scheduler: any) {
 
 function expectSchedulerToHaveYielded(expectedYields: any) {
   const Scheduler = require('scheduler');
-  const actualYields = Scheduler.unstable_clearYields();
+  const actualYields = Scheduler.unstable_clearLog();
   expect(actualYields).toEqual(expectedYields);
 }
 
@@ -69,7 +69,7 @@ function flushScheduler() {
   const Scheduler = require('scheduler');
   assertYieldsWereCleared(Scheduler);
   Scheduler.unstable_flushAllWithoutAsserting();
-  return Scheduler.unstable_clearYields();
+  return Scheduler.unstable_clearLog();
 }
 
 function expectSchedulerToFlushAndYield(expectedYields: any) {
@@ -81,7 +81,7 @@ function expectSchedulerToFlushAndYieldThrough(expectedYields: any) {
   const Scheduler = require('scheduler');
   assertYieldsWereCleared(Scheduler);
   Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-  const actualYields = Scheduler.unstable_clearYields();
+  const actualYields = Scheduler.unstable_clearLog();
   expect(actualYields).toEqual(expectedYields);
 }
 
@@ -237,11 +237,9 @@ describe.each([
     }
 
     beforeEach(() => {
-      jest.mock('scheduler', () => {
-        return jest.requireActual('scheduler/unstable_mock');
-      });
-      commitSpy = jest.fn();
-      renderSpy = jest.fn();
+      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
+      commitSpy = jest.fn<any | [any], mixed>();
+      renderSpy = jest.fn<[any], mixed>();
 
       // Set up environment and base data
       environment = createMockEnvironment();
@@ -856,7 +854,7 @@ describe.each([
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
         // When React sync runs we need to update this.
-        Scheduler.unstable_yieldValue(props.children);
+        Scheduler.log(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user}: any) => (
@@ -1058,7 +1056,7 @@ describe.each([
     it('should ignore updates to initially rendered data when variables change', () => {
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
-        Scheduler.unstable_yieldValue(props.children);
+        Scheduler.log(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user}: any) => (
@@ -1387,7 +1385,7 @@ describe.each([
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
-        Scheduler.unstable_yieldValue(props.children);
+        Scheduler.log(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user}: any) => {

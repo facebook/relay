@@ -58,7 +58,7 @@ pub fn create_docblock_resolution_info(
             }
 
             if let Some(deprecated) = resolver_ir.deprecated {
-                if deprecated.key_location.contains(position_span) {
+                if deprecated.key_location().contains(position_span) {
                     return Some(DocblockResolutionInfo::Deprecated);
                 }
             }
@@ -91,7 +91,7 @@ pub fn create_docblock_resolution_info(
 
             // @deprecated key
             if let Some(deprecated) = resolver_ir.deprecated {
-                if deprecated.key_location.contains(position_span) {
+                if deprecated.key_location().contains(position_span) {
                     return Some(DocblockResolutionInfo::Deprecated);
                 }
             }
@@ -99,24 +99,24 @@ pub fn create_docblock_resolution_info(
             None
         }
         DocblockIr::StrongObjectResolver(strong_object) => {
-            if strong_object.type_.value.location.contains(position_span) {
-                return Some(DocblockResolutionInfo::Type(strong_object.type_.value.item));
+            if strong_object.rhs_location.contains(position_span) {
+                return Some(DocblockResolutionInfo::Type(strong_object.type_name.value));
             }
 
             if let Some(deprecated) = strong_object.deprecated {
-                if deprecated.key_location.contains(position_span) {
+                if deprecated.key_location().contains(position_span) {
                     return Some(DocblockResolutionInfo::Deprecated);
                 }
             }
             None
         }
         DocblockIr::WeakObjectType(weak_type_ir) => {
-            if weak_type_ir.type_.value.location.contains(position_span) {
-                return Some(DocblockResolutionInfo::Type(weak_type_ir.type_.value.item));
+            if weak_type_ir.rhs_location.contains(position_span) {
+                return Some(DocblockResolutionInfo::Type(weak_type_ir.type_name.value));
             }
 
             if let Some(deprecated) = weak_type_ir.deprecated {
-                if deprecated.key_location.contains(position_span) {
+                if deprecated.key_location().contains(position_span) {
                     return Some(DocblockResolutionInfo::Deprecated);
                 }
             }

@@ -290,14 +290,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     &ast,
                     Some(&executable_definitions),
                     ParseOptions {
-                        relay_resolver_model_syntax_enabled: project_config
+                        enable_output_type: &project_config
                             .feature_flags
-                            .relay_resolver_model_syntax_enabled,
-                        id_field_name: project_config.schema_config.node_interface_id_field,
-                        enable_output_type: project_config
-                            .feature_flags
-                            .relay_resolver_enable_output_type
-                            .clone(),
+                            .relay_resolver_enable_output_type,
                     },
                 )
             });

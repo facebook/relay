@@ -54,6 +54,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
         self.config.status_reporter.build_starts();
         let result: Result<(CompilerState, Vec<Diagnostic>)> = async {
+            if let Some(initialize_resources) = &self.config.initialize_resources {
+                let timer = setup_event.start("load_resources");
+                initialize_resources();
+                setup_event.stop(timer);
+            }
             let file_source = FileSource::connect(&self.config, &setup_event).await?;
             let mut compiler_state = file_source
                 .query(&setup_event, self.perf_logger.as_ref())
@@ -87,6 +92,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             let setup_event = self.perf_logger.create_event("compiler_setup");
             self.config.status_reporter.build_starts();
             let result: Result<(CompilerState, Arc<Notify>, JoinHandle<()>)> = async {
+                if let Some(initialize_resources) = &self.config.initialize_resources {
+                    let timer = setup_event.start("load_resources");
+                    initialize_resources();
+                    setup_event.stop(timer);
+                }
                 let file_source = FileSource::connect(&self.config, &setup_event).await?;
 
                 let (compiler_state, mut subscription) = file_source

@@ -46,8 +46,10 @@ function loadEntryPoint<
   }
   const preloadProps = entryPoint.getPreloadProps(entryPointParams);
   const {queries, entryPoints, extraProps} = preloadProps;
-  const preloadedQueries: $Shape<TPreloadedQueries> = {};
-  const preloadedEntryPoints: $Shape<TPreloadedEntryPoints> = {};
+  // $FlowFixMe[incompatible-type]
+  const preloadedQueries: Partial<TPreloadedQueries> = {};
+  // $FlowFixMe[incompatible-type]
+  const preloadedEntryPoints: Partial<TPreloadedEntryPoints> = {};
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
     queriesPropNames.forEach(queryPropName => {
@@ -82,13 +84,15 @@ function loadEntryPoint<
       }
       const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
         entryPointDescription;
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[underconstrained-implicit-instantiation]
-      preloadedEntryPoints[entryPointPropName] = loadEntryPoint(
-        environmentProvider,
-        nestedEntryPoint,
-        nestedParams,
-      );
+      preloadedEntryPoints[entryPointPropName] = loadEntryPoint<
+        _,
+        {...},
+        {...},
+        {...},
+        mixed,
+        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        _,
+      >(environmentProvider, nestedEntryPoint, nestedParams);
     });
   }
 

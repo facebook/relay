@@ -180,13 +180,6 @@ fn apply_common_transforms(
         )
     })?;
 
-    if project_config.feature_flags.enable_flight_transform {
-        program = log_event.time("react_flight", || react_flight(&program))?;
-        program = log_event.time("relay_client_component", || {
-            relay_client_component(&program, &project_config.feature_flags)
-        })?;
-    }
-
     program = log_event.time("relay_actor_change_transform", || {
         relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;
@@ -288,7 +281,7 @@ fn apply_reader_transforms(
         generate_data_driven_dependency_metadata(&program)
     });
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &project_config.feature_flags)
+        hash_supported_argument(&program)
     })?;
 
     program = apply_after_custom_transforms(
@@ -432,7 +425,7 @@ fn apply_normalization_transforms(
     });
 
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &project_config.feature_flags)
+        hash_supported_argument(&program)
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("hash_supported_argument", &program);
@@ -546,7 +539,7 @@ fn apply_operation_text_transforms(
     });
     log_event.time("validate_selection_conflict", || {
         graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
-            &program, false,
+            &program, true,
         )
     })?;
     program = log_event.time("skip_client_extensions", || {

@@ -11,6 +11,7 @@
 
 'use strict';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -120,9 +121,9 @@ describe('execute() a query with @module', () => {
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    error = jest.fn<$ReadOnlyArray<Error>, mixed>();
+    next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -156,7 +157,7 @@ describe('execute() a query with @module', () => {
       },
     });
     const operationSnapshot = environment.lookup(operation.fragment);
-    operationCallback = jest.fn();
+    operationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
@@ -268,7 +269,7 @@ describe('execute() a query with @module', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
@@ -598,7 +599,7 @@ describe('execute() a query with @module', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     subscription.unsubscribe();

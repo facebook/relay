@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fbf17f9429a148c67d77d18819c2671c>>
+ * @generated SignedSource<<a05a3abf0ecac5dfaf6a507d6bac4785>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {counter as queryCounterResolverType} from "../LiveCounterResolver.js";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolverType: (
   rootKey: LiveCounterResolver$key,
-) => LiveState<mixed>);
+) => LiveState<?mixed>);
 export type ResolverGCTestLiveWithRootFragmentQuery$variables = {||};
 export type ResolverGCTestLiveWithRootFragmentQuery$data = {|
   +counter: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolverType>["read"]>,

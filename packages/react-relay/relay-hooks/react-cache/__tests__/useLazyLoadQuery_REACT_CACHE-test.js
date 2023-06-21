@@ -10,7 +10,16 @@
  */
 
 'use strict';
-
+import type {
+  LogRequestInfoFunction,
+  UploadableMap,
+} from '../../../../relay-runtime/network/RelayNetworkTypes';
+import type {Sink} from '../../../../relay-runtime/network/RelayObservable';
+import type {RequestParameters} from '../../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from '../../../../relay-runtime/util/RelayRuntimeTypes';
 import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
@@ -212,14 +221,38 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
 
       beforeEach(() => {
         jest.clearAllTimers();
-        errorBoundaryDidCatchFn = jest.fn();
+        errorBoundaryDidCatchFn = jest.fn<[Error], mixed>();
         logs = ([]: Array<LogEvent>);
         subject = new RelayReplaySubject();
-        fetch = jest.fn((_query, _vars, config) => {
-          return RelayObservable.create(sink => {
-            subject.subscribe(sink);
-          });
-        });
+        fetch = jest.fn(
+          (
+            _query: ?(
+              | LogRequestInfoFunction
+              | UploadableMap
+              | RequestParameters
+              | Variables
+              | CacheConfig
+            ),
+            _vars: ?(
+              | LogRequestInfoFunction
+              | UploadableMap
+              | RequestParameters
+              | Variables
+              | CacheConfig
+            ),
+            config: ?(
+              | LogRequestInfoFunction
+              | UploadableMap
+              | RequestParameters
+              | Variables
+              | CacheConfig
+            ),
+          ) => {
+            return RelayObservable.create((sink: Sink<GraphQLResponse>) => {
+              subject.subscribe(sink);
+            });
+          },
+        );
         environment = new Environment({
           // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           network: RelayNetwork.create(fetch),

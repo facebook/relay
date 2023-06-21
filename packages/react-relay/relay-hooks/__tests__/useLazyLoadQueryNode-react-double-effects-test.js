@@ -97,7 +97,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     environment = createMockEnvironment();
 
-    release = jest.fn();
+    release = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
@@ -110,7 +110,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn();
+    cancelNetworkRequest = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecute = environment.execute;
     (environment: $FlowFixMe).execute = jest.fn((...args) => {

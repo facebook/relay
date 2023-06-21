@@ -28,7 +28,7 @@ function trackRetentionForEnvironment(environment: IEnvironment): {
 } {
   const retainCountsByOperation = new Map<mixed, number>();
 
-  const release = jest.fn(id => {
+  const release = jest.fn((id: mixed) => {
     const existing = retainCountsByOperation.get(id) ?? NaN;
     if (existing === 1) {
       retainCountsByOperation.delete(id);
@@ -38,6 +38,7 @@ function trackRetentionForEnvironment(environment: IEnvironment): {
   });
 
   // $FlowFixMe[cannot-write] safe to do for mocking
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   environment.retain = jest.fn(operation => {
     const id = operation.request.identifier;
     const existing = retainCountsByOperation.get(id) ?? 0;

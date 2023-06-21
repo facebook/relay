@@ -196,6 +196,19 @@ impl<'a> Parser<'a> {
         }
     }
 
+    pub fn parse_identifier_and_implements_interfaces_result(
+        mut self,
+    ) -> DiagnosticsResult<(Identifier, Vec<Identifier>)> {
+        let identifier = self.parse_identifier();
+        let impls = self.parse_implements_interfaces();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok((identifier.unwrap(), impls.unwrap()))
+        } else {
+            Err(self.errors)
+        }
+    }
+
     fn parse_eof(mut self) -> DiagnosticsResult<()> {
         self.parse_kind(TokenKind::EndOfFile)
             .map(|_| ())

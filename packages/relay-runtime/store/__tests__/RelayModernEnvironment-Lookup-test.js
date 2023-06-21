@@ -163,10 +163,10 @@ describe('lookup()', () => {
         __typename: 'Comment',
         id: 'comment:1',
         commentBody: {
-          __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"])',
+          __id: 'client:comment:1:commentBody(supported:"2Rll6p")',
           __typename: 'PlainCommentBody',
           text: {
-            __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
+            __id: 'client:comment:1:commentBody(supported:"2Rll6p"):text',
             __typename: 'Text',
             text: 'A comment!',
           },

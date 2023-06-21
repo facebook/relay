@@ -19,12 +19,15 @@ use common::ObjectName;
 use common::Span;
 use common::WithLocation;
 use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
+use docblock_shared::GENERATED_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
 use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
 use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
+use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::FragmentDefinitionName;
@@ -63,15 +66,14 @@ use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+use schema::TypeReference;
 
-use crate::errors::ErrorMessages;
 use crate::errors::ErrorMessagesWithData;
+use crate::errors::SchemaValidationErrorMessages;
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
     static ref ID_TYPE: StringKey = "ID".intern();
-    static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("__RelayResolverModel".intern());
     static ref OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("RelayOutputType".intern());
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
@@ -81,12 +83,23 @@ lazy_static! {
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum DocblockIr {
     RelayResolver(RelayResolverIr),
     TerseRelayResolver(TerseRelayResolverIr),
     StrongObjectResolver(StrongObjectIr),
     WeakObjectType(WeakObjectIr),
+}
+
+impl DocblockIr {
+    pub(crate) fn get_variant_name(&self) -> &'static str {
+        match self {
+            DocblockIr::RelayResolver(_) => "legacy resolver declaration",
+            DocblockIr::TerseRelayResolver(_) => "terse resolver declaration",
+            DocblockIr::StrongObjectResolver(_) => "strong object type declaration",
+            DocblockIr::WeakObjectType(_) => "weak object type declaration",
+        }
+    }
 }
 
 /// Wrapper over all schema-related values
@@ -98,7 +111,7 @@ struct SchemaInfo<'a, 'b> {
 
 impl DocblockIr {
     pub fn to_sdl_string(
-        &self,
+        self,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
     ) -> DiagnosticsResult<String> {
@@ -110,8 +123,9 @@ impl DocblockIr {
             .collect::<Vec<String>>()
             .join("\n\n"))
     }
+
     pub fn to_graphql_schema_ast(
-        &self,
+        self,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
     ) -> DiagnosticsResult<SchemaDocument> {
@@ -137,9 +151,35 @@ impl DocblockIr {
     }
 }
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct IrField {
-    pub key_location: Location,
-    pub value: Option<WithLocation<StringKey>>,
+pub enum IrField {
+    PopulatedIrField(PopulatedIrField),
+    UnpopulatedIrField(UnpopulatedIrField),
+}
+
+impl IrField {
+    pub fn key_location(&self) -> Location {
+        match self {
+            IrField::PopulatedIrField(field) => field.key_location,
+            IrField::UnpopulatedIrField(field) => field.key_location,
+        }
+    }
+
+    pub(crate) fn value(&self) -> Option<WithLocation<StringKey>> {
+        match self {
+            IrField::PopulatedIrField(field) => Some(field.value),
+            IrField::UnpopulatedIrField(_) => None,
+        }
+    }
+
+    pub(crate) fn new(key_location: Location, value: Option<WithLocation<StringKey>>) -> IrField {
+        match value {
+            Some(value) => IrField::PopulatedIrField(PopulatedIrField {
+                key_location,
+                value,
+            }),
+            None => IrField::UnpopulatedIrField(UnpopulatedIrField { key_location }),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -152,12 +192,9 @@ impl TryFrom<IrField> for PopulatedIrField {
     type Error = ();
 
     fn try_from(ir_field: IrField) -> Result<Self, Self::Error> {
-        match ir_field.value {
-            Some(value) => Ok(PopulatedIrField {
-                key_location: ir_field.key_location,
-                value,
-            }),
-            None => Err(()),
+        match ir_field {
+            IrField::PopulatedIrField(field) => Ok(field),
+            IrField::UnpopulatedIrField(_) => Err(()),
         }
     }
 }
@@ -168,25 +205,23 @@ pub struct UnpopulatedIrField {
 }
 
 impl TryFrom<IrField> for UnpopulatedIrField {
-    type Error = WithLocation<StringKey>;
+    type Error = ();
 
     fn try_from(ir_field: IrField) -> Result<Self, Self::Error> {
-        match ir_field.value {
-            Some(value) => Err(value),
-            None => Ok(UnpopulatedIrField {
-                key_location: ir_field.key_location,
-            }),
+        match ir_field {
+            IrField::PopulatedIrField(_) => Err(()),
+            IrField::UnpopulatedIrField(field) => Ok(field),
         }
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum On {
     Type(PopulatedIrField),
     Interface(PopulatedIrField),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Argument {
     pub name: Identifier,
     pub type_: TypeAnnotation,
@@ -226,14 +261,17 @@ pub enum FragmentDataInjectionMode {
 
 pub struct RootFragment {
     fragment: WithLocation<FragmentDefinitionName>,
+    generated: bool,
     // For Model resolvers, we need to pass the `id` or `__relay_model_instance` field
     // from the fragment data to the resolver function
     inject_fragment_data: Option<FragmentDataInjectionMode>,
 }
 
-trait ResolverIr {
+trait ResolverIr: Sized {
+    /// Validate the ResolverIr against the schema and return the TypeSystemDefinition's
+    /// that need to be added to the schema.
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
@@ -248,7 +286,7 @@ trait ResolverIr {
     fn named_import(&self) -> Option<StringKey>;
 
     fn to_graphql_schema_ast(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<SchemaDocument> {
         Ok(SchemaDocument {
@@ -268,10 +306,10 @@ trait ResolverIr {
 
         if let Some(deprecated) = self.deprecated() {
             directives.push(ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
-                arguments: deprecated.value.map(|value| {
+                arguments: deprecated.value().map(|value| {
                     List::generated(vec![string_argument(
                         DEPRECATED_REASON_ARGUMENT_NAME.0,
                         value,
@@ -301,6 +339,13 @@ trait ResolverIr {
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
                 root_fragment.fragment.map(|x| x.0),
             ));
+
+            if root_fragment.generated {
+                arguments.push(true_argument(
+                    GENERATED_FRAGMENT_ARGUMENT_NAME.0,
+                    Location::generated(),
+                ))
+            }
 
             if let Some(inject_fragment_data) = root_fragment.inject_fragment_data {
                 match inject_fragment_data {
@@ -366,7 +411,7 @@ trait ResolverIr {
         }
 
         ConstantDirective {
-            span: span.clone(),
+            span,
             at: dummy_token(span),
             name: string_key_as_identifier(RELAY_RESOLVER_DIRECTIVE_NAME.0),
             arguments: Some(List::generated(arguments)),
@@ -480,7 +525,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 let field = schema.field(*field_id);
                 if field.name() == self.field_name().value {
                     return Err(vec![Diagnostic::error(
-                        ErrorMessages::ResolverImplementingInterfaceField {
+                        SchemaValidationErrorMessages::ResolverImplementingInterfaceField {
                             field_name: self.field_name().value,
                             interface_name: interface.name(),
                         },
@@ -562,7 +607,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct TerseRelayResolverIr {
     pub field: FieldDefinition,
     pub type_: WithLocation<StringKey>,
@@ -575,7 +620,7 @@ pub struct TerseRelayResolverIr {
 
 impl ResolverIr for TerseRelayResolverIr {
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let schema = schema_info.schema;
@@ -585,7 +630,7 @@ impl ResolverIr for TerseRelayResolverIr {
             .name_with_location(self.location.source_location());
         if name.item == schema_info.config.node_interface_id_field {
             return Err(vec![Diagnostic::error(
-                ErrorMessages::ResolversCantImplementId {
+                SchemaValidationErrorMessages::ResolversCantImplementId {
                     id_field_name: name.item,
                 },
                 name.location,
@@ -629,12 +674,13 @@ impl ResolverIr for TerseRelayResolverIr {
         object: Option<&Object>,
         _: SchemaInfo<'_, '_>,
     ) -> Option<RootFragment> {
-        get_root_fragment_for_object(object).or_else(|| {
-            self.root_fragment.map(|fragment| RootFragment {
+        self.root_fragment
+            .map(|fragment| RootFragment {
                 fragment,
+                generated: false,
                 inject_fragment_data: None,
             })
-        })
+            .or_else(|| get_root_fragment_for_object(object))
     }
 
     fn output_type(&self) -> Option<OutputType> {
@@ -675,7 +721,7 @@ impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RelayResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
@@ -690,7 +736,7 @@ pub struct RelayResolverIr {
 
 impl ResolverIr for RelayResolverIr {
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let schema = schema_info.schema;
@@ -700,7 +746,7 @@ impl ResolverIr for RelayResolverIr {
             .name_with_location(self.location.source_location());
         if name.item == schema_info.config.node_interface_id_field {
             return Err(vec![Diagnostic::error(
-                ErrorMessages::ResolversCantImplementId {
+                SchemaValidationErrorMessages::ResolversCantImplementId {
                     id_field_name: name.item,
                 },
                 name.location,
@@ -714,7 +760,7 @@ impl ResolverIr for RelayResolverIr {
                     .map(|t| schema.is_extension_type(t))
                 {
                     return Err(vec![Diagnostic::error(
-                        ErrorMessages::ClientEdgeToPluralServerType,
+                        SchemaValidationErrorMessages::ClientEdgeToPluralServerType,
                         edge_to_with_location.location,
                     )]);
                 }
@@ -793,12 +839,13 @@ impl ResolverIr for RelayResolverIr {
         object: Option<&Object>,
         _: SchemaInfo<'_, '_>,
     ) -> Option<RootFragment> {
-        get_root_fragment_for_object(object).or_else(|| {
-            self.root_fragment.map(|fragment| RootFragment {
+        self.root_fragment
+            .map(|fragment| RootFragment {
                 fragment,
+                generated: false,
                 inject_fragment_data: None,
             })
-        })
+            .or_else(|| get_root_fragment_for_object(object))
     }
 
     fn output_type(&self) -> Option<OutputType> {
@@ -837,22 +884,156 @@ impl ResolverTypeDefinitionIr for RelayResolverIr {
 }
 
 /// Relay Resolver ID representing a "model" of a strong object
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StrongObjectIr {
-    pub type_: PopulatedIrField,
+    pub type_name: Identifier,
+    /// T146185439 The location of everything past @RelayResolver. Note that we use
+    /// this incorrectly to refer to the location of the type_name field. It is not!
+    /// It is the location of a longer string, e.g. "Foo implements Bar".
+    pub rhs_location: Location,
     pub root_fragment: WithLocation<FragmentDefinitionName>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
+    /// The interfaces which the newly-created object implements
+    pub implements_interfaces: Vec<Identifier>,
+}
+
+impl StrongObjectIr {
+    /// Validate that each interface that the StrongObjectIr object implements is client
+    /// defined and contains an id: ID! field.
+    ///
+    /// We are implicitly assuming that the only types that implement this interface are
+    /// defined in strong resolvers! But, it is possible to implement a client interface
+    /// for types defined in schema extensions and for server types. This is bad, and we
+    /// should disallow it.
+    pub(crate) fn validate_implements_interfaces_against_schema(
+        &self,
+        schema: &SDLSchema,
+    ) -> DiagnosticsResult<()> {
+        let location = self.rhs_location;
+        let mut errors = vec![];
+
+        let id_type = schema
+            .field(schema.clientid_field())
+            .type_
+            .inner()
+            .get_scalar_id()
+            .expect("Expected __id field to be a scalar");
+        let non_null_id_type =
+            TypeReference::NonNull(Box::new(TypeReference::Named(Type::Scalar(id_type))));
+
+        for interface in &self.implements_interfaces {
+            let interface = match schema.get_type(interface.value) {
+                Some(Type::Interface(id)) => schema.interface(id),
+                None => {
+                    let suggester = GraphQLSuggestions::new(schema);
+                    errors.push(Diagnostic::error_with_data(
+                        ErrorMessagesWithData::TypeNotFound {
+                            type_name: interface.value,
+                            suggestions: suggester.interface_type_suggestions(interface.value),
+                        },
+                        location,
+                    ));
+                    continue;
+                }
+                Some(t) => {
+                    errors.push(
+                        Diagnostic::error(
+                            SchemaValidationErrorMessages::UnexpectedNonInterface {
+                                non_interface_name: interface.value,
+                                variant_name: t.get_variant_name(),
+                            },
+                            location,
+                        )
+                        .annotate_if_location_exists(
+                            "Defined here",
+                            match t {
+                                Type::Enum(enum_id) => schema.enum_(enum_id).name.location,
+                                Type::InputObject(input_object_id) => {
+                                    schema.input_object(input_object_id).name.location
+                                }
+                                Type::Object(object_id) => schema.object(object_id).name.location,
+                                Type::Scalar(scalar_id) => schema.scalar(scalar_id).name.location,
+                                Type::Union(union_id) => schema.union(union_id).name.location,
+                                Type::Interface(_) => {
+                                    panic!("Just checked this isn't an interface.")
+                                }
+                            },
+                        ),
+                    );
+                    continue;
+                }
+            };
+
+            if !interface.is_extension {
+                errors.push(
+                    Diagnostic::error(
+                        SchemaValidationErrorMessages::UnexpectedServerInterface {
+                            interface_name: interface.name.item,
+                        },
+                        location,
+                    )
+                    .annotate_if_location_exists("Defined here", interface.name.location),
+                );
+            } else {
+                let found_id_field = interface.fields.iter().find_map(|field_id| {
+                    let field = schema.field(*field_id);
+                    if field.name.item == *KEY_RESOLVER_ID_FIELD {
+                        Some(field)
+                    } else {
+                        None
+                    }
+                });
+                match found_id_field {
+                    Some(id_field) => {
+                        if id_field.type_ != non_null_id_type {
+                            let mut invalid_type_string = String::new();
+                            schema
+                                .write_type_string(&mut invalid_type_string, &id_field.type_)
+                                .expect("Failed to write type to string.");
+
+                            errors.push(
+                                Diagnostic::error(
+                                    SchemaValidationErrorMessages::InterfaceWithWrongIdField {
+                                        interface_name: interface.name.item,
+                                        invalid_type_string,
+                                    },
+                                    location,
+                                )
+                                .annotate("Defined here", interface.name.location),
+                            )
+                        }
+                    }
+                    None => errors.push(
+                        Diagnostic::error(
+                            SchemaValidationErrorMessages::InterfaceWithNoIdField {
+                                interface_name: interface.name.item,
+                            },
+                            location,
+                        )
+                        .annotate("Defined here", interface.name.location),
+                    ),
+                };
+            }
+        }
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
+    }
 }
 
 impl ResolverIr for StrongObjectIr {
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let span = Span::empty();
+
+        self.validate_implements_interfaces_against_schema(schema_info.schema)?;
 
         let fields = vec![
             FieldDefinition {
@@ -862,7 +1043,7 @@ impl ResolverIr for StrongObjectIr {
                     type_: TypeAnnotation::Named(NamedTypeAnnotation {
                         name: string_key_as_identifier(*ID_TYPE),
                     }),
-                    exclamation: dummy_token(&span),
+                    exclamation: dummy_token(span),
                 })),
                 arguments: None,
                 directives: vec![],
@@ -870,18 +1051,18 @@ impl ResolverIr for StrongObjectIr {
             },
             generate_model_instance_field(
                 schema_info,
-                *INT_TYPE,
+                RESOLVER_VALUE_SCALAR_NAME.0,
                 None,
                 self.directives(None, schema_info),
-                self.location().clone(),
+                self.location(),
             ),
         ];
         let type_ = TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-            name: as_identifier(self.type_.value),
-            interfaces: vec![],
+            name: self.type_name,
+            interfaces: self.implements_interfaces,
             directives: vec![ConstantDirective {
-                span: span.clone(),
-                at: dummy_token(&span),
+                span,
+                at: dummy_token(span),
                 name: string_key_as_identifier(RELAY_RESOLVER_MODEL_DIRECTIVE_NAME.0),
                 arguments: None,
             }],
@@ -903,6 +1084,7 @@ impl ResolverIr for StrongObjectIr {
     ) -> Option<RootFragment> {
         Some(RootFragment {
             fragment: self.root_fragment,
+            generated: true,
             inject_fragment_data: Some(FragmentDataInjectionMode::Field(
                 schema_info.config.node_interface_id_field,
             )),
@@ -922,14 +1104,18 @@ impl ResolverIr for StrongObjectIr {
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        Some(self.type_.value.item)
+        Some(self.type_name.value)
     }
 }
 
 /// Relay Resolver docblock representing a "model" type for a weak object
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct WeakObjectIr {
-    pub type_: PopulatedIrField,
+    pub type_name: Identifier,
+    /// T146185439 The location of everything past @RelayResolver. Note that we use
+    /// this incorrectly to refer to the location of the type_name field. It is not!
+    /// It is the location of a longer string, e.g. "Foo implements Bar".
+    pub rhs_location: Location,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub location: Location,
@@ -938,23 +1124,23 @@ pub struct WeakObjectIr {
 impl WeakObjectIr {
     // Generate the named GraphQL type (with an __relay_model_instance field).
     fn type_definition(&self, schema_info: SchemaInfo<'_, '_>) -> TypeSystemDefinition {
-        let span = self.type_.value.location.span();
+        let span = self.rhs_location.span();
 
         let mut directives = vec![
             ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(RELAY_RESOLVER_MODEL_DIRECTIVE_NAME.0),
                 arguments: None,
             },
             ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME.0),
                 arguments: None,
             },
             ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE.0),
                 arguments: None,
@@ -962,10 +1148,10 @@ impl WeakObjectIr {
         ];
         if let Some(deprecated) = self.deprecated {
             directives.push(ConstantDirective {
-                span: span.clone(),
+                span,
                 at: dummy_token(span),
                 name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
-                arguments: deprecated.value.map(|value| {
+                arguments: deprecated.value().map(|value| {
                     List::generated(vec![string_argument(
                         DEPRECATED_REASON_ARGUMENT_NAME.0,
                         value,
@@ -974,7 +1160,7 @@ impl WeakObjectIr {
             })
         }
         TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-            name: as_identifier(self.type_.value),
+            name: self.type_name,
             interfaces: vec![],
             directives,
             fields: Some(List::generated(vec![generate_model_instance_field(
@@ -982,27 +1168,27 @@ impl WeakObjectIr {
                 self.model_type_name(),
                 self.description.map(as_string_node),
                 vec![],
-                self.location().clone(),
+                self.location(),
             )])),
         })
     }
 
     // Generate a custom scalar definition based on the exported type.
     fn instance_scalar_type_definition(&self) -> TypeSystemDefinition {
-        let span = self.type_.value.location.span();
+        let span = self.rhs_location.span();
         TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
             name: Identifier {
-                span: *span,
+                span,
                 token: dummy_token(span),
                 value: self.model_type_name(),
             },
             directives: vec![ConstantDirective {
-                span: *span,
+                span,
                 at: dummy_token(span),
                 name: as_identifier(WithLocation::generated(*CUSTOM_SCALAR_DIRECTIVE_NAME)),
                 arguments: Some(List::generated(vec![
                     ConstantArgument {
-                        span: *span,
+                        span,
                         name: as_identifier(WithLocation::generated(
                             *PATH_CUSTOM_SCALAR_ARGUMENT_NAME,
                         )),
@@ -1013,14 +1199,14 @@ impl WeakObjectIr {
                         }),
                     },
                     ConstantArgument {
-                        span: *span,
+                        span,
                         name: as_identifier(WithLocation::generated(
                             *EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME,
                         )),
                         colon: dummy_token(span),
                         value: ConstantValue::String(StringNode {
                             token: dummy_token(span),
-                            value: self.type_.value.item,
+                            value: self.type_name.value,
                         }),
                     },
                 ])),
@@ -1034,7 +1220,7 @@ impl WeakObjectIr {
         // TODO: Ensure this type does not already exist?
         format!(
             "{}{}",
-            self.type_.value.item, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
+            self.type_name.value, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
         )
         .intern()
     }
@@ -1042,7 +1228,7 @@ impl WeakObjectIr {
 
 impl ResolverIr for WeakObjectIr {
     fn definitions(
-        &self,
+        self,
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         Ok(vec![
@@ -1083,7 +1269,7 @@ impl ResolverIr for WeakObjectIr {
 fn string_argument(name: StringKey, value: WithLocation<StringKey>) -> ConstantArgument {
     let span = value.location.span();
     ConstantArgument {
-        span: span.clone(),
+        span,
         name: string_key_as_identifier(name),
         colon: dummy_token(span),
         value: ConstantValue::String(StringNode {
@@ -1096,7 +1282,7 @@ fn string_argument(name: StringKey, value: WithLocation<StringKey>) -> ConstantA
 fn true_argument(name: StringKey, location: Location) -> ConstantArgument {
     let span = location.span();
     ConstantArgument {
-        span: span.clone(),
+        span,
         name: string_key_as_identifier(name),
         colon: dummy_token(span),
         value: ConstantValue::Boolean(BooleanNode {
@@ -1109,7 +1295,7 @@ fn true_argument(name: StringKey, location: Location) -> ConstantArgument {
 fn string_key_as_identifier(value: StringKey) -> Identifier {
     Identifier {
         span: Span::empty(),
-        token: dummy_token(&Span::empty()),
+        token: dummy_token(Span::empty()),
         value,
     }
 }
@@ -1117,7 +1303,7 @@ fn string_key_as_identifier(value: StringKey) -> Identifier {
 fn as_identifier(value: WithLocation<StringKey>) -> Identifier {
     let span = value.location.span();
     Identifier {
-        span: span.clone(),
+        span,
         token: dummy_token(span),
         value: value.item,
     }
@@ -1126,7 +1312,7 @@ fn as_identifier(value: WithLocation<StringKey>) -> Identifier {
 fn obj_as_identifier(value: WithLocation<ObjectName>) -> Identifier {
     let span = value.location.span();
     Identifier {
-        span: span.clone(),
+        span,
         token: dummy_token(span),
         value: value.item.0,
     }
@@ -1139,9 +1325,9 @@ fn as_string_node(value: WithLocation<StringKey>) -> StringNode {
     }
 }
 
-fn dummy_token(span: &Span) -> Token {
+fn dummy_token(span: Span) -> Token {
     Token {
-        span: span.clone(),
+        span,
         kind: TokenKind::Empty,
     }
 }
@@ -1161,6 +1347,7 @@ fn get_root_fragment_for_object(object: Option<&Object>) -> Option<RootFragment>
                 )
                 .intern(),
             )),
+            generated: true,
             inject_fragment_data: Some(FragmentDataInjectionMode::Field(
                 *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
             )),
@@ -1178,10 +1365,10 @@ fn generate_model_instance_field(
     mut directives: Vec<ConstantDirective>,
     location: Location,
 ) -> FieldDefinition {
-    let span = location.span().clone();
+    let span = location.span();
     directives.push(ConstantDirective {
         span,
-        at: dummy_token(&span),
+        at: dummy_token(span),
         name: string_key_as_identifier(schema_info.config.unselectable_directive_name.0),
         arguments: Some(List::generated(vec![string_argument(
             DEPRECATED_REASON_ARGUMENT_NAME.0,
@@ -1194,9 +1381,13 @@ fn generate_model_instance_field(
 
     FieldDefinition {
         name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
-        type_: TypeAnnotation::Named(NamedTypeAnnotation {
-            name: string_key_as_identifier(type_name),
-        }),
+        type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
+            span,
+            type_: TypeAnnotation::Named(NamedTypeAnnotation {
+                name: string_key_as_identifier(type_name),
+            }),
+            exclamation: dummy_token(span),
+        })),
         arguments: None,
         directives,
         description,

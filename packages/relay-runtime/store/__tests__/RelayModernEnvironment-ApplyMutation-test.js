@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -130,7 +131,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment.applyMutation({
@@ -162,7 +163,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         const disposable = environment.applyMutation({
@@ -195,7 +196,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment.applyMutation({

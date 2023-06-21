@@ -202,13 +202,17 @@ test('it should return the module from an entry point that just returns the modu
 
 describe('with respect to loadQuery', () => {
   let mockLoadedQuery;
-  const loadQuery = jest.fn().mockImplementation(() => {
-    return mockLoadedQuery;
-  });
+  const loadQuery = jest
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
+    .fn<_, {dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>}>()
+    .mockImplementation(() => {
+      return mockLoadedQuery;
+    });
   beforeEach(() => {
     jest.mock('../loadQuery', () => ({loadQuery}));
     mockLoadedQuery = {
-      dispose: jest.fn(),
+      dispose: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
     };
   });
   afterEach(() => {

@@ -14,33 +14,12 @@ use common::WithDiagnosticData;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::VariableName;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessage {
-    #[error("@relay_client_component is not compatible with these {}: `{}`",
-         if incompatible_directives.len() > 1 { "directives" } else { "directive" },
-         incompatible_directives
-             .iter()
-             .map(|name| name.0.lookup())
-             .collect::<Vec<_>>()
-             .join("`, `"))
-     ]
-    IncompatibleRelayClientComponentDirectives {
-        incompatible_directives: Vec<DirectiveName>,
-    },
-
-    #[error("@relay_client_component is not compatible with @arguments.")]
-    InvalidRelayClientComponentWithArguments,
-
     #[error("This fragment spread already has a split normalization file generated.")]
     DuplicateRelayClientComponentSplitOperation,
-
-    #[error(
-        "@relay_client_component can only be used on fragments on Viewer or Query, or whose type implements the Node interface. If the fragment's type is a union type, all members of that union must implement Node."
-    )]
-    InvalidRelayClientComponentNonNodeFragment,
 
     #[error(
         "The Relay Resolver backing this field has an `@relay_resolver` directive with an invalid '{key}' argument. Expected a literal string value."
@@ -113,7 +92,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
+        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective {
         fragment_name: FragmentDefinitionName,

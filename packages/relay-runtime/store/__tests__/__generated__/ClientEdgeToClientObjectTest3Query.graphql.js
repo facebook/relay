@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3d9a1ffe0ea64b857ab56f2e2d080096>>
+ * @generated SignedSource<<230aecee09d5cbb2564f6b4b678311f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+) => ?mixed);
 import {astrological_sign as userAstrologicalSignResolverType} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -126,7 +126,7 @@ return {
                   "kind": "RelayResolver",
                   "name": "name",
                   "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
-                  "path": "me.name"
+                  "path": "me.astrological_sign.name"
                 },
                 (v1/*: any*/)
               ],

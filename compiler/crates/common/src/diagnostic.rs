@@ -142,6 +142,23 @@ impl Diagnostic {
         self
     }
 
+    /// Some locations, e.g. schema locations where the schema originally comes from
+    /// multiple files, have only generated locations. This leads to unhelpful error
+    /// annotations. Add a method that skips annotating the error if the location is
+    /// generated, so that we can have good (annotated) error messages (if possible)
+    /// and sparse (but not unhelpful) error messages when not possible.
+    pub fn annotate_if_location_exists<T: 'static + DiagnosticDisplay>(
+        self,
+        message: T,
+        location: Location,
+    ) -> Self {
+        if !location.source_location().is_generated() {
+            self.annotate(message, location)
+        } else {
+            self
+        }
+    }
+
     pub fn metadata_for_machine(mut self, key: impl AsRef<str>, value: impl AsRef<str>) -> Self {
         self.0
             .machine_readable

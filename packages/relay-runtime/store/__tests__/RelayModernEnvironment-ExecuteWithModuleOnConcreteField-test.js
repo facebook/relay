@@ -10,8 +10,9 @@
  */
 
 'use strict';
-
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -80,9 +81,9 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<any | [Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -110,7 +111,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
       operationLoader,
     });
     const operationSnapshot = environment.lookup(operation.fragment);
-    operationCallback = jest.fn();
+    operationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
@@ -214,7 +215,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(authorNormalizationFragment);

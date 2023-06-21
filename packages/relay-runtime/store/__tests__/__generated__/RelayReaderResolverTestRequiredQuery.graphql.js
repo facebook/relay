@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9264f772b3f0481a14ef0a1519ee895e>>
+ * @generated SignedSource<<e1a3a5a815991ed1018e6c1947848169>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {required_name as userRequiredNameResolverType} from "../resolvers/UserRe
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userRequiredNameResolverType: (
   rootKey: UserRequiredNameResolver$key,
-) => mixed);
+) => ?mixed);
 export type RelayReaderResolverTestRequiredQuery$variables = {||};
 export type RelayReaderResolverTestRequiredQuery$data = {|
   +me: ?{|

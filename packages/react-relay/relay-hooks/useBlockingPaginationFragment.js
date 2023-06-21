@@ -39,7 +39,7 @@ type RefetchVariables<TVariables, TKey> =
   //   - non-nullable if the provided ref type is nullable, and the caller need to provide the full set of variables
   // prettier-ignore
   $Call<
-    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) => $Shape<TVariables>)
+    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) => Partial<TVariables>)
     & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => TVariables),
     TKey,
   >;
@@ -89,7 +89,6 @@ function useBlockingPaginationFragment<
 
   const {
     connectionPathInFragmentData,
-    identifierField,
     paginationRequest,
     paginationMetadata,
     stream,
@@ -132,7 +131,6 @@ function useBlockingPaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    identifierField,
     paginationMetadata,
     paginationRequest,
   });
@@ -148,7 +146,6 @@ function useBlockingPaginationFragment<
     fragmentIdentifier,
     fragmentNode,
     fragmentRef,
-    identifierField,
     paginationMetadata,
     paginationRequest,
   });
@@ -157,6 +154,7 @@ function useBlockingPaginationFragment<
     (variables: TVariables, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
+      // $FlowFixMe[incompatible-variance]
       return refetch(variables, {...options, __environment: undefined});
     },
     [disposeFetchNext, disposeFetchPrevious, refetch],

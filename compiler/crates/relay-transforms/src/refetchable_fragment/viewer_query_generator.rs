@@ -50,7 +50,7 @@ fn build_refetch_operation(
             RefetchableMetadata {
                 operation_name: query_name,
                 path: vec![CONSTANTS.viewer_field_name],
-                identifier_field: None,
+                identifier_info: None,
             },
         ),
         used_global_variables: build_used_global_variables(

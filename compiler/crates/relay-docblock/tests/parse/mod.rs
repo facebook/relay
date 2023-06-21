@@ -61,15 +61,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                         &ast,
                         Some(&executable_documents),
                         ParseOptions {
-                            relay_resolver_model_syntax_enabled: true,
-                            id_field_name: "id".intern(),
                             enable_output_type: if fixture
                                 .content
                                 .contains("// relay:enable_output_type")
                             {
-                                FeatureFlag::Enabled
+                                &FeatureFlag::Enabled
                             } else {
-                                FeatureFlag::Disabled
+                                &FeatureFlag::Disabled
                             },
                         },
                     )

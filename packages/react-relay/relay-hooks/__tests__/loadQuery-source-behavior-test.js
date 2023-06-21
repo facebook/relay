@@ -101,6 +101,7 @@ beforeEach(() => {
   });
   PreloadableQueryRegistry.clear();
 
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
     // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
     const observable = Observable.create(_sink => {
@@ -108,7 +109,7 @@ beforeEach(() => {
     });
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
-    networkUnsubscribe = jest.fn();
+    networkUnsubscribe = jest.fn<[], $FlowFixMe>();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
       const subscription = originalSubscribe(...args);
       jest

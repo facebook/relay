@@ -188,7 +188,7 @@ describe('query with fragments that use provided variables', () => {
     `;
   });
 
-  it('reads the right results from a query with one fragment spread', () => {
+  test('reads the right results from a query with one fragment spread', () => {
     operation = createOperationDescriptor(queryUserArgSingleFragment, {
       id: '1',
     });
@@ -220,7 +220,7 @@ describe('query with fragments that use provided variables', () => {
     });
   });
 
-  it('reads the right results from a query with many fragment spreads', () => {
+  test('reads the right results from a query with many fragment spreads', () => {
     operation = createOperationDescriptor(queryUserArgManyFragments, {
       id: '1',
     });

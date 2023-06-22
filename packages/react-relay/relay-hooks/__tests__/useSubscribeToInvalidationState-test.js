@@ -123,7 +123,7 @@ beforeEach(() => {
 
 const dataIDs = ['4', 'client:1'];
 
-it('notifies when invalidation state changes due to global invalidation', () => {
+test('notifies when invalidation state changes due to global invalidation', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -133,7 +133,7 @@ it('notifies when invalidation state changes due to global invalidation', () => 
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('notifies when invalidation state changes due to invalidating one of the provided ids', () => {
+test('notifies when invalidation state changes due to invalidating one of the provided ids', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -147,7 +147,7 @@ it('notifies when invalidation state changes due to invalidating one of the prov
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('notifies once when invalidating multiple affected records in the same update', () => {
+test('notifies once when invalidating multiple affected records in the same update', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -167,7 +167,7 @@ it('notifies once when invalidating multiple affected records in the same update
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('notifies once per update when multiple affected records invalidated', () => {
+test('notifies once per update when multiple affected records invalidated', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -190,7 +190,7 @@ it('notifies once per update when multiple affected records invalidated', () => 
   expect(callback).toHaveBeenCalledTimes(2);
 });
 
-it('notifies once when invalidation state changes due to both global and local invalidation in a single update', () => {
+test('notifies once when invalidation state changes due to both global and local invalidation in a single update', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -212,7 +212,7 @@ it('notifies once when invalidation state changes due to both global and local i
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('notifies once per update when invalidation state changes due to both global and local invalidation in multiple', () => {
+test('notifies once per update when invalidation state changes due to both global and local invalidation in multiple', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -240,7 +240,7 @@ it('notifies once per update when invalidation state changes due to both global 
   expect(callback).toHaveBeenCalledTimes(3);
 });
 
-it('does not notify if invalidated ids do not affect subscription', () => {
+test('does not notify if invalidated ids do not affect subscription', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -253,7 +253,7 @@ it('does not notify if invalidated ids do not affect subscription', () => {
   expect(callback).toHaveBeenCalledTimes(0);
 });
 
-it('does not notify if subscription has been manually disposed of', () => {
+test('does not notify if subscription has been manually disposed of', () => {
   render(environment, dataIDs, callback);
   disposable.dispose();
 
@@ -263,7 +263,7 @@ it('does not notify if subscription has been manually disposed of', () => {
   expect(callback).toHaveBeenCalledTimes(0);
 });
 
-it('does not notify after component unmounts', () => {
+test('does not notify after component unmounts', () => {
   render(environment, dataIDs, callback);
 
   ReactTestRenderer.act(() => renderedInstance.unmount());
@@ -274,7 +274,7 @@ it('does not notify after component unmounts', () => {
   expect(callback).toHaveBeenCalledTimes(0);
 });
 
-it('re-establishes subscription when data ids change', () => {
+test('re-establishes subscription when data ids change', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -316,7 +316,7 @@ it('re-establishes subscription when data ids change', () => {
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('does not re-establish subscription id data ids change but array changes', () => {
+test('does not re-establish subscription id data ids change but array changes', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -352,7 +352,7 @@ it('does not re-establish subscription id data ids change but array changes', ()
   expect(callback).toHaveBeenCalledTimes(2);
 });
 
-it('re-establishes subscription when callback changes', () => {
+test('re-establishes subscription when callback changes', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
@@ -384,7 +384,7 @@ it('re-establishes subscription when callback changes', () => {
   expect(newCallback).toHaveBeenCalledTimes(1);
 });
 
-it('re-establishes subscription when environment changes', () => {
+test('re-establishes subscription when environment changes', () => {
   render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {

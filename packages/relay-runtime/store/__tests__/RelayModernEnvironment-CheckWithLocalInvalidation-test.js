@@ -96,7 +96,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('when record is invalidated before query has ever been written to the store', () => {
-        it('returns available after receiving query from the server', () => {
+        test('returns available after receiving query from the server', () => {
           environment.commitUpdate(storeProxy => {
             const user = storeProxy.create('4', 'User');
             user.invalidateRecord();
@@ -128,7 +128,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('returns missing if some data is missing after receiving query from the server', () => {
+        test('returns missing if some data is missing after receiving query from the server', () => {
           environment.commitUpdate(storeProxy => {
             const user = storeProxy.create('4', 'User');
             user.invalidateRecord();
@@ -162,7 +162,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('when record is invalidated after query has been written to the store', () => {
-        it('returns stale even if full query is cached', () => {
+        test('returns stale even if full query is cached', () => {
           environment.retain(operation);
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
@@ -194,7 +194,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(environment.check(operation)).toEqual({status: 'stale'});
         });
 
-        it('returns stale even if some data is missing', () => {
+        test('returns stale even if some data is missing', () => {
           environment.retain(operation);
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
@@ -231,7 +231,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('when query is refetched after record is invalidated', () => {
-        it('returns available if data is available after refetch', () => {
+        test('returns available if data is available after refetch', () => {
           environment.retain(operation);
           environment.execute({operation}).subscribe(callbacks);
           let payload = {
@@ -287,7 +287,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('returns missing if data is not available after refetch', () => {
+        test('returns missing if data is not available after refetch', () => {
           environment.retain(operation);
           environment.execute({operation}).subscribe(callbacks);
           let payload = {
@@ -375,7 +375,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         describe('when record is invalidated before query has been written to the store', () => {
-          it('returns available after receiving payloads from the server', () => {
+          test('returns available after receiving payloads from the server', () => {
             environment.commitUpdate(storeProxy => {
               const user = storeProxy.create('4', 'User');
               user.invalidateRecord();
@@ -423,7 +423,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             });
           });
 
-          it('returns missing after receiving payloads from the server if data is still missing', () => {
+          test('returns missing after receiving payloads from the server if data is still missing', () => {
             environment.commitUpdate(storeProxy => {
               const user = storeProxy.create('4', 'User');
               user.invalidateRecord();
@@ -473,7 +473,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         describe('when store is invalidated in between incremental payloads', () => {
-          it('returns stale after receiving payloads from the server', () => {
+          test('returns stale after receiving payloads from the server', () => {
             environment.retain(operation);
             environment.execute({operation}).subscribe(callbacks);
             const payload = {
@@ -521,7 +521,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(environment.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns stale after receiving payloads from the server and data is still missing', () => {
+          test('returns stale after receiving payloads from the server and data is still missing', () => {
             environment.retain(operation);
             environment.execute({operation}).subscribe(callbacks);
             const payload = {
@@ -574,7 +574,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         describe('when store is invalidated after all incremental payloads have been written to the store', () => {
-          it('returns stale after receiving payloads from the server', () => {
+          test('returns stale after receiving payloads from the server', () => {
             environment.retain(operation);
             environment.execute({operation}).subscribe(callbacks);
             const payload = {
@@ -622,7 +622,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(environment.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns stale after receiving payloads from the server and data is still missing', () => {
+          test('returns stale after receiving payloads from the server and data is still missing', () => {
             environment.retain(operation);
             environment.execute({operation}).subscribe(callbacks);
             const payload = {

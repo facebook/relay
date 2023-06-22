@@ -105,7 +105,7 @@ describe('execute() with network that returns optimistic response', () => {
     });
   });
 
-  it('calls next() and publishes optimistic payload to the store', () => {
+  test('calls next() and publishes optimistic payload to the store', () => {
     const selector = createReaderSelector(
       query.fragment,
       ROOT_ID,
@@ -145,7 +145,7 @@ describe('execute() with network that returns optimistic response', () => {
     });
   });
 
-  it('reverts the optimistic payload before applying regular response', () => {
+  test('reverts the optimistic payload before applying regular response', () => {
     const selector = createReaderSelector(
       query.fragment,
       ROOT_ID,
@@ -204,7 +204,7 @@ describe('execute() with network that returns optimistic response', () => {
     });
   });
 
-  it('reverts optimistic response on complete.', () => {
+  test('reverts optimistic response on complete.', () => {
     const selector = createReaderSelector(
       query.fragment,
       ROOT_ID,
@@ -246,7 +246,7 @@ describe('execute() with network that returns optimistic response', () => {
     expect(callback.mock.calls[1][0].data).toEqual({me: undefined});
   });
 
-  it('reverts optimistic response on error.', () => {
+  test('reverts optimistic response on error.', () => {
     const selector = createReaderSelector(
       query.fragment,
       ROOT_ID,
@@ -290,7 +290,7 @@ describe('execute() with network that returns optimistic response', () => {
     expect(callback.mock.calls[1][0].data).toEqual({me: undefined});
   });
 
-  it('reverts optimistic response if unsubscribed.', () => {
+  test('reverts optimistic response if unsubscribed.', () => {
     const selector = createReaderSelector(
       query.fragment,
       ROOT_ID,
@@ -332,7 +332,7 @@ describe('execute() with network that returns optimistic response', () => {
     expect(callback.mock.calls[1][0].data).toEqual({me: undefined});
   });
 
-  it('calls error() if optimistic response is missing data', () => {
+  test('calls error() if optimistic response is missing data', () => {
     const selector = createReaderSelector(
       query.fragment,
       ROOT_ID,
@@ -368,7 +368,7 @@ describe('execute() with network that returns optimistic response', () => {
     expect(callback).toBeCalledTimes(0);
   });
 
-  it('does fill missing fields from server-sent optimistic response with nulls when treatMissingFieldsAsNull is enabled', () => {
+  test('does fill missing fields from server-sent optimistic response with nulls when treatMissingFieldsAsNull is enabled', () => {
     query = graphql`
       query RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query {
         me {

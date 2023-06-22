@@ -26,7 +26,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 describe('Fragment Spreads', () => {
-  it('Reads an aliased fragment as its own field', () => {
+  test('Reads an aliased fragment as its own field', () => {
     const userTypeID = generateTypeID('User');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -74,7 +74,7 @@ describe('Fragment Spreads', () => {
     });
   });
 
-  it('Reads null if the fragment is on a concrete type that does not match the abstract parent selection.', () => {
+  test('Reads null if the fragment is on a concrete type that does not match the abstract parent selection.', () => {
     const userTypeID = generateTypeID('User');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -110,7 +110,7 @@ describe('Fragment Spreads', () => {
     });
   });
 
-  it('Reads null if the fragment is on an abstract type that does not match the abstract parent selection.', () => {
+  test('Reads null if the fragment is on an abstract type that does not match the abstract parent selection.', () => {
     const commentTypeID = generateTypeID('Comment');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -157,7 +157,7 @@ describe('Fragment Spreads', () => {
     });
   });
 
-  it("Reads null and marks data as missing if the fragment is on an abstract type and we don't know if it conforms to the parent selection's abstract type.", () => {
+  test("Reads null and marks data as missing if the fragment is on an abstract type and we don't know if it conforms to the parent selection's abstract type.", () => {
     const commentTypeID = generateTypeID('Comment');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -204,7 +204,7 @@ describe('Fragment Spreads', () => {
 });
 
 describe('Inline Fragments', () => {
-  it('Reads an aliased inline fragment as its own field', () => {
+  test('Reads an aliased inline fragment as its own field', () => {
     const userTypeID = generateTypeID('User');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -245,7 +245,7 @@ describe('Inline Fragments', () => {
     });
   });
 
-  it('Reads null if the fragment is on a concrete type that does not match the abstract parent selection.', () => {
+  test('Reads null if the fragment is on a concrete type that does not match the abstract parent selection.', () => {
     const userTypeID = generateTypeID('User');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -282,7 +282,7 @@ describe('Inline Fragments', () => {
       },
     });
   });
-  it('Reads null if the fragment is on an abstract type that does not match the abstract parent selection.', () => {
+  test('Reads null if the fragment is on an abstract type that does not match the abstract parent selection.', () => {
     const commentTypeID = generateTypeID('Comment');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -325,7 +325,7 @@ describe('Inline Fragments', () => {
     });
   });
 
-  it("Reads null and marks data as missing if the fragment is on an abstract type and we don't know if it conforms to the parent selection's abstract type.", () => {
+  test("Reads null and marks data as missing if the fragment is on an abstract type and we don't know if it conforms to the parent selection's abstract type.", () => {
     const commentTypeID = generateTypeID('Comment');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -371,7 +371,7 @@ describe('Inline Fragments', () => {
     });
   });
 
-  it('@required bubbles up to an aliased inline fragment', () => {
+  test('@required bubbles up to an aliased inline fragment', () => {
     const commentTypeID = generateTypeID('Comment');
     const source = RelayRecordSource.create({
       'client:root': {

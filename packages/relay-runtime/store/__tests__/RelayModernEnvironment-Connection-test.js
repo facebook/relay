@@ -126,7 +126,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               });
       });
 
-      it('publishes initial results to the store', () => {
+      test('publishes initial results to the store', () => {
         const operationSnapshot = environment.lookup(operation.fragment);
         const operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
@@ -251,7 +251,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environment.subscribe(snapshot, callback);
         });
 
-        it('updates when paginated', () => {
+        test('updates when paginated', () => {
           const paginationOperation = createOperationDescriptor(
             paginationQuery,
             {
@@ -326,7 +326,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('updates when paginated if the connection field is unset but the record exists', () => {
+        test('updates when paginated if the connection field is unset but the record exists', () => {
           const variables = {
             id: '<feedbackid>',
             count: 2,

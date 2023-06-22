@@ -152,7 +152,7 @@ beforeEach(() => {
   };
 });
 
-it('suspends while the query and component are pending', () => {
+test('suspends while the query and component are pending', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
@@ -171,7 +171,7 @@ it('suspends while the query and component are pending', () => {
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
 
-it('suspends while the component is loading', () => {
+test('suspends while the component is loading', () => {
   preloadQuery_DEPRECATED<any, empty>(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
@@ -193,7 +193,7 @@ it('suspends while the component is loading', () => {
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
 
-it('suspends while the query is loading', () => {
+test('suspends while the query is loading', () => {
   function Component(props: any) {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node?.name;
@@ -218,7 +218,7 @@ it('suspends while the query is loading', () => {
   expect(fetch).toBeCalledTimes(1);
 });
 
-it('suspends then updates when the query and component load', () => {
+test('suspends then updates when the query and component load', () => {
   const otherProps = {version: 0};
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
@@ -258,7 +258,7 @@ it('suspends then updates when the query and component load', () => {
   expect(renderer.toJSON()).toEqual('Zuck');
 });
 
-it('renders synchronously when the query and component are already loaded', () => {
+test('renders synchronously when the query and component are already loaded', () => {
   const otherProps = {
     version: 0,
   };
@@ -295,7 +295,7 @@ it('renders synchronously when the query and component are already loaded', () =
   expect(receivedProps?.props).toBe(otherProps);
 });
 
-it('re-renders without reloading when non-prefetch props change', () => {
+test('re-renders without reloading when non-prefetch props change', () => {
   // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
@@ -337,7 +337,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
   expect(entryPoint.getPreloadProps).toBeCalledTimes(1);
 });
 
-it('re-renders and reloads when prefetch params change', () => {
+test('re-renders and reloads when prefetch params change', () => {
   // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
@@ -396,7 +396,7 @@ it('re-renders and reloads when prefetch params change', () => {
   expect(renderer.toJSON()).toEqual('Mark');
 });
 
-it('fetches and renders synchronously when the query data is cached, then updates when the fetch completes', () => {
+test('fetches and renders synchronously when the query data is cached, then updates when the fetch completes', () => {
   // pre-populate the query result
   const variables = {id: '4'};
   const operation = createOperationDescriptor(query, variables);
@@ -461,7 +461,7 @@ it('fetches and renders synchronously when the query data is cached, then update
   expect(renderer.toJSON()).toEqual('Zuck');
 });
 
-it('renders synchronously when the query data and ast are cached, without fetching', () => {
+test('renders synchronously when the query data and ast are cached, without fetching', () => {
   // pre-populate the query result
   const variables = {id: '4'};
   const operation = createOperationDescriptor(query, variables);
@@ -514,7 +514,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
   expect(renderer.toJSON()).toEqual('Zuck');
 });
 
-it('should use environment from `getEnvironment` prop to fetch a query', () => {
+test('should use environment from `getEnvironment` prop to fetch a query', () => {
   entryPoint = {
     // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     getPreloadProps: jest.fn(entryPointParams => {

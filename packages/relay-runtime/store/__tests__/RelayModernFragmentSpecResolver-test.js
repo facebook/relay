@@ -123,7 +123,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     context = {environment, variables};
   });
 
-  it('ignores non-fragment data, sets missing fragment props to null', () => {
+  test('ignores non-fragment data, sets missing fragment props to null', () => {
     const resolver = new RelayModernFragmentSpecResolver(
       context,
       {user: UserFragment},
@@ -137,7 +137,7 @@ describe('RelayModernFragmentSpecResolver', () => {
   });
 
   describe('singular props', () => {
-    it('passes through null-ish values', () => {
+    test('passes through null-ish values', () => {
       let resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
@@ -156,7 +156,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve()).toEqual({user: null});
     });
 
-    it('passes through mock values', () => {
+    test('passes through mock values', () => {
       const user = {};
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -168,7 +168,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve().user).toBe(user);
     });
 
-    it('disposes with null props', () => {
+    test('disposes with null props', () => {
       const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
@@ -179,7 +179,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(() => resolver.dispose()).not.toThrow();
     });
 
-    it('resolves fragment data', () => {
+    test('resolves fragment data', () => {
       const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
@@ -195,7 +195,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       });
     });
 
-    it('calls callback when fragment data changes', () => {
+    test('calls callback when fragment data changes', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -214,7 +214,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       });
     });
 
-    it('disposes subscriptions', () => {
+    test('disposes subscriptions', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -249,14 +249,14 @@ describe('RelayModernFragmentSpecResolver', () => {
         );
       });
 
-      it('cancels subscriptions if a prop is set to null', () => {
+      test('cancels subscriptions if a prop is set to null', () => {
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
         resolver.setProps({user: null});
         expect(dispose).toBeCalled();
       });
 
-      it('cancels subscriptions if a prop is set to a mock value', () => {
+      test('cancels subscriptions if a prop is set to a mock value', () => {
         const user = {};
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
@@ -265,7 +265,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve().user).toBe(user);
       });
 
-      it('creates a subscription if a prop is set to non-mock value', () => {
+      test('creates a subscription if a prop is set to non-mock value', () => {
         resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UserFragment},
@@ -285,14 +285,14 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('returns === data if props do not change', () => {
+      test('returns === data if props do not change', () => {
         const prevData = resolver.resolve();
         resolver.setProps({user: zuck});
         expect(resolver.resolve()).toBe(prevData);
         expect(resolver.resolve().user).toBe(prevData.user);
       });
 
-      it('resolves fragment data if a prop changes', () => {
+      test('resolves fragment data if a prop changes', () => {
         resolver.setProps({user: beast});
         expect(resolver.resolve()).toEqual({
           user: {
@@ -302,14 +302,14 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('cancels subscriptions if a prop changes', () => {
+      test('cancels subscriptions if a prop changes', () => {
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
         resolver.setProps({user: beast});
         expect(dispose).toBeCalled();
       });
 
-      it('calls callback when fragment data changes', () => {
+      test('calls callback when fragment data changes', () => {
         resolver.setProps({user: beast});
         expect(callback).not.toBeCalled();
         setName('beast', 'BEAST'); // all caps
@@ -322,7 +322,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('disposes subscriptions', () => {
+      test('disposes subscriptions', () => {
         resolver.setProps({user: beast});
         expect(callback).not.toBeCalled();
         resolver.dispose();
@@ -352,7 +352,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         );
       });
 
-      it('does nothing if variables are equivalent', () => {
+      test('does nothing if variables are equivalent', () => {
         const prevData = resolver.resolve();
         const dispose = environment.subscribe.mock.dispose;
         environment.lookup.mockClear();
@@ -371,7 +371,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toBe(prevData);
       });
 
-      it('resolves fragment data when variables change', () => {
+      test('resolves fragment data when variables change', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
@@ -395,7 +395,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('calls callback when fragment data changes', () => {
+      test('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
         resolver.setVariables(
           {
@@ -421,7 +421,7 @@ describe('RelayModernFragmentSpecResolver', () => {
   });
 
   describe('plural props', () => {
-    it('passes through null-ish values', () => {
+    test('passes through null-ish values', () => {
       let resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
@@ -440,7 +440,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve()).toEqual({user: null});
     });
 
-    it('passes through mock values', () => {
+    test('passes through mock values', () => {
       const users = [{}];
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -452,7 +452,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve().user).toBe(users);
     });
 
-    it('resolves fragment data', () => {
+    test('resolves fragment data', () => {
       const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
@@ -470,7 +470,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       });
     });
 
-    it('calls callback when fragment data changes', () => {
+    test('calls callback when fragment data changes', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -491,7 +491,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       });
     });
 
-    it('resolves fragment data when the item at the end of the array is removed', () => {
+    test('resolves fragment data when the item at the end of the array is removed', () => {
       const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
@@ -525,7 +525,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       });
     });
 
-    it('disposes subscriptions', () => {
+    test('disposes subscriptions', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -562,14 +562,14 @@ describe('RelayModernFragmentSpecResolver', () => {
         );
       });
 
-      it('cancels subscriptions if a prop is set to null', () => {
+      test('cancels subscriptions if a prop is set to null', () => {
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
         resolver.setProps({user: null});
         expect(dispose).toBeCalled();
       });
 
-      it('cancels subscriptions if a prop is set to a mock value', () => {
+      test('cancels subscriptions if a prop is set to a mock value', () => {
         const users = [{}];
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
@@ -578,7 +578,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve().user).toBe(users);
       });
 
-      it('creates a subscription if a prop is set to non-mock value', () => {
+      test('creates a subscription if a prop is set to non-mock value', () => {
         resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UsersFragment},
@@ -600,14 +600,14 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('returns === data if the props do not change', () => {
+      test('returns === data if the props do not change', () => {
         const prevData = resolver.resolve();
         resolver.setProps({user: [zuck]}); // zuck -> zuck
         expect(resolver.resolve()).toBe(prevData);
         expect(resolver.resolve()[0]).toBe(prevData[0]);
       });
 
-      it('resolves fragment data if a prop changes', () => {
+      test('resolves fragment data if a prop changes', () => {
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(resolver.resolve()).toEqual({
           user: [
@@ -619,14 +619,14 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('cancels subscriptions if a prop changes', () => {
+      test('cancels subscriptions if a prop changes', () => {
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(dispose).toBeCalled();
       });
 
-      it('calls callback when fragment data changes', () => {
+      test('calls callback when fragment data changes', () => {
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(callback).not.toBeCalled();
         setName('beast', 'BEAST'); // all caps
@@ -641,7 +641,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('disposes subscriptions', () => {
+      test('disposes subscriptions', () => {
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(callback).not.toBeCalled();
         resolver.dispose();
@@ -657,7 +657,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('resolves added items', () => {
+      test('resolves added items', () => {
         resolver.setProps({user: [zuck, beast]}); // add beast
         expect(resolver.resolve()).toEqual({
           user: [
@@ -673,7 +673,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('subscribes to added items', () => {
+      test('subscribes to added items', () => {
         environment.subscribe.mockClear();
         resolver.setProps({user: [zuck, beast]}); // add beast
         // Should only subscribe to the new item
@@ -694,7 +694,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('retains subscription to unchanged items', () => {
+      test('retains subscription to unchanged items', () => {
         resolver.setProps({user: [zuck, beast]}); // add beast
         setName('4', 'Mark'); // Zuck -> Mark
         expect(callback).toBeCalled();
@@ -712,7 +712,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('unsubscribes from removed items', () => {
+      test('unsubscribes from removed items', () => {
         resolver.setProps({user: []});
         setName('4', 'Mark'); // Zuck -> Mark
         expect(callback).not.toBeCalled();
@@ -737,7 +737,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         );
       });
 
-      it('does nothing if variables are equivalent', () => {
+      test('does nothing if variables are equivalent', () => {
         const prevData = resolver.resolve();
         const dispose = environment.subscribe.mock.dispose;
         environment.lookup.mockClear();
@@ -756,7 +756,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toBe(prevData);
       });
 
-      it('resolves fragment data when variables change', () => {
+      test('resolves fragment data when variables change', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
@@ -782,7 +782,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         });
       });
 
-      it('calls callback when fragment data changes', () => {
+      test('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
         resolver.setVariables(
           {
@@ -816,7 +816,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         setName('4', undefined);
         fetchQuery(environment, zuckOperation).subscribe({});
       });
-      it('only warns but does not suspend if resolver is under a QueryRenderer root', () => {
+      test('only warns but does not suspend if resolver is under a QueryRenderer root', () => {
         const warning = require('warning');
         warning.mockClear();
         const resolver = new RelayModernFragmentSpecResolver(
@@ -838,7 +838,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         );
       });
 
-      it('warns and suspends if resolver is NOT under QueryRenderer root (i.e. root is a Relay Hooks query)', () => {
+      test('warns and suspends if resolver is NOT under QueryRenderer root (i.e. root is a Relay Hooks query)', () => {
         const warning = require('warning');
         warning.mockClear();
         const resolver = new RelayModernFragmentSpecResolver(
@@ -890,7 +890,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         fetchQuery(environment, affectingQueryOperation).subscribe({});
       });
 
-      it('only warns but does not suspend if resolver is under a QueryRenderer root', () => {
+      test('only warns but does not suspend if resolver is under a QueryRenderer root', () => {
         const warning = require('warning');
         warning.mockClear();
         const resolver = new RelayModernFragmentSpecResolver(
@@ -927,7 +927,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         );
       });
 
-      it('warns and suspends if resolver is NOT under QueryRenderer root (i.e. root is a Relay Hooks query)', () => {
+      test('warns and suspends if resolver is NOT under QueryRenderer root (i.e. root is a Relay Hooks query)', () => {
         const warning = require('warning');
         warning.mockClear();
         const resolver = new RelayModernFragmentSpecResolver(

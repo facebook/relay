@@ -199,7 +199,7 @@ describe.each([true, false])(
       RelayFeatureFlags.ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION = false;
     });
 
-    it('should throw and cache promise for pending operation affecting fragment owner', () => {
+    test('should throw and cache promise for pending operation affecting fragment owner', () => {
       environment.execute({operation: nodeOperation}).subscribe({});
       operationLoader.load.mockImplementation(() =>
         Promise.resolve(PlainUserNameRenderer_name$normalization),
@@ -303,7 +303,7 @@ describe.each([true, false])(
       ).toEqual(['FragmentResourceWithOperationTrackerTestNodeQuery']);
     });
 
-    it('should read the data from the store once operation fully completed', () => {
+    test('should read the data from the store once operation fully completed', () => {
       environment.execute({operation: nodeOperation}).subscribe({});
       operationLoader.load.mockImplementation(() =>
         Promise.resolve(PlainUserNameRenderer_name$normalization),
@@ -365,7 +365,7 @@ describe.each([true, false])(
       });
     });
 
-    it('should suspend on pagination query and then read the data', () => {
+    test('should suspend on pagination query and then read the data', () => {
       const paginationOperation = createOperationDescriptor(
         FriendsPaginationQuery,
         {

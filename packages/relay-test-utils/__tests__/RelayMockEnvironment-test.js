@@ -87,43 +87,43 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
 
   // Test various combinations of calling queueOperationResolvers, queuePendingOperation
   // and preloadQuery, in various orders.
-  it('renders synchronously if queueOperationResolver, queuePendingOperation and preloadQuery have been called', () => {
+  test('renders synchronously if queueOperationResolver, queuePendingOperation and preloadQuery have been called', () => {
     callQueueOperationResolver();
     callRegisterOperation();
     callPreloadQuery();
     renderAndAssert(RENDERED);
   });
 
-  it('suspends if only queuePendingOperation and preloadQuery have been called', () => {
+  test('suspends if only queuePendingOperation and preloadQuery have been called', () => {
     callRegisterOperation();
     callPreloadQuery();
     renderAndAssert(SUSPENDED);
   });
 
-  it('suspends if only queueOperationResolver and preloadQuery have been called', () => {
+  test('suspends if only queueOperationResolver and preloadQuery have been called', () => {
     callQueueOperationResolver();
     callPreloadQuery();
     renderAndAssert(SUSPENDED);
   });
 
-  it('suspends if only preloadQuery have been called', () => {
+  test('suspends if only preloadQuery have been called', () => {
     callPreloadQuery();
     renderAndAssert(SUSPENDED);
   });
 
   describe('if preloadQuery has been called first', () => {
-    it('suspends if queueOperationResolver and queuePendingOperation are called', () => {
+    test('suspends if queueOperationResolver and queuePendingOperation are called', () => {
       callPreloadQuery();
       callQueueOperationResolver();
       callRegisterOperation();
       renderAndAssert(SUSPENDED);
     });
-    it('suspends if queueOperationResolver is called', () => {
+    test('suspends if queueOperationResolver is called', () => {
       callPreloadQuery();
       callQueueOperationResolver();
       renderAndAssert(SUSPENDED);
     });
-    it('suspends if queuePendingOperation is called', () => {
+    test('suspends if queuePendingOperation is called', () => {
       callPreloadQuery();
       callRegisterOperation();
       renderAndAssert(SUSPENDED);

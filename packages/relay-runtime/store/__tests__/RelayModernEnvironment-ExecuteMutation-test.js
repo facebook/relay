@@ -149,7 +149,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         callbacks = {complete, error, next};
       });
 
-      it('fetches the mutation with the provided fetch function', () => {
+      test('fetches the mutation with the provided fetch function', () => {
         environment.executeMutation({operation}).subscribe({});
         expect(fetch.mock.calls.length).toBe(1);
         expect(fetch.mock.calls[0][0]).toEqual(CreateCommentMutation.params);
@@ -157,7 +157,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(fetch.mock.calls[0][2]).toEqual({force: true});
       });
 
-      it('executes the optimistic updater immediately', () => {
+      test('executes the optimistic updater immediately', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -191,7 +191,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('executes the optimistic updater immediately, does not mark mutation as being in flight in operation tracker', () => {
+      test('executes the optimistic updater immediately, does not mark mutation as being in flight in operation tracker', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -227,7 +227,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('reverts the optimistic update if disposed', () => {
+      test('reverts the optimistic update if disposed', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -258,7 +258,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(callback.mock.calls[0][0].data).toEqual(undefined);
       });
 
-      it('reverts the optimistic update and commits the server payload', () => {
+      test('reverts the optimistic update and commits the server payload', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -308,7 +308,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('commits the server payload and runs the updater', () => {
+      test('commits the server payload and runs the updater', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -366,7 +366,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('reverts the optimistic update if the fetch is rejected', () => {
+      test('reverts the optimistic update if the fetch is rejected', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -399,7 +399,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(callback.mock.calls[0][0].data).toEqual(undefined);
       });
 
-      it('commits optimistic response with fragment spread', () => {
+      test('commits optimistic response with fragment spread', () => {
         operation = createOperationDescriptor(
           CreateCommentWithSpreadMutation,
           variables,
@@ -442,7 +442,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('does not commit the server payload if disposed', () => {
+      test('does not commit the server payload if disposed', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -495,7 +495,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('does not fill missing fields from optimistic response with nulls, even when treatMissingFieldsAsNull is enabled', () => {
+      test('does not fill missing fields from optimistic response with nulls, even when treatMissingFieldsAsNull is enabled', () => {
         operation = createOperationDescriptor(
           CreateCommentWithSpreadMutation,
           variables,

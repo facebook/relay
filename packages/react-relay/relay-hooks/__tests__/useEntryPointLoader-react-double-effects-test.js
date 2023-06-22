@@ -286,7 +286,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   });
 
   describe('when there is no committed entrypoint reference', () => {
-    it('does nothing when effects are double invoked (i.e. component is hidden/re-shown)', () => {
+    test('does nothing when effects are double invoked (i.e. component is hidden/re-shown)', () => {
       // When the component mounts, React double invoke effects
       // will be triggered, simulating what would happen if the
       // component was hidden and then re-shown, in this case
@@ -320,7 +320,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   // when double invoke effects are triggered on mount.
   describe('when there is a committed query reference', () => {
     describe('when network request is in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
-      it('forces a re-render and refetches when policy is network-only', () => {
+      test('forces a re-render and refetches when policy is network-only', () => {
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
           {...},
@@ -439,7 +439,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(4);
       });
 
-      it('forces a re-render and refetches when policy is store-or-network', () => {
+      test('forces a re-render and refetches when policy is store-or-network', () => {
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
           {...},
@@ -560,7 +560,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     });
 
     describe('when network request is NOT in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
-      it('forces a re-render and refetches when policy is network-only', () => {
+      test('forces a re-render and refetches when policy is network-only', () => {
         // Initialize and complete the entrypoint ref
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
@@ -690,7 +690,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(3);
       });
 
-      it('forces a re-render and does not refetch when policy is store-or-network', () => {
+      test('forces a re-render and does not refetch when policy is store-or-network', () => {
         // Initialize and complete the entrypoint ref
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
@@ -789,7 +789,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   });
 
   describe('when whole tree suspends on query reference', () => {
-    it('forces a re-render and refetches when policy is network-only', () => {
+    test('forces a re-render and refetches when policy is network-only', () => {
       const initialEntryPointRef = loadEntryPoint<
         {id: string},
         {...},
@@ -932,7 +932,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       expect(release).toHaveBeenCalledTimes(0);
     });
 
-    it('forces a re-render and does not refetch when policy is store-or-network', () => {
+    test('forces a re-render and does not refetch when policy is store-or-network', () => {
       const initialEntryPointRef = loadEntryPoint<
         {id: string},
         {...},

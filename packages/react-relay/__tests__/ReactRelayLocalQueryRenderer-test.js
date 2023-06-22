@@ -94,7 +94,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
   });
 
   describe('when initialized', () => {
-    it('sets context correctly', () => {
+    test('sets context correctly', () => {
       let relayContext;
       function ContextGetter() {
         relayContext = useContext(ReactRelayContext);
@@ -109,7 +109,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       });
     });
 
-    it('renders with the query data if the data exists in the store', () => {
+    test('renders with the query data if the data exists in the store', () => {
       const payload = {
         node: {
           __typename: 'User',
@@ -131,7 +131,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Mark');
     });
 
-    it('renders with undefined if query data does not exist in store', () => {
+    test('renders with undefined if query data does not exist in store', () => {
       ReactTestRenderer.act(() => {
         renderer(environment, UserQuery, render, variables);
       });
@@ -140,7 +140,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(environment.execute).not.toBeCalled();
     });
 
-    it('renders with partial query data if the data partially exist in store', () => {
+    test('renders with partial query data if the data partially exist in store', () => {
       const payload = {
         node: {
           __typename: 'User',
@@ -159,7 +159,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Mark');
     });
 
-    it('retains data correctly', () => {
+    test('retains data correctly', () => {
       const payload = {
         node: {
           __typename: 'User',
@@ -185,7 +185,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
   });
 
   describe('when store data updates', () => {
-    it('renders with new data', () => {
+    test('renders with new data', () => {
       const payload = {
         node: {
           __typename: 'User',
@@ -219,7 +219,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Alice');
     });
 
-    it('subscribes to changes if initial data is undefined', () => {
+    test('subscribes to changes if initial data is undefined', () => {
       const instance = renderer(environment, UserQuery, render, variables);
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
@@ -254,7 +254,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       },
     };
 
-    it('renders new data if the variables change', () => {
+    test('renders new data if the variables change', () => {
       const secondVariables = {id: '5'};
       const secondOperation = createOperationDescriptor(
         UserQuery,
@@ -307,7 +307,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual(null);
     });
 
-    it('renders new data if the environment changes', () => {
+    test('renders new data if the environment changes', () => {
       const newEnvironment = createMockEnvironment({
         store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
       });
@@ -333,7 +333,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Kram');
     });
 
-    it('renders new data if the query changes', () => {
+    test('renders new data if the query changes', () => {
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
 
@@ -382,7 +382,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Kram');
     });
 
-    it('disposes old observers when the varaibles change', () => {
+    test('disposes old observers when the varaibles change', () => {
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
       expect(instance.toJSON()).toEqual('Mark');
@@ -417,7 +417,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       },
     };
 
-    it('disposes old observers', () => {
+    test('disposes old observers', () => {
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
       expect(instance.toJSON()).toEqual('Mark');
@@ -450,7 +450,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       instance = renderer(environment, UserQuery, render, variables);
     });
 
-    it('runs after GC, data should not be collected by GC', () => {
+    test('runs after GC, data should not be collected by GC', () => {
       const snapshot = environment.lookup(operation.fragment, operation);
       expect(snapshot.data).toBeDefined();
       // Data should not be collected by GC
@@ -465,7 +465,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toBe('Mark');
     });
 
-    it('runs after commiting another payload, latest data should be rendered', () => {
+    test('runs after commiting another payload, latest data should be rendered', () => {
       ReactTestRenderer.act(() => {
         environment.commitPayload(operation, {
           node: {
@@ -481,7 +481,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toBe('Alice');
     });
 
-    it('never runs before unmount, data retain should be released', () => {
+    test('never runs before unmount, data retain should be released', () => {
       instance.unmount();
       jest.runAllTimers();
       expect(environment.getStore().getSource().toJSON()).toEqual({});
@@ -501,7 +501,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       render = jest.fn(() => <ContextGetter />);
     });
 
-    it('sets QueryRenderer context', () => {
+    test('sets QueryRenderer context', () => {
       expect.assertions(1);
       ReactTestRenderer.act(() => {
         renderer(environment, UserQuery, render, variables);
@@ -510,7 +510,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(queryRendererContext.rootIsQueryRenderer).toBe(true);
     });
 
-    it('default context', () => {
+    test('default context', () => {
       expect.assertions(1);
       ReactTestRenderer.create(<ContextGetter />);
 

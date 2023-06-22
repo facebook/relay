@@ -240,7 +240,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      test('calls next() and publishes the initial payload to the store', () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -346,7 +346,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).not.toBe(null);
       });
 
-      it('loads the @match fragment and normalizes/publishes the field payload', () => {
+      test('loads the @match fragment and normalizes/publishes the field payload', () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -435,7 +435,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls complete() only after match payloads are processed (root network completes first)', () => {
+      test('calls complete() only after match payloads are processed (root network completes first)', () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -499,7 +499,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls complete() only after match payloads are processed (root network completes first, with batching on)', () => {
+      test('calls complete() only after match payloads are processed (root network completes first, with batching on)', () => {
         const prevFlagAsync = RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN;
         RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN = task => {
           const handle = setTimeout(task, 0);
@@ -572,7 +572,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN = prevFlagAsync;
       });
 
-      it('calls complete() only after match payloads are processed (root network completes last)', () => {
+      test('calls complete() only after match payloads are processed (root network completes last)', () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -644,7 +644,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls error() even if match payloads have not been resolved', () => {
+      test('calls error() even if match payloads have not been resolved', () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -756,7 +756,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environment.subscribe(operationSnapshot, operationCallback);
         });
 
-        it('calls complete() only after match payloads are processed (root network completes first)', () => {
+        test('calls complete() only after match payloads are processed (root network completes first)', () => {
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
             data: {

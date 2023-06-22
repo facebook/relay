@@ -241,7 +241,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       );
     });
 
-    it('calls `getVariables` with props, count/cursor, and the previous variables', () => {
+    test('calls `getVariables` with props, count/cursor, and the previous variables', () => {
       loadMore(1, jest.fn());
       expect(getVariables).toBeCalledWith(
         {
@@ -288,7 +288,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       );
     });
 
-    it('calls `getVariables` with correct previous variables when variables not set in context', () => {
+    test('calls `getVariables` with correct previous variables when variables not set in context', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
@@ -343,7 +343,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       );
     });
 
-    it('fetches the new variables', () => {
+    test('fetches the new variables', () => {
       variables = {
         after: 'cursor:1',
         count: 1,
@@ -355,7 +355,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       expect(environment.mock.isLoading(UserQuery, variables)).toBe(true);
     });
 
-    it('fetches the new variables with force option', () => {
+    test('fetches the new variables with force option', () => {
       variables = {
         after: null, // resets to `null` to refetch connection
         count: 2, // existing edges + additional edges
@@ -370,7 +370,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       ).toBe(true);
     });
 
-    it('renders with the results of the new variables on success', () => {
+    test('renders with the results of the new variables on success', () => {
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       loadMore(1, jest.fn());
@@ -460,7 +460,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
     });
 
-    it('does not update variables on failure', () => {
+    test('does not update variables on failure', () => {
       expect.assertions(1);
       render.mockClear();
       loadMore(1, jest.fn());
@@ -490,7 +490,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       );
     });
 
-    it('calls `getVariables` with props, totalCount, and the previous variables', () => {
+    test('calls `getVariables` with props, totalCount, and the previous variables', () => {
       refetchConnection(1, jest.fn());
       expect(getVariables).toBeCalledWith(
         {
@@ -537,7 +537,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       );
     });
 
-    it('fetches the new variables', () => {
+    test('fetches the new variables', () => {
       // Assert correct pagination variables and reusing
       // vars from original parent query
       variables = {
@@ -556,7 +556,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       ).toBe(true);
     });
 
-    it('fetches the new variables correctly when specifying vars', () => {
+    test('fetches the new variables correctly when specifying vars', () => {
       // Assert correct pagination variables and reusing
       // vars from original parent query
       variables = {
@@ -576,7 +576,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       ).toBe(true);
     });
 
-    it('renders with the results of the new variables on success', () => {
+    test('renders with the results of the new variables on success', () => {
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       refetchConnection(1, jest.fn());
@@ -661,7 +661,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
     });
 
-    it('renders with the results of the new variables after components received updated props (not related to the connection)', () => {
+    test('renders with the results of the new variables after components received updated props (not related to the connection)', () => {
       expect.assertions(9);
       expect(render.mock.calls.length).toBe(1);
       // By default friends list should have 1 item
@@ -736,7 +736,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
     });
 
-    it('does not update variables on failure', () => {
+    test('does not update variables on failure', () => {
       expect.assertions(1);
       render.mockClear();
       refetchConnection(1, jest.fn());
@@ -744,7 +744,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       expect(render.mock.calls.length).toBe(0);
     });
 
-    it('rerenders with the results of new overridden variables', () => {
+    test('rerenders with the results of new overridden variables', () => {
       expect.assertions(10);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
@@ -830,7 +830,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
     });
 
-    it('paginates with the results of new refetch/overridden variables', () => {
+    test('paginates with the results of new refetch/overridden variables', () => {
       refetchConnection(1, jest.fn(), {
         orderby: ['last_name'],
         isViewerFriend: true,

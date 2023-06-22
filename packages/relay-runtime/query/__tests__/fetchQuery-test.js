@@ -69,7 +69,7 @@ describe('fetchQuery', () => {
       }
     `;
   });
-  it('fetches request and does not retain data', () => {
+  test('fetches request and does not retain data', () => {
     let calledObserver = false;
     const observer = {
       complete: () => {
@@ -88,7 +88,7 @@ describe('fetchQuery', () => {
     expect(retained.length).toEqual(0);
   });
 
-  it('provides data snapshot on next', () => {
+  test('provides data snapshot on next', () => {
     let calledNext = false;
     const observer = {
       next: (data: fetchQueryTest1Query$data) => {
@@ -109,7 +109,7 @@ describe('fetchQuery', () => {
     expect(retained.length).toEqual(0);
   });
 
-  it('unsubscribes when request is disposed', () => {
+  test('unsubscribes when request is disposed', () => {
     let calledNext = false;
     let calledUnsubscribe = false;
     const observer = {
@@ -131,7 +131,7 @@ describe('fetchQuery', () => {
     expect(calledUnsubscribe).toEqual(true);
   });
 
-  it('handles error correctly', () => {
+  test('handles error correctly', () => {
     let calledError = false;
     const observer = {
       error: (error: Error) => {
@@ -151,7 +151,7 @@ describe('fetchQuery', () => {
   });
 
   describe('.toPromise()', () => {
-    it('fetches request and does not retain query data', async () => {
+    test('fetches request and does not retain query data', async () => {
       const promise = fetchQuery(environment, query, variables).toPromise();
       const queryNode = getRequest(query);
       expect(
@@ -176,7 +176,7 @@ describe('fetchQuery', () => {
       expect(retained.length).toEqual(0);
     });
 
-    it('rejects when error occurs', async () => {
+    test('rejects when error occurs', async () => {
       const promise = fetchQuery(environment, query, variables).toPromise();
       const queryNode = getRequest(query);
       expect(
@@ -196,7 +196,7 @@ describe('fetchQuery', () => {
   });
 
   describe('store-or-network fetchPolicy', () => {
-    it('fetches data if not cached yet', async () => {
+    test('fetches data if not cached yet', async () => {
       const promise = fetchQuery(environment, query, variables, {
         fetchPolicy: 'store-or-network',
       }).toPromise();
@@ -213,7 +213,7 @@ describe('fetchQuery', () => {
         },
       });
     });
-    it('reads from store if cached already', async () => {
+    test('reads from store if cached already', async () => {
       // Populate the store
       const queryNode = getRequest(query);
       const operation = createOperationDescriptor(queryNode, variables);
@@ -239,7 +239,7 @@ describe('fetchQuery', () => {
 });
 
 describe('fetchQuery with missing @required value', () => {
-  it('provides data snapshot on next', () => {
+  test('provides data snapshot on next', () => {
     const requiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
     const environment = createMockEnvironment({
       requiredFieldLogger,
@@ -274,7 +274,7 @@ describe('fetchQuery with missing @required value', () => {
     });
   });
 
-  it('throws on resolution', () => {
+  test('throws on resolution', () => {
     const requiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
     const environment = createMockEnvironment({requiredFieldLogger});
     const query = graphql`
@@ -312,7 +312,7 @@ describe('fetchQuery with missing @required value', () => {
     expect(observer.next).not.toHaveBeenCalled();
   });
 
-  it('does not report missing required values in fragments', () => {
+  test('does not report missing required values in fragments', () => {
     const environment = createMockEnvironment({});
     graphql`
       fragment fetchQueryTestFragment on User {

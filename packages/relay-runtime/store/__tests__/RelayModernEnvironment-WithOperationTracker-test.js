@@ -118,11 +118,11 @@ describe.each([true, false])(
       RelayFeatureFlags.ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION = false;
     });
 
-    it('should return an instance of tracker', () => {
+    test('should return an instance of tracker', () => {
       expect(environment.getOperationTracker()).toBe(tracker);
     });
 
-    it('should have operation tracker and operations should not be affected', () => {
+    test('should have operation tracker and operations should not be affected', () => {
       invariant(tracker != null, 'Tracker should be defined');
       expect(
         tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
@@ -132,7 +132,7 @@ describe.each([true, false])(
       ).toBe(null);
     });
 
-    it('should return a promise when there are pending operations that are affecting the owner', () => {
+    test('should return a promise when there are pending operations that are affecting the owner', () => {
       invariant(tracker != null, 'Tracker should be defined');
       environment
         .execute({
@@ -204,7 +204,7 @@ describe.each([true, false])(
       ).toBe(null);
     });
 
-    it('should not have pending operation affecting the owner, if owner does not have subscriptions', () => {
+    test('should not have pending operation affecting the owner, if owner does not have subscriptions', () => {
       invariant(tracker != null, 'Tracker should be defined');
       environment
         .execute({
@@ -256,7 +256,7 @@ describe.each([true, false])(
       ).toBe(null);
     });
 
-    it('should return a promise for operation affecting owner that resolves when operation completes', () => {
+    test('should return a promise for operation affecting owner that resolves when operation completes', () => {
       invariant(tracker != null, 'Tracker should be defined');
       environment
         .execute({
@@ -318,7 +318,7 @@ describe.each([true, false])(
       expect(promiseCallback).toBeCalled();
     });
 
-    it('pending queries that did not change the data should not affect the owner', () => {
+    test('pending queries that did not change the data should not affect the owner', () => {
       invariant(tracker != null, 'Tracker should be defined');
       // Send the first query
       environment.execute({operation: QueryOperation1}).subscribe({});
@@ -381,7 +381,7 @@ describe.each([true, false])(
     // store update as affecing the fragment. If this behavior is sufficient, it
     // will allow us to support OperationTracker with lazy subscriptions that
     // don't read eagerly.
-    it('pending queries that changed a record that was read, but not any fields', () => {
+    test('pending queries that changed a record that was read, but not any fields', () => {
       invariant(tracker != null, 'Tracker should be defined');
       environment.execute({operation: QueryOperation1}).subscribe({});
 
@@ -442,7 +442,7 @@ describe.each([true, false])(
       }
     });
 
-    it('pending queries that changed ROOT_ID, but not other records read by the subscribed fragment', () => {
+    test('pending queries that changed ROOT_ID, but not other records read by the subscribed fragment', () => {
       invariant(tracker != null, 'Tracker should be defined');
       environment.execute({operation: QueryOperation1}).subscribe({});
 
@@ -491,7 +491,7 @@ describe.each([true, false])(
     });
 
     describe('with @match', () => {
-      it('should return a promise for affecting operations', () => {
+      test('should return a promise for affecting operations', () => {
         //const {Query, Mutation, FeedbackFragment} =
         const Query = graphql`
           query RelayModernEnvironmentWithOperationTrackerTestQuery($id: ID)

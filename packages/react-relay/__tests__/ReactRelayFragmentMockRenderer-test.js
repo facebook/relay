@@ -18,7 +18,7 @@ const ReactTestRenderer = require('react-test-renderer');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayFragmentMockRenderer', () => {
-  it('renders fragment containers with mock data as supplied as props', () => {
+  test('renders fragment containers with mock data as supplied as props', () => {
     class ChildComponent extends React.Component {
       render() {
         return <h2>{this.props.viewer.actor.id}</h2>;

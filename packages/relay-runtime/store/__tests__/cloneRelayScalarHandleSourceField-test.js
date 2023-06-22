@@ -34,7 +34,7 @@ describe('cloneRelayScalarHandleSourceField()', () => {
     selections = TestQuery.operation.selections[0].selections[0].selections;
   });
 
-  it('returns a clone of the source, with the same name as the handle', () => {
+  test('returns a clone of the source, with the same name as the handle', () => {
     // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     const clone = cloneRelayScalarHandleSourceField(
@@ -49,7 +49,7 @@ describe('cloneRelayScalarHandleSourceField()', () => {
     expect(clone.storageKey).toBe(getRelayHandleKey('test', null, 'street'));
   });
 
-  it('throws if the source field is not present', () => {
+  test('throws if the source field is not present', () => {
     // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     // $FlowFixMe[incompatible-use]

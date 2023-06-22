@@ -299,7 +299,7 @@ describe.each([
     renderSpy.mockClear();
   });
 
-  it('should render singular fragment without error when data is available', () => {
+  test('should render singular fragment without error when data is available', () => {
     renderSingularFragment();
     assertFragmentResults({
       id: '1',
@@ -308,7 +308,7 @@ describe.each([
     });
   });
 
-  it('should return the same data object if rendered multiple times: singular fragment', () => {
+  test('should return the same data object if rendered multiple times: singular fragment', () => {
     const container = renderSingularFragment();
     expect(renderSpy).toBeCalledTimes(1);
     const actualData = renderSpy.mock.calls[0][0];
@@ -318,7 +318,7 @@ describe.each([
     expect(actualData).toBe(actualData2);
   });
 
-  it('should render plural fragment without error when data is available', () => {
+  test('should render plural fragment without error when data is available', () => {
     renderPluralFragment();
     assertFragmentResults([
       {
@@ -334,7 +334,7 @@ describe.each([
     ]);
   });
 
-  it('should return the same data object if rendered multiple times: plural fragment', () => {
+  test('should return the same data object if rendered multiple times: plural fragment', () => {
     const container = renderPluralFragment();
     expect(renderSpy).toBeCalledTimes(1);
     const actualData = renderSpy.mock.calls[0][0];
@@ -344,13 +344,13 @@ describe.each([
     expect(actualData).toBe(actualData2);
   });
 
-  it('Returns [] when the fragment ref is [] (for plural fragments)', () => {
+  test('Returns [] when the fragment ref is [] (for plural fragments)', () => {
     const container = renderPluralFragment({usersRef: []});
     assertFragmentResults([]);
     container.unmount();
   });
 
-  it('Returns null when the fragment ref is null (for plural fragments)', () => {
+  test('Returns null when the fragment ref is null (for plural fragments)', () => {
     const container = renderPluralFragment({usersRef: null});
     assertFragmentResults(null);
     container.unmount();

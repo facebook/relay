@@ -127,7 +127,7 @@ const NULL_EDGE_QUERY = graphql`
 `;
 
 describe('RelayReader Client Edges behavior', () => {
-  it('follows the client edge to an available record', () => {
+  test('follows the client edge to an available record', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -167,7 +167,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(missingClientEdges?.length ?? 0).toEqual(0);
   });
 
-  it('returns a missing data request if the destination record is missing', () => {
+  test('returns a missing data request if the destination record is missing', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -259,7 +259,7 @@ describe('RelayReader Client Edges behavior', () => {
     });
   });
 
-  it('works when the backing field is aliased', () => {
+  test('works when the backing field is aliased', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -300,7 +300,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(missingClientEdges?.length ?? 0).toEqual(0);
   });
 
-  it('gives a null client edge field when the backing field is null', () => {
+  test('gives a null client edge field when the backing field is null', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -333,7 +333,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(missingClientEdges?.length ?? 0).toEqual(0);
   });
 
-  it('returns a missing data request if a record beyond the destination record via a linked field is missing', () => {
+  test('returns a missing data request if a record beyond the destination record via a linked field is missing', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -375,7 +375,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(missingClientEdges?.length).toEqual(1);
   });
 
-  it('returns a missing data request if data is missing within a fragment spread in the destination record of a client edge', () => {
+  test('returns a missing data request if data is missing within a fragment spread in the destination record of a client edge', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -417,7 +417,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(missingClientEdges?.length).toEqual(1);
   });
 
-  it('returns a missing data request if data is missing within a client edge within a client edge', () => {
+  test('returns a missing data request if data is missing within a client edge within a client edge', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -463,7 +463,7 @@ describe('RelayReader Client Edges behavior', () => {
     );
   });
 
-  it('Considers data as missing when a client edge is reached after traversing a client extension', () => {
+  test('Considers data as missing when a client edge is reached after traversing a client extension', () => {
     // This tests an exception to the usual rule that isMissingData shouldn't be set
     // when traversing past a client extension, since the parent query can't help with
     // client data. But for client edges, we can help using the client edge query, no matter
@@ -510,7 +510,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(missingClientEdges?.length).toEqual(1);
   });
 
-  it('propagates missing client edge data errors from the resolver up to the reader', () => {
+  test('propagates missing client edge data errors from the resolver up to the reader', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',

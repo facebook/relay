@@ -663,7 +663,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
           } else {
             innerTable = [[{}]];
           }
-          it.each(innerTable)(
+          test.each(innerTable)(
             'With the response (or {} if not applicable) being: %o',
             ({responseIsSynchronous, responseIsRejected}) => {
               // Assertions about the test table itself, because these are things that
@@ -876,7 +876,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         },
       );
 
-      it('Distinguishes environments', () => {
+      test('Distinguishes environments', () => {
         // Ensures that the pending/error/resolved state of a query (as opposed
         // to just the resulting value) is distinguished from one environment
         // to another. A regression test.
@@ -932,7 +932,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         });
       });
 
-      it('Honors fetchKey', () => {
+      test('Honors fetchKey', () => {
         let setFetchKey;
         function TestComponent(_props: {}) {
           let fetchKey;
@@ -978,7 +978,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         });
       });
 
-      it('Retains the query when two components use the same query and one of them unmounts while the other is suspended', () => {
+      test('Retains the query when two components use the same query and one of them unmounts while the other is suspended', () => {
         function UsesQuery(_props: {}) {
           useLazyLoadQuery(query, variables);
           return null;
@@ -1050,7 +1050,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         expect(isOperationRetained(operation)).toBe(true);
       });
 
-      it('Handles this other weird situation that it initially did not handle', () => {
+      test('Handles this other weird situation that it initially did not handle', () => {
         // This is a regression test for a situation that hit a bug initially where the retain
         // count was being updated on an out-of-date cache entry instead of the correct one.
         function UsesQuery(_props: {}) {
@@ -1113,7 +1113,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         expect(isOperationRetained(operation)).toBe(true);
       });
 
-      it('Handles a second component needing a timeout', () => {
+      test('Handles a second component needing a timeout', () => {
         // In legacy timeouts mode, make sure that we handle this sequnece of events:
         // 1 component accesses an uninitialized entry, initializes it and starts the timer
         // 2 component mounts

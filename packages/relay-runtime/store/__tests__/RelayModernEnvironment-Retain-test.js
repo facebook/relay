@@ -62,7 +62,7 @@ describe('retain()', () => {
     });
   });
 
-  it('retains data when not disposed', () => {
+  test('retains data when not disposed', () => {
     environment.retain(operation);
     const snapshot = environment.lookup(
       createReaderSelector(
@@ -81,7 +81,7 @@ describe('retain()', () => {
     });
   });
 
-  it('releases data when disposed', () => {
+  test('releases data when disposed', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = environment.retain(operation);
     const selector = createReaderSelector(

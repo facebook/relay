@@ -92,7 +92,7 @@ describe('toWarn()', () => {
     };
   });
 
-  it('verifies that `warning` is called with expected arguments', () => {
+  test('verifies that `warning` is called with expected arguments', () => {
     expect(
       toWarn(
         () => warning(false, 'Failed %s.', 'spectacularly'),
@@ -101,7 +101,7 @@ describe('toWarn()', () => {
     ).toPass();
   });
 
-  it('gracefully handles non-Array expected arguments', () => {
+  test('gracefully handles non-Array expected arguments', () => {
     expect(
       toWarn(
         () => warning(false, 'Welcome to Clowntown.'),
@@ -110,7 +110,7 @@ describe('toWarn()', () => {
     ).toPass();
   });
 
-  it('can identify a matching warning with a regular expression', () => {
+  test('can identify a matching warning with a regular expression', () => {
     expect(
       toWarn(
         () => warning(false, 'Press CTRL+ALT+DEL again to restart.'),
@@ -119,7 +119,7 @@ describe('toWarn()', () => {
     ).toPass();
   });
 
-  it('can identify a matching warning with regular expressions', () => {
+  test('can identify a matching warning with regular expressions', () => {
     expect(
       toWarn(
         () => warning(false, 'Press %s again to restart.', 'CTRL+ALT+DEL'),
@@ -128,7 +128,7 @@ describe('toWarn()', () => {
     ).toPass();
   });
 
-  it('detects failure to call `warning` with expected arguments', () => {
+  test('detects failure to call `warning` with expected arguments', () => {
     expect(
       toWarn(
         () => warning(false, 'Failed %s.', 'unexpectedly'),
@@ -141,7 +141,7 @@ describe('toWarn()', () => {
     );
   });
 
-  it('formats failure output for multiple `warning` calls prettily', () => {
+  test('formats failure output for multiple `warning` calls prettily', () => {
     expect(
       toWarn(() => {
         warning(false, 'Failed %s.', 'unexpectedly');
@@ -154,7 +154,7 @@ describe('toWarn()', () => {
     );
   });
 
-  it('detects failure to trigger `warning` with a falsey expression', () => {
+  test('detects failure to trigger `warning` with a falsey expression', () => {
     expect(
       toWarn(
         () => warning(true, 'Failed %s.', 'unexpectedly'),
@@ -167,14 +167,14 @@ describe('toWarn()', () => {
     );
   });
 
-  it('detects failure to call `warning` with an arg matching a regex', () => {
+  test('detects failure to call `warning` with an arg matching a regex', () => {
     expect(toWarn(() => warning(false, 'Something'), /THING/)).toFail(
       'Expected to warn: [false, /THING/] but `warning` received the ' +
         'following calls: [false, "Something"].',
     );
   });
 
-  it('detects failure to call `warning` with a args matching regexen', () => {
+  test('detects failure to call `warning` with a args matching regexen', () => {
     expect(
       toWarn(() => warning(false, 'Foo: %s', 'Bar'), [/FOO/, /BAR/]),
     ).toFail(
@@ -183,7 +183,7 @@ describe('toWarn()', () => {
     );
   });
 
-  it('ignores unexpected `warning` calls', () => {
+  test('ignores unexpected `warning` calls', () => {
     expect(
       toWarn(() => {
         warning(false, 'Failed right!');
@@ -193,17 +193,17 @@ describe('toWarn()', () => {
     ).toPass();
   });
 
-  it('verifies that `warning` not called with unexpected arguments', () => {
+  test('verifies that `warning` not called with unexpected arguments', () => {
     expect(
       not.toWarn(() => warning(false, 'Unrelated warning'), 'Broke.'),
     ).toPass();
   });
 
-  it('verifies that `warning` not called with falsey expression', () => {
+  test('verifies that `warning` not called with falsey expression', () => {
     expect(not.toWarn(() => warning(true, 'Bad thing'), 'Bad thing.')).toPass();
   });
 
-  it('does not overwrite a pre-existing `warning` mock', () => {
+  test('does not overwrite a pre-existing `warning` mock', () => {
     jest.mock('warning');
     /* eslint-disable no-shadow */
     const warning = require('warning');
@@ -212,7 +212,7 @@ describe('toWarn()', () => {
     expect(require('warning')).toBe(warning);
   });
 
-  it('is not confused by multiple calls', () => {
+  test('is not confused by multiple calls', () => {
     jest.mock('warning');
     /* eslint-disable no-shadow */
     const warning = require('warning');
@@ -222,12 +222,12 @@ describe('toWarn()', () => {
     expect(toWarn(() => warning(false, 'BANG!'), 'BOOM!')).toFail();
   });
 
-  it('throws if `warning` it not previously mocked', () => {
+  test('throws if `warning` it not previously mocked', () => {
     jest.unmock('warning');
     expect(toWarn).toThrowError("toWarn(): Requires `jest.mock('warning')`.");
   });
 
-  it('allows errors thrown during its callback to bubble up', () => {
+  test('allows errors thrown during its callback to bubble up', () => {
     expect(() => {
       toWarn(() => {
         throw new Error('BOOM!');
@@ -236,36 +236,36 @@ describe('toWarn()', () => {
   });
 
   describe('when not supplied an argument', () => {
-    it('matches any `warning`', () => {
+    test('matches any `warning`', () => {
       expect(
         toWarn(() => warning(false, 'Failed %s.', 'spectacularly')),
       ).toPass();
     });
 
-    it('detects failure to warn', () => {
+    test('detects failure to warn', () => {
       expect(toWarn(() => {})).toFail(
         'Expected to warn but `warning` received the following calls: [].',
       );
     });
 
-    it('detects failure to warn with a falsey expression', () => {
+    test('detects failure to warn with a falsey expression', () => {
       expect(toWarn(() => warning(true, 'Something went wrong.'))).toFail(
         'Expected to warn but `warning` received the following calls: ' +
           '[true, "Something went wrong."].',
       );
     });
 
-    it('verifies that `warning` not called at all', () => {
+    test('verifies that `warning` not called at all', () => {
       expect(not.toWarn(() => {})).toPass();
     });
 
-    it('verifies that `warning` not called with a falsey expression', () => {
+    test('verifies that `warning` not called with a falsey expression', () => {
       expect(
         not.toWarn(() => warning(true, 'You need to restart your computer.')),
       ).toPass();
     });
 
-    it('detects unexpected calls to `warning`', () => {
+    test('detects unexpected calls to `warning`', () => {
       expect(not.toWarn(() => warning(false, 'Guru meditation.'))).toFail(
         'Expected not to warn but `warning` received the following calls: ' +
           '[false, "Guru meditation."].',

@@ -129,7 +129,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         }
 
         describe('store-or-network', () => {
-          it('fetches from the network if data is available but query is not', () => {
+          test('fetches from the network if data is available but query is not', () => {
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -166,7 +166,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(events).toEqual(['next', response, 'complete']);
           });
 
-          it('fetches from the network if data is not available but query is', () => {
+          test('fetches from the network if data is not available but query is', () => {
             PreloadableQueryRegistry.set(
               query.params.id === null ? query.params.cacheID : query.params.id,
               query,
@@ -189,7 +189,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
           });
 
-          it('fetches from the network if data is not available with concrete query', () => {
+          test('fetches from the network if data is not available with concrete query', () => {
             const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               query,
@@ -207,7 +207,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
           });
 
-          it('returns a cached entry wo refetching if a previous fetch is pending', () => {
+          test('returns a cached entry wo refetching if a previous fetch is pending', () => {
             const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -241,7 +241,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ]);
           });
 
-          it('fetches from the network if data/query are still missing and cache entry is consumed', () => {
+          test('fetches from the network if data/query are still missing and cache entry is consumed', () => {
             const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -268,7 +268,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
           });
 
-          it('fetches from the network if data/query are still missing and cache entry has expired', () => {
+          test('fetches from the network if data/query are still missing and cache entry has expired', () => {
             preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -290,7 +290,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
           });
 
-          it('resolves from cache if data and query are available', () => {
+          test('resolves from cache if data and query are available', () => {
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -321,7 +321,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
           });
 
-          it('resolves from cache with fetchTime if data and query are available and operation is retained', () => {
+          test('resolves from cache with fetchTime if data and query are available and operation is retained', () => {
             environment.retain(operation);
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
@@ -352,7 +352,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
           });
 
-          it('resolves from cache with fetchTime if data and query are available and operation is in the release buffer', () => {
+          test('resolves from cache with fetchTime if data and query are available and operation is in the release buffer', () => {
             const disposable = environment.retain(operation);
             disposable.dispose();
             const fetchTime = Date.now();
@@ -384,7 +384,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
           });
 
-          it('resolves from cache if data is available with a concrete query', () => {
+          test('resolves from cache if data is available with a concrete query', () => {
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -411,7 +411,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
           });
 
-          it('resolves from cache if data & query become available after previously fetching', () => {
+          test('resolves from cache if data & query become available after previously fetching', () => {
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -448,7 +448,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             });
           });
 
-          it('fetches from the network (without resolving from cache) if the query has become stale', () => {
+          test('fetches from the network (without resolving from cache) if the query has become stale', () => {
             environment.commitPayload(operation, response.data);
             environment.commitUpdate(store => {
               store.invalidateStore();
@@ -472,7 +472,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
           });
 
-          it('resolves from cache and rechecks if data/query are available but cache entry has expired', () => {
+          test('resolves from cache and rechecks if data/query are available but cache entry has expired', () => {
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -508,7 +508,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         describe('store-and-network', () => {
-          it('fetches from the network even if query/data are available', () => {
+          test('fetches from the network even if query/data are available', () => {
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -545,7 +545,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(events).toEqual(['next', response, 'complete']);
           });
 
-          it('does not fetch again if a previous fetch is pending', () => {
+          test('does not fetch again if a previous fetch is pending', () => {
             const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -585,7 +585,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ]);
           });
 
-          it('fetches from the network if data/query are still missing and cache entry is consumed', () => {
+          test('fetches from the network if data/query are still missing and cache entry is consumed', () => {
             const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -618,7 +618,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
           });
 
-          it('fetches from the network if data/query are still missing and cache entry has expired', () => {
+          test('fetches from the network if data/query are still missing and cache entry has expired', () => {
             preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -648,7 +648,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         describe('network-only', () => {
-          it('fetches from the network even if query/data are available', () => {
+          test('fetches from the network even if query/data are available', () => {
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -685,7 +685,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(events).toEqual(['next', response, 'complete']);
           });
 
-          it('does not fetch again if a previous fetch is pending', () => {
+          test('does not fetch again if a previous fetch is pending', () => {
             const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -725,7 +725,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ]);
           });
 
-          it('fetches from the network if data/query are still missing and cache entry is consumed', () => {
+          test('fetches from the network if data/query are still missing and cache entry is consumed', () => {
             const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -758,7 +758,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
           });
 
-          it('fetches from the network if data/query are still missing and cache entry has expired', () => {
+          test('fetches from the network if data/query are still missing and cache entry has expired', () => {
             preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -826,7 +826,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           PreloadableQueryRegistry.clear();
         });
         describe('network-only', () => {
-          it('does not fetch from the network again because cached entry never expires in server environment', () => {
+          test('does not fetch from the network again because cached entry never expires in server environment', () => {
             preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
@@ -854,7 +854,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toEqual(expect.any(Observable));
             expect(fetch).toBeCalledTimes(1);
           });
-          it('does not trigger timers', () => {
+          test('does not trigger timers', () => {
             jest.useFakeTimers();
             preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
@@ -963,7 +963,7 @@ describe('Preload queries that use provided variables', () => {
     PreloadableQueryRegistry.clear();
   });
 
-  it('fetches from the network with generated variables', () => {
+  test('fetches from the network with generated variables', () => {
     // load data in store
     environment.commitPayload(operation, responseWithProvidedVar.data);
     expect(environment.check(operation).status).toEqual('available');
@@ -983,7 +983,7 @@ describe('Preload queries that use provided variables', () => {
     expect(fetch.mock.calls[0][1]).toEqual(generatedVariables);
   });
 
-  it('resolves from cache if data is available', () => {
+  test('resolves from cache if data is available', () => {
     environment.commitPayload(operation, responseWithProvidedVar.data);
     expect(environment.check(operation).status).toEqual('available');
 

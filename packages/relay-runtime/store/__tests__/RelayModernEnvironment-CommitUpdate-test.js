@@ -90,7 +90,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         operation = createOperationDescriptor(ParentQuery, {});
       });
 
-      it('applies the update to the store', () => {
+      test('applies the update to the store', () => {
         const selector = createReaderSelector(
           UserFragment,
           '4',
@@ -146,7 +146,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('applies the mutation to the store', () => {
+        test('applies the mutation to the store', () => {
           const selector = createReaderSelector(
             UserFragment,
             '4',

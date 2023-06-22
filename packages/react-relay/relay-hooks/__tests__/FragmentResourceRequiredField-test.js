@@ -179,7 +179,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
   disposable.dispose();
 });
 
-it('should throw promise if reading missing data and network request for parent query is in flight', async () => {
+test('should throw promise if reading missing data and network request for parent query is in flight', async () => {
   fetchQuery(environment, query).subscribe({});
   const fragmentRef = {
     __id: '4',

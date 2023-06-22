@@ -107,7 +107,7 @@ describe('query with undeclared, unused fragment argument', () => {
     });
   });
 
-  it('reads results with the undeclared variable set to undefined', () => {
+  test('reads results with the undeclared variable set to undefined', () => {
     environment.execute({operation}).subscribe({});
     subject.next({
       data: {

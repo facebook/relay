@@ -188,7 +188,7 @@ describe('loadQuery', () => {
   });
 
   describe('when passed a PreloadableConcreteRequest', () => {
-    it('checks whether the query ast is available synchronously', () => {
+    test('checks whether the query ast is available synchronously', () => {
       loadQuery<OperationType>(
         environment,
         preloadableConcreteRequest,
@@ -199,7 +199,7 @@ describe('loadQuery', () => {
     });
 
     describe('when the query AST is available synchronously', () => {
-      it('synchronously checks whether the query can be fulfilled by the store', () => {
+      test('synchronously checks whether the query can be fulfilled by the store', () => {
         loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -210,7 +210,7 @@ describe('loadQuery', () => {
       });
 
       describe("with fetchPolicy === 'store-or-network'", () => {
-        it('should not call fetch if the query can be fulfilled by the store', () => {
+        test('should not call fetch if the query can be fulfilled by the store', () => {
           const {source} = loadQuery<OperationType>(
             environment,
             preloadableConcreteRequest,
@@ -232,7 +232,7 @@ describe('loadQuery', () => {
           beforeEach(() => {
             mockAvailability = {status: 'missing'};
           });
-          it('makes a network request', done => {
+          test('makes a network request', done => {
             const {source} = loadQuery<OperationType>(
               environment,
               preloadableConcreteRequest,
@@ -274,7 +274,7 @@ describe('loadQuery', () => {
             expect(nextCallback).toHaveBeenCalledWith(response);
           });
 
-          it('should mark failed network requests', () => {
+          test('should mark failed network requests', () => {
             const preloadedQuery = loadQuery<OperationType>(
               environment,
               preloadableConcreteRequest,
@@ -292,7 +292,7 @@ describe('loadQuery', () => {
             expect(preloadedQuery.networkError).toBe(networkError);
           });
 
-          it('calling dispose unsubscribes from executeWithSource', () => {
+          test('calling dispose unsubscribes from executeWithSource', () => {
             // This ensures that no data is written to the store
             const preloadedQuery = loadQuery<OperationType>(
               environment,
@@ -335,7 +335,7 @@ describe('loadQuery', () => {
             }
           });
 
-          it('calling dispose unsubscribes from the network request', () => {
+          test('calling dispose unsubscribes from the network request', () => {
             // This ensures that live queries stop issuing network requests
             const preloadedQuery = loadQuery<OperationType>(
               environment,
@@ -356,7 +356,7 @@ describe('loadQuery', () => {
       });
 
       describe("with fetchPolicy === 'store-only'", () => {
-        it('should not call fetch if the query can be fulfilled by the store', () => {
+        test('should not call fetch if the query can be fulfilled by the store', () => {
           const {source} = loadQuery<OperationType>(
             environment,
             preloadableConcreteRequest,
@@ -374,7 +374,7 @@ describe('loadQuery', () => {
           expect(environment.retain).toHaveBeenCalled();
         });
 
-        it('should not call fetch if the query cannot be fulfilled by the store', () => {
+        test('should not call fetch if the query cannot be fulfilled by the store', () => {
           mockAvailability = {status: 'missing'};
           const {source} = loadQuery<OperationType>(
             environment,
@@ -393,7 +393,7 @@ describe('loadQuery', () => {
           expect(environment.retain).toHaveBeenCalled();
         });
 
-        it('calling dispose releases the query', () => {
+        test('calling dispose releases the query', () => {
           const preloadedQuery = loadQuery<OperationType>(
             environment,
             preloadableConcreteRequest,
@@ -412,7 +412,7 @@ describe('loadQuery', () => {
       beforeEach(() => {
         resolvedModule = null;
       });
-      it('should make a network request', done => {
+      test('should make a network request', done => {
         const {source} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -455,7 +455,7 @@ describe('loadQuery', () => {
         sink.next(response);
         expect(nextCallback).toHaveBeenCalledWith(response);
       });
-      it('should mark failed network requests', () => {
+      test('should mark failed network requests', () => {
         const preloadedQuery = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -473,7 +473,7 @@ describe('loadQuery', () => {
         expect(preloadedQuery.networkError).toBe(networkError);
       });
 
-      it('calling dispose after the AST loads unsubscribes from executeWithSource', () => {
+      test('calling dispose after the AST loads unsubscribes from executeWithSource', () => {
         // This ensures that no data is written to the store
         const preloadedQuery = loadQuery<OperationType>(
           environment,
@@ -521,7 +521,7 @@ describe('loadQuery', () => {
         }
       });
 
-      it('calling dispose after the AST loads unsubscribes from the network request', () => {
+      test('calling dispose after the AST loads unsubscribes from the network request', () => {
         // This ensures that live queries stop issuing network requests
         const preloadedQuery = loadQuery<OperationType>(
           environment,
@@ -540,7 +540,7 @@ describe('loadQuery', () => {
         }
       });
 
-      it('calling dispose before the AST loads clears the onLoad callback', () => {
+      test('calling dispose before the AST loads clears the onLoad callback', () => {
         const preloadedQuery = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -563,7 +563,7 @@ describe('loadQuery', () => {
         }
       });
 
-      it('passes a callback to onLoad that calls executeWithSource', () => {
+      test('passes a callback to onLoad that calls executeWithSource', () => {
         loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -592,7 +592,7 @@ describe('loadQuery', () => {
     });
 
     describe("with fetchPolicy === 'store-only'", () => {
-      it('should not call fetch if the query can be fulfilled by the store', () => {
+      test('should not call fetch if the query can be fulfilled by the store', () => {
         const {source} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -610,7 +610,7 @@ describe('loadQuery', () => {
         expect(environment.retain).toHaveBeenCalled();
       });
 
-      it('should not call fetch if the query cannot be fulfilled by the store', () => {
+      test('should not call fetch if the query cannot be fulfilled by the store', () => {
         mockAvailability = {status: 'missing'};
         const {source} = loadQuery<OperationType>(
           environment,
@@ -629,7 +629,7 @@ describe('loadQuery', () => {
         expect(environment.retain).toHaveBeenCalled();
       });
 
-      it('calling dispose releases the query', () => {
+      test('calling dispose releases the query', () => {
         const preloadedQuery = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -645,13 +645,13 @@ describe('loadQuery', () => {
   });
 
   describe('when passed a query AST', () => {
-    it('checks whether the query can be fulfilled by the store synchronously', () => {
+    test('checks whether the query can be fulfilled by the store synchronously', () => {
       loadQuery<OperationType>(environment, query, variables);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.check).toHaveBeenCalled();
     });
     describe('when the query can be fulfilled by the store', () => {
-      it("when fetchPolicy === 'store-or-network', it avoids a network request", () => {
+      test("when fetchPolicy === 'store-or-network', it avoids a network request", () => {
         loadQuery<OperationType>(environment, query, variables, {
           fetchPolicy: 'store-or-network',
         });
@@ -664,7 +664,7 @@ describe('loadQuery', () => {
       });
 
       describe("when fetchPolicy === 'network-only'", () => {
-        it('should make a network request', done => {
+        test('should make a network request', done => {
           const {source} = loadQuery<OperationType>(
             environment,
             query,
@@ -704,7 +704,7 @@ describe('loadQuery', () => {
           expect(nextCallback).toHaveBeenCalledWith(response);
         });
 
-        it('should mark failed network requests', () => {
+        test('should mark failed network requests', () => {
           const preloadedQuery = loadQuery<OperationType>(
             environment,
             query,
@@ -722,7 +722,7 @@ describe('loadQuery', () => {
           expect(preloadedQuery.networkError).toBe(networkError);
         });
 
-        it('calling dispose unsubscribes from environment.executeWithSource', () => {
+        test('calling dispose unsubscribes from environment.executeWithSource', () => {
           // This ensures that no data is written to the store
           const preloadedQuery = loadQuery<OperationType>(
             environment,
@@ -766,7 +766,7 @@ describe('loadQuery', () => {
           }
         });
 
-        it('calling dispose unsubscribes from the network request', () => {
+        test('calling dispose unsubscribes from the network request', () => {
           // This ensures that live queries stop issuing network requests
           const preloadedQuery = loadQuery<OperationType>(
             environment,
@@ -791,7 +791,7 @@ describe('loadQuery', () => {
         mockAvailability = {status: 'missing'};
       });
 
-      it('should make a network request', done => {
+      test('should make a network request', done => {
         const {source} = loadQuery<OperationType>(
           environment,
           query,
@@ -828,7 +828,7 @@ describe('loadQuery', () => {
         expect(nextCallback).toHaveBeenCalledWith(response);
       });
 
-      it('should mark failed network requests', () => {
+      test('should mark failed network requests', () => {
         const preloadedQuery = loadQuery<OperationType>(
           environment,
           query,
@@ -843,7 +843,7 @@ describe('loadQuery', () => {
         expect(preloadedQuery.networkError).toBe(networkError);
       });
 
-      it('calling dispose unsubscribes from environment.executeWithSource', () => {
+      test('calling dispose unsubscribes from environment.executeWithSource', () => {
         // This ensures that no data is written to the store
         const preloadedQuery = loadQuery<OperationType>(
           environment,
@@ -872,7 +872,7 @@ describe('loadQuery', () => {
         }
       });
 
-      it('calling dispose unsubscribes from the network request', () => {
+      test('calling dispose unsubscribes from the network request', () => {
         // This ensures that live queries stop issuing network requests
         const preloadedQuery = loadQuery<OperationType>(
           environment,
@@ -889,7 +889,7 @@ describe('loadQuery', () => {
     });
 
     describe("with fetchPolicy === 'store-only'", () => {
-      it('should not call fetch if the query can be fulfilled by the store', () => {
+      test('should not call fetch if the query can be fulfilled by the store', () => {
         const {source} = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -907,7 +907,7 @@ describe('loadQuery', () => {
         expect(environment.retain).toHaveBeenCalled();
       });
 
-      it('should not call fetch if the query cannot be fulfilled by the store', () => {
+      test('should not call fetch if the query cannot be fulfilled by the store', () => {
         mockAvailability = {status: 'missing'};
         const {source} = loadQuery<OperationType>(
           environment,
@@ -926,7 +926,7 @@ describe('loadQuery', () => {
         expect(environment.retain).toHaveBeenCalled();
       });
 
-      it('calling dispose releases the query', () => {
+      test('calling dispose releases the query', () => {
         const preloadedQuery = loadQuery<OperationType>(
           environment,
           preloadableConcreteRequest,
@@ -964,7 +964,7 @@ describe('loadQuery', () => {
       };
     });
 
-    it('warns if called during render', () => {
+    test('warns if called during render', () => {
       expectWarningWillFire(
         'Relay: `loadQuery` should not be called inside a React render function.',
       );
@@ -978,7 +978,7 @@ describe('loadQuery', () => {
       });
     });
 
-    it('uses provided name for warning', () => {
+    test('uses provided name for warning', () => {
       expectWarningWillFire(
         'Relay: `refetch` should not be called inside a React render function.',
       );

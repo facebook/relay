@@ -122,7 +122,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         jest.runAllTimers();
       }
 
-      it('normalizes and reads data when the condition is true', () => {
+      test('normalizes and reads data when the condition is true', () => {
         const operation = createOperationDescriptor(ConditionalQuery, {
           condition: true,
         });
@@ -167,7 +167,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('normalizes and reads data when the condition is false', () => {
+      test('normalizes and reads data when the condition is false', () => {
         const operation = createOperationDescriptor(ConditionalQuery, {
           condition: false,
         });
@@ -205,7 +205,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('normalizes and reads data when the condition is null', () => {
+      test('normalizes and reads data when the condition is null', () => {
         const operation = createOperationDescriptor(ConditionalQuery, {
           condition: null,
         });
@@ -243,7 +243,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('normalizes and reads data when the condition is unset', () => {
+      test('normalizes and reads data when the condition is unset', () => {
         const operation = createOperationDescriptor(ConditionalQuery, {
           /* condition is unset */
         });
@@ -281,7 +281,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('checks missing data when the condition is true', () => {
+      test('checks missing data when the condition is true', () => {
         expectWarningWillFire(
           'RelayResponseNormalizer: Payload did not contain a value for field `viewer: viewer`. Check that you are parsing with the same query that was used to fetch the payload.',
         );
@@ -298,7 +298,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('checks missing data when the condition is false', () => {
+      test('checks missing data when the condition is false', () => {
         expectWarningWillFire(
           'RelayResponseNormalizer: Payload did not contain a value for field `me: me`. Check that you are parsing with the same query that was used to fetch the payload.',
         );
@@ -315,7 +315,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('checks missing data when the condition is null', () => {
+      test('checks missing data when the condition is null', () => {
         expectWarningWillFire(
           'RelayResponseNormalizer: Payload did not contain a value for field `me: me`. Check that you are parsing with the same query that was used to fetch the payload.',
         );
@@ -332,7 +332,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('checks missing data when the condition is unset', () => {
+      test('checks missing data when the condition is unset', () => {
         expectWarningWillFire(
           'RelayResponseNormalizer: Payload did not contain a value for field `me: me`. Check that you are parsing with the same query that was used to fetch the payload.',
         );

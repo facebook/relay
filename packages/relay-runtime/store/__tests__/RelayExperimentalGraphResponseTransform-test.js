@@ -747,7 +747,7 @@ test('Traverses when @defer is disabled', () => {
   `);
 });
 
-it('Ignores "handle" fields (for now)', () => {
+test('Ignores "handle" fields (for now)', () => {
   const query = graphql`
     query RelayExperimentalGraphResponseTransformTestHandleFieldsQuery(
       $id: ID!

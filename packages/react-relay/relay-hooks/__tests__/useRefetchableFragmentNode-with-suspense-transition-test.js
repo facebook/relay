@@ -33,7 +33,7 @@ const {useLayoutEffect, useTransition, useMemo, useState} = React;
 
 describe('useRefetchableFragmentNode with useTransition', () => {
   if (typeof React.useTransition !== 'function') {
-    it('empty test to prevent Jest from failing', () => {
+    test('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
     });
   } else {
@@ -326,7 +326,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
     describe('refetch', () => {
       // Sanity check test, should already be tested in useRefetchableFragmentNode test
-      it('refetches and sets pending state correctly', () => {
+      test('refetches and sets pending state correctly', () => {
         const renderer = renderFragment();
         const initialUser = {
           id: '1',
@@ -409,7 +409,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             });
         });
 
-        it('refetches correctly when a second refetch starts while the first is one suspended', () => {
+        test('refetches correctly when a second refetch starts while the first is one suspended', () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -540,7 +540,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           expect(fetchSpy).toBeCalledTimes(4);
         });
 
-        it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
+        test('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -682,7 +682,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           expect(fetchSpy).toBeCalledTimes(4);
         });
 
-        it('refetches correctly when switching between multiple refetches', () => {
+        test('refetches correctly when switching between multiple refetches', () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',

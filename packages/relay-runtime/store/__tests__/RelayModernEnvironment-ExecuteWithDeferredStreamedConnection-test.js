@@ -172,7 +172,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               });
       });
 
-      it('does not initialize the connection with the root payload', () => {
+      test('does not initialize the connection with the root payload', () => {
         const initialSnapshot = environment.lookup(selector);
         callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
@@ -195,7 +195,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('initializes the connection with the deferred payload', () => {
+      test('initializes the connection with the deferred payload', () => {
         const initialSnapshot = environment.lookup(selector);
         callback = jest.fn();
         environment.subscribe(initialSnapshot, callback);
@@ -241,7 +241,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('initializes the connection with the first edge (0 => 1 edges)', () => {
+      test('initializes the connection with the first edge (0 => 1 edges)', () => {
         const initialSnapshot = environment.lookup(selector);
         callback = jest.fn();
         environment.subscribe(initialSnapshot, callback);
@@ -322,7 +322,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('initializes the connection with subsequent edges (1 => 2 edges)', () => {
+      test('initializes the connection with subsequent edges (1 => 2 edges)', () => {
         const initialSnapshot = environment.lookup(selector);
         callback = jest.fn();
         environment.subscribe(initialSnapshot, callback);
@@ -438,7 +438,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
+      test('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
         const initialSnapshot = environment.lookup(selector);
         callback = jest.fn();
         environment.subscribe(initialSnapshot, callback);

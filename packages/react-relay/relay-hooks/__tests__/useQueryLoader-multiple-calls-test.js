@@ -112,7 +112,7 @@ beforeEach(() => {
 });
 
 describe('when loading and disposing same query multiple times', () => {
-  it('loads correctly when ast is loaded in between calls to load and initial query ref is disposed', () => {
+  test('loads correctly when ast is loaded in between calls to load and initial query ref is disposed', () => {
     let loadedQuery;
     let queryLoaderCallback;
 

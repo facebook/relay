@@ -149,7 +149,7 @@ describe('executeSubscrption() with @stream', () => {
     environment.subscribe(fragmentSnapshot, fragmentCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  test('calls next() and publishes the initial payload to the store', () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next({
       data: {
@@ -185,7 +185,7 @@ describe('executeSubscrption() with @stream', () => {
     ).not.toBe(null);
   });
 
-  it('processes streamed payloads', () => {
+  test('processes streamed payloads', () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next({
       data: {
@@ -276,7 +276,7 @@ describe('executeSubscrption() with @stream', () => {
     ).toBe(null);
   });
 
-  it('calls complete() if root network request completes after deferred payload resolves', () => {
+  test('calls complete() if root network request completes after deferred payload resolves', () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next({
       data: {
@@ -342,7 +342,7 @@ describe('executeSubscrption() with @stream', () => {
     ).toBe(null);
   });
 
-  it('calls complete() if root network request completes before deferred payload resolves', () => {
+  test('calls complete() if root network request completes before deferred payload resolves', () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next({
       data: {
@@ -380,7 +380,7 @@ describe('executeSubscrption() with @stream', () => {
     ).toBe(null);
   });
 
-  it('calls error() if root network request errors before deferred payload resolves', () => {
+  test('calls error() if root network request errors before deferred payload resolves', () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next({
       data: {

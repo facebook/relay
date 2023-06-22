@@ -107,7 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               });
       });
 
-      it('When a field is @required and a @connection _and_ null, it bubbles null up to its parent', () => {
+      test('When a field is @required and a @connection _and_ null, it bubbles null up to its parent', () => {
         const operationSnapshot = environment.lookup(operation.fragment);
         const operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);

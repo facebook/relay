@@ -165,7 +165,7 @@ describe.each([
     });
 
     describe('using preloadQuery_DEPRECATED', () => {
-      it('renders synchronously with provided variables', () => {
+      test('renders synchronously with provided variables', () => {
         const prefetched = preloadQuery_DEPRECATED<any, empty>(
           environment,
           preloadableConcreteRequestPV,
@@ -197,7 +197,7 @@ describe.each([
       });
     });
     describe('using loadQuery', () => {
-      it('renders synchronously when passed a preloadableConcreteRequest', () => {
+      test('renders synchronously when passed a preloadableConcreteRequest', () => {
         const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequestPV,
@@ -232,7 +232,7 @@ describe.each([
         });
       });
 
-      it('renders synchronously when passed a query AST', () => {
+      test('renders synchronously when passed a query AST', () => {
         const prefetched = loadQuery<any, _>(environment, queryPV, {
           id: '4',
         });
@@ -260,7 +260,7 @@ describe.each([
       });
     });
 
-    it('warns when variable provider is an impure function', () => {
+    test('warns when variable provider is an impure function', () => {
       graphql`
         fragment usePreloadedQueryProvidedVariablesTest_badFragment on User
         @argumentDefinitions(

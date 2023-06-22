@@ -137,7 +137,7 @@ describe('execute() a query with @module if the module fragment is available syn
       );
   });
 
-  it('commits only after data from the query and from the @module fragment have been normalized', () => {
+  test('commits only after data from the query and from the @module fragment have been normalized', () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next({
       data: {
@@ -264,7 +264,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
       );
   });
 
-  it('commits only after data from the query and from the @module fragment have been normalized', () => {
+  test('commits only after data from the query and from the @module fragment have been normalized', () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next([
       {
@@ -406,7 +406,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       );
   });
 
-  it('should commit once, including data from both the outer and inner module fragments, after the outer module fragment normalization file is available', () => {
+  test('should commit once, including data from both the outer and inner module fragments, after the outer module fragment normalization file is available', () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next({
       data: {

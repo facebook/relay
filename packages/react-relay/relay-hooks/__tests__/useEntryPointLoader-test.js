@@ -91,7 +91,7 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-it('calls loadEntryPoint with the appropriate parameters, if the callback is called', () => {
+test('calls loadEntryPoint with the appropriate parameters, if the callback is called', () => {
   render();
   expect(loadEntryPoint).not.toHaveBeenCalled();
   const params = {};
@@ -102,7 +102,7 @@ it('calls loadEntryPoint with the appropriate parameters, if the callback is cal
   expect(loadEntryPoint.mock.calls[0][2]).toBe(params);
 });
 
-it('disposes the old preloaded entry point and calls loadEntryPoint anew if the callback is called again', () => {
+test('disposes the old preloaded entry point and calls loadEntryPoint anew if the callback is called again', () => {
   render();
 
   const params = {};
@@ -122,7 +122,7 @@ it('disposes the old preloaded entry point and calls loadEntryPoint anew if the 
   expect(loadEntryPoint.mock.calls[1][2]).toBe(params2);
 });
 
-it('disposes the preloaded entry point if the component unmounts', () => {
+test('disposes the preloaded entry point if the component unmounts', () => {
   render();
   const params = {};
   ReactTestRenderer.act(() => entryPointLoaderCallback(params));
@@ -131,14 +131,14 @@ it('disposes the preloaded entry point if the component unmounts', () => {
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('returns the value of loadEntryPoint as the first item of the return value', () => {
+test('returns the value of loadEntryPoint as the first item of the return value', () => {
   render();
   const params = {};
   ReactTestRenderer.act(() => entryPointLoaderCallback(params));
   expect(loadedEntryPoint).toBe(loadEntryPointLastReturnValue);
 });
 
-it('disposes the entry point and nullifies the state when the disposeEntryPoint callback is called', () => {
+test('disposes the entry point and nullifies the state when the disposeEntryPoint callback is called', () => {
   render();
   const params = {};
   ReactTestRenderer.act(() => entryPointLoaderCallback(params));
@@ -160,7 +160,7 @@ afterEach(() => {
   jest.dontMock('scheduler');
 });
 
-it('does not dispose the entry point before the new component tree unsuspends in concurrent mode', () => {
+test('does not dispose the entry point before the new component tree unsuspends in concurrent mode', () => {
   if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
@@ -243,7 +243,7 @@ it('does not dispose the entry point before the new component tree unsuspends in
   }
 });
 
-it('disposes entry point references associated with previous suspensions when multiple state changes trigger suspense and the final suspension concludes', () => {
+test('disposes entry point references associated with previous suspensions when multiple state changes trigger suspense and the final suspension concludes', () => {
   // Three state changes and calls to loadEntryPoint: A, B, C, each causing suspense
   // When C unsuspends, A and B's entry points are disposed.
 
@@ -346,7 +346,7 @@ it('disposes entry point references associated with previous suspensions when mu
   }
 });
 
-it('disposes entry point references associated with subsequent suspensions when multiple state changes trigger suspense and the initial suspension concludes', () => {
+test('disposes entry point references associated with subsequent suspensions when multiple state changes trigger suspense and the initial suspension concludes', () => {
   // Three state changes and calls to loadEntryPoint: A, B, C, each causing suspense
   // When A unsuspends, B and C's entry points do not get disposed.
 
@@ -447,7 +447,7 @@ it('disposes entry point references associated with subsequent suspensions when 
   }
 });
 
-it('should dispose of prior entry points if the callback is called multiple times in the same tick', () => {
+test('should dispose of prior entry points if the callback is called multiple times in the same tick', () => {
   render();
   let firstDispose;
   ReactTestRenderer.act(() => {
@@ -459,7 +459,7 @@ it('should dispose of prior entry points if the callback is called multiple time
   expect(firstDispose).toHaveBeenCalledTimes(1);
 });
 
-it('should dispose of entry points on unmount if the callback is called, the component suspends and then unmounts', () => {
+test('should dispose of entry points on unmount if the callback is called, the component suspends and then unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -499,7 +499,7 @@ it('should dispose of entry points on unmount if the callback is called, the com
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('disposes all entry points if the callback is called, the component suspends, another entry point is loaded and then the component unmounts', () => {
+test('disposes all entry points if the callback is called, the component suspends, another entry point is loaded and then the component unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -554,7 +554,7 @@ it('disposes all entry points if the callback is called, the component suspends,
   expect(secondDispose).toHaveBeenCalledTimes(1);
 });
 
-it('disposes all entry points if the component suspends, another entry point is loaded and then the component unmounts', () => {
+test('disposes all entry points if the component suspends, another entry point is loaded and then the component unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -598,7 +598,7 @@ it('disposes all entry points if the component suspends, another entry point is 
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('disposes the entry point on unmount if the callback is called and the component unmounts before rendering', () => {
+test('disposes the entry point on unmount if the callback is called and the component unmounts before rendering', () => {
   // Case 1: unmount, then loadEntryPoint
   render();
   expect(renderCount).toEqual(1);
@@ -611,7 +611,7 @@ it('disposes the entry point on unmount if the callback is called and the compon
   expect(renderCount).toEqual(1); // renderCount === 1 ensures that an extra commit hasn't occurred
 });
 
-it('disposes the entry point on unmount if the component unmounts and then the callback is called before rendering', () => {
+test('disposes the entry point on unmount if the component unmounts and then the callback is called before rendering', () => {
   // Case 2: loadEntryPoint, then unmount
   render();
   expect(renderCount).toEqual(1);
@@ -624,7 +624,7 @@ it('disposes the entry point on unmount if the component unmounts and then the c
   expect(renderCount).toEqual(1); // renderCount === 1 ensures that an extra commit hasn't occurred
 });
 
-it('does not call loadEntryPoint if the callback is called after the component unmounts', () => {
+test('does not call loadEntryPoint if the callback is called after the component unmounts', () => {
   render();
   ReactTestRenderer.act(() => instance.unmount());
   entryPointLoaderCallback({});

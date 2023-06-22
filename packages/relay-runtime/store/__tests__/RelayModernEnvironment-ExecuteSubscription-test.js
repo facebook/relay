@@ -113,7 +113,7 @@ describe('execute()', () => {
     callbacks = {complete, error};
   });
 
-  it('fetches the subscription with the provided subscribe function', () => {
+  test('fetches the subscription with the provided subscribe function', () => {
     environment.executeSubscription({operation}).subscribe({});
     expect(subscribeFn.mock.calls.length).toBe(1);
     expect(subscribeFn.mock.calls[0][0]).toEqual(
@@ -122,7 +122,7 @@ describe('execute()', () => {
     expect(subscribeFn.mock.calls[0][1]).toEqual(variables);
   });
 
-  it('commits the server payload and runs the updater, subscription not marked in flight in operation tracker', () => {
+  test('commits the server payload and runs the updater, subscription not marked in flight in operation tracker', () => {
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
@@ -187,7 +187,7 @@ describe('execute()', () => {
     ).toBe(null);
   });
 
-  it('does not commit the server payload if disposed', () => {
+  test('does not commit the server payload if disposed', () => {
     const selector = createReaderSelector(
       CommentFragment,
       commentID,

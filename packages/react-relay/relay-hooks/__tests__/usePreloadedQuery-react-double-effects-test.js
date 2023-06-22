@@ -217,7 +217,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
   describe('using loadQuery', () => {
     describe('when request is in flight upon rendering', () => {
-      it('forces a re-render when effects are double invoked and does NOT refetch when policy network-only', () => {
+      test('forces a re-render when effects are double invoked and does NOT refetch when policy network-only', () => {
         const queryRef = loadQuery<any, _>(environment, gqlQuery, variables, {
           fetchPolicy: 'network-only',
         });
@@ -299,7 +299,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
-      it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
+      test('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
         const queryRef = loadQuery<any, _>(environment, gqlQuery, variables, {
           fetchPolicy: 'store-or-network',
         });
@@ -383,7 +383,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     });
 
     describe('when request is complete upon rendering', () => {
-      it('forces a re-render when effects are double invoked and does NOT refetch when policy network-only', () => {
+      test('forces a re-render when effects are double invoked and does NOT refetch when policy network-only', () => {
         const queryRef = loadQuery<any, _>(environment, gqlQuery, variables, {
           fetchPolicy: 'network-only',
         });
@@ -456,7 +456,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
-      it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
+      test('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
         const queryRef = loadQuery<any, _>(environment, gqlQuery, variables, {
           fetchPolicy: 'store-or-network',
         });
@@ -531,7 +531,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     });
 
     describe('with incremental delivery', () => {
-      it('forces a re-render when effects are double invoked and does NOT refetch when policy is network-only', () => {
+      test('forces a re-render when effects are double invoked and does NOT refetch when policy is network-only', () => {
         const queryRef = loadQuery<any, _>(
           environment,
           gqlQueryWithDefer,
@@ -647,7 +647,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
-      it('forces a re-render when effects are double invoked and does NOT refetch when policy is store-or-network', () => {
+      test('forces a re-render when effects are double invoked and does NOT refetch when policy is store-or-network', () => {
         const queryRef = loadQuery<any, _>(
           environment,
           gqlQueryWithDefer,
@@ -767,7 +767,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
   describe('using preloadQuery_DEPRECATED', () => {
     describe('when request is in flight upon rendering', () => {
-      it('forces a re-render when effects are double invoked and refetches when policy network-only', () => {
+      test('forces a re-render when effects are double invoked and refetches when policy network-only', () => {
         const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
@@ -874,7 +874,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
-      it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
+      test('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
         const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
@@ -955,7 +955,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     });
 
     describe('when request is complete upon rendering', () => {
-      it('forces a re-render when effects are double invoked and refetches when policy network-only', () => {
+      test('forces a re-render when effects are double invoked and refetches when policy network-only', () => {
         const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
@@ -1055,7 +1055,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
-      it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
+      test('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
         const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
@@ -1138,7 +1138,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     });
 
     describe('with incremental delivery', () => {
-      it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
+      test('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
         const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQueryWithDefer,
@@ -1279,7 +1279,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
-      it('forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
+      test('forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
         const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQueryWithDefer,

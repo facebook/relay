@@ -92,7 +92,7 @@ describe('execute() a query with @stream and @required', () => {
     });
   });
 
-  it('bubbles @required @stream nodes up to the parent', () => {
+  test('bubbles @required @stream nodes up to the parent', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);

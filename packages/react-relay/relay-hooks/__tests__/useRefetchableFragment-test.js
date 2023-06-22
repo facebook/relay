@@ -190,7 +190,7 @@ describe('useRefetchableFragment', () => {
   // This test is only a sanity check for useRefetchableFragment as a wrapper
   // around useRefetchableFragmentNode.
   // See full test behavior in useRefetchableFragmentNode-test.
-  it('should render fragment without error when data is available', () => {
+  test('should render fragment without error when data is available', () => {
     renderFragment();
     expectFragmentResults([
       {

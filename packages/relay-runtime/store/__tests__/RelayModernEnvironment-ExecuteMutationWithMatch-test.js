@@ -237,7 +237,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
-      it('executes the optimistic updater immediately, does not mark the mutation as being in flight in the operation tracker', () => {
+      test('executes the optimistic updater immediately, does not mark the mutation as being in flight in the operation tracker', () => {
         environment
           .executeMutation({
             operation,
@@ -269,7 +269,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      test('calls next() and publishes the initial payload to the store', () => {
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -363,7 +363,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).not.toBe(null);
       });
 
-      it('loads the @match fragment and normalizes/publishes the field payload', () => {
+      test('loads the @match fragment and normalizes/publishes the field payload', () => {
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -444,7 +444,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).not.toBe(null);
       });
 
-      it('calls complete() only after match payloads are processed (network completes first)', () => {
+      test('calls complete() only after match payloads are processed (network completes first)', () => {
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -506,7 +506,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls complete() only after match payloads are processed (network completes last)', () => {
+      test('calls complete() only after match payloads are processed (network completes last)', () => {
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -595,7 +595,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        it('optimistically creates @match fields', () => {
+        test('optimistically creates @match fields', () => {
           operationLoader.get.mockImplementationOnce(name => {
             return markdownRendererNormalizationFragment;
           });
@@ -651,7 +651,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('optimistically creates @match fields and loads resources', () => {
+        test('optimistically creates @match fields and loads resources', () => {
           operationLoader.load.mockImplementationOnce(() => {
             return new Promise(resolve => {
               setImmediate(() => {
@@ -711,7 +711,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('does not apply async 3D optimistic updates if the server response arrives first', () => {
+        test('does not apply async 3D optimistic updates if the server response arrives first', () => {
           operationLoader.load.mockImplementationOnce(() => {
             return new Promise(resolve => {
               setTimeout(() => {
@@ -797,7 +797,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('does not apply async 3D optimistic updates if the operation is cancelled', () => {
+        test('does not apply async 3D optimistic updates if the operation is cancelled', () => {
           operationLoader.load.mockImplementationOnce(() => {
             return new Promise(resolve => {
               setTimeout(() => {
@@ -833,7 +833,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(matchSnapshot.data).toEqual(undefined);
         });
 
-        it('catches error when operationLoader.load fails synchronously', () => {
+        test('catches error when operationLoader.load fails synchronously', () => {
           operationLoader.load.mockImplementationOnce(() => {
             throw new Error('<user-error>');
           });

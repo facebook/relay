@@ -42,7 +42,7 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();
 
-  it('deletes a node', () => {
+  test('deletes a node', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
     const mutation = graphql`
@@ -184,7 +184,7 @@ describe('Configs: RANGE_DELETE', () => {
     store = environment.getStore();
   });
 
-  it('handles configs', () => {
+  test('handles configs', () => {
     const mutation = graphql`
       mutation commitMutationTest2Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
@@ -321,7 +321,7 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(0);
   });
 
-  it('handles config with deletedIDFieldName as path', () => {
+  test('handles config with deletedIDFieldName as path', () => {
     const optimisticUpdater = jest.fn<
       [RecordSourceSelectorProxy, ?{...}],
       void,
@@ -567,7 +567,7 @@ describe('Configs: RANGE_ADD', () => {
     };
   });
 
-  it('appends new edge', () => {
+  test('appends new edge', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -614,7 +614,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(0);
   });
 
-  it('does not overwrite previous edge when appended multiple times', () => {
+  test('does not overwrite previous edge when appended multiple times', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -788,7 +788,7 @@ describe('Configs: RANGE_ADD', () => {
     });
   });
 
-  it('prepends new edge', () => {
+  test('prepends new edge', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -835,7 +835,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(0);
   });
 
-  it('filters connections then applies the rangeBehavior', () => {
+  test('filters connections then applies the rangeBehavior', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -900,7 +900,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(0);
   });
 
-  it('does not overwrite previous edge when appended multiple times in updater function', () => {
+  test('does not overwrite previous edge when appended multiple times in updater function', () => {
     updater = (updaterStore: RecordSourceSelectorProxy) => {
       const rootField = updaterStore.getRootField('commentCreate');
       const newEdge = nullthrows(rootField).getLinkedRecord(
@@ -1077,7 +1077,7 @@ describe('Aliased mutation roots', () => {
     jest.mock('warning');
   });
 
-  it('does not present a warning when mutation uses an aliased in combination with a optimistcResponse', () => {
+  test('does not present a warning when mutation uses an aliased in combination with a optimistcResponse', () => {
     const environment = createMockEnvironment();
     const mutation = graphql`
       mutation commitMutationTest5Mutation($input: CommentDeleteInput) {
@@ -1134,7 +1134,7 @@ describe('Required mutation roots', () => {
       store,
     });
   });
-  it('does not throw when accessing the root field', () => {
+  test('does not throw when accessing the root field', () => {
     const mutation = graphql`
       mutation commitMutationTestRequiredRootFieldMutation(
         $input: CommentDeleteInput
@@ -1226,7 +1226,7 @@ describe('commitMutation()', () => {
     });
   });
 
-  it('publishes each payload to the store as it arrives', () => {
+  test('publishes each payload to the store as it arrives', () => {
     const operation = createOperationDescriptor(mutation, variables);
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),
@@ -1284,7 +1284,7 @@ describe('commitMutation()', () => {
     expect(onError).toBeCalledTimes(0);
   });
 
-  it('calls onCompleted when the mutation completes after one payload', () => {
+  test('calls onCompleted when the mutation completes after one payload', () => {
     commitMutation(environment, {
       mutation,
       variables,
@@ -1321,7 +1321,7 @@ describe('commitMutation()', () => {
     expect(onError).toBeCalledTimes(0);
   });
 
-  it('calls onCompleted when the mutation completes after one payload with errors', () => {
+  test('calls onCompleted when the mutation completes after one payload with errors', () => {
     commitMutation(environment, {
       mutation,
       variables,
@@ -1373,7 +1373,7 @@ describe('commitMutation()', () => {
     expect(onError).toBeCalledTimes(0);
   });
 
-  it('calls onCompleted with the latest data when the mutation completes after multiple payloads', () => {
+  test('calls onCompleted with the latest data when the mutation completes after multiple payloads', () => {
     commitMutation(environment, {
       mutation,
       variables,
@@ -1457,7 +1457,7 @@ describe('commitMutation()', () => {
     expect(onError).toBeCalledTimes(0);
   });
 
-  it('calls onError when the payload is mising data', () => {
+  test('calls onError when the payload is mising data', () => {
     commitMutation(environment, {
       mutation,
       variables,
@@ -1481,7 +1481,7 @@ describe('commitMutation()', () => {
     );
   });
 
-  it('calls onError when the network errors', () => {
+  test('calls onError when the network errors', () => {
     commitMutation(environment, {
       mutation,
       variables,
@@ -1548,7 +1548,7 @@ describe('commitMutation() cacheConfig', () => {
     });
   });
 
-  it('with cacheConfig', () => {
+  test('with cacheConfig', () => {
     const operation = createOperationDescriptor(mutation, variables);
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),
@@ -1575,7 +1575,7 @@ describe('commitMutation() cacheConfig', () => {
     });
   });
 
-  it('without cacheConfig', () => {
+  test('without cacheConfig', () => {
     const operation = createOperationDescriptor(mutation, variables);
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),

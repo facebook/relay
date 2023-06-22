@@ -147,7 +147,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('initializes the connection with the first edge (0 => 1 edges)', () => {
+  test('initializes the connection with the first edge (0 => 1 edges)', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -253,7 +253,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('initializes the connection with subsequent edges (1 => 2 edges)', () => {
+  test('initializes the connection with subsequent edges (1 => 2 edges)', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
@@ -357,7 +357,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
+  test('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
@@ -456,7 +456,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('initializes the connection with subsequent edges (1 => 3 edges) when initial_count=1 with batch response', () => {
+  test('initializes the connection with subsequent edges (1 => 3 edges) when initial_count=1 with batch response', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
@@ -590,7 +590,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('initializes the connection with subsequent edges (0 => 2 edges) when edges arrive out of order with batching', () => {
+  test('initializes the connection with subsequent edges (0 => 2 edges) when edges arrive out of order with batching', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
@@ -753,7 +753,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('initializes the connection with subsequent edges (0 => 2 edges) when edges arrive out of order', () => {
+  test('initializes the connection with subsequent edges (0 => 2 edges) when edges arrive out of order', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
@@ -857,7 +857,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('updates the connection on forward pagination with new edges (when initial data has pageInfo)', () => {
+  test('updates the connection on forward pagination with new edges (when initial data has pageInfo)', () => {
     // populate the first "page" of results (one item) using the query
     // with streaming disabled
     variables = {enableStream: false, after: 'cursor-1'};
@@ -1110,7 +1110,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('does not update the connection on forward pagination when initial data was missing pageInfo', () => {
+  test('does not update the connection on forward pagination when initial data was missing pageInfo', () => {
     // populate the first "page" of results (one item)
     environment.execute({operation}).subscribe({});
     dataSource.next({
@@ -1207,7 +1207,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     expect(callback).toBeCalledTimes(0);
   });
 
-  it('warns if executed in non-streaming mode and initializes the connection', () => {
+  test('warns if executed in non-streaming mode and initializes the connection', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
@@ -1282,7 +1282,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('does not garbage collect the server connection when a pagination query is in flight', () => {
+  test('does not garbage collect the server connection when a pagination query is in flight', () => {
     environment.retain(operation);
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();

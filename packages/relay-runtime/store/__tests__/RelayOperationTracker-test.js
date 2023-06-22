@@ -66,7 +66,7 @@ describe('RelayOperationTracker', () => {
     }).request;
   });
 
-  it('should not have any pending operations affecting owners', () => {
+  test('should not have any pending operations affecting owners', () => {
     expect(tracker.getPendingOperationsAffectingOwner(QueryOperation1)).toBe(
       null,
     );
@@ -75,7 +75,7 @@ describe('RelayOperationTracker', () => {
     );
   });
 
-  it('should update fragment owners affected by operation', () => {
+  test('should update fragment owners affected by operation', () => {
     tracker.update(MutationOperation1, new Set([QueryOperation1]));
     expect(
       tracker.getPendingOperationsAffectingOwner(QueryOperation1)?.promise,
@@ -88,7 +88,7 @@ describe('RelayOperationTracker', () => {
     );
   });
 
-  it('should remove pending operation when it is completed', () => {
+  test('should remove pending operation when it is completed', () => {
     tracker.update(
       MutationOperation1,
       new Set([QueryOperation1, QueryOperation2]),
@@ -108,7 +108,7 @@ describe('RelayOperationTracker', () => {
     );
   });
 
-  it('should remove pending operation when it is completed when multiple operations affect the same owner', () => {
+  test('should remove pending operation when it is completed when multiple operations affect the same owner', () => {
     tracker.update(MutationOperation1, new Set([QueryOperation1]));
     expect(
       tracker.getPendingOperationsAffectingOwner(QueryOperation1)?.promise,
@@ -128,13 +128,13 @@ describe('RelayOperationTracker', () => {
   });
 
   describe('getPendingOperationsAffectingOwner', () => {
-    it('should return null if there are no pending operations affecting owner', () => {
+    test('should return null if there are no pending operations affecting owner', () => {
       expect(tracker.getPendingOperationsAffectingOwner(QueryOperation1)).toBe(
         null,
       );
     });
 
-    it("should return a promise for operation that's been affected operation", () => {
+    test("should return a promise for operation that's been affected operation", () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
@@ -147,7 +147,7 @@ describe('RelayOperationTracker', () => {
       ]);
     });
 
-    it('should return the same promise for an operation if called multiple times', () => {
+    test('should return the same promise for an operation if called multiple times', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
@@ -170,7 +170,7 @@ describe('RelayOperationTracker', () => {
       ]);
     });
 
-    it('should resolve promise when pending operation is completed', () => {
+    test('should resolve promise when pending operation is completed', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
@@ -187,7 +187,7 @@ describe('RelayOperationTracker', () => {
       );
     });
 
-    it('should resolve promise when new operation affected the owner', () => {
+    test('should resolve promise when new operation affected the owner', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
@@ -217,7 +217,7 @@ describe('RelayOperationTracker', () => {
       ]);
     });
 
-    it('should resolve promise when one of the pending operation is completed', () => {
+    test('should resolve promise when one of the pending operation is completed', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       tracker.update(MutationOperation2, new Set([QueryOperation1]));
       const result =

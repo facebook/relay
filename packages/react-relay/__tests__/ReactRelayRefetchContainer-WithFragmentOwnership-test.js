@@ -180,7 +180,7 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       );
     });
 
-    it('fetches the new variables', () => {
+    test('fetches the new variables', () => {
       const refetchVariables = {
         cond: false,
         id: '4',
@@ -193,7 +193,7 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       );
     });
 
-    it('fetches the new variables correctly referencing variables from parent', () => {
+    test('fetches the new variables correctly referencing variables from parent', () => {
       const refetchVariables = {
         cond: false,
         id: '4',
@@ -208,7 +208,7 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       );
     });
 
-    it('renders with the results of the new variables on success', () => {
+    test('renders with the results of the new variables on success', () => {
       expect.assertions(10);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user).toEqual({
@@ -288,7 +288,7 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       });
     });
 
-    it('renders with the results of the new variables on success when using render variables', () => {
+    test('renders with the results of the new variables on success when using render variables', () => {
       expect.assertions(10);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user).toEqual({
@@ -374,7 +374,7 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       });
     });
 
-    it('passes previous variables correctly when refetchVariables is a function', () => {
+    test('passes previous variables correctly when refetchVariables is a function', () => {
       const fetchVariables = jest.fn();
       refetch(fetchVariables);
       expect(fetchVariables).toBeCalledTimes(1);
@@ -384,7 +384,7 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       });
     });
 
-    it('passes previous variables correctly when refetchVariables is a function and variables are not set in context', () => {
+    test('passes previous variables correctly when refetchVariables is a function and variables are not set in context', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
@@ -403,7 +403,7 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       });
     });
 
-    it('updates context with the results of new variables', () => {
+    test('updates context with the results of new variables', () => {
       expect.assertions(3);
 
       // original context before refetch

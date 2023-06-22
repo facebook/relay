@@ -79,7 +79,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT = false;
   });
 
-  it('unsubscribes and re-subscribes to fragment when effects are double invoked', () => {
+  test('unsubscribes and re-subscribes to fragment when effects are double invoked', () => {
     // $FlowFixMe[prop-missing]
     warning.mockClear();
 

@@ -135,7 +135,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         callbacks = {complete, error};
       });
 
-      it('local invalidation is a no-op if called during optimistic update', () => {
+      test('local invalidation is a no-op if called during optimistic update', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -172,7 +172,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('when record invalidated inside updater after server payload', () => {
-        it('correctly invalidates the record when query has never been written before', () => {
+        test('correctly invalidates the record when query has never been written before', () => {
           const selector = createReaderSelector(
             CommentFragment,
             commentID,
@@ -231,7 +231,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(environment.check(operation)).toEqual({status: 'stale'});
         });
 
-        it('correctly invalidates the record when query was written before invalidation', () => {
+        test('correctly invalidates the record when query was written before invalidation', () => {
           // Write operation before running invalidation
           environment.retain(queryOperation);
           environment.commitPayload(queryOperation, {
@@ -303,7 +303,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(environment.check(operation)).toEqual({status: 'stale'});
         });
 
-        it('correctly invalidates the record when query is written after invalidation', () => {
+        test('correctly invalidates the record when query is written after invalidation', () => {
           // Execute mutation
           const selector = createReaderSelector(
             CommentFragment,

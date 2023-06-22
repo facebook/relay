@@ -15,7 +15,7 @@ const isRelayEnvironment = require('../isRelayEnvironment');
 const {Environment} = require('relay-runtime');
 
 describe('isRelayEnvironment()', () => {
-  it('returns true for `RelayEnvironment` instances', () => {
+  test('returns true for `RelayEnvironment` instances', () => {
     const environment = new Environment({
       network: (null: $FlowFixMe),
       store: (null: $FlowFixMe),
@@ -23,7 +23,7 @@ describe('isRelayEnvironment()', () => {
     expect(isRelayEnvironment(environment)).toBe(true);
   });
 
-  it('returns true for objects that conform to the interface', () => {
+  test('returns true for objects that conform to the interface', () => {
     const environment = {
       applyMutation: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
       check: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
@@ -37,7 +37,7 @@ describe('isRelayEnvironment()', () => {
     expect(isRelayEnvironment(environment)).toBe(true);
   });
 
-  it('returns false for objects that do not conform to the interface', () => {
+  test('returns false for objects that do not conform to the interface', () => {
     const fakeEnvironment = {
       check: null,
       lookup: null,
@@ -48,7 +48,7 @@ describe('isRelayEnvironment()', () => {
     expect(isRelayEnvironment(fakeEnvironment)).toBe(false);
   });
 
-  it('returns false for non-objects', () => {
+  test('returns false for non-objects', () => {
     expect(isRelayEnvironment(null)).toBe(false);
     expect(isRelayEnvironment(false)).toBe(false);
     expect(isRelayEnvironment('relay')).toBe(false);

@@ -19,18 +19,18 @@ describe('RelayObservable', () => {
     jest.resetModules();
   });
 
-  it('Fails if not provided a source', () => {
+  test('Fails if not provided a source', () => {
     expect(() => RelayObservable.create()).toThrow('Source must be a Function');
   });
 
-  it('Fails if provided an incorrect source', () => {
+  test('Fails if provided an incorrect source', () => {
     expect(() => RelayObservable.create({})).toThrow(
       'Source must be a Function',
     );
   });
 
   describe('subscribe', () => {
-    it('Fails if not provided with object', () => {
+    test('Fails if not provided with object', () => {
       const obs = RelayObservable.create(() => {});
       expect(() => obs.subscribe()).toThrow(
         'Observer must be an Object with callbacks',
@@ -40,7 +40,7 @@ describe('RelayObservable', () => {
       );
     });
 
-    it('Handle values and complete', () => {
+    test('Handle values and complete', () => {
       const list = [];
 
       RelayObservable.create(sink => {
@@ -57,7 +57,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'next:2', 'next:3', 'complete']);
     });
 
-    it('Does not handle values after complete', () => {
+    test('Does not handle values after complete', () => {
       const list = [];
 
       RelayObservable.create(sink => {
@@ -74,7 +74,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'next:2', 'complete']);
     });
 
-    it('Does not handle values after handling error', () => {
+    test('Does not handle values after handling error', () => {
       const list = [];
       const error = new Error();
 
@@ -92,7 +92,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'next:2', error]);
     });
 
-    it('Error after complete is unhandled', () => {
+    test('Error after complete is unhandled', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -119,7 +119,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'next:2', 'complete']);
     });
 
-    it('Error is unhandled if error callback is missing', () => {
+    test('Error is unhandled if error callback is missing', () => {
       const error = new Error('Test error');
 
       const unhandled = jest.fn();
@@ -133,7 +133,7 @@ describe('RelayObservable', () => {
       expect(unhandled.mock.calls).toEqual([[error, false]]);
     });
 
-    it('Calls error handle if source throws', () => {
+    test('Calls error handle if source throws', () => {
       const list = [];
       const error = new Error();
 
@@ -149,7 +149,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', error]);
     });
 
-    it('Error from next handler is unhandled (sync)', () => {
+    test('Error from next handler is unhandled (sync)', () => {
       const list = [];
       const error = new Error();
 
@@ -176,7 +176,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Error from next handler is unhandled (async)', () => {
+    test('Error from next handler is unhandled (async)', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -210,7 +210,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Error from error handler is unhandled', () => {
+    test('Error from error handler is unhandled', () => {
       const list = [];
       const error = new Error();
 
@@ -232,7 +232,7 @@ describe('RelayObservable', () => {
       expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
-    it('Error from complete handler is unhandled', () => {
+    test('Error from complete handler is unhandled', () => {
       const list = [];
       const error = new Error();
 
@@ -254,7 +254,7 @@ describe('RelayObservable', () => {
       expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
-    it('Error from unsubscribe handler is unhandled', () => {
+    test('Error from unsubscribe handler is unhandled', () => {
       const list = [];
       const error = new Error();
 
@@ -279,7 +279,7 @@ describe('RelayObservable', () => {
   });
 
   describe('unsubscribe', () => {
-    it('Does not handle values after unsubscribe', () => {
+    test('Does not handle values after unsubscribe', () => {
       let sink;
       const list = [];
 
@@ -300,7 +300,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1']);
     });
 
-    it('Does not handle complete after unsubscribe', () => {
+    test('Does not handle complete after unsubscribe', () => {
       let sink;
       const list = [];
 
@@ -322,7 +322,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'unsubscribe']);
     });
 
-    it('Errors after unsubscribe are unhandled', () => {
+    test('Errors after unsubscribe are unhandled', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -350,7 +350,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1']);
     });
 
-    it('calls observer with subscription', () => {
+    test('calls observer with subscription', () => {
       const list = [];
       let unsubSub;
       let unsubThis;
@@ -389,7 +389,7 @@ describe('RelayObservable', () => {
   });
 
   describe('cleanup', () => {
-    it('Does not allow returning non-callable cleanup', () => {
+    test('Does not allow returning non-callable cleanup', () => {
       const nonCallables = [null, {}, 123, 'wat'];
       nonCallables.forEach(nonCallable => {
         const list = [];
@@ -408,7 +408,7 @@ describe('RelayObservable', () => {
       });
     });
 
-    it('Calls cleanup after instant complete', () => {
+    test('Calls cleanup after instant complete', () => {
       const list = [];
 
       RelayObservable.create(sink => {
@@ -424,7 +424,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'complete', 'cleanup']);
     });
 
-    it('Calls cleanup after instant error', () => {
+    test('Calls cleanup after instant error', () => {
       const list = [];
       const error = new Error();
 
@@ -441,7 +441,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', error, 'cleanup']);
     });
 
-    it('Calls cleanup after async complete', () => {
+    test('Calls cleanup after async complete', () => {
       let sink;
       const list = [];
 
@@ -460,7 +460,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'complete', 'cleanup']);
     });
 
-    it('Calls cleanup after async error', () => {
+    test('Calls cleanup after async error', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -480,7 +480,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', error, 'cleanup']);
     });
 
-    it('Calls cleanup after unsubscribe', () => {
+    test('Calls cleanup after unsubscribe', () => {
       let sink;
       const list = [];
 
@@ -502,7 +502,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'unsubscribe', 'cleanup']);
     });
 
-    it('Does not cleanup twice after double unsubscribe', () => {
+    test('Does not cleanup twice after double unsubscribe', () => {
       let sink;
       const list = [];
 
@@ -525,7 +525,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'unsubscribe', 'cleanup']);
     });
 
-    it('Calls cleanup after error handler throws', () => {
+    test('Calls cleanup after error handler throws', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -553,7 +553,7 @@ describe('RelayObservable', () => {
       expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
-    it('Calls cleanup after complete handler throws', () => {
+    test('Calls cleanup after complete handler throws', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -581,7 +581,7 @@ describe('RelayObservable', () => {
       expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
-    it('Does not cleanup after next handler throws', () => {
+    test('Does not cleanup after next handler throws', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -615,7 +615,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Allows returning a Subscription as cleanup', () => {
+    test('Allows returning a Subscription as cleanup', () => {
       let sink;
       const list = [];
 
@@ -640,7 +640,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'inner-cleanup']);
     });
 
-    it('Cleanup errors are unhandled', () => {
+    test('Cleanup errors are unhandled', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -669,7 +669,7 @@ describe('RelayObservable', () => {
   });
 
   describe('start', () => {
-    it('Is called before source', () => {
+    test('Is called before source', () => {
       const list = [];
       let startSub;
       let startThis;
@@ -707,7 +707,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Can unsubscribe before source', () => {
+    test('Can unsubscribe before source', () => {
       const list = [];
 
       RelayObservable.create(sink => {
@@ -729,7 +729,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['start', 'unsubscribe']);
     });
 
-    it('Error from start handler is unhandled', () => {
+    test('Error from start handler is unhandled', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -758,7 +758,7 @@ describe('RelayObservable', () => {
   });
 
   describe('sink.closed', () => {
-    it('initializes to false', () => {
+    test('initializes to false', () => {
       let sink;
 
       const obs = RelayObservable.create(_sink => {
@@ -769,7 +769,7 @@ describe('RelayObservable', () => {
       expect(sink.closed).toBe(false);
     });
 
-    it('is true after complete', () => {
+    test('is true after complete', () => {
       let sink;
 
       const obs = RelayObservable.create(_sink => {
@@ -783,7 +783,7 @@ describe('RelayObservable', () => {
       expect(sink.closed).toBe(true);
     });
 
-    it('is true after error', () => {
+    test('is true after error', () => {
       let sink;
 
       const obs = RelayObservable.create(_sink => {
@@ -797,7 +797,7 @@ describe('RelayObservable', () => {
       expect(sink.closed).toBe(true);
     });
 
-    it('is true after unsubscribe', () => {
+    test('is true after unsubscribe', () => {
       let sink;
 
       const obs = RelayObservable.create(_sink => {
@@ -811,7 +811,7 @@ describe('RelayObservable', () => {
       expect(sink.closed).toBe(true);
     });
 
-    it('is true within cleanup', () => {
+    test('is true within cleanup', () => {
       let wasClosed;
 
       const obs = RelayObservable.create(sink => {
@@ -825,7 +825,7 @@ describe('RelayObservable', () => {
       expect(wasClosed).toBe(true);
     });
 
-    it('cannot be set directly', () => {
+    test('cannot be set directly', () => {
       let sink;
 
       const obs = RelayObservable.create(_sink => {
@@ -841,7 +841,7 @@ describe('RelayObservable', () => {
   });
 
   describe('subscription.closed', () => {
-    it('initializes to false', () => {
+    test('initializes to false', () => {
       const obs = RelayObservable.create(() => {});
 
       const sub = obs.subscribe({
@@ -853,7 +853,7 @@ describe('RelayObservable', () => {
       expect(sub.closed).toBe(false);
     });
 
-    it('is true after complete', () => {
+    test('is true after complete', () => {
       let sink;
 
       const obs = RelayObservable.create(_sink => {
@@ -871,7 +871,7 @@ describe('RelayObservable', () => {
       expect(sub.closed).toBe(true);
     });
 
-    it('is true after error', () => {
+    test('is true after error', () => {
       let sink;
 
       const obs = RelayObservable.create(_sink => {
@@ -889,7 +889,7 @@ describe('RelayObservable', () => {
       expect(sub.closed).toBe(true);
     });
 
-    it('is true after unsubscribe', () => {
+    test('is true after unsubscribe', () => {
       const obs = RelayObservable.create(() => {});
 
       const sub = obs.subscribe({
@@ -903,7 +903,7 @@ describe('RelayObservable', () => {
       expect(sub.closed).toBe(true);
     });
 
-    it('cannot be set directly', () => {
+    test('cannot be set directly', () => {
       const obs = RelayObservable.create(() => {});
       const sub = obs.subscribe({});
       expect(() => {
@@ -913,7 +913,7 @@ describe('RelayObservable', () => {
   });
 
   describe('map', () => {
-    it('Maps values from the original observable', () => {
+    test('Maps values from the original observable', () => {
       const source = RelayObservable.create(sink => {
         sink.next(1);
         sink.next(2);
@@ -933,7 +933,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', 'next:5', 'next:7', 'complete']);
     });
 
-    it('Does not coerce mapped value', () => {
+    test('Does not coerce mapped value', () => {
       const source = RelayObservable.create(sink => {
         sink.next(1);
         sink.next(2);
@@ -955,7 +955,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual([other, other, other, 'complete']);
     });
 
-    it('Does not map errors from the original observable', () => {
+    test('Does not map errors from the original observable', () => {
       const list = [];
       const error = new Error();
 
@@ -977,7 +977,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', 'next:5', error]);
     });
 
-    it('Calls error handler and cleans up if map function throws', () => {
+    test('Calls error handler and cleans up if map function throws', () => {
       const list = [];
       const error = new Error();
 
@@ -1004,7 +1004,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', error, 'cleanup']);
     });
 
-    it('Error thrown from mapper and no error handler is unhandled', () => {
+    test('Error thrown from mapper and no error handler is unhandled', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -1037,7 +1037,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', 'cleanup']);
     });
 
-    it('Does not call error handler if next handler throws', () => {
+    test('Does not call error handler if next handler throws', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -1074,7 +1074,7 @@ describe('RelayObservable', () => {
   });
 
   describe('mergeMap', () => {
-    it('Maps values from the original observable', () => {
+    test('Maps values from the original observable', () => {
       const source = RelayObservable.create(sink => {
         sink.next(1);
         sink.next(2);
@@ -1108,7 +1108,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Maps to Promises which are converted to Observable', async () => {
+    test('Maps to Promises which are converted to Observable', async () => {
       const source = RelayObservable.create(sink => {
         sink.next(1);
         sink.next(2);
@@ -1138,7 +1138,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', 'next:5', 'next:7', 'complete']);
     });
 
-    it('Merges values from all mapped Observables at once', () => {
+    test('Merges values from all mapped Observables at once', () => {
       let outerSink;
       const innerSinks = [];
       const list = [];
@@ -1193,7 +1193,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Does not map errors from the original observable', () => {
+    test('Does not map errors from the original observable', () => {
       const list = [];
       const error = new Error();
 
@@ -1221,7 +1221,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', 'next:11', 'next:5', 'next:21', error]);
     });
 
-    it('Calls error handler and cleans up if map function throws', () => {
+    test('Calls error handler and cleans up if map function throws', () => {
       const list = [];
       const error = new Error();
 
@@ -1252,7 +1252,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', 'next:11', error, 'cleanup']);
     });
 
-    it('Calls error handler and cleans up if mapped Observable errors', () => {
+    test('Calls error handler and cleans up if mapped Observable errors', () => {
       const list = [];
       const error = new Error();
 
@@ -1279,7 +1279,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', error, 'cleanup']);
     });
 
-    it('Unsubscribes from mapped Observable', () => {
+    test('Unsubscribes from mapped Observable', () => {
       let outerSink;
       const list = [];
 
@@ -1313,7 +1313,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Error thrown from mapper and no error handler is unhandled', () => {
+    test('Error thrown from mapper and no error handler is unhandled', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -1350,7 +1350,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', 'next:11', 'cleanup']);
     });
 
-    it('Does not call error handler if next handler throws', () => {
+    test('Does not call error handler if next handler throws', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -1400,7 +1400,7 @@ describe('RelayObservable', () => {
   });
 
   describe('from', () => {
-    it('Converts a resolved Promise to an Observable', async () => {
+    test('Converts a resolved Promise to an Observable', async () => {
       const list = [];
       const value = {key: 'value'};
 
@@ -1422,7 +1422,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual([value, 'complete']);
     });
 
-    it('Converts a rejected Promise to an Observable', async () => {
+    test('Converts a rejected Promise to an Observable', async () => {
       const list = [];
       const error = new Error();
 
@@ -1444,7 +1444,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['error', error]);
     });
 
-    it('Error in next handler is unhandled', async () => {
+    test('Error in next handler is unhandled', async () => {
       const list = [];
       const error = new Error();
       const value = {key: 'value'};
@@ -1475,14 +1475,14 @@ describe('RelayObservable', () => {
       expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
-    it('Directly returns RelayObservable instance', () => {
+    test('Directly returns RelayObservable instance', () => {
       const obs1 = RelayObservable.create(() => {});
       const obs2 = RelayObservable.from(obs1);
 
       expect(obs2).toBe(obs1);
     });
 
-    it('Subscribes to Observable from another library', () => {
+    test('Subscribes to Observable from another library', () => {
       const list = [];
 
       const fauxObservable = {
@@ -1512,7 +1512,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual([1, 2, 'complete', 'unsubscribed']);
     });
 
-    it('Converts a plain value to an Observable', () => {
+    test('Converts a plain value to an Observable', () => {
       const list = [];
       const value = {key: 'value'};
 
@@ -1530,7 +1530,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual([value, 'complete']);
     });
 
-    it('Does not convert an Error to a rejected Observable', () => {
+    test('Does not convert an Error to a rejected Observable', () => {
       const list = [];
       const error = new Error();
 
@@ -1553,7 +1553,7 @@ describe('RelayObservable', () => {
   });
 
   describe('fromPromise', () => {
-    it('Cleans up when unsubscribed', () => {
+    test('Cleans up when unsubscribed', () => {
       let resolve;
       const observer = {
         complete: jest.fn(),
@@ -1574,7 +1574,7 @@ describe('RelayObservable', () => {
       expect(observer.unsubscribe).toBeCalledTimes(1);
     });
 
-    it('Calls next and complete when the promise resolves', () => {
+    test('Calls next and complete when the promise resolves', () => {
       const observer = {
         complete: jest.fn(),
         error: jest.fn(),
@@ -1593,7 +1593,7 @@ describe('RelayObservable', () => {
       expect(observer.unsubscribe).toBeCalledTimes(0);
     });
 
-    it('Calls error when the promise rejects', () => {
+    test('Calls error when the promise rejects', () => {
       const observer = {
         complete: jest.fn(),
         error: jest.fn(),
@@ -1614,7 +1614,7 @@ describe('RelayObservable', () => {
   });
 
   describe('poll', () => {
-    it('Throws error if polling interval is too small', () => {
+    test('Throws error if polling interval is too small', () => {
       expect(() => RelayObservable.create(() => {}).poll(0)).toThrow(
         'Expected pollInterval to be positive',
       );
@@ -1632,7 +1632,7 @@ describe('RelayObservable', () => {
       );
     });
 
-    it('Repeatedly observes and subscribes', () => {
+    test('Repeatedly observes and subscribes', () => {
       let sink;
       const list = [];
       const obs = RelayObservable.create(_sink => {
@@ -1694,7 +1694,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Cleans up after unsubscribe', () => {
+    test('Cleans up after unsubscribe', () => {
       let sink;
       const list = [];
       const obs = RelayObservable.create(_sink => {
@@ -1720,7 +1720,7 @@ describe('RelayObservable', () => {
   });
 
   describe('concat', () => {
-    it('Yields values from both observables', () => {
+    test('Yields values from both observables', () => {
       const list = [];
 
       const fruits = RelayObservable.create(sink => {
@@ -1762,7 +1762,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Error passes through without starting the second', () => {
+    test('Error passes through without starting the second', () => {
       const list = [];
       const error = new Error();
 
@@ -1799,7 +1799,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Does not start second Observable if first is unsubscribed', () => {
+    test('Does not start second Observable if first is unsubscribed', () => {
       let sink1;
       const list = [];
 
@@ -1832,7 +1832,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Cleans up both Observables if second is unsubscribed', () => {
+    test('Cleans up both Observables if second is unsubscribed', () => {
       let sink1;
       let sink2;
       const list = [];
@@ -1874,7 +1874,7 @@ describe('RelayObservable', () => {
   });
 
   describe('ifEmpty', () => {
-    it('Matches the first Observable if values are yielded', () => {
+    test('Matches the first Observable if values are yielded', () => {
       const list = [];
 
       const fruits = RelayObservable.create(sink => {
@@ -1913,7 +1913,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Matches the second Observable if no values are yielded', () => {
+    test('Matches the second Observable if no values are yielded', () => {
       const list = [];
 
       const empty = RelayObservable.create(sink => {
@@ -1952,7 +1952,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Error passes through without starting the second', () => {
+    test('Error passes through without starting the second', () => {
       const list = [];
       const error = new Error();
 
@@ -1991,7 +1991,7 @@ describe('RelayObservable', () => {
   });
 
   describe('do', () => {
-    it('Performs side effects before subscribers', () => {
+    test('Performs side effects before subscribers', () => {
       const list = [];
 
       const cities = RelayObservable.create(sink => {
@@ -2054,7 +2054,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Performs side effects on errors', () => {
+    test('Performs side effects on errors', () => {
       const list = [];
       const error = new Error();
 
@@ -2110,7 +2110,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Performs side effects on unsubscribe', () => {
+    test('Performs side effects on unsubscribe', () => {
       const list = [];
 
       const cities = RelayObservable.create(sink => {
@@ -2175,7 +2175,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Does not affect subscription with unhandled errors', () => {
+    test('Does not affect subscription with unhandled errors', () => {
       const list = [];
       const error = new Error();
 
@@ -2255,7 +2255,7 @@ describe('RelayObservable', () => {
   });
 
   describe('toPromise', () => {
-    it('Converts an Observable into a Promise', async () => {
+    test('Converts an Observable into a Promise', async () => {
       let sink;
       const list = [];
 
@@ -2278,7 +2278,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['cleanup', 'resolve:1']);
     });
 
-    it('Rejects Promise if error during source', async () => {
+    test('Rejects Promise if error during source', async () => {
       const list = [];
       const error = new Error();
 
@@ -2297,7 +2297,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual([error]);
     });
 
-    it('Errors during cleanup are unhandled (sync)', async () => {
+    test('Errors during cleanup are unhandled (sync)', async () => {
       const list = [];
       const error = new Error();
 
@@ -2323,7 +2323,7 @@ describe('RelayObservable', () => {
       expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
-    it('Errors during cleanup are unhandled (async)', async () => {
+    test('Errors during cleanup are unhandled (async)', async () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -2352,7 +2352,7 @@ describe('RelayObservable', () => {
       expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
-    it('Resolves the first yielded value', async () => {
+    test('Resolves the first yielded value', async () => {
       let sink;
       const list = [];
 
@@ -2376,7 +2376,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['cleanup', 'resolve:1']);
     });
 
-    it('Cleans up a non-completing Observable', async () => {
+    test('Cleans up a non-completing Observable', async () => {
       const list = [];
 
       const obs = RelayObservable.create(sink => {
@@ -2394,7 +2394,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['resolve:1']);
     });
 
-    it('Converts an Observable error into a rejected Promise', async () => {
+    test('Converts an Observable error into a rejected Promise', async () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -2416,7 +2416,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['cleanup', error]);
     });
 
-    it('Converts an Observable complete into a resolved Promise', async () => {
+    test('Converts an Observable complete into a resolved Promise', async () => {
       let sink;
       const list = [];
 
@@ -2437,7 +2437,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['cleanup', 'resolve:undefined']);
     });
 
-    it('Is the dual to from(Promise)', async () => {
+    test('Is the dual to from(Promise)', async () => {
       const value = {};
       const error = new Error();
 
@@ -2450,7 +2450,7 @@ describe('RelayObservable', () => {
   });
 
   describe('catch', () => {
-    it('Catches sync errors', () => {
+    test('Catches sync errors', () => {
       const list = [];
 
       const obs1 = RelayObservable.create(sink => {
@@ -2468,7 +2468,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:caught: Error: sync error', 'complete']);
     });
 
-    it('Catches async errors', () => {
+    test('Catches async errors', () => {
       let sink;
       const list = [];
 
@@ -2494,7 +2494,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Supports re-throwing errors', () => {
+    test('Supports re-throwing errors', () => {
       let sink;
       const list = [];
       const error = new Error();
@@ -2519,7 +2519,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', error]);
     });
 
-    it('Cleans up original observable', () => {
+    test('Cleans up original observable', () => {
       let sink1;
       const list = [];
 
@@ -2548,7 +2548,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['create first', 'next:1', 'cleanup first']);
     });
 
-    it('Cleans up replaced observable', () => {
+    test('Cleans up replaced observable', () => {
       let sink1;
       let sink2;
       const list = [];
@@ -2590,7 +2590,7 @@ describe('RelayObservable', () => {
   });
 
   describe('finally', () => {
-    it('should call finally after complete and cleanup', () => {
+    test('should call finally after complete and cleanup', () => {
       const list = [];
 
       const obs = RelayObservable.create(sink => {
@@ -2611,7 +2611,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'complete', 'cleanup', 'finally']);
     });
 
-    it('should call finally after error', () => {
+    test('should call finally after error', () => {
       const list = [];
 
       const obs = RelayObservable.create(sink => {
@@ -2631,7 +2631,7 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['error', 'cleanup', 'finally']);
     });
 
-    it('should call finally after unsubscribe', () => {
+    test('should call finally after unsubscribe', () => {
       const list = [];
 
       const obs = RelayObservable.create(sink => {

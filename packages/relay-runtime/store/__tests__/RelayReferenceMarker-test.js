@@ -94,7 +94,7 @@ describe('RelayReferenceMarker', () => {
     source = RelayRecordSource.create(data);
   });
 
-  it('marks referenced records', () => {
+  test('marks referenced records', () => {
     const FooQuery = graphql`
       query RelayReferenceMarkerTest1Query($id: ID, $size: [Int]) {
         node(id: $id) {
@@ -150,7 +150,7 @@ describe('RelayReferenceMarker', () => {
     ]);
   });
 
-  it('marks "handle" nodes for queries', () => {
+  test('marks "handle" nodes for queries', () => {
     const data = {
       '1': {
         __id: '1',
@@ -238,7 +238,7 @@ describe('RelayReferenceMarker', () => {
     ]);
   });
 
-  it('marks "handle" nodes with key and filters for queries', () => {
+  test('marks "handle" nodes with key and filters for queries', () => {
     const data: RecordObjectMap = {
       '1': {
         __id: '1',
@@ -359,7 +359,7 @@ describe('RelayReferenceMarker', () => {
     ]);
   });
 
-  it('marks referenced records for client field', () => {
+  test('marks referenced records for client field', () => {
     const data = {
       '1': {
         __id: '1',
@@ -519,7 +519,7 @@ describe('RelayReferenceMarker', () => {
       };
     });
 
-    it('marks references when the match field/record exist and match a supported type (plaintext)', () => {
+    test('marks references when the match field/record exist and match a supported type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
         '1': {
@@ -569,7 +569,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the match field/record exist and match a supported type (2)', () => {
+    test('marks references when the match field/record exist and match a supported type (2)', () => {
       // When the type matches MarkdownUserNameRenderer
       const storeData = {
         '1': {
@@ -619,7 +619,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the match field/record exist but the matched fragment has not been processed', () => {
+    test('marks references when the match field/record exist but the matched fragment has not been processed', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
@@ -664,7 +664,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the match field/record exist but a scalar field is missing', () => {
+    test('marks references when the match field/record exist but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
       const storeData = {
         '1': {
@@ -714,7 +714,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the match field/record exist but a linked field is missing', () => {
+    test('marks references when the match field/record exist but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
       const storeData = {
         '1': {
@@ -754,7 +754,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the match field/record exist but do not match a supported type', () => {
+    test('marks references when the match field/record exist but do not match a supported type', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -792,7 +792,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the match field is non-existent (null)', () => {
+    test('marks references when the match field is non-existent (null)', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -819,7 +819,7 @@ describe('RelayReferenceMarker', () => {
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
     });
 
-    it('marks references when the match field is not fetched (undefined)', () => {
+    test('marks references when the match field is not fetched (undefined)', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -846,7 +846,7 @@ describe('RelayReferenceMarker', () => {
     });
   });
   describe('Relay Resolver', () => {
-    it('with no fragments is retained', () => {
+    test('with no fragments is retained', () => {
       const storeData = {
         'client:root': {
           __id: 'client:root',
@@ -890,7 +890,7 @@ describe('RelayReferenceMarker', () => {
         'client:root:counter_no_fragment',
       ]);
     });
-    it('with fragment dependency is retained', () => {
+    test('with fragment dependency is retained', () => {
       const storeData = {
         'client:root': {
           __id: 'client:root',
@@ -940,7 +940,7 @@ describe('RelayReferenceMarker', () => {
         'client:root:counter',
       ]);
     });
-    it('with @edgeTo client object is retained', () => {
+    test('with @edgeTo client object is retained', () => {
       const storeData = {
         'client:root': {
           __id: 'client:root',
@@ -1066,7 +1066,7 @@ describe('RelayReferenceMarker', () => {
       };
     });
 
-    it('marks references when the field/record exists and matches a @module selection (plaintext)', () => {
+    test('marks references when the field/record exists and matches a @module selection (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
         '1': {
@@ -1116,7 +1116,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the field/record exists and matches a @module selection (markdown)', () => {
+    test('marks references when the field/record exists and matches a @module selection (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
       const storeData = {
         '1': {
@@ -1166,7 +1166,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the field/record exists but the @module fragment has not been processed', () => {
+    test('marks references when the field/record exists but the @module fragment has not been processed', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
@@ -1211,7 +1211,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the field/record exists but a scalar field is missing', () => {
+    test('marks references when the field/record exists but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
       const storeData = {
         '1': {
@@ -1261,7 +1261,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the field/record exists but a linked field is missing', () => {
+    test('marks references when the field/record exists but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
       const storeData = {
         '1': {
@@ -1301,7 +1301,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('marks references when the field/record exists but do not match any @module selection', () => {
+    test('marks references when the field/record exists but do not match any @module selection', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1339,7 +1339,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
 
-    it('throws if no operation loader is provided', () => {
+    test('throws if no operation loader is provided', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1410,7 +1410,7 @@ describe('RelayReferenceMarker', () => {
       `;
     });
 
-    it('marks references when deferred selections are fetched', () => {
+    test('marks references when deferred selections are fetched', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1440,7 +1440,7 @@ describe('RelayReferenceMarker', () => {
       expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
     });
 
-    it('marks references when deferred selections are not fetched', () => {
+    test('marks references when deferred selections are not fetched', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1486,7 +1486,7 @@ describe('RelayReferenceMarker', () => {
       `;
     });
 
-    it('marks references when streamed selections are fetched', () => {
+    test('marks references when streamed selections are fetched', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1516,7 +1516,7 @@ describe('RelayReferenceMarker', () => {
       expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
     });
 
-    it('marks references when streamed selections are not fetched', () => {
+    test('marks references when streamed selections are not fetched', () => {
       const storeData = {
         '1': {
           __id: '1',

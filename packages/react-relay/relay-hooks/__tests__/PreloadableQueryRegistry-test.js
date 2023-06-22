@@ -24,7 +24,7 @@ const generateUniqueId = () => `id-${count++}`;
 
 describe('PreloadableQueryRegistry', () => {
   describe('set and get', () => {
-    it('should store preloadable concrete requests and return them', () => {
+    test('should store preloadable concrete requests and return them', () => {
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
       expect(PreloadableQueryRegistry.get(id1)).not.toBeDefined();
@@ -44,7 +44,7 @@ describe('PreloadableQueryRegistry', () => {
     afterEach(() => {
       jest.resetModules();
     });
-    it('should synchronously execute a callback when the ConcreteRequest given by the same key is loaded', () => {
+    test('should synchronously execute a callback when the ConcreteRequest given by the same key is loaded', () => {
       const callback = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
@@ -57,7 +57,7 @@ describe('PreloadableQueryRegistry', () => {
       expect(firstArgToCallback).toEqual(c1);
     });
 
-    it('dedupes callbacks passed to onLoad', () => {
+    test('dedupes callbacks passed to onLoad', () => {
       // the internal representation is a set.
       const callback = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
@@ -68,7 +68,7 @@ describe('PreloadableQueryRegistry', () => {
       expect(callback).toHaveBeenCalledTimes(1);
     });
 
-    it('should execute the callback passed to onLoad callback many times', () => {
+    test('should execute the callback passed to onLoad callback many times', () => {
       const callback = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
@@ -82,7 +82,7 @@ describe('PreloadableQueryRegistry', () => {
       expect(callback).toHaveBeenCalledTimes(3);
     });
 
-    it('should return a Disposable that, if executed, prevents the callback from being executed', () => {
+    test('should return a Disposable that, if executed, prevents the callback from being executed', () => {
       const callback = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
       const c1 = makeConcreteRequest();
@@ -94,7 +94,7 @@ describe('PreloadableQueryRegistry', () => {
       expect(callback).not.toHaveBeenCalled();
     });
 
-    it('should support multiple callbacks', () => {
+    test('should support multiple callbacks', () => {
       const cb1 = jest.fn<[ConcreteRequest], void>();
       const cb2 = jest.fn<[ConcreteRequest], void>();
       const id1 = generateUniqueId();
@@ -114,7 +114,7 @@ describe('PreloadableQueryRegistry', () => {
       expect(cb2).toHaveBeenCalledTimes(2);
     });
 
-    it('should call a subsequent callback even if the previous threw an error', () => {
+    test('should call a subsequent callback even if the previous threw an error', () => {
       const cb1 = jest.fn<[ConcreteRequest], empty>().mockImplementation(() => {
         throw new Error('error');
       });
@@ -127,7 +127,7 @@ describe('PreloadableQueryRegistry', () => {
       expect(cb2).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw an error in the next tick after an uncaught error', () => {
+    test('should throw an error in the next tick after an uncaught error', () => {
       jest.useFakeTimers();
       const error = new Error('Not the droids you were looking for');
       const cb1 = jest.fn<[ConcreteRequest], empty>().mockImplementation(() => {

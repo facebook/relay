@@ -156,7 +156,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
     });
   });
 
-  it('resolves & subscribes fragment props', () => {
+  test('resolves & subscribes fragment props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
@@ -212,7 +212,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
     });
   });
 
-  it('re-renders on subscription callback', () => {
+  test('re-renders on subscription callback', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
@@ -270,7 +270,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
     });
   });
 
-  it('resolves new props', () => {
+  test('resolves new props', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -335,7 +335,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
     });
   });
 
-  it('resolves new props when ids dont change', () => {
+  test('resolves new props when ids dont change', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(

@@ -20,7 +20,7 @@ beforeEach(() => {
   expect.extend(matchers);
 });
 
-it('warns if any prop is undefined', () => {
+test('warns if any prop is undefined', () => {
   const TestComponent_test = graphql`
     fragment createFragmentSpecResolverTestTestComponent_test on User {
       id

@@ -131,7 +131,7 @@ afterEach(() => {
   warning.mockClear();
 });
 
-it('should render singular fragment without error when data is available', () => {
+test('should render singular fragment without error when data is available', () => {
   // $FlowFixMe[prop-missing]
   warning.mockClear();
   renderSingularFragment();
@@ -146,7 +146,7 @@ it('should render singular fragment without error when data is available', () =>
   expect(warning).not.toHaveBeenCalled();
 });
 
-it('should not warn on missing record when null bubbles to fragment root', () => {
+test('should not warn on missing record when null bubbles to fragment root', () => {
   environment.commitPayload(singularQuery, {
     node: {
       __typename: 'User',

@@ -222,7 +222,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(actorSnapshot, actorCallback);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      test('calls next() and publishes the initial payload to the store', () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -276,7 +276,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('does not process deferred payloads that arrive before their parent @module is processed', () => {
+      test('does not process deferred payloads that arrive before their parent @module is processed', () => {
         environment.execute({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
@@ -371,7 +371,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('processes deferred payloads that arrive after the parent module has resolved', () => {
+      test('processes deferred payloads that arrive after the parent module has resolved', () => {
         environment.execute({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
@@ -509,7 +509,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   scheduler,
                 });
         });
-        it('processes deferred payloads that had arrived before parent @module in a single scheduler step', () => {
+        test('processes deferred payloads that had arrived before parent @module in a single scheduler step', () => {
           environment.execute({operation}).subscribe(callbacks);
           dataSource.next({
             data: {

@@ -162,7 +162,7 @@ describe('execute() a query with @match with additional arguments', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  test('calls next() and publishes the initial payload to the store', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -232,7 +232,7 @@ describe('execute() a query with @match with additional arguments', () => {
     });
   });
 
-  it('loads the @match fragment and normalizes/publishes the field payload', () => {
+  test('loads the @match fragment and normalizes/publishes the field payload', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -294,7 +294,7 @@ describe('execute() a query with @match with additional arguments', () => {
     });
   });
 
-  it('synchronously normalizes/publishes the field payload if @match fragment is available synchronously', () => {
+  test('synchronously normalizes/publishes the field payload if @match fragment is available synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     jest
       .spyOn(operationLoader, 'get')
@@ -350,7 +350,7 @@ describe('execute() a query with @match with additional arguments', () => {
     });
   });
 
-  it('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
+  test('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
     let taskID = 0;
     const tasks = new Map<string, () => void>();
     const scheduler = {
@@ -450,7 +450,7 @@ describe('execute() a query with @match with additional arguments', () => {
     });
   });
 
-  it('cancels processing of @match fragments with scheduling', () => {
+  test('cancels processing of @match fragments with scheduling', () => {
     let taskID = 0;
     const tasks = new Map<string, () => void>();
     const scheduler = {
@@ -540,7 +540,7 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(operationCallback).toBeCalledTimes(0); // operation result shouldn't change
   });
 
-  it('calls complete() if the network completes before processing the match', () => {
+  test('calls complete() if the network completes before processing the match', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -580,7 +580,7 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(callbacks.next).toBeCalledTimes(1);
   });
 
-  it('calls complete() if the network completes after processing the match', () => {
+  test('calls complete() if the network completes after processing the match', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -621,7 +621,7 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(callbacks.next).toBeCalledTimes(1);
   });
 
-  it('calls error() if the operationLoader function throws synchronously', () => {
+  test('calls error() if the operationLoader function throws synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -653,7 +653,7 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if operationLoader.get function throws synchronously', () => {
+  test('calls error() if operationLoader.get function throws synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     const loaderError = new Error();
     jest.spyOn(operationLoader, 'get').mockImplementationOnce(() => {
@@ -685,7 +685,7 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if the operationLoader promise fails', () => {
+  test('calls error() if the operationLoader promise fails', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -717,7 +717,7 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if processing a match payload throws', () => {
+  test('calls error() if processing a match payload throws', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -753,7 +753,7 @@ describe('execute() a query with @match with additional arguments', () => {
     );
   });
 
-  it('cancels @match processing if unsubscribed before match payload is processed', () => {
+  test('cancels @match processing if unsubscribed before match payload is processed', () => {
     const subscription = environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {

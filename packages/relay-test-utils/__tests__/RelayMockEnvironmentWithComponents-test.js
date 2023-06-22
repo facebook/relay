@@ -75,11 +75,11 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
     });
 
-    it('should have pending operations in the queue', () => {
+    test('should have pending operations in the queue', () => {
       expect(environment.mock.getAllOperations().length).toEqual(1);
     });
 
-    it('should return most recent operation', () => {
+    test('should return most recent operation', () => {
       const operation = environment.mock.getMostRecentOperation();
       expect(operation.request.node.operation.name).toBe(
         'RelayMockEnvironmentWithComponentsTestFantasticEffortQuery',
@@ -89,7 +89,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
     });
 
-    it('should resolve query', () => {
+    test('should resolve query', () => {
       // Should render loading state
       expect(() => {
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
@@ -108,7 +108,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       expect(testComponentTree).toMatchSnapshot();
     });
 
-    it('should reject query', () => {
+    test('should reject query', () => {
       environment.mock.rejectMostRecentOperation(new Error('Uh-oh'));
 
       const errorMessage = testComponentTree.root.find(
@@ -122,7 +122,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       expect(errorMessage.props.children).toBe('Uh-oh');
     });
 
-    it('should reject query with function', () => {
+    test('should reject query with function', () => {
       environment.mock.rejectMostRecentOperation(
         operation =>
           new Error(`Uh-oh: ${operation.request.node.fragment.name}`),
@@ -141,7 +141,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
     });
 
-    it('should throw if it unable to find operation', () => {
+    test('should throw if it unable to find operation', () => {
       expect(environment.mock.getAllOperations().length).toEqual(1);
       expect(() => {
         environment.mock.findOperation(operation => false);
@@ -220,14 +220,14 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
     });
 
-    it('should render data', () => {
+    test('should render data', () => {
       environment.mock.resolveMostRecentOperation(operation =>
         MockPayloadGenerator.generate(operation),
       );
       expect(testComponentTree).toMatchSnapshot();
     });
 
-    it('should render data with mock resolvers', () => {
+    test('should render data with mock resolvers', () => {
       environment.mock.resolveMostRecentOperation(operation =>
         MockPayloadGenerator.generate(operation, {
           Image() {
@@ -366,7 +366,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
     });
 
-    it('should render data', () => {
+    test('should render data', () => {
       ReactTestRenderer.act(() => {
         environment.mock.resolveMostRecentOperation(operation =>
           MockPayloadGenerator.generate(operation, {
@@ -405,7 +405,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
     });
 
-    it('should load more data for pagination container', () => {
+    test('should load more data for pagination container', () => {
       ReactTestRenderer.act(() => {
         environment.mock.resolveMostRecentOperation(operation =>
           MockPayloadGenerator.generate(operation, {
@@ -590,7 +590,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
     });
 
-    it('should refetch query', () => {
+    test('should refetch query', () => {
       environment.mock.resolveMostRecentOperation(operation =>
         MockPayloadGenerator.generate(operation, {
           Page() {
@@ -793,7 +793,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
     });
 
-    it('should resolve mutation', () => {
+    test('should resolve mutation', () => {
       const likeButton = testComponentTree.root.find(
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
         // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
@@ -836,7 +836,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
     });
 
-    it('should reject mutation', () => {
+    test('should reject mutation', () => {
       const likeButton = testComponentTree.root.find(
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
         // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
@@ -913,7 +913,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
     });
 
-    it('should resolve operation with handle fields', () => {
+    test('should resolve operation with handle fields', () => {
       environment.mock.resolveMostRecentOperation(operation =>
         MockPayloadGenerator.generate(operation, {
           Actor() {
@@ -1046,7 +1046,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
     });
 
-    it('should resolve subscription', () => {
+    test('should resolve subscription', () => {
       ReactTestRenderer.act(() => {
         expect(testComponentTree).toMatchSnapshot();
       });
@@ -1152,7 +1152,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
     });
 
-    it('should resolve both queries', () => {
+    test('should resolve both queries', () => {
       const userQuery = environment.mock.findOperation(
         operation =>
           operation.fragment.node.name ===
@@ -1233,7 +1233,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
     });
 
-    it('should resolve next operation', () => {
+    test('should resolve next operation', () => {
       environment.mock.queueOperationResolver(operation =>
         MockPayloadGenerator.generate(operation),
       );
@@ -1246,7 +1246,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
     });
 
-    it('should reject next operation', () => {
+    test('should reject next operation', () => {
       environment.mock.queueOperationResolver(() => new Error('Uh-oh'));
       let testComponentTree;
       ReactTestRenderer.act(() => {

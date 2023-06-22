@@ -26,7 +26,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('clone', () => {
-    it('returns a shallow copy of the record', () => {
+    test('returns a shallow copy of the record', () => {
       const record = {
         [ID_KEY]: '4',
         name: 'Mark',
@@ -40,7 +40,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('copyFields()', () => {
-    it('copies fields', () => {
+    test('copies fields', () => {
       const sink = {
         [ID_KEY]: '4',
         [TYPENAME_KEY]: 'User',
@@ -84,25 +84,25 @@ describe('RelayModernRecord', () => {
       };
     });
 
-    it('returns undefined when the link is unknown', () => {
+    test('returns undefined when the link is unknown', () => {
       expect(RelayModernRecord.getLinkedRecordIDs(record, 'colors')).toBe(
         undefined,
       );
     });
 
-    it('returns null when the link is non-existent', () => {
+    test('returns null when the link is non-existent', () => {
       expect(RelayModernRecord.getLinkedRecordIDs(record, 'enemies')).toBe(
         null,
       );
     });
 
-    it('returns the linked record IDs when they exist', () => {
+    test('returns the linked record IDs when they exist', () => {
       expect(
         RelayModernRecord.getLinkedRecordIDs(record, 'friends{"first":10}'),
       ).toEqual(['beast', 'greg', null]);
     });
 
-    it('throws if the field is actually a scalar', () => {
+    test('throws if the field is actually a scalar', () => {
       expect(() =>
         RelayModernRecord.getLinkedRecordIDs(record, 'name'),
       ).toThrowError(
@@ -111,7 +111,7 @@ describe('RelayModernRecord', () => {
       );
     });
 
-    it('throws if the field is a singular link', () => {
+    test('throws if the field is a singular link', () => {
       expect(() =>
         RelayModernRecord.getLinkedRecordIDs(record, 'hometown'),
       ).toThrowError(
@@ -122,7 +122,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('setLinkedRecordID()', () => {
-    it('sets a link', () => {
+    test('sets a link', () => {
       const record = {
         [ID_KEY]: '4',
       };
@@ -132,7 +132,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('setLinkedRecordIDs()', () => {
-    it('sets an array of links', () => {
+    test('sets an array of links', () => {
       const record = {
         [ID_KEY]: '4',
       };
@@ -171,11 +171,11 @@ describe('RelayModernRecord', () => {
       };
     });
 
-    it('returns a scalar value', () => {
+    test('returns a scalar value', () => {
       expect(RelayModernRecord.getValue(record, 'name')).toBe('Mark');
     });
 
-    it('returns a (list) scalar value', () => {
+    test('returns a (list) scalar value', () => {
       // Note that lists can be scalars too. The definition of scalar value is
       // "not a singular or plural link", and means that no query can traverse
       // into it.
@@ -186,7 +186,7 @@ describe('RelayModernRecord', () => {
       ]);
     });
 
-    it('returns a (custom object) scalar value', () => {
+    test('returns a (custom object) scalar value', () => {
       // Objects can be scalars too. The definition of scalar value is
       // "not a singular or plural link", and means that no query can traverse
       // into it.
@@ -195,24 +195,24 @@ describe('RelayModernRecord', () => {
       });
     });
 
-    it('returns null when the field is non-existent', () => {
+    test('returns null when the field is non-existent', () => {
       expect(RelayModernRecord.getValue(record, 'blockbusterMembership')).toBe(
         null,
       );
     });
 
-    it('returns undefined when the field is unknown', () => {
+    test('returns undefined when the field is unknown', () => {
       expect(RelayModernRecord.getValue(record, 'horoscope')).toBe(undefined);
     });
 
-    it('throws on encountering a linked record', () => {
+    test('throws on encountering a linked record', () => {
       expect(() => RelayModernRecord.getValue(record, 'hometown')).toThrowError(
         'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.hometown` but found a linked record.',
       );
     });
 
-    it('throws on encountering a plural linked record', () => {
+    test('throws on encountering a plural linked record', () => {
       expect(() =>
         RelayModernRecord.getValue(record, 'friends{"first":10}'),
       ).toThrowError(
@@ -223,7 +223,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('freeze()', () => {
-    it('prevents modification of records', () => {
+    test('prevents modification of records', () => {
       const record = RelayModernRecord.create('4', 'User');
       RelayModernRecord.freeze(record);
       expect(() => {
@@ -233,7 +233,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('update()', () => {
-    it('returns the first record if there are no changes', () => {
+    test('returns the first record if there are no changes', () => {
       const prev = RelayModernRecord.create('4', 'User');
       RelayModernRecord.setValue(prev, 'name', 'Zuck');
       const next = RelayModernRecord.clone(prev);
@@ -247,7 +247,7 @@ describe('RelayModernRecord', () => {
       });
     });
 
-    it('returns a new record if there are changes', () => {
+    test('returns a new record if there are changes', () => {
       const prev = RelayModernRecord.create('4', 'User');
       const next = RelayModernRecord.clone(prev);
       RelayModernRecord.setValue(next, 'name', 'Zuck');
@@ -261,7 +261,7 @@ describe('RelayModernRecord', () => {
       });
     });
 
-    it('warns if __id does not match', () => {
+    test('warns if __id does not match', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('4', 'User');
       const next = RelayModernRecord.create('5', 'User');
@@ -273,7 +273,7 @@ describe('RelayModernRecord', () => {
       ]);
     });
 
-    it('warns if __typename does not match', () => {
+    test('warns if __typename does not match', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('42', 'Number');
       const next = RelayModernRecord.create('42', 'MeaningOfLife');
@@ -289,7 +289,7 @@ describe('RelayModernRecord', () => {
       ]);
     });
 
-    it('does not warn if __typename does not match on client record', () => {
+    test('does not warn if __typename does not match on client record', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('client:42', 'Number');
       const next = RelayModernRecord.create('client:42', 'MeaningOfLife');
@@ -298,7 +298,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('merge()', () => {
-    it('returns a new record even if there are no changes', () => {
+    test('returns a new record even if there are no changes', () => {
       const prev = RelayModernRecord.create('4', 'User');
       RelayModernRecord.setValue(prev, 'name', 'Zuck');
       const next = RelayModernRecord.clone(prev);
@@ -312,7 +312,7 @@ describe('RelayModernRecord', () => {
       });
     });
 
-    it('returns a new record if there are changes', () => {
+    test('returns a new record if there are changes', () => {
       const prev = RelayModernRecord.create('4', 'User');
       const next = RelayModernRecord.clone(prev);
       RelayModernRecord.setValue(next, 'name', 'Zuck');
@@ -326,7 +326,7 @@ describe('RelayModernRecord', () => {
       });
     });
 
-    it('warns if __id does not match', () => {
+    test('warns if __id does not match', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('4', 'User');
       const next = RelayModernRecord.create('5', 'User');
@@ -338,7 +338,7 @@ describe('RelayModernRecord', () => {
       ]);
     });
 
-    it('warns if __typename does not match', () => {
+    test('warns if __typename does not match', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('42', 'Number');
       const next = RelayModernRecord.create('42', 'MeaningOfLife');
@@ -354,7 +354,7 @@ describe('RelayModernRecord', () => {
       ]);
     });
 
-    it('does not warn if __typename does not match on client record', () => {
+    test('does not warn if __typename does not match on client record', () => {
       jest.mock('warning');
       const prev = RelayModernRecord.create('client:42', 'Number');
       const next = RelayModernRecord.create('client:42', 'MeaningOfLife');
@@ -363,7 +363,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('setValue()', () => {
-    it('warns if updating to a different __id', () => {
+    test('warns if updating to a different __id', () => {
       jest.mock('warning');
       const record = RelayModernRecord.create('4', 'User');
       expect(() => RelayModernRecord.setValue(record, ID_KEY, 'not-4')).toWarn([
@@ -374,7 +374,7 @@ describe('RelayModernRecord', () => {
       ]);
     });
 
-    it('warns if updating to a different __typename', () => {
+    test('warns if updating to a different __typename', () => {
       jest.mock('warning');
       const record = RelayModernRecord.create('4', 'User');
       expect(() =>
@@ -391,7 +391,7 @@ describe('RelayModernRecord', () => {
       ]);
     });
 
-    it('does not warn if updating the __typename of a client record', () => {
+    test('does not warn if updating the __typename of a client record', () => {
       jest.mock('warning');
       const record = RelayModernRecord.create('client:4', 'User');
       expect(() =>
@@ -401,7 +401,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('ActorChange Records', () => {
-    it('should set/get value for the multi actor record', () => {
+    test('should set/get value for the multi actor record', () => {
       const record = RelayModernRecord.create('1234', 'User');
       const actorID = getActorIdentifier('actor-1234');
       RelayModernRecord.setActorLinkedRecordID(
@@ -416,7 +416,7 @@ describe('RelayModernRecord', () => {
       ]);
     });
 
-    it('should throw if unable to get actorID for the record', () => {
+    test('should throw if unable to get actorID for the record', () => {
       const record = RelayModernRecord.create('1234', 'User');
       RelayModernRecord.setLinkedRecordID(record, 'name', 'ref-1');
 

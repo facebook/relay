@@ -86,7 +86,7 @@ describe('FragmentResource RelayResolver behavior', () => {
     };
   });
 
-  it('Reports an error to the logger when a resolver field throws an error.', async () => {
+  test('Reports an error to the logger when a resolver field throws an error.', async () => {
     FragmentResource.read(fragmentNode, fragmentRef, 'componentDisplayName');
     expect(environment.requiredFieldLogger).toHaveBeenCalledTimes(1);
 

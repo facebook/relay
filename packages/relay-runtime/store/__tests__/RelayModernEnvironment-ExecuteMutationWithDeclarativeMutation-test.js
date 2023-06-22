@@ -141,7 +141,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           jest.runAllTimers();
         });
 
-        it('commit the mutation, and remove the given id from the store', () => {
+        test('commit the mutation, and remove the given id from the store', () => {
           const snapshot = environment.lookup(queryOperation.fragment);
           expect(snapshot.data).toEqual({
             node: {
@@ -176,7 +176,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(callback.mock.calls[0][0].data).toEqual({node: null});
         });
 
-        it('executes the optimist response, and remove the given id from the store', () => {
+        test('executes the optimist response, and remove the given id from the store', () => {
           const snapshot = environment.lookup(queryOperation.fragment);
           expect(snapshot.data).toEqual({
             node: {
@@ -206,7 +206,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(callback.mock.calls[0][0].data).toEqual({node: null});
         });
 
-        it('removes different `id`s in optimistic update and the server response', () => {
+        test('removes different `id`s in optimistic update and the server response', () => {
           const anotherCommentId = 'serverCommentId';
           const anotherQueryOperation = createOperationDescriptor(
             CommentQuery,
@@ -427,7 +427,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           jest.runAllTimers();
         });
 
-        it('commit the mutation, and remove the given ids from the store', () => {
+        test('commit the mutation, and remove the given ids from the store', () => {
           const firstCommentSnapshot = environment.lookup(
             firstCommentQueryOperation.fragment,
           );
@@ -481,7 +481,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(secondCallback.mock.calls[0][0].data).toEqual({node: null});
         });
 
-        it('executes the optimist response, and remove the given ids from the store', () => {
+        test('executes the optimist response, and remove the given ids from the store', () => {
           const firstCommentSnapshot = environment.lookup(
             firstCommentQueryOperation.fragment,
           );
@@ -529,7 +529,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(secondCallback.mock.calls[0][0].data).toEqual({node: null});
         });
 
-        it('removes different `id`s in optimistic update and the server response', () => {
+        test('removes different `id`s in optimistic update and the server response', () => {
           const anotherCommentId = 'serverCommentId';
           const anotherQueryOperation = createOperationDescriptor(
             CommentQuery,
@@ -931,7 +931,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('append and prepend edges', () => {
-        it('commits the mutation and inserts comment edges into the connection', () => {
+        test('commits the mutation and inserts comment edges into the connection', () => {
           const snapshot = environment.lookup(operation.fragment);
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
@@ -1048,7 +1048,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ]);
         });
 
-        it('does not insert nodes into connections where that node already exists', () => {
+        test('does not insert nodes into connections where that node already exists', () => {
           const snapshot = environment.lookup(operation.fragment);
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
@@ -1101,7 +1101,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ]);
         });
 
-        it('commits the mutation and inserts multiple comment edges into the connection', () => {
+        test('commits the mutation and inserts multiple comment edges into the connection', () => {
           const snapshot = environment.lookup(operation.fragment);
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
@@ -1264,7 +1264,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ]);
         });
 
-        it('commits the mutation and inserts multiple comment edges on a field with args into the connection', () => {
+        test('commits the mutation and inserts multiple comment edges on a field with args into the connection', () => {
           const snapshot = environment.lookup(operation.fragment);
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
@@ -1430,7 +1430,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ]);
         });
 
-        it('inserts an comment edge during optmistic update, and reverts and inserts new edge when server payload resolves', () => {
+        test('inserts an comment edge during optmistic update, and reverts and inserts new edge when server payload resolves', () => {
           const snapshot = environment.lookup(operation.fragment);
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
@@ -1531,7 +1531,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('delete edges', () => {
-        it('commits the mutation and deletes comment edges from the connection from a single id', () => {
+        test('commits the mutation and deletes comment edges from the connection from a single id', () => {
           const snapshot = environment.lookup(operation.fragment);
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
@@ -1568,7 +1568,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ]);
         });
 
-        it('commits the mutation and deletes comment edges from the connection from a list of ids', () => {
+        test('commits the mutation and deletes comment edges from the connection from a list of ids', () => {
           const snapshot = environment.lookup(operation.fragment);
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
@@ -1863,7 +1863,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         error.mockClear();
       });
 
-      it('commits the mutation, creates edges for the comment and inserts the edges into the connection', () => {
+      test('commits the mutation, creates edges for the comment and inserts the edges into the connection', () => {
         const snapshot = environment.lookup(operation.fragment);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
@@ -1975,7 +1975,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ]);
       });
 
-      it('does not insert nodes into connections where that node already exists', () => {
+      test('does not insert nodes into connections where that node already exists', () => {
         const snapshot = environment.lookup(operation.fragment);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
@@ -2025,7 +2025,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ]);
       });
 
-      it('works when the edge name is a literal', () => {
+      test('works when the edge name is a literal', () => {
         const snapshot = environment.lookup(operation.fragment);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
@@ -2136,7 +2136,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ]);
       });
 
-      it('handles lists of nodes', () => {
+      test('handles lists of nodes', () => {
         const snapshot = environment.lookup(operation.fragment);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
@@ -2283,7 +2283,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ]);
       });
 
-      it('creates and inserts a comment edge during optmistic update', () => {
+      test('creates and inserts a comment edge during optmistic update', () => {
         const snapshot = environment.lookup(operation.fragment);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
@@ -2376,7 +2376,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ]);
       });
 
-      it('warns when the server returns an null for the node', () => {
+      test('warns when the server returns an null for the node', () => {
         const snapshot = environment.lookup(operation.fragment);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);

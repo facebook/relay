@@ -13,7 +13,7 @@
 const {intern} = require('../StringInterner');
 
 describe('StringInterner', () => {
-  it('shortens strings at or past the limit', () => {
+  test('shortens strings at or past the limit', () => {
     expect(intern('', 0)).toBe('\t1');
     expect(intern('', 0)).toBe('\t1');
     expect(intern('0123456789', 10)).toBe('\t2');
@@ -22,7 +22,7 @@ describe('StringInterner', () => {
     expect(intern('0123456789a', 10)).toBe('\t3');
   });
 
-  it('escapes or returns strings below the limit', () => {
+  test('escapes or returns strings below the limit', () => {
     expect(intern('test', 5)).toBe('test');
     expect(intern('0123456789', 11)).toBe('0123456789');
     expect(intern('\thello', 10)).toBe('\thello');

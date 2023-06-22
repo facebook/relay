@@ -150,7 +150,7 @@ beforeEach(() => {
   };
 });
 
-it('returns correct in-flight state when the mutation is inflight and completes', () => {
+test('returns correct in-flight state when the mutation is inflight and completes', () => {
   render(environment, CommentCreateMutation);
   expect(isInFlightFn).toBeCalledTimes(1);
   expect(isInFlightFn).toBeCalledWith(false);
@@ -168,7 +168,7 @@ it('returns correct in-flight state when the mutation is inflight and completes'
   expect(isInFlightFn).toBeCalledWith(false);
 });
 
-it('returns correct in-flight state when commit called inside render', () => {
+test('returns correct in-flight state when commit called inside render', () => {
   render(environment, CommentCreateMutation, true);
   expect(isInFlightFn).toBeCalledTimes(2);
   expect(isInFlightFn).toHaveBeenNthCalledWith(2, true);
@@ -180,7 +180,7 @@ it('returns correct in-flight state when commit called inside render', () => {
   expect(isInFlightFn).toHaveBeenCalledWith(false);
 });
 
-it('returns correct in-flight state when mutation resolves immediately', () => {
+test('returns correct in-flight state when mutation resolves immediately', () => {
   render(environment, CommentCreateMutation);
   expect(isInFlightFn).toBeCalledTimes(1);
   expect(isInFlightFn).toBeCalledWith(false);
@@ -197,7 +197,7 @@ it('returns correct in-flight state when mutation resolves immediately', () => {
   expect(isInFlightFn).toBeCalledWith(false);
 });
 
-it('returns correct in-flight state when the mutation is disposed', () => {
+test('returns correct in-flight state when the mutation is disposed', () => {
   render(environment, CommentCreateMutation);
   isInFlightFn.mockClear();
   commit({variables});
@@ -210,7 +210,7 @@ it('returns correct in-flight state when the mutation is disposed', () => {
   expect(isInFlightFn).toBeCalledWith(false);
 });
 
-it('returns in-flight state that tracks all in-flight mutations', () => {
+test('returns in-flight state that tracks all in-flight mutations', () => {
   render(environment, CommentCreateMutation);
   commit({variables});
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -292,7 +292,7 @@ it('returns in-flight state that tracks all in-flight mutations', () => {
   expect(isInFlightFn).toBeCalledWith(false);
 });
 
-it('returns in-flight state that tracks all current mutations when disposed or errored', () => {
+test('returns in-flight state that tracks all current mutations when disposed or errored', () => {
   render(environment, CommentCreateMutation);
   commit({variables});
   const disposable1 = disposable;
@@ -326,7 +326,7 @@ it('returns in-flight state that tracks all current mutations when disposed or e
   expect(isInFlightFn).toBeCalledWith(false);
 });
 
-it('calls onCompleted when mutation responses contains server errors', () => {
+test('calls onCompleted when mutation responses contains server errors', () => {
   const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   render(environment, CommentCreateMutation);
@@ -370,7 +370,7 @@ it('calls onCompleted when mutation responses contains server errors', () => {
   );
   expect(isInFlightFn).toBeCalledWith(false);
 });
-it('calls onError when mutation errors in commitMutation', () => {
+test('calls onError when mutation errors in commitMutation', () => {
   const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   const throwingUpdater = () => {
@@ -389,7 +389,7 @@ it('calls onError when mutation errors in commitMutation', () => {
   expect(isInFlightFn).toBeCalledWith(false);
 });
 
-it('calls onComplete when mutation successfully resolved', () => {
+test('calls onComplete when mutation successfully resolved', () => {
   const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   render(environment, CommentCreateMutation);
@@ -443,7 +443,7 @@ describe('change useMutation input', () => {
     `;
   });
 
-  it('resets in-flight state when the environment changes', () => {
+  test('resets in-flight state when the environment changes', () => {
     render(environment, CommentCreateMutation);
     isInFlightFn.mockClear();
     commit({variables});
@@ -462,7 +462,7 @@ describe('change useMutation input', () => {
     expect(isInFlightFn).toBeCalledTimes(0);
   });
 
-  it('can fetch from the new environment when the environment changes', () => {
+  test('can fetch from the new environment when the environment changes', () => {
     render(environment, CommentCreateMutation);
     isInFlightFn.mockClear();
     commit({variables});
@@ -475,7 +475,7 @@ describe('change useMutation input', () => {
     expect(newEnv.executeMutation).toBeCalledTimes(1);
   });
 
-  it('resets in-flight state when mutation operation changes', () => {
+  test('resets in-flight state when mutation operation changes', () => {
     render(environment, CommentCreateMutation);
     commit({variables});
 
@@ -491,7 +491,7 @@ describe('change useMutation input', () => {
     expect(isInFlightFn).toBeCalledTimes(0);
   });
 
-  it('can fetch use the new query when the query changes', () => {
+  test('can fetch use the new query when the query changes', () => {
     render(environment, CommentCreateMutation);
     commit({variables});
 
@@ -527,7 +527,7 @@ describe('unmount', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
   });
 
-  it('does not setState on commit after unmount', () => {
+  test('does not setState on commit after unmount', () => {
     render(environment, CommentCreateMutation);
     ReactTestRenderer.act(() => instance.unmount());
 
@@ -537,7 +537,7 @@ describe('unmount', () => {
     expect(console.error).toBeCalledTimes(0);
   });
 
-  it('does not setState on complete after unmount', () => {
+  test('does not setState on complete after unmount', () => {
     render(environment, CommentCreateMutation);
     commit({variables});
     ReactTestRenderer.act(() => instance.unmount());
@@ -550,7 +550,7 @@ describe('unmount', () => {
     expect(console.error).toBeCalledTimes(0);
   });
 
-  it('does not dispose previous in-flight mutaiton ', () => {
+  test('does not dispose previous in-flight mutaiton ', () => {
     const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     render(environment, CommentCreateMutation);
     commit({variables, onCompleted});

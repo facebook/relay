@@ -110,7 +110,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     jest.clearAllTimers();
   });
 
-  it('force a refetch in fast refresh', () => {
+  test('force a refetch in fast refresh', () => {
     // $FlowFixMe[cannot-resolve-module] (site=www)
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);

@@ -25,18 +25,18 @@ describe('deepFreeze()', () => {
     });
   });
 
-  it('freezes a simple object', () => {
+  test('freezes a simple object', () => {
     const object = deepFreeze({a: 1});
     expect(object).toBeFrozen();
   });
 
-  it('freezes nested objects', () => {
+  test('freezes nested objects', () => {
     const object = deepFreeze({a: 1, b: {c: 2}});
     expect(object).toBeFrozen();
     expect(object.b).toBeFrozen();
   });
 
-  it('short-circuits given a circular reference', () => {
+  test('short-circuits given a circular reference', () => {
     const object = {a: 1, b: {c: 2}};
     object.b.d = object;
     deepFreeze(object);
@@ -44,13 +44,13 @@ describe('deepFreeze()', () => {
     expect(object.b).toBeFrozen();
   });
 
-  it('returns the original object', () => {
+  test('returns the original object', () => {
     const object = {a: 1, b: {c: 2}};
     const frozen = deepFreeze(object);
     expect(frozen).toBe(object);
   });
 
-  it('copes with null values', () => {
+  test('copes with null values', () => {
     expect(deepFreeze({a: null})).toBeFrozen();
   });
 });

@@ -67,7 +67,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('returns available if all data exists in the environment', () => {
+      test('returns available if all data exists in the environment', () => {
         environment.commitPayload(operationDescriptor, {
           me: {
             id: '4',
@@ -83,7 +83,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('returns available with fetchTime if all data exists in the environment and the query is retained', () => {
+      test('returns available with fetchTime if all data exists in the environment and the query is retained', () => {
         const fetchTime = Date.now();
         jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
         environment.retain(operationDescriptor);
@@ -101,7 +101,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           fetchTime,
         });
       });
-      it('returns missing if data is missing from the environment', () => {
+      test('returns missing if data is missing from the environment', () => {
         environment.commitPayload(operationDescriptor, {
           me: {
             id: '4',
@@ -147,7 +147,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           `;
         });
 
-        it('should check in multiple environments', () => {
+        test('should check in multiple environments', () => {
           operationDescriptor = createOperationDescriptor(Query, {});
           environment.commitPayload(operationDescriptor, {
             viewer: {
@@ -173,7 +173,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('should report missing data in multiple environments', () => {
+        test('should report missing data in multiple environments', () => {
           operationDescriptor = createOperationDescriptor(Query, {});
 
           environment.commitPayload(operationDescriptor, {

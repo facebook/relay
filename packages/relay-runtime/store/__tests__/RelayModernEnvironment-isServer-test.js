@@ -24,14 +24,14 @@ disallowWarnings();
 
 describe('isServer', () => {
   const fetch = () => Observable.create<any>(() => {});
-  it('defaults to false', () => {
+  test('defaults to false', () => {
     const environment = new Environment({
       network: Network.create(fetch),
       store: new Store(new RecordSource()),
     });
     expect(environment.isServer()).toEqual(false);
   });
-  it('comes from config', () => {
+  test('comes from config', () => {
     let environment = new Environment({
       network: Network.create(fetch),
       store: new Store(new RecordSource()),

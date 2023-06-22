@@ -91,7 +91,7 @@ describe('QueryResource Client Edges behavior', () => {
     });
   });
 
-  it('Only issues one operation when multiple fragments are under a client edge', async () => {
+  test('Only issues one operation when multiple fragments are under a client edge', async () => {
     // Simulate rendering the query; we expect a single operation for the client edge to be
     // issued. Ideally it would only be issued once sub-components whose fragments access
     // data on the client edge are rendered, but this isn't implemented because it is more

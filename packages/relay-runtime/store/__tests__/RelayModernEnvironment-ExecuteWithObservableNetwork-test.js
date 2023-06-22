@@ -96,7 +96,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               });
       });
 
-      it('fetches queries', () => {
+      test('fetches queries', () => {
         environment.execute({operation}).subscribe(callbacks);
         expect(fetch.mock.calls.length).toBe(1);
         expect(fetch.mock.calls[0][0]).toEqual(query.params);
@@ -104,7 +104,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(fetch.mock.calls[0][2]).toEqual({});
       });
 
-      it('fetches queries with force:true', () => {
+      test('fetches queries with force:true', () => {
         const cacheConfig = {force: true};
         operation = createOperationDescriptor(
           query,
@@ -121,7 +121,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
       });
 
-      it('calls next() when payloads return', () => {
+      test('calls next() when payloads return', () => {
         environment.execute({operation}).subscribe(callbacks);
         subject.next({
           data: {
@@ -149,7 +149,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
       });
 
-      it('calls next() and runs updater when payloads return', () => {
+      test('calls next() and runs updater when payloads return', () => {
         const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
         environment
           .executeSubscription({operation, updater})
@@ -181,7 +181,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(updater).toBeCalled();
       });
 
-      it('calls complete() when the network request completes', () => {
+      test('calls complete() when the network request completes', () => {
         environment.execute({operation}).subscribe(callbacks);
         subject.complete();
         expect(complete.mock.calls.length).toBe(1);
@@ -189,7 +189,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next).not.toBeCalled();
       });
 
-      it('calls error() when the batch has an error', () => {
+      test('calls error() when the batch has an error', () => {
         environment.execute({operation}).subscribe(callbacks);
         const e = new Error('wtf');
         subject.error(e);
@@ -200,7 +200,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next.mock.calls.length).toBe(0);
       });
 
-      it('calls next() and publishes payloads to the store', () => {
+      test('calls next() and publishes payloads to the store', () => {
         const selector = createReaderSelector(
           query.fragment,
           ROOT_ID,
@@ -236,7 +236,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('calls next() with extensions-only payloads', () => {
+      test('calls next() with extensions-only payloads', () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload1 = {data: null, extensions: {}};
         const payload2 = {data: null, extensions: {is_final: true}};

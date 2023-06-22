@@ -436,7 +436,7 @@ describe.each([
     describe('initial render', () => {
       // The bulk of initial render behavior is covered in useFragmentNode-test,
       // so this suite covers the basic cases as a sanity check.
-      it('should throw error if fragment is plural', () => {
+      test('should throw error if fragment is plural', () => {
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
         const UserFragment = graphql`
@@ -453,7 +453,7 @@ describe.each([
         ).toEqual(true);
       });
 
-      it('should throw error if fragment is missing @refetchable directive', () => {
+      test('should throw error if fragment is missing @refetchable directive', () => {
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
         const UserFragment = graphql`
@@ -471,7 +471,7 @@ describe.each([
         ).toEqual(true);
       });
 
-      it('should render fragment without error when data is available', () => {
+      test('should render fragment without error when data is available', () => {
         renderFragment();
         expectFragmentResults([
           {
@@ -485,17 +485,17 @@ describe.each([
         ]);
       });
 
-      it('should render fragment without error when ref is null', () => {
+      test('should render fragment without error when ref is null', () => {
         renderFragment({userRef: null});
         expectFragmentResults([{data: null}]);
       });
 
-      it('should render fragment without error when ref is undefined', () => {
+      test('should render fragment without error when ref is undefined', () => {
         renderFragment({userRef: undefined});
         expectFragmentResults([{data: null}]);
       });
 
-      it('should update when fragment data changes', () => {
+      test('should update when fragment data changes', () => {
         renderFragment();
         expectFragmentResults([
           {
@@ -531,7 +531,7 @@ describe.each([
         ]);
       });
 
-      it('should throw a promise if data is missing for fragment and request is in flight', () => {
+      test('should throw a promise if data is missing for fragment and request is in flight', () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
@@ -615,7 +615,7 @@ describe.each([
         );
       }
 
-      it('does not refetch and warns if component has unmounted', () => {
+      test('does not refetch and warns if component has unmounted', () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
@@ -646,7 +646,7 @@ describe.each([
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
       });
 
-      it('warns if fragment ref passed to useRefetchableFragmentNode() was null', () => {
+      test('warns if fragment ref passed to useRefetchableFragmentNode() was null', () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
@@ -669,7 +669,7 @@ describe.each([
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
       });
 
-      it('throws error when error occurs during refetch', () => {
+      test('throws error when error occurs during refetch', () => {
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
         const callback = jest.fn<[Error | null], void>();
@@ -722,7 +722,7 @@ describe.each([
         expect(isOperationRetained(refetchQuery)).toBe(false);
       });
 
-      it('refetches new variables correctly when refetching new id', () => {
+      test('refetches new variables correctly when refetching new id', () => {
         const renderer = renderFragment();
         const initialUser = {
           id: '1',
@@ -784,7 +784,7 @@ describe.each([
         expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
-      it('refetches new variables correctly when refetching same id', () => {
+      test('refetches new variables correctly when refetching same id', () => {
         const renderer = renderFragment();
         const initialUser = {
           id: '1',
@@ -844,7 +844,7 @@ describe.each([
         expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
-      it('with correct id from refetchable fragment when using nested fragment', () => {
+      test('with correct id from refetchable fragment when using nested fragment', () => {
         // Populate store with data for query using nested fragment
         TestRenderer.act(() => {
           environment.commitPayload(queryNestedFragment, {
@@ -927,7 +927,7 @@ describe.each([
         expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
-      it('refetches new variables correctly when using @arguments', () => {
+      test('refetches new variables correctly when using @arguments', () => {
         const userRef = environment.lookup(queryWithArgs.fragment).data?.node;
         const renderer = renderFragment({
           fragment: gqlFragmentWithArgs,
@@ -992,7 +992,7 @@ describe.each([
         expect(isOperationRetained(refetchQueryWithArgs)).toBe(true);
       });
 
-      it('refetches new variables correctly when using @arguments with literal values', () => {
+      test('refetches new variables correctly when using @arguments with literal values', () => {
         const userRef = environment.lookup(queryWithLiteralArgs.fragment).data
           ?.node;
         const renderer = renderFragment({
@@ -1058,7 +1058,7 @@ describe.each([
         expect(isOperationRetained(refetchQueryWithArgs)).toBe(true);
       });
 
-      it('subscribes to changes in refetched data', () => {
+      test('subscribes to changes in refetched data', () => {
         renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
@@ -1130,7 +1130,7 @@ describe.each([
         ]);
       });
 
-      it('resets to parent data when environment changes', () => {
+      test('resets to parent data when environment changes', () => {
         renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
@@ -1226,7 +1226,7 @@ describe.each([
         ]);
       });
 
-      it('refetches with new environment when environment changes', () => {
+      test('refetches with new environment when environment changes', () => {
         const renderer = renderFragment();
         const initialUser = {
           id: '1',
@@ -1291,7 +1291,7 @@ describe.each([
         expectFragmentResults([{data: refetchedUser}]);
       });
 
-      it('resets to parent data when parent fragment ref changes', () => {
+      test('resets to parent data when parent fragment ref changes', () => {
         renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
@@ -1395,7 +1395,7 @@ describe.each([
         ]);
       });
 
-      it('warns if data retured has different __typename', () => {
+      test('warns if data retured has different __typename', () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
@@ -1469,7 +1469,7 @@ describe.each([
         ).toEqual(true);
       });
 
-      it('warns if a different id is returned', () => {
+      test('warns if a different id is returned', () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
@@ -1543,7 +1543,7 @@ describe.each([
         ).toEqual(true);
       });
 
-      it("doesn't warn if refetching on a different id than the current one in display", () => {
+      test("doesn't warn if refetching on a different id than the current one in display", () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
@@ -1610,7 +1610,7 @@ describe.each([
         ).toEqual(0);
       });
 
-      it('warns if called during render', () => {
+      test('warns if called during render', () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
@@ -1651,7 +1651,7 @@ describe.each([
           fetchSpy.mockClear();
         });
 
-        it('refetches correctly when refetching multiple times in a row', () => {
+        test('refetches correctly when refetching multiple times in a row', () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -1730,7 +1730,7 @@ describe.each([
           doAndAssertRefetch([{data: refetchedUser}]);
         });
 
-        it('refetches correctly when a second refetch starts while the first is one suspended', () => {
+        test('refetches correctly when a second refetch starts while the first is one suspended', () => {
           const renderer = renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
@@ -1838,7 +1838,7 @@ describe.each([
           expect(fetchSpy).toBeCalledTimes(4);
         });
 
-        it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
+        test('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
           const renderer = renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
@@ -1965,7 +1965,7 @@ describe.each([
           expect(fetchSpy).toBeCalledTimes(4);
         });
 
-        it('refetches correctly when switching between multiple refetches', () => {
+        test('refetches correctly when switching between multiple refetches', () => {
           const renderer = renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
@@ -2086,7 +2086,7 @@ describe.each([
           expect(fetchSpy).toBeCalledTimes(5);
         });
 
-        it('does not dispose ongoing request if refetch is called again', () => {
+        test('does not dispose ongoing request if refetch is called again', () => {
           const renderer = renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
@@ -2167,7 +2167,7 @@ describe.each([
             beforeEach(() => {
               renderPolicy = 'partial';
             });
-            it("doesn't start network request if refetch query is fully cached", () => {
+            test("doesn't start network request if refetch query is fully cached", () => {
               renderFragment();
               commitSpy.mockClear();
               TestRenderer.act(() => {
@@ -2201,7 +2201,7 @@ describe.each([
               expectFragmentResults([{data: refetchingUser}]);
             });
 
-            it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
+            test('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
               const renderer = renderFragment();
               const initialUser = {
                 id: '1',
@@ -2263,7 +2263,7 @@ describe.each([
               expectFragmentResults([{data: refetchedUser}]);
             });
 
-            it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
+            test("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
               // Cache user with missing username
               const refetchVariables = {id: '4', scale: 16};
               refetchQuery = createOperationDescriptor(
@@ -2312,7 +2312,7 @@ describe.each([
             beforeEach(() => {
               renderPolicy = 'full';
             });
-            it("doesn't start network request if refetch query is fully cached", () => {
+            test("doesn't start network request if refetch query is fully cached", () => {
               renderFragment();
               commitSpy.mockClear();
               TestRenderer.act(() => {
@@ -2346,7 +2346,7 @@ describe.each([
               expectFragmentResults([{data: refetchingUser}]);
             });
 
-            it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
+            test('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
               const renderer = renderFragment();
               const initialUser = {
                 id: '1',
@@ -2408,7 +2408,7 @@ describe.each([
               expectFragmentResults([{data: refetchedUser}]);
             });
 
-            it("starts network request if refetch query is not fully cached and suspends even if fragment doesn't have missing data", () => {
+            test("starts network request if refetch query is not fully cached and suspends even if fragment doesn't have missing data", () => {
               // Cache user with missing username
               const refetchVariables = {id: '4', scale: 16};
               refetchQuery = createOperationDescriptor(
@@ -2487,7 +2487,7 @@ describe.each([
               renderPolicy = 'partial';
             });
 
-            it('starts network request if refetch query is fully cached', () => {
+            test('starts network request if refetch query is fully cached', () => {
               renderFragment();
               commitSpy.mockClear();
               TestRenderer.act(() => {
@@ -2521,7 +2521,7 @@ describe.each([
               expectFragmentResults([{data: refetchingUser}]);
             });
 
-            it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
+            test('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
               const renderer = renderFragment();
               const initialUser = {
                 id: '1',
@@ -2583,7 +2583,7 @@ describe.each([
               expectFragmentResults([{data: refetchedUser}]);
             });
 
-            it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
+            test("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
               // Cache user with missing username
               const refetchVariables = {id: '4', scale: 16};
               refetchQuery = createOperationDescriptor(
@@ -2633,7 +2633,7 @@ describe.each([
               renderPolicy = 'full';
             });
 
-            it('starts network request if refetch query is fully cached', () => {
+            test('starts network request if refetch query is fully cached', () => {
               renderFragment();
               commitSpy.mockClear();
               TestRenderer.act(() => {
@@ -2667,7 +2667,7 @@ describe.each([
               expectFragmentResults([{data: refetchingUser}]);
             });
 
-            it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
+            test('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
               const renderer = renderFragment();
               const initialUser = {
                 id: '1',
@@ -2729,7 +2729,7 @@ describe.each([
               expectFragmentResults([{data: refetchedUser}]);
             });
 
-            it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
+            test("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
               // Cache user with missing username
               const refetchVariables = {id: '4', scale: 16};
               refetchQuery = createOperationDescriptor(
@@ -2797,7 +2797,7 @@ describe.each([
             fetchPolicy = 'network-only';
           });
 
-          it('starts network request and suspends if refetch query is fully cached', () => {
+          test('starts network request and suspends if refetch query is fully cached', () => {
             const renderer = renderFragment();
             const initialUser = {
               id: '1',
@@ -2852,7 +2852,7 @@ describe.each([
             expectFragmentResults([{data: refetchedUser}]);
           });
 
-          it('starts network request and suspends if refetch query is not fully cached', () => {
+          test('starts network request and suspends if refetch query is not fully cached', () => {
             const renderer = renderFragment();
             const initialUser = {
               id: '1',
@@ -2920,7 +2920,7 @@ describe.each([
             fetchPolicy = 'store-only';
           });
 
-          it("doesn't start network request if refetch query is fully cached", () => {
+          test("doesn't start network request if refetch query is fully cached", () => {
             renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
@@ -2954,7 +2954,7 @@ describe.each([
             expectFragmentResults([{data: refetchingUser}]);
           });
 
-          it("doesn't start network request if refetch query is not fully cached", () => {
+          test("doesn't start network request if refetch query is not fully cached", () => {
             renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
@@ -2982,7 +2982,7 @@ describe.each([
             expectFragmentResults([{data: null}]);
           });
 
-          it("doesn't use data from previous network fetch and releases previous query", () => {
+          test("doesn't use data from previous network fetch and releases previous query", () => {
             const renderer = renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
@@ -3098,7 +3098,7 @@ describe.each([
           unsubscribe.mockClear();
         });
 
-        it('does not cancel ongoing request if environment changes', () => {
+        test('does not cancel ongoing request if environment changes', () => {
           renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
@@ -3167,7 +3167,7 @@ describe.each([
           expectFragmentResults([{data: expectedUser}]);
         });
 
-        it('does not cancel ongoing request if fragment ref changes', () => {
+        test('does not cancel ongoing request if fragment ref changes', () => {
           renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
@@ -3243,7 +3243,7 @@ describe.each([
           expectFragmentResults([{data: expectedUser}]);
         });
 
-        it('does not cancel ongoing request on unmount when refetch suspends', () => {
+        test('does not cancel ongoing request on unmount when refetch suspends', () => {
           const renderer = renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
@@ -3275,7 +3275,7 @@ describe.each([
           expect(unsubscribe).toBeCalledTimes(0);
         });
 
-        it('does not cancel ongoing request on unmount when refetch does not suspend', () => {
+        test('does not cancel ongoing request on unmount when refetch does not suspend', () => {
           const renderer = renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
@@ -3318,7 +3318,7 @@ describe.each([
           expect(unsubscribe).toBeCalledTimes(0);
         });
 
-        it('disposes ongoing request if it is manually disposed when refetch suspends', () => {
+        test('disposes ongoing request if it is manually disposed when refetch suspends', () => {
           const renderer = renderFragment();
           commitSpy.mockClear();
           let disposable;
@@ -3372,7 +3372,7 @@ describe.each([
           expectFragmentResults([{data: initialUser}]);
         });
 
-        it('disposes ongoing request if it is manually disposed when refetch does not suspend', () => {
+        test('disposes ongoing request if it is manually disposed when refetch does not suspend', () => {
           renderFragment();
           commitSpy.mockClear();
           let disposable;
@@ -3474,7 +3474,7 @@ describe.each([
           });
         });
 
-        it('refetches new variables correctly when refetching new id', () => {
+        test('refetches new variables correctly when refetching new id', () => {
           const renderer = renderFragment();
           const initialUser = {
             actor: {name: 'Alice'},
@@ -3528,7 +3528,7 @@ describe.each([
           expect(isOperationRetained(refetchQuery)).toBe(true);
         });
 
-        it('refetches new variables correctly when refetching same id', () => {
+        test('refetches new variables correctly when refetching same id', () => {
           const renderer = renderFragment();
           const initialUser = {
             actor: {name: 'Alice'},
@@ -3582,7 +3582,7 @@ describe.each([
           expect(isOperationRetained(refetchQuery)).toBe(true);
         });
 
-        it('refetches new variables correctly when refetching after the id from the parent has changed', () => {
+        test('refetches new variables correctly when refetching after the id from the parent has changed', () => {
           // add data for second query
           const query2 = createOperationDescriptor(
             gqlQuery,
@@ -3723,7 +3723,7 @@ describe.each([
           });
         });
 
-        it('refetches new variables correctly when refetching new id', () => {
+        test('refetches new variables correctly when refetching new id', () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -3795,7 +3795,7 @@ describe.each([
           expect(isOperationRetained(refetchQuery)).toBe(true);
         });
 
-        it('refetches new variables correctly when refetching same id', () => {
+        test('refetches new variables correctly when refetching same id', () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -3881,7 +3881,7 @@ describe.each([
           } = trackRetentionForEnvironment(newEnvironment));
         });
 
-        it('reloads new data into new environment, and renders successfully', () => {
+        test('reloads new data into new environment, and renders successfully', () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',

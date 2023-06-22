@@ -87,7 +87,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               });
       });
 
-      it('applies server updates', () => {
+      test('applies server updates', () => {
         const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(operation.fragment);
         environment.subscribe(snapshot, callback);
@@ -107,7 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('does not fill missing fields from server updates with null when treatMissingFieldsAsNull is disabled (default)', () => {
+      test('does not fill missing fields from server updates with null when treatMissingFieldsAsNull is disabled (default)', () => {
         const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest2ActorQuery {
             me {
@@ -147,7 +147,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
       });
 
-      it('fills missing fields from server updates with null when treatMissingFieldsAsNull is enabled', () => {
+      test('fills missing fields from server updates with null when treatMissingFieldsAsNull is enabled', () => {
         environment = new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
           store,
@@ -190,7 +190,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(callback.mock.calls[0][0].isMissingData).toEqual(false);
       });
 
-      it('rebases optimistic updates', () => {
+      test('rebases optimistic updates', () => {
         const callback = jest.fn<[Snapshot], void>();
         const snapshot = environment.lookup(operation.fragment);
         environment.subscribe(snapshot, callback);
@@ -223,7 +223,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('applies payload on @defer fragments', () => {
+      test('applies payload on @defer fragments', () => {
         const id = '4';
         const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest4ActorQuery {
@@ -281,7 +281,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('applies payload on @defer fragments in a query with modules', () => {
+      test('applies payload on @defer fragments in a query with modules', () => {
         const id = '4';
         const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest6ActorQuery {
@@ -392,7 +392,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('applies server updates', () => {
+        test('applies server updates', () => {
           const callback = jest.fn<[Snapshot], void>();
           const snapshot = environment.lookup(operation.fragment);
           environment.subscribe(snapshot, callback);

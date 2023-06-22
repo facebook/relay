@@ -712,7 +712,7 @@ describe.each([
       });
     }
 
-    it('should renderer the data from the store, after global state resolves the value', () => {
+    test('should renderer the data from the store, after global state resolves the value', () => {
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -750,7 +750,7 @@ describe.each([
       );
     });
 
-    it('should render undefined value for missing data in live resolver field', () => {
+    test('should render undefined value for missing data in live resolver field', () => {
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -798,7 +798,7 @@ describe.each([
       expect(renderer.toJSON()).toEqual('Alice: undefined');
     });
 
-    it('should render undefined value for missing data in live resolver field and trigger different states of suspense ', () => {
+    test('should render undefined value for missing data in live resolver field and trigger different states of suspense ', () => {
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',

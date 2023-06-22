@@ -61,7 +61,7 @@ describe('lookup()', () => {
     });
   });
 
-  it('returns the results of executing a query', () => {
+  test('returns the results of executing a query', () => {
     const snapshot = environment.lookup(
       createReaderSelector(
         ParentQuery.fragment,
@@ -82,7 +82,7 @@ describe('lookup()', () => {
     });
   });
 
-  it('includes fragment owner in result when owner is provided', () => {
+  test('includes fragment owner in result when owner is provided', () => {
     const queryNode = getRequest(ParentQuery);
     const owner = createOperationDescriptor(queryNode, {});
     const snapshot = environment.lookup(
@@ -102,7 +102,7 @@ describe('lookup()', () => {
     expect(snapshot.data?.me?.__fragmentOwner).toBe(owner.request);
   });
 
-  it('reads __id fields', () => {
+  test('reads __id fields', () => {
     const TestQuery = graphql`
       query RelayModernEnvironmentLookupTestQuery($id: ID!) {
         __id # ok on query type

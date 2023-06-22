@@ -86,12 +86,12 @@ describe('useSubscription', () => {
       );
     });
 
-  it('should call requestSubscription when mounted', () => {
+  test('should call requestSubscription when mounted', () => {
     renderComponent();
     expect(requestSubscription).toHaveBeenCalled();
   });
 
-  it('should call requestSubscription(...).dispose when unmounted', () => {
+  test('should call requestSubscription(...).dispose when unmounted', () => {
     renderComponent();
     ReactTestRenderer.act(() => {
       componentInstance.unmount();
@@ -99,17 +99,17 @@ describe('useSubscription', () => {
     expect(dispose).toHaveBeenCalled();
   });
 
-  it('should pass the current relay environment', () => {
+  test('should pass the current relay environment', () => {
     renderComponent();
     expect(requestSubscription.mock.calls[0][0]).toEqual(mockEnv);
   });
 
-  it('should forward the config', () => {
+  test('should forward the config', () => {
     renderComponent();
     expect(requestSubscription.mock.calls[0][1]).toEqual(config);
   });
 
-  it('should dispose and re-subscribe when the environment changes', () => {
+  test('should dispose and re-subscribe when the environment changes', () => {
     renderComponent();
     expect(requestSubscription).toHaveBeenCalledTimes(1);
     expect(dispose).not.toHaveBeenCalled();

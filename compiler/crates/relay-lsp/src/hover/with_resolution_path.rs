@@ -678,17 +678,24 @@ fn get_scalar_or_linked_field_hover_content(
 
     type_path.push(field_type_name);
 
-    hover_contents.push(MarkedString::String(format!(
-        "Type: **{}**",
-        content_consumer_type.render_text_with_params(
-            &schema.get_type_string(&field.type_),
-            &GraphQLSchemaExplorerParams {
-                path: type_path,
-                schema_name: schema_name.lookup(),
-                filter: None,
-            }
-        )
-    )));
+    let type_name = content_consumer_type.render_text_with_params(
+        &schema.get_type_string(&field.type_),
+        &GraphQLSchemaExplorerParams {
+            path: type_path,
+            schema_name: schema_name.lookup(),
+            filter: None,
+        },
+    );
+
+    if let Some(field_type_hack_source) = schema_documentation.get_hack_source(field_type_name) {
+        hover_contents.push(MarkedString::String(format!(
+            "Type: [**{}**](https://www.internalfb.com/code/symbol/www/php/{})",
+            type_name, field_type_hack_source,
+        )));
+    } else {
+        hover_contents.push(MarkedString::String(format!("Type: **{}**", type_name,)));
+    }
+
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }
@@ -743,6 +750,19 @@ fn get_scalar_or_linked_field_hover_content(
         };
         hover_contents.push(MarkedString::String(msg.to_string()))
     }
+
+    if let Some(field_hack_source) =
+        schema_documentation.get_field_hack_source(parent_type_name, field.name.item.lookup())
+    {
+        // replace instances of "::" with "/" to avoid breaking codex links
+        let field_hack_source_url_path = str::replace(field_hack_source, "::", "/");
+
+        hover_contents.push(MarkedString::String(format!(
+            "View [**{}**](https://www.internalfb.com/code/symbol/www/php/{}) in Codex",
+            field_hack_source, field_hack_source_url_path,
+        )));
+    }
+
     Some(hover_contents)
 }
 
@@ -797,14 +817,21 @@ fn on_hover_inline_fragment(
         )
     ));
 
+    let mut hover_contents: Vec<MarkedString> = vec![first_line];
+
     if let Some(description) = description {
-        Some(HoverContents::Array(vec![
-            first_line,
-            MarkedString::String(description.to_string()),
-        ]))
-    } else {
-        Some(HoverContents::Scalar(first_line))
+        hover_contents.push(MarkedString::String(description.to_string()));
     }
+
+    if let Some(hack_source) = schema_documentation.get_hack_source(inline_fragment_condition) {
+        let codex_link = MarkedString::String(format!(
+            "View [**{}**](https://www.internalfb.com/code/symbol/www/php/{}) in Codex",
+            hack_source, hack_source,
+        ));
+        hover_contents.push(codex_link);
+    }
+
+    Some(HoverContents::Array(hover_contents))
 }
 
 fn on_hover_fragment_spread<'a>(

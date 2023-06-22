@@ -930,6 +930,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: Some(*TYPENAME_DESCRIPTION),
+            hack_source: None,
         });
     }
 
@@ -945,6 +946,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
     }
 
@@ -960,6 +962,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: Some(*CLIENT_ID_DESCRIPTION),
+            hack_source: None,
         });
     }
 
@@ -975,6 +978,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
     }
 
@@ -999,6 +1003,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
     }
 
@@ -1174,6 +1179,7 @@ impl InMemorySchema {
                 repeatable,
                 locations,
                 description,
+                hack_source,
             }) => {
                 if self.directives.contains_key(&DirectiveName(name.value)) {
                     let str_name = name.value.lookup();
@@ -1195,6 +1201,7 @@ impl InMemorySchema {
                         repeatable: *repeatable,
                         is_extension,
                         description: description.as_ref().map(|node| node.value),
+                        hack_source: hack_source.as_ref().map(|node| node.value),
                     },
                 );
             }
@@ -1230,6 +1237,7 @@ impl InMemorySchema {
                     interfaces,
                     directives,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
@@ -1266,6 +1274,7 @@ impl InMemorySchema {
                     directives,
                     interfaces,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
@@ -1284,6 +1293,7 @@ impl InMemorySchema {
                     members,
                     directives,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
@@ -1302,6 +1312,7 @@ impl InMemorySchema {
                     fields,
                     directives,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
@@ -1331,6 +1342,7 @@ impl InMemorySchema {
                     values,
                     directives,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
@@ -1346,6 +1358,7 @@ impl InMemorySchema {
                     is_extension,
                     directives,
                     description: None,
+                    hack_source: None,
                 })
             }
             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
@@ -1503,6 +1516,10 @@ impl InMemorySchema {
                     let type_ = self.build_type_reference(&field_def.type_, field_location_key)?;
                     let directives = self.build_directive_values(&field_def.directives);
                     let description = field_def.description.as_ref().map(|desc| desc.value);
+                    let hack_source = field_def
+                        .hack_source
+                        .as_ref()
+                        .map(|hack_source| hack_source.value);
                     Ok(self.build_field(Field {
                         name: WithLocation::new(
                             Location::new(field_location_key, field_def.name.span),
@@ -1514,6 +1531,7 @@ impl InMemorySchema {
                         directives,
                         parent_type,
                         description,
+                        hack_source,
                     }))
                 })
                 .collect()
@@ -1544,6 +1562,10 @@ impl InMemorySchema {
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_, source_location_key)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
+                let hack_source = field_def
+                    .hack_source
+                    .as_ref()
+                    .map(|hack_source| hack_source.value);
                 field_ids.push(self.build_field(Field {
                     name: WithLocation::new(field_location, field_name),
                     is_extension: true,
@@ -1552,6 +1574,7 @@ impl InMemorySchema {
                     directives,
                     parent_type,
                     description,
+                    hack_source,
                 }));
             }
             Ok(field_ids)
@@ -1728,6 +1751,7 @@ mod tests {
                 directives: vec![],
                 interfaces: vec![],
                 description: None,
+                hack_source: None,
             })
             .unwrap();
 

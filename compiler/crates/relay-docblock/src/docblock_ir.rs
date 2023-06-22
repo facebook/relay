@@ -92,6 +92,7 @@ pub(crate) fn parse_docblock_ir(
                 &mut fields,
                 definitions_in_file,
                 description,
+                None, // This might be necessary for field hack source links
                 docblock_location,
                 unpopulated_ir_field,
                 parse_options,
@@ -113,6 +114,7 @@ pub(crate) fn parse_docblock_ir(
                     Some(weak_field) => DocblockIr::WeakObjectType(parse_weak_object_ir(
                         &mut fields,
                         description,
+                        None, // This might be necessary for field hack source links
                         docblock_location,
                         populated_ir_field,
                         weak_field,
@@ -141,6 +143,7 @@ fn parse_relay_resolver_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     description: Option<WithLocation<StringKey>>,
+    hack_source: Option<WithLocation<StringKey>>,
     location: Location,
     _resolver_field: UnpopulatedIrField,
     parse_options: &ParseOptions<'_>,
@@ -200,6 +203,7 @@ fn parse_relay_resolver_ir(
         root_fragment: root_fragment
             .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
         description,
+        hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         location,
         field: field_definition_stub,
@@ -238,6 +242,7 @@ fn parse_strong_object_ir(
 fn parse_weak_object_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
     description: Option<WithLocation<StringKey>>,
+    hack_source: Option<WithLocation<StringKey>>,
     location: Location,
     relay_resolver_field: PopulatedIrField,
     _weak_field: UnpopulatedIrField,
@@ -249,6 +254,7 @@ fn parse_weak_object_ir(
         type_name: identifier,
         rhs_location: relay_resolver_field.value.location,
         description,
+        hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         location,
     })

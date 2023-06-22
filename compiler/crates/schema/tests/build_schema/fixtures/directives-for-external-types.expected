@@ -86,6 +86,7 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -110,6 +111,7 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -138,6 +140,7 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -173,6 +176,7 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -201,6 +205,7 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -232,6 +237,7 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
 ]
   type_map: {
@@ -277,6 +283,7 @@ Text Schema:Schema {
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -305,6 +312,7 @@ Text Schema:Schema {
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -321,6 +329,7 @@ Text Schema:Schema {
             Interface(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -337,6 +346,7 @@ Text Schema:Schema {
             Object(1),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -389,6 +399,7 @@ Text Schema:Schema {
             Object(1),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -417,6 +428,7 @@ Text Schema:Schema {
             Object(1),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -433,6 +445,7 @@ Text Schema:Schema {
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -449,6 +462,7 @@ Text Schema:Schema {
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -465,6 +479,7 @@ Text Schema:Schema {
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -481,6 +496,7 @@ Text Schema:Schema {
             Object(3),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -497,6 +513,7 @@ Text Schema:Schema {
             Object(3),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -515,6 +532,7 @@ Text Schema:Schema {
         description: Some(
             "This object's GraphQL type. Provided by GraphQL type name introspection.",
         ),
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -531,6 +549,7 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -549,6 +568,7 @@ Text Schema:Schema {
         description: Some(
             "Relay's cache key for this object.",
         ),
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -563,6 +583,7 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -593,6 +614,7 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
 ]
   input_objects: [
@@ -656,6 +678,7 @@ Text Schema:Schema {
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
   interfaces: [
@@ -713,6 +736,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         description: None,
+        hack_source: None,
     },
 ]
   objects: [
@@ -731,6 +755,7 @@ Text Schema:Schema {
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -772,6 +797,7 @@ Text Schema:Schema {
             },
         ],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -789,6 +815,7 @@ Text Schema:Schema {
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -862,6 +889,7 @@ Text Schema:Schema {
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
   scalars: [
@@ -875,6 +903,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -886,6 +915,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -897,6 +927,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -908,6 +939,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -919,6 +951,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -966,6 +999,7 @@ Text Schema:Schema {
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
   unions: [
@@ -1017,6 +1051,7 @@ Text Schema:Schema {
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
   }
@@ -1057,6 +1092,7 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -1081,6 +1117,7 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -1109,6 +1146,7 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -1144,6 +1182,7 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -1172,6 +1211,7 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
         name: DirectiveName(
@@ -1203,6 +1243,7 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
 ]
 enums: []
@@ -1222,6 +1263,7 @@ fields: [
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1238,6 +1280,7 @@ fields: [
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1254,6 +1297,7 @@ fields: [
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1282,6 +1326,7 @@ fields: [
             Object(1),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1310,6 +1355,7 @@ fields: [
             Object(1),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1326,6 +1372,7 @@ fields: [
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1378,6 +1425,7 @@ fields: [
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1406,6 +1454,7 @@ fields: [
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1422,6 +1471,7 @@ fields: [
             Interface(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1438,6 +1488,7 @@ fields: [
             Object(3),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1454,6 +1505,7 @@ fields: [
             Object(3),
         ),
         description: None,
+        hack_source: None,
     },
 ]
 input_objects: [
@@ -1517,6 +1569,7 @@ input_objects: [
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
 interfaces: [
@@ -1574,6 +1627,7 @@ interfaces: [
         ],
         interfaces: [],
         description: None,
+        hack_source: None,
     },
 ]
 objects: [
@@ -1593,6 +1647,7 @@ objects: [
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -1609,6 +1664,7 @@ objects: [
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -1650,6 +1706,7 @@ objects: [
             },
         ],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -1723,6 +1780,7 @@ objects: [
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
 scalars: [
@@ -1736,6 +1794,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1747,6 +1806,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1794,6 +1854,7 @@ scalars: [
             },
         ],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1805,6 +1866,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1816,6 +1878,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
 unions: [
@@ -1867,6 +1930,7 @@ unions: [
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
 }

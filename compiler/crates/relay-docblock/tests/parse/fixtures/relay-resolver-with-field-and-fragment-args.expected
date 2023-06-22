@@ -100,6 +100,7 @@ RelayResolver(
         ),
         output_type: None,
         description: None,
+        hack_source: None,
         deprecated: None,
         live: None,
         location: /path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js:0:118,

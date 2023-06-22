@@ -109,6 +109,7 @@ impl fmt::Display for TypeSystemDefinition {
                 repeatable,
                 locations,
                 description,
+                hack_source,
             }) => write_directive_definition_helper(
                 f,
                 &name.value,
@@ -116,6 +117,7 @@ impl fmt::Display for TypeSystemDefinition {
                 repeatable,
                 locations,
                 description,
+                hack_source,
             ),
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                 name,
@@ -299,6 +301,7 @@ pub struct DirectiveDefinition {
     pub repeatable: bool,
     pub locations: Vec<DirectiveLocation>,
     pub description: Option<StringNode>,
+    pub hack_source: Option<StringNode>,
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -399,6 +402,7 @@ pub struct FieldDefinition {
     pub arguments: Option<List<InputValueDefinition>>,
     pub directives: Vec<ConstantDirective>,
     pub description: Option<StringNode>,
+    pub hack_source: Option<StringNode>,
 }
 
 impl fmt::Display for FieldDefinition {
@@ -548,6 +552,7 @@ fn write_directive_definition_helper(
     _repeatable: &bool,
     locations: &[DirectiveLocation],
     _description: &Option<StringNode>,
+    _hack_source: &Option<StringNode>,
 ) -> fmt::Result {
     write!(f, "directive @{}", name)?;
     if let Some(arguments) = arguments.as_ref() {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2a96e6ebb97ce31b94062d5e10962071>>
+ * @generated SignedSource<<4cca2b40f9f58c5bb4c4e71d0668f35e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,7 +35,7 @@ export type RelayReaderResolverTest22Query$variables = {|
 |};
 export type RelayReaderResolverTest22Query$data = {|
   +me: ?{|
-    +profile_picture: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType>,
+    +profile_picture: ?ReturnType<typeof userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType>,
   |},
 |};
 export type RelayReaderResolverTest22Query = {|

@@ -66,7 +66,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 ) => ?mixed);
 declare export opaque type relayResolver_user$fragmentType: FragmentType;
 export type relayResolver_user$data = {|
-  +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>,
+  +pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
   +$fragmentType: relayResolver_user$fragmentType,
 |};
 export type relayResolver_user$key = {

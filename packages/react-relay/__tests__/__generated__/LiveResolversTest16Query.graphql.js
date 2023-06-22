@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<33170634ead265bce2c248ded514aadc>>
+ * @generated SignedSource<<3ad88f88c9f2bcdd661fcfc6839fef39>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {live_resolver_with_bad_return_value as queryLiveResolverWithBadReturnVal
 (queryLiveResolverWithBadReturnValueResolverType: () => LiveState<?mixed>);
 export type LiveResolversTest16Query$variables = {||};
 export type LiveResolversTest16Query$data = {|
-  +live_resolver_with_bad_return_value: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveResolverWithBadReturnValueResolverType>["read"]>,
+  +live_resolver_with_bad_return_value: ?ReturnType<ReturnType<typeof queryLiveResolverWithBadReturnValueResolverType>["read"]>,
 |};
 export type LiveResolversTest16Query = {|
   response: LiveResolversTest16Query$data,

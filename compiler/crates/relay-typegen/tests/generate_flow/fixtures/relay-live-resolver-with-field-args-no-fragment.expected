@@ -32,7 +32,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +pop_star_name: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>["read"]>,
+    +pop_star_name: ?ReturnType<ReturnType<typeof userPopStarNameResolverType>["read"]>,
   |},
 |};
 export type relayResolver_Query = {|

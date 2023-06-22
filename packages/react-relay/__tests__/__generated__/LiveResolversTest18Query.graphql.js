@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c0ab81f872fee80cf582c97cfaea6d74>>
+ * @generated SignedSource<<60036ba58cd29ca644e56acb42dd8872>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {live_resolver_throws as queryLiveResolverThrowsResolverType} from "../..
 (queryLiveResolverThrowsResolverType: () => LiveState<?mixed>);
 export type LiveResolversTest18Query$variables = {||};
 export type LiveResolversTest18Query$data = {|
-  +live_resolver_throws: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveResolverThrowsResolverType>["read"]>,
+  +live_resolver_throws: ?ReturnType<ReturnType<typeof queryLiveResolverThrowsResolverType>["read"]>,
 |};
 export type LiveResolversTest18Query = {|
   response: LiveResolversTest18Query$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4e51c076ef9b93e6c20e9aa5214d28a2>>
+ * @generated SignedSource<<529b243f0ce1315806b93464a6324528>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 export type ResolverTest1Query$variables = {||};
 export type ResolverTest1Query$data = {|
   +me: ?{|
-    +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
+    +greeting: ?ReturnType<typeof userGreetingResolverType>,
   |},
 |};
 export type ResolverTest1Query = {|

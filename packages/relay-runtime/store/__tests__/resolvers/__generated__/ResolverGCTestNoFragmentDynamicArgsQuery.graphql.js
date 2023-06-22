@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<07339210085f1ff9c3f103e2cb19ba33>>
+ * @generated SignedSource<<fc7a351eda1b45bd44066f6e4832d7a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,7 @@ export type ResolverGCTestNoFragmentDynamicArgsQuery$variables = {|
   world: string,
 |};
 export type ResolverGCTestNoFragmentDynamicArgsQuery$data = {|
-  +hello: ?$Call<<R>((...empty[]) => R) => R, typeof queryHelloResolverType>,
+  +hello: ?ReturnType<typeof queryHelloResolverType>,
 |};
 export type ResolverGCTestNoFragmentDynamicArgsQuery = {|
   response: ResolverGCTestNoFragmentDynamicArgsQuery$data,

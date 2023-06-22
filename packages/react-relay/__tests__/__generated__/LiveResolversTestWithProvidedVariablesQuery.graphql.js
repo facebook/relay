@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e505ac22d22db0edd2d0958b5bae1606>>
+ * @generated SignedSource<<8067c02e9ef057a5b535950493770d82>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {hello_world_with_provided_variable as queryHelloWorldWithProvidedVariabl
 ) => ?mixed);
 export type LiveResolversTestWithProvidedVariablesQuery$variables = {||};
 export type LiveResolversTestWithProvidedVariablesQuery$data = {|
-  +hello_world_with_provided_variable: ?$Call<<R>((...empty[]) => R) => R, typeof queryHelloWorldWithProvidedVariableResolverType>,
+  +hello_world_with_provided_variable: ?ReturnType<typeof queryHelloWorldWithProvidedVariableResolverType>,
 |};
 export type LiveResolversTestWithProvidedVariablesQuery = {|
   response: LiveResolversTestWithProvidedVariablesQuery$data,

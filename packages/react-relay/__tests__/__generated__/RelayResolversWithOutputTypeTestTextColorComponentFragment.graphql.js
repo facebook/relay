@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<58a8b637878fc6d4fbbbef4f648f28ef>>
+ * @generated SignedSource<<106dc3cfc917e984ab62305f8e4a1d00>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {human_readable_color as todoTextColorHumanReadableColorResolverType} fro
 ) => ?mixed);
 declare export opaque type RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType: FragmentType;
 export type RelayResolversWithOutputTypeTestTextColorComponentFragment$data = {|
-  +human_readable_color: ?$Call<<R>((...empty[]) => R) => R, typeof todoTextColorHumanReadableColorResolverType>,
+  +human_readable_color: ?ReturnType<typeof todoTextColorHumanReadableColorResolverType>,
   +$fragmentType: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
 |};
 export type RelayResolversWithOutputTypeTestTextColorComponentFragment$key = {

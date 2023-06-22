@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<26514e5829addfecc3c43a6cd888b867>>
+ * @generated SignedSource<<8ec2694f9c261256b3709393fea8767a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {user_name_and_counter_suspends_when_odd as queryUserNameAndCounterSuspen
 ) => ?mixed);
 declare export opaque type LiveResolversTest6Fragment$fragmentType: FragmentType;
 export type LiveResolversTest6Fragment$data = {|
-  +user_name_and_counter_suspends_when_odd: ?$Call<<R>((...empty[]) => R) => R, typeof queryUserNameAndCounterSuspendsWhenOddResolverType>,
+  +user_name_and_counter_suspends_when_odd: ?ReturnType<typeof queryUserNameAndCounterSuspendsWhenOddResolverType>,
   +$fragmentType: LiveResolversTest6Fragment$fragmentType,
 |};
 export type LiveResolversTest6Fragment$key = {

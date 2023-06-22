@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aab2a4c38eafe8af3ab758fe210b3afe>>
+ * @generated SignedSource<<b05f6fca2cf52729c4a01fbca5494bc8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {constant as userConstantResolverType} from "../UserConstantResolver.js";
 ) => ?mixed);
 declare export opaque type UserConstantDependentResolver$fragmentType: FragmentType;
 export type UserConstantDependentResolver$data = {|
-  +constant: ?$Call<<R>((...empty[]) => R) => R, typeof userConstantResolverType>,
+  +constant: ?ReturnType<typeof userConstantResolverType>,
   +$fragmentType: UserConstantDependentResolver$fragmentType,
 |};
 export type UserConstantDependentResolver$key = {

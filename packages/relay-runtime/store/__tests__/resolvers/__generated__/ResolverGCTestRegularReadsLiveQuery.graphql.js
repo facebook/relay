@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5fd9f783cd5ef987564925c6a542481e>>
+ * @generated SignedSource<<0ed58bc89fa94bcf3da23015e5ef60aa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {counter_plus_one as queryCounterPlusOneResolverType} from "../CounterPlu
 ) => ?mixed);
 export type ResolverGCTestRegularReadsLiveQuery$variables = {||};
 export type ResolverGCTestRegularReadsLiveQuery$data = {|
-  +counter_plus_one: ?$Call<<R>((...empty[]) => R) => R, typeof queryCounterPlusOneResolverType>,
+  +counter_plus_one: ?ReturnType<typeof queryCounterPlusOneResolverType>,
 |};
 export type ResolverGCTestRegularReadsLiveQuery = {|
   response: ResolverGCTestRegularReadsLiveQuery$data,

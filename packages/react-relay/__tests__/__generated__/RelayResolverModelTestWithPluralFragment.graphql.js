@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e194d72650506081a41ab812178c674e>>
+ * @generated SignedSource<<88e360f200dfca608dfabcccc4a35d39>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -44,7 +44,7 @@ import {many_fancy_descriptions as todoModelManyFancyDescriptionsResolverType} f
 declare export opaque type RelayResolverModelTestWithPluralFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestWithPluralFragment$data = {|
   +many_fancy_descriptions: ?$ReadOnlyArray<?{|
-    +color: ?$Call<<R>((...empty[]) => R) => R, typeof todoDescriptionColorResolverType>,
+    +color: ?ReturnType<typeof todoDescriptionColorResolverType>,
     +text: ?string,
   |}>,
   +$fragmentType: RelayResolverModelTestWithPluralFragment$fragmentType,

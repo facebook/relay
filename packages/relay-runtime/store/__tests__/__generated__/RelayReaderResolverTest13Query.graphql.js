@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<557d2dad38290bfedc08e4d1e49aeb1c>>
+ * @generated SignedSource<<37e60dd22cf90a783b7c1da2b05407d3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {always_throws_transitively as userAlwaysThrowsTransitivelyResolverType} 
 export type RelayReaderResolverTest13Query$variables = {||};
 export type RelayReaderResolverTest13Query$data = {|
   +me: ?{|
-    +always_throws_transitively: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsTransitivelyResolverType>,
+    +always_throws_transitively: ?ReturnType<typeof userAlwaysThrowsTransitivelyResolverType>,
   |},
 |};
 export type RelayReaderResolverTest13Query = {|

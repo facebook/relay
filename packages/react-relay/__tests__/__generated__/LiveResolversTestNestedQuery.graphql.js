@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d8b27edbe937192555070a3d17d169a9>>
+ * @generated SignedSource<<7247feaaaded8b9f5fd479b7e10f0710>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,8 +35,8 @@ import {outer as queryOuterResolverType} from "../../../relay-runtime/store/__te
 ) => ?mixed);
 export type LiveResolversTestNestedQuery$variables = {||};
 export type LiveResolversTestNestedQuery$data = {|
-  +inner: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryInnerResolverType>["read"]>,
-  +outer: ?$Call<<R>((...empty[]) => R) => R, typeof queryOuterResolverType>,
+  +inner: ?ReturnType<ReturnType<typeof queryInnerResolverType>["read"]>,
+  +outer: ?ReturnType<typeof queryOuterResolverType>,
 |};
 export type LiveResolversTestNestedQuery = {|
   response: LiveResolversTestNestedQuery$data,

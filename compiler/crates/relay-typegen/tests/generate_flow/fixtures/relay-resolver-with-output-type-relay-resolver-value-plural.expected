@@ -34,7 +34,7 @@ import userPopStarNamesResolverType from "PopStarNameResolver";
 ) => ?$ReadOnlyArray<?mixed>);
 declare export opaque type Foo_user$fragmentType: FragmentType;
 export type Foo_user$data = {|
-  +poppy: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNamesResolverType>,
+  +poppy: ?ReturnType<typeof userPopStarNamesResolverType>,
   +$fragmentType: Foo_user$fragmentType,
 |};
 export type Foo_user$key = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<100d3d9b084e05e480017a2bd577f80c>>
+ * @generated SignedSource<<9afa115bf1b5c16f4e1efb7995ee8eb6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 ) => ?mixed);
 declare export opaque type UserShoutedGreetingResolver$fragmentType: FragmentType;
 export type UserShoutedGreetingResolver$data = {|
-  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
+  +greeting: ?ReturnType<typeof userGreetingResolverType>,
   +$fragmentType: UserShoutedGreetingResolver$fragmentType,
 |};
 export type UserShoutedGreetingResolver$key = {

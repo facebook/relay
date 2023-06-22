@@ -29,7 +29,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +pop_star_name: $NonMaybeType<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>>,
+    +pop_star_name: $NonMaybeType<ReturnType<typeof userPopStarNameResolverType>>,
   |},
 |};
 export type relayResolver_Query = {|

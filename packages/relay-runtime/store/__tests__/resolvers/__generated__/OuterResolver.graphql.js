@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0fbf5703b4a5b3b5c4a2d41338bd31d7>>
+ * @generated SignedSource<<b83c2c4b3dd383969b4a8813bcd56e4c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ import {inner as queryInnerResolverType} from "../InnerResolver.js";
 ) => LiveState<?mixed>);
 declare export opaque type OuterResolver$fragmentType: FragmentType;
 export type OuterResolver$data = {|
-  +inner: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryInnerResolverType>["read"]>,
+  +inner: ?ReturnType<ReturnType<typeof queryInnerResolverType>["read"]>,
   +$fragmentType: OuterResolver$fragmentType,
 |};
 export type OuterResolver$key = {

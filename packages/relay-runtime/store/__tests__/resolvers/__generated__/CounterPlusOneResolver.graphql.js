@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8680b2e60ebf82a00e014af1b11b0fcf>>
+ * @generated SignedSource<<bac9728750cd5204bcad33cc9bd40fc0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ import {counter as queryCounterResolverType} from "../LiveCounterResolver.js";
 ) => LiveState<?mixed>);
 declare export opaque type CounterPlusOneResolver$fragmentType: FragmentType;
 export type CounterPlusOneResolver$data = {|
-  +counter: $NonMaybeType<$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolverType>["read"]>>,
+  +counter: $NonMaybeType<ReturnType<ReturnType<typeof queryCounterResolverType>["read"]>>,
   +$fragmentType: CounterPlusOneResolver$fragmentType,
 |};
 export type CounterPlusOneResolver$key = {

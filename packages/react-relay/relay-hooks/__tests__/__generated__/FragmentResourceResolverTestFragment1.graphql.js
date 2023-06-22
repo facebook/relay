@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f3369ee71c51065e1909472ef871837>>
+ * @generated SignedSource<<e86f49e80e85b782e7a830f3dc2037ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {always_throws as userAlwaysThrowsResolverType} from "../../../../relay-r
 ) => ?mixed);
 declare export opaque type FragmentResourceResolverTestFragment1$fragmentType: FragmentType;
 export type FragmentResourceResolverTestFragment1$data = {|
-  +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolverType>,
+  +always_throws: ?ReturnType<typeof userAlwaysThrowsResolverType>,
   +$fragmentType: FragmentResourceResolverTestFragment1$fragmentType,
 |};
 export type FragmentResourceResolverTestFragment1$key = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<70503378664dcc7b9f2d269911239aba>>
+ * @generated SignedSource<<24c22cf3ad00ac0454ec9ea73cb3cadd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {name_passthrough as userNamePassthroughResolverType} from "../resolvers/
 export type RelayReaderResolverTest8Query$variables = {||};
 export type RelayReaderResolverTest8Query$data = {|
   +me: ?{|
-    +name_passthrough: $NonMaybeType<$Call<<R>((...empty[]) => R) => R, typeof userNamePassthroughResolverType>>,
+    +name_passthrough: $NonMaybeType<ReturnType<typeof userNamePassthroughResolverType>>,
   |},
 |};
 export type RelayReaderResolverTest8Query = {|

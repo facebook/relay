@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<363890ff73042b5f438029d35b2fa978>>
+ * @generated SignedSource<<7ec6ddc7e3c451680715c07cae5ba397>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {ping as queryPingResolverType} from "../../../relay-runtime/store/__test
 ) => LiveState<?mixed>);
 export type LiveResolversTest4Query$variables = {||};
 export type LiveResolversTest4Query$data = {|
-  +ping: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryPingResolverType>["read"]>,
+  +ping: ?ReturnType<ReturnType<typeof queryPingResolverType>["read"]>,
 |};
 export type LiveResolversTest4Query = {|
   response: LiveResolversTest4Query$data,

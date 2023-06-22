@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<11100d9f877a86beba97a129d749cc14>>
+ * @generated SignedSource<<bd54ccd01bde1d1aa6c92d6fb88e7f64>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {counter as queryCounterResolverType} from "../../../relay-runtime/store/
 ) => LiveState<?mixed>);
 export type LiveResolversTest1Query$variables = {||};
 export type LiveResolversTest1Query$data = {|
-  +counter: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolverType>["read"]>,
+  +counter: ?ReturnType<ReturnType<typeof queryCounterResolverType>["read"]>,
 |};
 export type LiveResolversTest1Query = {|
   response: LiveResolversTest1Query$data,

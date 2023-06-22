@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<07ccf9ba21f390eed663eeea0236acef>>
+ * @generated SignedSource<<b104b95cbd749eb70af943636182fe92>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,7 +35,7 @@ import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType}
 |}>);
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {|
-  +greeting: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveExternalGreetingResolverType>["read"]>,
+  +greeting: ?ReturnType<ReturnType<typeof queryLiveExternalGreetingResolverType>["read"]>,
   +user: ?{|
     +id: string,
   |},

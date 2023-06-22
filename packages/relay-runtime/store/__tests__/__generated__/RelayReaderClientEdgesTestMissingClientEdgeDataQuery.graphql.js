@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<28dc1edbb2ec2314aabe23194a8ab253>>
+ * @generated SignedSource<<9a0067afd8f121e1038cba917258708e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {reads_client_edge as userReadsClientEdgeResolverType} from "../resolvers
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {||};
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {|
   +me: ?{|
-    +reads_client_edge: ?$Call<<R>((...empty[]) => R) => R, typeof userReadsClientEdgeResolverType>,
+    +reads_client_edge: ?ReturnType<typeof userReadsClientEdgeResolverType>,
   |},
 |};
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery = {|

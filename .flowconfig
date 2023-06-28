@@ -21,6 +21,7 @@ module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 munge_underscores=true
 conditional_type=true
+mapped_type=true
 type_guards=true
 
 suppress_type=$FlowIssue

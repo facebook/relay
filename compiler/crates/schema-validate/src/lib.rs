@@ -21,6 +21,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use lazy_static::lazy_static;
+use log::info;
 use rayon::prelude::*;
 use regex::Regex;
 use schema::EnumID;
@@ -97,8 +98,8 @@ impl<'schema> ValidationContext<'schema> {
         self.validate_root_types();
         self.validate_directives();
         self.validate_types();
-        println!("Validated Schema in {}ms", now.elapsed().as_millis());
-        println!(
+        info!("Validated Schema in {}ms", now.elapsed().as_millis());
+        info!(
             "Found {} validation errors",
             self.errors.lock().unwrap().len()
         )

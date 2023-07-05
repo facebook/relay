@@ -344,13 +344,13 @@ client may return {true} if edges prior to `after` exist, if it can do so
 efficiently, otherwise may return {false}. More formally:
 
 HasPreviousPage(allEdges, before, after, first, last):
-  * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
-  * If {edges} is empty return {false}.
   * If {last} is set:
+    * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
     * If {edges} contains more than {last} elements return {true}, otherwise {false}.
   * If {after} is set:
-    * If elements exist before the first member of {edges}, and the server can efficiently
-      determine this, return {true}.
+    * The server may optionally return {false} immediately if it is inefficient to
+      determine this value.
+    * If an edge corresponding to {after} exists return {true}.
   * Return {false}.
 
 `hasNextPage` is used to indicate whether more edges exist following the set
@@ -361,13 +361,13 @@ client may return {true} if edges further from `before` exist, if it can do
 so efficiently, otherwise may return {false}. More formally:
 
 HasNextPage(allEdges, before, after, first, last):
-  * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
-  * If {edges} is empty return {false}.
   * If {first} is set:
+    * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
     * If {edges} contains more than {first} elements return {true}, otherwise {false}.
   * If {before} is set:
-    * If elements exist after the last member of {edges}, and the server can efficiently
-      determine this, return {true}.
+    * The server may optionally return {false} immediately if it is inefficient to
+      determine this value.
+    * If an edge corresponding to {before} exists return {true}.
   * Return {false}.
 
 NOTE When both `first` and `last` are included, both of the fields should be set

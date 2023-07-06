@@ -21,7 +21,6 @@ fnv = "1.0"
 intern = { path = "../intern" }
 lazy_static = "1.4"
 log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
-rayon = "1.2"
 regex = "1.6.0"
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }

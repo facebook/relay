@@ -37,7 +37,7 @@ fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct InMemorySchema {
     query_type: Option<ObjectID>,
     mutation_type: Option<ObjectID>,

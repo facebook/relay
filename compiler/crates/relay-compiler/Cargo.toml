@@ -51,9 +51,9 @@ relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
-serde = { version = "1.0.136", features = ["derive", "rc"] }
+serde = { version = "1.0.167", features = ["derive", "rc"] }
 serde_bser = "0.3"
-serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
 sha1 = "0.10.5"
 sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }

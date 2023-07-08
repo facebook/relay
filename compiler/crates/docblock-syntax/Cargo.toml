@@ -14,7 +14,7 @@ path = "tests/parse_test.rs"
 common = { path = "../common" }
 intern = { path = "../intern" }
 serde = { version = "1.0.167", features = ["derive", "rc"] }
-thiserror = "1.0.36"
+thiserror = "1.0.43"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

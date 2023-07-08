@@ -24,7 +24,7 @@ log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
 regex = "1.6.0"
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }
-thiserror = "1.0.36"
+thiserror = "1.0.43"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

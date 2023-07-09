@@ -15,6 +15,7 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::build;
 use graphql_ir::Program;
 use graphql_syntax::parse_executable;
@@ -92,13 +93,26 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item.0);
     let operation_strings = operations.into_iter().map(|typegen_operation| {
-        let normalization_operation = programs
+        // `normalization` ASTs are present unless we are processing an updatable query
+        // In that case, `reader` ASTs are present.
+        let op = programs
             .normalization
-            .operation(typegen_operation.name.item)
-            .unwrap();
+            .operation(OperationDefinitionName(typegen_operation.name.item.0))
+            .unwrap_or_else(|| {
+                programs
+                    .reader
+                    .operation(OperationDefinitionName(typegen_operation.name.item.0))
+                    .unwrap_or_else(|| {
+                        panic!(
+                            "Couldn't find normalization or reader operations for {}",
+                            typegen_operation.name.item
+                        )
+                    })
+            });
+
         relay_typegen::generate_operation_type_exports_section(
             typegen_operation,
-            normalization_operation,
+            op,
             &schema,
             &project_config,
             &fragment_locations,

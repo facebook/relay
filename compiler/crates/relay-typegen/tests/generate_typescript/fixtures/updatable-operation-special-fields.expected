@@ -20,7 +20,7 @@ export type UpdatableQuery$data = {
     readonly aliased_typename: "User";
     readonly id: string;
   } | null;
-  set me(value: null | void);
+  set me(value: null | undefined);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

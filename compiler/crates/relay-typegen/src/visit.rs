@@ -1543,7 +1543,14 @@ fn make_prop(
                     if linked_field.node_type.is_list() {
                         AST::RawType(intern!("[]"))
                     } else {
-                        AST::RawType(intern!("null | void"))
+                        let typegen_language =
+                            typegen_context.project_config.typegen_config.language;
+
+                        if typegen_language == TypegenLanguage::TypeScript {
+                            AST::RawType(intern!("null | undefined"))
+                        } else {
+                            AST::RawType(intern!("null | void"))
+                        }
                     }
                 } else {
                     let setter_parameter = AST::Union(

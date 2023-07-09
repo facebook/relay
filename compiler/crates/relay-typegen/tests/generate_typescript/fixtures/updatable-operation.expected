@@ -12,7 +12,7 @@ export type UpdatableQuery$data = {
     actorCount: number | null;
     name: string | null;
   } | null;
-  set me(value: null | void);
+  set me(value: null | undefined);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

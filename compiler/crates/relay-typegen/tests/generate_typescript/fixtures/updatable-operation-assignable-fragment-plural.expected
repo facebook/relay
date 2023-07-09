@@ -30,7 +30,7 @@ export type UpdatableQuery$data = {
     // value in case none of the concrete values match.
     readonly __typename: "%other";
   } | null;
-  set node(value: null | void);
+  set node(value: null | undefined);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

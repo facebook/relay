@@ -26,13 +26,13 @@ export type UpdatableQuery$data = {
     get address(): {
       city: string | null;
     } | null;
-    set address(value: null | void);
+    set address(value: null | undefined);
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
   } | null;
-  set maybeNodeInterface(value: null | void);
+  set maybeNodeInterface(value: null | undefined);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

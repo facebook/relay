@@ -36,7 +36,7 @@ export type UpdatableQuery$data = {
       readonly " $fragmentSpreads": "Assignable_node";
     } | null);
   } | null;
-  set me(value: null | void);
+  set me(value: null | undefined);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

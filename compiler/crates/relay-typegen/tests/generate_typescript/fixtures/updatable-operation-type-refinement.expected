@@ -17,22 +17,22 @@ query UpdatableQuery @updatable {
 ==================================== OUTPUT ===================================
 export type UpdatableQuery$variables = {};
 export type UpdatableQuery$data = {
-get maybeNodeInterface(): {
+  get maybeNodeInterface(): {
     readonly __typename: "NonNodeNoID";
     name: string | null;
   } | {
     readonly __typename: "Story";
     actorCount: number | null;
-get address(): {
+    get address(): {
       city: string | null;
-    } | null,
-    set address(value: null | void): void,
+    } | null;
+    set address(value: null | void);
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
-  } | null,
-  set maybeNodeInterface(value: null | void): void,
+  } | null;
+  set maybeNodeInterface(value: null | void);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

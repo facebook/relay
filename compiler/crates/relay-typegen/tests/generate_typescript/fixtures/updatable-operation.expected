@@ -8,11 +8,11 @@ query UpdatableQuery @updatable {
 ==================================== OUTPUT ===================================
 export type UpdatableQuery$variables = {};
 export type UpdatableQuery$data = {
-get me(): {
+  get me(): {
     actorCount: number | null;
     name: string | null;
-  } | null,
-  set me(value: null | void): void,
+  } | null;
+  set me(value: null | void);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

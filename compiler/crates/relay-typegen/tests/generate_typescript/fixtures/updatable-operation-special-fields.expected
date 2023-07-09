@@ -12,15 +12,15 @@ query UpdatableQuery @updatable {
 ==================================== OUTPUT ===================================
 export type UpdatableQuery$variables = {};
 export type UpdatableQuery$data = {
-get me(): {
+  get me(): {
     readonly __typename: "User";
     readonly __id: string;
     readonly aliased_double_under_id: string;
     readonly aliased_id: string;
     readonly aliased_typename: "User";
     readonly id: string;
-  } | null,
-  set me(value: null | void): void,
+  } | null;
+  set me(value: null | void);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

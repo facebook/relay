@@ -25,8 +25,8 @@ fragment Assignable_page on Page @assignable {
 import { FragmentRefs } from "relay-runtime";
 export type UpdatableQuery$variables = {};
 export type UpdatableQuery$data = {
-get me(): {
-get actor(): {
+  get me(): {
+    get actor(): {
       readonly __typename: "Page";
     } | {
       readonly __typename: "User";
@@ -34,7 +34,7 @@ get actor(): {
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
       readonly __typename: "%other";
-    } | null,
+    } | null;
     set actor(value: {
       readonly __typename: "Page";
       readonly __id: string;
@@ -43,9 +43,9 @@ get actor(): {
       readonly __typename: "User";
       readonly __id: string;
       readonly " $fragmentSpreads": "Assignable_user";
-    } | null): void,
-  } | null,
-  set me(value: null | void): void,
+    } | null);
+  } | null;
+  set me(value: null | void);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

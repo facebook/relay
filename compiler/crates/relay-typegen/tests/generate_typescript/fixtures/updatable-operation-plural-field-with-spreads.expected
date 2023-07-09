@@ -12,12 +12,12 @@ fragment Updatable_user on User @assignable {
 import { FragmentRefs } from "relay-runtime";
 export type UpdatableQuery$variables = {};
 export type UpdatableQuery$data = {
-get nodes(): ReadonlyArray<{} | null> | null,
+  get nodes(): ReadonlyArray<{} | null> | null;
   set nodes(value: ReadonlyArray<{
     readonly __typename: "User";
     readonly __id: string;
     readonly " $fragmentSpreads": "Updatable_user";
-  }>): void,
+  }>);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

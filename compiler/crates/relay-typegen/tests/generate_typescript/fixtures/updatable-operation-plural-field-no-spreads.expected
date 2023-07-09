@@ -7,10 +7,10 @@ query UpdatableQuery @updatable {
 ==================================== OUTPUT ===================================
 export type UpdatableQuery$variables = {};
 export type UpdatableQuery$data = {
-get nodes(): ReadonlyArray<{
+  get nodes(): ReadonlyArray<{
     readonly id: string;
-  } | null> | null,
-  set nodes(value: []): void,
+  } | null> | null;
+  set nodes(value: []);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

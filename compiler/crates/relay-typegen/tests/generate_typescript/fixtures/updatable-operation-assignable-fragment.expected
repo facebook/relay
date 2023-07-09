@@ -12,12 +12,12 @@ fragment Assignable_viewer on Viewer @assignable {
 import { FragmentRefs } from "relay-runtime";
 export type UpdatableQuery$variables = {};
 export type UpdatableQuery$data = {
-get viewer(): {} | null,
+  get viewer(): {} | null;
   set viewer(value: {
     readonly __typename: "Viewer";
     readonly __id: string;
     readonly " $fragmentSpreads": "Assignable_viewer";
-  } | null): void,
+  } | null);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

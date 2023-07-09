@@ -834,13 +834,18 @@ fn write_abstract_validator_function(
     writer.write(&return_type)?;
     write!(
         writer,
-        "{} {{\n  return value.{} != null ? (value{}: ",
+        "{} {{\n  return value.{} != null ? ",
         &close_comment,
         abstract_fragment_spread_marker.lookup(),
-        open_comment
     )?;
-    writer.write(&AST::Any)?;
-    write!(writer, "{}) : false;\n}}", &close_comment)?;
+    if language == TypegenLanguage::TypeScript {
+        write!(writer, "value ")?;
+    } else {
+        write!(writer, "(value{}: ", &open_comment)?;
+        writer.write(&AST::Any)?;
+        write!(writer, "{}) ", &close_comment)?;
+    }
+    write!(writer, ": false;\n}}")?;
 
     Ok(())
 }
@@ -907,8 +912,8 @@ fn write_concrete_validator_function(
         AST::RawType(intern!("false")),
     ]));
 
-    let (open_comment, close_comment) = match typegen_context.project_config.typegen_config.language
-    {
+    let typegen_language = typegen_context.project_config.typegen_config.language;
+    let (open_comment, close_comment) = match typegen_language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
         TypegenLanguage::TypeScript => ("", ""),
     };
@@ -923,14 +928,19 @@ fn write_concrete_validator_function(
     writer.write(&return_type)?;
     write!(
         writer,
-        "{} {{\n  return value.{} === '{}' ? (value{}: ",
+        "{} {{\n  return value.{} === '{}' ? ",
         &close_comment,
         KEY_TYPENAME.lookup(),
-        concrete_typename.lookup(),
-        open_comment
+        concrete_typename.lookup()
     )?;
-    writer.write(&AST::Any)?;
-    write!(writer, "{}) : false;\n}}", &close_comment)?;
+    if typegen_language == TypegenLanguage::TypeScript {
+        write!(writer, "value ")?;
+    } else {
+        write!(writer, "(value{}: ", &open_comment)?;
+        writer.write(&AST::Any)?;
+        write!(writer, "{}) ", &close_comment)?;
+    }
+    write!(writer, ": false;\n}}")?;
 
     Ok(())
 }

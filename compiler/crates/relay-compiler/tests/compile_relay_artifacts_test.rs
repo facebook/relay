@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2a17651ff486f00579270758059a000e>>
+ * @generated SignedSource<<4c83edb5a97709b48ab136e569a1bc3e>>
  */
 
 mod compile_relay_artifacts;
@@ -1242,6 +1242,13 @@ fn required_argument_not_passed_other_args_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.expected");
     test_fixture(transform_fixture, "required_argument_not_passed_other_args.invalid.graphql", "compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_client_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-client-edge.graphql", "compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected", input, expected);
 }
 
 #[test]

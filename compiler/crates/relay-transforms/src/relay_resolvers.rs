@@ -54,6 +54,7 @@ use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name
 use crate::ClientEdgeMetadata;
 use crate::FragmentAliasMetadata;
 use crate::RequiredMetadataDirective;
+use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
 use crate::REQUIRED_DIRECTIVE_NAME;
 
@@ -408,6 +409,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                             // For now, only @required and @waterfall are allowed on Resolver fields.
                             directive.name.item != RequiredMetadataDirective::directive_name()
                                 && directive.name.item != *REQUIRED_DIRECTIVE_NAME
+                                && directive.name.item != *CHILDREN_CAN_BUBBLE_METADATA_KEY
                                 && directive.name.item != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME
                         });
                     if let Some(directive) = non_required_directives.next() {

@@ -14,16 +14,6 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
-<OssOnly>
-
-:::caution
-
-`readUpdatableQuery` and `readUpdatableFragment` require TypeScript 5.1 or later.
-
-:::
-
-</OssOnly>
-
 # Typesafe Updaters FAQ
 
 <FbInternalOnly>

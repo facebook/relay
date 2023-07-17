@@ -17,16 +17,6 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
-<OssOnly>
-
-:::caution
-
-`readUpdatableQuery` and `readUpdatableFragment` require TypeScript 5.1 or later.
-
-:::
-
-</OssOnly>
-
 :::note
 See also [using readUpdatableQuery to update scalar fields in the store](../imperatively-modifying-store-data).
 :::

@@ -212,13 +212,15 @@ impl TypeScriptPrinter {
 
     fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
         let null_type = AST::RawType("null".intern());
+        let undefined_type = AST::RawType("undefined".intern());
         if let AST::Union(members) = of_type {
             let mut new_members = Vec::with_capacity(members.len() + 1);
             new_members.extend_from_slice(members);
             new_members.push(null_type);
+            new_members.push(undefined_type);
             self.write_union(&*new_members)?;
         } else {
-            self.write_union(&*vec![of_type.clone(), null_type])?;
+            self.write_union(&*vec![of_type.clone(), null_type, undefined_type])?;
         }
         Ok(())
     }
@@ -387,14 +389,14 @@ mod tests {
     fn nullable_type() {
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::String))),
-            "string | null".to_string()
+            "string | null | undefined".to_string()
         );
 
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::Union(SortedASTList::new(
                 vec![AST::String, AST::Number],
             ))))),
-            "string | number | null"
+            "string | number | null | undefined"
         )
     }
 

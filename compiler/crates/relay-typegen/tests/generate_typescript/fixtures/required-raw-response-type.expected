@@ -12,12 +12,12 @@ export type MyQuery$data = {
     readonly id: string;
     readonly name: string;
   };
-} | null;
+} | null | undefined;
 export type MyQuery$rawResponse = {
   readonly me: {
     readonly id: string;
-    readonly name: string | null;
-  } | null;
+    readonly name: string | null | undefined;
+  } | null | undefined;
 };
 export type MyQuery = {
   rawResponse: MyQuery$rawResponse;

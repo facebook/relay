@@ -9,9 +9,9 @@ query FooQuery {
 export type FooQuery$variables = {};
 export type FooQuery$data = {
   readonly me: {
-    readonly firstName: string | null;
+    readonly firstName: string | null | undefined;
     readonly lastName: string;
-  } | null;
+  } | null | undefined;
 };
 export type FooQuery = {
   response: FooQuery$data;

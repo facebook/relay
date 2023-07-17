@@ -838,13 +838,18 @@ fn write_abstract_validator_function(
         &close_comment,
         abstract_fragment_spread_marker.lookup(),
     )?;
-    if language == TypegenLanguage::TypeScript {
-        write!(writer, "value ")?;
-    } else {
-        write!(writer, "(value{}: ", &open_comment)?;
-        writer.write(&AST::Any)?;
-        write!(writer, "{}) ", &close_comment)?;
+
+    match language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            write!(writer, "(value{}: ", &open_comment)?;
+            writer.write(&AST::Any)?;
+            write!(writer, "{}) ", &close_comment)?;
+        }
+        TypegenLanguage::TypeScript => {
+            write!(writer, "value ")?;
+        }
     }
+
     write!(writer, ": false;\n}}")?;
 
     Ok(())
@@ -933,13 +938,18 @@ fn write_concrete_validator_function(
         KEY_TYPENAME.lookup(),
         concrete_typename.lookup()
     )?;
-    if typegen_language == TypegenLanguage::TypeScript {
-        write!(writer, "value ")?;
-    } else {
-        write!(writer, "(value{}: ", &open_comment)?;
-        writer.write(&AST::Any)?;
-        write!(writer, "{}) ", &close_comment)?;
+
+    match typegen_language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            write!(writer, "(value{}: ", &open_comment)?;
+            writer.write(&AST::Any)?;
+            write!(writer, "{}) ", &close_comment)?;
+        }
+        TypegenLanguage::TypeScript => {
+            write!(writer, "value ")?;
+        }
     }
+
     write!(writer, ": false;\n}}")?;
 
     Ok(())

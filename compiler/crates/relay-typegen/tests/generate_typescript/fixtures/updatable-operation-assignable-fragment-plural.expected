@@ -23,7 +23,7 @@ export type UpdatableQuery$data = {
     set parents(value: ReadonlyArray<{
       readonly __typename: "User";
       readonly __id: string;
-      readonly " $fragmentSpreads": "Assignable_user";
+      readonly " $fragmentSpreads": FragmentRefs<"Assignable_user">;
     }>);
   } | {
     // This will never be '%other', but we need some

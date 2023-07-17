@@ -1573,8 +1573,8 @@ fn make_prop(
                                          });
                                          let assignable_fragment_spread_ref= Prop::KeyValuePair(KeyValuePairProp {
                                              key: *KEY_FRAGMENT_SPREADS,
-                                             value: AST::FragmentReferenceType(
-                                                 fragment_spread.fragment_name.0,
+                                             value: AST::FragmentReference(
+                                                 SortedStringKeyList::new(vec![fragment_spread.fragment_name.0]),
                                              ),
                                              read_only: true,
                                              optional: false,

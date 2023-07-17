@@ -29,11 +29,11 @@ export type UpdatableQuery$data = {
     set actor(value: {
       readonly __typename: "Page";
       readonly __id: string;
-      readonly " $fragmentSpreads": "Assignable_page";
+      readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
     } | {
       readonly __id: string;
       readonly __isAssignable_node: string;
-      readonly " $fragmentSpreads": "Assignable_node";
+      readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
     } | null);
   } | null;
   set me(value: null | undefined);

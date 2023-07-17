@@ -16,7 +16,7 @@ export type UpdatableQuery$data = {
   set nodes(value: ReadonlyArray<{
     readonly __typename: "User";
     readonly __id: string;
-    readonly " $fragmentSpreads": "Updatable_user";
+    readonly " $fragmentSpreads": FragmentRefs<"Updatable_user">;
   }>);
 };
 export type UpdatableQuery = {

@@ -16,7 +16,7 @@ export type UpdatableQuery$data = {
   set viewer(value: {
     readonly __typename: "Viewer";
     readonly __id: string;
-    readonly " $fragmentSpreads": "Assignable_viewer";
+    readonly " $fragmentSpreads": FragmentRefs<"Assignable_viewer">;
   } | null);
 };
 export type UpdatableQuery = {

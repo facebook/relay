@@ -37,6 +37,11 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
   let UserQuery;
   let ViewerFriendsQuery;
   let viewerOperation;
+  let UsersFragment;
+  let UsersQuery;
+  let pluralOperation;
+
+  const pluralVariables = {ids: ['user-id-1']};
 
   beforeEach(() => {
     RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE = true;
@@ -63,6 +68,25 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
       }
     `;
 
+    UsersFragment = graphql`
+      fragment FragmentResourceWithOperationTrackerSuspenseTest2Fragment on User
+      @relay(plural: true) {
+        id
+        name
+      }
+    `;
+
+    UsersQuery = graphql`
+      query FragmentResourceWithOperationTrackerSuspenseTest2Query(
+        $ids: [ID!]!
+      ) {
+        nodes(ids: $ids) {
+          __typename
+          ...FragmentResourceWithOperationTrackerSuspenseTest2Fragment
+        }
+      }
+    `;
+
     ViewerFriendsQuery = graphql`
       query FragmentResourceWithOperationTrackerSuspenseTestViewerFriendsQuery {
         viewer {
@@ -83,8 +107,12 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
       id: 'user-id-1',
     });
     viewerOperation = createOperationDescriptor(ViewerFriendsQuery, {});
+    pluralOperation = createOperationDescriptor(UsersQuery, pluralVariables);
+
     environment.execute({operation: viewerOperation}).subscribe({});
     environment.execute({operation: nodeOperation}).subscribe({});
+    environment.execute({operation: pluralOperation}).subscribe({});
+
     environment.subscribe(
       environment.lookup(viewerOperation.fragment),
       jest.fn(),
@@ -99,6 +127,17 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
           'user-id-1',
           viewerOperation.request.variables,
           viewerOperation.request,
+        ),
+      ),
+      jest.fn(),
+    );
+    environment.subscribe(
+      environment.lookup(
+        createReaderSelector(
+          UsersFragment,
+          'user-id-1',
+          pluralOperation.request.variables,
+          pluralOperation.request,
         ),
       ),
       jest.fn(),
@@ -199,5 +238,113 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
       id: 'user-id-1',
       name: 'Alice222',
     });
+  });
+
+  it('should throw promise for plural fragment', () => {
+    environment.commitPayload(viewerOperation, {
+      viewer: {
+        actor: {
+          id: 'viewer-id',
+          __typename: 'User',
+          friends: {
+            pageInfo: {
+              hasNextPage: true,
+              hasPrevPage: false,
+              startCursor: 'cursor-1',
+              endCursor: 'cursor-1',
+            },
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  id: 'user-id-1',
+                  name: 'Alice',
+                  __typename: 'User',
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    const fragment2Ref = {
+      __id: 'user-id-1',
+      __fragments: {
+        FragmentResourceWithOperationTrackerSuspenseTest2Fragment: {},
+      },
+      __fragmentOwner: pluralOperation.request,
+    };
+
+    let result = FragmentResource.read(
+      getFragment(UsersFragment),
+      [fragment2Ref],
+      componentName,
+    );
+    FragmentResource.subscribe(result, jest.fn());
+
+    const fragmentRef = {
+      __id: 'user-id-1',
+      __fragments: {
+        FragmentResourceWithOperationTrackerSuspenseTestFragment: {},
+      },
+      __fragmentOwner: nodeOperation.request,
+    };
+
+    const result2 = FragmentResource.read(
+      getFragment(UserFragment),
+      fragmentRef,
+      componentName,
+    );
+    FragmentResource.subscribe(result2, jest.fn());
+
+    // Execute the nodeOperation query with executeMutation and set the record as undefined in optimistic updater
+    environment
+      .executeMutation({
+        operation: nodeOperation,
+        optimisticUpdater: store => {
+          const record = store.get('user-id-1');
+          record?.setValue(undefined, 'name');
+        },
+      })
+      .subscribe({});
+
+    let thrown = null;
+    try {
+      FragmentResource.read(
+        getFragment(UsersFragment),
+        [fragment2Ref],
+        componentName,
+      );
+    } catch (p) {
+      expect(p).toBeInstanceOf(Promise);
+      thrown = p;
+    }
+    expect(thrown).not.toBe(null);
+
+    environment.mock.nextValue(nodeOperation, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: 'user-id-1',
+          name: 'Alice222',
+        },
+      },
+    });
+
+    environment.mock.complete(nodeOperation.request.node);
+    expect(thrown).resolves.not.toThrow();
+
+    result = FragmentResource.read(
+      getFragment(UsersFragment),
+      [fragment2Ref],
+      componentName,
+    );
+    expect(result.data).toEqual([
+      {
+        id: 'user-id-1',
+        name: 'Alice222',
+      },
+    ]);
   });
 });

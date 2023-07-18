@@ -51,7 +51,11 @@ type FragmentResourceCache = Cache<
       result: FragmentResult,
     }
   | {kind: 'done', result: FragmentResult}
-  | {kind: 'missing', result: FragmentResult, snapshot: Snapshot},
+  | {
+      kind: 'missing',
+      result: FragmentResult,
+      snapshot: SingularOrPluralSnapshot,
+    },
 >;
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
@@ -839,10 +843,22 @@ class FragmentResourceImpl {
       ? [...currentSnapshot]
       : [...baseSnapshots];
     nextSnapshots[idx] = latestSnapshot;
-    this._cache.set(cacheKey, {
-      kind: 'done',
-      result: getFragmentResult(cacheKey, nextSnapshots, storeEpoch),
-    });
+    const result = getFragmentResult(cacheKey, nextSnapshots, storeEpoch);
+    if (
+      RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE &&
+      result.isMissingData
+    ) {
+      this._cache.set(cacheKey, {
+        kind: 'missing',
+        result,
+        snapshot: nextSnapshots,
+      });
+    } else {
+      this._cache.set(cacheKey, {
+        kind: 'done',
+        result,
+      });
+    }
   }
 }
 

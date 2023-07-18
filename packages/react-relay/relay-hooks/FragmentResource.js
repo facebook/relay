@@ -740,10 +740,26 @@ class FragmentResourceImpl {
       // Only update the cache when the data is changed to avoid
       // returning different `data` instances
       if (didMissUpdates) {
-        this._cache.set(cacheKey, {
-          kind: 'done',
-          result: getFragmentResult(cacheKey, currentSnapshots, storeEpoch),
-        });
+        const result = getFragmentResult(
+          cacheKey,
+          currentSnapshots,
+          storeEpoch,
+        );
+        if (
+          RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE &&
+          result.isMissingData
+        ) {
+          this._cache.set(cacheKey, {
+            kind: 'missing',
+            result,
+            snapshot: currentSnapshots,
+          });
+        } else {
+          this._cache.set(cacheKey, {
+            kind: 'done',
+            result,
+          });
+        }
       }
       return [didMissUpdates, currentSnapshots];
     }
@@ -762,10 +778,26 @@ class FragmentResourceImpl {
       relayResolverErrors: currentSnapshot.relayResolverErrors,
     };
     if (updatedData !== renderData) {
-      this._cache.set(cacheKey, {
-        kind: 'done',
-        result: getFragmentResult(cacheKey, updatedCurrentSnapshot, storeEpoch),
-      });
+      const result = getFragmentResult(
+        cacheKey,
+        updatedCurrentSnapshot,
+        storeEpoch,
+      );
+      if (
+        RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE &&
+        result.isMissingData
+      ) {
+        this._cache.set(cacheKey, {
+          kind: 'missing',
+          result: result,
+          snapshot: updatedCurrentSnapshot,
+        });
+      } else {
+        this._cache.set(cacheKey, {
+          kind: 'done',
+          result,
+        });
+      }
     }
     return [updatedData !== renderData, updatedCurrentSnapshot];
   }

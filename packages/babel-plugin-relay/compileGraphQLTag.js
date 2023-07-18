@@ -57,6 +57,18 @@ function compileGraphQLTag(
     );
   }
 
+  if (
+    definition.kind === 'FragmentDefinition' &&
+    definition.directives &&
+    definition.directives.some(d => d.name?.value === 'assignable')
+  ) {
+    // If the fragment is annotated with @assignable,
+    // the generated artifact isn't exporting anything,
+    // so we just cleanup the entire graphql tag.
+    path.remove();
+    return;
+  }
+
   const eagerEsModules = state.opts?.eagerEsModules ?? false;
   const isHasteMode = state.opts?.jsModuleFormat === 'haste';
   const isDevVariable = state.opts?.isDevVariableName;

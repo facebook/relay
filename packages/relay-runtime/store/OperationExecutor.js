@@ -614,7 +614,10 @@ class Executor<TMutation: MutationParameters> {
     );
     // OK: only called on construction and when receiving an optimistic payload from network,
     // which doesn't fall-through to the regular next() handling
-    this._runPublishQueue();
+    const updatedOwners = this._runPublishQueue();
+    if (RelayFeatureFlags.ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES) {
+      this._updateOperationTracker(updatedOwners);
+    }
   }
 
   _processOptimisticFollowups(

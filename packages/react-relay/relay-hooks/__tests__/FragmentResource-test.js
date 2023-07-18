@@ -132,7 +132,6 @@ describe('FragmentResource', () => {
   let logEvents: Array<LogEvent>;
 
   beforeEach(() => {
-    // jest.resetModules();
     ({createMockEnvironment} = require('relay-test-utils-internal'));
 
     logEvents = [];

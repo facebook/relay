@@ -50,7 +50,8 @@ type FragmentResourceCache = Cache<
       promise: Promise<mixed>,
       result: FragmentResult,
     }
-  | {kind: 'done', result: FragmentResult},
+  | {kind: 'done', result: FragmentResult}
+  | {kind: 'missing', result: FragmentResult, snapshot: Snapshot},
 >;
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
@@ -348,16 +349,28 @@ class FragmentResourceImpl {
       componentDisplayName,
     );
 
-    const snapshot =
-      fragmentSelector.kind === 'PluralReaderSelector'
-        ? fragmentSelector.selectors.map(s => environment.lookup(s))
-        : environment.lookup(fragmentSelector);
+    let fragmentResult = null;
+    let snapshot = null;
+    // Fall through to existing logic if it's 'missing' state so it would check and save promise into cache.
+    if (
+      RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE &&
+      cachedValue != null &&
+      cachedValue.kind === 'missing'
+    ) {
+      fragmentResult = cachedValue.result;
+      snapshot = cachedValue.snapshot;
+    } else {
+      snapshot =
+        fragmentSelector.kind === 'PluralReaderSelector'
+          ? fragmentSelector.selectors.map(s => environment.lookup(s))
+          : environment.lookup(fragmentSelector);
 
-    const fragmentResult = getFragmentResult(
-      fragmentIdentifier,
-      snapshot,
-      storeEpoch,
-    );
+      fragmentResult = getFragmentResult(
+        fragmentIdentifier,
+        snapshot,
+        storeEpoch,
+      );
+    }
     if (!fragmentResult.isMissingData) {
       this._throwOrLogErrorsInSnapshot(snapshot);
 
@@ -481,6 +494,17 @@ class FragmentResourceImpl {
       if (parentQueryPromiseResultPromise) {
         throw parentQueryPromiseResultPromise;
       }
+    }
+
+    // set it as done if has missing data and no pending operations
+    if (
+      RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE &&
+      fragmentResult.isMissingData
+    ) {
+      this._cache.set(fragmentIdentifier, {
+        kind: 'done',
+        result: fragmentResult,
+      });
     }
 
     this._throwOrLogErrorsInSnapshot(snapshot);
@@ -617,10 +641,26 @@ class FragmentResourceImpl {
       disposables.push(
         environment.subscribe(currentSnapshot, latestSnapshot => {
           const storeEpoch = environment.getStore().getEpoch();
-          this._cache.set(cacheKey, {
-            kind: 'done',
-            result: getFragmentResult(cacheKey, latestSnapshot, storeEpoch),
-          });
+          const result = getFragmentResult(
+            cacheKey,
+            latestSnapshot,
+            storeEpoch,
+          );
+          if (
+            RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE &&
+            result.isMissingData
+          ) {
+            this._cache.set(cacheKey, {
+              kind: 'missing',
+              result: result,
+              snapshot: latestSnapshot,
+            });
+          } else {
+            this._cache.set(cacheKey, {
+              kind: 'done',
+              result: getFragmentResult(cacheKey, latestSnapshot, storeEpoch),
+            });
+          }
           callback();
         }),
       );

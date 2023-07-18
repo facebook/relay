@@ -54,7 +54,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             Box::new(RemotePersister::new(remote_config.clone()))
                         }
                         PersistConfig::Local(local_config) => {
-                            Box::new(LocalPersister::new(local_config.clone()))
+                            Box::new(LocalPersister::new(local_config.clone(), false))
                         }
                     }
                 },

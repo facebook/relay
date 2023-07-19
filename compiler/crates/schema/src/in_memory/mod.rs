@@ -19,6 +19,7 @@ use common::Location;
 use common::ObjectName;
 use common::ScalarName;
 use common::SourceLocationKey;
+use common::UnionName;
 use common::WithLocation;
 use graphql_syntax::*;
 use intern::string_key::Intern;
@@ -148,7 +149,7 @@ impl Schema for InMemorySchema {
             Type::Interface(id) => self.interfaces[id.as_usize()].name.item.0,
             Type::Object(id) => self.objects[id.as_usize()].name.item.0,
             Type::Scalar(id) => self.scalars[id.as_usize()].name.item.0,
-            Type::Union(id) => self.unions[id.as_usize()].name.item,
+            Type::Union(id) => self.unions[id.as_usize()].name.item.0,
         }
     }
 
@@ -456,13 +457,13 @@ impl InMemorySchema {
     }
 
     pub fn add_union(&mut self, union: Union) -> DiagnosticsResult<UnionID> {
-        if self.type_map.contains_key(&union.name.item) {
-            return todo_add_location(SchemaError::DuplicateType(union.name.item));
+        if self.type_map.contains_key(&union.name.item.0) {
+            return todo_add_location(SchemaError::DuplicateType(union.name.item.0));
         }
         let index: u32 = self.unions.len().try_into().unwrap();
         let name = union.name.item;
         self.unions.push(union);
-        self.type_map.insert(name, Type::Union(UnionID(index)));
+        self.type_map.insert(name.0, Type::Union(UnionID(index)));
         Ok(UnionID(index))
     }
 
@@ -635,7 +636,7 @@ impl InMemorySchema {
             ));
         }
         self.type_map.remove(&self.get_type_name(Type::Union(id)));
-        self.type_map.insert(union.name.item, Type::Union(id));
+        self.type_map.insert(union.name.item.0, Type::Union(id));
         self.unions[id.as_usize()] = union;
         Ok(())
     }
@@ -1288,7 +1289,10 @@ impl InMemorySchema {
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(directives);
                 self.unions.push(Union {
-                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    name: WithLocation::new(
+                        Location::new(*location_key, name.span),
+                        UnionName(name.value),
+                    ),
                     is_extension,
                     members,
                     directives,

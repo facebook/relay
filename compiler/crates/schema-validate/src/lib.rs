@@ -252,7 +252,7 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_union_members(&mut self, id: UnionID) {
         let union = self.schema.union(id);
-        let context = ValidationContextType::TypeNode(union.name.item);
+        let context = ValidationContextType::TypeNode(union.name.item.0);
         if union.members.is_empty() {
             self.report_error(
                 SchemaValidationError::UnionWithNoMembers(union.name.item),

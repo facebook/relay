@@ -18,6 +18,7 @@ use common::InterfaceName;
 use common::ObjectName;
 use common::ScalarName;
 use common::Span;
+use common::UnionName;
 use common::WithLocation;
 use flatbuffers::ForwardsUOffset;
 use flatbuffers::Vector;
@@ -291,7 +292,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_union(&self, id: UnionID) -> Option<Union> {
         let union = self.unions.get(id.0.try_into().unwrap());
-        let name = union.name()?.intern();
+        let name = UnionName(union.name()?.intern());
         let parsed_union = Union {
             name: WithLocation::generated(name),
             is_extension: union.is_extension(),

@@ -1006,7 +1006,9 @@ Text Schema:Schema {
     Union {
         name: WithLocation {
             location: <generated>:993:1000,
-            item: "Address",
+            item: UnionName(
+                "Address",
+            ),
         },
         is_extension: false,
         members: [
@@ -1885,7 +1887,9 @@ unions: [
     Union {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Address",
+            item: UnionName(
+                "Address",
+            ),
         },
         is_extension: false,
         members: [

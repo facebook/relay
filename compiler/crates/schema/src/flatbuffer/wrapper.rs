@@ -313,7 +313,7 @@ impl Schema for SchemaWrapper {
             Type::Interface(id) => self.interface(id).name.item.0,
             Type::Object(id) => self.object(id).name.item.0,
             Type::Scalar(id) => self.scalar(id).name.item.0,
-            Type::Union(id) => self.union(id).name.item,
+            Type::Union(id) => self.union(id).name.item.0,
         }
     }
 

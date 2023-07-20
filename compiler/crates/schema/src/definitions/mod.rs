@@ -21,6 +21,7 @@ use common::Named;
 use common::NamedItem;
 use common::ObjectName;
 use common::ScalarName;
+use common::UnionName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
@@ -355,7 +356,7 @@ pub struct Enum {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Union {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<UnionName>,
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
@@ -553,7 +554,7 @@ impl_named_for_with_location!(Object, ObjectName);
 impl_named_for_with_location!(Field, StringKey);
 impl_named_for_with_location!(InputObject, InputObjectName);
 impl_named_for_with_location!(Interface, InterfaceName);
-impl_named_for_with_location!(Union, StringKey);
+impl_named_for_with_location!(Union, UnionName);
 impl_named_for_with_location!(Scalar, ScalarName);
 impl_named_for_with_location!(Enum, EnumName);
 

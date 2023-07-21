@@ -83,6 +83,15 @@ export type GraphQLResponse =
   | $ReadOnlyArray<GraphQLSingularResponse>;
 
 /**
+ * A function that pre-process the response at the network layer. This
+ * function is invoked right after the network operation and before cache
+ * operations.
+ */
+export type preprocessResponseFunction = (
+  response: RelayObservable<GraphQLResponse>,
+) => RelayObservable<GraphQLResponse>;
+
+/**
  * A function that returns an Observable representing the response of executing
  * a GraphQL operation.
  */
@@ -92,6 +101,8 @@ export type ExecuteFunction = (
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
   logRequestInfo?: ?LogRequestInfoFunction,
+  encryptedVariables?: ?string,
+  preprocessResponse?: ?preprocessResponseFunction,
 ) => RelayObservable<GraphQLResponse>;
 
 /**

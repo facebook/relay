@@ -108,6 +108,12 @@ pub struct TypegenConfig {
     /// This option enables emitting es modules artifacts.
     #[serde(default)]
     pub eager_es_modules: bool,
+
+    /// Keep the previous compiler behavior by outputting an union
+    /// of the raw type and null, and not the **correct** behavior
+    /// of an union with the raw type, null and undefined.
+    #[serde(default)]
+    pub typescript_exclude_undefined_from_nullable_union: bool,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]

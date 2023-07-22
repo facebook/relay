@@ -57,8 +57,6 @@ declare module react {
   declare export type Key = React$Key;
   declare export type Ref<C> = React$Ref<C>;
   declare export type Node = React$Node;
-  declare export type TransportObject = React$TransportObject;
-  declare export type TransportValue = React$TransportValue;
   declare export type Context<T> = React$Context<T>;
   declare export type Portal = React$Portal;
   declare export var ConcurrentMode: ({

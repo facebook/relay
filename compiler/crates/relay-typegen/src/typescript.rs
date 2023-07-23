@@ -226,7 +226,7 @@ impl TypeScriptPrinter {
             self.write_union(&*new_members)?;
         } else {
             let mut union_members = vec![of_type.clone(), null_type];
-            if (self.include_undefined_in_nullable_union) {
+            if self.include_undefined_in_nullable_union {
                 union_members.push(undefined_type)
             }
             self.write_union(&*union_members)?;

@@ -132,7 +132,7 @@ TExtraProps - a bag of extra props that you may define in `entrypoint` file
 and they will be passed to the EntryPointComponent as `extraProps`
 */
 type InternalEntryPointRepresentation<
-  +TEntryPointParams,
+  TEntryPointParams,
   TPreloadedQueries,
   TPreloadedEntryPoints,
   TRuntimeProps,
@@ -212,7 +212,7 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
 }>;
 
 type _ComponentFromEntryPoint = <
-  +TPreloadParams,
+  TPreloadParams,
   +TComponent,
   +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
 >(
@@ -257,7 +257,7 @@ export type ExtractEntryPointTypeHelper = <
   EntryPoint<TEntryPointParams, TEntryPointComponent>,
 >;
 
-export type EntryPoint<+TEntryPointParams, +TEntryPointComponent> =
+export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<
     TEntryPointParams,
     ElementConfig<TEntryPointComponent>['queries'],

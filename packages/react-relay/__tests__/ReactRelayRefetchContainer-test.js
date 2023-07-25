@@ -88,9 +88,7 @@ describe('ReactRelayRefetchContainer', () => {
     }
   }
   beforeEach(() => {
-    jest.mock('scheduler', () => {
-      return jest.requireActual('scheduler/unstable_mock');
-    });
+    jest.mock('scheduler', () => require('./mockScheduler'));
     environment = createMockEnvironment();
     UserFragment = graphql`
       fragment ReactRelayRefetchContainerTestUserFragment on User

@@ -463,7 +463,7 @@ export interface RecordProxy {
     args?: ?Variables,
   ): RecordProxy;
   setLinkedRecords(
-    records: Array<?RecordProxy>,
+    records: $ReadOnlyArray<?RecordProxy>,
     name: string,
     args?: ?Variables,
   ): RecordProxy;
@@ -717,6 +717,14 @@ export type EntrypointRootConsumeLogEvent = {
   +rootModuleID: string,
 };
 
+export type LiveResolverBatchStartLogEvent = {
+  +name: 'liveresolver.batch.start',
+};
+
+export type LiveResolverBatchEndLogEvent = {
+  +name: 'liveresolver.batch.end',
+};
+
 export type LogEvent =
   | SuspenseFragmentLogEvent
   | SuspenseQueryLogEvent
@@ -743,7 +751,9 @@ export type LogEvent =
   | StoreNotifyStartLogEvent
   | StoreNotifyCompleteLogEvent
   | StoreNotifySubscriptionLogEvent
-  | EntrypointRootConsumeLogEvent;
+  | EntrypointRootConsumeLogEvent
+  | LiveResolverBatchStartLogEvent
+  | LiveResolverBatchEndLogEvent;
 
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;

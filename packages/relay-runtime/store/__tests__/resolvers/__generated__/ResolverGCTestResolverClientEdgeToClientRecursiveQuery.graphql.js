@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3983ea2457c99cb128c5e472f2360785>>
+ * @generated SignedSource<<92a6c43529a329bf52ca5f69cc61b80a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,17 +63,9 @@ export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery = {|
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
-  "alias": null,
   "args": null,
-  "fragment": {
-    "args": null,
-    "kind": "FragmentSpread",
-    "name": "AstrologicalSignNameResolver"
-  },
-  "kind": "RelayResolver",
-  "name": "name",
-  "resolverModule": require('./../AstrologicalSignNameResolver').name,
-  "path": "me.name"
+  "kind": "FragmentSpread",
+  "name": "AstrologicalSignNameResolver"
 },
 v1 = {
   "alias": null,
@@ -153,7 +145,15 @@ return {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "fragment": (v0/*: any*/),
+                  "kind": "RelayResolver",
+                  "name": "name",
+                  "resolverModule": require('./../AstrologicalSignNameResolver').name,
+                  "path": "me.astrological_sign.name"
+                },
                 {
                   "kind": "ClientEdgeToClientObject",
                   "concreteType": "AstrologicalSign",
@@ -168,7 +168,7 @@ return {
                     "kind": "RelayResolver",
                     "name": "opposite",
                     "resolverModule": require('./../AstrologicalSignOppositeResolver').opposite,
-                    "path": "me.opposite"
+                    "path": "me.astrological_sign.opposite"
                   },
                   "linkedField": {
                     "alias": null,
@@ -178,7 +178,15 @@ return {
                     "name": "opposite",
                     "plural": false,
                     "selections": [
-                      (v0/*: any*/)
+                      {
+                        "alias": null,
+                        "args": null,
+                        "fragment": (v0/*: any*/),
+                        "kind": "RelayResolver",
+                        "name": "name",
+                        "resolverModule": require('./../AstrologicalSignNameResolver').name,
+                        "path": "me.astrological_sign.opposite.name"
+                      }
                     ],
                     "storageKey": null
                   }

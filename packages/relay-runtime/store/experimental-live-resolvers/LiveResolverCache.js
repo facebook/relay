@@ -475,7 +475,11 @@ class LiveResolverCache implements ResolverCache {
   ): DataIDSet | null {
     const normalizationInfo = field.normalizationInfo;
     let updatedDataIDs = null;
-    if (value != null && normalizationInfo != null) {
+    if (
+      value != null &&
+      normalizationInfo != null &&
+      !isSuspenseSentinel(value)
+    ) {
       let resolverValue: DataID | Array<DataID>;
 
       const prevOutputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);

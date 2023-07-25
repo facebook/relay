@@ -10,7 +10,7 @@
 
 'use strict';
 
-jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+jest.mock('scheduler', () => require('./mockScheduler'));
 
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');

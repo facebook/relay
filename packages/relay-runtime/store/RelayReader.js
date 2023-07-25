@@ -697,7 +697,7 @@ class RelayReader {
     field: ReaderClientEdgeToServerObject | ReaderClientEdgeToClientObject,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): ?mixed {
     const backingField = field.backingField;
 
     // Because ReaderClientExtension doesn't have `alias` or `name` and so I don't know
@@ -719,7 +719,7 @@ class RelayReader {
       isSuspenseSentinel(clientEdgeResolverResponse)
     ) {
       data[applicationName] = clientEdgeResolverResponse;
-      return;
+      return clientEdgeResolverResponse;
     }
 
     const validClientEdgeResolverResponse =
@@ -733,14 +733,15 @@ class RelayReader {
           this._resolverCache,
         );
         this._clientEdgeTraversalPath.push(null);
-        data[applicationName] = this._readLinkedIds(
+        const edgeValues = this._readLinkedIds(
           field.linkedField,
           storeIDs,
           record,
           data,
         );
         this._clientEdgeTraversalPath.pop();
-        break;
+        data[applicationName] = edgeValues;
+        return edgeValues;
 
       case 'SingularConcrete':
         const [storeID, traversalPathSegment] =
@@ -760,14 +761,15 @@ class RelayReader {
           RelayModernRecord.getDataID(record),
           prevData,
         );
-        data[applicationName] = this._traverse(
+        const edgeValue = this._traverse(
           field.linkedField,
           storeID,
           // $FlowFixMe[incompatible-variance]
           prevData,
         );
         this._clientEdgeTraversalPath.pop();
-        break;
+        data[applicationName] = edgeValue;
+        return edgeValue;
       default:
         (validClientEdgeResolverResponse.kind: empty);
     }

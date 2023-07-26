@@ -159,7 +159,7 @@ import SearchInput from './SearchInput';
 // change-line
 const {useState} = React;
 
-function ContactsList({viewer}) {
+export default function ContactsList({viewer}) {
   const data = useFragment(ContactsListFragment, viewer);
   // change-line
   const [searchString, setSearchString] = useState('');
@@ -193,7 +193,7 @@ Now to refetch the fragment when the string changes, we change `useFragment` to 
 // change-line
 import {useRefetchableFragment} from 'react-relay';
 
-function ContactsList({viewer}) {
+export default function ContactsList({viewer}) {
   // change-line
   const [data, refetch] = useRefetchableFragment(ContactsListFragment, viewer);
   const [searchString, setSearchString] = useState('');
@@ -230,7 +230,7 @@ Transitions are marked by wrapping the state change in a call to a function prov
 // change-line
 const {useState, useTransition} = React;
 
-function ContactsList({viewer}) {
+export default function ContactsList({viewer}) {
   // change-line
   const [isPending, startTransition] = useTransition();
   const [searchString, setSearchString] = useState('');

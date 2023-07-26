@@ -54,7 +54,7 @@ export default function Story({story}: Props) {
       <Heading>{story.title}</Heading>
       // change-line
       <Timestamp time={story.createdAt} /> // Add this line
-      <Image image={story.image} />
+      <Image image={story.thumbnail} width={400} height={400} />
       <StorySummary summary={story.summary} />
     </Card>
   );
@@ -144,7 +144,7 @@ export default function Story({story}: Props) {
       <Heading>{data.title}</Heading>
       <PosterByline person={data.poster} />
       <Timestamp time={data.createdAt} />
-      <Image image={data.image} />
+      <Image image={data.thumbnail} width={400} height={400} />
       <StorySummary summary={data.summary} />
     </Card>
   );

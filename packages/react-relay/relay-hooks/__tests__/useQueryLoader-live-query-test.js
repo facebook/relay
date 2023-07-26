@@ -120,7 +120,7 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-it('releases and cancels the old preloaded query and calls loadQuery anew if the callback is called again', () => {
+test('releases and cancels the old preloaded query and calls loadQuery anew if the callback is called again', () => {
   render();
 
   const variables = {id: '4'};
@@ -141,7 +141,7 @@ it('releases and cancels the old preloaded query and calls loadQuery anew if the
   expect(loadQuery.mock.calls[1][3]).toBe(defaultOptions);
 });
 
-it('releases and cancels the old preloaded query and calls loadQuery anew if the callback is called again with new variables', () => {
+test('releases and cancels the old preloaded query and calls loadQuery anew if the callback is called again with new variables', () => {
   render();
 
   const variables = {id: '4'};
@@ -162,7 +162,7 @@ it('releases and cancels the old preloaded query and calls loadQuery anew if the
   expect(loadQuery.mock.calls[1][3]).toBe(defaultOptions);
 });
 
-it('releases and cancels the preloaded query if the component unmounts', () => {
+test('releases and cancels the preloaded query if the component unmounts', () => {
   render();
   const variables = {id: '4'};
   ReactTestRenderer.act(() => queryLoaderCallback(variables));
@@ -171,7 +171,7 @@ it('releases and cancels the preloaded query if the component unmounts', () => {
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('releases and cancels the query and nullifies the state when the disposeQuery callback is called', () => {
+test('releases and cancels the query and nullifies the state when the disposeQuery callback is called', () => {
   render();
   const variables = {id: '4'};
   ReactTestRenderer.act(() => queryLoaderCallback(variables));
@@ -186,7 +186,7 @@ it('releases and cancels the query and nullifies the state when the disposeQuery
 });
 
 describe('when an initial preloaded query is passed', () => {
-  it('releases and cancels the old preloaded query and calls loadQuery anew if the callback is called again', () => {
+  test('releases and cancels the old preloaded query and calls loadQuery anew if the callback is called again', () => {
     const initialPreloadedQuery = loadQuery();
     loadQuery.mockClear();
     render(initialPreloadedQuery);
@@ -208,7 +208,7 @@ describe('when an initial preloaded query is passed', () => {
     expect(secondDispose).toHaveBeenCalled();
   });
 
-  it('releases and cancels the old preloaded query if a new initial preloaded query is passed', () => {
+  test('releases and cancels the old preloaded query if a new initial preloaded query is passed', () => {
     const initialPreloadedQuery = loadQuery();
     loadQuery.mockClear();
     render(initialPreloadedQuery);
@@ -230,7 +230,7 @@ describe('when an initial preloaded query is passed', () => {
     expect(secondDispose).toHaveBeenCalled();
   });
 
-  it('releases and cancels query references after empty query references are passed', () => {
+  test('releases and cancels query references after empty query references are passed', () => {
     const initialPreloadedQuery = loadQuery();
     loadQuery.mockClear();
     render(initialPreloadedQuery);
@@ -254,7 +254,7 @@ describe('when an initial preloaded query is passed', () => {
     expect(secondDispose).toHaveBeenCalled();
   });
 
-  it('releases and cancels the preloaded query if the component unmounts', () => {
+  test('releases and cancels the preloaded query if the component unmounts', () => {
     const initialPreloadedQuery = loadQuery();
     render(initialPreloadedQuery);
 
@@ -264,7 +264,7 @@ describe('when an initial preloaded query is passed', () => {
     expect(currentDispose).toHaveBeenCalled();
   });
 
-  it('releases and cancels all preloaded queries if the component unmounts', () => {
+  test('releases and cancels all preloaded queries if the component unmounts', () => {
     const firstInitialPreloadedQuery = loadQuery();
     const firstDispose = dispose;
     render(firstInitialPreloadedQuery);
@@ -280,7 +280,7 @@ describe('when an initial preloaded query is passed', () => {
     expect(secondDispose).toHaveBeenCalled();
   });
 
-  it('releases and cancels the query and nullifies the state when the disposeQuery callback is called', () => {
+  test('releases and cancels the query and nullifies the state when the disposeQuery callback is called', () => {
     const initialPreloadedQuery = loadQuery();
     render(initialPreloadedQuery);
 
@@ -304,7 +304,7 @@ afterEach(() => {
   jest.dontMock('scheduler');
 });
 
-it('does not release or cancel the query before the new component tree unsuspends in concurrent mode', () => {
+test('does not release or cancel the query before the new component tree unsuspends in concurrent mode', () => {
   if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
@@ -381,7 +381,7 @@ it('does not release or cancel the query before the new component tree unsuspend
   }
 });
 
-it('releases and cancels query references associated with previous suspensions when multiple state changes trigger suspense and the final suspension concludes', () => {
+test('releases and cancels query references associated with previous suspensions when multiple state changes trigger suspense and the final suspension concludes', () => {
   // Three state changes and calls to loadQuery: A, B, C, each causing suspense
   // When C unsuspends, A and B's queries are disposed.
 
@@ -480,7 +480,7 @@ it('releases and cancels query references associated with previous suspensions w
   }
 });
 
-it('releases and cancels query references associated with subsequent suspensions when multiple state changes trigger suspense and the initial suspension concludes', () => {
+test('releases and cancels query references associated with subsequent suspensions when multiple state changes trigger suspense and the initial suspension concludes', () => {
   // Three state changes and calls to loadQuery: A, B, C, each causing suspense
   // When A unsuspends, B and C's queries do not get disposed.
 
@@ -577,7 +577,7 @@ it('releases and cancels query references associated with subsequent suspensions
   }
 });
 
-it('should release and cancel prior queries if the callback is called multiple times in the same tick', () => {
+test('should release and cancel prior queries if the callback is called multiple times in the same tick', () => {
   render();
   let firstDispose;
   ReactTestRenderer.act(() => {
@@ -593,7 +593,7 @@ it('should release and cancel prior queries if the callback is called multiple t
   expect(firstDispose).toHaveBeenCalledTimes(1);
 });
 
-it('should release and cancel queries on unmount if the callback is called, the component suspends and then unmounts', () => {
+test('should release and cancel queries on unmount if the callback is called, the component suspends and then unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -633,7 +633,7 @@ it('should release and cancel queries on unmount if the callback is called, the 
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('releases and cancels all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
+test('releases and cancels all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -685,7 +685,7 @@ it('releases and cancels all queries if a the callback is called, the component 
   expect(secondDispose).toHaveBeenCalledTimes(1);
 });
 
-it('releases and cancels all queries if the component suspends, another query is loaded and then the component unmounts', () => {
+test('releases and cancels all queries if the component suspends, another query is loaded and then the component unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -727,7 +727,7 @@ it('releases and cancels all queries if the component suspends, another query is
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('releases and cancels the query on unmount if the component unmounts and then the callback is called before rendering', () => {
+test('releases and cancels the query on unmount if the component unmounts and then the callback is called before rendering', () => {
   // Case 1: unmount, then loadQuery
   render();
   expect(renderCount).toEqual(1);
@@ -742,7 +742,7 @@ it('releases and cancels the query on unmount if the component unmounts and then
   expect(renderCount).toEqual(1); // renderCount === 1 ensures that an extra commit hasn't occurred
 });
 
-it('releases and cancels the query on unmount if the callback is called and the component unmounts before rendering', () => {
+test('releases and cancels the query on unmount if the callback is called and the component unmounts before rendering', () => {
   // Case 2: loadQuery, then unmount
   render();
   expect(renderCount).toEqual(1);

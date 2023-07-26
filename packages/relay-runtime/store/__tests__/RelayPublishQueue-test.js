@@ -132,7 +132,7 @@ describe('RelayPublishQueue', () => {
       );
     });
 
-    it('runs an `storeUpdater` and applies the changes to the store', () => {
+    test('runs an `storeUpdater` and applies the changes to the store', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
@@ -154,7 +154,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
+    test('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
@@ -183,7 +183,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData['4'].name).toEqual('zuck');
     });
 
-    it('handles aliases correctly when used with optimistic update', () => {
+    test('handles aliases correctly when used with optimistic update', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const payload = normalizeRelayPayload(
         operationDescriptorAliased.root,
@@ -212,7 +212,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData['4'].name).toEqual('zuck');
     });
 
-    it('unpublishes changes from `storeUpdater` when reverted in the same run()', () => {
+    test('unpublishes changes from `storeUpdater` when reverted in the same run()', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
@@ -232,7 +232,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData).toEqual(initialData);
     });
 
-    it('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
+    test('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
@@ -264,7 +264,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData).toEqual(initialData);
     });
 
-    it('unpublishes changes from `storeUpdater` when reverted in a subsequent run()', () => {
+    test('unpublishes changes from `storeUpdater` when reverted in a subsequent run()', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
@@ -282,7 +282,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData).toEqual(initialData);
     });
 
-    it('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
+    test('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
@@ -313,7 +313,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData).toEqual(initialData);
     });
 
-    it('applies multiple updaters in the same run()', () => {
+    test('applies multiple updaters in the same run()', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
@@ -347,7 +347,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData['4'].name).toEqual('ZUCK');
     });
 
-    it('applies updates in subsequent run()s (payload then updater)', () => {
+    test('applies updates in subsequent run()s (payload then updater)', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
@@ -380,7 +380,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData['4'].name).toEqual('ZUCK');
     });
 
-    it('applies updates in subsequent run()s (updater then updater)', () => {
+    test('applies updates in subsequent run()s (updater then updater)', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
@@ -408,7 +408,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('applies updates in subsequent run()s (payload then payload)', () => {
+    test('applies updates in subsequent run()s (payload then payload)', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // First set `name`.
       const nameMutation = graphql`
@@ -499,7 +499,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('rebases changes when an earlier change is reverted', () => {
+    test('rebases changes when an earlier change is reverted', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
@@ -542,7 +542,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('rebases multiple changes on the same value', () => {
+    test('rebases multiple changes on the same value', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const incrementPopulation = {
         storeUpdater: storeProxy => {
@@ -581,7 +581,7 @@ describe('RelayPublishQueue', () => {
       expect(getPopulation()).toBe(18000);
     });
 
-    it('unpublishes previously rebased changes when reverted', () => {
+    test('unpublishes previously rebased changes when reverted', () => {
       // Test that backups are created correctly during a rebase
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const mutation1 = {
@@ -634,7 +634,7 @@ describe('RelayPublishQueue', () => {
       store = new RelayModernStore(source);
     });
 
-    it('reverts executed changes', () => {
+    test('reverts executed changes', () => {
       const publish = jest.spyOn(store, 'publish');
       const restore = jest.spyOn(store, 'restore');
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
@@ -667,7 +667,7 @@ describe('RelayPublishQueue', () => {
       expect(restore).toBeCalledTimes(1);
     });
 
-    it('reverts partially executed/unexecuted changes', () => {
+    test('reverts partially executed/unexecuted changes', () => {
       const publish = jest.spyOn(store, 'publish');
       const restore = jest.spyOn(store, 'restore');
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
@@ -700,7 +700,7 @@ describe('RelayPublishQueue', () => {
       expect(restore).toBeCalledTimes(1);
     });
 
-    it('reverts unexecuted changes', () => {
+    test('reverts unexecuted changes', () => {
       store.publish = jest.fn(store.publish.bind(store));
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Apply but don't run the updates
@@ -726,7 +726,7 @@ describe('RelayPublishQueue', () => {
       expect(store.publish.mock.calls.length).toBe(0);
     });
 
-    it('reverts addition of new fields', () => {
+    test('reverts addition of new fields', () => {
       store.publish = jest.fn(store.publish.bind(store));
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
@@ -744,7 +744,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData).toEqual(initialData);
     });
 
-    it('reverts addition of linked field', () => {
+    test('reverts addition of linked field', () => {
       store.publish = jest.fn(store.publish.bind(store));
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
@@ -764,7 +764,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData).toEqual(initialData);
     });
 
-    it('reverts addition of linked fields', () => {
+    test('reverts addition of linked fields', () => {
       store.publish = jest.fn(store.publish.bind(store));
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
@@ -788,7 +788,7 @@ describe('RelayPublishQueue', () => {
   });
 
   describe('commitPayload()', () => {
-    it('publishes the source to the store', () => {
+    test('publishes the source to the store', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -821,7 +821,7 @@ describe('RelayPublishQueue', () => {
       expect(notify.mock.calls.length).toBe(1);
     });
 
-    it('runs the provided updater before publishing', () => {
+    test('runs the provided updater before publishing', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -916,7 +916,7 @@ describe('RelayPublishQueue', () => {
       expect(notify.mock.calls.length).toBe(1);
     });
 
-    it('processes handle fields before publishing', () => {
+    test('processes handle fields before publishing', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1057,7 +1057,7 @@ describe('RelayPublishQueue', () => {
       expect(notify.mock.calls.length).toBe(1);
     });
 
-    it('applies optimistic updates and commits server data together', () => {
+    test('applies optimistic updates and commits server data together', () => {
       const initialData = {
         4: {
           __id: '4',
@@ -1114,7 +1114,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('reverts/rebases optimistic updates when publishing server data', () => {
+    test('reverts/rebases optimistic updates when publishing server data', () => {
       const initialData = {
         4: {
           __id: '4',
@@ -1172,7 +1172,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('can rollback an optimistic mutation after committing a payload', () => {
+    test('can rollback an optimistic mutation after committing a payload', () => {
       const initialData = {
         4: {
           __id: '4',
@@ -1232,7 +1232,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('can rollback an optimistic mutation after committing an updater', () => {
+    test('can rollback an optimistic mutation after committing an updater', () => {
       const source = new RelayRecordSource({
         '84872': {
           __id: '84872',
@@ -1277,7 +1277,7 @@ describe('RelayPublishQueue', () => {
       // remains.
       expect(getVolume()).toBe(10);
     });
-    it('can commit payload with buggy updaters', () => {
+    test('can commit payload with buggy updaters', () => {
       const initialData = {
         4: {
           __id: '4',
@@ -1334,7 +1334,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('invalidates the store if invalidated via updater', () => {
+    test('invalidates the store if invalidated via updater', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1401,7 +1401,7 @@ describe('RelayPublishQueue', () => {
       expect(notify.mock.calls[0][1]).toBe(true);
     });
 
-    it('invalidates any ids marked as invalid via the updater', () => {
+    test('invalidates any ids marked as invalid via the updater', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1475,7 +1475,7 @@ describe('RelayPublishQueue', () => {
   });
 
   describe('commitSource()', () => {
-    it('publishes the source to the store', () => {
+    test('publishes the source to the store', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const store_source = new RelayRecordSource();
@@ -1546,7 +1546,7 @@ describe('RelayPublishQueue', () => {
         });
       });
 
-      it('commits a source and then payload', () => {
+      test('commits a source and then payload', () => {
         queue.commitSource(nameSource); // sets name as mark
         queue.commitPayload(nameSelector, namePayload); // sets name as zuck
         queue.run();
@@ -1564,7 +1564,7 @@ describe('RelayPublishQueue', () => {
           },
         });
       });
-      it('commits a payload and then a source', () => {
+      test('commits a payload and then a source', () => {
         queue.commitPayload(nameSelector, namePayload); // sets name as zuck
         queue.commitSource(nameSource); // sets name as mark
         queue.run();
@@ -1584,7 +1584,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('reverts/rebases optimistic updates when committing sources', () => {
+    test('reverts/rebases optimistic updates when committing sources', () => {
       const initialData = {
         4: {
           __id: '4',
@@ -1628,7 +1628,7 @@ describe('RelayPublishQueue', () => {
       });
     });
 
-    it('can rollback an optimistic mutation after committing a source', () => {
+    test('can rollback an optimistic mutation after committing a source', () => {
       const initialData = {
         4: {
           __id: '4',
@@ -1676,7 +1676,7 @@ describe('RelayPublishQueue', () => {
   });
 
   describe('commitUpdate()', () => {
-    it('publishes the source to the store', () => {
+    test('publishes the source to the store', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1706,7 +1706,7 @@ describe('RelayPublishQueue', () => {
       expect(notify.mock.calls.length).toBe(1);
     });
 
-    it('invalidates the store if invalidated via updater', () => {
+    test('invalidates the store if invalidated via updater', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1731,7 +1731,7 @@ describe('RelayPublishQueue', () => {
       expect(notify.mock.calls[0][1]).toBe(true);
     });
 
-    it('invalidates any ids marked as invalid via the updater', () => {
+    test('invalidates any ids marked as invalid via the updater', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1761,7 +1761,7 @@ describe('RelayPublishQueue', () => {
   });
 
   describe('run()', () => {
-    it('does not notify the store if no mutations have occurred', () => {
+    test('does not notify the store if no mutations have occurred', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1782,7 +1782,7 @@ describe('RelayPublishQueue', () => {
       expect(notify).not.toBeCalled();
     });
 
-    it('notifies the store if an optimistic mutation is applied', () => {
+    test('notifies the store if an optimistic mutation is applied', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1805,7 +1805,7 @@ describe('RelayPublishQueue', () => {
       expect(notify).toBeCalled();
     });
 
-    it('notifies the store if an optimistic mutation is reverted', () => {
+    test('notifies the store if an optimistic mutation is reverted', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const restore = jest.fn();
@@ -1836,7 +1836,7 @@ describe('RelayPublishQueue', () => {
       expect(restore).toBeCalledTimes(1);
     });
 
-    it('notifies the store if a server mutation is committed', () => {
+    test('notifies the store if a server mutation is committed', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSource();
@@ -1872,7 +1872,7 @@ describe('RelayPublishQueue', () => {
       expect(notify).toBeCalled();
     });
 
-    it('should disable CG if there are any applied optimistic updates', () => {
+    test('should disable CG if there are any applied optimistic updates', () => {
       const holdGC = jest.fn();
       const source = new RelayRecordSource();
       const store = {
@@ -1894,7 +1894,7 @@ describe('RelayPublishQueue', () => {
       expect(holdGC).toBeCalled();
     });
 
-    it('should not disable GC if there are no optimistic updates', () => {
+    test('should not disable GC if there are no optimistic updates', () => {
       const holdGC = jest.fn();
       const source = new RelayRecordSource();
       const store = {
@@ -1913,7 +1913,7 @@ describe('RelayPublishQueue', () => {
       expect(holdGC).not.toBeCalled();
     });
 
-    it('should dispose gc hold, when there are no optimistic updates are in the queue', () => {
+    test('should dispose gc hold, when there are no optimistic updates are in the queue', () => {
       const disposeGC = jest.fn();
       const holdGC = jest.fn(() => ({
         dispose: disposeGC,
@@ -1951,7 +1951,7 @@ describe('RelayPublishQueue', () => {
       expect(disposeGC).toBeCalled();
     });
 
-    it('should warn if run() is called during a run()', () => {
+    test('should warn if run() is called during a run()', () => {
       const source = new RelayRecordSource();
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);

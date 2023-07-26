@@ -35,12 +35,12 @@ describe('isFragment/getFragment()', () => {
     `;
   });
 
-  it('returns concrete fragments as-is', () => {
+  test('returns concrete fragments as-is', () => {
     expect(isFragment(fragment)).toBe(true);
     expect(getFragment(fragment)).toBe(fragment);
   });
 
-  it('returns fragments wrapped in a thunk', () => {
+  test('returns fragments wrapped in a thunk', () => {
     // this is legacy behavior and to be removed in the future
     expect(isFragment(() => fragment)).toBe(true);
     expect(getFragment(() => fragment)).toBe(fragment);
@@ -60,12 +60,12 @@ describe('isRequest/getRequest()', () => {
     `;
   });
 
-  it('returns concrete queries as-is', () => {
+  test('returns concrete queries as-is', () => {
     expect(isRequest(query)).toBe(true);
     expect(getRequest(query)).toBe(query);
   });
 
-  it('returns queries wrapped in a thunk', () => {
+  test('returns queries wrapped in a thunk', () => {
     // this is legacy behavior and to be removed in the future
     expect(isRequest(() => query)).toBe(true);
     expect(getRequest(() => query)).toBe(query);
@@ -73,7 +73,7 @@ describe('isRequest/getRequest()', () => {
 });
 
 describe('getRefetchableFragment()', () => {
-  it('returns null for non-refetchable fragments', () => {
+  test('returns null for non-refetchable fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest1UserFragment on User {
         name
@@ -82,7 +82,7 @@ describe('getRefetchableFragment()', () => {
     expect(getRefetchableFragment(fragment)).toBe(null);
   });
 
-  it('returns refetchable fragments', () => {
+  test('returns refetchable fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest2UserFragment on User
       @refetchable(queryName: "GraphQLTagTestUserFragment1RefetchQuery") {
@@ -94,7 +94,7 @@ describe('getRefetchableFragment()', () => {
     expect(refetchable).toBe(fragment);
   });
 
-  it('returns refetchable pagination fragments', () => {
+  test('returns refetchable pagination fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest3UserFragment on User
       @refetchable(queryName: "GraphQLTagTestUserFragment2RefetchQuery") {
@@ -116,7 +116,7 @@ describe('getRefetchableFragment()', () => {
 });
 
 describe('getPaginationFragment()', () => {
-  it('returns null for non-refetchable fragments', () => {
+  test('returns null for non-refetchable fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest4UserFragment on User {
         name
@@ -125,7 +125,7 @@ describe('getPaginationFragment()', () => {
     expect(getPaginationFragment(fragment)).toBe(null);
   });
 
-  it('returns null for refetchable fragments', () => {
+  test('returns null for refetchable fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest5UserFragment on User
       @refetchable(queryName: "GraphQLTagTestUserFragment3RefetchQuery") {
@@ -136,7 +136,7 @@ describe('getPaginationFragment()', () => {
     expect(getPaginationFragment(fragment)).toBe(null);
   });
 
-  it('returns refetchable pagination fragments', () => {
+  test('returns refetchable pagination fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest6UserFragment on User
       @refetchable(queryName: "GraphQLTagTestUserFragment4RefetchQuery") {

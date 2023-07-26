@@ -97,7 +97,7 @@ describe('FragmentResource Client Edges behavior', () => {
     retain = environment.retain; // so that we don't have to suppress method-unbinding throughout.
   });
 
-  it('Fetches the query operation when a client edge is traversed and the destination record is missing', async () => {
+  test('Fetches the query operation when a client edge is traversed and the destination record is missing', async () => {
     // When we first read the fragment, it should throw a Promise to suspend
     // so that we wait for the client edge query to be executed:
     let thrown = null;
@@ -147,7 +147,7 @@ describe('FragmentResource Client Edges behavior', () => {
     expect(result?.snapshot?.missingClientEdges?.size ?? 0).toBe(0);
   });
 
-  it('Does not execute the query if no data is missing', () => {
+  test('Does not execute the query if no data is missing', () => {
     environment.commitUpdate(store => {
       const bob = store.create('1337', 'User');
       bob.setValue('Bob', 'name');
@@ -162,7 +162,7 @@ describe('FragmentResource Client Edges behavior', () => {
     expect(environment.mock.getAllOperations().length).toBe(0);
   });
 
-  it('Subscribes the components to changes to the destination record', async () => {
+  test('Subscribes the components to changes to the destination record', async () => {
     // First simulate suspending on the client edge query and then having
     // that query be resolved:
     let thrown;
@@ -217,7 +217,7 @@ describe('FragmentResource Client Edges behavior', () => {
     expect(called).toBe(false);
   });
 
-  it('Temporarily retains the client edge query upon read', () => {
+  test('Temporarily retains the client edge query upon read', () => {
     expect(retain).toBeCalledTimes(0);
     try {
       FragmentResource.read(fragmentNode, fragmentRef, 'componentDisplayName');
@@ -230,7 +230,7 @@ describe('FragmentResource Client Edges behavior', () => {
     expect(release).toBeCalledTimes(1);
   });
 
-  it('Permanently retains the client edge query when subscribed to', async () => {
+  test('Permanently retains the client edge query when subscribed to', async () => {
     // Use our own simulation of setTimeout due to bugs in Jest's.
     // We can't mock SuspenseResource's setTimeout using Jest mocks because
     // they aren't imported from a module, so we swizzle the global one.

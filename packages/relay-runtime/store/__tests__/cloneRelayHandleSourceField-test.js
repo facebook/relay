@@ -33,7 +33,7 @@ describe('cloneRelayHandleSourceField()', () => {
     selections = TestQuery.operation.selections[0].selections;
   });
 
-  it('returns a clone of the source, with the same name as the handle', () => {
+  test('returns a clone of the source, with the same name as the handle', () => {
     // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
     // $FlowFixMe[incompatible-use]
@@ -51,7 +51,7 @@ describe('cloneRelayHandleSourceField()', () => {
     expect(clone.selections).toEqual(sourceField.selections);
   });
 
-  it('throws if the source field is not present', () => {
+  test('throws if the source field is not present', () => {
     // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
     // $FlowFixMe[incompatible-use]

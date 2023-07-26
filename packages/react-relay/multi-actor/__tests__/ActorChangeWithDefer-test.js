@@ -159,7 +159,7 @@ describe('ActorChange with @defer', () => {
     );
   });
 
-  it('should render a fragment for actor', () => {
+  test('should render a fragment for actor', () => {
     fetchFnForActor = (
       ...args: Array<?(
         | LogRequestInfoFunction

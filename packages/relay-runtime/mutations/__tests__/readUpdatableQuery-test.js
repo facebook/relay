@@ -176,7 +176,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('can be used to read scalar values', () => {
+  test('can be used to read scalar values', () => {
     environment.commitPayload(operation, {
       me: {
         id: '4',
@@ -203,7 +203,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('can be used to update scalar values', () => {
+  test('can be used to update scalar values', () => {
     environment.commitPayload(operation, {
       me: {
         id: '4',
@@ -239,7 +239,7 @@ describe('readUpdatableQuery', () => {
     expect(readOnlyData?.me?.name).toEqual('MetaZuck');
   });
 
-  it('cannot be used to update clientids, ids or typenames', () => {
+  test('cannot be used to update clientids, ids or typenames', () => {
     environment.commitPayload(operation, {
       me: {
         id: '4',
@@ -282,7 +282,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('does not create setters for fields within non-matching inline fragments', () => {
+  test('does not create setters for fields within non-matching inline fragments', () => {
     environment.commitPayload(operation, {
       me: null,
       node: {
@@ -352,7 +352,7 @@ describe('readUpdatableQuery', () => {
   });
 
   describe('assignable fragments with concrete type conditions', () => {
-    it('lets you assign values to linked fields', () => {
+    test('lets you assign values to linked fields', () => {
       environment.commitPayload(operation, {
         me: {
           __typename: 'User',
@@ -421,7 +421,7 @@ describe('readUpdatableQuery', () => {
       expect(readOnlyData.me?.id).toBe('4');
     });
 
-    it('lets you assign to plural linked fields', () => {
+    test('lets you assign to plural linked fields', () => {
       environment.commitPayload(operation, {
         me: null,
         node: {
@@ -503,7 +503,7 @@ describe('readUpdatableQuery', () => {
       }
     });
 
-    it('lets you update client extension linked fields', () => {
+    test('lets you update client extension linked fields', () => {
       environment.commitPayload(operation, {
         me: {
           __typename: 'User',
@@ -567,7 +567,7 @@ describe('readUpdatableQuery', () => {
     });
 
     describe('validate', () => {
-      it('will return false if the source has the wrong __typename', () => {
+      test('will return false if the source has the wrong __typename', () => {
         environment.commitPayload(operation, {
           me: null,
           node: {
@@ -588,7 +588,7 @@ describe('readUpdatableQuery', () => {
         }
       });
 
-      it('will return the parameter if the source has a matching __typename', () => {
+      test('will return the parameter if the source has a matching __typename', () => {
         environment.commitPayload(operation, {
           me: null,
           node: {
@@ -613,7 +613,7 @@ describe('readUpdatableQuery', () => {
   });
 
   describe('assignable fragments with abstract type conditions', () => {
-    it('lets you assign values to linked fields', () => {
+    test('lets you assign values to linked fields', () => {
       environment.commitPayload(operation, {
         me: {
           __typename: 'User',
@@ -653,7 +653,7 @@ describe('readUpdatableQuery', () => {
     });
 
     describe('validate', () => {
-      it('will return the parameter if the source has a matching __isFragmentName field', () => {
+      test('will return the parameter if the source has a matching __isFragmentName field', () => {
         environment.commitPayload(operation, {
           me: {
             __typename: 'User',
@@ -680,7 +680,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('lets you delete linked fields by assigning null', () => {
+  test('lets you delete linked fields by assigning null', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
@@ -725,7 +725,7 @@ describe('readUpdatableQuery', () => {
     expect(readOnlyData.me).toBe(null);
   });
 
-  it('allows you to assign an empty array to clear plural linked fields', () => {
+  test('allows you to assign an empty array to clear plural linked fields', () => {
     environment.commitPayload(operation, {
       me: null,
       node: null,
@@ -784,7 +784,7 @@ describe('readUpdatableQuery', () => {
     expect(readOnlyData.node2?.parents).toEqual([]);
   });
 
-  it('throws if you assign null or undefined to a plural linked field', () => {
+  test('throws if you assign null or undefined to a plural linked field', () => {
     environment.commitPayload(operation, {
       me: null,
       node: {
@@ -838,7 +838,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('lets you access fields deeply', () => {
+  test('lets you access fields deeply', () => {
     environment.commitPayload(operation, {
       me: null,
       node: {
@@ -884,7 +884,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('lets you use variables', () => {
+  test('lets you use variables', () => {
     environment.commitPayload(operation, {
       me: null,
       node: {
@@ -915,7 +915,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('should ignore extra variables, though flow will complain', () => {
+  test('should ignore extra variables, though flow will complain', () => {
     environment.commitPayload(operation, {
       me: null,
       node: {
@@ -935,7 +935,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('does not throw when accessing a client extension field', () => {
+  test('does not throw when accessing a client extension field', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
@@ -970,7 +970,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('lets you update client extension scalar fields', () => {
+  test('lets you update client extension scalar fields', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
@@ -1009,7 +1009,7 @@ describe('readUpdatableQuery', () => {
     expect(readOnlyData.me?.author?.client_nickname).toBe('Mr. Right');
   });
 
-  it('lets you navigate through client extension fields and update nested scalar fields', () => {
+  test('lets you navigate through client extension fields and update nested scalar fields', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
@@ -1052,7 +1052,7 @@ describe('readUpdatableQuery', () => {
   });
 
   describe('with custom scalars', () => {
-    it('should update custom scalar field', () => {
+    test('should update custom scalar field', () => {
       // Read initial data
       const readableQuery = graphql`
         query readUpdatableQueryTest2Query {
@@ -1234,7 +1234,7 @@ describe('readUpdatableQuery', () => {
       });
     });
 
-    it('should read linked fields using missing field handlers', () => {
+    test('should read linked fields using missing field handlers', () => {
       environment.commitPayload(missingFieldsOperation, {
         me: {
           id: '4',
@@ -1265,7 +1265,7 @@ describe('readUpdatableQuery', () => {
       });
     });
 
-    it('should read plural linked fields using missing field handlers', () => {
+    test('should read plural linked fields using missing field handlers', () => {
       environment.commitPayload(missingFieldsOperation, {
         me: {
           id: '4',
@@ -1296,7 +1296,7 @@ describe('readUpdatableQuery', () => {
       });
     });
 
-    it('should read scalar fields using missing field handlers', () => {
+    test('should read scalar fields using missing field handlers', () => {
       environment.commitPayload(missingFieldsOperation, {
         me: {
           id: '4',

@@ -16,7 +16,7 @@ beforeEach(() => {
   jest.resetModules();
 });
 
-it('invokes attached profile handlers', () => {
+test('invokes attached profile handlers', () => {
   const actualOrdering = [];
 
   RelayProfiler.attachProfileHandler('mockBehavior', name => {
@@ -49,7 +49,7 @@ it('invokes attached profile handlers', () => {
   ]);
 });
 
-it('does not invoke detached profile handlers', () => {
+test('does not invoke detached profile handlers', () => {
   const mockStop = jest.fn();
   const mockStart = jest.fn(() => mockStop);
 
@@ -61,7 +61,7 @@ it('does not invoke detached profile handlers', () => {
   expect(mockStart).not.toBeCalled();
 });
 
-it('passes state to each profile handler', () => {
+test('passes state to each profile handler', () => {
   const mockStop = jest.fn();
   const mockStart = jest.fn(() => mockStop);
   const state = {};
@@ -76,7 +76,7 @@ it('passes state to each profile handler', () => {
   expect(mockStop.mock.calls[0][0]).toEqual(undefined);
 });
 
-it('passes error to each stop handler', () => {
+test('passes error to each stop handler', () => {
   const mockStop = jest.fn();
   const mockStart = jest.fn(() => mockStop);
   const state = {};

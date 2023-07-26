@@ -95,7 +95,7 @@ describe('execute() with handler and updater', () => {
     });
   });
 
-  it('calls next() and runs updater when payloads return', () => {
+  test('calls next() and runs updater when payloads return', () => {
     const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     environment.executeSubscription({operation, updater}).subscribe(callbacks);
     subject.next({

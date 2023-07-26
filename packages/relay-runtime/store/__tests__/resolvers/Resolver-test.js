@@ -36,7 +36,7 @@ afterEach(() => {
 });
 
 describe('Relay Resolver', () => {
-  it('works with refetchable fragments', () => {
+  test('works with refetchable fragments', () => {
     const environment = createMockEnvironment();
 
     const FooFragment = graphql`
@@ -77,7 +77,7 @@ describe('Relay Resolver', () => {
     expect(data.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
   });
 
-  it('returns the result of the resolver function', () => {
+  test('returns the result of the resolver function', () => {
     const environment = createMockEnvironment();
 
     const FooQuery = graphql`
@@ -105,7 +105,7 @@ describe('Relay Resolver', () => {
     expect(data.me.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
   });
 
-  it('can create a client edge query in our test environment that has valid import', () => {
+  test('can create a client edge query in our test environment that has valid import', () => {
     // This is not really a runtime test, but more a test to confirm that this query generates
     // an artifact with valid imports in our non-Haste test environment.
     const clientEdgeRuntimeArtifact = graphql`

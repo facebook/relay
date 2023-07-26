@@ -75,7 +75,7 @@ beforeEach(() => {
 });
 
 describe('fetchQuery', () => {
-  it('fetches a query', () => {
+  test('fetches a query', () => {
     let calledObserver = false;
     const observer = {
       complete: () => {
@@ -89,7 +89,7 @@ describe('fetchQuery', () => {
     expect(calledObserver).toEqual(true);
   });
 
-  it('provides data snapshot on `next(...)`', () => {
+  test('provides data snapshot on `next(...)`', () => {
     let calledNext = false;
     const values = [];
     const observer = {
@@ -105,7 +105,7 @@ describe('fetchQuery', () => {
     environment.mock.complete(gqlQuery);
   });
 
-  it('unsubscribes when the request is disposed', () => {
+  test('unsubscribes when the request is disposed', () => {
     let calledNext = false;
     let calledUnsubscribe = false;
     const observer = {
@@ -123,7 +123,7 @@ describe('fetchQuery', () => {
     expect(calledUnsubscribe).toEqual(true);
   });
 
-  it('handles error correctly', () => {
+  test('handles error correctly', () => {
     let calledError = false;
     let errorMessage = null;
     const observer = {
@@ -139,7 +139,7 @@ describe('fetchQuery', () => {
     subscription.unsubscribe();
   });
 
-  it('can dispose same request multiple times without error', () => {
+  test('can dispose same request multiple times without error', () => {
     let calledObserver = false;
     const observer = {
       complete: () => {
@@ -161,7 +161,7 @@ describe('fetchQuery', () => {
     ).toEqual(false);
   });
 
-  it('unsubscribes from request until the last observer is disposed', () => {
+  test('unsubscribes from request until the last observer is disposed', () => {
     let unsubscribedObserver1 = false;
     let unsubscribedObserver2 = false;
     const observer1 = {
@@ -213,7 +213,7 @@ describe('fetchQuery', () => {
   });
 
   describe('.toPromise()', () => {
-    it('fetches request and does not retain query data', async () => {
+    test('fetches request and does not retain query data', async () => {
       const promise = fetchQuery(environment, query).toPromise();
       expect(
         environment.mock.isLoading(gqlQuery, query.request.variables),
@@ -230,7 +230,7 @@ describe('fetchQuery', () => {
       ).toEqual(false);
     });
 
-    it('rejects when error occurs', async () => {
+    test('rejects when error occurs', async () => {
       const promise = fetchQuery(environment, query).toPromise();
       expect(
         environment.mock.isLoading(gqlQuery, query.request.variables),
@@ -248,7 +248,7 @@ describe('fetchQuery', () => {
   });
 
   describe('when making a request that is already in flight', () => {
-    it('does not de-dupe requests if using different environments', () => {
+    test('does not de-dupe requests if using different environments', () => {
       const environment2 = createMockEnvironment();
       let calledObserver1 = false;
       let calledObserver2 = false;
@@ -293,7 +293,7 @@ describe('fetchQuery', () => {
       expect(environment2.execute).toHaveBeenCalledTimes(1);
     });
 
-    it('de-dupes request and notifies all observers', () => {
+    test('de-dupes request and notifies all observers', () => {
       let calledObserver1 = false;
       let calledObserver2 = false;
       const observer1 = {
@@ -325,7 +325,7 @@ describe('fetchQuery', () => {
       expect(calledObserver2).toEqual(true);
     });
 
-    it('de-dupes request and notifies observers of events that were missed', () => {
+    test('de-dupes request and notifies observers of events that were missed', () => {
       let observer1Payload = null;
       let calledObserver1Complete = false;
       let observer2Payload = null;
@@ -373,12 +373,12 @@ describe('fetchQuery', () => {
 });
 
 describe('isRequestActive', () => {
-  it('returns false if request is not in flight', () => {
+  test('returns false if request is not in flight', () => {
     const isActive = environment.isRequestActive(query.request.identifier);
     expect(isActive).toEqual(false);
   });
 
-  it('returns false if request is not active', () => {
+  test('returns false if request is not active', () => {
     const observer = {
       complete: jest.fn<[], mixed>(),
       error: jest.fn<[Error], mixed>(),
@@ -392,7 +392,7 @@ describe('isRequestActive', () => {
     expect(isActive).toEqual(false);
   });
 
-  it('returns true when request is active', () => {
+  test('returns true when request is active', () => {
     fetchQuery(environment, query).subscribe({});
 
     const isActive = environment.isRequestActive(query.request.identifier);
@@ -401,12 +401,12 @@ describe('isRequestActive', () => {
 });
 
 describe('getPromiseForActiveRequest', () => {
-  it('returns null if request is not in flight', () => {
+  test('returns null if request is not in flight', () => {
     const promise = getPromiseForActiveRequest(environment, query.request);
     expect(promise).toEqual(null);
   });
 
-  it('returns null if request is not active', () => {
+  test('returns null if request is not active', () => {
     const observer = {
       complete: jest.fn<[], mixed>(),
       error: jest.fn<[Error], mixed>(),
@@ -420,7 +420,7 @@ describe('getPromiseForActiveRequest', () => {
     expect(promise).toEqual(null);
   });
 
-  it('returns null after request has completed', () => {
+  test('returns null after request has completed', () => {
     const observer = {
       complete: jest.fn<[], mixed>(),
       error: jest.fn<[Error], mixed>(),
@@ -434,7 +434,7 @@ describe('getPromiseForActiveRequest', () => {
     expect(promise).toEqual(null);
   });
 
-  it('returns null after request has errored', () => {
+  test('returns null after request has errored', () => {
     const observer = {
       complete: jest.fn<[], mixed>(),
       error: jest.fn<[Error], mixed>(),
@@ -448,7 +448,7 @@ describe('getPromiseForActiveRequest', () => {
     expect(promise).toEqual(null);
   });
 
-  it('returns null after request has unsubscribed (canceled)', () => {
+  test('returns null after request has unsubscribed (canceled)', () => {
     const observer = {
       complete: jest.fn<[], mixed>(),
       error: jest.fn<[Error], mixed>(),
@@ -474,7 +474,7 @@ describe('getPromiseForActiveRequest', () => {
       };
       subscription = fetchQuery(environment, query).subscribe(observer);
     });
-    it('returns a promise that rejects when error occurs', () => {
+    test('returns a promise that rejects when error occurs', () => {
       expect.assertions(5);
       const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
@@ -499,7 +499,7 @@ describe('getPromiseForActiveRequest', () => {
       });
     });
 
-    it('returns a promise that resolves when the request is unsubcribed (canceled)', () => {
+    test('returns a promise that resolves when the request is unsubcribed (canceled)', () => {
       expect.assertions(4);
       const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
@@ -523,7 +523,7 @@ describe('getPromiseForActiveRequest', () => {
       });
     });
 
-    it('calling getPromiseForActiveRequest does not prevent the request from being unsubscribed (canceled)', () => {
+    test('calling getPromiseForActiveRequest does not prevent the request from being unsubscribed (canceled)', () => {
       expect.assertions(6);
       const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
@@ -555,7 +555,7 @@ describe('getPromiseForActiveRequest', () => {
     });
 
     describe("when `next` hasn't been called", () => {
-      it('returns a promise that resolves when the next call to `next` occurs', () => {
+      test('returns a promise that resolves when the next call to `next` occurs', () => {
         expect.assertions(4);
         const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
@@ -579,7 +579,7 @@ describe('getPromiseForActiveRequest', () => {
         });
       });
 
-      it('returns a promise that resolves when the request completes', () => {
+      test('returns a promise that resolves when the request completes', () => {
         expect.assertions(4);
         const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
@@ -614,7 +614,7 @@ describe('getPromiseForActiveRequest', () => {
         expect(observer.next).toHaveBeenCalledTimes(1);
       });
 
-      it('returns a promise that resolves when the next call to `next` occurs', () => {
+      test('returns a promise that resolves when the next call to `next` occurs', () => {
         expect.assertions(5);
         const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
@@ -639,7 +639,7 @@ describe('getPromiseForActiveRequest', () => {
         });
       });
 
-      it('returns a promise that resolves when the next call to `next` occurs when next has been called more than once', () => {
+      test('returns a promise that resolves when the next call to `next` occurs when next has been called more than once', () => {
         expect.assertions(6);
 
         // Call next a second time
@@ -669,7 +669,7 @@ describe('getPromiseForActiveRequest', () => {
         });
       });
 
-      it('returns a promise that resolves when the request completes', () => {
+      test('returns a promise that resolves when the request completes', () => {
         expect.assertions(5);
         const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
@@ -757,7 +757,7 @@ describe('getPromiseForActiveRequest', () => {
       fetchQuery(environment, query).subscribe(observer);
     });
 
-    it('returns null if module loads before final payload', () => {
+    test('returns null if module loads before final payload', () => {
       expect.assertions(5);
       const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
@@ -804,7 +804,7 @@ describe('getPromiseForActiveRequest', () => {
       });
     });
 
-    it('returns promise if module still loading after final payload', async () => {
+    test('returns promise if module still loading after final payload', async () => {
       expect.assertions(8);
       const initialPromise = getPromiseForActiveRequest(
         environment,
@@ -896,7 +896,7 @@ describe('getObservableForActiveRequest', () => {
     };
   });
 
-  it('returns null if request is not in flight', () => {
+  test('returns null if request is not in flight', () => {
     const observable = getObservableForActiveRequest(
       environment,
       query.request,
@@ -904,7 +904,7 @@ describe('getObservableForActiveRequest', () => {
     expect(observable).toEqual(null);
   });
 
-  it('returns null if request is not active', () => {
+  test('returns null if request is not active', () => {
     fetchQuery(environment, query).subscribe({});
     environment.mock.nextValue(gqlQuery, response);
 
@@ -915,7 +915,7 @@ describe('getObservableForActiveRequest', () => {
     expect(observable).toEqual(null);
   });
 
-  it('returns null if the request has already errored', () => {
+  test('returns null if the request has already errored', () => {
     fetchQuery(environment, query).subscribe({error: jest.fn()});
     const error = new Error('Oops');
     environment.mock.reject(gqlQuery, error);
@@ -926,7 +926,7 @@ describe('getObservableForActiveRequest', () => {
     expect(observable).toBe(null);
   });
 
-  it('errors asynchronously if the request errors', () => {
+  test('errors asynchronously if the request errors', () => {
     fetchQuery(environment, query).subscribe({error: jest.fn()});
     const observable = getObservableForActiveRequest(
       environment,
@@ -945,7 +945,7 @@ describe('getObservableForActiveRequest', () => {
     expect(events).toEqual(['error', error]);
   });
 
-  it('returns null if the request has already completed', () => {
+  test('returns null if the request has already completed', () => {
     fetchQuery(environment, query).subscribe({});
     environment.mock.complete(gqlQuery);
     const observable = getObservableForActiveRequest(
@@ -955,7 +955,7 @@ describe('getObservableForActiveRequest', () => {
     expect(observable).toBe(null);
   });
 
-  it('completes asynchronously if the request completes', () => {
+  test('completes asynchronously if the request completes', () => {
     fetchQuery(environment, query).subscribe({});
     const observable = getObservableForActiveRequest(
       environment,
@@ -973,7 +973,7 @@ describe('getObservableForActiveRequest', () => {
     expect(events).toEqual(['complete']);
   });
 
-  it('calls next asynchronously with subsequent non-final payloads', () => {
+  test('calls next asynchronously with subsequent non-final payloads', () => {
     fetchQuery(environment, query).subscribe({});
     const observable = getObservableForActiveRequest(
       environment,
@@ -996,7 +996,7 @@ describe('getObservableForActiveRequest', () => {
     expect(events).toEqual(['next']);
   });
 
-  it('calls complete asynchronously with subsequent final payload', () => {
+  test('calls complete asynchronously with subsequent final payload', () => {
     fetchQuery(environment, query).subscribe({});
     const observable = getObservableForActiveRequest(
       environment,
@@ -1069,7 +1069,7 @@ describe('getObservableForActiveRequest', () => {
       fetchQuery(environment, query).subscribe({});
     });
 
-    it('returns null if module loads before final payload', () => {
+    test('returns null if module loads before final payload', () => {
       const observable = getObservableForActiveRequest(
         environment,
         query.request,
@@ -1117,7 +1117,7 @@ describe('getObservableForActiveRequest', () => {
       expect(events).toEqual(['next', 'complete']);
     });
 
-    it('returns observable if module still loading after final payload', () => {
+    test('returns observable if module still loading after final payload', () => {
       const observable = getObservableForActiveRequest(
         environment,
         query.request,

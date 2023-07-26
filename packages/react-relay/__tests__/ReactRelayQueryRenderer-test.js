@@ -122,7 +122,7 @@ describe('ReactRelayQueryRenderer', () => {
   });
 
   describe('when initialized', () => {
-    it('fetches the query', () => {
+    test('fetches the query', () => {
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           query={TestQuery}
@@ -139,7 +139,7 @@ describe('ReactRelayQueryRenderer', () => {
 
     describe('when constructor fires multiple times', () => {
       describe('when store does not have snapshot and fetch does not return snapshot', () => {
-        it('fetches the query only once, renders loading state', () => {
+        test('fetches the query only once, renders loading state', () => {
           environment.mockClear();
           function Child(props) {
             // NOTE the log method will move to the static renderer.
@@ -196,7 +196,7 @@ describe('ReactRelayQueryRenderer', () => {
         });
       });
       describe('when store has a snapshot', () => {
-        it('fetches the query only once, renders snapshot from store', () => {
+        test('fetches the query only once, renders snapshot from store', () => {
           environment.mockClear();
           environment.applyUpdate({
             storeUpdater: _store => {
@@ -291,7 +291,7 @@ describe('ReactRelayQueryRenderer', () => {
         });
       });
       describe('when fetch returns a response synchronously first time', () => {
-        it('fetches the query once, always renders snapshot returned by fetch', () => {
+        test('fetches the query once, always renders snapshot returned by fetch', () => {
           const fetch = jest.fn().mockReturnValueOnce(response);
           store = new Store(new RecordSource());
           environment = new Environment({
@@ -381,7 +381,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     describe('when variables change before first result has completed', () => {
-      it('correctly renders data for new variables', () => {
+      test('correctly renders data for new variables', () => {
         environment = createMockEnvironment();
         let pendingRequests = [];
         jest.spyOn(environment, 'execute').mockImplementation(request => {
@@ -493,7 +493,7 @@ describe('ReactRelayQueryRenderer', () => {
       });
     });
 
-    it('fetches the query with default variables', () => {
+    test('fetches the query with default variables', () => {
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           query={TestQuery}
@@ -509,7 +509,7 @@ describe('ReactRelayQueryRenderer', () => {
       ).toBe(true);
     });
 
-    it('renders with a default ready state', () => {
+    test('renders with a default ready state', () => {
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           query={TestQuery}
@@ -526,7 +526,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('if initial render set from store, skip loading state when data for query is already available', () => {
+    test('if initial render set from store, skip loading state when data for query is already available', () => {
       environment.applyUpdate({
         storeUpdater: _store => {
           let root = _store.get(ROOT_ID);
@@ -569,7 +569,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('skip loading state when request could be resolved synchronously', () => {
+    test('skip loading state when request could be resolved synchronously', () => {
       const fetch = () => response;
       store = new Store(new RecordSource());
       environment = new Environment({
@@ -605,7 +605,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('skip loading state when request failed synchronously', () => {
+    test('skip loading state when request failed synchronously', () => {
       const error = new Error('Mock Network Error');
       const fetch = () => error;
       store = new Store(new RecordSource());
@@ -642,7 +642,7 @@ describe('ReactRelayQueryRenderer', () => {
       render = jest.fn(() => <ContextGetter />);
     });
 
-    it('sets an environment on context', () => {
+    test('sets an environment on context', () => {
       expect.assertions(1);
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
@@ -657,7 +657,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(relayContext.environment).toBe(environment);
     });
 
-    it('sets an environment on context with empty query', () => {
+    test('sets an environment on context with empty query', () => {
       variables = {foo: 'bar'};
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
@@ -676,7 +676,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(relayContext.environment).toBe(environment);
     });
 
-    it('updates the context when the environment changes', () => {
+    test('updates the context when the environment changes', () => {
       expect.assertions(2);
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -702,7 +702,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(relayContext.environment).toBe(environment);
     });
 
-    it('updates the context when the query changes', () => {
+    test('updates the context when the query changes', () => {
       expect.assertions(2);
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -728,7 +728,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(relayContext.environment).toBe(environment);
     });
 
-    it('updates the context when variables change', () => {
+    test('updates the context when variables change', () => {
       expect.assertions(5);
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -782,7 +782,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('does not update the context for equivalent variables', () => {
+    test('does not update the context for equivalent variables', () => {
       expect.assertions(2);
       variables = {foo: ['bar']};
       const renderer = ReactTestRenderer.create(
@@ -823,7 +823,7 @@ describe('ReactRelayQueryRenderer', () => {
       render = jest.fn(() => <ContextGetter />);
     });
 
-    it('sets QueryRenderer context', () => {
+    test('sets QueryRenderer context', () => {
       expect.assertions(1);
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer
@@ -838,7 +838,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(queryRendererContext.rootIsQueryRenderer).toBe(true);
     });
 
-    it('default context', () => {
+    test('default context', () => {
       expect.assertions(1);
       ReactTestRenderer.create(<ContextGetter />);
 
@@ -862,7 +862,7 @@ describe('ReactRelayQueryRenderer', () => {
       );
     });
 
-    it('does not update if all props are ===', () => {
+    test('does not update if all props are ===', () => {
       environment.mockClear();
       render.mockClear();
 
@@ -877,7 +877,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(render).not.toBeCalled();
     });
 
-    it('does not update if variables are equivalent', () => {
+    test('does not update if variables are equivalent', () => {
       variables = {foo: [1]};
       renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -904,7 +904,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(render).not.toBeCalled();
     });
 
-    it('updates if `render` prop changes', () => {
+    test('updates if `render` prop changes', () => {
       const readyState = render.mock.calls[0][0];
       environment.mockClear();
       render.mockClear();
@@ -921,7 +921,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(environment.execute).not.toBeCalled();
     });
 
-    it('refetches if the `environment` prop changes', () => {
+    test('refetches if the `environment` prop changes', () => {
       expect.assertions(4);
       environment.mock.resolve(TestQuery, {
         data: {
@@ -949,7 +949,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('refetches if the `variables` prop changes', () => {
+    test('refetches if the `variables` prop changes', () => {
       expect.assertions(4);
       environment.mock.resolve(TestQuery, {
         data: {
@@ -977,7 +977,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('refetches with default values if the `variables` prop changes', () => {
+    test('refetches with default values if the `variables` prop changes', () => {
       expect.assertions(4);
       environment.mock.resolve(TestQuery, {
         data: {
@@ -1006,7 +1006,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('refetches if the `query` prop changes', () => {
+    test('refetches if the `query` prop changes', () => {
       expect.assertions(4);
       environment.mock.resolve(TestQuery, {
         data: {
@@ -1035,7 +1035,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('renders if the `query` prop changes to null', () => {
+    test('renders if the `query` prop changes to null', () => {
       expect.assertions(7);
       environment.mock.resolve(TestQuery, {
         data: {
@@ -1081,14 +1081,14 @@ describe('ReactRelayQueryRenderer', () => {
       );
     });
 
-    it('retains immediately', () => {
+    test('retains immediately', () => {
       expect.assertions(1);
       render.mockClear();
       environment.mock.reject(TestQuery, new Error('fail'));
       expect(environment.retain.mock.calls.length).toBe(1);
     });
 
-    it('renders the error and retry', () => {
+    test('renders the error and retry', () => {
       expect.assertions(3);
       render.mockClear();
       const error = new Error('fail');
@@ -1100,7 +1100,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('refetch the query if `retry`', () => {
+    test('refetch the query if `retry`', () => {
       expect.assertions(7);
       render.mockClear();
       const error = new Error('network fails');
@@ -1142,7 +1142,7 @@ describe('ReactRelayQueryRenderer', () => {
   describe('with two identical query fetchers', () => {
     // Regression test for T32896427
     describe('when the fetch succeeds', () => {
-      it('renders the query results', () => {
+      test('renders the query results', () => {
         const mockA = jest.fn().mockReturnValue('A');
         const mockB = jest.fn().mockReturnValue('B');
         class Example extends React.Component {
@@ -1234,21 +1234,21 @@ describe('ReactRelayQueryRenderer', () => {
       );
     });
 
-    it('retains the result', () => {
+    test('retains the result', () => {
       expect.assertions(2);
       environment.mock.resolve(TestQuery, response);
       expect(environment.retain).toBeCalled();
       expect(environment.retain.mock.dispose).not.toBeCalled();
     });
 
-    it('publishes and notifies the store with changes', () => {
+    test('publishes and notifies the store with changes', () => {
       expect.assertions(2);
       environment.mock.resolve(TestQuery, response);
       expect(store.publish).toBeCalled();
       expect(store.notify).toBeCalled();
     });
 
-    it('renders the query results', () => {
+    test('renders the query results', () => {
       expect.assertions(3);
       render.mockClear();
       environment.mock.resolve(TestQuery, response);
@@ -1272,7 +1272,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('subscribes to the root fragment', () => {
+    test('subscribes to the root fragment', () => {
       expect.assertions(4);
       environment.mock.resolve(TestQuery, response);
       expect(environment.subscribe).toBeCalled();
@@ -1311,14 +1311,14 @@ describe('ReactRelayQueryRenderer', () => {
       };
     });
 
-    it('cancels the pending fetch', () => {
+    test('cancels the pending fetch', () => {
       const subscription = environment.execute.mock.subscriptions[0];
       expect(subscription.closed).toBe(false);
       renderer.getInstance().setProps(nextProps);
       expect(subscription.closed).toBe(true);
     });
 
-    it('releases the pending selection', () => {
+    test('releases the pending selection', () => {
       environment.mock.resolve(TestQuery, response);
       const disposeHold = environment.retain.mock.dispose;
       expect(disposeHold).not.toBeCalled();
@@ -1327,7 +1327,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(disposeHold).toBeCalled();
     });
 
-    it('retains the new selection', () => {
+    test('retains the new selection', () => {
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
       environment.mock.resolve(NextQuery, response); // trigger retain
@@ -1342,7 +1342,7 @@ describe('ReactRelayQueryRenderer', () => {
       );
     });
 
-    it('renders a pending state', () => {
+    test('renders a pending state', () => {
       render.mockClear();
       renderer.getInstance().setProps(nextProps);
       expect({
@@ -1352,7 +1352,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('renders if the `query` prop changes to null', () => {
+    test('renders if the `query` prop changes to null', () => {
       const subscription = environment.execute.mock.subscriptions[0];
       expect(subscription.closed).toBe(false);
       environment.mock.resolve(TestQuery, response); // trigger retain
@@ -1409,7 +1409,7 @@ describe('ReactRelayQueryRenderer', () => {
       };
     });
 
-    it('fetches the new query', () => {
+    test('fetches the new query', () => {
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
       expect(
@@ -1417,7 +1417,7 @@ describe('ReactRelayQueryRenderer', () => {
       ).toBe(true);
     });
 
-    it('retains the new selection', () => {
+    test('retains the new selection', () => {
       expect.assertions(5);
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
@@ -1439,7 +1439,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(environment.retain.mock.dispose).not.toBeCalled();
     });
 
-    it('renders the pending state', () => {
+    test('renders the pending state', () => {
       renderer.getInstance().setProps(nextProps);
       expect({
         error: null,
@@ -1448,7 +1448,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('publishes and notifies the store with changes', () => {
+    test('publishes and notifies the store with changes', () => {
       expect.assertions(2);
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
@@ -1491,14 +1491,14 @@ describe('ReactRelayQueryRenderer', () => {
       };
     });
 
-    it('disposes the root fragment subscription', () => {
+    test('disposes the root fragment subscription', () => {
       const disposeUpdate = environment.subscribe.mock.dispose;
       expect(disposeUpdate).not.toBeCalled();
       renderer.getInstance().setProps(nextProps);
       expect(disposeUpdate).toBeCalled();
     });
 
-    it('fetches the new query', () => {
+    test('fetches the new query', () => {
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
       expect(
@@ -1506,7 +1506,7 @@ describe('ReactRelayQueryRenderer', () => {
       ).toBe(true);
     });
 
-    it('disposes the previous selection and retains the new one', () => {
+    test('disposes the previous selection and retains the new one', () => {
       expect.assertions(6);
       const prevDispose = environment.retain.mock.dispose;
       environment.mockClear();
@@ -1530,7 +1530,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(environment.retain.mock.dispose).not.toBeCalled();
     });
 
-    it('renders the pending and previous state', () => {
+    test('renders the pending and previous state', () => {
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
       expect({
@@ -1540,7 +1540,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('publishes and notifies the store with changes', () => {
+    test('publishes and notifies the store with changes', () => {
       expect.assertions(2);
       environment.mockClear();
       renderer.getInstance().setProps(nextProps);
@@ -1551,7 +1551,7 @@ describe('ReactRelayQueryRenderer', () => {
   });
 
   describe('when unmounted', () => {
-    it('releases its reference if unmounted before fetch completes', () => {
+    test('releases its reference if unmounted before fetch completes', () => {
       const renderer = ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           environment={environment}
@@ -1568,7 +1568,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(dispose).toBeCalled();
     });
 
-    it('releases its reference if unmounted after fetch completes', () => {
+    test('releases its reference if unmounted after fetch completes', () => {
       const renderer = ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           environment={environment}
@@ -1586,7 +1586,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect(dispose).toBeCalled();
     });
 
-    it('aborts a pending fetch', () => {
+    test('aborts a pending fetch', () => {
       const renderer = ReactTestRenderer.create(
         <ReactRelayQueryRenderer
           environment={environment}
@@ -1625,7 +1625,7 @@ describe('ReactRelayQueryRenderer', () => {
       };
     });
 
-    it('retains partially fulfilled results until next succesful request', () => {
+    test('retains partially fulfilled results until next succesful request', () => {
       environment.mock.nextValue(TestQuery, response);
       const disposeHold = environment.retain.mock.dispose;
       expect(environment.retain).toBeCalled();
@@ -1643,7 +1643,7 @@ describe('ReactRelayQueryRenderer', () => {
     // Verify the component doesn't leak references if it doesn't finish mount.
     // @TODO T28041408 Test aborted mount using unstable_flushSync() rather than
     // throwing once the test renderer exposes such a method.
-    it('should ignore data changes before mount', () => {
+    test('should ignore data changes before mount', () => {
       class ErrorBoundary extends React.Component {
         state = {error: null};
         componentDidCatch(error) {
@@ -1687,7 +1687,7 @@ describe('ReactRelayQueryRenderer', () => {
   });
 
   describe('When retry', () => {
-    it('uses the latest variables after initial render', () => {
+    test('uses the latest variables after initial render', () => {
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer
@@ -1732,7 +1732,7 @@ describe('ReactRelayQueryRenderer', () => {
       });
     });
 
-    it('skips cache if `force` is set to true', () => {
+    test('skips cache if `force` is set to true', () => {
       ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer
@@ -1763,7 +1763,7 @@ describe('ReactRelayQueryRenderer', () => {
       ).toBe(false);
     });
 
-    it('uses cache if `force` is set to false', () => {
+    test('uses cache if `force` is set to false', () => {
       ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer

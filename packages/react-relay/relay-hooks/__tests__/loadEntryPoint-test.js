@@ -218,7 +218,7 @@ describe('with respect to loadQuery', () => {
   afterEach(() => {
     jest.unmock('../loadQuery');
   });
-  it('it should call loadQuery for each query', () => {
+  test('it should call loadQuery for each query', () => {
     const myTestQuery = {
       parameters: {
         kind: 'PreloadableConcreteRequest',
@@ -275,7 +275,7 @@ describe('with respect to loadQuery', () => {
     expect(loadQuery.mock.calls[1][2]).toEqual(myTestQuery2.variables);
   });
 
-  it('it should return a dispose callback that calls loadQuery(...).dispose', () => {
+  test('it should return a dispose callback that calls loadQuery(...).dispose', () => {
     const env = createMockEnvironment();
     const entryPoint = {
       getPreloadProps(params: $TEMPORARY$object<{...}>) {

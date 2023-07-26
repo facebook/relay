@@ -85,7 +85,7 @@ describe('RelayReader', () => {
     source = RelayRecordSource.create(data);
   });
 
-  it('reads query data', () => {
+  test('reads query data', () => {
     const FooQuery = graphql`
       query RelayReaderTestReadsQueryDataFooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
@@ -157,7 +157,7 @@ describe('RelayReader', () => {
     ]);
   });
 
-  it('reads fragment data', () => {
+  test('reads fragment data', () => {
     const UserQuery = graphql`
       query RelayReaderTestReadsFragmentDataUserQuery($size: [Int]) {
         me {
@@ -227,7 +227,7 @@ describe('RelayReader', () => {
     ]);
   });
 
-  it('creates fragment pointers with fragment owner when owner is provided', () => {
+  test('creates fragment pointers with fragment owner when owner is provided', () => {
     const ParentQuery = graphql`
       query RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery(
         $size: [Int]
@@ -274,7 +274,7 @@ describe('RelayReader', () => {
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
 
-  it('creates fragment pointers with variable @arguments', () => {
+  test('creates fragment pointers with variable @arguments', () => {
     const UserQuery = graphql`
       query RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery {
         me {
@@ -320,7 +320,7 @@ describe('RelayReader', () => {
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
 
-  it('creates fragment pointers with literal @arguments', () => {
+  test('creates fragment pointers with literal @arguments', () => {
     const UserQuery = graphql`
       query RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery {
         me {
@@ -365,7 +365,7 @@ describe('RelayReader', () => {
   });
 
   describe('@inline', () => {
-    it('reads a basic fragment', () => {
+    test('reads a basic fragment', () => {
       const UserQuery = graphql`
         query RelayReaderTestReadsBasicFragmentUserQuery {
           me {
@@ -408,7 +408,7 @@ describe('RelayReader', () => {
     });
   });
 
-  it('reads data when the root is deleted', () => {
+  test('reads data when the root is deleted', () => {
     const UserProfile = graphql`
       fragment RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile on User {
         name
@@ -424,7 +424,7 @@ describe('RelayReader', () => {
     expect(Array.from(seenRecords.values()).sort()).toEqual(['4']);
   });
 
-  it('reads data when the root is unfetched', () => {
+  test('reads data when the root is unfetched', () => {
     const UserProfile = graphql`
       fragment RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile on User {
         name
@@ -439,7 +439,7 @@ describe('RelayReader', () => {
     expect(Array.from(seenRecords.values()).sort()).toEqual(['4']);
   });
 
-  it('reads "handle" fields for query root fragments', () => {
+  test('reads "handle" fields for query root fragments', () => {
     const records = {
       '1': {
         __id: '1',
@@ -519,7 +519,7 @@ describe('RelayReader', () => {
     ]);
   });
 
-  it('reads "handle" fields for fragments', () => {
+  test('reads "handle" fields for fragments', () => {
     const records = {
       '1': {
         __id: '1',
@@ -623,7 +623,7 @@ describe('RelayReader', () => {
       `;
     });
 
-    it('creates fragment and module pointers for fragment that matches resolved type (1)', () => {
+    test('creates fragment and module pointers for fragment that matches resolved type (1)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
         '1': {
@@ -676,7 +676,7 @@ describe('RelayReader', () => {
       expect(isMissingData).toBe(false);
     });
 
-    it('creates fragment and module pointers for fragment that matches resolved type (2)', () => {
+    test('creates fragment and module pointers for fragment that matches resolved type (2)', () => {
       // When the type matches MarkdownUserNameRenderer
       const storeData = {
         '1': {
@@ -729,7 +729,7 @@ describe('RelayReader', () => {
       expect(isMissingData).toBe(false);
     });
 
-    it('reads data correctly when the resolved type does not match any of the specified cases', () => {
+    test('reads data correctly when the resolved type does not match any of the specified cases', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -766,7 +766,7 @@ describe('RelayReader', () => {
       expect(isMissingData).toBe(false);
     });
 
-    it('reads data correctly when the match field record is null', () => {
+    test('reads data correctly when the match field record is null', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -793,7 +793,7 @@ describe('RelayReader', () => {
       expect(isMissingData).toBe(false);
     });
 
-    it('reads data correctly when the match field record is missing', () => {
+    test('reads data correctly when the match field record is missing', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -859,7 +859,7 @@ describe('RelayReader', () => {
       `;
     });
 
-    it('creates fragment and module pointers when the type matches a @module selection (1)', () => {
+    test('creates fragment and module pointers when the type matches a @module selection (1)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
         '1': {
@@ -912,7 +912,7 @@ describe('RelayReader', () => {
       expect(isMissingData).toBe(false);
     });
 
-    it('creates fragment and module pointers when the type matches a @module selection (2)', () => {
+    test('creates fragment and module pointers when the type matches a @module selection (2)', () => {
       // When the type matches MarkdownUserNameRenderer
       const storeData = {
         '1': {
@@ -965,7 +965,7 @@ describe('RelayReader', () => {
       expect(isMissingData).toBe(false);
     });
 
-    it('reads data correctly when the resolved type does not match any of the @module selections', () => {
+    test('reads data correctly when the resolved type does not match any of the @module selections', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1006,7 +1006,7 @@ describe('RelayReader', () => {
 
   describe('`isMissingData` field', () => {
     describe('readScalar', () => {
-      it('should have `isMissingData = false` if data is available', () => {
+      test('should have `isMissingData = false` if data is available', () => {
         const UserProfile = graphql`
           fragment RelayReaderTestReadScalarProfile on User {
             id
@@ -1029,7 +1029,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(false);
       });
 
-      it('should have `isMissingData = true` if data is missing', () => {
+      test('should have `isMissingData = true` if data is missing', () => {
         const UserProfile = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile on User {
             id
@@ -1055,7 +1055,7 @@ describe('RelayReader', () => {
     });
 
     describe('readLink', () => {
-      it('should have `isMissingData = false` if data is available', () => {
+      test('should have `isMissingData = false` if data is available', () => {
         const ProfilePicture = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture on User {
             id
@@ -1089,7 +1089,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(false);
       });
 
-      it('should have `isMissingData = true` if data is missing', () => {
+      test('should have `isMissingData = true` if data is missing', () => {
         const Address = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress on User {
             id
@@ -1107,7 +1107,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(true);
       });
 
-      it('should have `isMissingData = true` if data is missing (variables)', () => {
+      test('should have `isMissingData = true` if data is missing (variables)', () => {
         const ProfilePicture = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePicture on User {
             id
@@ -1198,7 +1198,7 @@ describe('RelayReader', () => {
         source = RelayRecordSource.create(data);
       });
 
-      it('should have `isMissingData = false` if data is available', () => {
+      test('should have `isMissingData = false` if data is available', () => {
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends on User {
             id
@@ -1234,7 +1234,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(false);
       });
 
-      it('should have `isMissingData = true` if data is missing in the node', () => {
+      test('should have `isMissingData = true` if data is missing in the node', () => {
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends on User {
             id
@@ -1271,7 +1271,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(true);
       });
 
-      it('should have `isMissingData = true` if data is missing for connection', () => {
+      test('should have `isMissingData = true` if data is missing for connection', () => {
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriends on User {
             id
@@ -1294,7 +1294,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(true);
       });
 
-      it('should have `isMissingData = true` if data is missing for edge in the connection', () => {
+      test('should have `isMissingData = true` if data is missing for edge in the connection', () => {
         const UserQuery = graphql`
           query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForEdgeInTheConnectionUserQuery {
             me {
@@ -1326,7 +1326,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(true);
       });
 
-      it('should not have missing data if missing fields are client fields', () => {
+      test('should not have missing data if missing fields are client fields', () => {
         const UserQuery = graphql`
           query RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery(
             $size: [Int]
@@ -1397,7 +1397,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(false);
       });
 
-      it('should not consider data missing if the fragment type does not match the data', () => {
+      test('should not consider data missing if the fragment type does not match the data', () => {
         const ActorQuery = graphql`
           query RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataActorQuery {
             viewer {
@@ -1444,7 +1444,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(false);
       });
 
-      it('should consider data missing if the fragment type is abstract', () => {
+      test('should consider data missing if the fragment type is abstract', () => {
         const ActorQuery = graphql`
           query RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery {
             viewer {
@@ -1488,7 +1488,7 @@ describe('RelayReader', () => {
         expect(isMissingData).toBe(true);
       });
 
-      it('should consider data missing if the fragment is concrete but on the root', () => {
+      test('should consider data missing if the fragment is concrete but on the root', () => {
         const Query = graphql`
           query RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery {
             ...RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment
@@ -1547,7 +1547,7 @@ describe('RelayReader', () => {
         `;
       });
 
-      it('should not have missing data if all data is fetched', () => {
+      test('should not have missing data if all data is fetched', () => {
         const storeData = {
           '1': {
             __id: '1',
@@ -1591,7 +1591,7 @@ describe('RelayReader', () => {
         });
       });
 
-      it('should not have missing data when all edge data is fetched by pageInfo is missing', () => {
+      test('should not have missing data when all edge data is fetched by pageInfo is missing', () => {
         const storeData = {
           '1': {
             __id: '1',
@@ -1647,7 +1647,7 @@ describe('RelayReader', () => {
         });
       });
 
-      it('should have missing data if an edge is missing data', () => {
+      test('should have missing data if an edge is missing data', () => {
         const storeData = {
           '1': {
             __id: '1',
@@ -1685,7 +1685,7 @@ describe('RelayReader', () => {
     });
   });
 
-  it('does not record a dependency on type records for abstract type discriminators', () => {
+  test('does not record a dependency on type records for abstract type discriminators', () => {
     const Query = graphql`
       query RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsQuery {
         me {
@@ -1762,7 +1762,7 @@ describe('RelayReader', () => {
       }
     `;
 
-    it('should read data for actor change', () => {
+    test('should read data for actor change', () => {
       const defaultActorSource = new RelayRecordSource({
         'client:root': {
           __id: 'client:root',
@@ -1799,7 +1799,7 @@ describe('RelayReader', () => {
       });
     });
 
-    it('should report missing data for actor change', () => {
+    test('should report missing data for actor change', () => {
       const defaultActorSource = new RelayRecordSource({
         'client:root': {
           __id: 'client:root',
@@ -1822,7 +1822,7 @@ describe('RelayReader', () => {
       });
     });
 
-    it('should return null for actor change, if data is null', () => {
+    test('should return null for actor change, if data is null', () => {
       const defaultActorSource = new RelayRecordSource({
         'client:root': {
           __id: 'client:root',
@@ -1846,7 +1846,7 @@ describe('RelayReader', () => {
       });
     });
 
-    it('should throw for actor change, if __viewer is missing or undefined', () => {
+    test('should throw for actor change, if __viewer is missing or undefined', () => {
       const defaultActorSource = new RelayRecordSource({
         'client:root': {
           __id: 'client:root',

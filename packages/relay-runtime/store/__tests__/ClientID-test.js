@@ -18,7 +18,7 @@ const {
   isClientID,
 } = require('../ClientID');
 
-it('creates unique local ids', () => {
+test('creates unique local ids', () => {
   const set = new Set<DataID>();
   for (let i = 0; i < 10; i++) {
     const id = generateUniqueClientID();
@@ -27,13 +27,13 @@ it('creates unique local ids', () => {
   }
 });
 
-it('can detect created client ids', () => {
+test('can detect created client ids', () => {
   expect(isClientID(generateUniqueClientID())).toBe(true);
   expect(isClientID(generateClientID('0', ''))).toBe(true);
   expect(isClientID('<server-id>')).toBe(false);
 });
 
-it('does not add extra prefix to a client id', () => {
+test('does not add extra prefix to a client id', () => {
   const clientID = 'client:0';
   expect(generateClientID(clientID, 'a')).toEqual(`${clientID}:a`);
 });

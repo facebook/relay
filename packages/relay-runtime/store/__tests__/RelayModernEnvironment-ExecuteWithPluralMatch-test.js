@@ -155,7 +155,7 @@ describe('execute() a query with plural @match', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  test('calls next() and publishes the initial payload to the store', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -229,7 +229,7 @@ describe('execute() a query with plural @match', () => {
     });
   });
 
-  it('loads the @match fragment and normalizes/publishes the field payload', () => {
+  test('loads the @match fragment and normalizes/publishes the field payload', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {

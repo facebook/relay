@@ -70,7 +70,7 @@ describe('subscribe()', () => {
     });
   });
 
-  it('calls the callback if data changes', () => {
+  test('calls the callback if data changes', () => {
     const snapshot = environment.lookup(
       createReaderSelector(
         ParentQuery.fragment,
@@ -92,7 +92,7 @@ describe('subscribe()', () => {
     });
   });
 
-  it('does not call the callback if disposed', () => {
+  test('does not call the callback if disposed', () => {
     const snapshot = environment.lookup(
       createReaderSelector(
         ParentQuery.fragment,

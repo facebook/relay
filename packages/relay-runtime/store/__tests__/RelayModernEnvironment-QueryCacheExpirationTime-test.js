@@ -67,7 +67,7 @@ describe('query cache expiration time', () => {
   });
 
   describe('interactions with the release buffer', () => {
-    it('retains disposed query in release buffer if less time than the query cache expiration time has passed when query is released', () => {
+    test('retains disposed query in release buffer if less time than the query cache expiration time has passed when query is released', () => {
       environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
@@ -113,7 +113,7 @@ describe('query cache expiration time', () => {
       });
     });
 
-    it('immediately releases stale disposed items', () => {
+    test('immediately releases stale disposed items', () => {
       environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
@@ -154,7 +154,7 @@ describe('query cache expiration time', () => {
   });
 
   describe('with check()', () => {
-    it('returns available for retained data until query cache expiration time has passed', () => {
+    test('returns available for retained data until query cache expiration time has passed', () => {
       environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',

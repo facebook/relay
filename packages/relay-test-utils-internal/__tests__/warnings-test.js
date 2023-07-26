@@ -29,38 +29,38 @@ describe('warnings', () => {
   beforeAll(() => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
-  it('throws when disallow warnings is called twice', () => {
+  test('throws when disallow warnings is called twice', () => {
     expect(disallowWarnings).toThrowError(
       'disallowWarnings should be called only once',
     );
   });
-  it('throws when unexpected warning is fired', () => {
+  test('throws when unexpected warning is fired', () => {
     expect(() => warning(false, unexpected_message)).toThrowError(
       'Warning: ' + unexpected_message,
     );
   });
-  it('does not throw when expected warning is fired', () => {
+  test('does not throw when expected warning is fired', () => {
     expectWarningWillFire(expected_message1);
     warning(false, expected_message1);
   });
 
-  it('matches contextual warning', () => {
+  test('matches contextual warning', () => {
     expectToWarn(expected_message1, () => warning(false, expected_message1));
   });
 
-  it('matches contextual warning first', () => {
+  test('matches contextual warning first', () => {
     expectWarningWillFire(expected_message1);
     expectToWarn(expected_message1, () => warning(false, expected_message1));
     warning(false, expected_message1);
   });
 
-  it('warns on unfired contextual warning', () => {
+  test('warns on unfired contextual warning', () => {
     expect(() => expectToWarn(expected_message1, () => {})).toThrowError(
       'Expected warning in callback: ' + expected_message1,
     );
   });
 
-  it('warns on unexpected contextual warning', () => {
+  test('warns on unexpected contextual warning', () => {
     expect(() =>
       expectToWarn(expected_message1, () => {
         warning(false, expected_message2);
@@ -68,7 +68,7 @@ describe('warnings', () => {
     ).toThrowError('Warning: ' + expected_message2);
   });
 
-  it('matches multiple contextual warnings first', () => {
+  test('matches multiple contextual warnings first', () => {
     expectWarningWillFire(expected_message1);
 
     expectToWarnMany([expected_message1, expected_message2], () => {
@@ -78,7 +78,7 @@ describe('warnings', () => {
     warning(false, expected_message1);
   });
 
-  it('matches multiple contextual warnings in order', () => {
+  test('matches multiple contextual warnings in order', () => {
     expect(() => {
       expectToWarnMany([expected_message2, expected_message1], () => {
         warning(false, expected_message1);
@@ -87,7 +87,7 @@ describe('warnings', () => {
     }).toThrowError('Warning: ' + expected_message1);
   });
 
-  it('warnings for unfired warning, given multiple contextual warnings', () => {
+  test('warnings for unfired warning, given multiple contextual warnings', () => {
     expect(() => {
       expectToWarnMany(
         [expected_message1, expected_message2, expected_message3],

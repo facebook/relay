@@ -108,7 +108,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
     jest.clearAllTimers();
   });
 
-  it('forces a re-render and refetches query when effects are double invoked', () => {
+  test('forces a re-render and refetches query when effects are double invoked', () => {
     let renderLogs = [];
     const QueryComponent = function ({node}: {node: any}) {
       const name = node?.name ?? 'Empty';

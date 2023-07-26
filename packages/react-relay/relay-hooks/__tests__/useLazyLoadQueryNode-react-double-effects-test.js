@@ -136,7 +136,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     jest.clearAllTimers();
   });
 
-  it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
+  test('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
     let renderLogs = [];
     const QueryComponent = function () {
       const result = useLazyLoadQuery(gqlQuery, variables, {
@@ -271,7 +271,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     expect(environment.retain).toHaveBeenCalledTimes(2);
   });
 
-  it('forces a re-render when effects are double invoked and does not refetch when policy is store-or-network', () => {
+  test('forces a re-render when effects are double invoked and does not refetch when policy is store-or-network', () => {
     const renderLogs = [];
     const QueryComponent = function () {
       const result = useLazyLoadQuery(gqlQuery, variables, {
@@ -380,7 +380,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   });
 
   describe('with incremental delivery', () => {
-    it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
+    test('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
       let renderLogs = [];
       const FragmentComponent = function ({
         user,
@@ -566,7 +566,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
-    it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
+    test('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
       let renderLogs = [];
       const FragmentComponent = function (props: {
         user: ?useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key,

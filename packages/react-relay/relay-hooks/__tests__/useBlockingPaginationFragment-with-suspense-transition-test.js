@@ -33,7 +33,7 @@ const {useEffect, useTransition, useMemo, useState} = React;
 
 describe('useBlockingPaginationFragment with useTransition', () => {
   if (typeof useTransition !== 'function') {
-    it('empty test to prevent Jest from failing', () => {
+    test('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
     });
   } else {
@@ -488,7 +488,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       const direction = 'forward';
 
       // Sanity check test, should already be tested in useBlockingPagination test
-      it('loads and renders next items in connection', () => {
+      test('loads and renders next items in connection', () => {
         const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const renderer = renderFragment();
         expectFragmentResults([
@@ -592,7 +592,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('renders pending flag correctly if pagination update is interrupted before it commits (unsuspends)', () => {
+      test('renders pending flag correctly if pagination update is interrupted before it commits (unsuspends)', () => {
         const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const renderer = renderFragment();
         expectFragmentResults([
@@ -721,7 +721,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('loads more correctly when original variables do not include an id', () => {
+      test('loads more correctly when original variables do not include an id', () => {
         const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const viewer = environment.lookup(queryWithoutID.fragment).data?.viewer;
         const userRef =
@@ -848,7 +848,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('calls callback with error when error occurs during fetch', () => {
+      test('calls callback with error when error occurs during fetch', () => {
         const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const renderer = renderFragment();
         expectFragmentResults([
@@ -890,7 +890,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expect(callback).toBeCalledWith(error);
       });
 
-      it('preserves pagination request if re-rendered with same fragment ref', () => {
+      test('preserves pagination request if re-rendered with same fragment ref', () => {
         const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const renderer = renderFragment();
         expectFragmentResults([
@@ -1082,7 +1082,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }
 
       // TODO: T150701964
-      xit('loads more items correctly after refetching', () => {
+      xtest('loads more items correctly after refetching', () => {
         const renderer = renderFragment();
         expectFragmentResults([
           {

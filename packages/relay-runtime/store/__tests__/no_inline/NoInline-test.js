@@ -35,7 +35,7 @@ disallowConsoleErrors();
 disallowWarnings();
 
 describe('No Inline w/ Common JS', () => {
-  it('can read data', () => {
+  test('can read data', () => {
     const environment = createMockEnvironment();
 
     const NoInlineTestQuery = graphql`

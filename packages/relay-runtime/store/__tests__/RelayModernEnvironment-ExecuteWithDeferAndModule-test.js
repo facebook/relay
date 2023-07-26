@@ -148,7 +148,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      test('calls next() and publishes the initial payload to the store', () => {
         const initialSnapshot = environment.lookup(selector);
 
         const callback = jest.fn<[Snapshot], void>();
@@ -178,7 +178,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('processes deferred payloads', () => {
+      test('processes deferred payloads', () => {
         const initialSnapshot = environment.lookup(selector);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
@@ -234,7 +234,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('synchronously normalizes the deferred payload if the normalization fragment is available synchronously', () => {
+      test('synchronously normalizes the deferred payload if the normalization fragment is available synchronously', () => {
         const initialSnapshot = environment.lookup(selector);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
@@ -284,7 +284,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('processes deferred payloads if the normalization fragment is delivered in same network response', () => {
+      test('processes deferred payloads if the normalization fragment is delivered in same network response', () => {
         const initialSnapshot = environment.lookup(selector);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);

@@ -83,7 +83,7 @@ describe('readUpdatableFragment', () => {
     });
   });
 
-  it('handles variables correctly', () => {
+  test('handles variables correctly', () => {
     environment.commitPayload(operation, {
       me: {
         id: '4',
@@ -128,7 +128,7 @@ describe('readUpdatableFragment', () => {
     expect(readOnlyData2?.me?.firstName2).toBe('Repulsa');
   });
 
-  it('correctly handles multiple aliased fields that use different variables', () => {
+  test('correctly handles multiple aliased fields that use different variables', () => {
     environment.commitPayload(operation, {
       me: {
         id: '4',

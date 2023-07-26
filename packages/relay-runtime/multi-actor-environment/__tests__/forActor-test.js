@@ -86,7 +86,7 @@ test('forActor with configName', () => {
 });
 
 describe('forActor: renderPolicy configs', () => {
-  it('should be `partial` by default', () => {
+  test('should be `partial` by default', () => {
     const multiActorEnvironment = new MultiActorEnvironment({
       createNetworkForActor: jest.fn(),
     });
@@ -96,7 +96,7 @@ describe('forActor: renderPolicy configs', () => {
     expect(actorEnvironment.UNSTABLE_getDefaultRenderPolicy()).toBe('partial');
   });
 
-  it('can be changed via config', () => {
+  test('can be changed via config', () => {
     const multiActorEnvironment = new MultiActorEnvironment({
       createNetworkForActor: jest.fn(),
       defaultRenderPolicy: 'full',

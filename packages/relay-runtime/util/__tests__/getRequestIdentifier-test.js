@@ -16,7 +16,7 @@ import type {RequestParameters} from '../../util/RelayConcreteNode';
 const getRequestIdentifier = require('../getRequestIdentifier');
 
 describe('getRequestIdentifier', () => {
-  it('passes with `id`', () => {
+  test('passes with `id`', () => {
     const queryIdentifier = getRequestIdentifier(
       ({
         name: 'FooQuery',
@@ -30,7 +30,7 @@ describe('getRequestIdentifier', () => {
     expect(queryIdentifier).toEqual('123{"foo":1}');
   });
 
-  it('passes with `text`', () => {
+  test('passes with `text`', () => {
     const queryIdentifier = getRequestIdentifier(
       ({
         name: 'FooQuery',

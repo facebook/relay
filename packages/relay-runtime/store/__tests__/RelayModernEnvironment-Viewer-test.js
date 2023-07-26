@@ -88,7 +88,7 @@ describe('Mutations on viewer', () => {
     });
   });
 
-  it("doesn't overwrite existing data in a mutation under viewer field", () => {
+  test("doesn't overwrite existing data in a mutation under viewer field", () => {
     const query = graphql`
       query RelayModernEnvironmentViewerTestQuery {
         viewer {

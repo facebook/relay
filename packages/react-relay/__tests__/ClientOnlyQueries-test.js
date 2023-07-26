@@ -107,11 +107,11 @@ describe('Client-only queries', () => {
     });
   });
 
-  it('should render missing data', () => {
+  test('should render missing data', () => {
     expect(renderer.toJSON()).toEqual('MISSING');
   });
 
-  it('should render data from the store', () => {
+  test('should render data from the store', () => {
     TestRenderer.act(() => {
       environment.commitPayload(operation, {
         defaultSettings: {
@@ -122,7 +122,7 @@ describe('Client-only queries', () => {
     expect(renderer.toJSON()).toEqual('My Client Field');
   });
 
-  it('should render with new environment', () => {
+  test('should render with new environment', () => {
     environment = createEnvironment(
       RecordSource.create({
         'client:root': {
@@ -148,7 +148,7 @@ describe('Client-only queries', () => {
     expect(renderer.toJSON()).toEqual('Another Client Field');
   });
 
-  it('should still render with store-or-network', () => {
+  test('should still render with store-or-network', () => {
     environment = createEnvironment(
       RecordSource.create({
         'client:root': {
@@ -176,7 +176,7 @@ describe('Client-only queries', () => {
     expect(renderer.toJSON()).toEqual('Another Client Field');
   });
 
-  it('should handle updatable client-only query', () => {
+  test('should handle updatable client-only query', () => {
     const updatableQuery = graphql`
       query ClientOnlyQueriesTestUpdatableQuery @updatable {
         defaultSettings {

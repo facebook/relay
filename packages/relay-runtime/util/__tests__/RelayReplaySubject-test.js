@@ -47,7 +47,7 @@ function clearObserver(observer: Observer) {
   observer.unsubscribe.mockClear();
 }
 
-it('publishes start before next/error', () => {
+test('publishes start before next/error', () => {
   const error = new Error('wtf');
   subject.next('Alice');
   subject.error(error);
@@ -68,7 +68,7 @@ it('publishes start before next/error', () => {
   expect(observer.complete).toBeCalledTimes(0);
 });
 
-it('publishes start before next/complete', () => {
+test('publishes start before next/complete', () => {
   subject.next('Alice');
   subject.complete();
 
@@ -87,7 +87,7 @@ it('publishes start before next/complete', () => {
   expect(observer.complete).toBeCalledTimes(1);
 });
 
-it('publishes next before complete/error', () => {
+test('publishes next before complete/error', () => {
   subject.next('Alice');
 
   const observer = createObserver();
@@ -102,7 +102,7 @@ it('publishes next before complete/error', () => {
   expect(observer.complete).toBeCalledTimes(1);
 });
 
-it('stops publishing when unsubscribing in start', () => {
+test('stops publishing when unsubscribing in start', () => {
   subject.next('Alice');
   subject.next('Bob');
   subject.complete();
@@ -119,7 +119,7 @@ it('stops publishing when unsubscribing in start', () => {
   expect(observer.complete).toBeCalledTimes(0);
 });
 
-it('stops publishing when unsubscribing in next', () => {
+test('stops publishing when unsubscribing in next', () => {
   subject.next('Alice');
   subject.next('Bob');
   subject.complete();
@@ -140,7 +140,7 @@ it('stops publishing when unsubscribing in next', () => {
   expect(observer.complete).toBeCalledTimes(0);
 });
 
-it('publishes events synchronously when subscribing to an already resolved stream ', () => {
+test('publishes events synchronously when subscribing to an already resolved stream ', () => {
   subject.next('Alice');
   subject.next('Bob');
   subject.complete();
@@ -155,7 +155,7 @@ it('publishes events synchronously when subscribing to an already resolved strea
   expect(observer.start).toBeCalledTimes(1);
 });
 
-it('publishes next/complete events to an existing subscriber', () => {
+test('publishes next/complete events to an existing subscriber', () => {
   const observer = createObserver();
   subject.subscribe(observer);
 
@@ -171,7 +171,7 @@ it('publishes next/complete events to an existing subscriber', () => {
   expect(observer.start).toBeCalledTimes(1);
 });
 
-it('publishes events synchronously when subscribing to an ongoing stream ', () => {
+test('publishes events synchronously when subscribing to an ongoing stream ', () => {
   subject.next('Alice');
   subject.next('Bob');
 
@@ -195,7 +195,7 @@ it('publishes events synchronously when subscribing to an ongoing stream ', () =
   expect(observer.start).toBeCalledTimes(1);
 });
 
-it('publishes subsequent next/complete events to an existing subscriber', () => {
+test('publishes subsequent next/complete events to an existing subscriber', () => {
   const observer = createObserver();
   subject.next('Alice');
   subject.subscribe(observer);
@@ -211,7 +211,7 @@ it('publishes subsequent next/complete events to an existing subscriber', () => 
   expect(observer.start).toBeCalledTimes(0);
 });
 
-it('publishes events synchronously when subscribing to an already rejected stream', () => {
+test('publishes events synchronously when subscribing to an already rejected stream', () => {
   const error = new Error('wtf');
   subject.error(error);
 
@@ -224,7 +224,7 @@ it('publishes events synchronously when subscribing to an already rejected strea
   expect(observer.start).toBeCalledTimes(1);
 });
 
-it('publishes error events to an an existing subscriber', () => {
+test('publishes error events to an an existing subscriber', () => {
   const observer = createObserver();
   subject.subscribe(observer);
 
@@ -237,7 +237,7 @@ it('publishes error events to an an existing subscriber', () => {
   expect(observer.start).toBeCalledTimes(1);
 });
 
-it('publishes subsequent next/error events to an existing subscriber', () => {
+test('publishes subsequent next/error events to an existing subscriber', () => {
   const observer = createObserver();
   subject.next('Alice');
   subject.subscribe(observer);
@@ -256,7 +256,7 @@ it('publishes subsequent next/error events to an existing subscriber', () => {
 });
 
 describe('with multiple subscribers', () => {
-  it('returns current observers count', () => {
+  test('returns current observers count', () => {
     const observer = createObserver();
 
     subject.subscribe(observer);
@@ -274,7 +274,7 @@ describe('with multiple subscribers', () => {
     expect(subject.getObserverCount()).toBe(0);
   });
 
-  it('publish next/complete events to all subscribers', () => {
+  test('publish next/complete events to all subscribers', () => {
     const observer1 = createObserver();
     const observer2 = createObserver();
 
@@ -300,7 +300,7 @@ describe('with multiple subscribers', () => {
     expect(observer2.complete).toBeCalledTimes(1);
   });
 
-  it('publish unsubscribe events to all existing subscribers', () => {
+  test('publish unsubscribe events to all existing subscribers', () => {
     const observer1 = createObserver();
     const observer2 = createObserver();
     subject.next('Alice');

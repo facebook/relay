@@ -157,7 +157,7 @@ describe.each([
       jest.spyOn(console, 'error').mockImplementation(() => {});
     });
 
-    it('suspends while the query is pending', () => {
+    test('suspends while the query is pending', () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -182,7 +182,7 @@ describe.each([
       expect(data).toBe(undefined);
     });
 
-    it('suspends while the query is pending (with default variables)', () => {
+    test('suspends while the query is pending (with default variables)', () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -205,7 +205,7 @@ describe.each([
       expect(data).toBe(undefined);
     });
 
-    it('renders synchronously if the query has already completed', () => {
+    test('renders synchronously if the query has already completed', () => {
       // TODO(T40983823): Fix usage of timers in tests
       environment.getStore().holdGC();
 
@@ -245,7 +245,7 @@ describe.each([
       });
     });
 
-    it('renders synchronously if the query has already errored', () => {
+    test('renders synchronously if the query has already errored', () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -278,7 +278,7 @@ describe.each([
       expect(renderer.toJSON()).toEqual('Error Boundary');
     });
 
-    it('updates asynchronously when the query completes', () => {
+    test('updates asynchronously when the query completes', () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -320,7 +320,7 @@ describe.each([
       });
     });
 
-    it('refetches when a different fetchKey is passed', () => {
+    test('refetches when a different fetchKey is passed', () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -390,7 +390,7 @@ describe.each([
       });
     });
 
-    it('refetches when consumed with a different environment', () => {
+    test('refetches when consumed with a different environment', () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -434,7 +434,7 @@ describe.each([
       });
     });
 
-    it('no refetch when the same fetchKey is passed', () => {
+    test('no refetch when the same fetchKey is passed', () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -504,7 +504,7 @@ describe.each([
       });
     });
 
-    it('updates asynchronously when the query errors', () => {
+    test('updates asynchronously when the query errors', () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -558,7 +558,7 @@ describe.each([
     });
 
     describe('if loadQuery is passed a preloadableConcreteRequest which is not available synchronously', () => {
-      it('does not suspend while the query is pending until the query AST and network response are available', () => {
+      test('does not suspend while the query is pending until the query AST and network response are available', () => {
         const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
@@ -605,7 +605,7 @@ describe.each([
         });
       });
 
-      it('does not suspend while the query is pending until the network response and the query AST are available', () => {
+      test('does not suspend while the query is pending until the network response and the query AST are available', () => {
         const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
@@ -652,7 +652,7 @@ describe.each([
         });
       });
 
-      it('renders synchronously if the query has already completed', () => {
+      test('renders synchronously if the query has already completed', () => {
         const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
@@ -689,7 +689,7 @@ describe.each([
         });
       });
 
-      it('renders an error synchronously if the query has already errored', () => {
+      test('renders an error synchronously if the query has already errored', () => {
         const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
@@ -725,7 +725,7 @@ describe.each([
 
     describe('when loadQuery is passed a query AST', () => {
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
-        it('should synchronously render successfully', () => {
+        test('should synchronously render successfully', () => {
           const prefetched = loadQuery<any, _>(environment, query, {
             id: '4',
           });
@@ -756,7 +756,7 @@ describe.each([
             },
           });
         });
-        it('should synchronously render errors', () => {
+        test('should synchronously render errors', () => {
           const prefetched = loadQuery<any, _>(environment, query, {
             id: '4',
           });
@@ -786,7 +786,7 @@ describe.each([
       });
 
       describe('when the network response occurs after usePreloadedQuery is rendered', () => {
-        it('should suspend, and then render', () => {
+        test('should suspend, and then render', () => {
           const prefetched = loadQuery<any, _>(environment, query, {
             id: '4',
           });
@@ -820,7 +820,7 @@ describe.each([
             },
           });
         });
-        it('should suspend, then render and error', () => {
+        test('should suspend, then render and error', () => {
           const prefetched = loadQuery<any, _>(environment, query, {
             id: '4',
           });
@@ -863,7 +863,7 @@ describe.each([
         resolvedModule = originalResolvedModule;
       });
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
-        it('should synchronously render successfully', () => {
+        test('should synchronously render successfully', () => {
           const prefetched = loadQuery<any, _>(
             environment,
             preloadableConcreteRequest,
@@ -898,7 +898,7 @@ describe.each([
             },
           });
         });
-        it('should synchronously render errors', () => {
+        test('should synchronously render errors', () => {
           const prefetched = loadQuery<any, _>(
             environment,
             preloadableConcreteRequest,
@@ -932,7 +932,7 @@ describe.each([
       });
 
       describe('when the network response occurs after usePreloadedQuery is rendered', () => {
-        it('should suspend, and then render', () => {
+        test('should suspend, and then render', () => {
           const prefetched = loadQuery<any, _>(
             environment,
             preloadableConcreteRequest,
@@ -970,7 +970,7 @@ describe.each([
             },
           });
         });
-        it('should suspend, then render and error', () => {
+        test('should suspend, then render and error', () => {
           const prefetched = loadQuery<any, _>(
             environment,
             preloadableConcreteRequest,
@@ -1008,7 +1008,7 @@ describe.each([
     });
 
     describe('when environments do not match', () => {
-      it('should fetch the data at render time, even if the query has already resolved', () => {
+      test('should fetch the data at render time, even if the query has already resolved', () => {
         let altDataSource;
         // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         const altFetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -1062,7 +1062,7 @@ describe.each([
     });
 
     describe('when loadQuery is passed a preloadedQuery that was disposed', () => {
-      it('warns that the preloadedQuery has already been disposed', () => {
+      test('warns that the preloadedQuery has already been disposed', () => {
         const expectWarningMessage = expect.stringMatching(
           /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
         );
@@ -1106,7 +1106,7 @@ describe.each([
     });
 
     describe('refetching', () => {
-      it('renders updated data correctly when refetching same query and variables', () => {
+      test('renders updated data correctly when refetching same query and variables', () => {
         const loadedFirst = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
@@ -1207,7 +1207,7 @@ describe.each([
         });
       });
 
-      it('renders updated data correctly when refetching different variables', () => {
+      test('renders updated data correctly when refetching different variables', () => {
         const loadedFirst = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,

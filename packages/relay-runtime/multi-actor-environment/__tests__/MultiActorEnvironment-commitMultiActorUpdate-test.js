@@ -17,7 +17,7 @@ const {getActorIdentifier} = require('../ActorIdentifier');
 const MultiActorEnvironment = require('../MultiActorEnvironment');
 
 describe('commitMultiActorUpdate', () => {
-  it('commits updates to all environments', () => {
+  test('commits updates to all environments', () => {
     const multiActorEnvironment = new MultiActorEnvironment({
       createNetworkForActor: jest.fn(),
     });

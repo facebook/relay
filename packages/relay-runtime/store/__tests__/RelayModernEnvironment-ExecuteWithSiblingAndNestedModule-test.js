@@ -189,7 +189,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           environment.subscribe(operationSnapshot, operationCallback);
         });
 
-        it('resolves sibling modules in one tick, and notifies once if the feature flag is on', () => {
+        test('resolves sibling modules in one tick, and notifies once if the feature flag is on', () => {
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
             data: {
@@ -320,7 +320,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           });
         });
 
-        it('resolves sibling and nested modules in one tick, and notifies once if the feature flag is on', () => {
+        test('resolves sibling and nested modules in one tick, and notifies once if the feature flag is on', () => {
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
             data: {
@@ -493,7 +493,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           });
         });
 
-        it('calls complete only after modules are resolved and published', () => {
+        test('calls complete only after modules are resolved and published', () => {
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
             data: {
@@ -578,7 +578,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           }
         });
 
-        it('cancels @module processing if unsubscribed', () => {
+        test('cancels @module processing if unsubscribed', () => {
           const subscription = environment
             .execute({operation})
             .subscribe(callbacks);

@@ -193,7 +193,7 @@ beforeEach(() => {
 
 describe('when passed a PreloadableConcreteRequest', () => {
   describe('when the query AST is available synchronously', () => {
-    it('should pass network responses onto source', () => {
+    test('should pass network responses onto source', () => {
       PreloadableQueryRegistry.set(ID, query);
       callLoadQuery(preloadableConcreteRequest);
 
@@ -202,7 +202,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(next).toHaveBeenCalledWith(response);
     });
 
-    it('should dedupe network request if called multiple times', () => {
+    test('should dedupe network request if called multiple times', () => {
       PreloadableQueryRegistry.set(ID, query);
       const res1 = callLoadQuery(preloadableConcreteRequest);
       const res2 = callLoadQuery(preloadableConcreteRequest);
@@ -216,7 +216,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
-    it('should pass network errors onto source', () => {
+    test('should pass network errors onto source', () => {
       PreloadableQueryRegistry.set(ID, query);
       callLoadQuery(preloadableConcreteRequest);
 
@@ -226,7 +226,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
     });
 
     describe('when dispose is called before the network response is available', () => {
-      it('should not pass network responses onto source', () => {
+      test('should not pass network responses onto source', () => {
         PreloadableQueryRegistry.set(ID, query);
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
@@ -234,7 +234,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         sink.next(response);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', done => {
+      test('should not pass network errors onto source', done => {
         PreloadableQueryRegistry.set(ID, query);
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
@@ -250,7 +250,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
   });
 
   describe('when the query is unavailable synchronously', () => {
-    it('should dedupe network request if called multiple times', () => {
+    test('should dedupe network request if called multiple times', () => {
       const res1 = callLoadQuery(preloadableConcreteRequest);
       const res2 = callLoadQuery(preloadableConcreteRequest);
       expect(fetch).toHaveBeenCalledTimes(1);
@@ -264,7 +264,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
-    it('should dedupe operation execution if called multiple times', () => {
+    test('should dedupe operation execution if called multiple times', () => {
       const res1 = callLoadQuery(preloadableConcreteRequest);
       const res2 = callLoadQuery(preloadableConcreteRequest);
       expect(fetch).toHaveBeenCalledTimes(1);
@@ -282,7 +282,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
     });
 
     describe('when the query AST is available before the network response', () => {
-      it('should pass network responses onto source', () => {
+      test('should pass network responses onto source', () => {
         callLoadQuery(preloadableConcreteRequest);
 
         expect(next).not.toHaveBeenCalled();
@@ -291,7 +291,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         sink.next(response);
         expect(next).toHaveBeenCalledWith(response);
       });
-      it('should pass network errors onto source', () => {
+      test('should pass network errors onto source', () => {
         callLoadQuery(preloadableConcreteRequest);
 
         expect(error).not.toHaveBeenCalled();
@@ -303,7 +303,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
     });
 
     describe('when the network response is available before the query AST', () => {
-      it('should pass network responses onto source', () => {
+      test('should pass network responses onto source', () => {
         callLoadQuery(preloadableConcreteRequest);
 
         expect(next).not.toHaveBeenCalled();
@@ -312,7 +312,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         PreloadableQueryRegistry.set(ID, query);
         expect(next).toHaveBeenCalledWith(response);
       });
-      it('should pass network errors onto source', () => {
+      test('should pass network errors onto source', () => {
         callLoadQuery(preloadableConcreteRequest);
 
         expect(error).not.toHaveBeenCalled();
@@ -324,7 +324,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
     });
 
     describe('when dispose is called before the query AST and network response are available', () => {
-      it('should not pass network responses onto source', () => {
+      test('should not pass network responses onto source', () => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         dispose();
@@ -333,7 +333,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         PreloadableQueryRegistry.set(ID, query);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', done => {
+      test('should not pass network errors onto source', done => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         dispose();
@@ -348,7 +348,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
     });
     describe('when dispose is called before the network response and query AST are available', () => {
-      it('should not pass network responses onto source', () => {
+      test('should not pass network responses onto source', () => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         dispose();
@@ -357,7 +357,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         PreloadableQueryRegistry.set(ID, query);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', done => {
+      test('should not pass network errors onto source', done => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         dispose();
@@ -372,7 +372,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
     });
     describe('when dispose is called after the network response and before the query AST are available', () => {
-      it('should not pass network responses onto source', () => {
+      test('should not pass network responses onto source', () => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         sink.next(response);
@@ -382,7 +382,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         PreloadableQueryRegistry.set(ID, query);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', () => {
+      test('should not pass network errors onto source', () => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         sink.error(networkError);
@@ -394,7 +394,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       });
     });
     describe('when dispose is called after the query AST and before the network response are available', () => {
-      it('should not pass network responses onto source', () => {
+      test('should not pass network responses onto source', () => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         PreloadableQueryRegistry.set(ID, query);
@@ -403,7 +403,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         sink.next(response);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', done => {
+      test('should not pass network errors onto source', done => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         PreloadableQueryRegistry.set(ID, query);
@@ -419,7 +419,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
     });
 
     describe('when loading and disposing same query multiple times', () => {
-      it('loads correctly when ast is loaded in between calls to load and initial query ref is disposed', () => {
+      test('loads correctly when ast is loaded in between calls to load and initial query ref is disposed', () => {
         // This test case simulates what happens in useQueryLoader or useEntryPointLoader, where the load
         // function can be called multiple times, and all previous query references corresponding to prior
         // calls to load will get disposed
@@ -486,7 +486,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
 });
 
 describe('when passed a query AST', () => {
-  it('should pass network responses onto source', () => {
+  test('should pass network responses onto source', () => {
     callLoadQuery(query);
 
     expect(next).not.toHaveBeenCalled();
@@ -494,7 +494,7 @@ describe('when passed a query AST', () => {
     expect(next).toHaveBeenCalledWith(response);
   });
 
-  it('should pass network errors onto source', () => {
+  test('should pass network errors onto source', () => {
     callLoadQuery(query);
 
     expect(error).not.toHaveBeenCalled();
@@ -503,14 +503,14 @@ describe('when passed a query AST', () => {
   });
 
   describe('when dispose is called before the network response is available', () => {
-    it('should not pass network responses onto source', () => {
+    test('should not pass network responses onto source', () => {
       const {dispose} = callLoadQuery(query);
 
       dispose();
       sink.next(response);
       expect(next).not.toHaveBeenCalled();
     });
-    it('should not pass network errors onto source', done => {
+    test('should not pass network errors onto source', done => {
       const {dispose} = callLoadQuery(query);
 
       dispose();
@@ -525,7 +525,7 @@ describe('when passed a query AST', () => {
 });
 
 describe("with the query fulfillable from the store and fetchPolicy === 'network-only'", () => {
-  it('should pass network responses onto source', () => {
+  test('should pass network responses onto source', () => {
     writeDataToStore();
     PreloadableQueryRegistry.set(ID, query);
     callLoadQuery(preloadableConcreteRequest, {fetchPolicy: 'network-only'});
@@ -535,7 +535,7 @@ describe("with the query fulfillable from the store and fetchPolicy === 'network
     expect(next).toHaveBeenCalledWith(response);
   });
 
-  it('should pass network errors onto source', () => {
+  test('should pass network errors onto source', () => {
     writeDataToStore();
     PreloadableQueryRegistry.set(ID, query);
     callLoadQuery(preloadableConcreteRequest, {fetchPolicy: 'network-only'});
@@ -547,7 +547,7 @@ describe("with the query fulfillable from the store and fetchPolicy === 'network
   });
 
   describe('when dispose is called before the network response is available', () => {
-    it('should not pass network responses onto source', () => {
+    test('should not pass network responses onto source', () => {
       writeDataToStore();
       PreloadableQueryRegistry.set(ID, query);
       const {dispose} = callLoadQuery(preloadableConcreteRequest, {
@@ -558,7 +558,7 @@ describe("with the query fulfillable from the store and fetchPolicy === 'network
       sink.next(response);
       expect(next).not.toHaveBeenCalled();
     });
-    it('should not pass network errors onto source', done => {
+    test('should not pass network errors onto source', done => {
       writeDataToStore();
       PreloadableQueryRegistry.set(ID, query);
       const {dispose} = callLoadQuery(preloadableConcreteRequest, {

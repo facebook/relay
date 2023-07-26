@@ -123,7 +123,7 @@ describe('RelayModernSelector', () => {
   });
 
   describe('getSingularSelector()', () => {
-    it('throws for invalid inputs', () => {
+    test('throws for invalid inputs', () => {
       expect(() => getSingularSelector(UserFragment, 'zuck')).toThrowError(
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to ' +
           'be an object, got `"zuck"`.',
@@ -136,7 +136,7 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns null and warns for unfetched fragment data', () => {
+    test('returns null and warns for unfetched fragment data', () => {
       const selector = getSingularSelector(UserFragment, {});
       expect(warning).toHaveBeenCalledWith(
         false,
@@ -150,7 +150,7 @@ describe('RelayModernSelector', () => {
       expect(selector).toBe(null);
     });
 
-    it('returns a selector', () => {
+    test('returns a selector', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
@@ -162,7 +162,7 @@ describe('RelayModernSelector', () => {
       expect(selector?.owner).toBe(owner.request);
     });
 
-    it('uses variables from owner', () => {
+    test('uses variables from owner', () => {
       const queryNode = UserQuery;
       // Pass owner with different variables
       owner = createOperationDescriptor(queryNode, {
@@ -189,14 +189,14 @@ describe('RelayModernSelector', () => {
   });
 
   describe('getPluralSelector()', () => {
-    it('throws for invalid inputs', () => {
+    test('throws for invalid inputs', () => {
       expect(() => getPluralSelector(UserFragment, ['zuck'])).toThrowError(
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be ' +
           'an object, got `"zuck"`.',
       );
     });
 
-    it('returns null and warns for unfetched fragment data', () => {
+    test('returns null and warns for unfetched fragment data', () => {
       const selectors = getPluralSelector(UserFragment, [{}]);
       expect(warning).toHaveBeenCalledWith(
         false,
@@ -210,7 +210,7 @@ describe('RelayModernSelector', () => {
       expect(selectors).toBe(null);
     });
 
-    it('returns selectors', () => {
+    test('returns selectors', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
@@ -224,7 +224,7 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    it('uses owner variables', () => {
+    test('uses owner variables', () => {
       const queryNode = UserQuery;
       // Pass owner with different variables
       owner = createOperationDescriptor(queryNode, {
@@ -253,7 +253,7 @@ describe('RelayModernSelector', () => {
   });
 
   describe('getSelectorsFromObject()', () => {
-    it('throws for invalid inputs', () => {
+    test('throws for invalid inputs', () => {
       expect(() =>
         getSelectorsFromObject({user: UserFragment}, {user: 'zuck'}),
       ).toThrowError(
@@ -262,7 +262,7 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns null and warns for unfetched fragment data', () => {
+    test('returns null and warns for unfetched fragment data', () => {
       const selectors = getSelectorsFromObject(
         {user: UserFragment},
         {user: {}},
@@ -279,7 +279,7 @@ describe('RelayModernSelector', () => {
       expect(selectors).toEqual({user: null});
     });
 
-    it('ignores keys not present in the fragment map', () => {
+    test('ignores keys not present in the fragment map', () => {
       const selectors = getSelectorsFromObject(
         {user: UserFragment},
         {
@@ -298,7 +298,7 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    it('passes through null/undefined values', () => {
+    test('passes through null/undefined values', () => {
       let selectors = getSelectorsFromObject(
         {user: UserFragment},
         {user: null},
@@ -315,7 +315,7 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    it('returns singular selectors', () => {
+    test('returns singular selectors', () => {
       const selectors = getSelectorsFromObject(
         {user: UserFragment},
         {user: zuck},
@@ -330,7 +330,7 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    it('returns plural selectors', () => {
+    test('returns plural selectors', () => {
       const selectors = getSelectorsFromObject(
         {user: UsersFragment},
         {user: [zuck]},
@@ -357,7 +357,7 @@ describe('RelayModernSelector', () => {
         zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
       });
 
-      it('returns singular selectors', () => {
+      test('returns singular selectors', () => {
         const selectors = getSelectorsFromObject(
           {user: UserFragment},
           {user: zuck},
@@ -372,7 +372,7 @@ describe('RelayModernSelector', () => {
         });
       });
 
-      it('returns singular selector and uses variables from owner', () => {
+      test('returns singular selector and uses variables from owner', () => {
         const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
@@ -398,7 +398,7 @@ describe('RelayModernSelector', () => {
         });
       });
 
-      it('returns plural selectors', () => {
+      test('returns plural selectors', () => {
         const selectors = getSelectorsFromObject(
           {user: UsersFragment},
           {user: [zuck]},
@@ -418,7 +418,7 @@ describe('RelayModernSelector', () => {
         });
       });
 
-      it('returns plural selectors and uses variables from owner', () => {
+      test('returns plural selectors and uses variables from owner', () => {
         const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
@@ -452,7 +452,7 @@ describe('RelayModernSelector', () => {
   });
 
   describe('getDataIDsFromObject()', () => {
-    it('throws for invalid inputs', () => {
+    test('throws for invalid inputs', () => {
       expect(() =>
         getDataIDsFromObject({user: UserFragment}, {user: 'zuck'}),
       ).toThrowError(
@@ -461,7 +461,7 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns null and warns for unfetched fragment data', () => {
+    test('returns null and warns for unfetched fragment data', () => {
       const ids = getDataIDsFromObject({user: UserFragment}, {user: {}});
       expect(warning).toHaveBeenCalledWith(
         false,
@@ -475,7 +475,7 @@ describe('RelayModernSelector', () => {
       expect(ids).toEqual({user: null});
     });
 
-    it('ignores keys not present in the fragment map', () => {
+    test('ignores keys not present in the fragment map', () => {
       const dataIDs = getDataIDsFromObject(
         {user: UserFragment},
         {
@@ -489,7 +489,7 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    it('passes through null/undefined values', () => {
+    test('passes through null/undefined values', () => {
       let dataIDs = getDataIDsFromObject({user: UserFragment}, {user: null});
       expect(dataIDs).toEqual({
         user: null,
@@ -500,14 +500,14 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    it('returns singular ids', () => {
+    test('returns singular ids', () => {
       const dataIDs = getDataIDsFromObject({user: UserFragment}, {user: zuck});
       expect(dataIDs).toEqual({
         user: '4',
       });
     });
 
-    it('returns plural ids', () => {
+    test('returns plural ids', () => {
       const dataIDs = getDataIDsFromObject(
         {user: UsersFragment},
         {user: [zuck]},
@@ -526,7 +526,7 @@ describe('RelayModernSelector', () => {
       other: 'whatevs',
     };
 
-    it('throws for invalid inputs', () => {
+    test('throws for invalid inputs', () => {
       expect(() =>
         getVariablesFromObject({user: UserFragment}, {user: 'zuck'}),
       ).toThrowError(
@@ -535,7 +535,7 @@ describe('RelayModernSelector', () => {
       );
     });
 
-    it('returns empty variables and warns for unfetched fragment data', () => {
+    test('returns empty variables and warns for unfetched fragment data', () => {
       const fragmentVariables = getVariablesFromObject(
         {user: UserFragment},
         {user: {}},
@@ -552,7 +552,7 @@ describe('RelayModernSelector', () => {
       expect(fragmentVariables).toEqual({});
     });
 
-    it('ignores keys not present in the fragment map', () => {
+    test('ignores keys not present in the fragment map', () => {
       variables = getVariablesFromObject(
         {user: UserFragment},
         {
@@ -563,7 +563,7 @@ describe('RelayModernSelector', () => {
       expect(variables).toEqual({});
     });
 
-    it('ignores null/undefined values', () => {
+    test('ignores null/undefined values', () => {
       variables = getVariablesFromObject({user: UserFragment}, {user: null});
       expect(variables).toEqual({});
       variables = getVariablesFromObject(
@@ -573,7 +573,7 @@ describe('RelayModernSelector', () => {
       expect(variables).toEqual({});
     });
 
-    it('returns variables for singular props', () => {
+    test('returns variables for singular props', () => {
       variables = getVariablesFromObject({user: UserFragment}, {user: zuck});
       expect(variables).toEqual({
         cond: false,
@@ -581,7 +581,7 @@ describe('RelayModernSelector', () => {
       });
     });
 
-    it('returns variables for plural props', () => {
+    test('returns variables for plural props', () => {
       variables = getVariablesFromObject(
         {user: UsersFragment},
         {user: [null, zuck, null]},
@@ -599,14 +599,14 @@ describe('RelayModernSelector', () => {
         zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
       });
 
-      it('returns variables for singular props', () => {
+      test('returns variables for singular props', () => {
         variables = getVariablesFromObject({user: UserFragment}, {user: zuck});
         expect(variables).toEqual({
           cond: true,
           size: 42,
         });
       });
-      it('returns variables for singular props and uses variables from owner', () => {
+      test('returns variables for singular props and uses variables from owner', () => {
         const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
@@ -621,7 +621,7 @@ describe('RelayModernSelector', () => {
           size: 16,
         });
       });
-      it('returns variables for plural props', () => {
+      test('returns variables for plural props', () => {
         variables = getVariablesFromObject(
           {user: UsersFragment},
           {user: [zuck]},
@@ -632,7 +632,7 @@ describe('RelayModernSelector', () => {
         });
       });
 
-      it('returns variables for plural props and uses variables from owner', () => {
+      test('returns variables for plural props and uses variables from owner', () => {
         const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
@@ -654,7 +654,7 @@ describe('RelayModernSelector', () => {
   });
 
   describe('areEqualSelectors()', () => {
-    it('considers null and undefined equivalent selectors', () => {
+    test('considers null and undefined equivalent selectors', () => {
       expect(areEqualSelectors(null, null)).toBe(true);
       expect(areEqualSelectors(undefined, undefined)).toBe(true);
       // Not sure if null and undefined should be treated as same, but
@@ -663,7 +663,7 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(undefined, null)).toBe(true);
     });
 
-    it('returns true for equivalent selectors', () => {
+    test('returns true for equivalent selectors', () => {
       const selector = createReaderSelector(
         UserFragment,
         '4',
@@ -678,7 +678,7 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, clone)).toBe(true);
     });
 
-    it('returns false for equivalent selectors but with different owners', () => {
+    test('returns false for equivalent selectors but with different owners', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = createReaderSelector(
@@ -696,7 +696,7 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, differentOwner)).toBe(false);
     });
 
-    it('returns true for equivalent selectors with same owners', () => {
+    test('returns true for equivalent selectors with same owners', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = createReaderSelector(
@@ -713,7 +713,7 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, clone)).toBe(true);
     });
 
-    it('returns false for different selectors', () => {
+    test('returns false for different selectors', () => {
       const selector = createReaderSelector(
         UserFragment,
         '4',
@@ -741,7 +741,7 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(undefined, selector)).toBe(false);
     });
 
-    it('returns false for different selectors with owners', () => {
+    test('returns false for different selectors with owners', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = createReaderSelector(

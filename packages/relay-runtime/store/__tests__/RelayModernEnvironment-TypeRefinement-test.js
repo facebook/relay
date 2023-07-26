@@ -212,7 +212,7 @@ describe('missing data detection', () => {
     jest.runAllTimers();
   }
 
-  it('concrete spread on matching concrete type reads data and counts missing user fields as missing', () => {
+  test('concrete spread on matching concrete type reads data and counts missing user fields as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -278,7 +278,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('available');
   });
 
-  it('concrete spread on non-matching concrete type reads data but does not count missing user fields as missing', () => {
+  test('concrete spread on non-matching concrete type reads data but does not count missing user fields as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -344,7 +344,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('available');
   });
 
-  it('concrete inline fragment on matching concrete type reads data and counts missing user fields as missing', () => {
+  test('concrete inline fragment on matching concrete type reads data and counts missing user fields as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -409,7 +409,7 @@ describe('missing data detection', () => {
     expect(fragmentSnapshot2.isMissingData).toBe(false);
     expect(environment.check(operation).status).toBe('available');
   });
-  it('concrete inline fragment on non-matching concrete type does not read data or count data as missing', () => {
+  test('concrete inline fragment on non-matching concrete type does not read data or count data as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -441,7 +441,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing'); // fields missing from conforming interface (Actor)
   });
 
-  it('abstract spread on implementing type reads data and counts missing user fields as missing', () => {
+  test('abstract spread on implementing type reads data and counts missing user fields as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -506,7 +506,7 @@ describe('missing data detection', () => {
     expect(fragmentSnapshot2.isMissingData).toBe(false);
     expect(environment.check(operation).status).toBe('available');
   });
-  it('abstract spread on non-implementing type reads data but does not count missing user fields as missing', () => {
+  test('abstract spread on non-implementing type reads data but does not count missing user fields as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -539,7 +539,7 @@ describe('missing data detection', () => {
     expect(environment.check(abstractOperation).status).toBe('available');
     expect(environment.check(operation).status).toBe('missing'); // fields missing on concrete type
   });
-  it('abstract spread missing only the discriminator reads data and counts data as missing', () => {
+  test('abstract spread missing only the discriminator reads data and counts data as missing', () => {
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -583,7 +583,7 @@ describe('missing data detection', () => {
     expect(callback).toBeCalledTimes(0);
   });
 
-  it('abstract spread missing the discriminator and user fields: reads data and counts data as missing', () => {
+  test('abstract spread missing the discriminator and user fields: reads data and counts data as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -640,7 +640,7 @@ describe('missing data detection', () => {
     expect(callback).toBeCalledTimes(0);
   });
 
-  it('abstract inline fragment on implementing type reads data and counts missing user fields as missing', () => {
+  test('abstract inline fragment on implementing type reads data and counts missing user fields as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -706,7 +706,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('available');
   });
 
-  it('abstract inline fragment on non-implementing type reads data but does not count missing user fields as missing', () => {
+  test('abstract inline fragment on non-implementing type reads data but does not count missing user fields as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -739,7 +739,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing'); // fields missing on concrete type
   });
 
-  it('abstract inline fragment missing only the discriminator reads data and counts data as missing', () => {
+  test('abstract inline fragment missing only the discriminator reads data and counts data as missing', () => {
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -785,7 +785,7 @@ describe('missing data detection', () => {
     expect(callback).toBeCalledTimes(0);
   });
 
-  it('abstract inline fragment missing the discriminator and user fields: reads data and counts data as missing', () => {
+  test('abstract inline fragment missing the discriminator and user fields: reads data and counts data as missing', () => {
     expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
@@ -871,7 +871,7 @@ describe('missing data detection', () => {
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
-    it('reads and reports missing data if only user fields are missing', () => {
+    test('reads and reports missing data if only user fields are missing', () => {
       expectWarningWillFire(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
       );
@@ -916,7 +916,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('missing');
     });
 
-    it('reads and reports missing data if only the discriminator is missing', () => {
+    test('reads and reports missing data if only the discriminator is missing', () => {
       commitPayload(operation, {
         viewer: {
           actor: {
@@ -962,7 +962,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('missing');
     });
 
-    it('reads and reports missing data if the discriminator and user fields are missing', () => {
+    test('reads and reports missing data if the discriminator and user fields are missing', () => {
       expectWarningWillFire(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
       );
@@ -1043,7 +1043,7 @@ describe('missing data detection', () => {
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
-    it('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
+    test('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
@@ -1081,7 +1081,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if only user fields are missing', () => {
+    test('reads data and reports nothing missing if only user fields are missing', () => {
       // similar case, we know somehow that the record implements the nested abstract type, but
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
@@ -1126,7 +1126,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if only the type discriminator is missing', () => {
+    test('reads data and reports nothing missing if only the type discriminator is missing', () => {
       // the fields from the nested spread were fetched elsewhere in the query, but we're missing the refinement
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
@@ -1172,7 +1172,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if the discriminator and all fields are present', () => {
+    test('reads data and reports nothing missing if the discriminator and all fields are present', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
@@ -1246,7 +1246,7 @@ describe('missing data detection', () => {
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
-    it('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
+    test('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
@@ -1285,7 +1285,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if only user fields are missing', () => {
+    test('reads data and reports nothing missing if only user fields are missing', () => {
       // similar case, we know somehow that the record implements the nested abstract type, but
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
@@ -1331,7 +1331,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if only the type discriminator is missing', () => {
+    test('reads data and reports nothing missing if only the type discriminator is missing', () => {
       // the fields from the nested spread were fetched elsewhere in the query, but we're missing the refinement
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
@@ -1378,7 +1378,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if the discriminator and all fields are present', () => {
+    test('reads data and reports nothing missing if the discriminator and all fields are present', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
@@ -1455,7 +1455,7 @@ describe('missing data detection', () => {
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
-    it('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
+    test('reads data and reports nothing missing even if the type discriminator and user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
@@ -1494,7 +1494,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if only user fields are missing', () => {
+    test('reads data and reports nothing missing if only user fields are missing', () => {
       // similar case, we know somehow that the record implements the nested abstract type, but
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
@@ -1540,7 +1540,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if only the type discriminator is missing', () => {
+    test('reads data and reports nothing missing if only the type discriminator is missing', () => {
       // the fields from the nested spread were fetched elsewhere in the query, but we're missing the refinement
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
@@ -1587,7 +1587,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if the discriminator and all fields are present', () => {
+    test('reads data and reports nothing missing if the discriminator and all fields are present', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
@@ -1662,7 +1662,7 @@ describe('missing data detection', () => {
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
-    it('reads data and reports nothing missing even if user fields are missing', () => {
+    test('reads data and reports nothing missing even if user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
@@ -1701,7 +1701,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if all fields are present', () => {
+    test('reads data and reports nothing missing if all fields are present', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
@@ -1775,7 +1775,7 @@ describe('missing data detection', () => {
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
-    it('reads data and reports nothing missing even if user fields are missing', () => {
+    test('reads data and reports nothing missing even if user fields are missing', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
@@ -1814,7 +1814,7 @@ describe('missing data detection', () => {
       expect(environment.check(operation).status).toBe('available');
     });
 
-    it('reads data and reports nothing missing if all fields are present', () => {
+    test('reads data and reports nothing missing if all fields are present', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
@@ -1860,7 +1860,7 @@ describe('missing data detection', () => {
   });
 
   describe('Abstract types defined in client schema extension', () => {
-    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST', () => {
+    test('knows when concrete types match abstract types by metadata attached to normalizaiton AST', () => {
       operation = createOperationDescriptor(AbstractClientQuery, {});
       environment.commitUpdate(store => {
         const rootRecord = nullthrows(store.get(ROOT_ID));
@@ -1887,7 +1887,7 @@ describe('missing data detection', () => {
       expect(fragmentSnapshot.isMissingData).toBe(false);
     });
 
-    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST (without committing payloads)', () => {
+    test('knows when concrete types match abstract types by metadata attached to normalizaiton AST (without committing payloads)', () => {
       operation = createOperationDescriptor(AbstractClientQuery, {});
       environment.commitUpdate(store => {
         const rootRecord = nullthrows(store.get(ROOT_ID));
@@ -1916,7 +1916,7 @@ describe('missing data detection', () => {
       expect(fragmentSnapshot.isMissingData).toBe(false);
     });
 
-    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST: check after commited payload', () => {
+    test('knows when concrete types match abstract types by metadata attached to normalizaiton AST: check after commited payload', () => {
       operation = createOperationDescriptor(AbstractClientQuery, {});
       environment.commitUpdate(store => {
         const rootRecord = nullthrows(store.get(ROOT_ID));

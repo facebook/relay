@@ -202,7 +202,7 @@ describe('FragmentResource', () => {
   });
 
   describe('read', () => {
-    it('should read data for the fragment when all data is available', () => {
+    test('should read data for the fragment when all data is available', () => {
       const result = FragmentResource.read(
         getFragment(UserFragment),
         {
@@ -217,7 +217,7 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual({id: '4', name: 'Mark'});
     });
 
-    it('should read data for plural fragment when all data is available', () => {
+    test('should read data for plural fragment when all data is available', () => {
       const result = FragmentResource.read(
         getFragment(UsersFragment),
         [
@@ -234,7 +234,7 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual([{id: '4', name: 'Mark'}]);
     });
 
-    it('should return empty array for plural fragment when plural field is empty', () => {
+    test('should return empty array for plural fragment when plural field is empty', () => {
       UsersFragment = graphql`
         fragment FragmentResourceTest7Fragment on User @relay(plural: true) {
           id
@@ -249,7 +249,7 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual([]);
     });
 
-    it('should return the same empty array for multiple calls for the same plural fragment when plural field is empty', () => {
+    test('should return the same empty array for multiple calls for the same plural fragment when plural field is empty', () => {
       UsersFragment = graphql`
         fragment FragmentResourceTest8Fragment on User @relay(plural: true) {
           id
@@ -269,7 +269,7 @@ describe('FragmentResource', () => {
       expect(firstResult.data).toBe(secondResult.data);
     });
 
-    it('should correctly read fragment data when dataID changes', () => {
+    test('should correctly read fragment data when dataID changes', () => {
       let result = FragmentResource.read(
         getFragment(UserFragment),
         {
@@ -305,7 +305,7 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual({id: '5', name: 'User 5'});
     });
 
-    it('should correctly read fragment data when variables used by fragment change', () => {
+    test('should correctly read fragment data when variables used by fragment change', () => {
       UserFragment = graphql`
         fragment FragmentResourceTest4Fragment on Query {
           node(id: $id) {
@@ -364,7 +364,7 @@ describe('FragmentResource', () => {
       });
     });
 
-    it(
+    test(
       'should correctly read fragment data when variables used by fragment ' +
         'in @argumentDefinitions change',
       () => {
@@ -427,7 +427,7 @@ describe('FragmentResource', () => {
       },
     );
 
-    it(
+    test(
       'should correctly read fragment data when fragment owner variables ' +
         'change',
       () => {
@@ -495,7 +495,7 @@ describe('FragmentResource', () => {
       },
     );
 
-    it('should return null data if fragment reference is not provided', () => {
+    test('should return null data if fragment reference is not provided', () => {
       const result = FragmentResource.read(
         getFragment(UserFragment),
         null,
@@ -504,7 +504,7 @@ describe('FragmentResource', () => {
       expect(result.data).toBe(null);
     });
 
-    it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
+    test('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
       fetchQuery(environment, queryMissingData).subscribe({});
 
       const fragmentNode = getFragment(UserFragmentMissing);
@@ -539,7 +539,7 @@ describe('FragmentResource', () => {
       expect(cached).toBe(thrown);
     });
 
-    it('should log an event if reading missing data and no relevent network request is in flight', () => {
+    test('should log an event if reading missing data and no relevent network request is in flight', () => {
       const fragmentRef = {
         __id: '4',
         __fragments: {
@@ -588,7 +588,7 @@ describe('FragmentResource', () => {
       ]);
     });
 
-    it('should log an event if reading missing data and no relevent network request is in flight (triggered by update)', () => {
+    test('should log an event if reading missing data and no relevent network request is in flight (triggered by update)', () => {
       const fragmentRef = {
         __id: '4',
         __fragments: {
@@ -657,7 +657,7 @@ describe('FragmentResource', () => {
       disposable.dispose();
     });
 
-    it('should not cache or throw an error if network request for parent query errored', () => {
+    test('should not cache or throw an error if network request for parent query errored', () => {
       fetchQuery(environment, queryMissingData).subscribe({error: () => {}});
 
       const fragmentNode = getFragment(UserFragmentMissing);
@@ -695,7 +695,7 @@ describe('FragmentResource', () => {
       expect(cached).toBe(null);
     });
 
-    it('should show a readable error message if fragment is conditionally included', () => {
+    test('should show a readable error message if fragment is conditionally included', () => {
       expect(() =>
         FragmentResource.read(
           getFragment(UserFragment),
@@ -711,7 +711,7 @@ describe('FragmentResource', () => {
   });
 
   describe('readSpec', () => {
-    it('should read data for the fragment when all data is available', () => {
+    test('should read data for the fragment when all data is available', () => {
       const result = FragmentResource.readSpec(
         {
           user: getFragment(UserFragment),
@@ -733,7 +733,7 @@ describe('FragmentResource', () => {
       expect(result.user2.data).toEqual(null);
     });
 
-    it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
+    test('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
       fetchQuery(environment, queryMissingData).subscribe({});
 
       const fragmentNodes = {
@@ -787,7 +787,7 @@ describe('FragmentResource', () => {
       callback = jest.fn<[], void>();
     });
 
-    it('subscribes to the fragment that was `read`', () => {
+    test('subscribes to the fragment that was `read`', () => {
       let result = FragmentResource.read(
         getFragment(UserFragment),
         {
@@ -841,7 +841,7 @@ describe('FragmentResource', () => {
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
-    it('immediately notifies of data updates that were missed between calling `read` and `subscribe`', () => {
+    test('immediately notifies of data updates that were missed between calling `read` and `subscribe`', () => {
       let result = FragmentResource.read(
         getFragment(UserFragment),
         {
@@ -921,7 +921,7 @@ describe('FragmentResource', () => {
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
-    it('immediately notifies of data updates that were missed between calling `read` and `subscribe` (revert to original value)', () => {
+    test('immediately notifies of data updates that were missed between calling `read` and `subscribe` (revert to original value)', () => {
       let result = FragmentResource.read(
         getFragment(UserFragment),
         {
@@ -1001,7 +1001,7 @@ describe('FragmentResource', () => {
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
-    it("doesn't subscribe when result was null", () => {
+    test("doesn't subscribe when result was null", () => {
       const result = FragmentResource.read(
         getFragment(UserFragment),
         null,
@@ -1021,7 +1021,7 @@ describe('FragmentResource', () => {
       expect(callback).toBeCalledTimes(0);
     });
 
-    it("doesn't subscribe when result was empty", () => {
+    test("doesn't subscribe when result was empty", () => {
       const result = FragmentResource.read(
         getFragment(UsersFragment),
         [],
@@ -1042,7 +1042,7 @@ describe('FragmentResource', () => {
     });
 
     describe('when subscribing multiple times to the same fragment', () => {
-      it('maintains subscription even if one of the fragments is disposed of', () => {
+      test('maintains subscription even if one of the fragments is disposed of', () => {
         const fragmentNode = getFragment(UserFragment);
         const fragmentRef = {
           __id: '4',
@@ -1132,7 +1132,7 @@ describe('FragmentResource', () => {
     });
 
     describe('when subscribing to plural fragment', () => {
-      it('subscribes to the plural fragment that was `read`', () => {
+      test('subscribes to the plural fragment that was `read`', () => {
         const fragmentNode = getFragment(UsersFragment);
         const fragmentRef = [
           {
@@ -1184,7 +1184,7 @@ describe('FragmentResource', () => {
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
-      it('immediately notifies of data updates that were missed between calling `read` and `subscribe`', () => {
+      test('immediately notifies of data updates that were missed between calling `read` and `subscribe`', () => {
         const fragmentNode = getFragment(UsersFragment);
         const fragmentRef = [
           {
@@ -1256,7 +1256,7 @@ describe('FragmentResource', () => {
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
-      it('correctly subscribes to a plural fragment with multiple records', () => {
+      test('correctly subscribes to a plural fragment with multiple records', () => {
         queryPlural = createOperationDescriptor(UsersQuery, {
           ids: ['4', '5'],
         });
@@ -1336,7 +1336,7 @@ describe('FragmentResource', () => {
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
-      it('immediately notifies of data updates that were missed between calling `read` and `subscribe` when subscribing to multiple records', () => {
+      test('immediately notifies of data updates that were missed between calling `read` and `subscribe` when subscribing to multiple records', () => {
         queryPlural = createOperationDescriptor(UsersQuery, {
           ids: ['4', '5'],
         });
@@ -1460,7 +1460,7 @@ describe('FragmentResource', () => {
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
-      it('immediately notifies of data updates that were missed between calling `read` and `subscribe` when subscribing to multiple records (revert to original)', () => {
+      test('immediately notifies of data updates that were missed between calling `read` and `subscribe` when subscribing to multiple records (revert to original)', () => {
         queryPlural = createOperationDescriptor(UsersQuery, {ids: ['4']});
         environment.commitPayload(queryPlural, {
           nodes: [
@@ -1556,7 +1556,7 @@ describe('FragmentResource', () => {
       }));
     });
 
-    it('subscribes to the fragment spec that was `read`', () => {
+    test('subscribes to the fragment spec that was `read`', () => {
       const result = FragmentResource.readSpec(
         {user: getFragment(UserFragment)},
         {

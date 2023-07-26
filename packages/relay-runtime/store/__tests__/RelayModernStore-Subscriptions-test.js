@@ -158,7 +158,7 @@ function cloneEventWithSets(event: LogEvent) {
         `;
       });
 
-      it('calls subscribers whose data has changed since previous notify', () => {
+      test('calls subscribers whose data has changed since previous notify', () => {
         // subscribe(), publish(), notify() -> subscriber called
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -194,7 +194,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
+      test('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
         UserQuery = graphql`
           query RelayModernStoreSubscriptionsTest2Query($size: [Int]!) {
@@ -250,7 +250,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls[0][0].selector).toBe(selector);
       });
 
-      it('vends deeply-frozen objects', () => {
+      test('vends deeply-frozen objects', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -277,7 +277,7 @@ function cloneEventWithSets(event: LogEvent) {
         assertIsDeeplyFrozen(nextSnapshot.selector.variables);
       });
 
-      it('calls affected subscribers only once', () => {
+      test('calls affected subscribers only once', () => {
         // subscribe(), publish(), publish(), notify() -> subscriber called once
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -326,7 +326,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('notifies subscribers and sets updated value for isMissingData', () => {
+      test('notifies subscribers and sets updated value for isMissingData', () => {
         const dataObj = {
           '4': {
             __id: '4',
@@ -381,7 +381,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('notifies subscribers of changes to unfetched records', () => {
+      test('notifies subscribers of changes to unfetched records', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -418,7 +418,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('notifies subscribers of changes to deleted records', () => {
+      test('notifies subscribers of changes to deleted records', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -458,7 +458,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('does not call subscribers whose data has not changed', () => {
+      test('does not call subscribers whose data has not changed', () => {
         // subscribe(), publish() -> subscriber *not* called
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -483,7 +483,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback).not.toBeCalled();
       });
 
-      it('does not notify disposed subscribers', () => {
+      test('does not notify disposed subscribers', () => {
         // subscribe(), publish(), dispose(), notify() -> subscriber *not* called
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -509,7 +509,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback).not.toBeCalled();
       });
 
-      it('throws if source records are modified', () => {
+      test('throws if source records are modified', () => {
         const zuck = source.get('4');
         expect(zuck).toBeTruthy();
         expect(() => {
@@ -518,7 +518,7 @@ function cloneEventWithSets(event: LogEvent) {
         }).toThrow(TypeError);
       });
 
-      it('throws if published records are modified', () => {
+      test('throws if published records are modified', () => {
         // Create and publish a source with a new record
         const nextSource = getRecordSourceImplementation();
         const beast = RelayModernRecord.create('beast', 'Pet');
@@ -529,7 +529,7 @@ function cloneEventWithSets(event: LogEvent) {
         }).toThrow(TypeError);
       });
 
-      it('throws if updated records are modified', () => {
+      test('throws if updated records are modified', () => {
         // Create and publish a source with a record of the same id
         const nextSource = getRecordSourceImplementation();
         const beast = RelayModernRecord.create('beast', 'Pet');
@@ -555,7 +555,7 @@ function cloneEventWithSets(event: LogEvent) {
       });
 
       describe('with data invalidation', () => {
-        it('correctly invalidates store when store is globally invalidated', () => {
+        test('correctly invalidates store when store is globally invalidated', () => {
           const owner = createOperationDescriptor(UserQuery, {
             id: '4',
             size: 32,
@@ -589,7 +589,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
 
-        it('correctly invalidates individual records', () => {
+        test('correctly invalidates individual records', () => {
           const owner = createOperationDescriptor(UserQuery, {
             id: '4',
             size: 32,
@@ -625,7 +625,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
 
-        it("correctly invalidates records even when they weren't modified in the source being published", () => {
+        test("correctly invalidates records even when they weren't modified in the source being published", () => {
           const owner = createOperationDescriptor(UserQuery, {
             id: '4',
             size: 32,
@@ -662,7 +662,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('emits log events for publish and notify', () => {
+      test('emits log events for publish and notify', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -725,7 +725,7 @@ function cloneEventWithSets(event: LogEvent) {
           RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION = false;
         });
 
-        it('emits log events for publish and notify', () => {
+        test('emits log events for publish and notify', () => {
           const owner = createOperationDescriptor(UserQuery, {});
           const selector = createReaderSelector(
             UserFragment,

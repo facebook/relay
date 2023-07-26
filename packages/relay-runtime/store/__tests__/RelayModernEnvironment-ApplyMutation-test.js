@@ -123,7 +123,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               });
       });
 
-      it('applies the optimistic updater immediately', () => {
+      test('applies the optimistic updater immediately', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -155,7 +155,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('reverts the optimistic update if disposed', () => {
+      test('reverts the optimistic update if disposed', () => {
         const selector = createReaderSelector(
           CommentFragment,
           commentID,
@@ -183,7 +183,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(callback.mock.calls[0][0].data).toEqual(undefined);
       });
 
-      it('commits optimistic response with fragment spread', () => {
+      test('commits optimistic response with fragment spread', () => {
         operation = createOperationDescriptor(
           CreateCommentWithSpreadMutation,
           variables,

@@ -161,7 +161,7 @@ describe('execute() a query with @match', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  test('calls next() and publishes the initial payload to the store', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -230,7 +230,7 @@ describe('execute() a query with @match', () => {
     });
   });
 
-  it('loads the @match fragment and normalizes/publishes the field payload', () => {
+  test('loads the @match fragment and normalizes/publishes the field payload', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -292,7 +292,7 @@ describe('execute() a query with @match', () => {
     });
   });
 
-  it('synchronously normalizes/publishes the field payload if @match fragment is available synchronously', () => {
+  test('synchronously normalizes/publishes the field payload if @match fragment is available synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     jest
       .spyOn(operationLoader, 'get')
@@ -348,7 +348,7 @@ describe('execute() a query with @match', () => {
     });
   });
 
-  it('calls complete() if the network completes before processing the match', () => {
+  test('calls complete() if the network completes before processing the match', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -403,7 +403,7 @@ describe('execute() a query with @match', () => {
     ).toBe(null);
   });
 
-  it('calls complete() if the network completes after processing the match', () => {
+  test('calls complete() if the network completes after processing the match', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -459,7 +459,7 @@ describe('execute() a query with @match', () => {
     ).toBe(null);
   });
 
-  it('calls error() if the operationLoader function throws synchronously', () => {
+  test('calls error() if the operationLoader function throws synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -492,7 +492,7 @@ describe('execute() a query with @match', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if operationLoader.get function throws synchronously', () => {
+  test('calls error() if operationLoader.get function throws synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     const loaderError = new Error();
     jest.spyOn(operationLoader, 'get').mockImplementationOnce(() => {
@@ -525,7 +525,7 @@ describe('execute() a query with @match', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if the operationLoader promise fails', () => {
+  test('calls error() if the operationLoader promise fails', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -558,7 +558,7 @@ describe('execute() a query with @match', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if processing a match payload throws', () => {
+  test('calls error() if processing a match payload throws', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -595,7 +595,7 @@ describe('execute() a query with @match', () => {
     );
   });
 
-  it('cancels @match processing if unsubscribed before match payload is processed', () => {
+  test('cancels @match processing if unsubscribed before match payload is processed', () => {
     const subscription = environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -687,7 +687,7 @@ describe('execute() a query with @match', () => {
       });
     });
 
-    it('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
+    test('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
@@ -756,7 +756,7 @@ describe('execute() a query with @match', () => {
       });
     });
 
-    it('cancels processing of @match fragments with scheduling', () => {
+    test('cancels processing of @match fragments with scheduling', () => {
       const subscription = environment
         .execute({operation})
         .subscribe(callbacks);
@@ -818,7 +818,7 @@ describe('execute() a query with @match', () => {
       expect(operationCallback).toBeCalledTimes(0); // operation result shouldn't change
     });
 
-    it('synchronously normalizes/publishes the field payload in a single scheduler step if @match fragment is available synchronously', () => {
+    test('synchronously normalizes/publishes the field payload in a single scheduler step if @match fragment is available synchronously', () => {
       environment.execute({operation}).subscribe(callbacks);
       jest
         .spyOn(operationLoader, 'get')

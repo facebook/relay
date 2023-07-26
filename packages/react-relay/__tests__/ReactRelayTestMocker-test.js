@@ -59,7 +59,7 @@ const {createMockEnvironment} = RelayTestUtils;
 
 describe('ReactRelayTestMocker', () => {
   describe('generateId', () => {
-    it('gives a different id each time it is called', () => {
+    test('gives a different id each time it is called', () => {
       const first = ReactRelayTestMocker.generateId();
       const second = ReactRelayTestMocker.generateId();
       const third = ReactRelayTestMocker.generateId();
@@ -92,7 +92,7 @@ describe('ReactRelayTestMocker', () => {
       updaterSetup(environment);
     });
 
-    it('updates properly via default values', () => {
+    test('updates properly via default values', () => {
       const testQueryDefault = {
         query: ReactRelayTestMockerTestQuery,
         payload: {data: payload},
@@ -179,7 +179,7 @@ describe('ReactRelayTestMocker', () => {
       writer.unsetDefault(nestedQueryDefault);
     });
 
-    it('updates the store properly via network', () => {
+    test('updates the store properly via network', () => {
       const Component = ({me}: {me: $FlowFixMe}) => (
         <div>{'My name is ' + me.name}</div>
       );
@@ -234,7 +234,7 @@ describe('ReactRelayTestMocker', () => {
       tree.unmount();
     });
 
-    it('properly updates a component wrapped in a fragment container', () => {
+    test('properly updates a component wrapped in a fragment container', () => {
       let Component = ({me}: $FlowFixMe) => (
         <div>{'My name is ' + me.name}</div>
       );

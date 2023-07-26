@@ -38,7 +38,7 @@ describe('RelayResponseNormalizer', () => {
     treatMissingFieldsAsNull: false,
   };
 
-  it('normalizes queries', () => {
+  test('normalizes queries', () => {
     const FooQuery = graphql`
       query RelayResponseNormalizerTest1Query($id: ID, $size: [Int]) {
         node(id: $id) {
@@ -159,7 +159,7 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
-  it('normalizes queries with "handle" fields', () => {
+  test('normalizes queries with "handle" fields', () => {
     const UserFriends = graphql`
       query RelayResponseNormalizerTest2Query($id: ID!) {
         node(id: $id) {
@@ -230,7 +230,7 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
-  it('normalizes queries with "filters"', () => {
+  test('normalizes queries with "filters"', () => {
     const UserFriends = graphql`
       query RelayResponseNormalizerTest3Query(
         $id: ID!
@@ -402,7 +402,7 @@ describe('RelayResponseNormalizer', () => {
       `;
     });
 
-    it('normalizes queries correctly', () => {
+    test('normalizes queries correctly', () => {
       const payload = {
         node: {
           id: '1',
@@ -479,7 +479,7 @@ describe('RelayResponseNormalizer', () => {
       ]);
     });
 
-    it('returns metadata with prefixed path', () => {
+    test('returns metadata with prefixed path', () => {
       const payload = {
         node: {
           id: '1',
@@ -559,7 +559,7 @@ describe('RelayResponseNormalizer', () => {
       ]);
     });
 
-    it('normalizes queries correctly when the resolved type does not match any of the specified cases', () => {
+    test('normalizes queries correctly when the resolved type does not match any of the specified cases', () => {
       const payload = {
         node: {
           id: '1',
@@ -603,7 +603,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('normalizes queries correctly when the @match field is null', () => {
+    test('normalizes queries correctly when the @match field is null', () => {
       const payload = {
         node: {
           id: '1',
@@ -679,7 +679,7 @@ describe('RelayResponseNormalizer', () => {
       `;
     });
 
-    it('normalizes queries and returns metadata when the type matches an @module selection', () => {
+    test('normalizes queries and returns metadata when the type matches an @module selection', () => {
       const payload = {
         node: {
           id: '1',
@@ -756,7 +756,7 @@ describe('RelayResponseNormalizer', () => {
       ]);
     });
 
-    it('returns metadata with prefixed path', () => {
+    test('returns metadata with prefixed path', () => {
       const payload = {
         node: {
           id: '1',
@@ -836,7 +836,7 @@ describe('RelayResponseNormalizer', () => {
       ]);
     });
 
-    it('normalizes queries correctly when the resolved type does not match any @module selections', () => {
+    test('normalizes queries correctly when the resolved type does not match any @module selections', () => {
       const payload = {
         node: {
           id: '1',
@@ -882,7 +882,7 @@ describe('RelayResponseNormalizer', () => {
   });
 
   describe('@defer', () => {
-    it('normalizes when if condition is false', () => {
+    test('normalizes when if condition is false', () => {
       graphql`
         fragment RelayResponseNormalizerTest2Fragment on User {
           id
@@ -935,7 +935,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('returns metadata when `if` is true (literal value)', () => {
+    test('returns metadata when `if` is true (literal value)', () => {
       graphql`
         fragment RelayResponseNormalizerTest3Fragment on User {
           id
@@ -997,7 +997,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('returns metadata when `if` is true (variable value)', () => {
+    test('returns metadata when `if` is true (variable value)', () => {
       graphql`
         fragment RelayResponseNormalizerTest4Fragment on User {
           id
@@ -1064,7 +1064,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('returns metadata for @defer within a plural', () => {
+    test('returns metadata for @defer within a plural', () => {
       graphql`
         fragment RelayResponseNormalizerTest5Fragment on User {
           name
@@ -1157,7 +1157,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('returns metadata with prefixed path', () => {
+    test('returns metadata with prefixed path', () => {
       graphql`
         fragment RelayResponseNormalizerTest6Fragment on User {
           id
@@ -1209,7 +1209,7 @@ describe('RelayResponseNormalizer', () => {
   });
 
   describe('@stream', () => {
-    it('normalizes when if condition is false', () => {
+    test('normalizes when if condition is false', () => {
       graphql`
         fragment RelayResponseNormalizerTest7Fragment on Feedback {
           id
@@ -1269,7 +1269,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('normalizes and returns metadata when `if` is true (literal value)', () => {
+    test('normalizes and returns metadata when `if` is true (literal value)', () => {
       graphql`
         fragment RelayResponseNormalizerTest8Fragment on Feedback {
           id
@@ -1335,7 +1335,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('normalizes and returns metadata when `if` is true (variable value)', () => {
+    test('normalizes and returns metadata when `if` is true (variable value)', () => {
       graphql`
         fragment RelayResponseNormalizerTest9Fragment on Feedback {
           id
@@ -1405,7 +1405,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('normalizes and returns metadata for @stream within a plural', () => {
+    test('normalizes and returns metadata for @stream within a plural', () => {
       graphql`
         fragment RelayResponseNormalizerTest10Fragment on Feedback {
           id
@@ -1494,7 +1494,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('returns metadata with prefixed path', () => {
+    test('returns metadata with prefixed path', () => {
       graphql`
         fragment RelayResponseNormalizerTest11Fragment on Feedback {
           id
@@ -1571,7 +1571,7 @@ describe('RelayResponseNormalizer', () => {
       },
     };
 
-    it('skips client fields not present in the payload but present in the store', () => {
+    test('skips client fields not present in the payload but present in the store', () => {
       const recordSource = new RelayRecordSource({
         '1': {
           __id: '1',
@@ -1628,7 +1628,7 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
     });
 
-    it('skips client fields not present in the payload or store', () => {
+    test('skips client fields not present in the payload or store', () => {
       const recordSource = new RelayRecordSource({
         '1': {
           __id: '1',
@@ -1680,7 +1680,7 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
     });
 
-    it('ignores linked client fields not present in the payload', () => {
+    test('ignores linked client fields not present in the payload', () => {
       const recordSource = new RelayRecordSource({
         '1': {
           __id: '1',
@@ -1762,7 +1762,7 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
     });
 
-    it('ignores linked client fields not present in the payload or store', () => {
+    test('ignores linked client fields not present in the payload or store', () => {
       const recordSource = new RelayRecordSource({
         '1': {
           __id: '1',
@@ -1896,7 +1896,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      it('overwrite fields in same position but with different data', () => {
+      test('overwrite fields in same position but with different data', () => {
         const Foo = graphql`
           query RelayResponseNormalizerTest16Query {
             me {
@@ -1973,7 +1973,7 @@ describe('RelayResponseNormalizer', () => {
         });
       });
 
-      it('overwrite fields in same position but with different data in second normalization', () => {
+      test('overwrite fields in same position but with different data in second normalization', () => {
         const Foo = graphql`
           query RelayResponseNormalizerTest17Query {
             me {
@@ -2054,7 +2054,7 @@ describe('RelayResponseNormalizer', () => {
         });
       });
 
-      it('stores user-defined id when function returns an string', () => {
+      test('stores user-defined id when function returns an string', () => {
         normalize(
           recordSource,
           createNormalizationSelector(BarQuery.operation, ROOT_ID, {
@@ -2091,7 +2091,7 @@ describe('RelayResponseNormalizer', () => {
         expect(getDataID).toBeCalledTimes(3);
       });
 
-      it('falls through to previously generated ID if function returns null ', () => {
+      test('falls through to previously generated ID if function returns null ', () => {
         const previousData = {
           'client:root': {
             __id: 'client:root',
@@ -2136,7 +2136,7 @@ describe('RelayResponseNormalizer', () => {
         expect(getNullAsDataID).toBeCalledTimes(3);
       });
 
-      it('falls through to generateClientID when the function returns null, and no previously generated ID', () => {
+      test('falls through to generateClientID when the function returns null, and no previously generated ID', () => {
         normalize(
           recordSource,
           createNormalizationSelector(BarQuery.operation, ROOT_ID, {
@@ -2212,7 +2212,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      it('stores user-defined ids when function returns an string', () => {
+      test('stores user-defined ids when function returns an string', () => {
         normalize(
           recordSource,
           createNormalizationSelector(BarQuery.operation, ROOT_ID, {
@@ -2251,7 +2251,7 @@ describe('RelayResponseNormalizer', () => {
         expect(getDataID).toBeCalledTimes(3);
       });
 
-      it('uses cached IDs if they were generated before and the function returns null', () => {
+      test('uses cached IDs if they were generated before and the function returns null', () => {
         const previousData = {
           'client:root': {
             __id: 'client:root',
@@ -2296,7 +2296,7 @@ describe('RelayResponseNormalizer', () => {
         expect(getNullAsDataID).toBeCalledTimes(3);
       });
 
-      it('falls through to generateClientID when the function returns null and there is one new field in stored plural links', () => {
+      test('falls through to generateClientID when the function returns null and there is one new field in stored plural links', () => {
         const data = {
           'client:root': {
             __id: 'client:root',
@@ -2348,7 +2348,7 @@ describe('RelayResponseNormalizer', () => {
         expect(getNullAsDataID).toBeCalledTimes(3);
       });
 
-      it('falls through to generateClientID when the function returns null and no previously generated IDs', () => {
+      test('falls through to generateClientID when the function returns null and no previously generated IDs', () => {
         normalize(
           recordSource,
           createNormalizationSelector(BarQuery.operation, ROOT_ID, {
@@ -2390,7 +2390,7 @@ describe('RelayResponseNormalizer', () => {
         expect(getNullAsDataID).toBeCalledTimes(3);
       });
 
-      it('overwrite fields in same position but with different data in second normalization', () => {
+      test('overwrite fields in same position but with different data in second normalization', () => {
         const Foo = graphql`
           query RelayResponseNormalizerTest19Query($id: ID) {
             node(id: $id) {
@@ -2485,7 +2485,7 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
-  it('normalize queries with provided variables', () => {
+  test('normalize queries with provided variables', () => {
     graphql`
       fragment RelayResponseNormalizerTest_pvFragment on User
       @argumentDefinitions(
@@ -2565,7 +2565,7 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
-  it('warns in __DEV__ if payload data is missing an expected field', () => {
+  test('warns in __DEV__ if payload data is missing an expected field', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest20Query($id: ID) {
         node(id: $id) {
@@ -2609,7 +2609,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('does not warn in __DEV__ if payload data is missing for an abstract field', () => {
+  test('does not warn in __DEV__ if payload data is missing for an abstract field', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest21Query {
         named {
@@ -2637,7 +2637,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('warns in __DEV__ if a single response contains conflicting fields with the same id', () => {
+  test('warns in __DEV__ if a single response contains conflicting fields with the same id', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest22Query($id: ID) {
         node(id: $id) {
@@ -2701,7 +2701,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('does not warn if a single response contains the same fields with the same id', () => {
+  test('does not warn if a single response contains the same fields with the same id', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest32Query($id: ID) {
         node(id: $id) {
@@ -2757,7 +2757,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('does not warn if a single response contains the same scalar array value', () => {
+  test('does not warn if a single response contains the same scalar array value', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest23Query($id: ID) {
         node(id: $id) {
@@ -2813,7 +2813,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('warns in __DEV__ if a single response contains conflicting fields with multiple same ids', () => {
+  test('warns in __DEV__ if a single response contains conflicting fields with multiple same ids', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest24Query($id: ID) {
         node(id: $id) {
@@ -2893,7 +2893,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('warns in __DEV__ if a single response contains conflicting linked fields', () => {
+  test('warns in __DEV__ if a single response contains conflicting linked fields', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest25Query($id: ID) {
         node(id: $id) {
@@ -2991,7 +2991,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('warns in __DEV__ if a single response contains conflicting linked fields with null values', () => {
+  test('warns in __DEV__ if a single response contains conflicting linked fields with null values', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest26Query($id: ID) {
         node(id: $id) {
@@ -3087,7 +3087,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('warns in __DEV__ if payload contains inconsistent types for a record', () => {
+  test('warns in __DEV__ if payload contains inconsistent types for a record', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest27Query($id: ID) {
         node(id: $id) {
@@ -3174,7 +3174,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('does not warn in __DEV__ on inconsistent types for a client record', () => {
+  test('does not warn in __DEV__ on inconsistent types for a client record', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest28Query($id: ID) {
         node(id: $id) {
@@ -3230,7 +3230,7 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
-  it('leaves undefined fields unset', () => {
+  test('leaves undefined fields unset', () => {
     const StrippedQuery = graphql`
       query RelayResponseNormalizerTest29Query($id: ID, $size: [Int]) {
         node(id: $id) {
@@ -3289,7 +3289,7 @@ describe('RelayResponseNormalizer', () => {
   });
 
   describe('when treatMissingFieldsAsNull is true', () => {
-    it('set undefined fields to null', () => {
+    test('set undefined fields to null', () => {
       const StrippedQuery = graphql`
         query RelayResponseNormalizerTest33Query($id: ID, $size: [Int]) {
           node(id: $id) {
@@ -3342,7 +3342,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('skips client fields not present in the payload but present in the store', () => {
+    test('skips client fields not present in the payload but present in the store', () => {
       const StrippedQuery = graphql`
         query RelayResponseNormalizerTest34Query($id: ID) {
           node(id: $id) {
@@ -3422,7 +3422,7 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
     });
 
-    it('does not warn if a single response contains the same fields with the same id', () => {
+    test('does not warn if a single response contains the same fields with the same id', () => {
       const BarQuery = graphql`
         query RelayResponseNormalizerTest35Query($id: ID) {
           node(id: $id) {
@@ -3504,7 +3504,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     });
 
-    it('should create client IDs for "falsy" values in payload', () => {
+    test('should create client IDs for "falsy" values in payload', () => {
       const queryPayload = {
         me: {
           __typename: 'User',
@@ -3545,7 +3545,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should create client IDs for "falsy" values in payload - same id', () => {
+    test('should create client IDs for "falsy" values in payload - same id', () => {
       const queryPayload = {
         me: {
           __typename: 'User',
@@ -3587,7 +3587,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should create client IDs for "falsy" values in payload for list', () => {
+    test('should create client IDs for "falsy" values in payload for list', () => {
       const queryPayload = {
         me: {
           __typename: 'User',
@@ -3680,7 +3680,7 @@ describe('RelayResponseNormalizer', () => {
       }
     `;
 
-    it('should normalize data for the same actor', () => {
+    test('should normalize data for the same actor', () => {
       const payload = {
         viewer: {
           __typename: 'Viewer',
@@ -3749,7 +3749,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should normalize data for different actors.', () => {
+    test('should normalize data for different actors.', () => {
       const payload = {
         viewer: {
           __typename: 'Viewer',
@@ -3817,7 +3817,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should normalize data for different actors with client ids.', () => {
+    test('should normalize data for different actors with client ids.', () => {
       const payload = {
         viewer: {
           __typename: 'Viewer',
@@ -3886,7 +3886,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should warn if `actor_key` is missing in the response', () => {
+    test('should warn if `actor_key` is missing in the response', () => {
       const payload = {
         viewer: {
           __typename: 'Viewer',
@@ -3946,7 +3946,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should warn if data with actor specific data is missing in the response', () => {
+    test('should warn if data with actor specific data is missing in the response', () => {
       const payload = {
         viewer: {
           __typename: 'Viewer',
@@ -3989,7 +3989,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should normalize fields with and without actor change', () => {
+    test('should normalize fields with and without actor change', () => {
       const queryWithAlias = graphql`
         query RelayResponseNormalizerTestActorChangeWithAliasQuery {
           viewer {
@@ -4080,7 +4080,7 @@ describe('RelayResponseNormalizer', () => {
         },
       });
     });
-    it('records which concrete types implement which client schema extension interfaces', () => {
+    test('records which concrete types implement which client schema extension interfaces', () => {
       graphql`
         fragment RelayResponseNormalizerTestClientInterfaceFragment on ClientInterface {
           description

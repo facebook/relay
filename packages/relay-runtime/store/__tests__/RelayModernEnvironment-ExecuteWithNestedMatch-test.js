@@ -169,7 +169,7 @@ describe('execute() a query with nested @match', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  test('calls next() and publishes the initial payload to the store', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -247,7 +247,7 @@ describe('execute() a query with nested @match', () => {
     });
   });
 
-  it('loads the @match fragments and normalizes/publishes payloads', () => {
+  test('loads the @match fragments and normalizes/publishes payloads', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -368,7 +368,7 @@ describe('execute() a query with nested @match', () => {
     });
   });
 
-  it('calls complete() if the network completes before processing the match', () => {
+  test('calls complete() if the network completes before processing the match', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -436,7 +436,7 @@ describe('execute() a query with nested @match', () => {
     expect(callbacks.next).toBeCalledTimes(1);
   });
 
-  it('calls complete() if the network completes after processing the match', () => {
+  test('calls complete() if the network completes after processing the match', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -504,7 +504,7 @@ describe('execute() a query with nested @match', () => {
     expect(callbacks.next).toBeCalledTimes(1);
   });
 
-  it('calls error() if processing a nested match payload throws', () => {
+  test('calls error() if processing a nested match payload throws', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -563,7 +563,7 @@ describe('execute() a query with nested @match', () => {
     );
   });
 
-  it('cancels @match processing if unsubscribed before top-level match resolves', () => {
+  test('cancels @match processing if unsubscribed before top-level match resolves', () => {
     const subscription = environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -635,7 +635,7 @@ describe('execute() a query with nested @match', () => {
     });
   });
 
-  it('cancels @match processing if unsubscribed before inner match resolves', () => {
+  test('cancels @match processing if unsubscribed before inner match resolves', () => {
     const subscription = environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {

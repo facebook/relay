@@ -158,12 +158,12 @@ describe('ReactRelayFragmentContainer', () => {
     });
   });
 
-  it('generates a name for containers', () => {
+  test('generates a name for containers', () => {
     expect(TestContainer.$$typeof).toBe(Symbol.for('react.forward_ref'));
     expect(TestContainer.render.displayName).toBe('Relay(TestComponent)');
   });
 
-  it('throws for invalid fragment set', () => {
+  test('throws for invalid fragment set', () => {
     expect(() => {
       ReactRelayFragmentContainer.createContainer(TestComponent, 'a string');
     }).toThrowError(
@@ -172,7 +172,7 @@ describe('ReactRelayFragmentContainer', () => {
     );
   });
 
-  it('throws for invalid fragments', () => {
+  test('throws for invalid fragments', () => {
     expect(() => {
       ReactRelayFragmentContainer.createContainer(TestComponent, {
         foo: null,
@@ -184,7 +184,7 @@ describe('ReactRelayFragmentContainer', () => {
     );
   });
 
-  it('does not throw when fragments are in modern mode', () => {
+  test('does not throw when fragments are in modern mode', () => {
     expect(() => {
       ReactRelayFragmentContainer.createContainer(TestComponent, {
         foo: {kind: 'Fragment'},
@@ -192,7 +192,7 @@ describe('ReactRelayFragmentContainer', () => {
     }).not.toThrow();
   });
 
-  it('passes non-fragment props to the component', () => {
+  test('passes non-fragment props to the component', () => {
     expectToWarn(
       'createFragmentSpecResolver: Expected prop `user` to be supplied to `Relay(TestComponent)`, but got `undefined`. Pass an explicit `null` if this is intentional.',
       () => {
@@ -216,7 +216,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe.mock.calls.length).toBe(0);
   });
 
-  it('passes through null props', () => {
+  test('passes through null props', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment}>
         <TestContainer user={null} />
@@ -234,7 +234,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe.mock.calls.length).toBe(0);
   });
 
-  it('resolves & subscribes fragment props', () => {
+  test('resolves & subscribes fragment props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
@@ -276,7 +276,7 @@ describe('ReactRelayFragmentContainer', () => {
     });
   });
 
-  it('re-renders on subscription callback', () => {
+  test('re-renders on subscription callback', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
@@ -318,7 +318,7 @@ describe('ReactRelayFragmentContainer', () => {
     });
   });
 
-  it('resolves new props', () => {
+  test('resolves new props', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -368,7 +368,7 @@ describe('ReactRelayFragmentContainer', () => {
     });
   });
 
-  it('resolves new props when ids dont change', () => {
+  test('resolves new props when ids dont change', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -421,7 +421,7 @@ describe('ReactRelayFragmentContainer', () => {
     });
   });
 
-  it('does not update for same props/data', () => {
+  test('does not update for same props/data', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -442,7 +442,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('does not update for equal scalar props', () => {
+  test('does not update for equal scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const scalar = 42;
@@ -468,7 +468,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('updates for unequal function props', () => {
+  test('updates for unequal function props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const scalar = 42;
@@ -499,7 +499,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('updates for unequal scalar props', () => {
+  test('updates for unequal scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const scalar = 42;
@@ -529,7 +529,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('always updates for non-scalar props', () => {
+  test('always updates for non-scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -573,7 +573,7 @@ describe('ReactRelayFragmentContainer', () => {
     );
   });
 
-  it('does not proxy instance methods', () => {
+  test('does not proxy instance methods', () => {
     class TestNoProxy extends React.Component {
       render() {
         return <div />;
@@ -613,7 +613,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(() => containerRef.instanceMethod('foo')).toThrow();
   });
 
-  it('can be unwrapped in tests', () => {
+  test('can be unwrapped in tests', () => {
     class TestUnwrapping extends React.Component {
       render() {
         return <div>Unwrapped</div>;
@@ -663,7 +663,7 @@ describe('ReactRelayFragmentContainer', () => {
       expect(actualYields).toEqual(expectedYields);
     }
 
-    it('upon commit, it should pick up changes in data that happened before comitting', () => {
+    test('upon commit, it should pick up changes in data that happened before comitting', () => {
       const Scheduler = require('scheduler');
       const YieldChild = props => {
         Scheduler.log(props.children);

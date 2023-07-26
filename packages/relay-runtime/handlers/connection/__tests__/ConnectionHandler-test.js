@@ -115,13 +115,13 @@ describe('ConnectionHandler', () => {
   });
 
   describe('getConnectionID()', () => {
-    it('returns the connection ID when no filters are specified', () => {
+    test('returns the connection ID when no filters are specified', () => {
       expect(
         ConnectionHandler.getConnectionID('4', 'ConnectionQuery_friends'),
       ).toBe('client:4:__ConnectionQuery_friends_connection');
     });
 
-    it('returns the connection ID when filters are specified', () => {
+    test('returns the connection ID when filters are specified', () => {
       expect(
         ConnectionHandler.getConnectionID('4', 'ConnectionQuery_friends', {
           orderby: ['first name'],
@@ -203,7 +203,7 @@ describe('ConnectionHandler', () => {
       newEdge.setValue('cursor:newedge', 'edge');
     });
 
-    it('creates the edges array if it does not exist', () => {
+    test('creates the edges array if it does not exist', () => {
       connection = proxy.create('connection', 'FriendsConnection');
       ConnectionHandler.insertEdgeAfter(connection, newEdge);
       expect(sinkSource.toJSON().connection).toEqual({
@@ -215,7 +215,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('appends the edge if no cursor is supplied', () => {
+    test('appends the edge if no cursor is supplied', () => {
       ConnectionHandler.insertEdgeAfter(connection, newEdge);
       expect(sinkSource.toJSON()[connectionID]).toEqual({
         [ID_KEY]: connectionID,
@@ -230,7 +230,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('appends the edge if the cursor is not found', () => {
+    test('appends the edge if the cursor is not found', () => {
       ConnectionHandler.insertEdgeAfter(connection, newEdge, 'bad-cursor');
       expect(sinkSource.toJSON()[connectionID]).toEqual({
         [ID_KEY]: connectionID,
@@ -245,7 +245,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('inserts the edge after the edge with the given cursor', () => {
+    test('inserts the edge after the edge with the given cursor', () => {
       ConnectionHandler.insertEdgeAfter(connection, newEdge, 'cursor:1');
       expect(sinkSource.toJSON()[connectionID]).toEqual({
         [ID_KEY]: connectionID,
@@ -332,7 +332,7 @@ describe('ConnectionHandler', () => {
       newEdge.setValue('cursor:newedge', 'edge');
     });
 
-    it('creates the edges array if it does not exist', () => {
+    test('creates the edges array if it does not exist', () => {
       connection = proxy.create('connection', 'FriendsConnection');
       ConnectionHandler.insertEdgeBefore(connection, newEdge);
       expect(sinkSource.toJSON().connection).toEqual({
@@ -344,7 +344,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('prepends the edge if no cursor is supplied', () => {
+    test('prepends the edge if no cursor is supplied', () => {
       ConnectionHandler.insertEdgeBefore(connection, newEdge);
       expect(sinkSource.toJSON()[connectionID]).toEqual({
         [ID_KEY]: connectionID,
@@ -359,7 +359,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('prepends the edge if the cursor is not found', () => {
+    test('prepends the edge if the cursor is not found', () => {
       ConnectionHandler.insertEdgeBefore(connection, newEdge, 'bad-cursor');
       expect(sinkSource.toJSON()[connectionID]).toEqual({
         [ID_KEY]: connectionID,
@@ -374,7 +374,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('inserts the edge before the edge with the given cursor', () => {
+    test('inserts the edge before the edge with the given cursor', () => {
       ConnectionHandler.insertEdgeBefore(connection, newEdge, 'cursor:2');
       expect(sinkSource.toJSON()[connectionID]).toEqual({
         [ID_KEY]: connectionID,
@@ -458,12 +458,12 @@ describe('ConnectionHandler', () => {
       connectionID = connection.getDataID();
     });
 
-    it('does nothing if the node is not found', () => {
+    test('does nothing if the node is not found', () => {
       ConnectionHandler.deleteNode(connection, '<not-in-connection>');
       expect(sinkSource.toJSON()).toEqual({});
     });
 
-    it('deletes the matching edge from the connection', () => {
+    test('deletes the matching edge from the connection', () => {
       ConnectionHandler.deleteNode(connection, '1');
       expect(baseSource.toJSON()[connectionID].edges[REFS_KEY]).toEqual([
         'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
@@ -484,7 +484,7 @@ describe('ConnectionHandler', () => {
   });
 
   describe('update()', () => {
-    it('does nothing if the payload record does not exist', () => {
+    test('does nothing if the payload record does not exist', () => {
       const payload = {
         dataID: 'unfetched',
         fieldKey: 'friends',
@@ -494,7 +494,7 @@ describe('ConnectionHandler', () => {
       expect(sinkSource.toJSON()).toEqual({});
     });
 
-    it('sets the handle as deleted if the server record is null', () => {
+    test('sets the handle as deleted if the server record is null', () => {
       const baseData = baseSource.toJSON();
       // link to a deleted record
       baseData[ROOT_ID].friends = {[REF_KEY]: 'friends'};
@@ -515,7 +515,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('sets the handle as deleted if the server record is undefined', () => {
+    test('sets the handle as deleted if the server record is undefined', () => {
       const baseData = baseSource.toJSON();
       // link to an unfetched record
       baseData[ROOT_ID].friends = {[REF_KEY]: 'friends'};
@@ -536,7 +536,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('creates a client connection with initial server data', () => {
+    test('creates a client connection with initial server data', () => {
       normalize(
         {
           node: {
@@ -626,7 +626,7 @@ describe('ConnectionHandler', () => {
       });
     });
 
-    it('populates default values for page info', () => {
+    test('populates default values for page info', () => {
       normalize(
         {
           node: {
@@ -765,7 +765,7 @@ describe('ConnectionHandler', () => {
         proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
       });
 
-      it('appends new edges', () => {
+      test('appends new edges', () => {
         normalize(
           {
             node: {
@@ -848,7 +848,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('appends two streamed edges, which have been streamed before and know their end cursors', () => {
+      test('appends two streamed edges, which have been streamed before and know their end cursors', () => {
         // First edge
         normalize(
           {
@@ -1032,7 +1032,7 @@ describe('ConnectionHandler', () => {
         expect(sinkSource.toJSON()).toEqual(result);
       });
 
-      it('prepends new edges', () => {
+      test('prepends new edges', () => {
         normalize(
           {
             node: {
@@ -1115,7 +1115,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('resets the connection for head loads (no after/before args)', () => {
+      test('resets the connection for head loads (no after/before args)', () => {
         normalize(
           {
             node: {
@@ -1199,7 +1199,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('appends new edges with null cursors', () => {
+      test('appends new edges with null cursors', () => {
         normalize(
           {
             node: {
@@ -1282,7 +1282,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('updates the end cursor using server page info', () => {
+      test('updates the end cursor using server page info', () => {
         normalize(
           {
             node: {
@@ -1365,7 +1365,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('ignores null end cursors', () => {
+      test('ignores null end cursors', () => {
         normalize(
           {
             node: {
@@ -1431,7 +1431,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('skips edges with duplicate node data id (server `id`)', () => {
+      test('skips edges with duplicate node data id (server `id`)', () => {
         normalize(
           {
             node: {
@@ -1529,7 +1529,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('skips edges with duplicate node data id (client ids)', () => {
+      test('skips edges with duplicate node data id (client ids)', () => {
         normalize(
           {
             node: {
@@ -1637,7 +1637,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('adds edges with duplicate cursors', () => {
+      test('adds edges with duplicate cursors', () => {
         normalize(
           {
             node: {
@@ -1735,7 +1735,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('skips backward pagination payloads with unknown cursors', () => {
+      test('skips backward pagination payloads with unknown cursors', () => {
         normalize(
           {
             node: {
@@ -1815,7 +1815,7 @@ describe('ConnectionHandler', () => {
         });
       });
 
-      it('skips forward pagination payloads with unknown cursors', () => {
+      test('skips forward pagination payloads with unknown cursors', () => {
         normalize(
           {
             node: {
@@ -1893,7 +1893,7 @@ describe('ConnectionHandler', () => {
           // page info unchanged
         });
       });
-      it('updates fields on connection', () => {
+      test('updates fields on connection', () => {
         normalize(
           {
             node: {

@@ -69,7 +69,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     warning.mockClear();
   });
 
-  it('unsubscribes and re-subscribes to fragment when effects are double invoked', () => {
+  test('unsubscribes and re-subscribes to fragment when effects are double invoked', () => {
     // $FlowFixMe[prop-missing]
     warning.mockClear();
 

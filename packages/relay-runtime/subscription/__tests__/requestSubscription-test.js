@@ -30,7 +30,7 @@ const requestSubscription = require('../requestSubscription');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('requestSubscription-test', () => {
-  it('Config: `RANGE_ADD`', () => {
+  test('Config: `RANGE_ADD`', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
 
@@ -247,7 +247,7 @@ describe('requestSubscription-test', () => {
       });
     });
 
-    it('with cacheConfig', () => {
+    test('with cacheConfig', () => {
       requestSubscription(environment, {
         subscription: CommentCreateSubscription,
         variables,
@@ -259,7 +259,7 @@ describe('requestSubscription-test', () => {
       expect(cacheMetadata).toEqual(metadata);
     });
 
-    it('without cacheConfig', () => {
+    test('without cacheConfig', () => {
       requestSubscription(environment, {
         subscription: CommentCreateSubscription,
         variables,
@@ -269,7 +269,7 @@ describe('requestSubscription-test', () => {
     });
   });
 
-  it('does not overwrite existing data', () => {
+  test('does not overwrite existing data', () => {
     const ConfigsQuery = graphql`
       query requestSubscriptionTestConfigsQuery {
         viewer {
@@ -429,7 +429,7 @@ describe('requestSubscription-test', () => {
     });
   });
 
-  it('reads the data using the correct rootID in onNext when resources are resolved synchronously', () => {
+  test('reads the data using the correct rootID in onNext when resources are resolved synchronously', () => {
     const normalization = require('./__generated__/requestSubscriptionTestPlainUserNameRenderer_name$normalization.graphql');
     const subscription = graphql`
       subscription requestSubscriptionTestSubscription(

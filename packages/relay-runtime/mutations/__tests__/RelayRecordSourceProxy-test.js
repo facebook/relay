@@ -83,15 +83,15 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('get()', () => {
-    it('returns undefined for unfetched records', () => {
+    test('returns undefined for unfetched records', () => {
       expect(store.get('unfetched')).toBe(undefined);
     });
 
-    it('returns null for deleted records', () => {
+    test('returns null for deleted records', () => {
       expect(store.get('deleted')).toBe(null);
     });
 
-    it('returns a writer for defined records', () => {
+    test('returns a writer for defined records', () => {
       const record = store.get('4');
       if (record == null) {
         throw new Error('Exepcted to find record with id 4');
@@ -100,23 +100,23 @@ describe('RelayRecordSourceProxy', () => {
       expect(record instanceof RelayRecordProxy).toBe(true);
     });
 
-    it('returns the same writer for the same id', () => {
+    test('returns the same writer for the same id', () => {
       expect(store.get('4')).toBe(store.get('4'));
     });
   });
 
   describe('getRoot()', () => {
-    it('returns a writer for the root', () => {
+    test('returns a writer for the root', () => {
       const root = store.getRoot();
       expect(root instanceof RelayRecordProxy).toBe(true);
       expect(root.getDataID()).toBe(ROOT_ID);
     });
 
-    it('returns the same root writer', () => {
+    test('returns the same root writer', () => {
       expect(store.getRoot()).toBe(store.getRoot());
     });
 
-    it('synthesizes a root if it does not exist', () => {
+    test('synthesizes a root if it does not exist', () => {
       baseSource.remove(ROOT_ID);
       sinkSource.remove(ROOT_ID);
       const root = store.getRoot();
@@ -128,7 +128,7 @@ describe('RelayRecordSourceProxy', () => {
       });
     });
 
-    it('throws if the root is of a different type', () => {
+    test('throws if the root is of a different type', () => {
       const root = baseSource.get(ROOT_ID);
       expect(root).not.toBeUndefined();
       if (root != null) {
@@ -144,22 +144,22 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('delete()', () => {
-    it('deletes records that are in the source', () => {
+    test('deletes records that are in the source', () => {
       store.delete('4');
       expect(sinkSource.toJSON()['4']).toBe(null);
     });
 
-    it('marks unknown records as deleted', () => {
+    test('marks unknown records as deleted', () => {
       store.delete('unfetched');
       expect(sinkSource.toJSON().unfetched).toBe(null);
     });
 
-    it('get() returns null for deleted records', () => {
+    test('get() returns null for deleted records', () => {
       store.delete('4');
       expect(store.get('4')).toBe(null);
     });
 
-    it('throws if the root is deleted', () => {
+    test('throws if the root is deleted', () => {
       expect(() => store.delete(ROOT_ID)).toThrowError(
         'RelayRecordSourceProxy#delete(): Cannot delete the root record.',
       );
@@ -167,7 +167,7 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('copyFields()', () => {
-    it('copies fields', () => {
+    test('copies fields', () => {
       const sf = store.get('sf');
       const mpk = store.get('mpk');
       if (sf == null) {
@@ -188,7 +188,7 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('create()', () => {
-    it('creates a record writer with the id and type', () => {
+    test('creates a record writer with the id and type', () => {
       const joe = store.create('842472', 'User');
       expect(joe instanceof RelayRecordProxy).toBe(true);
       expect(store.get('842472')).toBe(joe);
@@ -200,7 +200,7 @@ describe('RelayRecordSourceProxy', () => {
       });
     });
 
-    it('creates records that were previously deleted', () => {
+    test('creates records that were previously deleted', () => {
       // Prime the RecordProxy cache
       let zombie = store.get('deleted');
       expect(zombie).toBe(null);
@@ -209,7 +209,7 @@ describe('RelayRecordSourceProxy', () => {
       expect(store.get('deleted')).toBe(zombie);
     });
 
-    it('throws if a duplicate record is created', () => {
+    test('throws if a duplicate record is created', () => {
       expect(() => {
         store.create('4', 'User');
       }).toThrowError(
@@ -220,7 +220,7 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('setValue()', () => {
-    it('sets a scalar value', () => {
+    test('sets a scalar value', () => {
       const user = store.create('c1', 'User');
 
       user.setValue('Jan', 'firstName');
@@ -230,7 +230,7 @@ describe('RelayRecordSourceProxy', () => {
       expect(user.getValue('firstName')).toBe(null);
     });
 
-    it('sets an array of scalars', () => {
+    test('sets an array of scalars', () => {
       const user = store.create('c1', 'User');
 
       user.setValue(['a@example.com', 'b@example.com'], 'emailAddresses');
@@ -243,7 +243,7 @@ describe('RelayRecordSourceProxy', () => {
       expect(user.getValue('emailAddresses')).toEqual(['c@example.com']);
     });
 
-    it('throws if a complex object is written', () => {
+    test('throws if a complex object is written', () => {
       const user = store.create('c1', 'User');
 
       expect(() => {
@@ -256,7 +256,7 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('getLinkedRecord and getLinkedRecords', () => {
-    it('throws if singular/plural is wrong', () => {
+    test('throws if singular/plural is wrong', () => {
       const zuck = store.get('4');
       if (zuck == null) {
         throw new Error('Exepcted to find record with id 4');
@@ -273,7 +273,7 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('getOrCreateLinkedRecord', () => {
-    it('retrieves a record if it already exists', () => {
+    test('retrieves a record if it already exists', () => {
       const zuck = store.get('4');
       if (zuck == null) {
         throw new Error('Exepcted to find record with id 4');
@@ -283,7 +283,7 @@ describe('RelayRecordSourceProxy', () => {
       ).toBe('Menlo Park');
     });
 
-    it('creates a record if it does not already exist', () => {
+    test('creates a record if it does not already exist', () => {
       const greg = store.get('660361306');
       if (greg == null) {
         throw new Error('Exepcted to find record with id 6603613064');
@@ -299,7 +299,7 @@ describe('RelayRecordSourceProxy', () => {
       ).toBe('Adelaide');
     });
 
-    it('links to existing client records if the field was unset', () => {
+    test('links to existing client records if the field was unset', () => {
       const greg = store.get('660361306');
       if (greg == null) {
         throw new Error('Exepcted to find record with id 6603613064');
@@ -321,12 +321,12 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('record invalidation', () => {
-    it('correctly marks store as invalid', () => {
+    test('correctly marks store as invalid', () => {
       store.invalidateStore();
       expect(store.isStoreMarkedForInvalidation()).toBe(true);
     });
 
-    it('correctly marks individual records invalid', () => {
+    test('correctly marks individual records invalid', () => {
       const user = store.create('c1', 'User');
 
       user.invalidateRecord();
@@ -352,7 +352,7 @@ describe('RelayRecordSourceProxy', () => {
     });
   });
 
-  it('combines operations', () => {
+  test('combines operations', () => {
     const mark = store.get('4');
     if (mark == null) {
       throw new Error('Exepcted to find record with id 4');

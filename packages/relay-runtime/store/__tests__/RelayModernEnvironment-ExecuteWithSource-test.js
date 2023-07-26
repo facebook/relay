@@ -106,14 +106,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         fetchSource = RelayObservable.create(fetchSourceMock);
       });
 
-      it('subscribes to source', () => {
+      test('subscribes to source', () => {
         environment
           .executeWithSource({operation, source: fetchSource})
           .subscribe(callbacks);
         expect(fetchSourceMock.mock.calls.length).toBe(1);
       });
 
-      it('calls next() when payloads return', () => {
+      test('calls next() when payloads return', () => {
         environment
           .executeWithSource({operation, source: fetchSource})
           .subscribe(callbacks);
@@ -143,7 +143,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
       });
 
-      it('calls complete() when the network request completes', () => {
+      test('calls complete() when the network request completes', () => {
         environment
           .executeWithSource({operation, source: fetchSource})
           .subscribe(callbacks);
@@ -153,7 +153,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next).not.toBeCalled();
       });
 
-      it('calls error() when the network has an error', () => {
+      test('calls error() when the network has an error', () => {
         environment
           .executeWithSource({operation, source: fetchSource})
           .subscribe(callbacks);
@@ -166,7 +166,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next.mock.calls.length).toBe(0);
       });
 
-      it('calls next() and publishes payloads to the store', () => {
+      test('calls next() and publishes payloads to the store', () => {
         const selector = createReaderSelector(
           query.fragment,
           ROOT_ID,

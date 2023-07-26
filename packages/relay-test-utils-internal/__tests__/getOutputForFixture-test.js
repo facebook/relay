@@ -14,7 +14,7 @@
 const getOutputForFixture = require('../getOutputForFixture');
 
 describe('getOutputForFixture', () => {
-  it('should throw when there is #expected-to-throw but operation succeeded', () => {
+  test('should throw when there is #expected-to-throw but operation succeeded', () => {
     const RESULT_STRING = 'SUCCESS_STRING';
     expect(() => {
       getOutputForFixture(
@@ -27,7 +27,7 @@ describe('getOutputForFixture', () => {
     );
   });
 
-  it('should throw when there is no #expected-to-throw but operation failed', () => {
+  test('should throw when there is no #expected-to-throw but operation failed', () => {
     expect(() => {
       getOutputForFixture(
         'fragment tnemgarf{}',
@@ -39,7 +39,7 @@ describe('getOutputForFixture', () => {
     }).toThrow('my error');
   });
 
-  it('should pass when there is #expected-to-throw and operation failed', () => {
+  test('should pass when there is #expected-to-throw and operation failed', () => {
     const RESULT_STRING = 'ERROR_STRING';
     const output = getOutputForFixture(
       '# expected-to-throw\n query{}',
@@ -51,7 +51,7 @@ describe('getOutputForFixture', () => {
     expect(output).toEqual(`THROWN EXCEPTION:\n\nError: ${RESULT_STRING}`);
   });
 
-  it('should pass when there is no expected-to-throw and operation succeeded', () => {
+  test('should pass when there is no expected-to-throw and operation succeeded', () => {
     const RESULT_STRING = 'SUCCESS_STRING';
     const output = getOutputForFixture(
       'fragment tnemgarf{}',

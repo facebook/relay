@@ -153,7 +153,7 @@ describe('check()', () => {
     `;
   });
 
-  it('reads query data', () => {
+  test('reads query data', () => {
     const source = RelayRecordSource.create(sampleData);
     const target = RelayRecordSource.create();
     const status = check(
@@ -175,7 +175,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads fragment data', () => {
+  test('reads fragment data', () => {
     const data = {
       '1': {
         __id: '1',
@@ -249,7 +249,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads handle fields in fragment', () => {
+  test('reads handle fields in fragment', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
     const data = {
       '1': {
@@ -295,7 +295,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads handle fields in fragment and checks missing', () => {
+  test('reads handle fields in fragment and checks missing', () => {
     const data = {
       '1': {
         __id: '1',
@@ -340,7 +340,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads handle fields in fragment and checks missing sub field', () => {
+  test('reads handle fields in fragment and checks missing sub field', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
     const data = {
       '1': {
@@ -386,7 +386,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads handle fields in operation', () => {
+  test('reads handle fields in operation', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
     const data = {
       'client:root': {
@@ -446,7 +446,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads handle fields in operation and checks missing', () => {
+  test('reads handle fields in operation and checks missing', () => {
     const data = {
       'client:root': {
         __id: 'client:root',
@@ -504,7 +504,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads handle fields in operation and checks missing sub field', () => {
+  test('reads handle fields in operation and checks missing sub field', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
     const data = {
       'client:root': {
@@ -563,7 +563,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads scalar handle fields in operation and checks presence', () => {
+  test('reads scalar handle fields in operation and checks presence', () => {
     const handleKey = getRelayHandleKey('test', null, 'uri');
     const data = {
       'client:root': {
@@ -617,7 +617,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  it('reads scalar handle fields in operation and checks missing', () => {
+  test('reads scalar handle fields in operation and checks missing', () => {
     const data = {
       'client:root': {
         __id: 'client:root',
@@ -727,7 +727,7 @@ describe('check()', () => {
       };
     });
 
-    it('returns true when the match field/record exist and match a supported type (plaintext)', () => {
+    test('returns true when the match field/record exist and match a supported type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
         '1': {
@@ -788,7 +788,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns true when the match field/record exist and match a supported type (markdown)', () => {
+    test('returns true when the match field/record exist and match a supported type (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
       const storeData = {
         '1': {
@@ -845,7 +845,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when the match field/record exist but the matched fragment has not been processed', () => {
+    test('returns false when the match field/record exist but the matched fragment has not been processed', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
@@ -898,7 +898,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when the match field/record exist but a scalar field is missing', () => {
+    test('returns false when the match field/record exist but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
       const storeData = {
         '1': {
@@ -952,7 +952,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when the match field/record exist but a linked field is missing', () => {
+    test('returns false when the match field/record exist but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
       const storeData = {
         '1': {
@@ -1000,7 +1000,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns true when the match field/record exist but do not match a supported type', () => {
+    test('returns true when the match field/record exist but do not match a supported type', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1045,7 +1045,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns true when the match field is non-existent (null)', () => {
+    test('returns true when the match field is non-existent (null)', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1083,7 +1083,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when the match field is not fetched (undefined)', () => {
+    test('returns false when the match field is not fetched (undefined)', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1177,7 +1177,7 @@ describe('check()', () => {
       };
     });
 
-    it('returns true when the field/record exists and matches the @module type (plaintext)', () => {
+    test('returns true when the field/record exists and matches the @module type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
         '1': {
@@ -1238,7 +1238,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns true when the field/record exist and matches the @module type (markdown)', () => {
+    test('returns true when the field/record exist and matches the @module type (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
       const storeData = {
         '1': {
@@ -1295,7 +1295,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when the field/record exist but the @module fragment has not been processed', () => {
+    test('returns false when the field/record exist but the @module fragment has not been processed', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
@@ -1348,7 +1348,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when the field/record exists but a scalar field is missing', () => {
+    test('returns false when the field/record exists but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
       const storeData = {
         '1': {
@@ -1402,7 +1402,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when the field/record exists but a linked field is missing', () => {
+    test('returns false when the field/record exists but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
       const storeData = {
         '1': {
@@ -1450,7 +1450,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns true when the field/record exists but does not match any @module selection', () => {
+    test('returns true when the field/record exists but does not match any @module selection', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1514,7 +1514,7 @@ describe('check()', () => {
       `;
     });
 
-    it('returns true when deferred selections are fetched', () => {
+    test('returns true when deferred selections are fetched', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1550,7 +1550,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when deferred selections are not fetched', () => {
+    test('returns false when deferred selections are not fetched', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1606,7 +1606,7 @@ describe('check()', () => {
       `;
     });
 
-    it('returns true when streamed selections are fetched', () => {
+    test('returns true when streamed selections are fetched', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1648,7 +1648,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when streamed selections are not fetched', () => {
+    test('returns false when streamed selections are not fetched', () => {
       const storeData = {
         '1': {
           __id: '1',
@@ -1692,7 +1692,7 @@ describe('check()', () => {
   });
 
   describe('when the data is complete', () => {
-    it('returns available', () => {
+    test('returns available', () => {
       const source = RelayRecordSource.create(sampleData);
       const target = RelayRecordSource.create();
       const status = check(
@@ -1716,7 +1716,7 @@ describe('check()', () => {
   });
 
   describe('when some data is missing', () => {
-    it('returns missing on missing records', () => {
+    test('returns missing on missing records', () => {
       const data = {
         '1': {
           __id: '1',
@@ -1755,7 +1755,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns missing on missing fields', () => {
+    test('returns missing on missing fields', () => {
       const data = {
         '1': {
           __id: '1',
@@ -1797,7 +1797,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('allows handlers to supplement missing scalar fields', () => {
+    test('allows handlers to supplement missing scalar fields', () => {
       const data = {
         '1': {
           __id: '1',
@@ -2137,7 +2137,7 @@ describe('check()', () => {
       },
     );
 
-    it('returns modified records with the target', () => {
+    test('returns modified records with the target', () => {
       const data = {
         '1': {
           __id: '1',
@@ -2212,7 +2212,7 @@ describe('check()', () => {
       });
     });
 
-    it('returns available even when client field is missing', () => {
+    test('returns available even when client field is missing', () => {
       const data = {
         '1': {
           __id: '1',
@@ -2280,7 +2280,7 @@ describe('check()', () => {
 
   describe('when individual records have been invalidated', () => {
     describe('when data is complete', () => {
-      it('returns correct invalidation epoch in result when record was invalidated', () => {
+      test('returns correct invalidation epoch in result when record was invalidated', () => {
         const source = RelayRecordSource.create(sampleData);
         const target = RelayRecordSource.create();
         const environment = createMockEnvironment({
@@ -2317,7 +2317,7 @@ describe('check()', () => {
         expect(target.size()).toBe(0);
       });
 
-      it('returns correct invalidation epoch in result when multiple records invalidated at different times', () => {
+      test('returns correct invalidation epoch in result when multiple records invalidated at different times', () => {
         const source = RelayRecordSource.create(sampleData);
         const target = RelayRecordSource.create();
         const environment = createMockEnvironment({
@@ -2397,7 +2397,7 @@ describe('check()', () => {
         };
       });
 
-      it('returns correct invalidation epoch in result when record was invalidated', () => {
+      test('returns correct invalidation epoch in result when record was invalidated', () => {
         const source = RelayRecordSource.create(sampleData);
         const target = RelayRecordSource.create();
         const environment = createMockEnvironment({
@@ -2434,7 +2434,7 @@ describe('check()', () => {
         expect(target.size()).toBe(0);
       });
 
-      it('returns correct invalidation epoch in result when multiple records invalidated at different times', () => {
+      test('returns correct invalidation epoch in result when multiple records invalidated at different times', () => {
         const source = RelayRecordSource.create(sampleData);
         const target = RelayRecordSource.create();
         const environment = createMockEnvironment({
@@ -2500,7 +2500,7 @@ describe('check()', () => {
         expect(target.size()).toBe(0);
       });
 
-      it('returns null invalidation epoch when stale record is unreachable', () => {
+      test('returns null invalidation epoch when stale record is unreachable', () => {
         // $FlowFixMe[prop-missing]
         sampleData = {
           // Root record is missing, so none of the descendants are reachable
@@ -2564,7 +2564,7 @@ describe('check()', () => {
     });
   });
 
-  it('returns false when a Node record is missing an id', () => {
+  test('returns false when a Node record is missing an id', () => {
     const TestFragment = graphql`
       fragment DataCheckerTest16Fragment on Query {
         maybeNodeInterface {
@@ -2616,7 +2616,7 @@ describe('check()', () => {
   });
 
   describe('precise type refinement', () => {
-    it('returns `missing` when a Node record is missing an id', () => {
+    test('returns `missing` when a Node record is missing an id', () => {
       const TestFragment = graphql`
         fragment DataCheckerTest17Fragment on Query {
           maybeNodeInterface {
@@ -2671,7 +2671,7 @@ describe('check()', () => {
       });
       expect(target.size()).toBe(0);
     });
-    it('returns `missing` when an abstract refinement is only missing the discriminator field', () => {
+    test('returns `missing` when an abstract refinement is only missing the discriminator field', () => {
       const TestFragment = graphql`
         fragment DataCheckerTest18Fragment on Query {
           maybeNodeInterface {
@@ -2727,7 +2727,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('returns `available` when a record is only missing fields in non-implemented interfaces', () => {
+    test('returns `available` when a record is only missing fields in non-implemented interfaces', () => {
       const TestFragment = graphql`
         fragment DataCheckerTest19Fragment on Query {
           maybeNodeInterface {
@@ -2809,7 +2809,7 @@ describe('check()', () => {
       `;
     });
 
-    it('should be able to handle multi-actor stores', () => {
+    test('should be able to handle multi-actor stores', () => {
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2886,7 +2886,7 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
 
-    it('should report missing data in multi-actor stores', () => {
+    test('should report missing data in multi-actor stores', () => {
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2958,7 +2958,7 @@ describe('check()', () => {
     });
   });
 
-  it('should assign client-only abstract type information to the target source', () => {
+  test('should assign client-only abstract type information to the target source', () => {
     graphql`
       fragment DataCheckerTestClient2Interface on ClientInterface {
         description
@@ -3000,7 +3000,7 @@ describe('check()', () => {
     });
   });
 
-  it('should assign client-only abstract type information to the target source if it is not available in the source', () => {
+  test('should assign client-only abstract type information to the target source if it is not available in the source', () => {
     graphql`
       fragment DataCheckerTestClientInterface on ClientInterface {
         description

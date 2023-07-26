@@ -172,7 +172,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(fragmentSnapshot, fragmentCallback);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      test('calls next() and publishes the initial payload to the store', () => {
         environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
@@ -208,7 +208,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).not.toBe(null);
       });
 
-      it('processes deferred payloads', () => {
+      test('processes deferred payloads', () => {
         environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
@@ -270,7 +270,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls complete() if root network request completes after deferred payload resolves', () => {
+      test('calls complete() if root network request completes after deferred payload resolves', () => {
         environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
@@ -339,7 +339,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls complete() if root network request completes before deferred payload resolves', () => {
+      test('calls complete() if root network request completes before deferred payload resolves', () => {
         environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
@@ -376,7 +376,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls error() if root network request errors before deferred payload resolves', () => {
+      test('calls error() if root network request errors before deferred payload resolves', () => {
         environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {

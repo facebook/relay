@@ -99,7 +99,7 @@ beforeEach(() => {
   fragmentRef = (snapshot.data?.node: $FlowFixMe);
 });
 
-it('returns false when owner is not pending', () => {
+test('returns false when owner is not pending', () => {
   let pending = null;
   function Component() {
     pending = useIsParentQueryActive(fragment, fragmentRef);
@@ -114,7 +114,7 @@ it('returns false when owner is not pending', () => {
   expect(pending).toBe(false);
 });
 
-it('returns false when an unrelated owner is pending', () => {
+test('returns false when an unrelated owner is pending', () => {
   // fetch a different id
   fetchQuery(
     environment,
@@ -134,7 +134,7 @@ it('returns false when an unrelated owner is pending', () => {
   expect(pending).toBe(false);
 });
 
-it('returns true when owner is started but has not returned payloads', () => {
+test('returns true when owner is started but has not returned payloads', () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   let pending = null;
@@ -150,7 +150,7 @@ it('returns true when owner is started but has not returned payloads', () => {
   expect(pending).toBe(true);
 });
 
-it('returns true when owner fetch has returned payloads but not completed', () => {
+test('returns true when owner fetch has returned payloads but not completed', () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   TestRenderer.act(() => {
@@ -177,7 +177,7 @@ it('returns true when owner fetch has returned payloads but not completed', () =
   expect(pending).toBe(true);
 });
 
-it('returns false when owner fetch completed', () => {
+test('returns false when owner fetch completed', () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   TestRenderer.act(() => {
@@ -205,7 +205,7 @@ it('returns false when owner fetch completed', () => {
   expect(pending).toBe(false);
 });
 
-it('returns false when owner fetch errored', () => {
+test('returns false when owner fetch errored', () => {
   const onError = jest.fn<[Error], mixed>();
   fetchQuery(environment, operation).subscribe({
     error: onError,
@@ -235,7 +235,7 @@ it('returns false when owner fetch errored', () => {
   expect(pending).toBe(false);
 });
 
-it('does not update the component when the owner is fetched', () => {
+test('does not update the component when the owner is fetched', () => {
   const states = [];
   function Component() {
     states.push(useIsParentQueryActive(fragment, fragmentRef));
@@ -256,7 +256,7 @@ it('does not update the component when the owner is fetched', () => {
   expect(states).toEqual([false]);
 });
 
-it('does not update the component when a pending owner fetch returns a payload', () => {
+test('does not update the component when a pending owner fetch returns a payload', () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   const states = [];
@@ -288,7 +288,7 @@ it('does not update the component when a pending owner fetch returns a payload',
   expect(states).toEqual([true]);
 });
 
-it('updates the component when a pending owner fetch completes', () => {
+test('updates the component when a pending owner fetch completes', () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   const states = [];
@@ -312,7 +312,7 @@ it('updates the component when a pending owner fetch completes', () => {
   expect(states).toEqual([true, false]);
 });
 
-it('updates the component when a pending owner fetch errors', () => {
+test('updates the component when a pending owner fetch errors', () => {
   const onError = jest.fn<[Error], mixed>();
   fetchQuery(environment, operation).subscribe({
     error: onError,
@@ -340,7 +340,7 @@ it('updates the component when a pending owner fetch errors', () => {
   expect(states).toEqual([true, false]);
 });
 
-it('updates the component when a pending owner fetch with multiple payloads completes ', () => {
+test('updates the component when a pending owner fetch with multiple payloads completes ', () => {
   query = graphql`
     query useIsParentQueryActiveTestUserDeferQuery($id: ID!) {
       node(id: $id) {
@@ -397,7 +397,7 @@ it('updates the component when a pending owner fetch with multiple payloads comp
   expect(states).toEqual([true, false]);
 });
 
-it('should only update if the latest owner completes the query', () => {
+test('should only update if the latest owner completes the query', () => {
   fetchQuery(environment, operation).subscribe({});
   const oldDataSource = dataSource;
   expect(fetch).toBeCalledTimes(1);

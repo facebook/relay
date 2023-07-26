@@ -27,7 +27,7 @@ const {
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 
 describe('RelayReader @required', () => {
-  it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
+  test('bubbles @required(action: LOG) scalars up to LinkedField', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -55,7 +55,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
-  it('if two @required(action: THROW) errors cascade, report the more deeply nested one', () => {
+  test('if two @required(action: THROW) errors cascade, report the more deeply nested one', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -82,7 +82,7 @@ describe('RelayReader @required', () => {
     expect(missingRequiredFields.field.path).toBe('me.lastName');
   });
 
-  it('bubbles @required(action: LOG) scalars up to LinkedField even if subsequent fields are not unexpectedly null', () => {
+  test('bubbles @required(action: LOG) scalars up to LinkedField even if subsequent fields are not unexpectedly null', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -110,7 +110,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
-  it('only bubbles @required(action: LOG) scalars up to the parent LinkedField', () => {
+  test('only bubbles @required(action: LOG) scalars up to the parent LinkedField', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -150,7 +150,7 @@ describe('RelayReader @required', () => {
     `);
   });
 
-  it('bubbles @required(action: LOG) through @required(action: LOG) LinkedField', () => {
+  test('bubbles @required(action: LOG) through @required(action: LOG) LinkedField', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -183,7 +183,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
-  it('bubbles @required(action: LOG) scalars up to the query root', () => {
+  test('bubbles @required(action: LOG) scalars up to the query root', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -209,7 +209,7 @@ describe('RelayReader @required', () => {
     expect(data).toBeNull();
   });
 
-  it('bubbles @required(action: LOG) up to plural linked field', () => {
+  test('bubbles @required(action: LOG) up to plural linked field', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -257,7 +257,7 @@ describe('RelayReader @required', () => {
     });
   });
 
-  it('bubbles @required(action: LOG) on plural scalar field up to the parent', () => {
+  test('bubbles @required(action: LOG) on plural scalar field up to the parent', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -284,7 +284,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
-  it('does _not_ bubbles @required(action: LOG) on plural linked field up to the parent', () => {
+  test('does _not_ bubbles @required(action: LOG) on plural linked field up to the parent', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -331,7 +331,7 @@ describe('RelayReader @required', () => {
     });
   });
 
-  it('bubbles when encountering a missing plural linked field', () => {
+  test('bubbles when encountering a missing plural linked field', () => {
     const source = RelayRecordSource.create({
       '2': {
         __id: '2',
@@ -359,7 +359,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({viewer: null});
   });
 
-  it('@required(action: LOG) within an inline fragment on a concrete type bubbles if the type matches', () => {
+  test('@required(action: LOG) within an inline fragment on a concrete type bubbles if the type matches', () => {
     const source = RelayRecordSource.create({
       '3': {
         __id: '3',
@@ -388,7 +388,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({maybeNodeInterface: null});
   });
 
-  it('@required(action: LOG) within an inline fragment does not bubble if type does not match', () => {
+  test('@required(action: LOG) within an inline fragment does not bubble if type does not match', () => {
     const source = RelayRecordSource.create({
       '3': {
         __id: '3',
@@ -419,7 +419,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({maybeNodeInterface: {name: 'I am not a node'}});
   });
 
-  it('@required(action: LOG) bubbles across @skip', () => {
+  test('@required(action: LOG) bubbles across @skip', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -449,7 +449,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
-  it('@required(action: LOG) bubbles across @include', () => {
+  test('@required(action: LOG) bubbles across @include', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -479,7 +479,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
-  it('@required(action: LOG) does not bubble if @required field is not @included', () => {
+  test('@required(action: LOG) does not bubble if @required field is not @included', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -511,7 +511,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: {name: 'Zucc'}});
   });
 
-  it('@required(action: LOG) does not bubble if @required field is @skipped', () => {
+  test('@required(action: LOG) does not bubble if @required field is @skipped', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -543,7 +543,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: {name: 'Zucc'}});
   });
 
-  it('@required(action: LOG) bubbles client extension fields', () => {
+  test('@required(action: LOG) bubbles client extension fields', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -572,7 +572,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
-  it('bubbles @required(action: LOG) on Scalar up to parent fragment', () => {
+  test('bubbles @required(action: LOG) on Scalar up to parent fragment', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -606,7 +606,7 @@ describe('RelayReader @required', () => {
     expect(data).toBeNull();
   });
 
-  it('bubbles @required(action: LOG) on LinkedField up to parent fragment', () => {
+  test('bubbles @required(action: LOG) on LinkedField up to parent fragment', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -647,7 +647,7 @@ describe('RelayReader @required', () => {
     expect(data).toBeNull();
   });
 
-  it('bubbles @required(action: LOG) on LinkedField up to parent fragment on Query', () => {
+  test('bubbles @required(action: LOG) on LinkedField up to parent fragment on Query', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -681,7 +681,7 @@ describe('RelayReader @required', () => {
     expect(data).toBeNull();
   });
 
-  it('does not allow unexpected nulls to escape fragment boundaries', () => {
+  test('does not allow unexpected nulls to escape fragment boundaries', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -723,7 +723,7 @@ describe('RelayReader @required', () => {
     expect(fragmentData).toBeNull();
   });
 
-  it('bubbles nulls if the value is "missing" (still in the process of being loaded)', () => {
+  test('bubbles nulls if the value is "missing" (still in the process of being loaded)', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -760,7 +760,7 @@ describe('RelayReader @required', () => {
     expect(data).toEqual(null);
   });
 
-  it('bubbles to list item when used in plural fragment', () => {
+  test('bubbles to list item when used in plural fragment', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',

@@ -77,7 +77,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     context = {environment, variables};
   });
 
-  it('Throws in __DEV__ when trying to LOG a missing requried filed if a logger is not supplied.', () => {
+  test('Throws in __DEV__ when trying to LOG a missing requried filed if a logger is not supplied.', () => {
     global.__DEV__ = true;
     setUserField('4', 'alternate_name', null);
     const resolver = new RelayModernFragmentSpecResolver(
@@ -92,7 +92,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     );
   });
 
-  it('Does not throw when trying to LOG a missing requried filed if a logger is not supplied when not __DEV__.', () => {
+  test('Does not throw when trying to LOG a missing requried filed if a logger is not supplied when not __DEV__.', () => {
     global.__DEV__ = false;
     setUserField('4', 'alternate_name', null);
     const resolver = new RelayModernFragmentSpecResolver(

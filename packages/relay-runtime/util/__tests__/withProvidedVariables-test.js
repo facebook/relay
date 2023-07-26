@@ -22,7 +22,7 @@ disallowWarnings();
 
 describe('withProvidedVariables', () => {
   describe('singleProvidedVariable', () => {
-    it('can get the correct provider', () => {
+    test('can get the correct provider', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest1Query {
           node(id: 4) {
@@ -57,7 +57,7 @@ describe('withProvidedVariables', () => {
   });
 
   describe('singleProvidedVariableWithUserSuppliedVariable', () => {
-    it('can get the correct provider and keeps user supplied variables', () => {
+    test('can get the correct provider and keeps user supplied variables', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest2Query($includeFriendsCount: Boolean!) {
           node(id: 4) {
@@ -95,7 +95,7 @@ describe('withProvidedVariables', () => {
   });
 
   describe('multipleProvidedVariables', () => {
-    it('can get the correct provider', () => {
+    test('can get the correct provider', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest3Query {
           node(id: 4) {
@@ -138,7 +138,7 @@ describe('withProvidedVariables', () => {
   });
 
   describe('multipleFragmentsProvidedVariables', () => {
-    it('can get the correct provider', () => {
+    test('can get the correct provider', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest4Query {
           node(id: 4) {
@@ -199,7 +199,7 @@ describe('withProvidedVariables', () => {
   });
 
   describe('When a provider function returns different values', () => {
-    it('warns for every provider that returns a changed value', () => {
+    test('warns for every provider that returns a changed value', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest5Query {
           node(id: 4) {
@@ -265,7 +265,7 @@ describe('withProvidedVariables', () => {
       ).toEqual(0);
     });
 
-    it('warns for different queries that use the same provider function', () => {
+    test('warns for different queries that use the same provider function', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest6Query {
           node(id: 4) {

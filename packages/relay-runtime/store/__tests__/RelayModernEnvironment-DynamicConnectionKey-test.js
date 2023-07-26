@@ -136,7 +136,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
       });
 
-      it('publishes initial results to the store', () => {
+      test('publishes initial results to the store', () => {
         const operationSnapshot = environment.lookup(operation.fragment);
         const operationCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(operationSnapshot, operationCallback);
@@ -262,7 +262,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environment.subscribe(snapshot, callback);
         });
 
-        it('updates when paginated with the same dynamic key value', () => {
+        test('updates when paginated with the same dynamic key value', () => {
           const paginationOperation = createOperationDescriptor(
             paginationQuery,
             {
@@ -338,7 +338,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('does not update when paginated with a different dynamic key', () => {
+        test('does not update when paginated with a different dynamic key', () => {
           const paginationOperation = createOperationDescriptor(
             paginationQuery,
             {

@@ -153,7 +153,7 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-it('suspends while the query and component are pending', () => {
+test('suspends while the query and component are pending', () => {
   entryPointReference = loadEntryPoint<
     {id: string},
     {...},
@@ -209,7 +209,7 @@ it('suspends while the query and component are pending', () => {
   expect(renderer.toJSON()).toEqual('Fallback');
 });
 
-it('suspends then updates when the query and component load', () => {
+test('suspends then updates when the query and component load', () => {
   entryPointReference = loadEntryPoint<
     {id: string},
     {...},
@@ -283,7 +283,7 @@ it('suspends then updates when the query and component load', () => {
   expect(renderer.toJSON()).toEqual('Alice');
 });
 
-it('renders synchronously when the component has already loaded and the data arrives before render', () => {
+test('renders synchronously when the component has already loaded and the data arrives before render', () => {
   let preloadedQuery = null;
   function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
@@ -350,7 +350,7 @@ it('renders synchronously when the component has already loaded and the data arr
   expect(preloadedQuery).not.toBe(null);
 });
 
-it('warns if the entryPointReference has already been disposed', () => {
+test('warns if the entryPointReference has already been disposed', () => {
   // $FlowFixMe[incompatible-call]
   entryPointReference = loadEntryPoint(
     {

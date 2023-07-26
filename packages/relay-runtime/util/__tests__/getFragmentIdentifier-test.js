@@ -139,21 +139,21 @@ describe('getFragmentIdentifier', () => {
     });
   });
 
-  it('returns correct identifier when fragment ref is null', () => {
+  test('returns correct identifier when fragment ref is null', () => {
     const identifier = getFragmentIdentifier(singularFragment, null);
     expect(identifier).toEqual(
       'null/getFragmentIdentifierTestUserFragment/{}/null',
     );
   });
 
-  it('returns correct identifier when using plural fragment and fragment ref is empty', () => {
+  test('returns correct identifier when using plural fragment and fragment ref is empty', () => {
     const identifier = getFragmentIdentifier(pluralFragment, []);
     expect(identifier).toEqual(
       'null/getFragmentIdentifierTestUsersFragment/{}/null',
     );
   });
 
-  it('returns correct identifier when using singular fragment', () => {
+  test('returns correct identifier when using singular fragment', () => {
     const fragmentRef = environment.lookup(singularQuery.fragment).data?.node;
     const identifier = getFragmentIdentifier(singularFragment, fragmentRef);
     expect(identifier).toEqual(
@@ -162,7 +162,7 @@ describe('getFragmentIdentifier', () => {
     );
   });
 
-  it('returns correct identifier when using fragment with variables', () => {
+  test('returns correct identifier when using fragment with variables', () => {
     const fragmentRef = environment.lookup(queryWithArgs.fragment).data?.node;
     const identifier = getFragmentIdentifier(fragmentWithArgs, fragmentRef);
     expect(identifier).toEqual(
@@ -171,7 +171,7 @@ describe('getFragmentIdentifier', () => {
     );
   });
 
-  it('returns correct identifier when using plural fragment with single element', () => {
+  test('returns correct identifier when using plural fragment with single element', () => {
     const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
     invariant(Array.isArray(fragmentRef), 'Expected a plural fragment ref.');
     const identifier = getFragmentIdentifier(pluralFragment, [fragmentRef[0]]);
@@ -182,7 +182,7 @@ describe('getFragmentIdentifier', () => {
     );
   });
 
-  it('returns correct identifier when using plural fragment', () => {
+  test('returns correct identifier when using plural fragment', () => {
     const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
     const identifier = getFragmentIdentifier(pluralFragment, fragmentRef);
     expect(identifier).toEqual(
@@ -322,28 +322,28 @@ describe('getFragmentIdentifier Optimized', () => {
     RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
   });
 
-  it('returns correct identifier when fragment ref is undefined', () => {
+  test('returns correct identifier when fragment ref is undefined', () => {
     const identifier = getFragmentIdentifier(singularFragment, undefined);
     expect(identifier).toEqual(
       'null/getFragmentIdentifierTest1UserFragment/{}/missing',
     );
   });
 
-  it('returns correct identifier when fragment ref is null', () => {
+  test('returns correct identifier when fragment ref is null', () => {
     const identifier = getFragmentIdentifier(singularFragment, null);
     expect(identifier).toEqual(
       'null/getFragmentIdentifierTest1UserFragment/{}/null',
     );
   });
 
-  it('returns correct identifier when using plural fragment and fragment ref is empty', () => {
+  test('returns correct identifier when using plural fragment and fragment ref is empty', () => {
     const identifier = getFragmentIdentifier(pluralFragment, []);
     expect(identifier).toEqual(
       'null/getFragmentIdentifierTest1UsersFragment/{}/null',
     );
   });
 
-  it('returns correct identifier when using singular fragment', () => {
+  test('returns correct identifier when using singular fragment', () => {
     const fragmentRef = environment.lookup(singularQuery.fragment).data?.node;
     const identifier = getFragmentIdentifier(singularFragment, fragmentRef);
     expect(identifier).toEqual(
@@ -352,7 +352,7 @@ describe('getFragmentIdentifier Optimized', () => {
     );
   });
 
-  it('returns correct identifier when using fragment with variables', () => {
+  test('returns correct identifier when using fragment with variables', () => {
     const fragmentRef = environment.lookup(queryWithArgs.fragment).data?.node;
     const identifier = getFragmentIdentifier(fragmentWithArgs, fragmentRef);
     expect(identifier).toEqual(
@@ -361,7 +361,7 @@ describe('getFragmentIdentifier Optimized', () => {
     );
   });
 
-  it('returns correct identifier when using plural fragment with single element', () => {
+  test('returns correct identifier when using plural fragment with single element', () => {
     const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
     invariant(Array.isArray(fragmentRef), 'Expected a plural fragment ref.');
     const identifier = getFragmentIdentifier(pluralFragment, [fragmentRef[0]]);
@@ -372,7 +372,7 @@ describe('getFragmentIdentifier Optimized', () => {
     );
   });
 
-  it('returns correct identifier when using plural fragment', () => {
+  test('returns correct identifier when using plural fragment', () => {
     const fragmentRef = environment.lookup(pluralQuery.fragment).data?.nodes;
     const identifier = getFragmentIdentifier(pluralFragment, fragmentRef);
     expect(identifier).toEqual(

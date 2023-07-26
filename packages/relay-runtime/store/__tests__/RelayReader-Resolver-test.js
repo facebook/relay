@@ -44,7 +44,7 @@ afterEach(() => {
 });
 
 describe('Relay Resolver', () => {
-  it('returns the result of the resolver function', () => {
+  test('returns the result of the resolver function', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -84,7 +84,7 @@ describe('Relay Resolver', () => {
     ]);
   });
 
-  it('are passed field arguments', () => {
+  test('are passed field arguments', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -141,7 +141,7 @@ describe('Relay Resolver', () => {
     );
   });
 
-  it('propagates @required errors from the resolver up to the reader', () => {
+  test('propagates @required errors from the resolver up to the reader', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -183,7 +183,7 @@ describe('Relay Resolver', () => {
     });
   });
 
-  it('propagates missing data errors from the resolver up to the reader', () => {
+  test('propagates missing data errors from the resolver up to the reader', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -218,7 +218,7 @@ describe('Relay Resolver', () => {
     expect(isStillMissingData).toBe(true);
   });
 
-  it('merges @required logs from resolver field with parent', () => {
+  test('merges @required logs from resolver field with parent', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -274,7 +274,7 @@ describe('Relay Resolver', () => {
     });
   });
 
-  it('works when the field is aliased', () => {
+  test('works when the field is aliased', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -308,7 +308,7 @@ describe('Relay Resolver', () => {
     expect(me.greeting).toEqual(undefined); // Unaliased name
   });
 
-  it('re-computes when an upstream is updated', () => {
+  test('re-computes when an upstream is updated', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -361,7 +361,7 @@ describe('Relay Resolver', () => {
     subscription.dispose();
   });
 
-  it('does not recompute if the upstream has the same value as before', () => {
+  test('does not recompute if the upstream has the same value as before', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -416,7 +416,7 @@ describe('Relay Resolver', () => {
     expect(resolverInternals._relayResolverTestCallCount).toBe(1);
   });
 
-  it('handles optimistic updates (applied after subscribing)', () => {
+  test('handles optimistic updates (applied after subscribing)', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -485,7 +485,7 @@ describe('Relay Resolver', () => {
     subscription.dispose();
   });
 
-  it('handles optimistic updates (subscribed after applying)', () => {
+  test('handles optimistic updates (subscribed after applying)', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -554,7 +554,7 @@ describe('Relay Resolver', () => {
     subscription.dispose();
   });
 
-  it('re-computes when something other than its own record is updated', () => {
+  test('re-computes when something other than its own record is updated', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -631,7 +631,7 @@ describe('Relay Resolver', () => {
     subscription.dispose();
   });
 
-  it('re-computes when a resolver uses another resolver', () => {
+  test('re-computes when a resolver uses another resolver', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -684,7 +684,7 @@ describe('Relay Resolver', () => {
     subscription.dispose();
   });
 
-  it('re-computes when a resolver uses another resolver of another record', () => {
+  test('re-computes when a resolver uses another resolver of another record', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -757,7 +757,7 @@ describe('Relay Resolver', () => {
     subscription.dispose();
   });
 
-  it('errors if the ENABLE_RELAY_RESOLVERS feature flag is not enabled', () => {
+  test('errors if the ENABLE_RELAY_RESOLVERS feature flag is not enabled', () => {
     RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 
     const source = RelayRecordSource.create({
@@ -791,7 +791,7 @@ describe('Relay Resolver', () => {
     );
   });
 
-  it('Bubbles null when @required', () => {
+  test('Bubbles null when @required', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -825,7 +825,7 @@ describe('Relay Resolver', () => {
     expect(me).toBe(null); // Resolver result
   });
 
-  it('Returns null and includes errors when the resolver throws', () => {
+  test('Returns null and includes errors when the resolver throws', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -891,7 +891,7 @@ describe('Relay Resolver', () => {
     `);
   });
 
-  it('Returns null and includes errors when a transitive resolver throws', () => {
+  test('Returns null and includes errors when a transitive resolver throws', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -957,7 +957,7 @@ describe('Relay Resolver', () => {
     `);
   });
 
-  it('Catches errors thrown before calling readFragment', () => {
+  test('Catches errors thrown before calling readFragment', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -996,7 +996,7 @@ describe('Relay Resolver', () => {
     `);
   });
 
-  it('can return `undefined` without reporting missing data', () => {
+  test('can return `undefined` without reporting missing data', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -1030,7 +1030,7 @@ describe('Relay Resolver', () => {
     expect(undefined_field).toBe(undefined); // Resolver result
   });
 
-  it('return value for a field with arguments', () => {
+  test('return value for a field with arguments', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -1077,7 +1077,7 @@ describe('Relay Resolver', () => {
     expect(user_profile_picture_uri_with_scale).toBe('http://my-url-1.5'); // Resolver result
   });
 
-  it('return value for a field with arguments and default value', () => {
+  test('return value for a field with arguments and default value', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -1124,7 +1124,7 @@ describe('Relay Resolver', () => {
     ); // Resolver result
   });
 
-  it('return value for a field with literal argument', () => {
+  test('return value for a field with literal argument', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -1172,7 +1172,7 @@ describe('Relay Resolver', () => {
     expect(profile_picture2).toBe('http://my-url-2'); // Resolver result
   });
 
-  it('return value for a field with literal argument and variable', () => {
+  test('return value for a field with literal argument and variable', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -1235,7 +1235,7 @@ describe('Relay Resolver', () => {
   });
 
   describe('Test arguments and their changes', () => {
-    it('should render resolver field and handle change of arguments', () => {
+    test('should render resolver field and handle change of arguments', () => {
       const Query = graphql`
         query RelayReaderResolverTest20Query($scale: Float!) {
           me {
@@ -1288,7 +1288,7 @@ describe('Relay Resolver', () => {
       });
     });
 
-    it('should render resolver field and handle change of arguments and missing data', () => {
+    test('should render resolver field and handle change of arguments and missing data', () => {
       const Query = graphql`
         query RelayReaderResolverTest21Query($scale: Float!) {
           me {
@@ -1341,7 +1341,7 @@ describe('Relay Resolver', () => {
       });
     });
 
-    it('should render resolver field and handle change of fragment and runtime arguments', () => {
+    test('should render resolver field and handle change of fragment and runtime arguments', () => {
       const Query = graphql`
         query RelayReaderResolverTest22Query($scale: Float!, $name: String) {
           me {
@@ -1422,7 +1422,7 @@ describe('Relay Resolver', () => {
   });
 });
 
-it('can create a client edge query in our test enviornment that has valid import', () => {
+test('can create a client edge query in our test enviornment that has valid import', () => {
   // This is not really a runtime test, but more a test to confirm that this query generates
   // an artifact with valid imports in our non-Haste test environment.
   const clientEdgeRuntimeArtifact = graphql`

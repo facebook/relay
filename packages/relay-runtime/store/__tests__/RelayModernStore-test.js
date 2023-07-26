@@ -96,7 +96,7 @@ function cloneEventWithSets(event: LogEvent) {
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('constructor', () => {
-      it('creates the root record upon store initialization', () => {
+      test('creates the root record upon store initialization', () => {
         const source = getRecordSourceImplementation({});
         const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         expect(store.getSource().get(ROOT_ID)).toEqual({
@@ -158,13 +158,13 @@ function cloneEventWithSets(event: LogEvent) {
         `;
       });
 
-      it('prevents data from being collected', () => {
+      test('prevents data from being collected', () => {
         store.retain(createOperationDescriptor(UserQuery, {id: '4', size: 32}));
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
       });
 
-      it('frees data when disposed', () => {
+      test('frees data when disposed', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
@@ -175,7 +175,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(source.toJSON()).toEqual({});
       });
 
-      it('only collects unreferenced data', () => {
+      test('only collects unreferenced data', () => {
         const JoeQuery = graphql`
           query RelayModernStoreTestJoeQuery($id: ID!) {
             ...RelayModernStoreTestJoeFragment @arguments(id: $id)
@@ -265,7 +265,7 @@ function cloneEventWithSets(event: LogEvent) {
         `;
       });
 
-      it('returns selector data', () => {
+      test('returns selector data', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -291,7 +291,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('includes fragment owner in selector data when owner is provided', () => {
+      test('includes fragment owner in selector data when owner is provided', () => {
         const CustomUserQuery = graphql`
           query RelayModernStoreTest3Query($size: [Int]) {
             me {
@@ -347,7 +347,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(snapshot.data?.__fragmentOwner).toBe(owner.request);
       });
 
-      it('returns deeply-frozen objects', () => {
+      test('returns deeply-frozen objects', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -361,7 +361,7 @@ function cloneEventWithSets(event: LogEvent) {
         assertIsDeeplyFrozen(snapshot.selector.variables);
       });
 
-      it('returns updated data after a publish', () => {
+      test('returns updated data after a publish', () => {
         const nextData = {
           '4': {
             __id: '4',
@@ -471,7 +471,7 @@ function cloneEventWithSets(event: LogEvent) {
         `;
       });
 
-      it('calls subscribers whose data has changed since previous notify', () => {
+      test('calls subscribers whose data has changed since previous notify', () => {
         // subscribe(), publish(), notify() -> subscriber called
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -507,7 +507,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
+      test('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
         const CustomUserQuery = graphql`
           query RelayModernStoreTest5Query($size: [Int]) {
@@ -562,7 +562,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls[0][0].selector).toBe(selector);
       });
 
-      it('vends deeply-frozen objects', () => {
+      test('vends deeply-frozen objects', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -589,7 +589,7 @@ function cloneEventWithSets(event: LogEvent) {
         assertIsDeeplyFrozen(nextSnapshot.selector.variables);
       });
 
-      it('calls affected subscribers only once', () => {
+      test('calls affected subscribers only once', () => {
         // subscribe(), publish(), publish(), notify() -> subscriber called once
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -638,7 +638,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('notifies subscribers and sets updated value for isMissingData', () => {
+      test('notifies subscribers and sets updated value for isMissingData', () => {
         const dataObj = {
           '4': {
             __id: '4',
@@ -693,7 +693,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('notifies subscribers of changes to unfetched records', () => {
+      test('notifies subscribers of changes to unfetched records', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -731,7 +731,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('notifies subscribers of changes to deleted records', () => {
+      test('notifies subscribers of changes to deleted records', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -771,7 +771,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('does not call subscribers whose data has not changed', () => {
+      test('does not call subscribers whose data has not changed', () => {
         // subscribe(), publish() -> subscriber *not* called
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -796,7 +796,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback).not.toBeCalled();
       });
 
-      it('does not notify disposed subscribers', () => {
+      test('does not notify disposed subscribers', () => {
         // subscribe(), publish(), dispose(), notify() -> subscriber *not* called
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -822,7 +822,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback).not.toBeCalled();
       });
 
-      it('throws if source records are modified', () => {
+      test('throws if source records are modified', () => {
         const zuck = source.get('4');
         expect(zuck).toBeTruthy();
         expect(() => {
@@ -831,7 +831,7 @@ function cloneEventWithSets(event: LogEvent) {
         }).toThrow(TypeError);
       });
 
-      it('throws if published records are modified', () => {
+      test('throws if published records are modified', () => {
         // Create and publish a source with a new record
         const nextSource = getRecordSourceImplementation();
         const beast = RelayModernRecord.create('beast', 'Pet');
@@ -842,7 +842,7 @@ function cloneEventWithSets(event: LogEvent) {
         }).toThrow(TypeError);
       });
 
-      it('throws if updated records are modified', () => {
+      test('throws if updated records are modified', () => {
         // Create and publish a source with a record of the same id
         const nextSource = getRecordSourceImplementation();
         const beast = RelayModernRecord.create('beast', 'Pet');
@@ -868,7 +868,7 @@ function cloneEventWithSets(event: LogEvent) {
       });
 
       describe('with data invalidation', () => {
-        it('correctly invalidates store when store is globally invalidated', () => {
+        test('correctly invalidates store when store is globally invalidated', () => {
           const owner = createOperationDescriptor(UserQuery, {
             id: '4',
             size: 32,
@@ -902,7 +902,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
 
-        it('correctly invalidates individual records', () => {
+        test('correctly invalidates individual records', () => {
           const owner = createOperationDescriptor(UserQuery, {
             id: '4',
             size: 32,
@@ -938,7 +938,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
 
-        it("correctly invalidates records even when they weren't modified in the source being published", () => {
+        test("correctly invalidates records even when they weren't modified in the source being published", () => {
           const owner = createOperationDescriptor(UserQuery, {
             id: '4',
             size: 32,
@@ -975,7 +975,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('emits log events for publish and notify', () => {
+      test('emits log events for publish and notify', () => {
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -1038,7 +1038,7 @@ function cloneEventWithSets(event: LogEvent) {
           RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION = false;
         });
 
-        it('emits log events for publish and notify', () => {
+        test('emits log events for publish and notify', () => {
           const owner = createOperationDescriptor(UserQuery, {});
           const selector = createReaderSelector(
             UserFragment,
@@ -1162,7 +1162,7 @@ function cloneEventWithSets(event: LogEvent) {
         environment = createMockEnvironment({store});
       });
 
-      it('returns available if all data exists in the cache', () => {
+      test('returns available if all data exists in the cache', () => {
         const operation = createOperationDescriptor(UserQuery, {
           id: '4',
           size: 32,
@@ -1173,7 +1173,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('returns missing if a scalar field is missing', () => {
+      test('returns missing if a scalar field is missing', () => {
         const operation = createOperationDescriptor(UserQuery, {
           id: '4',
           size: 32,
@@ -1189,7 +1189,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(store.check(operation)).toEqual({status: 'missing'});
       });
 
-      it('returns missing if a linked field is missing', () => {
+      test('returns missing if a linked field is missing', () => {
         const operation = createOperationDescriptor(UserQuery, {
           id: '4',
           size: 64,
@@ -1197,7 +1197,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(store.check(operation)).toEqual({status: 'missing'});
       });
 
-      it('returns missing if a linked record is missing', () => {
+      test('returns missing if a linked record is missing', () => {
         // $FlowFixMe[incompatible-type] found deploying v0.109.0
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
@@ -1209,7 +1209,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(store.check(operation)).toEqual({status: 'missing'});
       });
 
-      it('returns missing if the root record is missing', () => {
+      test('returns missing if the root record is missing', () => {
         const operation = createOperationDescriptor(UserQuery, {
           id: '842472',
           size: 32,
@@ -1218,7 +1218,7 @@ function cloneEventWithSets(event: LogEvent) {
       });
 
       describe('with queryCacheExpirationTime', () => {
-        it('returns available until query cache expiration time has passed', () => {
+        test('returns available until query cache expiration time has passed', () => {
           const QUERY_CACHE_EXPIRATION_TIME = 1000;
           let currentTime = Date.now();
           jest.spyOn(global.Date, 'now').mockImplementation(() => currentTime);
@@ -1252,7 +1252,7 @@ function cloneEventWithSets(event: LogEvent) {
 
       describe('with global store invalidation', () => {
         describe("when query hasn't been written to the store before", () => {
-          it('returns stale if data is cached and store has been invalidated', () => {
+          test('returns stale if data is cached and store has been invalidated', () => {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
@@ -1263,7 +1263,7 @@ function cloneEventWithSets(event: LogEvent) {
             expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns stale if data is not cached and store has been invalidated', () => {
+          test('returns stale if data is not cached and store has been invalidated', () => {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
@@ -1276,7 +1276,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
 
         describe('when query has been written to the store', () => {
-          it('returns stale even if data is cached but store was invalidated after query was written', () => {
+          test('returns stale even if data is cached but store was invalidated after query was written', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1293,7 +1293,7 @@ function cloneEventWithSets(event: LogEvent) {
             expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns available if data is cached and store was invalidated before query was written', () => {
+          test('returns available if data is cached and store was invalidated before query was written', () => {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
@@ -1315,7 +1315,7 @@ function cloneEventWithSets(event: LogEvent) {
             });
           });
 
-          it('returns the most recent fetchTime when the query is written multiple times to the store', () => {
+          test('returns the most recent fetchTime when the query is written multiple times to the store', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1340,7 +1340,7 @@ function cloneEventWithSets(event: LogEvent) {
             });
           });
 
-          it('returns available if data is cached and store was invalidated before query was written (query not retained)', () => {
+          test('returns available if data is cached and store was invalidated before query was written (query not retained)', () => {
             store = new RelayModernStore(source, {
               gcReleaseBufferSize: 1,
             });
@@ -1365,7 +1365,7 @@ function cloneEventWithSets(event: LogEvent) {
             });
           });
 
-          it('returns stale if data is not cached and store was invalidated after query was written', () => {
+          test('returns stale if data is not cached and store was invalidated after query was written', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',
               size: 32,
@@ -1382,7 +1382,7 @@ function cloneEventWithSets(event: LogEvent) {
             expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns missing if data is not cached and store was invalidated before query was written', () => {
+          test('returns missing if data is not cached and store was invalidated before query was written', () => {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
@@ -1403,7 +1403,7 @@ function cloneEventWithSets(event: LogEvent) {
 
       describe('when individual records are invalidated', () => {
         describe('when data is cached in the store', () => {
-          it('returns stale if operation has not been written before', () => {
+          test('returns stale if operation has not been written before', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1419,7 +1419,7 @@ function cloneEventWithSets(event: LogEvent) {
             expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns stale if operation was written before record was invalidated', () => {
+          test('returns stale if operation was written before record was invalidated', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1440,7 +1440,7 @@ function cloneEventWithSets(event: LogEvent) {
             expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns available if operation was written after record was invalidated', () => {
+          test('returns available if operation was written after record was invalidated', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1480,7 +1480,7 @@ function cloneEventWithSets(event: LogEvent) {
             );
           });
 
-          it('returns stale if operation has not been written before', () => {
+          test('returns stale if operation has not been written before', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1496,7 +1496,7 @@ function cloneEventWithSets(event: LogEvent) {
             expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns stale if operation was written before record was invalidated', () => {
+          test('returns stale if operation was written before record was invalidated', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1517,7 +1517,7 @@ function cloneEventWithSets(event: LogEvent) {
             expect(store.check(operation)).toEqual({status: 'stale'});
           });
 
-          it('returns missing if stale record is unreachable', () => {
+          test('returns missing if stale record is unreachable', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '842472',
               size: 32,
@@ -1537,7 +1537,7 @@ function cloneEventWithSets(event: LogEvent) {
             expect(store.check(operation)).toEqual({status: 'missing'});
           });
 
-          it('returns missing if operation was written after record was invalidated', () => {
+          test('returns missing if operation was written after record was invalidated', () => {
             const operation = createOperationDescriptor(UserQuery, {
               id: '4',
               size: 32,
@@ -1606,12 +1606,12 @@ function cloneEventWithSets(event: LogEvent) {
       describe('lookupInvalidationState() / checkInvalidationState()', () => {
         const dataIDs = ['4', 'client:1'];
 
-        it('returns false if the provided ids have not been invalidated', () => {
+        test('returns false if the provided ids have not been invalidated', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           expect(store.checkInvalidationState(invalidationState)).toBe(false);
         });
 
-        it('returns false if the provided ids have not been invalidated regardless of order of ids', () => {
+        test('returns false if the provided ids have not been invalidated regardless of order of ids', () => {
           const invalidationState1 = store.lookupInvalidationState(dataIDs);
           const invalidationState2 = store.lookupInvalidationState(
             dataIDs.reverse(),
@@ -1620,7 +1620,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState2)).toBe(false);
         });
 
-        it('returns true if the store was globally invalidated', () => {
+        test('returns true if the store was globally invalidated', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           environment.commitUpdate(storeProxy => {
             storeProxy.invalidateStore();
@@ -1628,7 +1628,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toBe(true);
         });
 
-        it('returns true if some of the provided ids were invalidated', () => {
+        test('returns true if some of the provided ids were invalidated', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           environment.commitUpdate(storeProxy => {
             const user = storeProxy.get('4');
@@ -1640,7 +1640,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toBe(true);
         });
 
-        it('returns true if some of the provided ids were invalidated regardless of order of ids', () => {
+        test('returns true if some of the provided ids were invalidated regardless of order of ids', () => {
           const invalidationState1 = store.lookupInvalidationState(dataIDs);
           const invalidationState2 = store.lookupInvalidationState(
             dataIDs.reverse(),
@@ -1656,7 +1656,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState2)).toBe(true);
         });
 
-        it('returns true if multiple ids were invalidated in separate updates', () => {
+        test('returns true if multiple ids were invalidated in separate updates', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           environment.commitUpdate(storeProxy => {
             const user = storeProxy.get('4');
@@ -1680,7 +1680,7 @@ function cloneEventWithSets(event: LogEvent) {
           );
         });
 
-        it('returns true if multiple ids were invalidated in the same update', () => {
+        test('returns true if multiple ids were invalidated in the same update', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           environment.commitUpdate(storeProxy => {
             const user = storeProxy.get('4');
@@ -1699,7 +1699,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toBe(true);
         });
 
-        it('returns true if both store and individual records were invalidated in separate updates', () => {
+        test('returns true if both store and individual records were invalidated in separate updates', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           environment.commitUpdate(storeProxy => {
             storeProxy.invalidateStore();
@@ -1731,7 +1731,7 @@ function cloneEventWithSets(event: LogEvent) {
           );
         });
 
-        it('returns true if both store and individual records were invalidated in the same update', () => {
+        test('returns true if both store and individual records were invalidated in the same update', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           environment.commitUpdate(storeProxy => {
             storeProxy.invalidateStore();
@@ -1760,7 +1760,7 @@ function cloneEventWithSets(event: LogEvent) {
           callback = jest.fn<[], void>();
         });
 
-        it('notifies when invalidation state changes due to global invalidation', () => {
+        test('notifies when invalidation state changes due to global invalidation', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
 
@@ -1772,7 +1772,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toEqual(true);
         });
 
-        it('notifies when invalidation state changes due to invalidating one of the provided ids', () => {
+        test('notifies when invalidation state changes due to invalidating one of the provided ids', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
 
@@ -1788,7 +1788,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toEqual(true);
         });
 
-        it('notifies once when invalidating multiple affected records in the same update', () => {
+        test('notifies once when invalidating multiple affected records in the same update', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
           environment.commitUpdate(storeProxy => {
@@ -1809,7 +1809,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toEqual(true);
         });
 
-        it('notifies once per update when multiple affected records invalidated', () => {
+        test('notifies once per update when multiple affected records invalidated', () => {
           let invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
           environment.commitUpdate(storeProxy => {
@@ -1835,7 +1835,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toEqual(true);
         });
 
-        it('notifies once when invalidation state changes due to both global and local invalidation in a single update', () => {
+        test('notifies once when invalidation state changes due to both global and local invalidation in a single update', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
           environment.commitUpdate(storeProxy => {
@@ -1858,7 +1858,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toEqual(true);
         });
 
-        it('notifies once per update when invalidation state changes due to both global and local invalidation in multiple', () => {
+        test('notifies once per update when invalidation state changes due to both global and local invalidation in multiple', () => {
           let invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
           environment.commitUpdate(storeProxy => {
@@ -1891,7 +1891,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toEqual(true);
         });
 
-        it('does not notify if invalidated ids do not affect subscription', () => {
+        test('does not notify if invalidated ids do not affect subscription', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
           environment.commitUpdate(storeProxy => {
@@ -1907,7 +1907,7 @@ function cloneEventWithSets(event: LogEvent) {
           );
         });
 
-        it('does not notify if subscription has been disposed of', () => {
+        test('does not notify if subscription has been disposed of', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           const disposable = store.subscribeToInvalidationState(
             invalidationState,
@@ -1925,7 +1925,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(store.checkInvalidationState(invalidationState)).toEqual(true);
         });
 
-        it('does not notify if record was deleted', () => {
+        test('does not notify if record was deleted', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
 
@@ -1938,7 +1938,7 @@ function cloneEventWithSets(event: LogEvent) {
           );
         });
 
-        it('notifes correctly if record was deleted and then re-added', () => {
+        test('notifes correctly if record was deleted and then re-added', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
 
@@ -1967,7 +1967,7 @@ function cloneEventWithSets(event: LogEvent) {
           expect(callback).toHaveBeenCalledTimes(1);
         });
 
-        it('does not notify if record was invalidated and deleted in same update', () => {
+        test('does not notify if record was invalidated and deleted in same update', () => {
           const invalidationState = store.lookupInvalidationState(dataIDs);
           store.subscribeToInvalidationState(invalidationState, callback);
 
@@ -2049,7 +2049,7 @@ function cloneEventWithSets(event: LogEvent) {
         `;
       });
 
-      it('keeps the data retained in the release buffer after released by caller', () => {
+      test('keeps the data retained in the release buffer after released by caller', () => {
         const disposable = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
@@ -2065,7 +2065,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(source.toJSON()).toEqual(initialData);
       });
 
-      it('immediately releases disposed items that are stale', () => {
+      test('immediately releases disposed items that are stale', () => {
         let fetchTime = Date.now();
         jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -2090,7 +2090,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(source.toJSON()).toEqual({});
       });
 
-      it('keeps published data retained in the release buffer if the data is not stale', () => {
+      test('keeps published data retained in the release buffer if the data is not stale', () => {
         let fetchTime = Date.now();
         jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -2114,7 +2114,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(source.toJSON()).toEqual(initialData);
       });
 
-      it('keeps the data retained in the release buffer after double-released by caller', () => {
+      test('keeps the data retained in the release buffer after double-released by caller', () => {
         const disposable = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
@@ -2131,7 +2131,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(source.toJSON()).toEqual(initialData);
       });
 
-      it('releases the operation and collects data after release buffer reaches capacity', () => {
+      test('releases the operation and collects data after release buffer reaches capacity', () => {
         const disposable = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
@@ -2178,7 +2178,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('when same operation retained multiple times, data is only collected until fully released from buffer', () => {
+      test('when same operation retained multiple times, data is only collected until fully released from buffer', () => {
         const disposable = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
@@ -2238,7 +2238,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
       });
 
-      it('does not free data if previously disposed query is retained again', () => {
+      test('does not free data if previously disposed query is retained again', () => {
         // Disposing and re-retaining an operation should cause that query to *not* count
         // toward the release buffer capacity.
         store = new RelayModernStore(source, {gcReleaseBufferSize: 2});
@@ -2344,7 +2344,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(schedulerQueue).toEqual([]);
       });
 
-      it('calls the gc scheduler function when GC should run', () => {
+      test('calls the gc scheduler function when GC should run', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = writeAndRetainNode('a');
         expect(schedulerQueue.length).toBe(0);
@@ -2353,7 +2353,7 @@ function cloneEventWithSets(event: LogEvent) {
         schedulerQueue.length = 0;
       });
 
-      it('runs GC with full cleanup mode when no retains left', () => {
+      test('runs GC with full cleanup mode when no retains left', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2366,7 +2366,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(getStoreRecordIDs()).toEqual([]);
       });
 
-      it('runs GC with partial cleanup when some retain is left', () => {
+      test('runs GC with partial cleanup when some retain is left', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         writeAndRetainNode('b');
@@ -2380,7 +2380,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(getStoreRecordIDs()).toEqual(['b', 'client:root']);
       });
 
-      it('GC pauses during optimistic updates.', () => {
+      test('GC pauses during optimistic updates.', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         writeAndRetainNode('b');
@@ -2401,7 +2401,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(getStoreRecordIDs()).toEqual(['b', 'client:root']);
       });
 
-      it('GC pauses after holdGC', () => {
+      test('GC pauses after holdGC', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         writeAndRetainNode('b');
@@ -2422,7 +2422,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(getStoreRecordIDs()).toEqual(['b', 'client:root']);
       });
 
-      it('restarts GC when data is written halfway through', () => {
+      test('restarts GC when data is written halfway through', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         writeAndRetainNode('b');
@@ -2489,7 +2489,7 @@ function cloneEventWithSets(event: LogEvent) {
         `;
       });
 
-      it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
+      test('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
         const gcHold = store.holdGC();
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = store.retain(

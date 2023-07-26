@@ -135,7 +135,7 @@ describe('QueryResource', () => {
         beforeEach(() => {
           renderPolicy = 'partial';
         });
-        it('should return result and not send a network request if all data is locally available', () => {
+        test('should return result and not send a network request if all data is locally available', () => {
           expect(environment.check(query)).toEqual({
             status: 'available',
             fetchTime: null,
@@ -170,7 +170,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should return result and send a network request if data is missing for the query', () => {
+        test('should return result and send a network request if data is missing for the query', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -204,7 +204,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should suspend and send a network request if data for query is cached but stale', () => {
+        test('should suspend and send a network request if data for query is cached but stale', () => {
           environment.commitUpdate(storeProxy => {
             storeProxy.invalidateStore();
           });
@@ -234,7 +234,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should send a single network request when same query is read multiple times', () => {
+        test('should send a single network request when same query is read multiple times', () => {
           const result1 = QueryResource.prepare(
             queryMissingData,
             fetchObservableMissingData,
@@ -282,7 +282,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors', () => {
+        test('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
           const networkExecute = jest.fn<[], mixed>();
@@ -325,7 +325,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
+        test('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -372,7 +372,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors synchronously', () => {
+        test('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn<[], mixed>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
@@ -403,7 +403,7 @@ describe('QueryResource', () => {
         });
 
         describe('when using fragments', () => {
-          it('should return result and not send a network request if all data is locally available', () => {
+          test('should return result and not send a network request if all data is locally available', () => {
             graphql`
               fragment QueryResourceTest1Fragment on User {
                 id
@@ -461,7 +461,7 @@ describe('QueryResource', () => {
             expect(release).toBeCalledTimes(1);
           });
 
-          it('should return result and send a network request when some data is missing in fragment', () => {
+          test('should return result and send a network request when some data is missing in fragment', () => {
             graphql`
               fragment QueryResourceTest2Fragment on User {
                 id
@@ -518,7 +518,7 @@ describe('QueryResource', () => {
             expect(release).toBeCalledTimes(1);
           });
 
-          it('should suspend and send a network request if data for query is cached but stale', () => {
+          test('should suspend and send a network request if data for query is cached but stale', () => {
             graphql`
               fragment QueryResourceTest3Fragment on User {
                 id
@@ -585,7 +585,7 @@ describe('QueryResource', () => {
         beforeEach(() => {
           renderPolicy = 'full';
         });
-        it('should return result and not send a network request if all data is locally available', () => {
+        test('should return result and not send a network request if all data is locally available', () => {
           expect(environment.check(query)).toEqual({
             status: 'available',
             fetchTime: null,
@@ -620,7 +620,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should suspend and send a network request if data is missing for the query', () => {
+        test('should suspend and send a network request if data is missing for the query', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -649,7 +649,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should cache a single promise and send a single network request when same query is read multiple times', () => {
+        test('should cache a single promise and send a single network request when same query is read multiple times', () => {
           let promise1;
           try {
             QueryResource.prepare(
@@ -698,7 +698,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors', () => {
+        test('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
           const networkExecute = jest.fn<[], mixed>();
@@ -747,7 +747,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
+        test('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -794,7 +794,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors synchronously', () => {
+        test('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn<[], mixed>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
@@ -824,7 +824,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should keep old promise cache when query observable is unsubscribed, since the request is not canceled', () => {
+        test('should keep old promise cache when query observable is unsubscribed, since the request is not canceled', () => {
           let promise1;
           let subscription;
           try {
@@ -874,7 +874,7 @@ describe('QueryResource', () => {
         });
 
         describe('when using fragments', () => {
-          it('should return result and not send a network request if all data is locally available', () => {
+          test('should return result and not send a network request if all data is locally available', () => {
             graphql`
               fragment QueryResourceTest4Fragment on User {
                 id
@@ -931,7 +931,7 @@ describe('QueryResource', () => {
             expect(release).toBeCalledTimes(1);
           });
 
-          it('should suspend and send a network request when some data is missing in fragment', () => {
+          test('should suspend and send a network request when some data is missing in fragment', () => {
             graphql`
               fragment QueryResourceTest5Fragment on User {
                 id
@@ -986,7 +986,7 @@ describe('QueryResource', () => {
         });
 
         describe('when using incremental data', () => {
-          it('should suspend and send a network request when some data is missing in fragment', () => {
+          test('should suspend and send a network request when some data is missing in fragment', () => {
             graphql`
               fragment QueryResourceTest6Fragment on User {
                 id
@@ -1121,7 +1121,7 @@ describe('QueryResource', () => {
           renderPolicy = 'partial';
         });
 
-        it('should return result and send a network request even when data is locally available', () => {
+        test('should return result and send a network request even when data is locally available', () => {
           expect(environment.check(query)).toEqual({
             status: 'available',
             fetchTime: null,
@@ -1156,7 +1156,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should return result and send a network request if data is missing for the query', () => {
+        test('should return result and send a network request if data is missing for the query', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -1190,7 +1190,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should suspend and send a network request if data for query is cached but stale', () => {
+        test('should suspend and send a network request if data for query is cached but stale', () => {
           environment.commitUpdate(storeProxy => {
             storeProxy.invalidateStore();
           });
@@ -1220,7 +1220,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should send a single network request when same query is read multiple times', () => {
+        test('should send a single network request when same query is read multiple times', () => {
           const result1 = QueryResource.prepare(
             queryMissingData,
             fetchObservableMissingData,
@@ -1258,7 +1258,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors', () => {
+        test('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
           const networkExecute = jest.fn<[], mixed>();
@@ -1300,7 +1300,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
+        test('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -1347,7 +1347,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors synchronously', () => {
+        test('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn<[], mixed>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
@@ -1383,7 +1383,7 @@ describe('QueryResource', () => {
           renderPolicy = 'full';
         });
 
-        it('should return result and send a network request even when data is locally available', () => {
+        test('should return result and send a network request even when data is locally available', () => {
           expect(environment.check(query)).toEqual({
             status: 'available',
             fetchTime: null,
@@ -1418,7 +1418,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should suspend and send a network request if data is missing for the query', () => {
+        test('should suspend and send a network request if data is missing for the query', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -1447,7 +1447,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should cache a single promise and send a single network request when same query is read multiple times', () => {
+        test('should cache a single promise and send a single network request when same query is read multiple times', () => {
           let promise1;
           try {
             QueryResource.prepare(
@@ -1496,7 +1496,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors', () => {
+        test('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
           const networkExecute = jest.fn<[], mixed>();
@@ -1543,7 +1543,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
+        test('should return result and send a network request if data is missing for the query and observable returns synchronously', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -1590,7 +1590,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors synchronously', () => {
+        test('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn<[], mixed>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
@@ -1631,7 +1631,7 @@ describe('QueryResource', () => {
         beforeEach(() => {
           renderPolicy = 'partial';
         });
-        it('should suspend and send a network request even if data is available locally', () => {
+        test('should suspend and send a network request even if data is available locally', () => {
           expect(environment.check(query)).toEqual({
             status: 'available',
             fetchTime: null,
@@ -1661,7 +1661,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should suspend and send a network request when query has missing data', () => {
+        test('should suspend and send a network request when query has missing data', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -1690,7 +1690,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should suspend and send a network request if data for query is cached but stale', () => {
+        test('should suspend and send a network request if data for query is cached but stale', () => {
           environment.commitUpdate(storeProxy => {
             storeProxy.invalidateStore();
           });
@@ -1720,7 +1720,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors', () => {
+        test('should throw error if network request errors', () => {
           let thrownPromise = false;
           let thrownError = false;
           let sink;
@@ -1770,7 +1770,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should return result if network observable returns synchronously', () => {
+        test('should return result if network observable returns synchronously', () => {
           const networkExecute = jest.fn<[], mixed>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
@@ -1807,7 +1807,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors synchronously', () => {
+        test('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn<[], mixed>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
@@ -1843,7 +1843,7 @@ describe('QueryResource', () => {
         beforeEach(() => {
           renderPolicy = 'full';
         });
-        it('should suspend and send a network request even if data is available locally', () => {
+        test('should suspend and send a network request even if data is available locally', () => {
           expect(environment.check(query)).toEqual({
             status: 'available',
             fetchTime: null,
@@ -1873,7 +1873,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should suspend and send a network request when query has missing data', () => {
+        test('should suspend and send a network request when query has missing data', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -1902,7 +1902,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors', () => {
+        test('should throw error if network request errors', () => {
           let thrownPromise = false;
           let thrownError = false;
           let sink;
@@ -1952,7 +1952,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should return result if network observable returns synchronously', () => {
+        test('should return result if network observable returns synchronously', () => {
           const networkExecute = jest.fn<[], mixed>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
@@ -1989,7 +1989,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should throw error if network request errors synchronously', () => {
+        test('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn<[], mixed>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
@@ -2032,7 +2032,7 @@ describe('QueryResource', () => {
           renderPolicy = 'partial';
         });
 
-        it('should not send network request if data is available locally', () => {
+        test('should not send network request if data is available locally', () => {
           expect(environment.check(query)).toEqual({
             status: 'available',
             fetchTime: null,
@@ -2067,7 +2067,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should not send network request even if data is missing', () => {
+        test('should not send network request even if data is missing', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -2101,7 +2101,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should not send a network request if data for query is cached but stale', () => {
+        test('should not send a network request if data for query is cached but stale', () => {
           environment.commitUpdate(storeProxy => {
             storeProxy.invalidateStore();
           });
@@ -2142,7 +2142,7 @@ describe('QueryResource', () => {
           renderPolicy = 'full';
         });
 
-        it('should not send network request if data is available locally', () => {
+        test('should not send network request if data is available locally', () => {
           expect(environment.check(query)).toEqual({
             status: 'available',
             fetchTime: null,
@@ -2177,7 +2177,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should not send network request even if data is missing', () => {
+        test('should not send network request even if data is missing', () => {
           expect(environment.check(queryMissingData)).toEqual({
             status: 'missing',
           });
@@ -2219,7 +2219,7 @@ describe('QueryResource', () => {
       fetchPolicy = 'store-or-network';
     });
 
-    it('should permanently retain the query that was retained during `prepare`', () => {
+    test('should permanently retain the query that was retained during `prepare`', () => {
       const result = QueryResource.prepare(
         queryMissingData,
         fetchObservableMissingData,
@@ -2270,7 +2270,7 @@ describe('QueryResource', () => {
       ).not.toBeDefined();
     });
 
-    it('should auto-release if enough time has passed before `retain` is called after `prepare`', () => {
+    test('should auto-release if enough time has passed before `retain` is called after `prepare`', () => {
       const result = QueryResource.prepare(
         queryMissingData,
         fetchObservableMissingData,
@@ -2322,7 +2322,7 @@ describe('QueryResource', () => {
       ).not.toBeDefined();
     });
 
-    it("retains the query during `prepare` even if a network request wasn't started", () => {
+    test("retains the query during `prepare` even if a network request wasn't started", () => {
       const result = QueryResource.prepare(
         query,
         fetchObservable,
@@ -2357,7 +2357,7 @@ describe('QueryResource', () => {
       expect(environment.retain).toBeCalledTimes(2);
     });
 
-    it('does not cancel a non-live query after releasing a query that was retaned if request is still in flight', () => {
+    test('does not cancel a non-live query after releasing a query that was retaned if request is still in flight', () => {
       const result = QueryResource.prepare(
         queryMissingData,
         fetchObservableMissingData,
@@ -2395,7 +2395,7 @@ describe('QueryResource', () => {
       ).toEqual(true);
     });
 
-    it('cancels a live query after releasing a query that was retaned if request is still in flight', () => {
+    test('cancels a live query after releasing a query that was retaned if request is still in flight', () => {
       const result = QueryResource.prepare(
         liveQueryMissingData,
         fetchObserverableLiveMissingData,
@@ -2434,7 +2434,7 @@ describe('QueryResource', () => {
     });
 
     describe('when retaining the same query multiple times', () => {
-      it('correctly retains query after temporarily retaining multiple times during render phase', () => {
+      test('correctly retains query after temporarily retaining multiple times during render phase', () => {
         QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2481,7 +2481,7 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
       });
 
-      it('correctly retains query after temporarily retaining multiple times during render phase and auto-release timers have expired', () => {
+      test('correctly retains query after temporarily retaining multiple times during render phase and auto-release timers have expired', () => {
         QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2535,7 +2535,7 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
       });
 
-      it('temporarily retains the query every time a render occurs, even if it has already been permanently retained', () => {
+      test('temporarily retains the query every time a render occurs, even if it has already been permanently retained', () => {
         const result = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2599,7 +2599,7 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
       });
 
-      it("when same query commits twice, should not release the query before all callers have released it and auto-release timers haven't expired", () => {
+      test("when same query commits twice, should not release the query before all callers have released it and auto-release timers haven't expired", () => {
         // NOTE: This simulates 2 separate query components mounting
         // simultaneously
 
@@ -2702,7 +2702,7 @@ describe('QueryResource', () => {
         expect(subscription1.unsubscribe).toBeCalledTimes(0);
       });
 
-      it('when same query commits twice, should not release the query before all callers have released it and auto-release timers have expired', () => {
+      test('when same query commits twice, should not release the query before all callers have released it and auto-release timers have expired', () => {
         // NOTE: This simulates 2 separate query components mounting
         // simultaneously
 
@@ -2812,7 +2812,7 @@ describe('QueryResource', () => {
         expect(subscription1.unsubscribe).toBeCalledTimes(0);
       });
 
-      it('correctly retains query when releasing and re-retaining', () => {
+      test('correctly retains query when releasing and re-retaining', () => {
         // NOTE: This simulates a query component unmounting and re-mounting
 
         const result1 = QueryResource.prepare(
@@ -2934,7 +2934,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
   });
 
   describe('prepare', () => {
-    it('does not attempt to temporarily retain the query in a server environment', () => {
+    test('does not attempt to temporarily retain the query in a server environment', () => {
       expect(environment.check(query)).toEqual({
         status: 'available',
         fetchTime: null,

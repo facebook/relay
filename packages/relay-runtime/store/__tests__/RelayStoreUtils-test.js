@@ -16,7 +16,7 @@ const RelayStoreUtils = require('../RelayStoreUtils');
 
 describe('RelayStoreUtils', () => {
   describe('getArgumentValues()', () => {
-    it('returns argument values', () => {
+    test('returns argument values', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest1Fragment on User {
           friends(orderby: $order, first: 10) {
@@ -34,7 +34,7 @@ describe('RelayStoreUtils', () => {
   });
 
   describe('getStorageKey()', () => {
-    it('uses the field name when there are no arguments', () => {
+    test('uses the field name when there are no arguments', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest2Fragment on User {
           name
@@ -44,7 +44,7 @@ describe('RelayStoreUtils', () => {
       expect(RelayStoreUtils.getStorageKey(field, {})).toBe('name');
     });
 
-    it('embeds literal argument values', () => {
+    test('embeds literal argument values', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest3Fragment on User {
           profilePicture(size: 128) {
@@ -58,7 +58,7 @@ describe('RelayStoreUtils', () => {
       );
     });
 
-    it('embeds variable values', () => {
+    test('embeds variable values', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest4Fragment on User
         @argumentDefinitions(size: {type: "[Int]"}) {
@@ -73,7 +73,7 @@ describe('RelayStoreUtils', () => {
       );
     });
 
-    it('filters out arguments that are unset', () => {
+    test('filters out arguments that are unset', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest5Fragment on User
         @argumentDefinitions(
@@ -91,7 +91,7 @@ describe('RelayStoreUtils', () => {
       ).toBe('profilePicture(size:128)');
     });
 
-    it('suppresses the argument list if all values are unset', () => {
+    test('suppresses the argument list if all values are unset', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest6Fragment on User
         @argumentDefinitions(
@@ -109,7 +109,7 @@ describe('RelayStoreUtils', () => {
       ).toBe('profilePicture');
     });
 
-    it('imposes a stable ordering within object arguments', () => {
+    test('imposes a stable ordering within object arguments', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest7Fragment on User {
           # Pass in arguments reverse-lexicographical order.
@@ -126,7 +126,7 @@ describe('RelayStoreUtils', () => {
       );
     });
 
-    it('supports complex objects', () => {
+    test('supports complex objects', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest8Fragment on User {
           # Pass in arguments reverse-lexicographical order.
@@ -147,7 +147,7 @@ describe('RelayStoreUtils', () => {
   });
 
   describe('getStableStorageKey()', () => {
-    it('imposes a stable ordering', () => {
+    test('imposes a stable ordering', () => {
       const fieldName = 'foo';
       const argValues = {
         first: 10,
@@ -164,7 +164,7 @@ describe('RelayStoreUtils', () => {
       );
     });
 
-    it('filters arguments without values', () => {
+    test('filters arguments without values', () => {
       const fieldName = 'foo';
       const argValues = {
         first: 10,
@@ -175,7 +175,7 @@ describe('RelayStoreUtils', () => {
       );
     });
 
-    it('suppresses the argument list if all values are unset', () => {
+    test('suppresses the argument list if all values are unset', () => {
       const fieldName = 'foo';
       const argValues = {
         first: undefined,
@@ -186,7 +186,7 @@ describe('RelayStoreUtils', () => {
       );
     });
 
-    it('disregards a null or undefined arguments object', () => {
+    test('disregards a null or undefined arguments object', () => {
       expect(RelayStoreUtils.getStableStorageKey('foo')).toBe('foo');
       expect(RelayStoreUtils.getStableStorageKey('bar', null)).toBe('bar');
     });
@@ -201,7 +201,7 @@ describe('RelayStoreUtils', () => {
       RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
     });
 
-    it('creates a key with no arguments', () => {
+    test('creates a key with no arguments', () => {
       const UserQuery = graphql`
         query RelayStoreUtilsTest1Query {
           me {
@@ -222,7 +222,7 @@ describe('RelayStoreUtils', () => {
       expect(key).toBe('__UserQuery_address_addressHandler');
     });
 
-    it('creates a key with arguments', () => {
+    test('creates a key with arguments', () => {
       const UserQuery = graphql`
         query RelayStoreUtilsTest2Query {
           me {
@@ -243,7 +243,7 @@ describe('RelayStoreUtils', () => {
       expect(key).toBe('__UserQuery_profile_picture_photoHandler');
     });
 
-    it('creates a key with arguments and filters', () => {
+    test('creates a key with arguments and filters', () => {
       const UserQuery = graphql`
         query RelayStoreUtilsTest3Query {
           me {
@@ -265,7 +265,7 @@ describe('RelayStoreUtils', () => {
       expect(key).toBe('__UserQuery_profile_picture_photoHandler(scale:42)');
     });
 
-    it('creates a dynamic connection key', () => {
+    test('creates a dynamic connection key', () => {
       const UserQuery = graphql`
         query RelayStoreUtilsTest4Query(
           $count: Int!
@@ -298,7 +298,7 @@ describe('RelayStoreUtils', () => {
       expect(key).toBe('__UserQuery_friends_connection(__dynamicKey:"xyz")');
     });
 
-    it('creates a dynamic connection key with filters', () => {
+    test('creates a dynamic connection key with filters', () => {
       const UserQuery = graphql`
         query RelayStoreUtilsTest5Query(
           $count: Int!

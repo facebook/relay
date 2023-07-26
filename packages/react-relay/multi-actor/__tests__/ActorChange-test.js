@@ -177,7 +177,7 @@ describe('ActorChange', () => {
     );
   });
 
-  it('should render a fragment for actor', () => {
+  test('should render a fragment for actor', () => {
     fetchFnForActor = jest.fn(actorId =>
       Observable.from(
         Promise.resolve({
@@ -277,7 +277,7 @@ describe('ActorChange', () => {
     ).toEqual(['Sylvester Text']);
   });
 
-  it('should send a query and mutations with correct actor id, from the correct environment', () => {
+  test('should send a query and mutations with correct actor id, from the correct environment', () => {
     fetchFnForActor = jest.fn(actorId =>
       Observable.from(
         Promise.resolve({

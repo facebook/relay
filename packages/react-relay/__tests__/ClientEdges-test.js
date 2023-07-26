@@ -73,7 +73,7 @@ describe('ClientEdges', () => {
     });
   });
 
-  it('should fetch and render client-edge query', () => {
+  test('should fetch and render client-edge query', () => {
     function TestComponent() {
       return (
         <RelayEnvironmentProvider environment={environment}>
@@ -134,7 +134,7 @@ describe('ClientEdges', () => {
     expect(renderer?.toJSON()).toBe('Alice');
   });
 
-  it('should fetch and render `null` for client-edge query that returns `null`.', () => {
+  test('should fetch and render `null` for client-edge query that returns `null`.', () => {
     function TestComponent() {
       return (
         <RelayEnvironmentProvider environment={environment}>
@@ -195,7 +195,7 @@ describe('ClientEdges', () => {
     expect(renderer?.toJSON()).toBe('MISSING');
   });
 
-  it('should throw for missing client-edge field data marked with @required', () => {
+  test('should throw for missing client-edge field data marked with @required', () => {
     function TestComponent() {
       return (
         <RelayEnvironmentProvider environment={environment}>
@@ -263,7 +263,7 @@ describe('ClientEdges', () => {
     expect(renderer?.toJSON()).toBe(null);
   });
 
-  it('should throw for missing client-edge (client object) field data marked with @required', () => {
+  test('should throw for missing client-edge (client object) field data marked with @required', () => {
     function TestComponent() {
       return (
         <RelayEnvironmentProvider environment={environment}>

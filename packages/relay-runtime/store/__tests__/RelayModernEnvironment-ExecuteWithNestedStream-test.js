@@ -206,7 +206,7 @@ describe('execute() a query with nested @stream', () => {
     next.mockClear();
   });
 
-  it('processes nested payloads', () => {
+  test('processes nested payloads', () => {
     dataSource.next({
       data: {
         __typename: 'User',
@@ -282,7 +282,7 @@ describe('execute() a query with nested @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes @stream payloads when the parent record has been deleted', () => {
+  test('processes @stream payloads when the parent record has been deleted', () => {
     environment.commitUpdate(proxy => {
       proxy.delete('feedback-1');
     });
@@ -330,7 +330,7 @@ describe('execute() a query with nested @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes @stream payloads when the streamed field has been deleted on the parent record', () => {
+  test('processes @stream payloads when the streamed field has been deleted on the parent record', () => {
     environment.commitUpdate(proxy => {
       const feedback = proxy.get('feedback-1');
       if (feedback != null) {
@@ -383,7 +383,7 @@ describe('execute() a query with nested @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it(
+  test(
     'processes @stream payloads when the identity of the item at the ' +
       'target index has changed on the parent record ()',
     () => {
@@ -451,7 +451,7 @@ describe('execute() a query with nested @stream', () => {
     },
   );
 
-  it(
+  test(
     'processes @stream payloads when the identity of the item at the ' +
       'an index other than the target has changed on the parent record ()',
     () => {
@@ -519,7 +519,7 @@ describe('execute() a query with nested @stream', () => {
     },
   );
 
-  it('processes streamed payloads that arrive out of order', () => {
+  test('processes streamed payloads that arrive out of order', () => {
     // return index 1 before index 0
     dataSource.next({
       data: {
@@ -571,7 +571,7 @@ describe('execute() a query with nested @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes streamed payloads relative to the most recent root payload', () => {
+  test('processes streamed payloads relative to the most recent root payload', () => {
     dataSource.next({
       data: {
         cursor: 'cursor-1',
@@ -623,14 +623,14 @@ describe('execute() a query with nested @stream', () => {
     });
   });
 
-  it('calls complete() when server completes', () => {
+  test('calls complete() when server completes', () => {
     dataSource.complete();
     expect(complete).toBeCalledTimes(1);
     expect(error).toBeCalledTimes(0);
     expect(next).toBeCalledTimes(0);
   });
 
-  it('calls error() when server errors', () => {
+  test('calls error() when server errors', () => {
     const err = new Error('wtf');
     dataSource.error(err);
     expect(complete).toBeCalledTimes(0);
@@ -638,7 +638,7 @@ describe('execute() a query with nested @stream', () => {
     expect(error.mock.calls[0][0]).toBe(err);
   });
 
-  it('calls error() when streamed payload is missing data', () => {
+  test('calls error() when streamed payload is missing data', () => {
     dataSource.next({
       errors: [
         {

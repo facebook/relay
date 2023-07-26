@@ -73,7 +73,7 @@ describe('MatchContainer', () => {
     ));
   });
 
-  it('throws when match prop is null', () => {
+  test('throws when match prop is null', () => {
     // This prevents console.error output in the test, which is expected
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     expect(() => {
@@ -85,7 +85,7 @@ describe('MatchContainer', () => {
     );
   });
 
-  it('loads and renders dynamic components', () => {
+  test('loads and renders dynamic components', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const match = createMatchPointer({
       id: '4',
@@ -106,7 +106,7 @@ describe('MatchContainer', () => {
     expect(UserComponent).toBeCalledTimes(1);
   });
 
-  it('reloads if new props have a different component', () => {
+  test('reloads if new props have a different component', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const match = createMatchPointer({
       id: '4',
@@ -143,7 +143,7 @@ describe('MatchContainer', () => {
     expect(ActorComponent).toBeCalledTimes(1);
   });
 
-  it('calls load again when re-rendered, even with the same component', () => {
+  test('calls load again when re-rendered, even with the same component', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const match = createMatchPointer({
       id: '4',
@@ -174,7 +174,7 @@ describe('MatchContainer', () => {
     expect(ActorComponent).toBeCalledTimes(0);
   });
 
-  it('passes the same child props when the match values does not change', () => {
+  test('passes the same child props when the match values does not change', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const match = createMatchPointer({
       id: '4',
@@ -196,7 +196,7 @@ describe('MatchContainer', () => {
     expect(UserComponent).toBeCalledTimes(1);
   });
 
-  it('renders the fallback if the match object is empty', () => {
+  test('renders the fallback if the match object is empty', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
@@ -215,7 +215,7 @@ describe('MatchContainer', () => {
     expect(Fallback).toBeCalledTimes(1);
   });
 
-  it('renders the fallback if the match object is missing expected fields', () => {
+  test('renders the fallback if the match object is missing expected fields', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
@@ -242,7 +242,7 @@ describe('MatchContainer', () => {
     expect(Fallback).toBeCalledTimes(1);
   });
 
-  it('throws if the match object is invalid (__id)', () => {
+  test('throws if the match object is invalid (__id)', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
@@ -269,7 +269,7 @@ describe('MatchContainer', () => {
     );
   });
 
-  it('throws if the match object is invalid (__fragments)', () => {
+  test('throws if the match object is invalid (__fragments)', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
@@ -296,7 +296,7 @@ describe('MatchContainer', () => {
     );
   });
 
-  it('throws if the match object is invalid (__fragmentOwner)', () => {
+  test('throws if the match object is invalid (__fragmentOwner)', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
@@ -323,7 +323,7 @@ describe('MatchContainer', () => {
     );
   });
 
-  it('throws if the match object is invalid (__fragmentPropName)', () => {
+  test('throws if the match object is invalid (__fragmentPropName)', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
@@ -350,7 +350,7 @@ describe('MatchContainer', () => {
     );
   });
 
-  it('renders the fallback if the match value is null', () => {
+  test('renders the fallback if the match value is null', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
@@ -369,7 +369,7 @@ describe('MatchContainer', () => {
     expect(Fallback).toBeCalledTimes(1);
   });
 
-  it('renders null if the match value is null and no fallback is provided', () => {
+  test('renders null if the match value is null and no fallback is provided', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const renderer = TestRenderer.create(
@@ -381,7 +381,7 @@ describe('MatchContainer', () => {
     expect(ActorComponent).toBeCalledTimes(0);
   });
 
-  it('renders the fallback if the match value is undefined', () => {
+  test('renders the fallback if the match value is undefined', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
@@ -400,7 +400,7 @@ describe('MatchContainer', () => {
     expect(Fallback).toBeCalledTimes(1);
   });
 
-  it('transitions from fallback when new props have a component', () => {
+  test('transitions from fallback when new props have a component', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
     const renderer = TestRenderer.create(
@@ -434,7 +434,7 @@ describe('MatchContainer', () => {
     expect(ActorComponent).toBeCalledTimes(1);
   });
 
-  it('transitions to fallback when new props have a null component', () => {
+  test('transitions to fallback when new props have a null component', () => {
     loader.mockReturnValue(React.memo((ActorComponent: $FlowFixMe)));
     const match = createMatchPointer({
       id: '4',

@@ -78,7 +78,7 @@ describe('execute() with Promise network', () => {
     });
   });
 
-  it('fetches queries', () => {
+  test('fetches queries', () => {
     environment.execute({operation}).subscribe(callbacks);
     expect(fetch.mock.calls.length).toBe(1);
     // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
@@ -89,7 +89,7 @@ describe('execute() with Promise network', () => {
     expect(fetch.mock.calls[0][2]).toEqual({});
   });
 
-  it('fetches queries with force:true', () => {
+  test('fetches queries with force:true', () => {
     const cacheConfig = {force: true};
     operation = createOperationDescriptor(
       query,
@@ -109,7 +109,7 @@ describe('execute() with Promise network', () => {
     expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
   });
 
-  it('calls complete() when the batch completes', () => {
+  test('calls complete() when the batch completes', () => {
     environment.execute({operation}).subscribe(callbacks);
     deferred.resolve({
       data: {
@@ -126,7 +126,7 @@ describe('execute() with Promise network', () => {
     expect(error).not.toBeCalled();
   });
 
-  it('calls error() when the batch has an error', () => {
+  test('calls error() when the batch has an error', () => {
     environment.execute({operation}).subscribe(callbacks);
     const e = new Error('wtf');
     deferred.reject(e);
@@ -137,7 +137,7 @@ describe('execute() with Promise network', () => {
     expect(next.mock.calls.length).toBe(0);
   });
 
-  it('calls next() and publishes payloads to the store', () => {
+  test('calls next() and publishes payloads to the store', () => {
     const selector = createReaderSelector(
       query.fragment,
       ROOT_ID,

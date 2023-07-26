@@ -830,7 +830,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: false,
     },
   ].forEach(({name, mutation, optimisticResponse, shouldWarn, variables}) => {
-    it(name, () => {
+    test(name, () => {
       jest.clearAllMocks();
       if (shouldWarn) {
         expect(() =>

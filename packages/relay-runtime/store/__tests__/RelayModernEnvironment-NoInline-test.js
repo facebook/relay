@@ -154,7 +154,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         operation = createOperationDescriptor(Query, {size: [1]});
       });
 
-      it('executes and reads back results (fragment type matches)', () => {
+      test('executes and reads back results (fragment type matches)', () => {
         environment.execute({operation}).subscribe(callbacks);
         subject.next({
           data: {
@@ -249,7 +249,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('executes and reads back results (fragment type does not match)', () => {
+      test('executes and reads back results (fragment type does not match)', () => {
         environment.execute({operation}).subscribe(callbacks);
         subject.next({
           data: {
@@ -335,7 +335,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('with arguments', () => {
-        it('executes and reads back results with no-inline fragments on the same level', () => {
+        test('executes and reads back results with no-inline fragments on the same level', () => {
           const QueryWithArgs = graphql`
             query RelayModernEnvironmentNoInlineTestWithArgsQuery(
               $size: [Int]
@@ -525,7 +525,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('executes and reads back results with nested no-inline fragments', () => {
+        test('executes and reads back results with nested no-inline fragments', () => {
           const QueryNested = graphql`
             query RelayModernEnvironmentNoInlineTestNestedQuery(
               $global_cond: Boolean!
@@ -698,7 +698,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('with @stream and @defer', () => {
-        it('executes and reads back results with stream', () => {
+        test('executes and reads back results with stream', () => {
           const QueryWithStream = graphql`
             query RelayModernEnvironmentNoInlineTestStreamQuery(
               $cond: Boolean!
@@ -837,7 +837,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('executes and reads back results with defer and stream', () => {
+        test('executes and reads back results with defer and stream', () => {
           const QueryWithDeferredStream = graphql`
             query RelayModernEnvironmentNoInlineTestDeferredStreamQuery(
               $cond: Boolean!
@@ -1133,7 +1133,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('executes and reads back results for the MarkdownUserNameRenderer', () => {
+        test('executes and reads back results for the MarkdownUserNameRenderer', () => {
           operation = createOperationDescriptor(QueryWithModule, {
             cond: true,
           });

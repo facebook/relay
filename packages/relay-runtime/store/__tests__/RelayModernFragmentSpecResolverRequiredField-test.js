@@ -75,7 +75,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     context = {environment, variables};
   });
 
-  it('throws when encountering a missing @required(action: THROW) field', () => {
+  test('throws when encountering a missing @required(action: THROW) field', () => {
     setUserField('4', 'name', null);
     const resolver = new RelayModernFragmentSpecResolver(
       context,
@@ -89,7 +89,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     );
   });
 
-  it('logs when encountering a missing @required(action: LOG) field', () => {
+  test('logs when encountering a missing @required(action: LOG) field', () => {
     setUserField('4', 'alternate_name', null);
     const resolver = new RelayModernFragmentSpecResolver(
       context,
@@ -106,7 +106,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     });
   });
 
-  it('throws when reading a @required(action: THROW) field that has become null', () => {
+  test('throws when reading a @required(action: THROW) field that has become null', () => {
     const resolver = new RelayModernFragmentSpecResolver(
       context,
       {user: UserFragment},

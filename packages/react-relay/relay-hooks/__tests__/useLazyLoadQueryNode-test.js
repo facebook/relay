@@ -212,7 +212,7 @@ describe('useLazyLoadQueryNode', () => {
     jest.clearAllTimers();
   });
 
-  it('fetches and renders the query data', () => {
+  test('fetches and renders the query data', () => {
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -239,7 +239,7 @@ describe('useLazyLoadQueryNode', () => {
     expectToBeRendered(renderFn, data);
   });
 
-  it('subscribes to query fragment results and preserves object identity', () => {
+  test('subscribes to query fragment results and preserves object identity', () => {
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -286,7 +286,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(nextData.node.__fragments).toBe(prevData.node.__fragments);
   });
 
-  it('fetches and renders correctly even if fetched query data still has missing data', () => {
+  test('fetches and renders correctly even if fetched query data still has missing data', () => {
     // This scenario might happen if for example we are making selections on
     // abstract types which the concrete type doesn't implement
 
@@ -319,7 +319,7 @@ describe('useLazyLoadQueryNode', () => {
     expectToBeRendered(renderFn, data);
   });
 
-  it('fetches and renders correctly if component unmounts before it can commit', () => {
+  test('fetches and renders correctly if component unmounts before it can commit', () => {
     const payload = {
       data: {
         node: {
@@ -377,7 +377,7 @@ describe('useLazyLoadQueryNode', () => {
     expectToBeRendered(renderFn, data);
   });
 
-  it('fetches and renders correctly when switching between queries', () => {
+  test('fetches and renders correctly when switching between queries', () => {
     // Render the component
     const initialQuery = createOperationDescriptor(gqlQuery, {
       id: 'first-render',
@@ -459,7 +459,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Alice');
   });
 
-  it('fetches and renders correctly when re-mounting the same query (even if GC runs synchronously)', () => {
+  test('fetches and renders correctly when re-mounting the same query (even if GC runs synchronously)', () => {
     const store = new Store(new RecordSource(), {
       gcScheduler: run => run(),
       gcReleaseBufferSize: 0,
@@ -526,7 +526,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(environment.retain).toHaveBeenCalledTimes(1);
   });
 
-  it('disposes the temporary retain when the component is re-rendered and switches to another query', () => {
+  test('disposes the temporary retain when the component is re-rendered and switches to another query', () => {
     // Render the component
     const instance = render(
       environment,
@@ -595,7 +595,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(release).toHaveBeenCalledTimes(1);
   });
 
-  it('does not cancel ongoing network request when component unmounts while suspended', () => {
+  test('does not cancel ongoing network request when component unmounts while suspended', () => {
     const initialVariables = {id: 'first-render'};
     const initialQuery = createOperationDescriptor(gqlQuery, initialVariables);
     environment.commitPayload(initialQuery, {
@@ -648,7 +648,7 @@ describe('useLazyLoadQueryNode', () => {
     ).toEqual(true);
   });
 
-  it('does not cancel ongoing network request when component unmounts after committing', () => {
+  test('does not cancel ongoing network request when component unmounts after committing', () => {
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -690,7 +690,7 @@ describe('useLazyLoadQueryNode', () => {
     ).toEqual(true);
   });
 
-  it('does not cancel network request when temporarily retained component that never commits is disposed of after timeout', () => {
+  test('does not cancel network request when temporarily retained component that never commits is disposed of after timeout', () => {
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -745,7 +745,7 @@ describe('useLazyLoadQueryNode', () => {
       query = createOperationDescriptor(gqlQuery, variables);
     });
 
-    it('should handle errors ', () => {
+    test('should handle errors ', () => {
       const instance = render(
         environment,
         <Container key={0} variables={variables} />,
@@ -774,7 +774,7 @@ describe('useLazyLoadQueryNode', () => {
       expect(renderFn).not.toBeCalled();
     });
 
-    it('should render the query with defer payloads without errors for defer payloads', () => {
+    test('should render the query with defer payloads without errors for defer payloads', () => {
       const instance = render(
         environment,
         <Container key={0} variables={variables} />,
@@ -826,7 +826,7 @@ describe('useLazyLoadQueryNode', () => {
   });
 
   describe('partial rendering', () => {
-    it('does not suspend at the root if query does not have direct data dependencies', () => {
+    test('does not suspend at the root if query does not have direct data dependencies', () => {
       const gqlFragment = graphql`
         fragment useLazyLoadQueryNodeTestRootFragment on Query {
           node(id: $id) {

@@ -21,7 +21,7 @@ describe('getPaginationVariables', () => {
       direction = 'forward';
     });
 
-    it('throws error if forward pagination metadata is missing', () => {
+    test('throws error if forward pagination metadata is missing', () => {
       expect(() =>
         getPaginationVariables(
           direction,
@@ -51,7 +51,7 @@ describe('getPaginationVariables', () => {
       );
     });
 
-    it('returns correct variables when no backward pagination metadata is present', () => {
+    test('returns correct variables when no backward pagination metadata is present', () => {
       // Testing using different variable names for count and cursor
       let variables;
 
@@ -102,7 +102,7 @@ describe('getPaginationVariables', () => {
       });
     });
 
-    it('returns correct variables when backward pagination metadata is present', () => {
+    test('returns correct variables when backward pagination metadata is present', () => {
       let variables;
 
       variables = getPaginationVariables(
@@ -153,7 +153,7 @@ describe('getPaginationVariables', () => {
       direction = 'backward';
     });
 
-    it('throws error if backward pagination metadata is missing', () => {
+    test('throws error if backward pagination metadata is missing', () => {
       expect(() =>
         getPaginationVariables(
           direction,
@@ -183,7 +183,7 @@ describe('getPaginationVariables', () => {
       );
     });
 
-    it('returns correct variables when no forward pagination metadata is present', () => {
+    test('returns correct variables when no forward pagination metadata is present', () => {
       // Testing using different variable names for count and cursor
       let variables;
 
@@ -234,7 +234,7 @@ describe('getPaginationVariables', () => {
       });
     });
 
-    it('returns correct variables when forward pagination metadata is present', () => {
+    test('returns correct variables when forward pagination metadata is present', () => {
       let variables;
 
       variables = getPaginationVariables(

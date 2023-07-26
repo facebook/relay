@@ -166,7 +166,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
     environment.subscribe(userOperationSnapshot, userOperationCallback);
   });
 
-  it('updates @module data selected by the same document', () => {
+  test('updates @module data selected by the same document', () => {
     environment.execute({operation: userOperation}).subscribe({});
     const userPayload = {
       data: {
@@ -256,7 +256,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
     });
   });
 
-  it('does not update @module data selected by other documents', () => {
+  test('does not update @module data selected by other documents', () => {
     // UserQuery result shouldn't be affected by ActorQuery
     environment.execute({operation: userOperation}).subscribe({});
     const userPayload = {

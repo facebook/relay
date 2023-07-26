@@ -462,7 +462,7 @@ describe.each([
       renderSpy.mockClear();
     });
 
-    it('should render singular fragment without error when data is available', () => {
+    test('should render singular fragment without error when data is available', () => {
       internalAct(() => {
         renderSingularFragment();
       });
@@ -478,7 +478,7 @@ describe.each([
       ]);
     });
 
-    it('should render singular fragment without error when ref is null', () => {
+    test('should render singular fragment without error when ref is null', () => {
       renderSingularFragment({userRef: null});
       assertFragmentResults([
         {
@@ -487,7 +487,7 @@ describe.each([
       ]);
     });
 
-    it('should render singular fragment without error when ref is undefined', () => {
+    test('should render singular fragment without error when ref is undefined', () => {
       renderSingularFragment({userRef: undefined});
       assertFragmentResults([
         {
@@ -496,7 +496,7 @@ describe.each([
       ]);
     });
 
-    it('should render plural fragment without error when data is available', () => {
+    test('should render plural fragment without error when data is available', () => {
       renderPluralFragment();
       assertFragmentResults([
         {
@@ -518,7 +518,7 @@ describe.each([
       ]);
     });
 
-    it('should render plural fragment without error when plural field is empty', () => {
+    test('should render plural fragment without error when plural field is empty', () => {
       renderPluralFragment({usersRef: []});
       assertFragmentResults([
         {
@@ -527,7 +527,7 @@ describe.each([
       ]);
     });
 
-    it('should render plural fragment with a constant reference when plural field is empty', () => {
+    test('should render plural fragment with a constant reference when plural field is empty', () => {
       const container = renderPluralFragment({usersRef: []});
       internalAct(() => {
         renderPluralFragment({usersRef: []}, container);
@@ -538,7 +538,7 @@ describe.each([
       expect(firstRender).toBe(secondRender);
     });
 
-    it('should update when fragment data changes', () => {
+    test('should update when fragment data changes', () => {
       renderSingularFragment();
       assertFragmentResults([
         {
@@ -576,7 +576,7 @@ describe.each([
       ]);
     });
 
-    it('should preserve object identity when fragment data changes', () => {
+    test('should preserve object identity when fragment data changes', () => {
       internalAct(() => {
         renderSingularFragment();
       });
@@ -614,7 +614,7 @@ describe.each([
       expect(nextData.__fragments).toBe(prevData.__fragments);
     });
 
-    it('should re-read and resubscribe to fragment when environment changes', () => {
+    test('should re-read and resubscribe to fragment when environment changes', () => {
       renderSingularFragment();
       assertFragmentResults([
         {
@@ -675,7 +675,7 @@ describe.each([
       ]);
     });
 
-    it('should re-read and resubscribe to fragment when fragment pointers change', () => {
+    test('should re-read and resubscribe to fragment when fragment pointers change', () => {
       renderSingularFragment();
       assertRenderBatch([
         {
@@ -751,7 +751,7 @@ describe.each([
       ]);
     });
 
-    it('should render correct data when changing fragment refs multiple times', () => {
+    test('should render correct data when changing fragment refs multiple times', () => {
       // Render component with data for ID 1
       renderSingularFragment();
       assertFragmentResults([
@@ -849,7 +849,7 @@ describe.each([
       ]);
     });
 
-    it('should ignore updates to initially rendered data when fragment pointers change', () => {
+    test('should ignore updates to initially rendered data when fragment pointers change', () => {
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
@@ -978,7 +978,7 @@ describe.each([
       });
     });
 
-    it('should re-read and resubscribe to fragment when variables change', () => {
+    test('should re-read and resubscribe to fragment when variables change', () => {
       renderSingularFragment();
       assertFragmentResults([
         {
@@ -1053,7 +1053,7 @@ describe.each([
       ]);
     });
 
-    it('should ignore updates to initially rendered data when variables change', () => {
+    test('should ignore updates to initially rendered data when variables change', () => {
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         Scheduler.log(props.children);
@@ -1192,7 +1192,7 @@ describe.each([
       });
     });
 
-    it('should NOT update if fragment refs dont change', () => {
+    test('should NOT update if fragment refs dont change', () => {
       renderSingularFragment();
       assertFragmentResults([
         {
@@ -1222,7 +1222,7 @@ describe.each([
       ]);
     });
 
-    it('should NOT update even if fragment ref changes but doesnt point to a different ID', () => {
+    test('should NOT update even if fragment ref changes but doesnt point to a different ID', () => {
       renderSingularFragment();
       assertFragmentResults([
         {
@@ -1257,7 +1257,7 @@ describe.each([
       ]);
     });
 
-    it('should throw a promise if if data is missing for fragment and request is in flight', () => {
+    test('should throw a promise if if data is missing for fragment and request is in flight', () => {
       const missingDataVariables = {...singularVariables, id: '4'};
       const missingDataQuery = createOperationDescriptor(
         gqlSingularQuery,
@@ -1284,7 +1284,7 @@ describe.each([
       expect(renderer.toJSON()).toEqual('Singular Fallback');
     });
 
-    it('should warn if fragment reference is non-null but read-out data is null', () => {
+    test('should warn if fragment reference is non-null but read-out data is null', () => {
       // Clearing the data in the environment will make it so the fragment ref
       // we pass to useFragmentNode points to data that does not exist; we expect
       // an error to be thrown in this case.
@@ -1296,7 +1296,7 @@ describe.each([
       renderSingularFragment();
     });
 
-    it('should NOT warn if plural fragment reference is non-null and empty', () => {
+    test('should NOT warn if plural fragment reference is non-null and empty', () => {
       // Commit a paylaod where the nodes are an empty list
       environment.commitPayload(pluralQuery, {
         nodes: [],
@@ -1307,7 +1307,7 @@ describe.each([
       renderPluralFragment({usersRef});
     });
 
-    it('should warn if plural fragment reference is non-null but read-out data is null', () => {
+    test('should warn if plural fragment reference is non-null but read-out data is null', () => {
       // Clearing the data in the environment will make it so the fragment ref
       // we pass to useFragmentNode points to data that does not exist; we expect
       // an error to be thrown in this case.
@@ -1320,7 +1320,7 @@ describe.each([
       renderPluralFragment();
     });
 
-    it('should subscribe for updates even if there is missing data', () => {
+    test('should subscribe for updates even if there is missing data', () => {
       const missingDataVariables = {...singularVariables, id: '4'};
 
       const singularDataQuery = createOperationDescriptor(
@@ -1382,7 +1382,7 @@ describe.each([
       ]);
     });
 
-    it('upon commit, it should pick up changes in data that happened before comitting', () => {
+    test('upon commit, it should pick up changes in data that happened before comitting', () => {
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         Scheduler.log(props.children);
@@ -1486,7 +1486,7 @@ describe.each([
       });
     });
 
-    it('should not suspend when data goes missing due to store changes after it has committed (starting with no data missing)', () => {
+    test('should not suspend when data goes missing due to store changes after it has committed (starting with no data missing)', () => {
       const renderer = renderSingularFragment();
       internalAct(() => {
         // Let there be an operation in flight:
@@ -1501,7 +1501,7 @@ describe.each([
       expect(renderer.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
     });
 
-    it('should not suspend when data goes missing due to store changes after it has committed (starting with data missing already)', () => {
+    test('should not suspend when data goes missing due to store changes after it has committed (starting with data missing already)', () => {
       const missingDataVariables = {...pluralVariables, ids: ['4']};
       const missingDataQuery = createOperationDescriptor(
         gqlPluralQuery,
@@ -1537,7 +1537,7 @@ describe.each([
       expect(renderer.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
     });
 
-    it('checks for missed updates, subscribing to the latest snapshot even if fragment data is unchanged', () => {
+    test('checks for missed updates, subscribing to the latest snapshot even if fragment data is unchanged', () => {
       // Render the component, updating the store to simulate concurrent modifications during async render
       let pendingUpdate: any = null;
       const SideEffectfulComponent = ({user}: any) => {
@@ -1611,7 +1611,7 @@ describe.each([
       ]);
     });
 
-    it('should subscribe for updates to plural fragments even if there is missing data', () => {
+    test('should subscribe for updates to plural fragments even if there is missing data', () => {
       const missingDataVariables = {...pluralVariables, ids: ['4']};
       const missingDataQuery = createOperationDescriptor(
         gqlPluralQuery,
@@ -1682,7 +1682,7 @@ describe.each([
 
     if (useFragmentNodeOriginal === useFragmentNode_LEGACY) {
       describe('disableStoreUpdates', () => {
-        it('does not listen to store updates after disableStoreUpdates is called', () => {
+        test('does not listen to store updates after disableStoreUpdates is called', () => {
           internalAct(() => {
             renderSingularFragment();
           });
@@ -1719,7 +1719,7 @@ describe.each([
           expect(commitSpy).toBeCalledTimes(0);
         });
 
-        it('re-renders with latest data after re-enabling updates, if any updates were missed', () => {
+        test('re-renders with latest data after re-enabling updates, if any updates were missed', () => {
           renderSingularFragment();
           assertFragmentResults([
             {
@@ -1768,7 +1768,7 @@ describe.each([
           ]);
         });
 
-        it('does not re-render after re-enabling updates, if no updates were missed', () => {
+        test('does not re-render after re-enabling updates, if no updates were missed', () => {
           renderSingularFragment();
           assertFragmentResults([
             {
@@ -1791,7 +1791,7 @@ describe.each([
           expect(commitSpy).toBeCalledTimes(0);
         });
 
-        it('does not re-render after re-enabling updates, if data did not change', () => {
+        test('does not re-render after re-enabling updates, if data did not change', () => {
           renderSingularFragment();
           assertFragmentResults([
             {

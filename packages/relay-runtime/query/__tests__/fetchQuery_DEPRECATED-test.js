@@ -42,7 +42,7 @@ describe('fetchQuery', () => {
     operation = createOperationDescriptor(getRequest(query), variables);
   });
 
-  it('fetches the query', () => {
+  test('fetches the query', () => {
     cacheConfig = {force: true};
     operation = createOperationDescriptor(query, variables, cacheConfig);
     fetchQuery(environment, query, variables, cacheConfig);
@@ -51,7 +51,7 @@ describe('fetchQuery', () => {
     expect(args).toEqual({operation});
   });
 
-  it('resolves with the query results after first value', async () => {
+  test('resolves with the query results after first value', async () => {
     const promise = fetchQuery(environment, query, variables);
     environment.mock.nextValue(query, {
       data: {
@@ -68,7 +68,7 @@ describe('fetchQuery', () => {
     });
   });
 
-  it('rejects with query errors', async () => {
+  test('rejects with query errors', async () => {
     const promise = fetchQuery(environment, query, variables);
     const error = new Error('wtf');
     environment.mock.reject(query, error);

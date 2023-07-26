@@ -148,7 +148,7 @@ describe('ActorChange with @stream', () => {
     );
   });
 
-  it('should render a fragment for actor', () => {
+  test('should render a fragment for actor', () => {
     fetchFnForActor = (
       ...args: Array<?(
         | LogRequestInfoFunction

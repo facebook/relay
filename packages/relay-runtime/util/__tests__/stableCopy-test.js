@@ -13,7 +13,7 @@
 const stableCopy = require('../stableCopy');
 
 describe('stableCopy', () => {
-  it('returns non-objects', () => {
+  test('returns non-objects', () => {
     expect(stableCopy('foo')).toBe('foo');
     expect(stableCopy(1)).toBe(1);
     expect(stableCopy(-1)).toBe(-1);
@@ -23,15 +23,15 @@ describe('stableCopy', () => {
     expect(stableCopy(undefined)).toBe(undefined);
   });
 
-  it('copies empty objects', () => {
+  test('copies empty objects', () => {
     expect(stableCopy({})).toEqual({});
   });
 
-  it('copies empty arrays', () => {
+  test('copies empty arrays', () => {
     expect(stableCopy([])).toEqual([]);
   });
 
-  it('copies shallow objects', () => {
+  test('copies shallow objects', () => {
     const object = {};
     object.a = 1;
     object.b = 2;
@@ -39,7 +39,7 @@ describe('stableCopy', () => {
     expect(JSON.stringify(stableCopy(object))).toEqual('{"a":1,"b":2}');
   });
 
-  it('copies stably, despite opposite key insertion order', () => {
+  test('copies stably, despite opposite key insertion order', () => {
     const object = {};
     object.b = 2;
     object.a = 1;
@@ -47,19 +47,19 @@ describe('stableCopy', () => {
     expect(JSON.stringify(stableCopy(object))).toEqual('{"a":1,"b":2}');
   });
 
-  it('copies shallow arrays', () => {
+  test('copies shallow arrays', () => {
     const array = ['foo', 'bar', 'baz'];
     expect(stableCopy(array)).toEqual(array);
     expect(JSON.stringify(stableCopy(array))).toEqual('["foo","bar","baz"]');
   });
 
-  it('copies sparse arrays', () => {
+  test('copies sparse arrays', () => {
     const array = [];
     array[1] = 'foo';
     expect(stableCopy(array)).toEqual([undefined, 'foo']);
   });
 
-  it('stable copies nested structures', () => {
+  test('stable copies nested structures', () => {
     const object = {
       top2: {
         middle: {

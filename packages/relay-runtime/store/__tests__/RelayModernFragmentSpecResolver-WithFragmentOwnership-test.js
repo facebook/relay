@@ -152,7 +152,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
     context = {environment, variables};
   });
 
-  it('ignores non-fragment data, sets missing fragment props to null', () => {
+  test('ignores non-fragment data, sets missing fragment props to null', () => {
     const resolver = new RelayModernFragmentSpecResolver(
       context,
       {user: UserFragment},
@@ -166,7 +166,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   });
 
   describe('singular props', () => {
-    it('passes through null-ish values', () => {
+    test('passes through null-ish values', () => {
       let resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
@@ -185,7 +185,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       expect(resolver.resolve()).toEqual({user: null});
     });
 
-    it('passes through mock values', () => {
+    test('passes through mock values', () => {
       const user = {};
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -197,7 +197,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       expect(resolver.resolve().user).toBe(user);
     });
 
-    it('disposes with null props', () => {
+    test('disposes with null props', () => {
       const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
@@ -208,7 +208,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       expect(() => resolver.dispose()).not.toThrow();
     });
 
-    it('resolves fragment data', () => {
+    test('resolves fragment data', () => {
       const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UserFragment},
@@ -231,7 +231,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       });
     });
 
-    it('calls callback when fragment data changes', () => {
+    test('calls callback when fragment data changes', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -257,7 +257,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       });
     });
 
-    it('disposes subscriptions', () => {
+    test('disposes subscriptions', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -300,14 +300,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         );
       });
 
-      it('cancels subscriptions if a prop is set to null', () => {
+      test('cancels subscriptions if a prop is set to null', () => {
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
         resolver.setProps({user: null});
         expect(dispose).toBeCalled();
       });
 
-      it('cancels subscriptions if a prop is set to a mock value', () => {
+      test('cancels subscriptions if a prop is set to a mock value', () => {
         const user = {};
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
@@ -316,7 +316,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         expect(resolver.resolve().user).toBe(user);
       });
 
-      it('creates a subscription if a prop is set to non-mock value', () => {
+      test('creates a subscription if a prop is set to non-mock value', () => {
         resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UserFragment},
@@ -344,14 +344,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('returns === data if props do not change', () => {
+      test('returns === data if props do not change', () => {
         const prevData = resolver.resolve();
         resolver.setProps({user: zuck});
         expect(resolver.resolve()).toBe(prevData);
         expect(resolver.resolve().user).toBe(prevData.user);
       });
 
-      it('resolves fragment data if a prop changes', () => {
+      test('resolves fragment data if a prop changes', () => {
         resolver.setProps({user: beast});
         expect(resolver.resolve()).toEqual({
           user: {
@@ -368,14 +368,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('cancels subscriptions if a prop changes', () => {
+      test('cancels subscriptions if a prop changes', () => {
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
         resolver.setProps({user: beast});
         expect(dispose).toBeCalled();
       });
 
-      it('calls callback when fragment data changes', () => {
+      test('calls callback when fragment data changes', () => {
         resolver.setProps({user: beast});
         expect(callback).not.toBeCalled();
         setName('beast', 'BEAST'); // all caps
@@ -396,7 +396,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('disposes subscriptions', () => {
+      test('disposes subscriptions', () => {
         resolver.setProps({user: beast});
         expect(callback).not.toBeCalled();
         resolver.dispose();
@@ -434,7 +434,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         );
       });
 
-      it('does nothing if variables are equivalent', () => {
+      test('does nothing if variables are equivalent', () => {
         const prevData = resolver.resolve();
         const dispose = environment.subscribe.mock.dispose;
         environment.lookup.mockClear();
@@ -453,7 +453,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         expect(resolver.resolve()).toBe(prevData);
       });
 
-      it('resolves fragment data when variables change', () => {
+      test('resolves fragment data when variables change', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
@@ -488,7 +488,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('calls callback when fragment data changes', () => {
+      test('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
         resolver.setVariables(
           {
@@ -525,7 +525,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
   });
 
   describe('plural props', () => {
-    it('passes through null-ish values', () => {
+    test('passes through null-ish values', () => {
       let resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
@@ -544,7 +544,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       expect(resolver.resolve()).toEqual({user: null});
     });
 
-    it('passes through mock values', () => {
+    test('passes through mock values', () => {
       const users = [{}];
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -556,7 +556,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       expect(resolver.resolve().user).toBe(users);
     });
 
-    it('resolves fragment data', () => {
+    test('resolves fragment data', () => {
       const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
@@ -581,7 +581,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       });
     });
 
-    it('calls callback when fragment data changes', () => {
+    test('calls callback when fragment data changes', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -609,7 +609,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       });
     });
 
-    it('resolves fragment data when the item at the end of the array is removed', () => {
+    test('resolves fragment data when the item at the end of the array is removed', () => {
       const resolver = new RelayModernFragmentSpecResolver(
         context,
         {user: UsersFragment},
@@ -664,7 +664,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       });
     });
 
-    it('disposes subscriptions', () => {
+    test('disposes subscriptions', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(
         context,
@@ -711,14 +711,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         );
       });
 
-      it('cancels subscriptions if a prop is set to null', () => {
+      test('cancels subscriptions if a prop is set to null', () => {
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
         resolver.setProps({user: null});
         expect(dispose).toBeCalled();
       });
 
-      it('cancels subscriptions if a prop is set to a mock value', () => {
+      test('cancels subscriptions if a prop is set to a mock value', () => {
         const users = [{}];
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
@@ -727,7 +727,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         expect(resolver.resolve().user).toBe(users);
       });
 
-      it('creates a subscription if a prop is set to non-mock value', () => {
+      test('creates a subscription if a prop is set to non-mock value', () => {
         resolver = new RelayModernFragmentSpecResolver(
           context,
           {user: UsersFragment},
@@ -759,14 +759,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('returns === data if the props do not change', () => {
+      test('returns === data if the props do not change', () => {
         const prevData = resolver.resolve();
         resolver.setProps({user: [zuck]}); // zuck -> zuck
         expect(resolver.resolve()).toBe(prevData);
         expect(resolver.resolve()[0]).toBe(prevData[0]);
       });
 
-      it('resolves fragment data if a prop changes', () => {
+      test('resolves fragment data if a prop changes', () => {
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(resolver.resolve()).toEqual({
           user: [
@@ -785,14 +785,14 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('cancels subscriptions if a prop changes', () => {
+      test('cancels subscriptions if a prop changes', () => {
         const dispose = environment.subscribe.mock.dispose;
         expect(dispose).not.toBeCalled();
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(dispose).toBeCalled();
       });
 
-      it('calls callback when fragment data changes', () => {
+      test('calls callback when fragment data changes', () => {
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(callback).not.toBeCalled();
         setName('beast', 'BEAST'); // all caps
@@ -817,7 +817,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('disposes subscriptions', () => {
+      test('disposes subscriptions', () => {
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(callback).not.toBeCalled();
         resolver.dispose();
@@ -843,7 +843,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('resolves added items', () => {
+      test('resolves added items', () => {
         resolver.setProps({user: [zuck, beast]}); // add beast
         expect(resolver.resolve()).toEqual({
           user: [
@@ -873,7 +873,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('subscribes to added items', () => {
+      test('subscribes to added items', () => {
         environment.subscribe.mockClear();
         resolver.setProps({user: [zuck, beast]}); // add beast
         // Should only subscribe to the new item
@@ -911,7 +911,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('retains subscription to unchanged items', () => {
+      test('retains subscription to unchanged items', () => {
         resolver.setProps({user: [zuck, beast]}); // add beast
         setName('4', 'Mark'); // Zuck -> Mark
         expect(callback).toBeCalled();
@@ -943,7 +943,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('unsubscribes from removed items', () => {
+      test('unsubscribes from removed items', () => {
         resolver.setProps({user: []});
         setName('4', 'Mark'); // Zuck -> Mark
         expect(callback).not.toBeCalled();
@@ -968,7 +968,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         );
       });
 
-      it('does nothing if variables are equivalent', () => {
+      test('does nothing if variables are equivalent', () => {
         const prevData = resolver.resolve();
         const dispose = environment.subscribe.mock.dispose;
         environment.lookup.mockClear();
@@ -987,7 +987,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         expect(resolver.resolve()).toBe(prevData);
       });
 
-      it('resolves fragment data when variables change', () => {
+      test('resolves fragment data when variables change', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
@@ -1026,7 +1026,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         });
       });
 
-      it('calls callback when fragment data changes', () => {
+      test('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
         resolver.setVariables(
           {

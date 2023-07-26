@@ -170,12 +170,12 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
-  it('generates a name for containers', () => {
+  test('generates a name for containers', () => {
     expect(TestContainer.$$typeof).toBe(Symbol.for('react.forward_ref'));
     expect(TestContainer.render.displayName).toBe('Relay(TestComponent)');
   });
 
-  it('throws for invalid fragments', () => {
+  test('throws for invalid fragments', () => {
     expect(() => {
       ReactRelayRefetchContainer.createContainer(TestComponent, {
         foo: null,
@@ -187,7 +187,7 @@ describe('ReactRelayRefetchContainer', () => {
     );
   });
 
-  it('passes non-fragment props to the component', () => {
+  test('passes non-fragment props to the component', () => {
     expectToWarn(
       'createFragmentSpecResolver: Expected prop `user` to be supplied to `Relay(TestComponent)`, but got `undefined`. Pass an explicit `null` if this is intentional.',
       () => {
@@ -212,7 +212,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect(environment.subscribe.mock.calls.length).toBe(0);
   });
 
-  it('passes through null props', () => {
+  test('passes through null props', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment}>
         <TestContainer user={null} />
@@ -231,7 +231,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect(environment.subscribe.mock.calls.length).toBe(0);
   });
 
-  it('passes through context', () => {
+  test('passes through context', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment}>
         <TestContainer user={null} />
@@ -240,7 +240,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect(relayContext.environment).toBe(environment);
   });
 
-  it('resolves & subscribes fragment props', () => {
+  test('resolves & subscribes fragment props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
@@ -283,7 +283,7 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
-  it('re-renders on subscription callback', () => {
+  test('re-renders on subscription callback', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
@@ -326,7 +326,7 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
-  it('resolves new props', () => {
+  test('resolves new props', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -377,7 +377,7 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
-  it('resolves new props when ids dont change', () => {
+  test('resolves new props when ids dont change', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -431,7 +431,7 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
-  it('resolves new props when ids dont change even after it has refetched', () => {
+  test('resolves new props when ids dont change even after it has refetched', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -510,7 +510,7 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
-  it('does not update for same props/data', () => {
+  test('does not update for same props/data', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -531,7 +531,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('does not update for equal scalar props', () => {
+  test('does not update for equal scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const scalar = 42;
@@ -557,7 +557,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('updates for unequal function props', () => {
+  test('updates for unequal function props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const scalar = 42;
@@ -588,7 +588,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('updates for unequal scalar props', () => {
+  test('updates for unequal scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const scalar = 42;
@@ -618,7 +618,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('always updates for non-scalar props', () => {
+  test('always updates for non-scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
     const instance = ReactTestRenderer.create(
@@ -669,7 +669,7 @@ describe('ReactRelayRefetchContainer', () => {
       );
     });
 
-    it('fetches the new variables', () => {
+    test('fetches the new variables', () => {
       const refetchVariables = {
         cond: false,
         id: '4',
@@ -694,7 +694,7 @@ describe('ReactRelayRefetchContainer', () => {
       );
     });
 
-    it('reads data from the store without sending a network request when data is available in store and using store-or-network', () => {
+    test('reads data from the store without sending a network request when data is available in store and using store-or-network', () => {
       expect.assertions(3);
       const refetchVariables = {
         cond: false,
@@ -711,7 +711,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(environment.execute).toBeCalledTimes(0);
     });
 
-    it('calls the callback when the fetch succeeds', () => {
+    test('calls the callback when the fetch succeeds', () => {
       expect.assertions(2);
       const callback = jest.fn();
       variables = {
@@ -736,7 +736,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(callback).toBeCalledWith(undefined);
     });
 
-    it('calls the callback when the fetch succeeds after every update', () => {
+    test('calls the callback when the fetch succeeds after every update', () => {
       const callback = jest.fn();
       variables = {
         cond: false,
@@ -779,7 +779,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(callback.mock.calls.length).toBe(2);
     });
 
-    it('calls the callback when the fetch fails', () => {
+    test('calls the callback when the fetch fails', () => {
       expect.assertions(2);
       const callback = jest.fn();
       variables = {
@@ -793,7 +793,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(callback).toBeCalledWith(error);
     });
 
-    it('calls the callback even if the response is cached', () => {
+    test('calls the callback even if the response is cached', () => {
       const refetchVariables = {
         cond: false,
         id: '4',
@@ -813,7 +813,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(callback).toHaveBeenCalled();
     });
 
-    it('returns false for isLoading if the response comes from cache', () => {
+    test('returns false for isLoading if the response comes from cache', () => {
       const refetchVariables = {
         cond: false,
         id: '4',
@@ -834,7 +834,7 @@ describe('ReactRelayRefetchContainer', () => {
       );
     });
 
-    it('renders with the results of the new variables on success', () => {
+    test('renders with the results of the new variables on success', () => {
       expect.assertions(5);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.name).toBe('Zuck');
@@ -857,7 +857,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(render.mock.calls[1][0].user.name).toBe(undefined);
     });
 
-    it('does not update variables on failure', () => {
+    test('does not update variables on failure', () => {
       expect.assertions(4);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.name).toBe('Zuck');
@@ -871,7 +871,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(render.mock.calls.length).toBe(1);
     });
 
-    it('continues the fetch if new props refer to the same records', () => {
+    test('continues the fetch if new props refer to the same records', () => {
       variables = {
         cond: false,
         id: '4',
@@ -884,7 +884,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription.closed).toBe(false);
     });
 
-    it('cancels the fetch if new props refer to different records', () => {
+    test('cancels the fetch if new props refer to different records', () => {
       variables = {
         cond: false,
         id: '4',
@@ -897,7 +897,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription.closed).toBe(true);
     });
 
-    it('holds refetch results if new props refer to the same records', () => {
+    test('holds refetch results if new props refer to the same records', () => {
       expect.assertions(2);
       variables = {
         cond: false,
@@ -924,7 +924,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references[0].dispose).not.toBeCalled();
     });
 
-    it('releases refetch results if new props refer to different records', () => {
+    test('releases refetch results if new props refer to different records', () => {
       expect.assertions(2);
       variables = {
         cond: false,
@@ -952,7 +952,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references[0].dispose).toBeCalled();
     });
 
-    it('releases refetch results if unmounted', () => {
+    test('releases refetch results if unmounted', () => {
       expect.assertions(2);
       variables = {
         cond: false,
@@ -977,7 +977,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references[0].dispose).toBeCalled();
     });
 
-    it('cancels previous request when a new refetch occurs first', () => {
+    test('cancels previous request when a new refetch occurs first', () => {
       const refetchVariables = {
         cond: false,
         id: '4',
@@ -996,7 +996,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription2.closed).toBe(false);
     });
 
-    it('does not cancel current request if previous request is disposed', () => {
+    test('does not cancel current request if previous request is disposed', () => {
       const refetchVariables = {
         cond: false,
         id: '4',
@@ -1023,7 +1023,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription2.closed).toBe(true);
     });
 
-    it('should not refetch data is container unmounted', () => {
+    test('should not refetch data is container unmounted', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
 
@@ -1060,7 +1060,7 @@ describe('ReactRelayRefetchContainer', () => {
     });
   });
 
-  it('can be unwrapped in tests', () => {
+  test('can be unwrapped in tests', () => {
     class TestUnwrapping extends React.Component {
       render() {
         return <div>Unwrapped</div>;
@@ -1110,7 +1110,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(actualYields).toEqual(expectedYields);
     }
 
-    it('upon commit, it should pick up changes in data that happened before comitting', () => {
+    test('upon commit, it should pick up changes in data that happened before comitting', () => {
       const Scheduler = require('scheduler');
       const YieldChild = props => {
         Scheduler.log(props.children);

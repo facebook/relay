@@ -28,7 +28,7 @@ describe('RelayQueryResponseCache', () => {
   });
 
   describe('clear()', () => {
-    it('clears entries from the cache', () => {
+    test('clears entries from the cache', () => {
       const cache = new RelayQueryResponseCache({size: 1, ttl: 1000});
       cache.set(queryID, {id: 1}, {});
       cache.clear();
@@ -37,7 +37,7 @@ describe('RelayQueryResponseCache', () => {
   });
 
   describe('get()', () => {
-    it('returns known entries', () => {
+    test('returns known entries', () => {
       const cache = new RelayQueryResponseCache({size: 1, ttl: 1000});
       const payload = {};
       const variables = {id: 1};
@@ -47,13 +47,13 @@ describe('RelayQueryResponseCache', () => {
       expect(cache.get(queryID, variables)).toEqual(result);
     });
 
-    it('returns null for unknown entries', () => {
+    test('returns null for unknown entries', () => {
       const cache = new RelayQueryResponseCache({size: 1, ttl: 1000});
       cache.set(queryID, {id: 1}, {});
       expect(cache.get(queryID, {id: 2})).toBe(null);
     });
 
-    it('expires entries', () => {
+    test('expires entries', () => {
       const cache = new RelayQueryResponseCache({size: 1, ttl: 9});
       const payload = {};
       const variables = {id: 1};
@@ -66,7 +66,7 @@ describe('RelayQueryResponseCache', () => {
       expect(cache.get(queryID, variables)).toBe(null);
     });
 
-    it('returns known entries for response batch', () => {
+    test('returns known entries for response batch', () => {
       const cache = new RelayQueryResponseCache({size: 1, ttl: 1000});
       const payload = [{}, {}];
       const variables = {id: 1};
@@ -81,7 +81,7 @@ describe('RelayQueryResponseCache', () => {
   });
 
   describe('set()', () => {
-    it('evicts the oldest entry when max size is reached', () => {
+    test('evicts the oldest entry when max size is reached', () => {
       const cache = new RelayQueryResponseCache({size: 1, ttl: 1000});
       cache.set(queryID, {id: 1}, {});
       expect(cache.get(queryID, {id: 1})).not.toBe(null);

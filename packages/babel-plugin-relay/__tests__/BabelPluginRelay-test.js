@@ -13,7 +13,7 @@
 const transformerWithOptions = require('./transformerWithOptions');
 
 describe('`development` option', () => {
-  it('tests the hash when `development` is set', () => {
+  test('tests the hash when `development` is set', () => {
     expect(
       transformerWithOptions(
         {},
@@ -22,7 +22,7 @@ describe('`development` option', () => {
     ).toMatchSnapshot();
   });
 
-  it('tests the hash when `isDevVariableName` is set', () => {
+  test('tests the hash when `isDevVariableName` is set', () => {
     expect(
       transformerWithOptions({isDevVariableName: 'IS_DEV'})(
         'graphql`fragment TestFrag on Node { id }`',
@@ -30,7 +30,7 @@ describe('`development` option', () => {
     ).toMatchSnapshot();
   });
 
-  it('uses a custom build command in message', () => {
+  test('uses a custom build command in message', () => {
     expect(
       transformerWithOptions(
         {
@@ -41,7 +41,7 @@ describe('`development` option', () => {
     ).toMatchSnapshot();
   });
 
-  it('does not test the hash when `development` is not set', () => {
+  test('does not test the hash when `development` is not set', () => {
     expect(
       transformerWithOptions(
         {},

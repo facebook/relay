@@ -75,7 +75,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         operation = createOperationDescriptor(ParentQuery, {});
       });
 
-      it('applies the mutation to the store', () => {
+      test('applies the mutation to the store', () => {
         const selector = createReaderSelector(
           UserFragment,
           '4',
@@ -100,7 +100,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('reverts mutations when disposed', () => {
+      test('reverts mutations when disposed', () => {
         const selector = createReaderSelector(
           UserFragment,
           '4',
@@ -124,7 +124,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(callback.mock.calls[0][0].data).toEqual(undefined);
       });
 
-      it('can replace one mutation with another', () => {
+      test('can replace one mutation with another', () => {
         const selector = createReaderSelector(
           UserFragment,
           '4',
@@ -160,7 +160,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
+      test('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
         const selector = createReaderSelector(
           UserFragment,
           '4',
@@ -261,7 +261,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('applies the mutation to the store', () => {
+        test('applies the mutation to the store', () => {
           const selector = createReaderSelector(
             UserFragment,
             '4',
@@ -292,7 +292,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('reverts mutations when disposed', () => {
+        test('reverts mutations when disposed', () => {
           const selector = createReaderSelector(
             UserFragment,
             '4',
@@ -328,7 +328,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(callback.mock.calls[0][0].data).toEqual(undefined);
         });
 
-        it('can replace one mutation with another', () => {
+        test('can replace one mutation with another', () => {
           const selector = createReaderSelector(
             UserFragment,
             '4',
@@ -371,7 +371,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
+        test('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
           const selector = createReaderSelector(
             UserFragment,
             '4',

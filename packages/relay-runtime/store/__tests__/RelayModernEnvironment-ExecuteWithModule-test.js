@@ -161,7 +161,7 @@ describe('execute() a query with @module', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  test('calls next() and publishes the initial payload to the store', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -230,7 +230,7 @@ describe('execute() a query with @module', () => {
     });
   });
 
-  it('loads the @match fragment and normalizes/publishes the field payload', () => {
+  test('loads the @match fragment and normalizes/publishes the field payload', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -292,7 +292,7 @@ describe('execute() a query with @module', () => {
     });
   });
 
-  it('synchronously normalizes/publishes the field payload if @module fragment is available synchronously', () => {
+  test('synchronously normalizes/publishes the field payload if @module fragment is available synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     jest
       .spyOn(operationLoader, 'get')
@@ -348,7 +348,7 @@ describe('execute() a query with @module', () => {
     });
   });
 
-  it('calls complete() if the network completes before processing the @module', () => {
+  test('calls complete() if the network completes before processing the @module', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -388,7 +388,7 @@ describe('execute() a query with @module', () => {
     expect(callbacks.next).toBeCalledTimes(1);
   });
 
-  it('calls complete() if the network completes after processing the @module', () => {
+  test('calls complete() if the network completes after processing the @module', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -429,7 +429,7 @@ describe('execute() a query with @module', () => {
     expect(callbacks.next).toBeCalledTimes(1);
   });
 
-  it('calls error() if the operationLoader function throws synchronously', () => {
+  test('calls error() if the operationLoader function throws synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -461,7 +461,7 @@ describe('execute() a query with @module', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if operationLoader.get function throws synchronously', () => {
+  test('calls error() if operationLoader.get function throws synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     const loaderError = new Error();
     jest.spyOn(operationLoader, 'get').mockImplementationOnce(() => {
@@ -493,7 +493,7 @@ describe('execute() a query with @module', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if the operationLoader promise fails', () => {
+  test('calls error() if the operationLoader promise fails', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -525,7 +525,7 @@ describe('execute() a query with @module', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if processing a module payload throws', () => {
+  test('calls error() if processing a module payload throws', () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -561,7 +561,7 @@ describe('execute() a query with @module', () => {
     );
   });
 
-  it('cancels @module processing if unsubscribed', () => {
+  test('cancels @module processing if unsubscribed', () => {
     const subscription = environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -652,7 +652,7 @@ describe('execute() a query with @module', () => {
       });
     });
 
-    it('synchronously normalizes/publishes the field payload in a single scheduler step if @module fragment is available synchronously', () => {
+    test('synchronously normalizes/publishes the field payload in a single scheduler step if @module fragment is available synchronously', () => {
       environment.execute({operation}).subscribe(callbacks);
       jest
         .spyOn(operationLoader, 'get')

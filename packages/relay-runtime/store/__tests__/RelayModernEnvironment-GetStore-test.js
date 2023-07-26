@@ -20,7 +20,7 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 disallowWarnings();
 
 describe('getStore()', () => {
-  it('returns the store passed to the constructor', () => {
+  test('returns the store passed to the constructor', () => {
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
     const environment = new RelayModernEnvironment({

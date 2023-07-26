@@ -136,7 +136,7 @@ describe('execute() a query with @stream', () => {
     });
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  test('calls next() and publishes the initial payload to the store', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -166,7 +166,7 @@ describe('execute() a query with @stream', () => {
     });
   });
 
-  it('processes streamed payloads', () => {
+  test('processes streamed payloads', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -227,7 +227,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes streamed payloads mixed with extensions-only payloads', () => {
+  test('processes streamed payloads mixed with extensions-only payloads', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -276,7 +276,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes batched streamed payloads (with use_customized_batch)', () => {
+  test('processes batched streamed payloads (with use_customized_batch)', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -328,7 +328,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('process error payloads in batched steaming responses', () => {
+  test('process error payloads in batched steaming responses', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -378,7 +378,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(1);
   });
 
-  it('process batched steaming responses with the mix of initial and incremental payloads', () => {
+  test('process batched steaming responses with the mix of initial and incremental payloads', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -453,7 +453,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('process batched steaming responses with the batch that has final payload', () => {
+  test('process batched steaming responses with the batch that has final payload', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -501,7 +501,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes streamed payloads with scheduling', () => {
+  test('processes streamed payloads with scheduling', () => {
     let taskID = 0;
     const tasks = new Map<string, () => void>();
     const scheduler = {
@@ -602,7 +602,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('cancels processing of streamed payloads with scheduling', () => {
+  test('cancels processing of streamed payloads with scheduling', () => {
     let taskID = 0;
     const tasks = new Map<string, () => void>();
     const scheduler = {
@@ -674,7 +674,7 @@ describe('execute() a query with @stream', () => {
     expect(callback).toBeCalledTimes(0);
   });
 
-  it('processes @stream payloads when the parent record has been deleted', () => {
+  test('processes @stream payloads when the parent record has been deleted', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -728,7 +728,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes @stream payloads when the streamed field has been deleted on the parent record', () => {
+  test('processes @stream payloads when the streamed field has been deleted on the parent record', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -788,7 +788,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it(
+  test(
     'processes @stream payloads when the identity of the item at the ' +
       'target index has changed on the parent record ()',
     () => {
@@ -856,7 +856,7 @@ describe('execute() a query with @stream', () => {
     },
   );
 
-  it(
+  test(
     'processes @stream payloads when the identity of the item at the ' +
       'an index other than the target has changed on the parent record ()',
     () => {
@@ -946,7 +946,7 @@ describe('execute() a query with @stream', () => {
     },
   );
 
-  it('processes streamed payloads that arrive out of order', () => {
+  test('processes streamed payloads that arrive out of order', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1009,7 +1009,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes streamed payloads relative to the most recent root payload', () => {
+  test('processes streamed payloads relative to the most recent root payload', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1071,7 +1071,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('calls complete() when server completes after streamed payload resolves', () => {
+  test('calls complete() when server completes after streamed payload resolves', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1112,7 +1112,7 @@ describe('execute() a query with @stream', () => {
     expect(callback).toBeCalledTimes(2);
   });
 
-  it('calls complete() when server completes before streamed payload resolves', () => {
+  test('calls complete() when server completes before streamed payload resolves', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1142,7 +1142,7 @@ describe('execute() a query with @stream', () => {
     expect(callback).toBeCalledTimes(1);
   });
 
-  it('calls next() with extensions-only payloads', () => {
+  test('calls next() with extensions-only payloads', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1178,7 +1178,7 @@ describe('execute() a query with @stream', () => {
     expect(callback).toBeCalledTimes(1);
   });
 
-  it('calls error() when server errors after streamed payload resolves', () => {
+  test('calls error() when server errors after streamed payload resolves', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1221,7 +1221,7 @@ describe('execute() a query with @stream', () => {
     expect(callback).toBeCalledTimes(2);
   });
 
-  it('calls error() when server errors before streamed payload resolves', () => {
+  test('calls error() when server errors before streamed payload resolves', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1253,7 +1253,7 @@ describe('execute() a query with @stream', () => {
     expect(callback).toBeCalledTimes(1);
   });
 
-  it('calls error() when streamed payload is missing data', () => {
+  test('calls error() when streamed payload is missing data', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1297,7 +1297,7 @@ describe('execute() a query with @stream', () => {
     expect(callback).toBeCalledTimes(1);
   });
 
-  it('calls error() when streamed payload has error', () => {
+  test('calls error() when streamed payload has error', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1359,7 +1359,7 @@ describe('execute() a query with @stream', () => {
     });
   });
 
-  it('uses user-defined getDataID to generate ID from streamed payload.', () => {
+  test('uses user-defined getDataID to generate ID from streamed payload.', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
@@ -1425,7 +1425,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('warns if executed in non-streaming mode', () => {
+  test('warns if executed in non-streaming mode', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);

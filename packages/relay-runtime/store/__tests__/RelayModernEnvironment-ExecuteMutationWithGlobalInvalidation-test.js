@@ -118,7 +118,7 @@ describe('executeMutation() with global invalidation', () => {
     callbacks = {complete, error};
   });
 
-  it('global invalidation is a no-op if called during optimistic update', () => {
+  test('global invalidation is a no-op if called during optimistic update', () => {
     const selector = createReaderSelector(
       CommentFragment,
       commentID,
@@ -155,7 +155,7 @@ describe('executeMutation() with global invalidation', () => {
   });
 
   describe('when store invalidated inside updater after server payload', () => {
-    it('correctly invalidates the store when query has never been written before', () => {
+    test('correctly invalidates the store when query has never been written before', () => {
       const selector = createReaderSelector(
         CommentFragment,
         commentID,
@@ -213,7 +213,7 @@ describe('executeMutation() with global invalidation', () => {
       expect(environment.check(operation)).toEqual({status: 'stale'});
     });
 
-    it('correctly invalidates the store when query was written before invalidation', () => {
+    test('correctly invalidates the store when query was written before invalidation', () => {
       // Write operation before running invalidation
       environment.retain(queryOperation);
       environment.commitPayload(queryOperation, {
@@ -284,7 +284,7 @@ describe('executeMutation() with global invalidation', () => {
       expect(environment.check(operation)).toEqual({status: 'stale'});
     });
 
-    it('correctly invalidates the store when query is written after invalidation', () => {
+    test('correctly invalidates the store when query is written after invalidation', () => {
       // Execute mutation
       const selector = createReaderSelector(
         CommentFragment,

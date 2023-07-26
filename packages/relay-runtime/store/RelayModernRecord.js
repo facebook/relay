@@ -134,6 +134,15 @@ function getDataID(record: Record): DataID {
 /**
  * @public
  *
+ * Get the fields of a record.
+ */
+function getFields(record: Record): Array<string> {
+  return Object.keys(record);
+}
+
+/**
+ * @public
+ *
  * Get the concrete type of the record.
  */
 function getType(record: Record): string {
@@ -501,6 +510,7 @@ module.exports = {
   create,
   freeze,
   getDataID,
+  getFields,
   getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,

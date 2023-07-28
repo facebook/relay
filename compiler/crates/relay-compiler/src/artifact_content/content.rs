@@ -519,6 +519,7 @@ pub fn generate_fragment(
             project_config,
             schema,
             typegen_fragment,
+            source_hash,
             skip_types,
             fragment_locations,
         )
@@ -668,6 +669,7 @@ fn generate_assignable_fragment(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -733,6 +735,37 @@ fn generate_assignable_fragment(
     writeln!(section, "{}", named_validator_export).unwrap();
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
+
+    // -- Begin Fragment Node Section --
+    let mut section = GenericSection::default();
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "node",
+        "any",
+        "{}",
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Section --
+
+    // -- Begin Fragment Node Hash Section --
+    if let Some(source_hash) = source_hash {
+        let mut section = GenericSection::default();
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+        content_sections.push(ContentSection::Generic(section));
+    }
+    // -- End Fragment Node Hash Section --
+
+    // -- Begin Fragment Node Export Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(&project_config.typegen_config, &mut section, "node", None)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Export Section --
 
     content_sections.into_signed_bytes()
 }

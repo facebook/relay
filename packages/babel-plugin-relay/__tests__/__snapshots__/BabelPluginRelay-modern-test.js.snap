@@ -1,37 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`matches expected output: assignable.txt 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-'use strict';
-
-const {graphql} = require('relay-runtime');
-
-graphql\`
-  fragment AssignableFragment on Page @assignable {
-    __typename
-  }
-\`;
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-'use strict';
-
-const {graphql} = require('relay-runtime');
-
-`;
-
 exports[`matches expected output: fragment.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**

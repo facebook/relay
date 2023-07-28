@@ -150,6 +150,18 @@ describe('RelayModernRecord', () => {
     });
   });
 
+  describe('getFields()', () => {
+    it('returns an array with all the keys', () => {
+      const record = RelayModernRecord.getFields({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+        pets: {[REFS_KEY]: ['beast']},
+      });
+      expect(record).toEqual([ID_KEY, TYPENAME_KEY, 'name', 'pets']);
+    });
+  });
+
   describe('getValue()', () => {
     let record;
 

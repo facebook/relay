@@ -51,7 +51,7 @@ This value is not expected to ever be null, but the component **can still render
 
 ### `THROW` (unrecoverable)
 
-This value should not be null, and the component **cannot render without it**. If a field with `action: THROW` is null at runtime, the component which reads that field **will throw during render**. The error message includes both the owner and field path. Only use this option if your component is contained within an [error boundary](https://reactjs.org/docs/error-boundaries.html).
+This value should not be null, and the component **cannot render without it**. If a field with `action: THROW` is null at runtime, the component which reads that field **will throw during render**. The error message includes both the owner and field path. Only use this option if your component is contained within an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
 
 ## Locality
 

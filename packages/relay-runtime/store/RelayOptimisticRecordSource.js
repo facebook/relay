@@ -19,12 +19,15 @@ import type {
   RecordSource,
 } from './RelayStoreTypes';
 
+const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
 
-const UNPUBLISH_RECORD_SENTINEL = Object.freeze({
-  __UNPUBLISH_RECORD_SENTINEL: true,
-});
+const UNPUBLISH_RECORD_SENTINEL = RelayModernRecord.fromObject(
+  Object.freeze({
+    __UNPUBLISH_RECORD_SENTINEL: true,
+  }),
+);
 
 /**
  * An implementation of MutableRecordSource that represents a base RecordSource

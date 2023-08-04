@@ -13,15 +13,17 @@
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
-import type {
-  MutableRecordSource,
-  Record,
-  RecordObjectMap,
-} from './RelayStoreTypes';
+import type {MutableRecordSource, Record} from './RelayStoreTypes';
 
+const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordState = require('./RelayRecordState');
 
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
+
+/**
+ * A collection of records keyed by id.
+ */
+type RecordObjectMap = {[DataID]: ?{[key: string]: mixed}};
 
 /**
  * An implementation of the `MutableRecordSource` interface (defined in
@@ -34,7 +36,10 @@ class RelayRecordSource implements MutableRecordSource {
     this._records = new Map();
     if (records != null) {
       Object.keys(records).forEach(key => {
-        this._records.set(key, records[key]);
+        const object = records[key];
+        const record =
+          object == null ? object : RelayModernRecord.fromObject(object);
+        this._records.set(key, record);
       });
     }
   }

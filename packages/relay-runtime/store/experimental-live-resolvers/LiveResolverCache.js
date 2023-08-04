@@ -295,9 +295,15 @@ class LiveResolverCache implements ResolverCache {
     const answer: T = this._getResolverValue(linkedRecord);
 
     // $FlowFixMe[incompatible-type] - casting mixed
-    const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
+    const snapshot: ?Snapshot = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_SNAPSHOT_KEY,
+    );
     // $FlowFixMe[incompatible-type] - casting mixed
-    const error: ?Error = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
+    const error: ?Error = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_ERROR_KEY,
+    );
 
     let suspenseID = null;
 
@@ -405,7 +411,12 @@ class LiveResolverCache implements ResolverCache {
         return;
       }
 
-      if (!(RELAY_RESOLVER_LIVE_STATE_VALUE in currentRecord)) {
+      if (
+        !RelayModernRecord.hasValue(
+          currentRecord,
+          RELAY_RESOLVER_LIVE_STATE_VALUE,
+        )
+      ) {
         warning(
           false,
           'Unexpected callback for a incomplete live resolver record (__id: `%s`). The record has missing live state value. ' +

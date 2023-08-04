@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2491fba259d58b5dff2fdfbea441a17>>
+ * @generated SignedSource<<efcae8ad115150120e5c4d68976a4309>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,6 +21,14 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type readUpdatableQueryTest_user$fragmentType: FragmentType;
 */
 
+var node/*: any*/ = {};
+
+if (__DEV__) {
+  (node/*: any*/).hash = "b4c3265697d01e4f38a505ed5bb58bf7";
+}
+
+module.exports = node;
+
 module.exports.validate = function validate(value/*: {
   +__typename: string,
   +__id: string,
@@ -34,11 +42,3 @@ module.exports.validate = function validate(value/*: {
 }*/ {
   return value.__typename === 'User' ? (value/*: any*/) : false;
 };
-
-var node/*: any*/ = {};
-
-if (__DEV__) {
-  (node/*: any*/).hash = "b4c3265697d01e4f38a505ed5bb58bf7";
-}
-
-module.exports = node;

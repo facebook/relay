@@ -17,7 +17,7 @@ query TestDefer @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestDefer$variables = {};
+export type TestDefer$variables = Record<PropertyKey, never>;
 export type TestDefer$data = {
   readonly node: {
     readonly friends?: {

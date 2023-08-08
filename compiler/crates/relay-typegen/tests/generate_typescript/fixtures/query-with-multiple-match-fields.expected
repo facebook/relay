@@ -49,7 +49,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs, Local3DPayload } from "relay-runtime";
-export type Test$variables = {};
+export type Test$variables = Record<PropertyKey, never>;
 export type Test$data = {
   readonly node: {
     readonly username?: string | null;

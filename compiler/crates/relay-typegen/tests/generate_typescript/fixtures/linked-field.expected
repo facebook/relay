@@ -27,7 +27,7 @@ query UnionTypeTest {
   }
 }
 ==================================== OUTPUT ===================================
-export type UnionTypeTest$variables = {};
+export type UnionTypeTest$variables = Record<PropertyKey, never>;
 export type UnionTypeTest$data = {
   readonly neverNode: {
     readonly __typename: "FakeNode";

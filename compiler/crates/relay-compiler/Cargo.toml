@@ -42,7 +42,7 @@ log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
 md-5 = "0.10"
 persist-query = { path = "../persist-query" }
 rayon = "1.2"
-regex = "1.6.0"
+regex = "1.9.2"
 relay-codegen = { path = "../relay-codegen" }
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }

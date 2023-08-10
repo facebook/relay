@@ -58,7 +58,15 @@ TerseRelayResolver(
             ),
             arguments: None,
             directives: [],
-            description: None,
+            description: Some(
+                StringNode {
+                    token: Token {
+                        span: 58:70,
+                        kind: Empty,
+                    },
+                    value: "Non-nullable",
+                },
+            ),
             hack_source: None,
         },
         type_: WithLocation {

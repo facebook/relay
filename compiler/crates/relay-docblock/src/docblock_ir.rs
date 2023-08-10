@@ -32,6 +32,9 @@ use graphql_syntax::FragmentDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::InputValueDefinition;
 use graphql_syntax::List;
+use graphql_syntax::StringNode;
+use graphql_syntax::Token;
+use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
 use intern::Lookup;
 
@@ -102,6 +105,7 @@ pub(crate) fn parse_docblock_ir(
             if populated_ir_field.value.item.lookup().contains('.') {
                 DocblockIr::TerseRelayResolver(parse_terse_relay_resolver_ir(
                     &mut fields,
+                    description,
                     populated_ir_field,
                     definitions_in_file,
                     docblock_location,
@@ -262,6 +266,7 @@ fn parse_weak_object_ir(
 
 fn parse_terse_relay_resolver_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
+    description: Option<WithLocation<StringKey>>,
     relay_resolver_field: PopulatedIrField,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     location: Location,
@@ -295,11 +300,19 @@ fn parse_terse_relay_resolver_ir(
         }
     };
 
-    let field = parse_field_definition(
+    let mut field = parse_field_definition(
         &remaining_source[1..],
         type_str.location.source_location(),
         span_start + 1,
     )?;
+
+    field.description = description.map(|description| StringNode {
+        token: Token {
+            span: description.location.span(),
+            kind: TokenKind::Empty,
+        },
+        value: description.item,
+    });
 
     if let TypeAnnotation::NonNull(non_null) = field.type_ {
         return Err(vec![Diagnostic::error(

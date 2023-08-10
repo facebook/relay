@@ -37,6 +37,7 @@ pub use build_project::build_schema;
 pub use build_project::find_duplicates;
 pub use build_project::generate_artifacts;
 pub use build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+pub use build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 pub use build_project::transform_program;
 pub use build_project::validate;
 pub use build_project::validate_program;

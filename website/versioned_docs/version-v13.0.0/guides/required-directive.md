@@ -55,7 +55,7 @@ This value should not be null, and the component **cannot render without it**. I
 
 ## Locality
 
-A field's `@required` status is **local to the fragment where it is specified**. This allows you to add add/remove the directive without having to think about anything outside the scope of your component.
+A field's `@required` status is **local to the fragment where it is specified**. This allows you to add/remove the directive without having to think about anything outside the scope of your component.
 
 This choice reflects the fact that some components may be able to recover better from missing data than others. For example, a `<RestaurantInfo />` component could probably render something sensible even if the restaurant's address is missing, but a `<RestaurantLocationMap />` component might not.
 
@@ -116,7 +116,7 @@ fragment MyFrag on Actor {
 }
 ```
 
-In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullalble `name`.
+In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullable `name`.
 
 <FbInternalOnly>
 Example diff showing the adoption of this strategy: D24370183

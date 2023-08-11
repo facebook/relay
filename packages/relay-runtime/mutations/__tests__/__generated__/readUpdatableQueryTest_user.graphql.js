@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2491fba259d58b5dff2fdfbea441a17>>
+ * @generated SignedSource<<fccbd725ee99e7f119068e20b6fc19e4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,11 +34,3 @@ module.exports.validate = function validate(value/*: {
 }*/ {
   return value.__typename === 'User' ? (value/*: any*/) : false;
 };
-
-var node/*: any*/ = {};
-
-if (__DEV__) {
-  (node/*: any*/).hash = "b4c3265697d01e4f38a505ed5bb58bf7";
-}
-
-module.exports = node;

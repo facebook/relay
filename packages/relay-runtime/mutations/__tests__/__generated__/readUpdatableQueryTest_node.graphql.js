@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f7a96ba7ace520aabb51d3d8e030ebb3>>
+ * @generated SignedSource<<53b3b22d71f7629f39c4f4603c4586ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,11 +34,3 @@ module.exports.validate = function validate(value/*: {
 }*/ {
   return value.__isreadUpdatableQueryTest_node != null ? (value/*: any*/) : false;
 };
-
-var node/*: any*/ = {};
-
-if (__DEV__) {
-  (node/*: any*/).hash = "1e10d6074f00480fc34548623674b3da";
-}
-
-module.exports = node;

@@ -720,6 +720,22 @@ fn generate_assignable_fragment(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
+    // -- Begin Export Section --
+    let mut section = GenericSection::default();
+    // Assignable fragments should never be passed to useFragment, and thus, we
+    // don't need to emit a reader fragment.
+    // Instead, we only need a named validator export, i.e.
+    // module.exports.validator = ...
+    let named_validator_export = generate_named_validator_export(
+        typegen_fragment,
+        schema,
+        project_config,
+        fragment_locations,
+    );
+    writeln!(section, "{}", named_validator_export).unwrap();
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Export Section --
+
     // -- Begin Fragment Node Section --
     let mut section = GenericSection::default();
     write_variable_value_with_type(
@@ -750,22 +766,6 @@ fn generate_assignable_fragment(
     write_export_generated_node(&project_config.typegen_config, &mut section, "node", None)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Fragment Node Export Section --
-
-    // -- Begin Export Section --
-    let mut section = GenericSection::default();
-    // Assignable fragments should never be passed to useFragment, and thus, we
-    // don't need to emit a reader fragment.
-    // Instead, we only need a named validator export, i.e.
-    // module.exports.validate = ...
-    let named_validator_export = generate_named_validator_export(
-        typegen_fragment,
-        schema,
-        project_config,
-        fragment_locations,
-    );
-    writeln!(section, "{}", named_validator_export).unwrap();
-    content_sections.push(ContentSection::Generic(section));
-    // -- End Export Section --
 
     content_sections.into_signed_bytes()
 }

@@ -1,0 +1,419 @@
+==================================== INPUT ====================================
+# use-custom-variable-name
+fragment refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback on Feedback
+@refetchable(queryName: "RefetchableConnectionQuery") {
+  global_id
+  comments(first: $count, after: $cursor)
+    @connection(key: "RefetchableConnection_comments") {
+    edges {
+      cursor
+      node {
+        global_id
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "count"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cursor"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "global_id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RefetchableConnectionQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "global_id",
+            "variableName": "global_id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "count"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cursor"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "global_id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "RefetchableConnectionQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "global_id",
+            "variableName": "global_id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "global_id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "after",
+                    "variableName": "cursor"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "first",
+                    "variableName": "count"
+                  }
+                ],
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "CommentsEdge",
+                    "kind": "LinkedField",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "cursor",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Comment",
+                        "kind": "LinkedField",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "global_id",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__typename",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "PageInfo",
+                    "kind": "LinkedField",
+                    "name": "pageInfo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "endCursor",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "hasNextPage",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "after",
+                    "variableName": "cursor"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "first",
+                    "variableName": "count"
+                  }
+                ],
+                "filters": null,
+                "handle": "connection",
+                "key": "RefetchableConnection_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
+              }
+            ],
+            "type": "Feedback",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "5b0bba64f5feedde7f799aa3e6ec8e76",
+    "id": null,
+    "metadata": {},
+    "name": "RefetchableConnectionQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query RefetchableConnectionQuery(
+  $count: Int
+  $cursor: ID
+  $global_id: ID!
+) {
+  node(global_id: $global_id) {
+    __typename
+    ...refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback
+    global_id
+  }
+}
+
+fragment refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback on Feedback {
+  global_id
+  comments(first: $count, after: $cursor) {
+    edges {
+      cursor
+      node {
+        global_id
+        __typename
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "count"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "cursor"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "connection": [
+      {
+        "count": "count",
+        "cursor": "cursor",
+        "direction": "forward",
+        "path": [
+          "comments"
+        ]
+      }
+    ],
+    "refetch": {
+      "connection": {
+        "forward": {
+          "count": "count",
+          "cursor": "cursor"
+        },
+        "backward": null,
+        "path": [
+          "comments"
+        ]
+      },
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('RefetchableConnectionQuery.graphql'),
+      "identifierInfo": {
+        "identifierField": "global_id",
+        "identifierQueryVariableName": "variable_name"
+      }
+    }
+  },
+  "name": "refetchableConnectionWithCustomVariableName_RefetchableConnection_feedback",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "global_id",
+      "storageKey": null
+    },
+    {
+      "alias": "comments",
+      "args": null,
+      "concreteType": "CommentsConnection",
+      "kind": "LinkedField",
+      "name": "__RefetchableConnection_comments_connection",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "CommentsEdge",
+          "kind": "LinkedField",
+          "name": "edges",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "cursor",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "Comment",
+              "kind": "LinkedField",
+              "name": "node",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "global_id",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "__typename",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "PageInfo",
+          "kind": "LinkedField",
+          "name": "pageInfo",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "endCursor",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "hasNextPage",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Feedback",
+  "abstractKey": null
+}

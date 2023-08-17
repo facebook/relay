@@ -423,6 +423,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
     fn field_name(&self) -> &Identifier;
     fn field_arguments(&self) -> Option<&List<InputValueDefinition>>;
     fn description(&self) -> Option<StringNode>;
+    fn hack_source(&self) -> Option<StringNode>;
     fn fragment_arguments(&self) -> Option<&Vec<Argument>>;
 
     /// Build recursive object/interface extensions to add this field to all
@@ -588,6 +589,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             arguments: args,
             directives: self.directives(object, schema_info),
             description: self.description(),
+            hack_source: self.hack_source(),
         }])
     }
 
@@ -719,6 +721,10 @@ impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
     fn fragment_arguments(&self) -> Option<&Vec<Argument>> {
         self.fragment_arguments.as_ref()
     }
+
+    fn hack_source(&self) -> Option<StringNode> {
+        self.field.hack_source.clone()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -728,6 +734,7 @@ pub struct RelayResolverIr {
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub output_type: Option<OutputType>,
     pub description: Option<WithLocation<StringKey>>,
+    pub hack_source: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
@@ -880,6 +887,10 @@ impl ResolverTypeDefinitionIr for RelayResolverIr {
 
     fn fragment_arguments(&self) -> Option<&Vec<Argument>> {
         self.fragment_arguments.as_ref()
+    }
+
+    fn hack_source(&self) -> Option<StringNode> {
+        self.hack_source.map(as_string_node)
     }
 }
 
@@ -1048,10 +1059,12 @@ impl ResolverIr for StrongObjectIr {
                 arguments: None,
                 directives: vec![],
                 description: None,
+                hack_source: None,
             },
             generate_model_instance_field(
                 schema_info,
-                *INT_TYPE,
+                RESOLVER_VALUE_SCALAR_NAME.0,
+                None,
                 None,
                 self.directives(None, schema_info),
                 self.location(),
@@ -1117,6 +1130,7 @@ pub struct WeakObjectIr {
     /// It is the location of a longer string, e.g. "Foo implements Bar".
     pub rhs_location: Location,
     pub description: Option<WithLocation<StringKey>>,
+    pub hack_source: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub location: Location,
 }
@@ -1167,6 +1181,7 @@ impl WeakObjectIr {
                 schema_info,
                 self.model_type_name(),
                 self.description.map(as_string_node),
+                self.hack_source.map(as_string_node),
                 vec![],
                 self.location(),
             )])),
@@ -1362,6 +1377,7 @@ fn generate_model_instance_field(
     schema_info: SchemaInfo<'_, '_>,
     type_name: StringKey,
     description: Option<StringNode>,
+    hack_source: Option<StringNode>,
     mut directives: Vec<ConstantDirective>,
     location: Location,
 ) -> FieldDefinition {
@@ -1381,11 +1397,16 @@ fn generate_model_instance_field(
 
     FieldDefinition {
         name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
-        type_: TypeAnnotation::Named(NamedTypeAnnotation {
-            name: string_key_as_identifier(type_name),
-        }),
+        type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
+            span,
+            type_: TypeAnnotation::Named(NamedTypeAnnotation {
+                name: string_key_as_identifier(type_name),
+            }),
+            exclamation: dummy_token(span),
+        })),
         arguments: None,
         directives,
         description,
+        hack_source,
     }
 }

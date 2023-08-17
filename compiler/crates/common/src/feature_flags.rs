@@ -21,19 +21,11 @@ use crate::Rollout;
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
-    pub enable_flight_transform: bool,
-
-    #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
     /// Enable deprecated `@outputType` on Relay Resolvers.
     #[serde(default)]
     pub relay_resolver_enable_output_type: FeatureFlag,
-
-    /// Enable hashing of the `supported` argument of 3D fields. Partial
-    /// enabling of the feature flag checks the name based on the field type.
-    #[serde(default)]
-    pub hash_supported_argument: FeatureFlag,
 
     /// For now, this also disallows fragments with variable definitions
     /// This also makes @module to opt in using @no_inline internally

@@ -72,6 +72,7 @@ RelayResolver(
             ),
         ),
         description: None,
+        hack_source: None,
         deprecated: None,
         live: Some(
             UnpopulatedIrField {

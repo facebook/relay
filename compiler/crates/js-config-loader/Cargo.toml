@@ -11,9 +11,9 @@ name = "tests"
 path = "tests/lib.rs"
 
 [dependencies]
-serde = { version = "1.0.136", features = ["derive", "rc"] }
-serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
-thiserror = "1.0.36"
+serde = { version = "1.0.176", features = ["derive", "rc"] }
+serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
+thiserror = "1.0.43"
 
 [dev-dependencies]
 tempfile = "3.5"

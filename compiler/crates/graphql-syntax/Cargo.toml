@@ -14,8 +14,8 @@ path = "tests/print_test.rs"
 common = { path = "../common" }
 intern = { path = "../intern" }
 logos = "0.12"
-serde = { version = "1.0.136", features = ["derive", "rc"] }
-thiserror = "1.0.36"
+serde = { version = "1.0.176", features = ["derive", "rc"] }
+thiserror = "1.0.43"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

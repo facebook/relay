@@ -25,7 +25,7 @@ lazy_static = "1.4"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
 schema = { path = "../schema" }
-thiserror = "1.0.36"
+thiserror = "1.0.43"
 
 [dev-dependencies]
 extract-graphql = { path = "../extract-graphql" }

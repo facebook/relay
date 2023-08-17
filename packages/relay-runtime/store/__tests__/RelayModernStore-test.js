@@ -934,7 +934,9 @@ function cloneEventWithSets(event: LogEvent) {
           if (!record) {
             throw new Error('Expected to find record with id client:1');
           }
-          expect(record[INVALIDATED_AT_KEY]).toEqual(1);
+          expect(
+            RelayModernRecord.getValue(record, INVALIDATED_AT_KEY),
+          ).toEqual(1);
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
 
@@ -970,7 +972,9 @@ function cloneEventWithSets(event: LogEvent) {
           if (!record) {
             throw new Error('Expected to find record with id "4"');
           }
-          expect(record[INVALIDATED_AT_KEY]).toEqual(1);
+          expect(
+            RelayModernRecord.getValue(record, INVALIDATED_AT_KEY),
+          ).toEqual(1);
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
       });

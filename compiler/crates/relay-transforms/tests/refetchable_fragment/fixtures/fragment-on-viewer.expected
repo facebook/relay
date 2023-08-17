@@ -42,7 +42,7 @@ fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragm
 #     path: [
 #         "viewer",
 #     ],
-#     identifier_field: None,
+#     identifier_info: None,
 # }
  {
   actor {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ff3bd5a7cdc39858438274e36f7cafb4>>
+ * @generated SignedSource<<53e0b3a32b44b6519eb4ded0b78bf2d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+) => ?mixed);
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -38,7 +38,7 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 export type RelayReaderRequiredFieldsTest27Query$variables = {||};
 export type RelayReaderRequiredFieldsTest27Query$data = {|
   +all_astrological_signs: $ReadOnlyArray<?{|
-    +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+    +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
   |}>,
 |};
 export type RelayReaderRequiredFieldsTest27Query = {|

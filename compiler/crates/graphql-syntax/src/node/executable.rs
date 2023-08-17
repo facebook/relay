@@ -59,6 +59,13 @@ impl ExecutableDefinition {
                 .any(|d| d.name.value == directive_name),
         }
     }
+
+    pub fn selections(&self) -> &[Selection] {
+        match self {
+            ExecutableDefinition::Operation(node) => &node.selections.items,
+            ExecutableDefinition::Fragment(node) => &node.selections.items,
+        }
+    }
 }
 
 impl fmt::Debug for ExecutableDefinition {

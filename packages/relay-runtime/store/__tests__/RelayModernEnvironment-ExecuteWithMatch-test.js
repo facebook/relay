@@ -200,7 +200,7 @@ describe('execute() a query with @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRenderer: {
-          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __typename: 'MarkdownUserNameRenderer',
           __fragmentPropName: 'name',
           __fragments: {

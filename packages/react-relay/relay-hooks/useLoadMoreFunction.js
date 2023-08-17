@@ -33,6 +33,7 @@ const {
   ConnectionInterface,
   createOperationDescriptor,
   getPaginationVariables,
+  getRefetchMetadata,
   getSelector,
   getValueAtPath,
 } = require('relay-runtime');
@@ -53,7 +54,6 @@ export type UseLoadMoreFunctionArgs = {
   fragmentIdentifier: string,
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-  identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,
@@ -76,17 +76,22 @@ function useLoadMoreFunction<TVariables: Variables>(
     componentDisplayName,
     observer,
     onReset,
-    identifierField,
   } = args;
   const environment = useRelayEnvironment();
   const {isFetchingRef, startFetch, disposeFetch, completeFetch} =
     useFetchTrackingRef();
+
+  const {identifierInfo} = getRefetchMetadata(
+    fragmentNode,
+    componentDisplayName,
+  );
   const identifierValue =
-    identifierField != null &&
+    identifierInfo?.identifierField != null &&
     fragmentData != null &&
     typeof fragmentData === 'object'
-      ? fragmentData[identifierField]
+      ? fragmentData[identifierInfo.identifierField]
       : null;
+
   const isMountedRef = useIsMountedRef();
   const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
   const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] =
@@ -201,7 +206,7 @@ function useLoadMoreFunction<TVariables: Variables>(
 
       // If the query needs an identifier value ('id' or similar) and one
       // was not explicitly provided, read it from the fragment data.
-      if (identifierField != null) {
+      if (identifierInfo != null) {
         // @refetchable fragments are guaranteed to have an `id` selection
         // if the type is Node, implements Node, or is @fetchable. Double-check
         // that there actually is a value at runtime.
@@ -210,11 +215,12 @@ function useLoadMoreFunction<TVariables: Variables>(
             false,
             'Relay: Expected result to have a string  ' +
               '`%s` in order to refetch, got `%s`.',
-            identifierField,
+            identifierInfo.identifierField,
             identifierValue,
           );
         }
-        paginationVariables.id = identifierValue;
+        paginationVariables[identifierInfo.identifierQueryVariableName] =
+          identifierValue;
       }
 
       const paginationQuery = createOperationDescriptor(

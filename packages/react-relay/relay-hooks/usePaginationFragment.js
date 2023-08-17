@@ -62,12 +62,8 @@ function usePaginationFragment_LEGACY<
   );
   const componentDisplayName = 'usePaginationFragment()';
 
-  const {
-    connectionPathInFragmentData,
-    paginationRequest,
-    paginationMetadata,
-    identifierField,
-  } = getPaginationMetadata(fragmentNode, componentDisplayName);
+  const {connectionPathInFragmentData, paginationRequest, paginationMetadata} =
+    getPaginationMetadata(fragmentNode, componentDisplayName);
 
   const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentNode<
     $FlowFixMe,
@@ -85,7 +81,6 @@ function usePaginationFragment_LEGACY<
       fragmentIdentifier,
       fragmentNode,
       fragmentRef,
-      identifierField,
       paginationMetadata,
       paginationRequest,
     });
@@ -100,7 +95,6 @@ function usePaginationFragment_LEGACY<
       fragmentIdentifier,
       fragmentNode,
       fragmentRef,
-      identifierField,
       paginationMetadata,
       paginationRequest,
     });

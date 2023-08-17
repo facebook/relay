@@ -240,3 +240,106 @@ test('Updates can be batched', () => {
     'liveresolver.batch.end',
   ]);
 });
+
+test('Errors thrown during _initial_ read() are caught as resolver errors', () => {
+  GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const operation = createOperationDescriptor(
+    graphql`
+      query LiveResolversTestHandlesErrorOnReadQuery {
+        counter_throws_when_odd
+      }
+    `,
+    {},
+  );
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+  expect(snapshot.relayResolverErrors).toEqual([
+    {
+      error: Error('What?'),
+      field: {
+        owner: 'LiveResolversTestHandlesErrorOnReadQuery',
+        path: 'counter_throws_when_odd',
+      },
+    },
+  ]);
+  const data: $FlowExpectedError = snapshot.data;
+  expect(data.counter_throws_when_odd).toBe(null);
+});
+
+test('Errors thrown during read() _after update_ are caught as resolver errors', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const operation = createOperationDescriptor(
+    graphql`
+      query LiveResolversTestHandlesErrorOnUpdateQuery {
+        counter_throws_when_odd
+      }
+    `,
+    {},
+  );
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+
+  const handler = jest.fn<[Snapshot], void>();
+  environment.subscribe(snapshot, handler);
+
+  // Confirm there are no initial errors
+  expect(snapshot.relayResolverErrors).toEqual([]);
+  const data: $FlowExpectedError = snapshot.data;
+  expect(data.counter_throws_when_odd).toBe(0);
+
+  // This should trigger a read that throws
+  GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+
+  expect(handler).toHaveBeenCalled();
+
+  const nextSnapshot = handler.mock.calls[0][0];
+
+  expect(nextSnapshot.relayResolverErrors).toEqual([
+    {
+      error: Error('What?'),
+      field: {
+        owner: 'LiveResolversTestHandlesErrorOnUpdateQuery',
+        path: 'counter_throws_when_odd',
+      },
+    },
+  ]);
+  const nextData: $FlowExpectedError = nextSnapshot.data;
+  expect(nextData.counter_throws_when_odd).toBe(null);
+
+  handler.mockReset();
+
+  // Put the live resolver back into a state where it is valid
+  GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+
+  const finalSnapshot = handler.mock.calls[0][0];
+
+  // Confirm there are no initial errors
+  expect(finalSnapshot.relayResolverErrors).toEqual([]);
+  const finalData: $FlowExpectedError = finalSnapshot.data;
+  expect(finalData.counter_throws_when_odd).toBe(2);
+});

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<53b0ceb6d8eee75e5095d64c1c90d2b2>>
+ * @generated SignedSource<<23b59935d703571adc5d8c0cca956d3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,11 +25,11 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
   rootKey: UserGreetingResolver$key,
-) => mixed);
+) => ?mixed);
 declare export opaque type ResolverTest2Fragment$fragmentType: FragmentType;
 type ResolverTest1FragmentRefetchableQuery$variables = any;
 export type ResolverTest2Fragment$data = {|
-  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
+  +greeting: ?ReturnType<typeof userGreetingResolverType>,
   +id: string,
   +$fragmentType: ResolverTest2Fragment$fragmentType,
 |};
@@ -50,7 +50,10 @@ var node/*: ReaderFragment*/ = {
         "node"
       ],
       "operation": require('./ResolverTest1FragmentRefetchableQuery.graphql'),
-      "identifierField": "id"
+      "identifierInfo": {
+        "identifierField": "id",
+        "identifierQueryVariableName": "id"
+      }
     }
   },
   "name": "ResolverTest2Fragment",

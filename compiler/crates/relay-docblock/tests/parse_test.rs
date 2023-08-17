@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<808ccebf97208f983fbfd157e12804fe>>
+ * @generated SignedSource<<5d997f008adc06523bb95fb0fe4781a6>>
  */
 
 mod parse;
@@ -276,4 +276,25 @@ fn terse_relay_resolver_no_dot_invalid() {
     let input = include_str!("parse/fixtures/terse-relay-resolver-no-dot.invalid.js");
     let expected = include_str!("parse/fixtures/terse-relay-resolver-no-dot.invalid.expected");
     test_fixture(transform_fixture, "terse-relay-resolver-no-dot.invalid.js", "parse/fixtures/terse-relay-resolver-no-dot.invalid.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_non_nullable() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-non-nullable.js", "parse/fixtures/terse-relay-resolver-non-nullable.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_non_nullable_list() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-non-nullable-list.js", "parse/fixtures/terse-relay-resolver-non-nullable-list.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_non_nullable_list_item() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list-item.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list-item.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-non-nullable-list-item.js", "parse/fixtures/terse-relay-resolver-non-nullable-list-item.expected", input, expected);
 }

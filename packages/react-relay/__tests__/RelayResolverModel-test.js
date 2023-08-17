@@ -366,6 +366,8 @@ describe.each([
       invariant(false, 'Expected to suspend.');
     }
 
+    addTodo('Test todo');
+
     const renderer = TestRenderer.create(
       <EnvironmentWrapper environment={environment}>
         <TodoComponentWithNullWeakClientEdge todoID="todo-1" />

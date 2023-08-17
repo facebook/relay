@@ -25,7 +25,6 @@ crates/relay-codegen/tests/connections
 crates/relay-codegen/tests/deduped_json_codegen
 crates/relay-codegen/tests/defer_stream
 crates/relay-codegen/tests/json_codegen
-crates/relay-codegen/tests/react_flight_codegen
 crates/relay-codegen/tests/relay_actor_change
 crates/relay-codegen/tests/request_metadata
 crates/relay-codegen/tests/skip_printing_nulls
@@ -62,7 +61,6 @@ crates/relay-transforms/tests/match_transform_local
 crates/relay-transforms/tests/provided_variable_fragment_transform
 crates/relay-transforms/tests/refetchable_fragment
 crates/relay-transforms/tests/relay_actor_change
-crates/relay-transforms/tests/relay_client_component
 crates/relay-transforms/tests/relay_resolvers
 crates/relay-transforms/tests/relay_test_operation
 crates/relay-transforms/tests/required_directive

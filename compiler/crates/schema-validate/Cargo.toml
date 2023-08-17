@@ -20,11 +20,11 @@ common = { path = "../common" }
 fnv = "1.0"
 intern = { path = "../intern" }
 lazy_static = "1.4"
-rayon = "1.2"
-regex = "1.6.0"
+log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
+regex = "1.9.2"
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }
-thiserror = "1.0.36"
+thiserror = "1.0.43"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

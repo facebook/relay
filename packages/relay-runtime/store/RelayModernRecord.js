@@ -13,7 +13,6 @@
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {Record} from './RelayStoreTypes';
 
 const deepFreeze = require('../util/deepFreeze');
 const {generateClientObjectClientID, isClientID} = require('./ClientID');
@@ -33,6 +32,11 @@ const {
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
+
+/*
+ * An individual cached graph object.
+ */
+export opaque type Record = {[key: string]: mixed, ...};
 
 /**
  * @public
@@ -125,10 +129,28 @@ function create(dataID: DataID, typeName: string): Record {
 /**
  * @public
  *
+ * Convert an object to a record.
+ */
+function fromObject(object: {[key: string]: mixed, ...}): Record {
+  return object;
+}
+
+/**
+ * @public
+ *
  * Get the record's `id` if available or the client-generated identifier.
  */
 function getDataID(record: Record): DataID {
   return (record[ID_KEY]: any);
+}
+
+/**
+ * @public
+ *
+ * Get the fields of a record.
+ */
+function getFields(record: Record): Array<string> {
+  return Object.keys(record);
 }
 
 /**
@@ -160,6 +182,15 @@ function getValue(record: Record, storageKey: string): mixed {
     );
   }
   return value;
+}
+
+/**
+ * @public
+ *
+ * Check if a record has a value for the given field.
+ */
+function hasValue(record: Record, storageKey: string): boolean {
+  return storageKey in record;
 }
 
 /**
@@ -500,12 +531,15 @@ module.exports = {
   copyFields,
   create,
   freeze,
+  fromObject,
   getDataID,
+  getFields,
   getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,
   getType,
   getValue,
+  hasValue,
   merge,
   setValue,
   setLinkedRecordID,

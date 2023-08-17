@@ -23,7 +23,6 @@ import type {
   MutableRecordSource,
   Record,
   RecordSource,
-  RelayResolverError,
   SingularReaderSelector,
   Snapshot,
 } from '../RelayStoreTypes';
@@ -115,7 +114,7 @@ class LiveResolverCache implements ResolverCache {
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
-    ?RelayResolverError,
+    ?Error,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
     ?DataIDSet /** Set of dirty records after read */,
@@ -154,8 +153,19 @@ class LiveResolverCache implements ResolverCache {
 
       const evaluationResult = evaluate();
 
+      RelayModernRecord.setValue(
+        linkedRecord,
+        RELAY_RESOLVER_SNAPSHOT_KEY,
+        evaluationResult.snapshot,
+      );
+      RelayModernRecord.setValue(
+        linkedRecord,
+        RELAY_RESOLVER_ERROR_KEY,
+        evaluationResult.error,
+      );
+
       if (field.kind === RELAY_LIVE_RESOLVER) {
-        if (evaluationResult.resolverResult != undefined) {
+        if (evaluationResult.resolverResult != null) {
           if (__DEV__) {
             invariant(
               isLiveStateValue(evaluationResult.resolverResult),
@@ -164,6 +174,10 @@ class LiveResolverCache implements ResolverCache {
               field.path,
             );
           }
+          invariant(
+            evaluationResult.error == null,
+            'Did not expect resolver to have both a value and an error.',
+          );
           const liveState: LiveState<mixed> =
             // $FlowFixMe[incompatible-type] - casting mixed
             evaluationResult.resolverResult;
@@ -203,16 +217,7 @@ class LiveResolverCache implements ResolverCache {
           variables,
         );
       }
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_SNAPSHOT_KEY,
-        evaluationResult.snapshot,
-      );
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_ERROR_KEY,
-        evaluationResult.error,
-      );
+
       recordSource.set(linkedID, linkedRecord);
 
       // Link the resolver value record to the resolver field of the record being read:
@@ -269,9 +274,9 @@ class LiveResolverCache implements ResolverCache {
         );
       }
 
-      updatedDataIDs = this._setResolverValue(
+      updatedDataIDs = this._setLiveResolverValue(
         linkedRecord,
-        liveState.read(),
+        liveState,
         field,
         variables,
       );
@@ -290,9 +295,15 @@ class LiveResolverCache implements ResolverCache {
     const answer: T = this._getResolverValue(linkedRecord);
 
     // $FlowFixMe[incompatible-type] - casting mixed
-    const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
+    const snapshot: ?Snapshot = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_SNAPSHOT_KEY,
+    );
     // $FlowFixMe[incompatible-type] - casting mixed
-    const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
+    const error: ?Error = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_ERROR_KEY,
+    );
 
     let suspenseID = null;
 
@@ -362,9 +373,9 @@ class LiveResolverCache implements ResolverCache {
     );
 
     // Store the current value, for this read, and future cached reads.
-    const updatedDataIDs = this._setResolverValue(
+    const updatedDataIDs = this._setLiveResolverValue(
       linkedRecord,
-      liveState.read(),
+      liveState,
       field,
       variables,
     );
@@ -400,7 +411,12 @@ class LiveResolverCache implements ResolverCache {
         return;
       }
 
-      if (!(RELAY_RESOLVER_LIVE_STATE_VALUE in currentRecord)) {
+      if (
+        !RelayModernRecord.hasValue(
+          currentRecord,
+          RELAY_RESOLVER_LIVE_STATE_VALUE,
+        )
+      ) {
         warning(
           false,
           'Unexpected callback for a incomplete live resolver record (__id: `%s`). The record has missing live state value. ' +
@@ -465,6 +481,28 @@ class LiveResolverCache implements ResolverCache {
       this._liveResolverBatchRecordSource = null;
       this._handlingBatch = false;
     }
+  }
+
+  _setLiveResolverValue(
+    resolverRecord: Record,
+    liveValue: LiveState<mixed>,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
+    variables: Variables,
+  ): DataIDSet | null {
+    let value: null | mixed = null;
+    let resolverError: null | mixed = null;
+    try {
+      value = liveValue.read();
+    } catch (e) {
+      resolverError = e;
+    }
+
+    RelayModernRecord.setValue(
+      resolverRecord,
+      RELAY_RESOLVER_ERROR_KEY,
+      resolverError,
+    );
+    return this._setResolverValue(resolverRecord, value, field, variables);
   }
 
   _setResolverValue(

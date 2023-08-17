@@ -16,7 +16,6 @@ import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
   NormalizationActorChange,
   NormalizationDefer,
-  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
@@ -31,9 +30,6 @@ import type {
   IncrementalDataPlaceholder,
   MutableRecordSource,
   NormalizationSelector,
-  ReactFlightPayloadDeserializer,
-  ReactFlightReachableExecutableDefinitions,
-  ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
 } from './RelayStoreTypes';
@@ -49,7 +45,6 @@ const {
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
-  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -61,20 +56,12 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {generateClientID, isClientID} = require('./ClientID');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
-  REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
-  REACT_FLIGHT_TREE_STORAGE_KEY,
-  REACT_FLIGHT_TYPE_NAME,
-  refineToReactFlightPayloadData,
-} = require('./RelayStoreReactFlightUtils');
-const {
   ROOT_ID,
-  ROOT_TYPE,
   TYPENAME_KEY,
   getArgumentValues,
   getHandleStorageKey,
@@ -96,8 +83,6 @@ export type NormalizationOptions = {
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
   +path?: $ReadOnlyArray<string>,
-  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
-  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +shouldProcessClientComponents?: ?boolean,
   +actorIdentifier?: ?ActorIdentifier,
 };
@@ -138,8 +123,6 @@ class RelayResponseNormalizer {
   _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
-  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
-  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _shouldProcessClientComponents: ?boolean;
 
   constructor(
@@ -158,9 +141,6 @@ class RelayResponseNormalizer {
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
     this._variables = variables;
-    this._reactFlightPayloadDeserializer =
-      options.reactFlightPayloadDeserializer;
-    this._reactFlightServerErrorHandler = options.reactFlightServerErrorHandler;
     this._shouldProcessClientComponents = options.shouldProcessClientComponents;
   }
 
@@ -237,7 +217,7 @@ class RelayResponseNormalizer {
       switch (selection.kind) {
         case SCALAR_FIELD:
         case LINKED_FIELD:
-          this._normalizeField(node, selection, record, data);
+          this._normalizeField(selection, record, data);
           break;
         case CONDITION:
           const conditionValue = Boolean(
@@ -321,7 +301,7 @@ class RelayResponseNormalizer {
           });
           break;
         case MODULE_IMPORT:
-          this._normalizeModuleImport(node, selection, record, data);
+          this._normalizeModuleImport(selection, record, data);
           break;
         case DEFER:
           this._normalizeDefer(selection, record, data);
@@ -341,15 +321,8 @@ class RelayResponseNormalizer {
           }
           this._traverseSelections(selection.fragment, record, data);
           break;
-        case FLIGHT_FIELD:
-          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
-            this._normalizeFlightField(node, selection, record, data);
-          } else {
-            throw new Error('Flight fields are not yet supported.');
-          }
-          break;
         case ACTOR_CHANGE:
-          this._normalizeActorChange(node, selection, record, data);
+          this._normalizeActorChange(selection, record, data);
           break;
         case RELAY_RESOLVER:
           this._normalizeResolver(selection, record, data);
@@ -449,7 +422,6 @@ class RelayResponseNormalizer {
   }
 
   _normalizeModuleImport(
-    parent: NormalizationNode,
     moduleImport: NormalizationModuleImport,
     record: Record,
     data: PayloadData,
@@ -491,7 +463,6 @@ class RelayResponseNormalizer {
   }
 
   _normalizeField(
-    parent: NormalizationNode,
     selection: NormalizationLinkedField | NormalizationScalarField,
     record: Record,
     data: PayloadData,
@@ -583,7 +554,6 @@ class RelayResponseNormalizer {
   }
 
   _normalizeActorChange(
-    parent: NormalizationNode,
     selection: NormalizationActorChange,
     record: Record,
     data: PayloadData,
@@ -675,183 +645,6 @@ class RelayResponseNormalizer {
     });
   }
 
-  _normalizeFlightField(
-    parent: NormalizationNode,
-    selection: NormalizationFlightField,
-    record: Record,
-    data: PayloadData,
-  ): void {
-    const responseKey = selection.alias || selection.name;
-    const storageKey = getStorageKey(selection, this._variables);
-    const fieldValue = data[responseKey];
-
-    if (fieldValue == null) {
-      if (fieldValue === undefined) {
-        // Flight field may be missing in the response if:
-        // - It is inside an abstract type refinement where the concrete type does
-        //   not conform to the interface/union.
-        // However an otherwise-required field may also be missing if the server
-        // is configured to skip fields with `null` values, in which case the
-        // client is assumed to be correctly configured with
-        // treatMissingFieldsAsNull=true.
-        if (this._isUnmatchedAbstractType) {
-          // Field not expected to exist regardless of whether the server is pruning null
-          // fields or not.
-          return;
-        } else {
-          // Not optional and the server is not pruning null fields: field is expected
-          // to be present
-          invariant(
-            this._treatMissingFieldsAsNull,
-            'RelayResponseNormalizer: Payload did not contain a value for ' +
-              'field `%s: %s`. Check that you are parsing with the same ' +
-              'query that was used to fetch the payload.',
-            responseKey,
-            storageKey,
-          );
-        }
-      }
-      RelayModernRecord.setValue(record, storageKey, null);
-      return;
-    }
-
-    const reactFlightPayload = refineToReactFlightPayloadData(fieldValue);
-    const reactFlightPayloadDeserializer = this._reactFlightPayloadDeserializer;
-
-    invariant(
-      reactFlightPayload != null,
-      'RelayResponseNormalizer: Expected React Flight payload data to be an ' +
-        'object with `status`, tree`, `queries` and `errors` properties, got ' +
-        '`%s`.',
-      fieldValue,
-    );
-    invariant(
-      typeof reactFlightPayloadDeserializer === 'function',
-      'RelayResponseNormalizer: Expected reactFlightPayloadDeserializer to ' +
-        'be a function, got `%s`.',
-      reactFlightPayloadDeserializer,
-    );
-
-    if (reactFlightPayload.errors.length > 0) {
-      if (typeof this._reactFlightServerErrorHandler === 'function') {
-        this._reactFlightServerErrorHandler(
-          reactFlightPayload.status,
-          reactFlightPayload.errors,
-        );
-      } else {
-        warning(
-          false,
-          'RelayResponseNormalizer: Received server errors for field `%s`.\n\n' +
-            '%s\n%s',
-          responseKey,
-          reactFlightPayload.errors[0].message,
-          reactFlightPayload.errors[0].stack,
-        );
-      }
-    }
-
-    const reactFlightID = generateClientID(
-      RelayModernRecord.getDataID(record),
-      getStorageKey(selection, this._variables),
-    );
-    let reactFlightClientResponseRecord = this._recordSource.get(reactFlightID);
-    if (reactFlightClientResponseRecord == null) {
-      reactFlightClientResponseRecord = RelayModernRecord.create(
-        reactFlightID,
-        REACT_FLIGHT_TYPE_NAME,
-      );
-      this._recordSource.set(reactFlightID, reactFlightClientResponseRecord);
-    }
-
-    if (reactFlightPayload.tree == null) {
-      // This typically indicates that a fatal server error prevented rows from
-      // being written. When this occurs, we should not continue normalization of
-      // the Flight field because the row response is malformed.
-      //
-      // Receiving empty rows is OK because it can indicate the start of a stream.
-      warning(
-        false,
-        'RelayResponseNormalizer: Expected `tree` not to be null. This ' +
-          'typically indicates that a fatal server error prevented any Server ' +
-          'Component rows from being written.',
-      );
-      // We create the flight record with a null value for the tree
-      // and empty reachable definitions
-      RelayModernRecord.setValue(
-        reactFlightClientResponseRecord,
-        REACT_FLIGHT_TREE_STORAGE_KEY,
-        null,
-      );
-      RelayModernRecord.setValue(
-        reactFlightClientResponseRecord,
-        REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
-        [],
-      );
-      RelayModernRecord.setLinkedRecordID(record, storageKey, reactFlightID);
-      return;
-    }
-
-    // We store the deserialized reactFlightClientResponse in a separate
-    // record and link it to the parent record. This is so we can GC the Flight
-    // tree later even if the parent record is still reachable.
-    const reactFlightClientResponse = reactFlightPayloadDeserializer(
-      reactFlightPayload.tree,
-    );
-
-    RelayModernRecord.setValue(
-      reactFlightClientResponseRecord,
-      REACT_FLIGHT_TREE_STORAGE_KEY,
-      reactFlightClientResponse,
-    );
-
-    const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> =
-      [];
-    for (const query of reactFlightPayload.queries) {
-      if (query.response.data != null) {
-        this._followupPayloads.push({
-          kind: 'ModuleImportPayload',
-          args: null,
-          data: query.response.data,
-          dataID: ROOT_ID,
-          operationReference: query.module,
-          path: [],
-          typeName: ROOT_TYPE,
-          variables: query.variables,
-          actorIdentifier: this._actorIdentifier,
-        });
-      }
-      reachableExecutableDefinitions.push({
-        module: query.module,
-        variables: query.variables,
-      });
-    }
-    for (const fragment of reactFlightPayload.fragments) {
-      if (fragment.response.data != null) {
-        this._followupPayloads.push({
-          kind: 'ModuleImportPayload',
-          args: null,
-          data: fragment.response.data,
-          dataID: fragment.__id,
-          operationReference: fragment.module,
-          path: [],
-          typeName: fragment.__typename,
-          variables: fragment.variables,
-          actorIdentifier: this._actorIdentifier,
-        });
-      }
-      reachableExecutableDefinitions.push({
-        module: fragment.module,
-        variables: fragment.variables,
-      });
-    }
-    RelayModernRecord.setValue(
-      reactFlightClientResponseRecord,
-      REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
-      reachableExecutableDefinitions,
-    );
-    RelayModernRecord.setLinkedRecordID(record, storageKey, reactFlightID);
-  }
-
   _normalizeLink(
     field: NormalizationLinkedField,
     record: Record,
@@ -880,7 +673,6 @@ class RelayResponseNormalizer {
     );
     if (__DEV__) {
       this._validateConflictingLinkedFieldsWithIdenticalId(
-        record,
         RelayModernRecord.getLinkedRecordID(record, storageKey),
         nextID,
         storageKey,
@@ -962,7 +754,6 @@ class RelayResponseNormalizer {
       if (__DEV__) {
         if (prevIDs) {
           this._validateConflictingLinkedFieldsWithIdenticalId(
-            record,
             prevIDs[nextIndex],
             nextID,
             storageKey,
@@ -1032,7 +823,6 @@ class RelayResponseNormalizer {
    * Warns if a single response contains conflicting fields with the same id
    */
   _validateConflictingLinkedFieldsWithIdenticalId(
-    record: Record,
     prevID: ?DataID,
     nextID: DataID,
     storageKey: string,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d4712cf279cee8b8411d43c89431674e>>
+ * @generated SignedSource<<b83c2c4b3dd383969b4a8813bcd56e4c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,10 +26,10 @@ import {inner as queryInnerResolverType} from "../InnerResolver.js";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolverType: (
   rootKey: InnerResolver$key,
-) => LiveState<mixed>);
+) => LiveState<?mixed>);
 declare export opaque type OuterResolver$fragmentType: FragmentType;
 export type OuterResolver$data = {|
-  +inner: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryInnerResolverType>["read"]>,
+  +inner: ?ReturnType<ReturnType<typeof queryInnerResolverType>["read"]>,
   +$fragmentType: OuterResolver$fragmentType,
 |};
 export type OuterResolver$key = {

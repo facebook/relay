@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cd5a70e4257fe53d6ec5fc976cc78731>>
+ * @generated SignedSource<<0fec25d8ab534ef425261d42d0cfe84d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+) => ?mixed);
 import {astrological_sign as userAstrologicalSignResolverType} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -40,7 +40,7 @@ export type ClientEdgeToClientObjectTest3Query$data = {|
   +me: ?{|
     +astrological_sign: ?{|
       +__id: string,
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
       +notes: ?string,
     |},
   |},

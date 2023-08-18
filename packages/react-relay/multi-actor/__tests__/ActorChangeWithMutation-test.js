@@ -144,7 +144,7 @@ type Props = $ReadOnly<{
 
 function ActorComponent(props: Props) {
   const data = useFragment(fragment, props.fragmentKey);
-  const [commit] = useMutation<ActorChangeWithMutationTestMutation>(mutation);
+  const [commit] = useMutation(mutation);
 
   props.render({
     id: data.id,

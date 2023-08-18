@@ -1420,9 +1420,9 @@ impl InMemorySchema {
             },
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
                 name,
+                interfaces,
                 fields,
                 directives,
-                ..
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Interface(id)) => {
                     let index = id.as_usize();
@@ -1446,6 +1446,15 @@ impl InMemorySchema {
                         Some(Type::Interface(id)),
                     )?;
                     self.interfaces[index].fields.extend(client_fields);
+
+                    let built_interfaces = interfaces
+                        .iter()
+                        .map(|name| self.build_interface_id(name, location_key))
+                        .collect::<DiagnosticsResult<Vec<_>>>()?;
+                    extend_without_duplicates(
+                        &mut self.interfaces[index].interfaces,
+                        built_interfaces,
+                    );
 
                     let built_directives = self.build_directive_values(directives);
                     extend_without_duplicates(

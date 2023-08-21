@@ -12,11 +12,11 @@
 'use strict';
 
 import type {
+  CommitMutationConfig,
   DeclarativeMutationConfig,
   Disposable,
   IEnvironment,
   Mutation,
-  MutationConfig,
   MutationParameters,
   PayloadError,
   SelectorStoreUpdater,
@@ -68,17 +68,7 @@ function useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
   mutation: Mutation<TVariables, TData, TRawResponse>,
   commitMutationFn?: (
     environment: IEnvironment,
-    config: MutationConfig<{
-      variables: TVariables,
-      /* $FlowFixMe[incompatible-type-arg] error exposed when improving flow
-       * typing of useMutation */
-      response: TData,
-      /* $FlowFixMe[incompatible-type-arg] error exposed when improving flow
-       * typing of useMutation */
-      rawResponse?: TRawResponse,
-    }>,
-    /* $FlowFixMe[incompatible-type-arg] error exposed when improving flow typing
-     * of useMutation */
+    config: CommitMutationConfig<TVariables, TData, TRawResponse>,
   ) => Disposable = defaultCommitMutation,
 ): [
   (UseMutationConfigInternal<TVariables, TData, TRawResponse>) => Disposable,

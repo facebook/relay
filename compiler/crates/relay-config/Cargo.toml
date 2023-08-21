@@ -13,6 +13,6 @@ indexmap = { version = "1.9.2", features = ["arbitrary", "rayon", "serde-1"] }
 intern = { path = "../intern" }
 pathdiff = "0.2"
 regex = "1.9.2"
-serde = { version = "1.0.176", features = ["derive", "rc"] }
+serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
 strum = { version = "0.24", features = ["derive"] }

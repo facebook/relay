@@ -83,7 +83,10 @@ export type {
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
-export type {MutationConfig} from './mutations/commitMutation';
+export type {
+  MutationConfig,
+  CommitMutationConfig,
+} from './mutations/commitMutation';
 export type {
   ExecuteFunction,
   FetchFunction,

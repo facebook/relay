@@ -30,21 +30,22 @@ fragment Foo_user on User {
   ... @skip(if: $some_var) {
     ... @__ClientEdgeMetadataDirective
     # ServerObject {
-    #     query_name: "ClientEdgeQuery_Foo_user_best_friend",
+    #     query_name: OperationDefinitionName(
+    #         "ClientEdgeQuery_Foo_user_best_friend",
+    #     ),
     #     unique_id: 0,
     # }
      {
       ...BestFriendResolverFragment_name @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_parent_type: "User",
+      #     field_id: FieldID(516),
       #     import_path: "BestFriendResolver",
       #     import_name: None,
-      #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "best_friend",
       #     field_arguments: [],
       #     live: false,
-      #     output_type_info: None,
+      #     output_type_info: EdgeTo,
       #     fragment_data_injection_mode: None,
       # }
        @waterfall
@@ -56,21 +57,22 @@ fragment Foo_user on User {
   ... @include(if: $some_var) {
     ... @__ClientEdgeMetadataDirective
     # ServerObject {
-    #     query_name: "ClientEdgeQuery_Foo_user_best_friend_1",
+    #     query_name: OperationDefinitionName(
+    #         "ClientEdgeQuery_Foo_user_best_friend_1",
+    #     ),
     #     unique_id: 1,
     # }
      {
       ...BestFriendResolverFragment_name @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_parent_type: "User",
+      #     field_id: FieldID(516),
       #     import_path: "BestFriendResolver",
       #     import_name: None,
-      #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "best_friend",
       #     field_arguments: [],
       #     live: false,
-      #     output_type_info: None,
+      #     output_type_info: EdgeTo,
       #     fragment_data_injection_mode: None,
       # }
        @waterfall
@@ -81,7 +83,18 @@ fragment Foo_user on User {
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-inline-fragment-no-type-condition.graphql:9:17,
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
+#     },
+# }
+ @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: OperationDefinitionName(
 #         "ClientEdgeQuery_Foo_user_best_friend",
@@ -89,8 +102,11 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {
@@ -98,7 +114,18 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-inline-fragment-no-type-condition.graphql:9:17,
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
+#     },
+# }
+ @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: OperationDefinitionName(
 #         "ClientEdgeQuery_Foo_user_best_friend_1",
@@ -106,8 +133,11 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__clientEdge
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {
@@ -121,7 +151,11 @@ query ClientEdgeQuery_Foo_user_best_friend(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment-no-type-condition.graphql:9:17,
-#         item: "Foo_user",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
 #     },
 # }
  {
@@ -136,7 +170,11 @@ query ClientEdgeQuery_Foo_user_best_friend_1(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment-no-type-condition.graphql:9:17,
-#         item: "Foo_user",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
 #     },
 # }
  {

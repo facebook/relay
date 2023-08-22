@@ -67,7 +67,11 @@ query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
           #     key: "QueryWithDirectAndTransitiveModuleDep",
           #     module_id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer",
           #     module_name: "PlainUserNameRenderer.react",
-          #     source_document_name: "QueryWithDirectAndTransitiveModuleDep",
+          #     source_document_name: OperationDefinitionName(
+          #         OperationDefinitionName(
+          #             "QueryWithDirectAndTransitiveModuleDep",
+          #         ),
+          #     ),
           #     fragment_name: FragmentDefinitionName(
           #         "PlainUserNameRenderer_name",
           #     ),
@@ -87,7 +91,11 @@ query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
           #     key: "QueryWithDirectAndTransitiveModuleDep",
           #     module_id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer",
           #     module_name: "MarkdownUserNameRenderer.react",
-          #     source_document_name: "QueryWithDirectAndTransitiveModuleDep",
+          #     source_document_name: OperationDefinitionName(
+          #         OperationDefinitionName(
+          #             "QueryWithDirectAndTransitiveModuleDep",
+          #         ),
+          #     ),
           #     fragment_name: FragmentDefinitionName(
           #         "MarkdownUserNameRenderer_name",
           #     ),
@@ -126,7 +134,11 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #     key: "FragmentWithModuleDep",
       #     module_id: "FragmentWithModuleDep.nameRenderer",
       #     module_name: "PlainUserNameRenderer.react",
-      #     source_document_name: "FragmentWithModuleDep",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "FragmentWithModuleDep",
+      #         ),
+      #     ),
       #     fragment_name: FragmentDefinitionName(
       #         "PlainUserNameRenderer_name",
       #     ),
@@ -146,7 +158,11 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #     key: "FragmentWithModuleDep",
       #     module_id: "FragmentWithModuleDep.nameRenderer",
       #     module_name: "MarkdownUserNameRenderer.react",
-      #     source_document_name: "FragmentWithModuleDep",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "FragmentWithModuleDep",
+      #         ),
+      #     ),
       #     fragment_name: FragmentDefinitionName(
       #         "MarkdownUserNameRenderer_name",
       #     ),

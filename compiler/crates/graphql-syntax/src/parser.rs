@@ -22,10 +22,29 @@ use crate::syntax_error::SyntaxError;
 
 type ParseResult<T> = Result<T, ()>;
 
+#[derive(Default, PartialEq)]
+pub enum FragmentArgumentSyntaxKind {
+    #[default]
+    None,
+    OnlyFragmentVariableDefinitions,
+    SpreadArgumentsAndFragmentVariableDefinitions,
+}
+
 #[derive(Default)]
 pub struct ParserFeatures {
-    /// Enable the experimental fragment variables definitions syntax
-    pub enable_variable_definitions: bool,
+    /// Whether and how to enable the experimental fragment variables definitions syntax
+    pub fragment_argument_capability: FragmentArgumentSyntaxKind,
+}
+
+impl ParserFeatures {
+    fn supports_variable_definition_syntax(&self) -> bool {
+        self.fragment_argument_capability != FragmentArgumentSyntaxKind::None
+    }
+
+    fn supports_spread_arguments_syntax(&self) -> bool {
+        self.fragment_argument_capability
+            == FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions
+    }
 }
 
 pub struct Parser<'a> {
@@ -172,6 +191,19 @@ impl<'a> Parser<'a> {
         let identifier = self.parse_identifier();
         if self.errors.is_empty() {
             Ok(identifier.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    pub fn parse_identifier_and_implements_interfaces_result(
+        mut self,
+    ) -> DiagnosticsResult<(Identifier, Vec<Identifier>)> {
+        let identifier = self.parse_identifier();
+        let impls = self.parse_implements_interfaces();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok((identifier.unwrap(), impls.unwrap()))
         } else {
             Err(self.errors)
         }
@@ -340,6 +372,7 @@ impl<'a> Parser<'a> {
     /// []  TypeSystemExtension
     fn parse_type_system_definition(&mut self) -> ParseResult<TypeSystemDefinition> {
         let description = self.parse_optional_description();
+        let hack_source = self.parse_optional_hack_source();
         let token = self.peek();
         if token.kind != TokenKind::Identifier {
             // TODO
@@ -369,7 +402,7 @@ impl<'a> Parser<'a> {
                 self.parse_input_object_type_definition()?,
             )),
             "directive" => Ok(TypeSystemDefinition::DirectiveDefinition(
-                self.parse_directive_definition(description)?,
+                self.parse_directive_definition(description, hack_source)?,
             )),
             "extend" => self.parse_type_system_extension(),
             token_str => {
@@ -761,6 +794,7 @@ impl<'a> Parser<'a> {
     fn parse_directive_definition(
         &mut self,
         description: Option<StringNode>,
+        hack_source: Option<StringNode>,
     ) -> ParseResult<DirectiveDefinition> {
         self.parse_keyword("directive")?;
         self.parse_kind(TokenKind::At)?;
@@ -779,6 +813,7 @@ impl<'a> Parser<'a> {
             repeatable,
             locations,
             description,
+            hack_source,
         })
     }
 
@@ -879,6 +914,27 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * hack_source : StringValue
+     */
+    fn parse_optional_hack_source(&mut self) -> Option<StringNode> {
+        match self.peek_token_kind() {
+            TokenKind::StringLiteral => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let value = source[1..source.len() - 1].to_string().intern();
+                Some(StringNode { token, value })
+            }
+            TokenKind::BlockStringLiteral => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let value = clean_block_string_literal(source).intern();
+                Some(StringNode { token, value })
+            }
+            _ => None,
+        }
+    }
+
+    /**
      * FieldsDefinition : { FieldDefinition+ }
      */
     fn parse_fields_definition(&mut self) -> ParseResult<Option<List<FieldDefinition>>> {
@@ -895,6 +951,7 @@ impl<'a> Parser<'a> {
      */
     fn parse_field_definition_impl(&mut self) -> ParseResult<FieldDefinition> {
         let description = self.parse_optional_description();
+        let hack_source = self.parse_optional_hack_source();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
         self.parse_kind(TokenKind::Colon)?;
@@ -906,6 +963,7 @@ impl<'a> Parser<'a> {
             arguments,
             directives,
             description,
+            hack_source,
         })
     }
 
@@ -972,7 +1030,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let fragment = self.parse_keyword("fragment")?;
         let name = self.parse_identifier()?;
-        let variable_definitions = if self.features.enable_variable_definitions {
+        let variable_definitions = if self.features.supports_variable_definition_syntax() {
             self.parse_optional_delimited_nonempty_list(
                 TokenKind::OpenParen,
                 TokenKind::CloseParen,
@@ -1299,11 +1357,17 @@ impl<'a> Parser<'a> {
         if !is_on_keyword && self.peek_token_kind() == TokenKind::Identifier {
             // fragment spread
             let name = self.parse_identifier()?;
+            let arguments = if self.features.supports_spread_arguments_syntax() {
+                self.parse_optional_arguments()?
+            } else {
+                None
+            };
             let directives = self.parse_directives()?;
             Ok(Selection::FragmentSpread(FragmentSpread {
                 span: Span::new(start, self.end_index),
                 spread,
                 name,
+                arguments,
                 directives,
             }))
         } else {

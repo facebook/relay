@@ -10,8 +10,8 @@
  */
 
 'use strict';
-
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -120,9 +120,9 @@ describe('execute() a query with @match', () => {
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    error = jest.fn<$ReadOnlyArray<Error>, mixed>();
+    next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -130,7 +130,6 @@ describe('execute() a query with @match', () => {
       _cacheConfig: CacheConfig,
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -158,7 +157,7 @@ describe('execute() a query with @match', () => {
     });
 
     const operationSnapshot = environment.lookup(operation.fragment);
-    operationCallback = jest.fn();
+    operationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
@@ -201,7 +200,7 @@ describe('execute() a query with @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRenderer: {
-          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __typename: 'MarkdownUserNameRenderer',
           __fragmentPropName: 'name',
           __fragments: {
@@ -270,7 +269,7 @@ describe('execute() a query with @match', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
@@ -635,7 +634,7 @@ describe('execute() a query with @match', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     subscription.unsubscribe();
@@ -731,7 +730,7 @@ describe('execute() a query with @match', () => {
       // initial results tested above
       const initialMatchSnapshot = environment.lookup(matchSelector);
       expect(initialMatchSnapshot.isMissingData).toBe(true);
-      const matchCallback = jest.fn();
+      const matchCallback = jest.fn<[Snapshot], void>();
       environment.subscribe(initialMatchSnapshot, matchCallback);
 
       resolveFragment(markdownRendererNormalizationFragment);
@@ -802,7 +801,7 @@ describe('execute() a query with @match', () => {
       // initial results tested above
       const initialMatchSnapshot = environment.lookup(matchSelector);
       expect(initialMatchSnapshot.isMissingData).toBe(true);
-      const matchCallback = jest.fn();
+      const matchCallback = jest.fn<[Snapshot], void>();
       environment.subscribe(initialMatchSnapshot, matchCallback);
 
       resolveFragment(markdownRendererNormalizationFragment);

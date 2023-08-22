@@ -1,6 +1,6 @@
 ---
 id: step-by-step-guide
-title: Step-by-step Guide
+title: Server Setup Example
 slug: /getting-started/step-by-step-guide/
 description: Step-by-step guide for setting up Relay
 keywords:

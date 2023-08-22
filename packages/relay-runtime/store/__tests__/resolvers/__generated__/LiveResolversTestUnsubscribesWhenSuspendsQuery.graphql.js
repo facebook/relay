@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d9873989937ddb818cbe87b8839b2549>>
+ * @generated SignedSource<<b104b95cbd749eb70af943636182fe92>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,20 +19,23 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { DataID } from "relay-runtime";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
-import {live_external_greeting as queryLiveExternalGreetingResolver} from "../LiveExternalGreeting.js";
-// Type assertion validating that `queryLiveExternalGreetingResolver` resolver is correctly implemented.
+import {live_external_greeting as queryLiveExternalGreetingResolverType} from "../LiveExternalGreeting.js";
+// Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveExternalGreetingResolver: (
-  rootKey: LiveExternalGreetingFragment$key, 
-) => LiveState<any>);
-import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolver} from "../LiveUserSuspendsWhenOdd.js";
-// Type assertion validating that `queryLiveUserSuspendsWhenOddResolver` resolver is correctly implemented.
+(queryLiveExternalGreetingResolverType: (
+  rootKey: LiveExternalGreetingFragment$key,
+) => LiveState<?mixed>);
+import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
+// Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserSuspendsWhenOddResolver: () => LiveState<any>);
+(queryLiveUserSuspendsWhenOddResolverType: () => LiveState<?{|
+  +id: DataID,
+|}>);
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {|
-  +greeting: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveExternalGreetingResolver>["read"]>,
+  +greeting: ?ReturnType<ReturnType<typeof queryLiveExternalGreetingResolverType>["read"]>,
   +user: ?{|
     +id: string,
   |},
@@ -45,16 +48,12 @@ export type LiveResolversTestUnsubscribesWhenSuspendsQuery = {|
 
 var node/*: ClientRequest*/ = (function(){
 var v0 = {
-  "kind": "ClientExtension",
-  "selections": [
-    {
-      "name": "live_user_suspends_when_odd",
-      "args": null,
-      "fragment": null,
-      "kind": "RelayResolver",
-      "storageKey": null
-    }
-  ]
+  "name": "live_user_suspends_when_odd",
+  "args": null,
+  "fragment": null,
+  "kind": "RelayResolver",
+  "storageKey": null,
+  "isOutputType": false
 };
 return {
   "fragment": {
@@ -119,6 +118,7 @@ return {
     "kind": "Operation",
     "name": "LiveResolversTestUnsubscribesWhenSuspendsQuery",
     "selections": [
+      (v0/*: any*/),
       {
         "name": "live_external_greeting",
         "args": null,
@@ -131,9 +131,9 @@ return {
           "abstractKey": null
         },
         "kind": "RelayResolver",
-        "storageKey": null
-      },
-      (v0/*: any*/)
+        "storageKey": null,
+        "isOutputType": false
+      }
     ]
   },
   "params": {

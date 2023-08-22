@@ -32,8 +32,18 @@ type ClientTypeWithNestedInterface {
 }
 
 extend type User {
-  pop_star_name: ClientInterface! @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
-  pop_star_game: ClientTypeWithNestedInterface! @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+  pop_star_name: ClientInterface
+    @relay_resolver(
+      fragment_name: "PopStarNameResolverFragment_name"
+      import_path: "PopStarNameResolver"
+      has_output_type: true
+    )
+  pop_star_game: ClientTypeWithNestedInterface
+    @relay_resolver(
+      fragment_name: "PopStarNameResolverFragment_name"
+      import_path: "PopStarNameResolver"
+      has_output_type: true
+    )
 }
 ==================================== OUTPUT ===================================
 export type User__pop_star_game$normalization$variables = {||};
@@ -69,15 +79,15 @@ export type User__pop_star_name$normalization = {|
 import type { PopStarNameResolverFragment_name$key } from "PopStarNameResolverFragment_name.graphql";
 import type { User__pop_star_name$normalization } from "User__pop_star_name$normalization.graphql";
 import type { FragmentType } from "relay-runtime";
-import userPopStarNameResolver from "PopStarNameResolver";
-// Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
+import userPopStarNameResolverType from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userPopStarNameResolver: (
-  rootKey: PopStarNameResolverFragment_name$key, 
+(userPopStarNameResolverType: (
+  rootKey: PopStarNameResolverFragment_name$key,
 ) => ?User__pop_star_name$normalization);
 declare export opaque type Foo_user$fragmentType: FragmentType;
 export type Foo_user$data = {|
-  +poppy: {|
+  +poppy: ?{|
     +name: ?string,
   |},
   +$fragmentType: Foo_user$fragmentType,

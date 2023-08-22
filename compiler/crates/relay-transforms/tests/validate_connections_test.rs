@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f5841c35143706bf9cd6631d1a139778>>
+ * @generated SignedSource<<5700a721e31a6f0171af5d09f9bf1592>>
  */
 
 mod validate_connections;
@@ -38,6 +38,20 @@ fn connection_filters() {
     let input = include_str!("validate_connections/fixtures/connection-filters.graphql");
     let expected = include_str!("validate_connections/fixtures/connection-filters.expected");
     test_fixture(transform_fixture, "connection-filters.graphql", "validate_connections/fixtures/connection-filters.expected", input, expected);
+}
+
+#[test]
+fn connection_filters_not_a_string() {
+    let input = include_str!("validate_connections/fixtures/connection-filters-not-a-string.graphql");
+    let expected = include_str!("validate_connections/fixtures/connection-filters-not-a-string.expected");
+    test_fixture(transform_fixture, "connection-filters-not-a-string.graphql", "validate_connections/fixtures/connection-filters-not-a-string.expected", input, expected);
+}
+
+#[test]
+fn connection_filters_not_an_arg() {
+    let input = include_str!("validate_connections/fixtures/connection-filters-not-an-arg.graphql");
+    let expected = include_str!("validate_connections/fixtures/connection-filters-not-an-arg.expected");
+    test_fixture(transform_fixture, "connection-filters-not-an-arg.graphql", "validate_connections/fixtures/connection-filters-not-an-arg.expected", input, expected);
 }
 
 #[test]

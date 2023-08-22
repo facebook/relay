@@ -21,8 +21,6 @@ use relay_codegen::QueryID;
 use relay_codegen::TopLevelStatement;
 use relay_codegen::CODEGEN_CONSTANTS;
 use relay_transforms::is_operation_preloadable;
-use relay_transforms::ReactFlightLocalComponentsMetadata;
-use relay_transforms::RelayClientComponentMetadata;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
 use relay_typegen::generate_fragment_type_exports_section;
@@ -178,11 +176,20 @@ pub fn generate_operation(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
+
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
+        if project_config
+            .persist
+            .as_ref()
+            .map_or(false, |config| config.include_query_text())
+        {
+            request_parameters.text = text.clone();
+        }
     } else {
         request_parameters.text = text.clone();
-    };
+    }
+
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
@@ -234,16 +241,6 @@ pub fn generate_operation(
         RelayDataDrivenDependencyMetadata::find(&operation_fragment.directives);
     if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
-    }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&operation_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
     }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
@@ -522,6 +519,7 @@ pub fn generate_fragment(
             project_config,
             schema,
             typegen_fragment,
+            source_hash,
             skip_types,
             fragment_locations,
         )
@@ -580,16 +578,6 @@ fn generate_read_only_fragment(
         RelayDataDrivenDependencyMetadata::find(&reader_fragment.directives)
     {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
-    }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&reader_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&reader_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
     }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
@@ -681,6 +669,7 @@ fn generate_assignable_fragment(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -731,12 +720,43 @@ fn generate_assignable_fragment(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
+    // -- Begin Fragment Node Section --
+    let mut section = GenericSection::default();
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "node",
+        "any",
+        "{}",
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Section --
+
+    // -- Begin Fragment Node Hash Section --
+    if let Some(source_hash) = source_hash {
+        let mut section = GenericSection::default();
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+        content_sections.push(ContentSection::Generic(section));
+    }
+    // -- End Fragment Node Hash Section --
+
+    // -- Begin Fragment Node Export Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(&project_config.typegen_config, &mut section, "node", None)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Export Section --
+
     // -- Begin Export Section --
     let mut section = GenericSection::default();
     // Assignable fragments should never be passed to useFragment, and thus, we
     // don't need to emit a reader fragment.
     // Instead, we only need a named validator export, i.e.
-    // module.exports.validator = ...
+    // module.exports.validate = ...
     let named_validator_export = generate_named_validator_export(
         typegen_fragment,
         schema,
@@ -824,22 +844,22 @@ fn write_export_generated_node(
     variable_node: &str,
     forced_type: Option<String>,
 ) -> FmtResult {
-    if typegen_config.eager_es_modules {
-        writeln!(section, "export default {};", variable_node)
-    } else {
-        match (typegen_config.language, forced_type) {
-            (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
-                writeln!(section, "module.exports = {};", variable_node)
-            }
-            (TypegenLanguage::Flow, Some(forced_type)) => writeln!(
-                section,
-                "module.exports = (({}/*: any*/)/*: {}*/);",
-                variable_node, forced_type
-            ),
-            (TypegenLanguage::TypeScript, _) => {
-                writeln!(section, "export default {};", variable_node)
-            }
+    let export_value = match (typegen_config.language, forced_type) {
+        (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
+            variable_node.to_string()
         }
+        (TypegenLanguage::TypeScript, _) => {
+            // TODO: Support force_type for TypeScript
+            variable_node.to_string()
+        }
+        (TypegenLanguage::Flow, Some(forced_type)) => {
+            format!("(({}/*: any*/)/*: {}*/)", variable_node, forced_type)
+        }
+    };
+    if typegen_config.eager_es_modules || typegen_config.language == TypegenLanguage::TypeScript {
+        writeln!(section, "export default {};", export_value)
+    } else {
+        writeln!(section, "module.exports = {};", export_value)
     }
 }
 
@@ -920,26 +940,6 @@ fn write_data_driven_dependency_annotation(
         .flatten()
     {
         writeln!(section, "@indirectDataDrivenDependency {} {}", key, value)?;
-    }
-    Ok(())
-}
-
-fn write_react_flight_server_annotation(
-    section: &mut CommentAnnotationsSection,
-    flight_local_components_metadata: &ReactFlightLocalComponentsMetadata,
-) -> FmtResult {
-    for item in &flight_local_components_metadata.components {
-        writeln!(section, "@ReactFlightServerDependency {}", item)?;
-    }
-    Ok(())
-}
-
-fn write_react_flight_client_annotation(
-    section: &mut CommentAnnotationsSection,
-    relay_client_component_metadata: &RelayClientComponentMetadata,
-) -> FmtResult {
-    for value in &relay_client_component_metadata.split_operation_filenames {
-        writeln!(section, "@ReactFlightClientDependency {}", value)?;
     }
     Ok(())
 }

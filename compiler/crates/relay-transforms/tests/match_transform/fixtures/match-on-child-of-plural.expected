@@ -35,7 +35,11 @@ fragment ActorsRendererFragment on Node {
         #     key: "ActorsRendererFragment",
         #     module_id: "ActorsRendererFragment.actors.nameRenderer",
         #     module_name: "PlainUserNameRenderer.react",
-        #     source_document_name: "ActorsRendererFragment",
+        #     source_document_name: FragmentDefinitionName(
+        #         FragmentDefinitionName(
+        #             "ActorsRendererFragment",
+        #         ),
+        #     ),
         #     fragment_name: FragmentDefinitionName(
         #         "PlainUserNameRenderer_name",
         #     ),
@@ -55,7 +59,11 @@ fragment ActorsRendererFragment on Node {
         #     key: "ActorsRendererFragment",
         #     module_id: "ActorsRendererFragment.actors.nameRenderer",
         #     module_name: "MarkdownUserNameRenderer.react",
-        #     source_document_name: "ActorsRendererFragment",
+        #     source_document_name: FragmentDefinitionName(
+        #         FragmentDefinitionName(
+        #             "ActorsRendererFragment",
+        #         ),
+        #     ),
         #     fragment_name: FragmentDefinitionName(
         #         "MarkdownUserNameRenderer_name",
         #     ),

@@ -144,11 +144,23 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     const args = payload.args;
     if (prevEdges && serverEdges) {
       if (args.after != null) {
+        const clientEndCursor = clientPageInfo?.getValue(END_CURSOR);
+        const serverEndCursor = serverPageInfo?.getValue(END_CURSOR);
+
+        const isAddingEdgesAfterCurrentPage =
+          clientPageInfo && args.after === clientEndCursor;
+        const isFillingOutCurrentPage =
+          clientPageInfo && clientEndCursor === serverEndCursor;
+
         // Forward pagination from the end of the connection: append edges
-        if (
-          clientPageInfo &&
-          args.after === clientPageInfo.getValue(END_CURSOR)
-        ) {
+        // Case 1: We're fetching edges for the first time and pageInfo for
+        //         the upcoming page is missing, but our after cursor matches
+        //         the last ending cursor. (adding after current page)
+        // Case 2: We've fetched these edges before and we know the end cursor
+        //         from the first edge updating the END_CURSOR field. If the
+        //         end cursor from the server matches the end cursor from the
+        //         client then we're just filling out the rest of this page.
+        if (isAddingEdgesAfterCurrentPage || isFillingOutCurrentPage) {
           const nodeIDs = new Set<mixed>();
           mergeEdges(prevEdges, nextEdges, nodeIDs);
           mergeEdges(serverEdges, nextEdges, nodeIDs);

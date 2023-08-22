@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fabb9e569dd82897c0c179445145c334>>
+ * @generated SignedSource<<1370ea763208b340fd15717d45729c87>>
  */
 
 mod ir;
@@ -66,6 +66,20 @@ fn new_resolver_field() {
     let input = include_str!("ir/fixtures/new-resolver-field.graphql");
     let expected = include_str!("ir/fixtures/new-resolver-field.expected");
     test_fixture(transform_fixture, "new-resolver-field.graphql", "ir/fixtures/new-resolver-field.expected", input, expected);
+}
+
+#[test]
+fn new_resolver_model_field() {
+    let input = include_str!("ir/fixtures/new-resolver-model-field.graphql");
+    let expected = include_str!("ir/fixtures/new-resolver-model-field.expected");
+    test_fixture(transform_fixture, "new-resolver-model-field.graphql", "ir/fixtures/new-resolver-model-field.expected", input, expected);
+}
+
+#[test]
+fn new_resolver_model_field_with_custom_fragment() {
+    let input = include_str!("ir/fixtures/new-resolver-model-field-with-custom-fragment.graphql");
+    let expected = include_str!("ir/fixtures/new-resolver-model-field-with-custom-fragment.expected");
+    test_fixture(transform_fixture, "new-resolver-model-field-with-custom-fragment.graphql", "ir/fixtures/new-resolver-model-field-with-custom-fragment.expected", input, expected);
 }
 
 #[test]

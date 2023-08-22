@@ -15,7 +15,6 @@ type MyClientType @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
 
 extend type Query {
   client_type: MyClientType @relay_resolver(
-      fragment_name: "MyClientType____relay_model_instance"
       import_path: "./path/to/ClientTypeResolver.js"
       has_output_type: true
     )
@@ -56,11 +55,7 @@ extend type Query {
         "backingField": {
           "alias": null,
           "args": null,
-          "fragment": {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "MyClientType____relay_model_instance"
-          },
+          "fragment": null,
           "kind": "RelayResolver",
           "name": "client_type",
           "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('ClientTypeResolver'), '__relay_model_instance', false),
@@ -101,29 +96,33 @@ extend type Query {
     "name": "relayResolverWeakObject_Query",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "name": "client_type",
-            "args": null,
-            "fragment": {
-              "kind": "InlineFragment",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "__relay_model_instance",
-                  "storageKey": null
-                }
-              ],
-              "type": "MyClientType",
-              "abstractKey": null
-            },
-            "kind": "RelayResolver",
-            "storageKey": null
-          }
-        ]
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "client_type",
+          "args": null,
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null,
+          "isOutputType": true
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "MyClientType",
+          "kind": "LinkedField",
+          "name": "client_type",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
       }
     ]
   },

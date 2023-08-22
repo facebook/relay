@@ -14,7 +14,6 @@ type MyClientType @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
 
 extend type Query {
   client_type: MyClientType @relay_resolver(
-      fragment_name: "MyClientType____relay_model_instance"
       import_path: "./path/to/ClientTypeResolver.js"
       has_output_type: true
     )

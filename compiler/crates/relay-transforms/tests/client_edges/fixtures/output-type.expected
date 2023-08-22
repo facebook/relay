@@ -36,28 +36,25 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_parent_type: "User",
+    #     field_id: FieldID(517),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
-    #     field_name: "best_friend",
     #     field_alias: None,
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
-    #     output_type_info: Some(
-    #         Composite(
-    #             ResolverNormalizationInfo {
-    #                 inner_type: Object(78),
-    #                 plural: false,
-    #                 normalization_operation: WithLocation {
-    #                     location: <generated>:59:70,
-    #                     item: OperationDefinitionName(
-    #                         "User__best_friend$normalization",
-    #                     ),
-    #                 },
-    #                 weak_object_instance_field: None,
+    #     output_type_info: Composite(
+    #         ResolverNormalizationInfo {
+    #             inner_type: Object(78),
+    #             plural: false,
+    #             normalization_operation: WithLocation {
+    #                 location: <generated>:59:70,
+    #                 item: OperationDefinitionName(
+    #                     "User__best_friend$normalization",
+    #                 ),
     #             },
-    #         ),
+    #             weak_object_instance_field: None,
+    #         },
     #     ),
     #     fragment_data_injection_mode: None,
     # }

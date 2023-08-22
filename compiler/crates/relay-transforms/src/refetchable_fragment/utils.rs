@@ -32,10 +32,16 @@ use super::validation_message::ValidationMessage;
 use crate::root_variables::VariableMap;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct RefetchableIdentifierInfo {
+    pub identifier_field: StringKey,
+    pub identifier_query_variable_name: StringKey,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RefetchableMetadata {
     pub operation_name: OperationDefinitionName,
     pub path: Vec<StringKey>,
-    pub identifier_field: Option<StringKey>,
+    pub identifier_info: Option<RefetchableIdentifierInfo>,
 }
 associated_data_impl!(RefetchableMetadata);
 

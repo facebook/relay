@@ -122,3 +122,27 @@
  .token.entity {
    cursor: help;
  }
+
+ .color1 {
+  background-color: rgba(96, 165, 250, 0.5);
+ }
+
+ .color2 {
+  background-color: rgb(216, 180, 254, 0.5);
+}
+
+ .color3 {
+  background-color: rgb(254, 240, 138, 0.5);
+ }
+
+ .color4 {
+  background-color: rgb(153, 246, 228, 0.5);
+ }
+
+ .color5 {
+  background-color: rgba(246, 186, 153, 0.5);
+ }
+
+ .code-change {
+   background-color: rgb(187, 247, 208, 0.5);
+ }

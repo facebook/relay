@@ -76,11 +76,11 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   let loaderRenderLogs: Array<string>;
 
   beforeEach(() => {
-    jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+    jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
 
     environment = createMockEnvironment();
 
-    release = jest.fn();
+    release = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
@@ -93,7 +93,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn();
+    cancelNetworkRequest = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
     (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
@@ -129,10 +129,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     queryRenderLogs = [];
     QueryComponent = function (props: any) {
-      const result = usePreloadedQuery<any>(
-        gqlQuery,
-        (props.queryRef: $FlowFixMe),
-      );
+      const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
 
       const name = result?.node?.name ?? 'Empty';
       useEffect(() => {
@@ -148,7 +145,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     loaderRenderLogs = [];
     LoaderComponent = function (props: any) {
-      const [queryRef] = useQueryLoader<empty>(gqlQuery, props.initialQueryRef);
+      const [queryRef] = useQueryLoader(gqlQuery, props.initialQueryRef);
 
       const queryRefId = queryRef == null ? 'null' : queryRef.id ?? 'Unknown';
       useEffect(() => {

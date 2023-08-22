@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b988057af0b9d7b30b5622d32e061f17>>
+ * @generated SignedSource<<37e60dd22cf90a783b7c1da2b05407d3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAlwaysThrowsTransitivelyResolver$key } from "./../resolvers/__generated__/UserAlwaysThrowsTransitivelyResolver.graphql";
-import {always_throws_transitively as userAlwaysThrowsTransitivelyResolver} from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
-// Type assertion validating that `userAlwaysThrowsTransitivelyResolver` resolver is correctly implemented.
+import {always_throws_transitively as userAlwaysThrowsTransitivelyResolverType} from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
+// Type assertion validating that `userAlwaysThrowsTransitivelyResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsTransitivelyResolver: (
-  rootKey: UserAlwaysThrowsTransitivelyResolver$key, 
-) => mixed);
+(userAlwaysThrowsTransitivelyResolverType: (
+  rootKey: UserAlwaysThrowsTransitivelyResolver$key,
+) => ?mixed);
 export type RelayReaderResolverTest13Query$variables = {||};
 export type RelayReaderResolverTest13Query$data = {|
   +me: ?{|
-    +always_throws_transitively: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsTransitivelyResolver>,
+    +always_throws_transitively: ?ReturnType<typeof userAlwaysThrowsTransitivelyResolverType>,
   |},
 |};
 export type RelayReaderResolverTest13Query = {|
@@ -110,14 +110,16 @@ var node/*: ConcreteRequest*/ = {
                     "abstractKey": null
                   },
                   "kind": "RelayResolver",
-                  "storageKey": null
+                  "storageKey": null,
+                  "isOutputType": false
                 }
               ],
               "type": "User",
               "abstractKey": null
             },
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

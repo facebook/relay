@@ -19,6 +19,7 @@ use common::Location;
 use common::ObjectName;
 use common::ScalarName;
 use common::SourceLocationKey;
+use common::UnionName;
 use common::WithLocation;
 use graphql_syntax::*;
 use intern::string_key::Intern;
@@ -37,7 +38,7 @@ fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct InMemorySchema {
     query_type: Option<ObjectID>,
     mutation_type: Option<ObjectID>,
@@ -56,8 +57,8 @@ pub struct InMemorySchema {
     fetch_token_field_name: StringKey,
     is_fulfilled_field_name: StringKey,
 
-    string_type: Option<Type>,
-    id_type: Option<Type>,
+    string_type: Option<ScalarID>,
+    id_type: Option<ScalarID>,
 
     unchecked_argument_type_sentinel: Option<TypeReference<Type>>,
 
@@ -148,7 +149,7 @@ impl Schema for InMemorySchema {
             Type::Interface(id) => self.interfaces[id.as_usize()].name.item.0,
             Type::Object(id) => self.objects[id.as_usize()].name.item.0,
             Type::Scalar(id) => self.scalars[id.as_usize()].name.item.0,
-            Type::Union(id) => self.unions[id.as_usize()].name.item,
+            Type::Union(id) => self.unions[id.as_usize()].name.item.0,
         }
     }
 
@@ -164,11 +165,11 @@ impl Schema for InMemorySchema {
     }
 
     fn is_string(&self, type_: Type) -> bool {
-        type_ == self.string_type.unwrap()
+        type_ == Type::Scalar(self.string_type.unwrap())
     }
 
     fn is_id(&self, type_: Type) -> bool {
-        type_ == self.id_type.unwrap()
+        type_ == Type::Scalar(self.id_type.unwrap())
     }
 
     fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
@@ -456,13 +457,13 @@ impl InMemorySchema {
     }
 
     pub fn add_union(&mut self, union: Union) -> DiagnosticsResult<UnionID> {
-        if self.type_map.contains_key(&union.name.item) {
-            return todo_add_location(SchemaError::DuplicateType(union.name.item));
+        if self.type_map.contains_key(&union.name.item.0) {
+            return todo_add_location(SchemaError::DuplicateType(union.name.item.0));
         }
         let index: u32 = self.unions.len().try_into().unwrap();
         let name = union.name.item;
         self.unions.push(union);
-        self.type_map.insert(name, Type::Union(UnionID(index)));
+        self.type_map.insert(name.0, Type::Union(UnionID(index)));
         Ok(UnionID(index))
     }
 
@@ -635,7 +636,7 @@ impl InMemorySchema {
             ));
         }
         self.type_map.remove(&self.get_type_name(Type::Union(id)));
-        self.type_map.insert(union.name.item, Type::Union(id));
+        self.type_map.insert(union.name.item.0, Type::Union(id));
         self.unions[id.as_usize()] = union;
         Ok(())
     }
@@ -774,10 +775,16 @@ impl InMemorySchema {
         }
 
         // Step 2: define operation types, directives, and types
-        let string_type = *type_map
+        let string_type = type_map
             .get(&"String".intern())
-            .expect("Missing String type");
-        let id_type = *type_map.get(&"ID".intern()).expect("Missing ID type");
+            .expect("Missing String type")
+            .get_scalar_id()
+            .expect("Expected ID to be a Scalar");
+        let id_type = type_map
+            .get(&"ID".intern())
+            .expect("Missing ID type")
+            .get_scalar_id()
+            .expect("Expected ID to be a Scalar");
 
         let unchecked_argument_type_sentinel = Some(TypeReference::Named(
             *type_map
@@ -924,6 +931,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: Some(*TYPENAME_DESCRIPTION),
+            hack_source: None,
         });
     }
 
@@ -939,6 +947,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
     }
 
@@ -954,6 +963,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: Some(*CLIENT_ID_DESCRIPTION),
+            hack_source: None,
         });
     }
 
@@ -969,6 +979,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
     }
 
@@ -993,6 +1004,7 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
     }
 
@@ -1065,8 +1077,32 @@ impl InMemorySchema {
             )]);
         }
 
-        let object_id = Type::Object(ObjectID(self.objects.len() as u32));
-        self.type_map.insert(object_name.item, object_id);
+        let object_id = self.objects.len() as u32;
+        let object_type = Type::Object(ObjectID(self.objects.len() as u32));
+        self.type_map.insert(object_name.item, object_type);
+
+        let interfaces = object
+            .interfaces
+            .iter()
+            .map(|name| self.build_interface_id(name, &location_key))
+            .collect::<DiagnosticsResult<Vec<_>>>()?;
+
+        for interface_id in &interfaces {
+            // All interfaces implemented by this concrete object should exist, and this
+            // should be checked beforehand.
+            let interface_obj = self
+                .interfaces
+                .get_mut(interface_id.0 as usize)
+                .expect("Expected interface to exist");
+
+            if !interface_obj
+                .implementing_objects
+                .contains(&ObjectID(object_id))
+            {
+                interface_obj.implementing_objects.push(ObjectID(object_id))
+            }
+        }
+
         self.add_definition(
             &TypeSystemDefinition::ObjectTypeDefinition(object),
             &location_key,
@@ -1144,6 +1180,7 @@ impl InMemorySchema {
                 repeatable,
                 locations,
                 description,
+                hack_source,
             }) => {
                 if self.directives.contains_key(&DirectiveName(name.value)) {
                     let str_name = name.value.lookup();
@@ -1165,6 +1202,7 @@ impl InMemorySchema {
                         repeatable: *repeatable,
                         is_extension,
                         description: description.as_ref().map(|node| node.value),
+                        hack_source: hack_source.as_ref().map(|node| node.value),
                     },
                 );
             }
@@ -1200,6 +1238,7 @@ impl InMemorySchema {
                     interfaces,
                     directives,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
@@ -1236,6 +1275,7 @@ impl InMemorySchema {
                     directives,
                     interfaces,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
@@ -1249,11 +1289,15 @@ impl InMemorySchema {
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(directives);
                 self.unions.push(Union {
-                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    name: WithLocation::new(
+                        Location::new(*location_key, name.span),
+                        UnionName(name.value),
+                    ),
                     is_extension,
                     members,
                     directives,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
@@ -1272,6 +1316,7 @@ impl InMemorySchema {
                     fields,
                     directives,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
@@ -1301,6 +1346,7 @@ impl InMemorySchema {
                     values,
                     directives,
                     description: None,
+                    hack_source: None,
                 });
             }
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
@@ -1316,6 +1362,7 @@ impl InMemorySchema {
                     is_extension,
                     directives,
                     description: None,
+                    hack_source: None,
                 })
             }
             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
@@ -1373,9 +1420,9 @@ impl InMemorySchema {
             },
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
                 name,
+                interfaces,
                 fields,
                 directives,
-                ..
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Interface(id)) => {
                     let index = id.as_usize();
@@ -1399,6 +1446,15 @@ impl InMemorySchema {
                         Some(Type::Interface(id)),
                     )?;
                     self.interfaces[index].fields.extend(client_fields);
+
+                    let built_interfaces = interfaces
+                        .iter()
+                        .map(|name| self.build_interface_id(name, location_key))
+                        .collect::<DiagnosticsResult<Vec<_>>>()?;
+                    extend_without_duplicates(
+                        &mut self.interfaces[index].interfaces,
+                        built_interfaces,
+                    );
 
                     let built_directives = self.build_directive_values(directives);
                     extend_without_duplicates(
@@ -1473,6 +1529,10 @@ impl InMemorySchema {
                     let type_ = self.build_type_reference(&field_def.type_, field_location_key)?;
                     let directives = self.build_directive_values(&field_def.directives);
                     let description = field_def.description.as_ref().map(|desc| desc.value);
+                    let hack_source = field_def
+                        .hack_source
+                        .as_ref()
+                        .map(|hack_source| hack_source.value);
                     Ok(self.build_field(Field {
                         name: WithLocation::new(
                             Location::new(field_location_key, field_def.name.span),
@@ -1484,6 +1544,7 @@ impl InMemorySchema {
                         directives,
                         parent_type,
                         description,
+                        hack_source,
                     }))
                 })
                 .collect()
@@ -1514,6 +1575,10 @@ impl InMemorySchema {
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_, source_location_key)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
+                let hack_source = field_def
+                    .hack_source
+                    .as_ref()
+                    .map(|hack_source| hack_source.value);
                 field_ids.push(self.build_field(Field {
                     name: WithLocation::new(field_location, field_name),
                     is_extension: true,
@@ -1522,6 +1587,7 @@ impl InMemorySchema {
                     directives,
                     parent_type,
                     description,
+                    hack_source,
                 }));
             }
             Ok(field_ids)
@@ -1662,6 +1728,8 @@ fn expect_object_type_name(type_map: &TypeMap, object_id: ObjectID) -> StringKey
 
 #[cfg(test)]
 mod tests {
+    use common::Span;
+
     use super::*;
 
     #[test]
@@ -1669,5 +1737,54 @@ mod tests {
         let mut target = vec![10, 11];
         extend_without_duplicates(&mut target, vec![1, 10, 100]);
         assert_eq!(target, vec![10, 11, 1, 100]);
+    }
+
+    fn identifier_from_value(value: StringKey) -> Identifier {
+        Identifier {
+            span: Span { start: 0, end: 1 },
+            token: Token {
+                span: Span { start: 0, end: 1 },
+                kind: TokenKind::Identifier,
+            },
+            value,
+        }
+    }
+
+    #[test]
+    fn test_adding_extension_object() {
+        let mut schema = InMemorySchema::create_uninitialized();
+
+        schema
+            .add_interface(Interface {
+                name: WithLocation::generated(InterfaceName("ITunes".intern())),
+                is_extension: false,
+                implementing_interfaces: vec![],
+                implementing_objects: vec![],
+                fields: vec![],
+                directives: vec![],
+                interfaces: vec![],
+                description: None,
+                hack_source: None,
+            })
+            .unwrap();
+
+        schema
+            .add_extension_object(
+                ObjectTypeDefinition {
+                    name: identifier_from_value("EarlyModel".intern()),
+                    interfaces: vec![identifier_from_value("ITunes".intern())],
+                    directives: vec![],
+                    fields: None,
+                },
+                SourceLocationKey::Generated,
+            )
+            .unwrap();
+
+        let interface = schema.interface(InterfaceID(0));
+
+        assert!(
+            interface.implementing_objects.len() == 1,
+            "ITunes should have an implementing object"
+        );
     }
 }

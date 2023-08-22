@@ -35,21 +35,22 @@ fragment Foo_node on Node {
     author {
       ... @__ClientEdgeMetadataDirective
       # ServerObject {
-      #     query_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
+      #     query_name: OperationDefinitionName(
+      #         "ClientEdgeQuery_Foo_node_Story__author__best_friend",
+      #     ),
       #     unique_id: 0,
       # }
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_parent_type: "User",
+        #     field_id: FieldID(516),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
-        #     field_name: "best_friend",
         #     field_alias: None,
         #     field_path: "author.best_friend",
         #     field_arguments: [],
         #     live: false,
-        #     output_type_info: None,
+        #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
         # }
          @waterfall
@@ -63,21 +64,22 @@ fragment Foo_node on Node {
     author {
       ... @__ClientEdgeMetadataDirective
       # ServerObject {
-      #     query_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
+      #     query_name: OperationDefinitionName(
+      #         "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
+      #     ),
       #     unique_id: 1,
       # }
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_parent_type: "User",
+        #     field_id: FieldID(516),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
-        #     field_name: "best_friend",
         #     field_alias: None,
         #     field_path: "author.best_friend",
         #     field_arguments: [],
         #     live: false,
-        #     output_type_info: None,
+        #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
         # }
          @waterfall
@@ -89,7 +91,18 @@ fragment Foo_node on Node {
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-inline-fragment.graphql:9:17,
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_node",
+#             ),
+#         ),
+#     },
+# }
+ @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: OperationDefinitionName(
 #         "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
@@ -97,8 +110,11 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {
@@ -106,7 +122,18 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-inline-fragment.graphql:9:17,
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_node",
+#             ),
+#         ),
+#     },
+# }
+ @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: OperationDefinitionName(
 #         "ClientEdgeQuery_Foo_node_Story__author__best_friend",
@@ -114,8 +141,11 @@ fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User 
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {
@@ -129,7 +159,11 @@ query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment.graphql:9:17,
-#         item: "Foo_node",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_node",
+#             ),
+#         ),
 #     },
 # }
  {
@@ -144,7 +178,11 @@ query ClientEdgeQuery_Foo_node_Story__author__best_friend(
 # ClientEdgeGeneratedQueryMetadataDirective {
 #     source_name: WithLocation {
 #         location: client-edge-inline-fragment.graphql:9:17,
-#         item: "Foo_node",
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_node",
+#             ),
+#         ),
 #     },
 # }
  {

@@ -44,6 +44,13 @@ impl ConstantValue {
             _ => None,
         }
     }
+
+    pub fn get_bool_literal(&self) -> Option<bool> {
+        match self {
+            ConstantValue::Boolean(BooleanNode { value, .. }) => Some(*value),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for ConstantValue {
@@ -113,9 +120,10 @@ impl fmt::Display for IntNode {
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FloatNode {
     pub token: Token,
+    /// NOTE: we can't just store an f64 here because it doesn't implement Hash, Eq, Ord
     pub value: FloatValue,
     /// Preserve a value, as it was represented in the source
-    /// TODO: We may remove this, as we migrate from JS
+    /// NOTE: this is needed for pretty-printing the AST to ensure we don't change what was in the source
     pub source_value: StringKey,
 }
 

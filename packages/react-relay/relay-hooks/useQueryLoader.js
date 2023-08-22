@@ -17,9 +17,10 @@ import type {
   PreloadedQuery,
 } from './EntryPointTypes.flow';
 import type {
-  GraphQLTaggedNode,
   IEnvironment,
   OperationType,
+  Query,
+  Variables,
 } from 'relay-runtime';
 
 const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
@@ -38,12 +39,6 @@ export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{
   +__environment?: ?IEnvironment,
 }>;
 
-type UseQueryLoaderHookReturnType<TQuery: OperationType> = [
-  ?PreloadedQuery<TQuery>,
-  LoaderFn<TQuery>,
-  () => void,
-];
-
 // NullQueryReference needs to implement referential equality,
 // so that multiple NullQueryReferences can be in the same set
 // (corresponding to multiple calls to disposeQuery).
@@ -52,20 +47,91 @@ type NullQueryReference = {
 };
 const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
 
-function requestIsLiveQuery<TQuery: OperationType>(
-  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
+function requestIsLiveQuery<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+  TQuery: OperationType = {
+    response: TData,
+    variables: TVariables,
+    rawResponse?: $NonMaybeType<TRawResponse>,
+  },
+>(
+  preloadableRequest:
+    | Query<TVariables, TData, TRawResponse>
+    | PreloadableConcreteRequest<TQuery>,
 ): boolean {
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    return (preloadableRequest: $FlowFixMe).params.metadata.live !== undefined;
+    return preloadableRequest.params.metadata.live !== undefined;
   }
   const request = getRequest(preloadableRequest);
   return request.params.metadata.live !== undefined;
 }
 
-function useQueryLoader<TQuery: OperationType>(
-  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
+type UseQueryLoaderHookReturnType<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+> = [
+  ?PreloadedQuery<{
+    response: TData,
+    variables: TVariables,
+    rawResponse?: $NonMaybeType<TRawResponse>,
+  }>,
+  (variables: TVariables, options?: UseQueryLoaderLoadQueryOptions) => void,
+  () => void,
+];
+
+type ExtractVariablesType = <T>({+variables: T, ...}) => T;
+type ExtractResponseType = <T>({+response: T, ...}) => T;
+
+declare function useQueryLoader<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+>(
+  preloadableRequest: Query<TVariables, TData, TRawResponse>,
+): UseQueryLoaderHookReturnType<TVariables, TData>;
+
+declare function useQueryLoader<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+>(
+  preloadableRequest: Query<TVariables, TData, TRawResponse>,
+  initialQueryReference: ?PreloadedQuery<{
+    response: TData,
+    variables: TVariables,
+    rawResponse?: $NonMaybeType<TRawResponse>,
+  }>,
+): UseQueryLoaderHookReturnType<TVariables, TData>;
+
+declare function useQueryLoader<TQuery: OperationType>(
+  preloadableRequest: PreloadableConcreteRequest<TQuery>,
   initialQueryReference?: ?PreloadedQuery<TQuery>,
-): UseQueryLoaderHookReturnType<TQuery> {
+): UseQueryLoaderHookReturnType<
+  $Call<ExtractVariablesType, TQuery>,
+  $Call<ExtractResponseType, TQuery>,
+>;
+
+function useQueryLoader<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+>(
+  preloadableRequest: Query<TVariables, TData, TRawResponse>,
+  initialQueryReference?: ?PreloadedQuery<{
+    response: TData,
+    variables: TVariables,
+    rawResponse?: $NonMaybeType<TRawResponse>,
+  }>,
+): UseQueryLoaderHookReturnType<TVariables, TData> {
+  type QueryType = {
+    response: TData,
+    variables: TVariables,
+    rawResponse?: $NonMaybeType<TRawResponse>,
+  };
+
   /**
    * We want to always call `queryReference.dispose()` for every call to
    * `setQueryReference(loadQuery(...))` so that no leaks of data in Relay stores
@@ -94,15 +160,15 @@ function useQueryLoader<TQuery: OperationType>(
 
   const isMountedRef = useIsMountedRef();
   const undisposedQueryReferencesRef = useRef<
-    Set<PreloadedQuery<TQuery> | NullQueryReference>,
+    Set<PreloadedQuery<QueryType> | NullQueryReference>,
   >(new Set([initialQueryReferenceInternal]));
 
   const [queryReference, setQueryReference] = useState<
-    PreloadedQuery<TQuery> | NullQueryReference,
+    PreloadedQuery<QueryType> | NullQueryReference,
   >(() => initialQueryReferenceInternal);
 
   const [previousInitialQueryReference, setPreviousInitialQueryReference] =
-    useState<PreloadedQuery<TQuery> | NullQueryReference>(
+    useState<PreloadedQuery<QueryType> | NullQueryReference>(
       () => initialQueryReferenceInternal,
     );
 
@@ -125,10 +191,7 @@ function useQueryLoader<TQuery: OperationType>(
   }, [isMountedRef]);
 
   const queryLoaderCallback = useCallback(
-    (
-      variables: TQuery['variables'],
-      options?: ?UseQueryLoaderLoadQueryOptions,
-    ) => {
+    (variables: TVariables, options?: ?UseQueryLoaderLoadQueryOptions) => {
       const mergedOptions: ?UseQueryLoaderLoadQueryOptions =
         options != null && options.hasOwnProperty('__environment')
           ? {
@@ -138,7 +201,7 @@ function useQueryLoader<TQuery: OperationType>(
             }
           : options;
       if (isMountedRef.current) {
-        const updatedQueryReference = loadQuery<TQuery>(
+        const updatedQueryReference = loadQuery<QueryType>(
           options?.__environment ?? environment,
           preloadableRequest,
           variables,

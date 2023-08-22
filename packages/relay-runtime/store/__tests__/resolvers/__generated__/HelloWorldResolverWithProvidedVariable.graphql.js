@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<594b5bc6ac19b1a70701ee928e496bee>>
+ * @generated SignedSource<<6492bd934ab1f9f267b68406863ac60b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,17 +19,17 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-import {hello as queryHelloResolver} from "../HelloWorldResolver.js";
-// Type assertion validating that `queryHelloResolver` resolver is correctly implemented.
+import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
+// Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloResolver: (
+(queryHelloResolverType: (
   args: {|
     world: string,
-  |}, 
-) => mixed);
+  |},
+) => ?mixed);
 declare export opaque type HelloWorldResolverWithProvidedVariable$fragmentType: FragmentType;
 export type HelloWorldResolverWithProvidedVariable$data = {|
-  +hello: ?$Call<<R>((...empty[]) => R) => R, typeof queryHelloResolver>,
+  +hello: ?ReturnType<typeof queryHelloResolverType>,
   +$fragmentType: HelloWorldResolverWithProvidedVariable$fragmentType,
 |};
 export type HelloWorldResolverWithProvidedVariable$key = {

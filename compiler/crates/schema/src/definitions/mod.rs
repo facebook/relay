@@ -21,6 +21,7 @@ use common::Named;
 use common::NamedItem;
 use common::ObjectName;
 use common::ScalarName;
+use common::UnionName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
@@ -183,6 +184,19 @@ impl fmt::Debug for Type {
     }
 }
 
+impl Type {
+    pub fn get_variant_name(&self) -> &'static str {
+        match self {
+            Type::Enum(_) => "an enum",
+            Type::InputObject(_) => "an input object",
+            Type::Interface(_) => "an interface",
+            Type::Object(_) => "an object",
+            Type::Scalar(_) => "a scalar",
+            Type::Union(_) => "a union",
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum TypeReference<T> {
     Named(T),
@@ -291,6 +305,7 @@ pub struct Directive {
     pub repeatable: bool,
     pub is_extension: bool,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 impl Named for Directive {
@@ -306,6 +321,7 @@ pub struct Scalar {
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -316,6 +332,7 @@ pub struct Object {
     pub interfaces: Vec<InterfaceID>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -324,6 +341,7 @@ pub struct InputObject {
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -333,15 +351,17 @@ pub struct Enum {
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Union {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<UnionName>,
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -357,6 +377,7 @@ pub struct Field {
     /// a single parent type.
     pub parent_type: Option<Type>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 pub struct Deprecation {
@@ -383,6 +404,19 @@ pub struct Argument {
     pub default_value: Option<ConstantValue>,
     pub description: Option<StringKey>,
     pub directives: Vec<DirectiveValue>,
+}
+
+impl Argument {
+    pub fn deprecated(&self) -> Option<Deprecation> {
+        self.directives
+            .named(*DIRECTIVE_DEPRECATED)
+            .map(|directive| Deprecation {
+                reason: directive
+                    .arguments
+                    .named(*ARGUMENT_REASON)
+                    .and_then(|reason| reason.value.get_string_literal()),
+            })
+    }
 }
 
 impl Named for Argument {
@@ -520,7 +554,7 @@ impl_named_for_with_location!(Object, ObjectName);
 impl_named_for_with_location!(Field, StringKey);
 impl_named_for_with_location!(InputObject, InputObjectName);
 impl_named_for_with_location!(Interface, InterfaceName);
-impl_named_for_with_location!(Union, StringKey);
+impl_named_for_with_location!(Union, UnionName);
 impl_named_for_with_location!(Scalar, ScalarName);
 impl_named_for_with_location!(Enum, EnumName);
 

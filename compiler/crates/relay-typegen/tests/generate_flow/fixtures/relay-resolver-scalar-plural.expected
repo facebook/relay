@@ -1,0 +1,50 @@
+==================================== INPUT ====================================
+fragment relayResolver_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolver_Query {
+  me {
+    pop_star_name
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: [RelayResolverValue]
+    @relay_resolver(
+      fragment_name: "relayResolver_PopStarNameResolverFragment_name"
+      import_path: "./foo/bar/baz/PopStarNameResolver.js"
+    )
+}
+==================================== OUTPUT ===================================
+import type { relayResolver_PopStarNameResolverFragment_name$key } from "relayResolver_PopStarNameResolverFragment_name.graphql";
+import userPopStarNameResolverType from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userPopStarNameResolverType: (
+  rootKey: relayResolver_PopStarNameResolverFragment_name$key,
+) => ?$ReadOnlyArray<?mixed>);
+export type relayResolver_Query$variables = {||};
+export type relayResolver_Query$data = {|
+  +me: ?{|
+    +pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
+  |},
+|};
+export type relayResolver_Query = {|
+  response: relayResolver_Query$data,
+  variables: relayResolver_Query$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: FragmentType;
+export type relayResolver_PopStarNameResolverFragment_name$data = {|
+  +name: ?string,
+  +$fragmentType: relayResolver_PopStarNameResolverFragment_name$fragmentType,
+|};
+export type relayResolver_PopStarNameResolverFragment_name$key = {
+  +$data?: relayResolver_PopStarNameResolverFragment_name$data,
+  +$fragmentSpreads: relayResolver_PopStarNameResolverFragment_name$fragmentType,
+  ...
+};

@@ -24,7 +24,7 @@ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on Mar
   }
 }
 ==================================== ERROR ====================================
-✖︎ The 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name'.
+✖︎ The 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name' is transformed to use @no_inline implictly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name'.
 
   query-with-and-without-module-directive.graphql:15:8
    14 │   without_module: nameRenderer {

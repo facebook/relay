@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<029b71da6b224936e7ca559c10f51c93>>
+ * @generated SignedSource<<1e99c40a98b34b55c49b7b2a2bfddae2>>
  */
 
 mod compile_relay_artifacts_with_custom_id;
@@ -20,10 +20,24 @@ fn fragment_on_node_interface() {
 }
 
 #[test]
+fn fragment_on_node_interface_with_custom_variable_name() {
+    let input = include_str!("compile_relay_artifacts_with_custom_id/fixtures/fragment-on-node-interface-with-custom-variable-name.graphql");
+    let expected = include_str!("compile_relay_artifacts_with_custom_id/fixtures/fragment-on-node-interface-with-custom-variable-name.expected");
+    test_fixture(transform_fixture, "fragment-on-node-interface-with-custom-variable-name.graphql", "compile_relay_artifacts_with_custom_id/fixtures/fragment-on-node-interface-with-custom-variable-name.expected", input, expected);
+}
+
+#[test]
 fn fragment_on_object_implementing_node_interface() {
     let input = include_str!("compile_relay_artifacts_with_custom_id/fixtures/fragment-on-object-implementing-node-interface.graphql");
     let expected = include_str!("compile_relay_artifacts_with_custom_id/fixtures/fragment-on-object-implementing-node-interface.expected");
     test_fixture(transform_fixture, "fragment-on-object-implementing-node-interface.graphql", "compile_relay_artifacts_with_custom_id/fixtures/fragment-on-object-implementing-node-interface.expected", input, expected);
+}
+
+#[test]
+fn fragment_on_object_implementing_node_interface_with_custom_variable_name() {
+    let input = include_str!("compile_relay_artifacts_with_custom_id/fixtures/fragment-on-object-implementing-node-interface-with-custom-variable-name.graphql");
+    let expected = include_str!("compile_relay_artifacts_with_custom_id/fixtures/fragment-on-object-implementing-node-interface-with-custom-variable-name.expected");
+    test_fixture(transform_fixture, "fragment-on-object-implementing-node-interface-with-custom-variable-name.graphql", "compile_relay_artifacts_with_custom_id/fixtures/fragment-on-object-implementing-node-interface-with-custom-variable-name.expected", input, expected);
 }
 
 #[test]
@@ -80,6 +94,13 @@ fn refetchable_connection() {
     let input = include_str!("compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection.graphql");
     let expected = include_str!("compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection.expected");
     test_fixture(transform_fixture, "refetchable-connection.graphql", "compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection.expected", input, expected);
+}
+
+#[test]
+fn refetchable_connection_with_custom_variable_name() {
+    let input = include_str!("compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection-with-custom-variable-name.graphql");
+    let expected = include_str!("compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection-with-custom-variable-name.expected");
+    test_fixture(transform_fixture, "refetchable-connection-with-custom-variable-name.graphql", "compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection-with-custom-variable-name.expected", input, expected);
 }
 
 #[test]

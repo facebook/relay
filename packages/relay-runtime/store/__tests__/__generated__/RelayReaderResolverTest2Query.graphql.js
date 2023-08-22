@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<db6742fac17526d9b7a59eec34ab04c9>>
+ * @generated SignedSource<<78e12d18b6ac947f266db7071641def8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserConstantDependentResolver$key } from "./../resolvers/__generated__/UserConstantDependentResolver.graphql";
-import {constant_dependent as userConstantDependentResolver} from "../resolvers/UserConstantDependentResolver.js";
-// Type assertion validating that `userConstantDependentResolver` resolver is correctly implemented.
+import {constant_dependent as userConstantDependentResolverType} from "../resolvers/UserConstantDependentResolver.js";
+// Type assertion validating that `userConstantDependentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userConstantDependentResolver: (
-  rootKey: UserConstantDependentResolver$key, 
-) => mixed);
+(userConstantDependentResolverType: (
+  rootKey: UserConstantDependentResolver$key,
+) => ?mixed);
 export type RelayReaderResolverTest2Query$variables = {||};
 export type RelayReaderResolverTest2Query$data = {|
   +me: ?{|
-    +constant_dependent: ?$Call<<R>((...empty[]) => R) => R, typeof userConstantDependentResolver>,
+    +constant_dependent: ?ReturnType<typeof userConstantDependentResolverType>,
   |},
 |};
 export type RelayReaderResolverTest2Query = {|
@@ -110,14 +110,16 @@ var node/*: ConcreteRequest*/ = {
                     "abstractKey": null
                   },
                   "kind": "RelayResolver",
-                  "storageKey": null
+                  "storageKey": null,
+                  "isOutputType": false
                 }
               ],
               "type": "User",
               "abstractKey": null
             },
             "kind": "RelayResolver",
-            "storageKey": null
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

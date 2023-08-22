@@ -23,7 +23,8 @@ Hook used to access data fetched by an earlier call to [`loadQuery`](../load-que
 For more information, see the [Rendering Queries](../../guided-tour/rendering/queries) guide.
 
 ```js
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
+
+import type {AppQueryType} from 'AppQueryType.graphql';
 
 const React = require('React');
 
@@ -64,7 +65,7 @@ function NameLoader(props) {
 }
 
 function NameDisplay({ queryReference }) {
-  const data = usePreloadedQuery<AppQueryType>(AppQuery, queryReference);
+  const data = usePreloadedQuery(AppQuery, queryReference);
 
   return <h1>{data.user?.name}</h1>;
 }
@@ -75,16 +76,9 @@ function NameDisplay({ queryReference }) {
 * `query`: GraphQL query specified using a `graphql` template literal.
 * `preloadedQueryReference`: A `PreloadedQuery` query reference, which can be acquired from [`useQueryLoader`](../use-query-loader) or by calling [`loadQuery()`](../load-query) .
 
-### Flow Type Parameters
-
-* `TQuery`: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: `<query_name>.graphql.js`.
-
 ### Return Value
 
 * `data`: Object that contains data which has been read out from the Relay store; the object matches the shape of specified query.
     * The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of `data` above is: `{ user: ?{ name: ?string } }`.
-
-
-
 
 <DocsRating />

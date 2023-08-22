@@ -59,6 +59,13 @@ impl ExecutableDefinition {
                 .any(|d| d.name.value == directive_name),
         }
     }
+
+    pub fn selections(&self) -> &[Selection] {
+        match self {
+            ExecutableDefinition::Operation(node) => &node.selections.items,
+            ExecutableDefinition::Fragment(node) => &node.selections.items,
+        }
+    }
 }
 
 impl fmt::Debug for ExecutableDefinition {
@@ -216,6 +223,7 @@ pub struct FragmentSpread {
     pub span: Span,
     pub spread: Token,
     pub name: Identifier,
+    pub arguments: Option<List<Argument>>,
     pub directives: Vec<Directive>,
 }
 

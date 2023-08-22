@@ -13,6 +13,7 @@
 
 import type {QueryAllAstrologicalSignsResolver$key} from './__generated__/QueryAllAstrologicalSignsResolver.graphql';
 import type {AstrologicalSignID} from './AstrologicalSignUtils';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 const {HOUSE_ORDER} = require('./AstrologicalSignUtils');
 const {graphql} = require('relay-runtime');
@@ -29,7 +30,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  */
 function all_astrological_signs(
   rootKey: QueryAllAstrologicalSignsResolver$key,
-): $ReadOnlyArray<AstrologicalSignID> {
+): $ReadOnlyArray<ConcreteClientEdgeResolverReturnType<AstrologicalSignID>> {
   readFragment(
     graphql`
       fragment QueryAllAstrologicalSignsResolver on Query {
@@ -41,7 +42,11 @@ function all_astrological_signs(
     rootKey,
   );
 
-  return [...HOUSE_ORDER];
+  return [
+    ...HOUSE_ORDER.map(sign => ({
+      id: sign,
+    })),
+  ];
 }
 
 module.exports = {

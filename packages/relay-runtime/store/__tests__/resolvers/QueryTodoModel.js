@@ -11,11 +11,15 @@
 
 'use strict';
 
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
+
 /**
  * @RelayResolver Query.todo_model(todoID: ID!): TodoModel
  */
-function todo_model(args: {todoID: string}): string {
-  return args.todoID;
+function todo_model(args: {
+  todoID: string,
+}): ConcreteClientEdgeResolverReturnType<> {
+  return {id: args.todoID};
 }
 
 module.exports = {

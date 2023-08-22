@@ -15,6 +15,7 @@ mod build_resolvers_schema;
 pub mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
+pub mod get_artifacts_file_hash_map;
 mod log_program_stats;
 mod persist_operations;
 mod project_asts;
@@ -41,9 +42,9 @@ use fnv::FnvHashSet;
 pub use generate_artifacts::generate_artifacts;
 pub use generate_artifacts::Artifact;
 pub use generate_artifacts::ArtifactContent;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
-use intern::string_key::StringKey;
 use log::debug;
 use log::info;
 use log::warn;
@@ -54,6 +55,7 @@ use relay_transforms::apply_transforms;
 use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
 use relay_typegen::FragmentLocations;
+use rustc_hash::FxHashMap;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 pub use validate::validate;
@@ -309,7 +311,7 @@ pub async fn commit_project(
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,
     // Definitions that are removed from the previous artifact map
-    removed_definition_names: Vec<StringKey>,
+    removed_definition_names: Vec<ExecutableDefinitionName>,
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: DashSet<PathBuf, FnvBuildHasher>,
     source_control_update_status: Arc<SourceControlUpdateStatus>,
@@ -377,6 +379,11 @@ pub async fn commit_project(
         }
     };
 
+    let artifacts_file_hash_map = match &config.get_artifacts_file_hash_map {
+        Some(get_fn) => get_fn(&artifacts).await,
+        _ => None,
+    };
+
     // Write the generated artifacts to disk. This step is separate from
     // generating artifacts or persisting to avoid partial writes in case of
     // errors as much as possible.
@@ -391,6 +398,7 @@ pub async fn commit_project(
                 should_stop_updating_artifacts,
                 &artifacts,
                 &fragment_locations,
+                &artifacts_file_hash_map,
             )?;
             for artifact in &artifacts {
                 if !existing_artifacts.remove(&artifact.path) {
@@ -426,6 +434,7 @@ pub async fn commit_project(
                 should_stop_updating_artifacts,
                 &artifacts,
                 &fragment_locations,
+                &artifacts_file_hash_map,
             )?;
             artifacts.into_par_iter().for_each(|artifact| {
                 current_paths_map.insert(artifact);
@@ -524,6 +533,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     should_stop_updating_artifacts: F,
     artifacts: &[Artifact],
     fragment_locations: &FragmentLocations,
+    artifacts_file_hash_map: &Option<FxHashMap<String, Option<String>>>,
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8192).try_for_each_init(
         || Printer::with_dedupe(project_config),
@@ -541,7 +551,16 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
                     artifact.source_file,
                     fragment_locations,
                 );
-                if config.artifact_writer.should_write(&path, &content)? {
+                let file_hash = match artifact.path.to_str() {
+                    Some(key) => artifacts_file_hash_map
+                        .as_ref()
+                        .and_then(|map| map.get(key).cloned().flatten()),
+                    _ => None,
+                };
+                if config
+                    .artifact_writer
+                    .should_write(&path, &content, file_hash)?
+                {
                     config.artifact_writer.write(path, content)?;
                 }
             }

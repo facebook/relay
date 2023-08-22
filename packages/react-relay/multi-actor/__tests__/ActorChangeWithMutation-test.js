@@ -13,7 +13,6 @@
 
 import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
-import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
@@ -144,7 +143,7 @@ type Props = $ReadOnly<{
 
 function ActorComponent(props: Props) {
   const data = useFragment(fragment, props.fragmentKey);
-  const [commit] = useMutation<ActorChangeWithMutationTestMutation>(mutation);
+  const [commit] = useMutation(mutation);
 
   props.render({
     id: data.id,
@@ -192,7 +191,6 @@ describe('ActorChange', () => {
       )>
     ) => {
       // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-      // $FlowFixMe[underconstrained-implicit-instantiation]
       return Observable.create(sink => {
         dataSource = sink;
       });
@@ -210,10 +208,11 @@ describe('ActorChange', () => {
 
   it('should render a fragment for actor', () => {
     const actorRenders = [];
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     const renderFn = jest.fn(data => {
       actorRenders.push(data);
     });
-    const renderViewerActorName = jest.fn();
+    const renderViewerActorName = jest.fn<[?string], void>();
 
     ReactTestRenderer.create(
       <ComponentWrapper

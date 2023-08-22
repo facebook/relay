@@ -19,7 +19,6 @@ Hook used to make it easy to safely load and retain queries. It will keep a quer
 This hook is designed to be used with [`usePreloadedQuery`](../use-preloaded-query) to implement the "render-as-you-fetch" pattern. For more information, see the [Fetching Queries for Render](../../guided-tour/rendering/queries/) guide.
 
 ```js
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
 import type {PreloadedQuery} from 'react-relay';
 
 const {useQueryLoader, usePreloadedQuery} = require('react-relay');
@@ -60,7 +59,7 @@ function QueryFetcherExample() {
 }
 
 function NameDisplay({ queryReference }) {
-  const data = usePreloadedQuery<AppQueryType>(AppQuery, queryReference);
+  const data = usePreloadedQuery(AppQuery, queryReference);
 
   return <h1>{data.user?.name}</h1>;
 }
@@ -70,11 +69,6 @@ function NameDisplay({ queryReference }) {
 
 * `query`: GraphQL query specified using a `graphql` template literal.
 * `initialQueryRef`: _*[Optional]*_ An initial `PreloadedQuery` to be used as the initial value of the `queryReference` stored in state and returned by `useQueryLoader`.
-
-
-### Flow Type Parameters
-
-* `TQuery`: the type of the query
 
 ### Return value
 

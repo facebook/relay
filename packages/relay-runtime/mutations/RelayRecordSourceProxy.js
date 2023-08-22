@@ -18,11 +18,11 @@ import type {
   FragmentType,
   HandleFieldPayload,
   HasUpdatableSpread,
+  MissingFieldHandler,
   RecordProxy,
   RecordSource,
   RecordSourceProxy,
   UpdatableData,
-  MissingFieldHandler,
 } from '../store/RelayStoreTypes';
 import type {
   DataID,

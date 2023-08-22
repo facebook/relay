@@ -30,6 +30,15 @@ use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::Feature;
 
+pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
+    let file_path_result = file_uri.to_file_path();
+
+    match file_path_result {
+        Ok(file_path) => file_path.starts_with(root_dir),
+        Err(()) => false,
+    }
+}
+
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
@@ -66,7 +75,10 @@ pub fn extract_project_name_from_url(
     url: &Url,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<StringKey> {
-    let absolute_file_path = PathBuf::from(url.path());
+    let absolute_file_path = url.to_file_path().map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
+    })?;
+
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
             "Failed to strip prefix {:?} from {:?}",
@@ -162,16 +174,9 @@ pub fn extract_feature_from_text(
                         &ast,
                         Some(&executable_definitions_in_file),
                         ParseOptions {
-                            use_named_imports: project_config
+                            enable_output_type: &project_config
                                 .feature_flags
-                                .use_named_imports_for_relay_resolvers,
-                            relay_resolver_model_syntax_enabled: project_config
-                                .feature_flags
-                                .relay_resolver_model_syntax_enabled,
-                            relay_resolver_enable_terse_syntax: project_config
-                                .feature_flags
-                                .relay_resolver_enable_terse_syntax,
-                            id_field_name: project_config.schema_config.node_interface_id_field,
+                                .relay_resolver_enable_output_type,
                         },
                     )
                 })

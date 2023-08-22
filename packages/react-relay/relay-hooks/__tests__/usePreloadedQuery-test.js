@@ -137,7 +137,9 @@ describe.each([
 
   beforeEach(() => {
     dataSource = undefined;
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       Observable.create(sink => {
         dataSource = sink;
       }),
@@ -165,7 +167,7 @@ describe.each([
       );
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
+        data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name;
       }
       const renderer = TestRenderer.create(
@@ -188,7 +190,7 @@ describe.each([
       );
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
+        data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name ?? 'Error: should have suspended';
       }
       const renderer = TestRenderer.create(
@@ -223,7 +225,7 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
+        data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name ?? 'MISSING NAME';
       }
       const renderer = TestRenderer.create(
@@ -259,8 +261,8 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
-        return data.node.name;
+        data = usePreloadedQuery(query, props.prefetched);
+        return data.node?.name;
       }
       const renderer = TestRenderer.create(
         <RelayEnvironmentProvider environment={environment}>
@@ -287,8 +289,8 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
-        return data.node.name;
+        data = usePreloadedQuery(query, props.prefetched);
+        return data.node?.name;
       }
       const renderer = TestRenderer.create(
         <RelayEnvironmentProvider environment={environment}>
@@ -337,8 +339,8 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
-        return data.node.name;
+        data = usePreloadedQuery(query, props.prefetched);
+        return data.node?.name;
       }
       const renderer = TestRenderer.create(
         <RelayEnvironmentProvider environment={environment}>
@@ -399,8 +401,8 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
-        return data.node.name;
+        data = usePreloadedQuery(query, props.prefetched);
+        return data.node?.name;
       }
 
       const newEnvironment = createMockEnvironment();
@@ -451,8 +453,8 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
-        return data.node.name;
+        data = usePreloadedQuery(query, props.prefetched);
+        return data.node?.name;
       }
       const renderer = TestRenderer.create(
         <RelayEnvironmentProvider environment={environment}>
@@ -513,8 +515,8 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery<any>(query, props.prefetched);
-        return data.node.name;
+        data = usePreloadedQuery(query, props.prefetched);
+        return data.node?.name;
       }
       const renderer = TestRenderer.create(
         <RelayEnvironmentProvider environment={environment}>
@@ -566,7 +568,7 @@ describe.each([
         );
         let data;
         function Component(props: any) {
-          data = usePreloadedQuery<any>(query, props.prefetched);
+          data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
         const renderer = TestRenderer.create(
@@ -613,7 +615,7 @@ describe.each([
         );
         let data;
         function Component(props: any) {
-          data = usePreloadedQuery<any>(query, props.prefetched);
+          data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
         const renderer = TestRenderer.create(
@@ -667,8 +669,8 @@ describe.each([
         TestRenderer.act(() => jest.runAllImmediates());
 
         function Component(props: any) {
-          data = usePreloadedQuery<any>(query, props.prefetched);
-          return data.node.name;
+          data = usePreloadedQuery(query, props.prefetched);
+          return data.node?.name;
         }
         const renderer = TestRenderer.create(
           <RelayEnvironmentProvider environment={environment}>
@@ -704,8 +706,8 @@ describe.each([
         TestRenderer.act(() => jest.runAllImmediates());
 
         function Component(props: any) {
-          data = usePreloadedQuery<any>(query, props.prefetched);
-          return data.node.name;
+          data = usePreloadedQuery(query, props.prefetched);
+          return data.node?.name;
         }
         const renderer = TestRenderer.create(
           <RelayEnvironmentProvider environment={environment}>
@@ -735,8 +737,8 @@ describe.each([
           TestRenderer.act(() => jest.runAllImmediates());
 
           function Component(props: any) {
-            data = usePreloadedQuery<any>(query, props.prefetched);
-            return data.node.name;
+            data = usePreloadedQuery(query, props.prefetched);
+            return data.node?.name;
           }
           const renderer = TestRenderer.create(
             <RelayEnvironmentProvider environment={environment}>
@@ -766,8 +768,8 @@ describe.each([
           TestRenderer.act(() => jest.runAllImmediates());
 
           function Component(props: any) {
-            data = usePreloadedQuery<any>(query, props.prefetched);
-            return data.node.name;
+            data = usePreloadedQuery(query, props.prefetched);
+            return data.node?.name;
           }
           const renderer = TestRenderer.create(
             <RelayEnvironmentProvider environment={environment}>
@@ -792,8 +794,8 @@ describe.each([
           expect(dataSource).toBeDefined();
 
           function Component(props: any) {
-            data = usePreloadedQuery<any>(query, props.prefetched);
-            return data.node.name;
+            data = usePreloadedQuery(query, props.prefetched);
+            return data.node?.name;
           }
           const renderer = TestRenderer.create(
             <RelayEnvironmentProvider environment={environment}>
@@ -826,8 +828,8 @@ describe.each([
           expect(dataSource).toBeDefined();
 
           function Component(props: any) {
-            data = usePreloadedQuery<any>(query, props.prefetched);
-            return data.node.name;
+            data = usePreloadedQuery(query, props.prefetched);
+            return data.node?.name;
           }
           const renderer = TestRenderer.create(
             <RelayEnvironmentProvider environment={environment}>
@@ -877,8 +879,8 @@ describe.each([
           TestRenderer.act(() => jest.runAllImmediates());
 
           function Component(props: any) {
-            data = usePreloadedQuery<any>(query, props.prefetched);
-            return data.node.name;
+            data = usePreloadedQuery(query, props.prefetched);
+            return data.node?.name;
           }
           const renderer = TestRenderer.create(
             <RelayEnvironmentProvider environment={environment}>
@@ -912,8 +914,8 @@ describe.each([
           TestRenderer.act(() => jest.runAllImmediates());
 
           function Component(props: any) {
-            data = usePreloadedQuery<any>(query, props.prefetched);
-            return data.node.name;
+            data = usePreloadedQuery(query, props.prefetched);
+            return data.node?.name;
           }
           const renderer = TestRenderer.create(
             <RelayEnvironmentProvider environment={environment}>
@@ -942,8 +944,8 @@ describe.each([
           expect(dataSource).toBeDefined();
 
           function Component(props: any) {
-            data = usePreloadedQuery<any>(query, props.prefetched);
-            return data.node.name;
+            data = usePreloadedQuery(query, props.prefetched);
+            return data.node?.name;
           }
           const renderer = TestRenderer.create(
             <RelayEnvironmentProvider environment={environment}>
@@ -980,8 +982,8 @@ describe.each([
           expect(dataSource).toBeDefined();
 
           function Component(props: any) {
-            data = usePreloadedQuery<any>(query, props.prefetched);
-            return data.node.name;
+            data = usePreloadedQuery(query, props.prefetched);
+            return data.node?.name;
           }
           const renderer = TestRenderer.create(
             <RelayEnvironmentProvider environment={environment}>
@@ -1008,7 +1010,9 @@ describe.each([
     describe('when environments do not match', () => {
       it('should fetch the data at render time, even if the query has already resolved', () => {
         let altDataSource;
+        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         const altFetch = jest.fn((_query, _variables, _cacheConfig) =>
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           Observable.create(sink => {
             altDataSource = sink;
           }),
@@ -1034,8 +1038,8 @@ describe.each([
 
         expect(altFetch).not.toHaveBeenCalled();
         function Component(props: any) {
-          data = usePreloadedQuery<any>(query, props.prefetched);
-          return data.node.name;
+          data = usePreloadedQuery(query, props.prefetched);
+          return data.node?.name;
         }
         const renderer = TestRenderer.create(
           <RelayEnvironmentProvider environment={altEnvironment}>
@@ -1069,7 +1073,7 @@ describe.each([
         );
 
         function Component(props: any) {
-          const data = usePreloadedQuery<any>(query, props.prefetched);
+          const data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
 
@@ -1115,10 +1119,8 @@ describe.each([
         );
         let data;
         function Component(props: any) {
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           data = usePreloadedQuery(query, props.prefetched);
-          // $FlowFixMe[incompatible-use] Error found while enabling LTI on this file
-          return data.node.name;
+          return data.node?.name;
         }
         const renderer = TestRenderer.create(
           <RelayEnvironmentProvider environment={environment}>
@@ -1218,10 +1220,8 @@ describe.each([
         );
         let data;
         function Component(props: any) {
-          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           data = usePreloadedQuery(query, props.prefetched);
-          // $FlowFixMe[incompatible-use] Error found while enabling LTI on this file
-          return data.node.name;
+          return data.node?.name;
         }
         const renderer = TestRenderer.create(
           <RelayEnvironmentProvider environment={environment}>

@@ -10,7 +10,10 @@
  */
 
 'use strict';
-
+import type {NormalizationLinkedField} from '../../util/NormalizationNode';
+import type {ReaderLinkedField} from '../../util/ReaderNode';
+import type {Variables} from '../../util/RelayRuntimeTypes';
+import type {ReadOnlyRecordProxy} from '../RelayStoreTypes';
 import type {
   DataCheckerTest10Query$data,
   DataCheckerTest10Query$variables,
@@ -35,7 +38,6 @@ const {
 } = require('../../multi-actor-environment/ActorIdentifier');
 const {getRequest, graphql} = require('../../query/GraphQLTag');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {check} = require('../DataChecker');
 const defaultGetDataID = require('../defaultGetDataID');
 const {createNormalizationSelector} = require('../RelayModernSelector');
@@ -717,9 +719,9 @@ describe('check()', () => {
 
       loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -732,23 +734,20 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'PlainUserNameRenderer',
-            __module_component_DataCheckerTest4Fragment:
-              'PlainUserNameRenderer.react',
-            __module_operation_DataCheckerTest4Fragment:
-              'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
-            plaintext: 'plain name',
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'PlainUserNameRenderer',
+          __module_component_DataCheckerTest4Fragment:
+            'PlainUserNameRenderer.react',
+          __module_operation_DataCheckerTest4Fragment:
+            'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
+          plaintext: 'plain name',
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -779,7 +778,6 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
-      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
       );
@@ -797,23 +795,20 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_DataCheckerTest4Fragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_DataCheckerTest4Fragment:
-              'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
-            markdown: 'markdown payload',
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_DataCheckerTest4Fragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_DataCheckerTest4Fragment:
+            'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
+          markdown: 'markdown payload',
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -859,18 +854,15 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            // NOTE: markdown/data fields are missing, data not processed.
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          // NOTE: markdown/data fields are missing, data not processed.
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -913,19 +905,16 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            // NOTE: 'markdown' field missing
-            data: {__ref: 'data'},
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          // NOTE: 'markdown' field missing
+          data: {__ref: 'data'},
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -970,19 +959,16 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            markdown: 'markdown text',
-            // NOTE: 'data' field missing
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          markdown: 'markdown text',
+          // NOTE: 'data' field missing
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1020,18 +1006,15 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'CustomNameRenderer',
-            customField: 'custom value',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'CustomNameRenderer',
+          customField: 'custom value',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1068,8 +1051,7 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            null,
+          'nameRenderer(supported:"34hjiS")': null,
         },
         'client:root': {
           __id: 'client:root',
@@ -1187,9 +1169,9 @@ describe('check()', () => {
 
       loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: mixed) =>
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -1246,7 +1228,6 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
-      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
       );
@@ -1946,9 +1927,15 @@ describe('check()', () => {
             }
           }
         `;
-        const handle = jest.fn((field, record, argValues) => {
-          return handleReturnValue;
-        });
+        const handle = jest.fn(
+          (
+            field: NormalizationLinkedField | ReaderLinkedField,
+            record: ?ReadOnlyRecordProxy,
+            argValues: Variables,
+          ) => {
+            return handleReturnValue;
+          },
+        );
         const status = check(
           () => source,
           () => target,
@@ -2099,9 +2086,15 @@ describe('check()', () => {
             }
           }
         `;
-        const handle = jest.fn((field, record, argValues) => {
-          return handleReturnValue;
-        });
+        const handle = jest.fn(
+          (
+            field: NormalizationLinkedField | ReaderLinkedField,
+            record: ?ReadOnlyRecordProxy,
+            argValues: Variables,
+          ) => {
+            return handleReturnValue;
+          },
+        );
         const status = check(
           () => source,
           () => target,
@@ -2109,6 +2102,7 @@ describe('check()', () => {
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+            // $FlowFixMe[incompatible-call]
             {
               kind: 'pluralLinked',
               handle,
@@ -2522,7 +2516,6 @@ describe('check()', () => {
             __id: 'client:1',
             __typename: 'FriendsConnection',
             edges: {
-              // $FlowFixMe[incompatible-type]
               __refs: [],
             },
           },
@@ -2785,319 +2778,6 @@ describe('check()', () => {
       );
       expect(status).toEqual({
         status: 'available',
-        mostRecentlyInvalidatedAt: null,
-      });
-      expect(target.size()).toBe(0);
-    });
-  });
-
-  describe('with feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
-    let FlightQuery;
-    let InnerQuery;
-    let operationLoader;
-
-    const readRoot = () => {
-      return {
-        $$typeof: Symbol.for('react.element'),
-        type: 'div',
-        key: null,
-        ref: null,
-        props: {foo: 1},
-      };
-    };
-
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
-
-      FlightQuery = graphql`
-        query DataCheckerTestFlightQuery($id: ID!, $count: Int!) {
-          node(id: $id) {
-            ... on Story {
-              flightComponent(condition: true, count: $count, id: $id)
-            }
-          }
-        }
-      `;
-      InnerQuery = graphql`
-        query DataCheckerTestInnerQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-            }
-          }
-        }
-      `;
-
-      operationLoader = {
-        get: jest.fn(() => getRequest(InnerQuery)),
-        load: jest.fn(() => Promise.resolve(getRequest(InnerQuery))),
-      };
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
-    });
-
-    it('returns available when the Flight field is fetched', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        '2': {
-          __id: '2',
-          __typename: 'User',
-          id: '2',
-          name: 'Lauren',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-          {
-            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            __typename: 'ReactFlightComponent',
-            executableDefinitions: [
-              {
-                module: {
-                  __dr: 'RelayFlightExampleQuery.graphql',
-                },
-                variables: {
-                  id: '2',
-                },
-              },
-            ],
-            tree: {
-              readRoot,
-            },
-          },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-          'node(id:"2")': {
-            __ref: '2',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        () => source,
-        () => target,
-        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'available',
-        mostRecentlyInvalidatedAt: null,
-      });
-      expect(target.size()).toBe(0);
-    });
-
-    it('returns missing when the Flight field exists but has not been processed', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-          {
-            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            __typename: 'ReactFlightComponent',
-          },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        () => source,
-        () => target,
-        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'missing',
-        mostRecentlyInvalidatedAt: null,
-      });
-      expect(target.size()).toBe(0);
-    });
-
-    it('returns missing when the Flight field is null in the store', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-          null,
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        () => source,
-        () => target,
-        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'missing',
-        mostRecentlyInvalidatedAt: null,
-      });
-      expect(target.size()).toBe(0);
-    });
-
-    it('returns missing when the Flight field is undefined in the store', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-          undefined,
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        () => source,
-        () => target,
-        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'missing',
-        mostRecentlyInvalidatedAt: null,
-      });
-      expect(target.size()).toBe(0);
-    });
-
-    it('returns missing when the linked ReactFlightClientResponseRecord is missing', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        () => source,
-        () => target,
-        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
       });
       expect(target.size()).toBe(0);

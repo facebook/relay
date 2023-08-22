@@ -44,12 +44,11 @@ To refresh a query using the [`useQueryLoader`](../../../api-reference/use-query
 /**
  * App.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
 
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {
-  const [queryRef, loadQuery] = useQueryLoader<AppQueryType>(
+  const [queryRef, loadQuery] = useQueryLoader(
     AppQuery,
     props.appQueryRef /* initial query ref */
   );
@@ -78,12 +77,11 @@ function App(props: Props) {
 /**
  * MainContent.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
 
 // Renders the preloaded query, given the query reference
 function MainContent(props) {
   const {refresh, queryRef} = props;
-  const data = usePreloadedQuery<AppQueryType>(
+  const data = usePreloadedQuery(
     graphql`
       query AppQuery($id: ID!) {
         user(id: $id) {
@@ -134,13 +132,12 @@ In some cases, you might want to avoid showing a Suspense fallback, which would 
 /**
  * App.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
 
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {
   const environment = useRelayEnvironment();
-  const [queryRef, loadQuery] = useQueryLoader<AppQueryType>(
+  const [queryRef, loadQuery] = useQueryLoader(
     AppQuery,
     props.appQueryRef /* initial query ref */
   );
@@ -207,8 +204,6 @@ To refresh a query using the [`useLazyLoadQuery`](../../../api-reference/use-laz
 /**
  * App.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
-
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {

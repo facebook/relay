@@ -15,6 +15,7 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  MissingFieldHandler,
   MutationParameters,
   OperationDescriptor,
   OptimisticUpdate,
@@ -26,7 +27,6 @@ import type {
   SelectorStoreUpdater,
   SingularReaderSelector,
   Store,
-  MissingFieldHandler,
   StoreUpdater,
 } from './RelayStoreTypes';
 
@@ -210,7 +210,6 @@ class RelayPublishQueue implements PublishQueue {
     sourceOperation?: OperationDescriptor,
   ): $ReadOnlyArray<RequestDescriptor> {
     const runWillClearGcHold =
-      // $FlowFixMe[incompatible-type]
       this._appliedOptimisticUpdates === 0 && !!this._gcHold;
     const runIsANoop =
       // this._pendingBackupRebase is true if an applied optimistic

@@ -23,11 +23,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: ESLint
-        run: yarn run lint
+        run: yarn --ignore-engines run lint
       - name: Prettier
-        run: yarn run prettier-check
+        run: yarn --ignore-engines run prettier-check
       - name: Typecheck
-        run: yarn run typecheck
+        run: yarn --ignore-engines run typecheck
 
   js-tests:
     name: JS Tests (Node ${{ matrix.node-version }})
@@ -120,6 +120,8 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
+      - name: "Update fixture tests"
+        run: ./scripts/update-fixtures.sh
       - name: "Build test project"
         run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }} ./compiler/test-project/relay.config.json
       - name: "Build Relay unit-test artifacts"

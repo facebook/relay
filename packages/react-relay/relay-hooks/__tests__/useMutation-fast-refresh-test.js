@@ -42,7 +42,7 @@ describe('useLazyLoadQueryNode', () => {
 
   const variables = {
     input: {
-      commentId: '<id>',
+      feedbackId: '<id>',
     },
   };
   beforeEach(() => {
@@ -68,7 +68,7 @@ describe('useLazyLoadQueryNode', () => {
         }
       }
     `;
-    isInFlightFn = jest.fn(val => val);
+    isInFlightFn = jest.fn((val: boolean) => val);
   });
 
   afterEach(() => {
@@ -77,14 +77,12 @@ describe('useLazyLoadQueryNode', () => {
   });
 
   it('force a refetch in fast refresh', () => {
-    // $FlowFixMe[cannot-resolve-module] This module is not available on www.
+    // $FlowFixMe[cannot-resolve-module] (site=www)
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     let commit;
     const V1 = function (props: {}) {
-      const [commitFn, isMutationInFlight] = useMutation<any>(
-        CommentCreateMutation,
-      );
+      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     };
@@ -118,9 +116,7 @@ describe('useLazyLoadQueryNode', () => {
 
     // Trigger a fast fresh
     function V2(props: any) {
-      const [commitFn, isMutationInFlight] = useMutation<any>(
-        CommentCreateMutation,
-      );
+      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     }

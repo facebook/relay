@@ -9,6 +9,9 @@
  * @oncall relay
  */
 
+import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
+import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
+
 /**
  * @RelayResolver TodoDescription
  * @weak
@@ -17,9 +20,6 @@ export opaque type TodoDescription = {
   text: string,
   color: string,
 };
-
-import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
-import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
 
 // Public constructor for opaque `TodoDescription`.
 // Other resolvers have to call this function to
@@ -37,23 +37,33 @@ function createTodoDescription(
 /**
  * @RelayResolver TodoDescription.text: String
  */
-function text(instance: ?TodoDescription): ?string {
-  return instance?.text;
+function text(instance: TodoDescription): string {
+  return instance.text;
+}
+
+/**
+ * @RelayResolver TodoDescription.text_with_prefix(prefix: String!): String
+ */
+function text_with_prefix(
+  instance: TodoDescription,
+  args: {prefix: string},
+): string {
+  return `${args.prefix} ${instance.text}`;
 }
 
 /**
  * @RelayResolver TodoDescription.color: RelayResolverValue
  */
-function color(instance: ?TodoDescription): ?string {
-  return instance?.color;
+function color(instance: TodoDescription): string {
+  return instance.color;
 }
 
 /**
- * @RelayResolver TodoDescription.some_interface: ClientInterface!
+ * @RelayResolver TodoDescription.some_interface: ClientInterface
  */
 function some_interface(
-  instance: ?TodoDescription,
-): ?TodoDescription__some_interface$normalization {
+  instance: TodoDescription,
+): TodoDescription__some_interface$normalization {
   return {
     __typename: 'ClientTypeImplementingClientInterface',
     description: 'It was a magical place',
@@ -61,11 +71,11 @@ function some_interface(
 }
 
 /**
- * @RelayResolver TodoDescription.some_client_type_with_interface: ClientTypeWithNestedClientInterface!
+ * @RelayResolver TodoDescription.some_client_type_with_interface: ClientTypeWithNestedClientInterface
  */
 function some_client_type_with_interface(
-  instance: ?TodoDescription,
-): ?TodoDescription__some_client_type_with_interface$normalization {
+  instance: TodoDescription,
+): TodoDescription__some_client_type_with_interface$normalization {
   return {
     client_interface: {
       __typename: 'ClientTypeImplementingClientInterface',
@@ -75,6 +85,7 @@ function some_client_type_with_interface(
 }
 
 module.exports = {
+  text_with_prefix,
   createTodoDescription,
   text,
   color,

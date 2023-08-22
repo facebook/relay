@@ -17,8 +17,8 @@ const {
   getQueryResourceForEnvironment,
 } = require('react-relay/relay-hooks/QueryResource');
 const {
-  RelayFeatureFlags,
   __internal: {fetchQuery},
+  RelayFeatureFlags,
   getFragment,
 } = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');

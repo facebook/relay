@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5e3fec2fa6c31c2536b60fbc0d68998f>>
+ * @generated SignedSource<<4c83edb5a97709b48ab136e569a1bc3e>>
  */
 
 mod compile_relay_artifacts;
@@ -178,6 +178,27 @@ fn client_conditions() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-conditions.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-conditions.expected");
     test_fixture(transform_fixture, "client-conditions.graphql", "compile_relay_artifacts/fixtures/client-conditions.expected", input, expected);
+}
+
+#[test]
+fn client_edge_from_client_type_to_client_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.expected");
+    test_fixture(transform_fixture, "client_edge_from_client_type_to_client_type.graphql", "compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.expected", input, expected);
+}
+
+#[test]
+fn client_edge_from_server_type_to_client_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type.expected");
+    test_fixture(transform_fixture, "client_edge_from_server_type_to_client_type.graphql", "compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type.expected", input, expected);
+}
+
+#[test]
+fn client_edge_from_server_type_to_client_type_fragment_reads_client_field() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type_fragment_reads_client_field.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type_fragment_reads_client_field.expected");
+    test_fixture(transform_fixture, "client_edge_from_server_type_to_client_type_fragment_reads_client_field.graphql", "compile_relay_artifacts/fixtures/client_edge_from_server_type_to_client_type_fragment_reads_client_field.expected", input, expected);
 }
 
 #[test]
@@ -444,13 +465,6 @@ fn fields_with_null_argument_values() {
     let input = include_str!("compile_relay_artifacts/fixtures/fields-with-null-argument-values.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fields-with-null-argument-values.expected");
     test_fixture(transform_fixture, "fields-with-null-argument-values.graphql", "compile_relay_artifacts/fixtures/fields-with-null-argument-values.expected", input, expected);
-}
-
-#[test]
-fn flight_props_transform() {
-    let input = include_str!("compile_relay_artifacts/fixtures/flight-props-transform.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/flight-props-transform.expected");
-    test_fixture(transform_fixture, "flight-props-transform.graphql", "compile_relay_artifacts/fixtures/flight-props-transform.expected", input, expected);
 }
 
 #[test]
@@ -951,20 +965,6 @@ fn query_with_raw_response_type_directive() {
 }
 
 #[test]
-fn query_with_relay_client_component() {
-    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.expected");
-    test_fixture(transform_fixture, "query-with-relay-client-component.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component.expected", input, expected);
-}
-
-#[test]
-fn query_with_relay_client_component_with_argument_definitions() {
-    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.expected");
-    test_fixture(transform_fixture, "query-with-relay-client-component-with-argument-definitions.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.expected", input, expected);
-}
-
-#[test]
 fn redundant_selection_in_inline_fragments() {
     let input = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/redundant-selection-in-inline-fragments.expected");
@@ -1245,10 +1245,24 @@ fn required_argument_not_passed_other_args_invalid() {
 }
 
 #[test]
+fn required_bubbles_to_client_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-client-edge.graphql", "compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected", input, expected);
+}
+
+#[test]
 fn required_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/required-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required-directive.expected");
     test_fixture(transform_fixture, "required-directive.graphql", "compile_relay_artifacts/fixtures/required-directive.expected", input, expected);
+}
+
+#[test]
+fn resolver_with_root_fragment_on_model_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/resolver-with-root-fragment-on-model-type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/resolver-with-root-fragment-on-model-type.expected");
+    test_fixture(transform_fixture, "resolver-with-root-fragment-on-model-type.graphql", "compile_relay_artifacts/fixtures/resolver-with-root-fragment-on-model-type.expected", input, expected);
 }
 
 #[test]

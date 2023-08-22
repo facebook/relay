@@ -13,11 +13,11 @@
 
 import type {Sink} from '../relay-runtime/network/RelayObservable';
 import type {
+  $RelayProps,
   GeneratedNodeMap,
   ObserverOrCallback,
   RefetchOptions,
   RelayPaginationProp,
-  $RelayProps,
 } from './ReactRelayTypes';
 import type {
   CacheConfig,

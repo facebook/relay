@@ -18,8 +18,8 @@ import type {
   OperationType,
 } from 'relay-runtime';
 
-const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
+const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 

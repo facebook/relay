@@ -41,8 +41,11 @@ fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmen
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {

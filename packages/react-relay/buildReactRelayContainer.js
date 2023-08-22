@@ -12,7 +12,7 @@
 'use strict';
 
 import type {GeneratedNodeMap} from './ReactRelayTypes';
-import type {ReaderFragment, FragmentMap} from 'relay-runtime';
+import type {FragmentMap, ReaderFragment} from 'relay-runtime';
 
 const assertFragmentMap = require('./assertFragmentMap');
 const {

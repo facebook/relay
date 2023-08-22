@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aab29fd74227eb3a21ea7b4cdfb11478>>
+ * @generated SignedSource<<0ed58bc89fa94bcf3da23015e5ef60aa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,15 +19,15 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { CounterPlusOneResolver$key } from "./CounterPlusOneResolver.graphql";
-import {counter_plus_one as queryCounterPlusOneResolver} from "../CounterPlusOneResolver.js";
-// Type assertion validating that `queryCounterPlusOneResolver` resolver is correctly implemented.
+import {counter_plus_one as queryCounterPlusOneResolverType} from "../CounterPlusOneResolver.js";
+// Type assertion validating that `queryCounterPlusOneResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterPlusOneResolver: (
-  rootKey: CounterPlusOneResolver$key, 
-) => mixed);
+(queryCounterPlusOneResolverType: (
+  rootKey: CounterPlusOneResolver$key,
+) => ?mixed);
 export type ResolverGCTestRegularReadsLiveQuery$variables = {||};
 export type ResolverGCTestRegularReadsLiveQuery$data = {|
-  +counter_plus_one: ?$Call<<R>((...empty[]) => R) => R, typeof queryCounterPlusOneResolver>,
+  +counter_plus_one: ?ReturnType<typeof queryCounterPlusOneResolverType>,
 |};
 export type ResolverGCTestRegularReadsLiveQuery = {|
   response: ResolverGCTestRegularReadsLiveQuery$data,
@@ -112,14 +112,16 @@ var node/*: ConcreteRequest*/ = {
                 "abstractKey": null
               },
               "kind": "RelayResolver",
-              "storageKey": null
+              "storageKey": null,
+              "isOutputType": false
             }
           ],
           "type": "Query",
           "abstractKey": null
         },
         "kind": "RelayResolver",
-        "storageKey": null
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

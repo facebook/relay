@@ -124,6 +124,7 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || -> Field {
             Field {
@@ -136,6 +137,7 @@ impl SchemaWrapper {
                 directives: Vec::new(),
                 parent_type: None,
                 description: Some(*CLIENT_ID_DESCRIPTION),
+                hack_source: None,
             }
         });
         result.fields.get(STRONGID_FIELD_ID, || Field {
@@ -146,6 +148,7 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: Some(*TYPENAME_DESCRIPTION),
+            hack_source: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
             name: WithLocation::generated(result.fetch_token_field_name),
@@ -157,6 +160,7 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
         result.fields.get(IS_FULFILLED_FIELD_ID, || Field {
             name: WithLocation::generated(result.is_fulfilled_field_name),
@@ -176,6 +180,7 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
 
         result.unchecked_argument_type_sentinel = Some(TypeReference::Named(
@@ -308,7 +313,7 @@ impl Schema for SchemaWrapper {
             Type::Interface(id) => self.interface(id).name.item.0,
             Type::Object(id) => self.object(id).name.item.0,
             Type::Scalar(id) => self.scalar(id).name.item.0,
-            Type::Union(id) => self.union(id).name.item,
+            Type::Union(id) => self.union(id).name.item.0,
         }
     }
 
@@ -399,7 +404,7 @@ impl Schema for SchemaWrapper {
     }
 
     fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
-        if self.input_objects.map.is_empty() {
+        if self.input_objects.map.len() < self.flatbuffer_schema().input_objects.len() {
             for i in 0..self.flatbuffer_schema().input_objects.len() {
                 let id = InputObjectID(i.try_into().unwrap());
                 self.input_object(id);
@@ -410,7 +415,7 @@ impl Schema for SchemaWrapper {
     }
 
     fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
-        if self.enums.map.is_empty() {
+        if self.enums.map.len() < self.flatbuffer_schema().enums.len() {
             for i in 0..self.flatbuffer_schema().enums.len() {
                 let id = EnumID(i.try_into().unwrap());
                 self.enum_(id);
@@ -421,7 +426,7 @@ impl Schema for SchemaWrapper {
     }
 
     fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
-        if self.scalars.map.is_empty() {
+        if self.scalars.map.len() < self.flatbuffer_schema().scalars.len() {
             for i in 0..self.flatbuffer_schema().scalars.len() {
                 let id = ScalarID(i.try_into().unwrap());
                 self.scalar(id);
@@ -432,7 +437,7 @@ impl Schema for SchemaWrapper {
     }
 
     fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
-        if self.fields.map.is_empty() {
+        if self.fields.map.len() < self.flatbuffer_schema().fields.len() {
             for i in 0..self.flatbuffer_schema().fields.len() {
                 let id = FieldID(i.try_into().unwrap());
                 self.field(id);
@@ -443,7 +448,7 @@ impl Schema for SchemaWrapper {
     }
 
     fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
-        if self.objects.map.is_empty() {
+        if self.objects.map.len() < self.flatbuffer_schema().objects.len() {
             for i in 0..self.flatbuffer_schema().objects.len() {
                 let id = ObjectID(i.try_into().unwrap());
                 self.object(id);
@@ -454,7 +459,7 @@ impl Schema for SchemaWrapper {
     }
 
     fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
-        if self.unions.map.is_empty() {
+        if self.unions.map.len() < self.flatbuffer_schema().unions.len() {
             for i in 0..self.flatbuffer_schema().unions.len() {
                 let id = UnionID(i.try_into().unwrap());
                 self.union(id);
@@ -465,7 +470,7 @@ impl Schema for SchemaWrapper {
     }
 
     fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
-        if self.interfaces.map.is_empty() {
+        if self.interfaces.map.len() < self.flatbuffer_schema().interfaces.len() {
             for i in 0..self.flatbuffer_schema().interfaces.len() {
                 let id = InterfaceID(i.try_into().unwrap());
                 self.interface(id);
@@ -491,5 +496,116 @@ impl<K: Hash + Eq, V> Cache<K, V> {
             .map
             .entry(key)
             .or_insert_with(|| Box::leak(Box::new(f())))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::DiagnosticsResult;
+
+    use super::*;
+    use crate::build_schema;
+    use crate::flatbuffer::serialize::serialize_as_flatbuffer;
+
+    #[test]
+    fn all_scalars() -> DiagnosticsResult<()> {
+        let sdl = "
+        type Query { id: ID }
+        ";
+        let sdl_schema = build_schema(sdl)?.unwrap_in_memory_impl();
+        let bytes = serialize_as_flatbuffer(&sdl_schema);
+        let fb_schema = SchemaWrapper::from_vec(bytes);
+
+        let mut scalar_names = fb_schema
+            .scalars()
+            .map(|scalar| scalar.name.item.0.lookup())
+            .collect::<Vec<&str>>();
+        scalar_names.sort();
+        assert_eq!(
+            scalar_names,
+            vec!["Boolean", "Float", "ID", "Int", "String"]
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn all_scalars_with_lookup() -> DiagnosticsResult<()> {
+        let sdl = "
+        type Query { id: ID }
+        ";
+        let sdl_schema = build_schema(sdl)?.unwrap_in_memory_impl();
+        let bytes = serialize_as_flatbuffer(&sdl_schema);
+        let fb_schema = SchemaWrapper::from_vec(bytes);
+
+        // Look up a scalar type to populate cache
+        let user_type = fb_schema.get_type("String".intern()).unwrap();
+        fb_schema.scalar(user_type.get_scalar_id().unwrap());
+
+        let mut scalar_names = fb_schema
+            .scalars()
+            .map(|scalar| scalar.name.item.0.lookup())
+            .collect::<Vec<&str>>();
+        scalar_names.sort();
+        assert_eq!(
+            scalar_names,
+            vec!["Boolean", "Float", "ID", "Int", "String"]
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn all_types() -> DiagnosticsResult<()> {
+        let sdl = "
+        type Query { id: ID }
+        type User { id: ID }
+        type MailingAddress { id: ID }
+        type Country { id: ID }
+        ";
+        let sdl_schema = build_schema(sdl)?.unwrap_in_memory_impl();
+        let bytes = serialize_as_flatbuffer(&sdl_schema);
+        let fb_schema = SchemaWrapper::from_vec(bytes);
+
+        let mut object_names = fb_schema
+            .objects()
+            .map(|object| object.name.item.0.lookup())
+            .collect::<Vec<&str>>();
+        object_names.sort();
+        assert_eq!(
+            object_names,
+            vec!["Country", "MailingAddress", "Query", "User"]
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn all_types_with_lookup() -> DiagnosticsResult<()> {
+        let sdl = "
+        type Query { id: ID }
+        type User { id: ID }
+        type MailingAddress { id: ID }
+        type Country { id: ID }
+        ";
+        let sdl_schema = build_schema(sdl)?.unwrap_in_memory_impl();
+        let bytes = serialize_as_flatbuffer(&sdl_schema);
+        let fb_schema = SchemaWrapper::from_vec(bytes);
+
+        // Look up User type to populate cache
+        let user_type = fb_schema.get_type("User".intern()).unwrap();
+        fb_schema.object(user_type.get_object_id().unwrap());
+
+        let mut object_names = fb_schema
+            .objects()
+            .map(|object| object.name.item.0.lookup())
+            .collect::<Vec<&str>>();
+        object_names.sort();
+        assert_eq!(
+            object_names,
+            vec!["Country", "MailingAddress", "Query", "User"]
+        );
+
+        Ok(())
     }
 }

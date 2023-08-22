@@ -13,22 +13,30 @@
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {Record} from './RelayStoreTypes';
 
 const deepFreeze = require('../util/deepFreeze');
-const {isClientID} = require('./ClientID');
+const {generateClientObjectClientID, isClientID} = require('./ClientID');
+const {
+  isSuspenseSentinel,
+} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const {
   ACTOR_IDENTIFIER_KEY,
   ID_KEY,
   INVALIDATED_AT_KEY,
   REF_KEY,
   REFS_KEY,
+  RELAY_RESOLVER_VALUE_KEY,
   ROOT_ID,
   TYPENAME_KEY,
 } = require('./RelayStoreUtils');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
+
+/*
+ * An individual cached graph object.
+ */
+export opaque type Record = {[key: string]: mixed, ...};
 
 /**
  * @public
@@ -121,10 +129,28 @@ function create(dataID: DataID, typeName: string): Record {
 /**
  * @public
  *
+ * Convert an object to a record.
+ */
+function fromObject(object: {[key: string]: mixed, ...}): Record {
+  return object;
+}
+
+/**
+ * @public
+ *
  * Get the record's `id` if available or the client-generated identifier.
  */
 function getDataID(record: Record): DataID {
   return (record[ID_KEY]: any);
+}
+
+/**
+ * @public
+ *
+ * Get the fields of a record.
+ */
+function getFields(record: Record): Array<string> {
+  return Object.keys(record);
 }
 
 /**
@@ -156,6 +182,15 @@ function getValue(record: Record, storageKey: string): mixed {
     );
   }
   return value;
+}
+
+/**
+ * @public
+ *
+ * Check if a record has a value for the given field.
+ */
+function hasValue(record: Record, storageKey: string): boolean {
+  return storageKey in record;
 }
 
 /**
@@ -441,17 +476,70 @@ function getActorLinkedRecordID(
   return [(link[ACTOR_IDENTIFIER_KEY]: any), (link[REF_KEY]: any)];
 }
 
+function getResolverLinkedRecordID(record: Record, typeName: string): ?DataID {
+  let id = getValue(record, RELAY_RESOLVER_VALUE_KEY);
+  if (id == null || isSuspenseSentinel(id)) {
+    return null;
+  }
+  // TODD: Deprecate client edges that return just id.
+  if (typeof id === 'object') {
+    id = id.id;
+  }
+  invariant(
+    typeof id === 'string',
+    'RelayModernRecord.getResolverLinkedRecordID(): Expected value to be a linked ID, ' +
+      'was `%s`.',
+    JSON.stringify(id),
+  );
+  return generateClientObjectClientID(typeName, id);
+}
+
+function getResolverLinkedRecordIDs(
+  record: Record,
+  typeName: string,
+): ?Array<?DataID> {
+  const resolverValue = getValue(record, RELAY_RESOLVER_VALUE_KEY);
+  if (resolverValue == null || isSuspenseSentinel(resolverValue)) {
+    return null;
+  }
+  invariant(
+    Array.isArray(resolverValue),
+    'RelayModernRecord.getResolverLinkedRecordIDs(): Expected value to be an array of linked IDs, ' +
+      'was `%s`.',
+    JSON.stringify(resolverValue),
+  );
+  return resolverValue.map(id => {
+    if (id == null) {
+      return null;
+    }
+    // TODD: Deprecate client edges that return just id.
+    if (typeof id === 'object') {
+      id = id.id;
+    }
+    invariant(
+      typeof id === 'string',
+      'RelayModernRecord.getResolverLinkedRecordIDs(): Expected item within resolver linked field to be a DataID, ' +
+        'was `%s`.',
+      JSON.stringify(id),
+    );
+    return generateClientObjectClientID(typeName, id);
+  });
+}
+
 module.exports = {
   clone,
   copyFields,
   create,
   freeze,
+  fromObject,
   getDataID,
+  getFields,
   getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,
   getType,
   getValue,
+  hasValue,
   merge,
   setValue,
   setLinkedRecordID,
@@ -459,4 +547,6 @@ module.exports = {
   update,
   getActorLinkedRecordID,
   setActorLinkedRecordID,
+  getResolverLinkedRecordID,
+  getResolverLinkedRecordIDs,
 };

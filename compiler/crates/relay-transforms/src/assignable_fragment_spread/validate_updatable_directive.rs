@@ -12,6 +12,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use errors::validate;
 use errors::validate_map;
 use graphql_ir::Condition;
@@ -34,7 +35,6 @@ use schema::Schema;
 use super::ValidationMessage;
 use super::ASSIGNABLE_DIRECTIVE;
 use super::UPDATABLE_DIRECTIVE;
-use crate::RELAY_RESOLVER_DIRECTIVE_NAME;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
@@ -320,7 +320,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         {
             return Err(vec![
                 Diagnostic::error(
-                    ValidationMessage::UpdatableDisallowRealyResolvers,
+                    ValidationMessage::UpdatableDisallowRelayResolvers,
                     field.definition.location,
                 )
                 .annotate("The field is defined here:", field_def.name.location),
@@ -341,7 +341,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         {
             return Err(vec![
                 Diagnostic::error(
-                    ValidationMessage::UpdatableDisallowRealyResolvers,
+                    ValidationMessage::UpdatableDisallowRelayResolvers,
                     linked_field.definition.location,
                 )
                 .annotate("The field is defined here:", field_def.name.location),

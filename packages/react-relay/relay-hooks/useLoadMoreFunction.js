@@ -17,10 +17,9 @@ import type {
   Disposable,
   GraphQLResponse,
   Observer,
-  OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
-  VariablesOf,
+  Variables,
 } from 'relay-runtime';
 
 const useFetchTrackingRef = require('./useFetchTrackingRef');
@@ -30,20 +29,21 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const invariant = require('invariant');
 const {useCallback, useEffect, useState} = require('react');
 const {
-  ConnectionInterface,
   __internal: {fetchQuery},
+  ConnectionInterface,
   createOperationDescriptor,
   getPaginationVariables,
+  getRefetchMetadata,
   getSelector,
   getValueAtPath,
 } = require('relay-runtime');
 const warning = require('warning');
 
-export type LoadMoreFn<TQuery: OperationType> = (
+export type LoadMoreFn<TVariables: Variables> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
-    UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
+    UNSTABLE_extraVariables?: Partial<TVariables>,
   },
 ) => Disposable;
 
@@ -54,7 +54,6 @@ export type UseLoadMoreFunctionArgs = {
   fragmentIdentifier: string,
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-  identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,
@@ -62,9 +61,9 @@ export type UseLoadMoreFunctionArgs = {
   onReset: () => void,
 };
 
-function useLoadMoreFunction<TQuery: OperationType>(
+function useLoadMoreFunction<TVariables: Variables>(
   args: UseLoadMoreFunctionArgs,
-): [LoadMoreFn<TQuery>, boolean, () => void] {
+): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {
     direction,
     fragmentNode,
@@ -77,17 +76,22 @@ function useLoadMoreFunction<TQuery: OperationType>(
     componentDisplayName,
     observer,
     onReset,
-    identifierField,
   } = args;
   const environment = useRelayEnvironment();
   const {isFetchingRef, startFetch, disposeFetch, completeFetch} =
     useFetchTrackingRef();
+
+  const {identifierInfo} = getRefetchMetadata(
+    fragmentNode,
+    componentDisplayName,
+  );
   const identifierValue =
-    identifierField != null &&
+    identifierInfo?.identifierField != null &&
     fragmentData != null &&
     typeof fragmentData === 'object'
-      ? fragmentData[identifierField]
+      ? fragmentData[identifierInfo.identifierField]
       : null;
+
   const isMountedRef = useIsMountedRef();
   const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
   const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] =
@@ -126,7 +130,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
     (
       count: number,
       options: void | {
-        UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
+        UNSTABLE_extraVariables?: Partial<TVariables>,
         onComplete?: (Error | null) => void,
       },
     ) => {
@@ -202,7 +206,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
 
       // If the query needs an identifier value ('id' or similar) and one
       // was not explicitly provided, read it from the fragment data.
-      if (identifierField != null) {
+      if (identifierInfo != null) {
         // @refetchable fragments are guaranteed to have an `id` selection
         // if the type is Node, implements Node, or is @fetchable. Double-check
         // that there actually is a value at runtime.
@@ -211,11 +215,12 @@ function useLoadMoreFunction<TQuery: OperationType>(
             false,
             'Relay: Expected result to have a string  ' +
               '`%s` in order to refetch, got `%s`.',
-            identifierField,
+            identifierInfo.identifierField,
             identifierValue,
           );
         }
-        paginationVariables.id = identifierValue;
+        paginationVariables[identifierInfo.identifierQueryVariableName] =
+          identifierValue;
       }
 
       const paginationQuery = createOperationDescriptor(

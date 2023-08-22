@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<18ff9060317eb36af3b006b908a33510>>
+ * @generated SignedSource<<83c7978511f69151b68e1476d398d6e3>>
  */
 
 mod generate_flow;
@@ -230,13 +230,6 @@ fn query_with_multiple_match_fields() {
 }
 
 #[test]
-fn query_with_raw_response_and_client_components() {
-    let input = include_str!("generate_flow/fixtures/query_with_raw_response_and_client_components.graphql");
-    let expected = include_str!("generate_flow/fixtures/query_with_raw_response_and_client_components.expected");
-    test_fixture(transform_fixture, "query_with_raw_response_and_client_components.graphql", "generate_flow/fixtures/query_with_raw_response_and_client_components.expected", input, expected);
-}
-
-#[test]
 fn query_with_raw_response_on_conditional() {
     let input = include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.expected");
@@ -349,6 +342,13 @@ fn relay_resolver_client_edge_required() {
 }
 
 #[test]
+fn relay_resolver_client_edge_required_edge() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-client-edge-required-edge.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-client-edge-required-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-client-edge-required-edge.graphql", "generate_flow/fixtures/relay-resolver-client-edge-required-edge.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_in_fragment() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.expected");
@@ -384,6 +384,34 @@ fn relay_resolver_named_import() {
 }
 
 #[test]
+fn relay_resolver_plural_client_edge() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-plural-client-edge.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-plural-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-plural-client-edge.graphql", "generate_flow/fixtures/relay-resolver-plural-client-edge.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_plural_client_edge_with_required_edge() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-plural-client-edge-with-required-edge.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-plural-client-edge-with-required-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-plural-client-edge-with-required-edge.graphql", "generate_flow/fixtures/relay-resolver-plural-client-edge-with-required-edge.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_plural_required_client_edge() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-plural-required-client-edge.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-plural-required-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-plural-required-client-edge.graphql", "generate_flow/fixtures/relay-resolver-plural-required-client-edge.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_plural_required_client_edge_with_required_edge() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-plural-required-client-edge-with-required-edge.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-plural-required-client-edge-with-required-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-plural-required-client-edge-with-required-edge.graphql", "generate_flow/fixtures/relay-resolver-plural-required-client-edge-with-required-edge.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_raw_response() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-raw-response.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-raw-response.expected");
@@ -395,6 +423,13 @@ fn relay_resolver_required() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-required.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-required.expected");
     test_fixture(transform_fixture, "relay-resolver-required.graphql", "generate_flow/fixtures/relay-resolver-required.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_scalar_plural() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-scalar-plural.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-scalar-plural.expected");
+    test_fixture(transform_fixture, "relay-resolver-scalar-plural.graphql", "generate_flow/fixtures/relay-resolver-scalar-plural.expected", input, expected);
 }
 
 #[test]
@@ -412,6 +447,13 @@ fn relay_resolver_with_output_type_client_object() {
 }
 
 #[test]
+fn relay_resolver_with_output_type_client_object_plural() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-client-object-plural.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-client-object-plural.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-client-object-plural.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-client-object-plural.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_with_output_type_enum() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-enum.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-enum.expected");
@@ -419,10 +461,24 @@ fn relay_resolver_with_output_type_enum() {
 }
 
 #[test]
+fn relay_resolver_with_output_type_enum_plural() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-enum-plural.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-enum-plural.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-enum-plural.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-enum-plural.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_with_output_type_relay_resolver_value() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value.expected");
     test_fixture(transform_fixture, "relay-resolver-with-output-type-relay-resolver-value.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_relay_resolver_value_plural() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value-plural.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value-plural.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-relay-resolver-value-plural.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value-plural.expected", input, expected);
 }
 
 #[test]
@@ -437,6 +493,13 @@ fn relay_resolver_with_output_type_scalar() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar.expected");
     test_fixture(transform_fixture, "relay-resolver-with-output-type-scalar.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-scalar.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_scalar_plural() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar-plural.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar-plural.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-scalar-plural.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-scalar-plural.expected", input, expected);
 }
 
 #[test]

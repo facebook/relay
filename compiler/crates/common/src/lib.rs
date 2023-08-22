@@ -54,6 +54,7 @@ pub use named_item::Named;
 pub use named_item::NamedItem;
 pub use named_item::ObjectName;
 pub use named_item::ScalarName;
+pub use named_item::UnionName;
 pub use perf_logger::NoopPerfLogger;
 pub use perf_logger::NoopPerfLoggerEvent;
 pub use perf_logger::PerfLogEvent;

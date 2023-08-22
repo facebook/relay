@@ -97,7 +97,7 @@ pub trait GlobalState {
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(Feature, Span)>;
+    ) -> LSPRuntimeResult<(Feature, Span, SourceLocationKey)>;
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
 
@@ -394,7 +394,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<FeatureResolutionInfo> {
-        let (feature, position_span) = self.extract_feature_from_text(
+        let (feature, position_span, _) = self.extract_feature_from_text(
             text_document_position,
             // For hovering, offset the index by 1
             // ```
@@ -426,7 +426,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
-        let (feature, span) = self.extract_feature_from_text(position, index_offset)?;
+        let (feature, span, _) = self.extract_feature_from_text(position, index_offset)?;
         match feature {
             Feature::GraphQLDocument(document) => Ok((document, span)),
             Feature::DocblockIr(_) => Err(LSPRuntimeError::ExpectedError),
@@ -439,10 +439,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(Feature, Span)> {
-        let project_name: ProjectName = self
-            .extract_project_name_from_url(&position.text_document.uri)?
-            .into();
+    ) -> LSPRuntimeResult<(Feature, Span, SourceLocationKey)> {
+        let project_name = self.extract_project_name_from_url(&position.text_document.uri)?;
         let project_config = self.config.projects.get(&project_name).unwrap();
 
         extract_feature_from_text(

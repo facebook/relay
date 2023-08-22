@@ -54,7 +54,7 @@ pub fn on_goto_definition(
     state: &impl GlobalState,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
-    let (feature, position_span) =
+    let (feature, position_span, _) =
         state.extract_feature_from_text(&params.text_document_position_params, 1)?;
 
     let project_name = state

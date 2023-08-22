@@ -38,18 +38,25 @@ use lsp_types::notification::Cancel;
 use lsp_types::notification::DidChangeTextDocument;
 use lsp_types::notification::DidCloseTextDocument;
 use lsp_types::notification::DidOpenTextDocument;
+use lsp_types::notification::DidRenameFiles;
 use lsp_types::notification::DidSaveTextDocument;
 use lsp_types::notification::Exit;
 use lsp_types::request::CodeActionRequest;
 use lsp_types::request::Completion;
 use lsp_types::request::GotoDefinition;
 use lsp_types::request::HoverRequest;
+use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::References;
+use lsp_types::request::Rename;
 use lsp_types::request::ResolveCompletionItem;
 use lsp_types::request::Shutdown;
+use lsp_types::request::WillRenameFiles;
 use lsp_types::CodeActionProviderCapability;
 use lsp_types::CompletionOptions;
+use lsp_types::FileOperationFilter;
+use lsp_types::FileOperationPattern;
 use lsp_types::InitializeParams;
+use lsp_types::RenameOptions;
 use lsp_types::ServerCapabilities;
 use lsp_types::TextDocumentSyncCapability;
 use lsp_types::TextDocumentSyncKind;
@@ -77,6 +84,9 @@ use crate::js_language_server::JSLanguageServer;
 use crate::lsp_process_error::LSPProcessResult;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::references::on_references;
+use crate::rename::on_prepare_rename;
+use crate::rename::on_rename;
+use crate::rename::on_will_rename_files;
 use crate::resolved_types_at_location::on_get_resolved_types_at_location;
 use crate::resolved_types_at_location::ResolvedTypesAtLocation;
 use crate::search_schema_items::on_search_schema_items;
@@ -109,11 +119,32 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
             },
             ..Default::default()
         }),
-
+        rename_provider: Some(lsp_types::OneOf::Right(RenameOptions {
+            prepare_provider: Some(true),
+            work_done_progress_options: WorkDoneProgressOptions {
+                work_done_progress: None,
+            },
+        })),
         hover_provider: Some(lsp_types::HoverProviderCapability::Simple(true)),
         definition_provider: Some(lsp_types::OneOf::Left(true)),
         references_provider: Some(lsp_types::OneOf::Left(true)),
         code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+        workspace: Some(lsp_types::WorkspaceServerCapabilities {
+            file_operations: Some(lsp_types::WorkspaceFileOperationsServerCapabilities {
+                will_rename: Some(lsp_types::FileOperationRegistrationOptions {
+                    filters: vec![FileOperationFilter {
+                        scheme: Some(String::from("file")),
+                        pattern: FileOperationPattern {
+                            glob: String::from("**/*.{ts,tsx,js,jsx}"),
+                            matches: Some(lsp_types::FileOperationPatternKind::File),
+                            options: None,
+                        },
+                    }],
+                }),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
         ..Default::default()
     };
 
@@ -246,6 +277,9 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .on_request_sync::<GraphQLExecuteQuery>(on_graphql_execute_query)?
             .on_request_sync::<HeartbeatRequest>(on_heartbeat)?
             .on_request_sync::<FindFieldUsages>(on_find_field_usages)?
+            .on_request_sync::<Rename>(on_rename)?
+            .on_request_sync::<PrepareRenameRequest>(on_prepare_rename)?
+            .on_request_sync::<WillRenameFiles>(on_will_rename_files)?
             .request();
 
         // If we have gotten here, we have not handled the request

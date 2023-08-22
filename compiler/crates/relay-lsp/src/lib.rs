@@ -24,6 +24,7 @@ pub mod lsp_process_error;
 pub mod lsp_runtime_error;
 pub mod node_resolution_info;
 pub mod references;
+pub mod rename;
 mod resolved_types_at_location;
 mod search_schema_items;
 mod server;

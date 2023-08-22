@@ -53,7 +53,7 @@ relay-typegen = { path = "../relay-typegen" }
 rustc-hash = "1.1.0"
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
-serde = { version = "1.0.176", features = ["derive", "rc"] }
+serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_bser = "0.3"
 serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
 sha1 = "0.10.5"

@@ -9,7 +9,7 @@ license = "MIT"
 [dependencies]
 hyper = { version = "0.14.26", features = ["client", "http1", "http2", "stream"] }
 hyper-tls = "0.5"
-serde = { version = "1.0.176", features = ["derive", "rc"] }
+serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
 thiserror = "1.0.43"
 url = "2.2.2"

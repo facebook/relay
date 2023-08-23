@@ -82,9 +82,6 @@ type UseQueryLoaderHookReturnType<
   () => void,
 ];
 
-type ExtractVariablesType = <T>({+variables: T, ...}) => T;
-type ExtractResponseType = <T>({+response: T, ...}) => T;
-
 declare function useQueryLoader<
   TVariables: Variables,
   TData,
@@ -109,10 +106,7 @@ declare function useQueryLoader<
 declare function useQueryLoader<TQuery: OperationType>(
   preloadableRequest: PreloadableConcreteRequest<TQuery>,
   initialQueryReference?: ?PreloadedQuery<TQuery>,
-): UseQueryLoaderHookReturnType<
-  $Call<ExtractVariablesType, TQuery>,
-  $Call<ExtractResponseType, TQuery>,
->;
+): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;
 
 function useQueryLoader<
   TVariables: Variables,

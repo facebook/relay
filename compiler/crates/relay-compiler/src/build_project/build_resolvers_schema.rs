@@ -10,11 +10,11 @@ use docblock_syntax::DocblockAST;
 use errors::try_all;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
+use relay_config::ProjectName;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use schema::SDLSchema;
 
 use crate::compiler_state::CompilerState;
-use crate::compiler_state::ProjectName;
 use crate::config::ProjectConfig;
 use crate::docblocks::build_schema_documents_from_docblocks;
 use crate::docblocks::parse_docblock_asts_from_sources;

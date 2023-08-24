@@ -14,7 +14,6 @@ use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use intern::string_key::StringKey;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::build_project::get_project_asts;
@@ -23,7 +22,6 @@ use relay_compiler::build_project::ProjectAsts;
 use relay_compiler::build_raw_program;
 use relay_compiler::build_schema;
 use relay_compiler::compiler_state::CompilerState;
-use relay_compiler::compiler_state::ProjectName;
 use relay_compiler::config::ProjectConfig;
 use relay_compiler::errors::BuildProjectError;
 use relay_compiler::errors::Error;
@@ -35,6 +33,7 @@ use relay_compiler::FileSourceResult;
 use relay_compiler::FileSourceSubscription;
 use relay_compiler::FileSourceSubscriptionNextChange;
 use relay_compiler::GraphQLAsts;
+use relay_compiler::ProjectName;
 use relay_compiler::SourceControlUpdateStatus;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
@@ -258,7 +257,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !self
                     .lsp_state
                     .project_status
-                    .contains_key(&project_config.name)
+                    .contains_key(&project_config.name.into())
                 {
                     return false;
                 }
@@ -266,7 +265,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !self
                     .lsp_state
                     .source_programs
-                    .contains_key(&project_config.name)
+                    .contains_key(&project_config.name.into())
                 {
                     return true;
                 }
@@ -303,10 +302,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
-    ) -> Result<StringKey, BuildProjectFailure> {
+    ) -> Result<ProjectName, BuildProjectFailure> {
         self.lsp_state
             .project_status
-            .insert(project_config.name, ProjectStatus::Completed);
+            .insert(project_config.name.into(), ProjectStatus::Completed);
         let log_event = self.lsp_state.perf_logger.create_event("build_lsp_project");
         let project_name = project_config.name;
         let build_time = log_event.start("build_lsp_project_time");
@@ -344,7 +343,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         project_config: &ProjectConfig,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
-        match self.lsp_state.schemas.entry(project_config.name) {
+        match self.lsp_state.schemas.entry(project_config.name.into()) {
             Entry::Vacant(e) => {
                 let schema = build_schema(compiler_state, project_config, graphql_asts_map)
                     .map_err(|errors| {
@@ -388,7 +387,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let is_incremental_build = self
             .lsp_state
             .source_programs
-            .contains_key(&project_config.name)
+            .contains_key(&project_config.name.into())
             && compiler_state.has_processed_changes()
             && !compiler_state
                 .has_breaking_schema_change(project_config.name, &project_config.schema_config)
@@ -411,7 +410,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             return Err(BuildProjectFailure::Cancelled);
         }
 
-        match self.lsp_state.source_programs.entry(project_config.name) {
+        match self
+            .lsp_state
+            .source_programs
+            .entry(project_config.name.into())
+        {
             Entry::Vacant(e) => {
                 e.insert(base_program.clone());
             }

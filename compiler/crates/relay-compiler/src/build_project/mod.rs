@@ -70,12 +70,12 @@ use super::artifact_content;
 use crate::artifact_map::ArtifactMap;
 use crate::compiler_state::ArtifactMapKind;
 use crate::compiler_state::CompilerState;
-use crate::compiler_state::ProjectName;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::graphql_asts::GraphQLAsts;
+use relay_config::ProjectName;
 
 type BuildProjectOutput = WithDiagnostics<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>)>;
 type BuildProgramsOutput = WithDiagnostics<(Programs, Arc<SourceHashes>)>;

@@ -8,12 +8,11 @@
 use std::path::Path;
 use std::path::PathBuf;
 
-use fnv::FnvHashSet;
-use glob::Pattern;
-use intern::string_key::StringKey;
-
 use crate::config::Config;
 use crate::config::SchemaLocation;
+use fnv::FnvHashSet;
+use glob::Pattern;
+use relay_config::ProjectName;
 
 /// The FileFilter is intended to be used for input sources other than
 /// Watchman. The FileFilter is created from `Config` and tries to replicate
@@ -58,7 +57,7 @@ impl FileFilter {
 }
 
 // Get roots for extensions, schemas and output dirs
-fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<StringKey>) -> Vec<PathBuf> {
+fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<ProjectName>) -> Vec<PathBuf> {
     let mut roots = vec![];
     for project_config in config.projects.values() {
         if !enabled_projects.contains(&project_config.name) {
@@ -78,7 +77,7 @@ fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<StringKey>) ->
     unify_roots(roots)
 }
 
-fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<StringKey>) -> Vec<PathBuf> {
+fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<ProjectName>) -> Vec<PathBuf> {
     unify_roots(
         config
             .sources

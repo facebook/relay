@@ -18,6 +18,7 @@ use graphql_ir::Selection;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::Schema;
 
@@ -29,6 +30,7 @@ lazy_static! {
 }
 
 pub fn generate_relay_resolvers_model_fragments(
+    project_name: ProjectName,
     program: &Program,
     schema_config: &SchemaConfig,
 ) -> Program {
@@ -57,8 +59,8 @@ pub fn generate_relay_resolvers_model_fragments(
 
             let model_fragment_name = FragmentDefinitionName(
                 format!(
-                    "{}__{}",
-                    object.name.item.0, *RESOLVER_MODEL_INSTANCE_FIELD_NAME
+                    "{}_{}__{}",
+                    project_name, object.name.item.0, *RESOLVER_MODEL_INSTANCE_FIELD_NAME
                 )
                 .intern(),
             );
@@ -88,8 +90,8 @@ pub fn generate_relay_resolvers_model_fragments(
             {
                 let id_fragment_name = FragmentDefinitionName(
                     format!(
-                        "{}__{}",
-                        object.name.item.0, schema_config.node_interface_id_field
+                        "{}_{}__{}",
+                        project_name, object.name.item.0, schema_config.node_interface_id_field
                     )
                     .intern(),
                 );

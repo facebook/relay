@@ -7,6 +7,7 @@
 
 use common::DiagnosticsResult;
 use docblock_syntax::DocblockAST;
+use errors::try_all;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
@@ -62,25 +63,27 @@ fn extend_schema_with_fields<'a>(
     project_config: &ProjectConfig,
     field_asts_and_definitions: FieldAstsAndDefinitions<'a>,
 ) -> DiagnosticsResult<()> {
-    let mut field_definitions = vec![];
-    for (asts, definitions) in field_asts_and_definitions.0 {
-        field_definitions.extend(build_schema_documents_from_docblocks(
-            &asts,
-            project_config,
-            schema,
-            definitions,
-        )?);
-    }
+    let field_definitions = try_all(field_asts_and_definitions.0.into_iter().map(
+        |(asts, definitions)| {
+            build_schema_documents_from_docblocks(&asts, project_config, schema, definitions)
+        },
+    ))?;
 
-    for schema_document in field_definitions {
-        for definition in schema_document.definitions {
-            extend_schema_with_resolver_type_system_definition(
-                definition,
-                schema,
-                schema_document.location,
-            )?;
-        }
-    }
+    try_all(
+        field_definitions
+            .into_iter()
+            .flatten()
+            .map::<DiagnosticsResult<()>, _>(|schema_document| {
+                for definition in schema_document.definitions {
+                    extend_schema_with_resolver_type_system_definition(
+                        definition,
+                        schema,
+                        schema_document.location,
+                    )?;
+                }
+                Ok(())
+            }),
+    )?;
 
     Ok(())
 }

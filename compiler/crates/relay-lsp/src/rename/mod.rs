@@ -7,23 +7,38 @@
 
 //! Utilities for providing the rename feature
 
-use crate::{
-    location::{get_file_contents, transform_relay_location_to_lsp_location},
-    utils::is_file_uri_in_dir,
-    GlobalState, LSPRuntimeError, LSPRuntimeResult,
-};
+use std::collections::HashMap;
+use std::path::PathBuf;
+
 use common::Location as IRLocation;
 use common::SourceLocationKey;
 use extract_graphql::JavaScriptSourceFeature;
-use graphql_ir::{FragmentDefinitionName, FragmentSpread, Program, Visitor};
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentSpread;
+use graphql_ir::Program;
+use graphql_ir::Visitor;
 use graphql_syntax::parse_executable_with_error_recovery;
 use intern::string_key::StringKey;
-use lsp_types::{
-    request::{PrepareRenameRequest, Rename, Request, WillRenameFiles},
-    Location, PrepareRenameResponse, TextEdit, Url, WorkspaceEdit,
-};
-use resolution_path::{IdentParent, IdentPath, ResolutionPath, ResolvePosition};
-use std::{collections::HashMap, path::PathBuf};
+use lsp_types::request::PrepareRenameRequest;
+use lsp_types::request::Rename;
+use lsp_types::request::Request;
+use lsp_types::request::WillRenameFiles;
+use lsp_types::Location;
+use lsp_types::PrepareRenameResponse;
+use lsp_types::TextEdit;
+use lsp_types::Url;
+use lsp_types::WorkspaceEdit;
+use resolution_path::IdentParent;
+use resolution_path::IdentPath;
+use resolution_path::ResolutionPath;
+use resolution_path::ResolvePosition;
+
+use crate::location::get_file_contents;
+use crate::location::transform_relay_location_to_lsp_location;
+use crate::utils::is_file_uri_in_dir;
+use crate::GlobalState;
+use crate::LSPRuntimeError;
+use crate::LSPRuntimeResult;
 
 /// Resolve a RenameRequest to a RenameResponse
 pub fn on_rename(

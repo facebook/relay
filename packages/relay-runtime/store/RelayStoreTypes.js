@@ -49,7 +49,10 @@ import type {
   UpdatableQuery,
   Variables,
 } from '../util/RelayRuntimeTypes';
-import type {Record as RelayModernRecord} from './RelayModernRecord';
+import type {
+  Record as RelayModernRecord,
+  RecordJSON,
+} from './RelayModernRecord';
 import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
@@ -242,7 +245,7 @@ export interface RecordSource {
   getStatus(dataID: DataID): RecordState;
   has(dataID: DataID): boolean;
   size(): number;
-  toJSON(): {[DataID]: ?Record, ...};
+  toJSON(): {[DataID]: ?RecordJSON};
 }
 
 /**

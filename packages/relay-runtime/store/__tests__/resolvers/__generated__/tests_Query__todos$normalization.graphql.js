@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8557147b547ebbf2ac205ebc4b95017>>
+ * @generated SignedSource<<3ebf05fdcdcdd09bffcbe7cba234e98e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type Query__todos$normalization = {|
+export type tests_Query__todos$normalization = {|
   +count: number,
   +edges: ?$ReadOnlyArray<?{|
     +cursor: ?string,
@@ -40,7 +40,7 @@ export type Query__todos$normalization = {|
 var node/*: NormalizationSplitOperation*/ = {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "Query__todos$normalization",
+  "name": "tests_Query__todos$normalization",
   "selections": [
     {
       "kind": "ClientExtension",

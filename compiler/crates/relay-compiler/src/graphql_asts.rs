@@ -18,10 +18,10 @@ use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
+use relay_config::ProjectName;
 
 use crate::artifact_map::ArtifactSourceKey;
 use crate::compiler_state::GraphQLSources;
-use crate::compiler_state::ProjectName;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::file_source::LocatedGraphQLSource;

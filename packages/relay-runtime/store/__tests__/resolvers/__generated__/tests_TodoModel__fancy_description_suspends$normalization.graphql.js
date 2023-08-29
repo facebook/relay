@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aeac6ea149f93797448b769394c60088>>
+ * @generated SignedSource<<698609024b482e988cf14f93e9f2b150>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,8 +19,9 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type Todo__blocked_by$normalization = {|
-  +todo_id: string,
+import type { TodoDescription } from "../TodoDescription.js";
+export type tests_TodoModel__fancy_description_suspends$normalization = {|
+  +__relay_model_instance: TodoDescription,
 |};
 
 */
@@ -28,7 +29,7 @@ export type Todo__blocked_by$normalization = {|
 var node/*: NormalizationSplitOperation*/ = {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "Todo__blocked_by$normalization",
+  "name": "tests_TodoModel__fancy_description_suspends$normalization",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -37,7 +38,7 @@ var node/*: NormalizationSplitOperation*/ = {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "todo_id",
+          "name": "__relay_model_instance",
           "storageKey": null
         }
       ]

@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {Query__many_todos$normalization as ReturnType} from './__generated__/Query__many_todos$normalization.graphql';
+import type {tests_Query__many_todos$normalization as ReturnType} from './__generated__/tests_Query__many_todos$normalization.graphql';
 
 /**
  * @RelayResolver

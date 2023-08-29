@@ -28,7 +28,7 @@ extend type User {
 {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "User__pop_star_name$normalization",
+  "name": "default_User__pop_star_name$normalization",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -125,7 +125,7 @@ extend type User {
         "normalizationInfo": {
           "concreteType": "ClientUser",
           "plural": false,
-          "normalizationNode": require('User__pop_star_name$normalization.graphql')
+          "normalizationNode": require('default_User__pop_star_name$normalization.graphql')
         }
       },
       "linkedField": {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<570f370e251949c1fd0dac9f3cbdd43c>>
+ * @generated SignedSource<<52fe84e3a29d802377e42af6bfc991a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,8 +26,8 @@ import {many_todos as queryManyTodosResolverType} from "../../../relay-runtime/s
   args: {|
     todo_ids: $ReadOnlyArray<?string>,
   |},
-) => ?$ReadOnlyArray<?Query__many_todos$normalization>);
-import type { Query__many_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql";
+) => ?$ReadOnlyArray<?tests_Query__many_todos$normalization>);
+import type { tests_Query__many_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Query__many_todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestManyTodosQuery$variables = {|
   todos: $ReadOnlyArray<?string>,
 |};
@@ -108,7 +108,7 @@ return {
           "normalizationInfo": {
             "concreteType": "Todo",
             "plural": true,
-            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql')
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Query__many_todos$normalization.graphql')
           }
         },
         "linkedField": {

@@ -18,6 +18,7 @@ use docblock_shared::ResolverSourceHash;
 use docblock_shared::ARGUMENT_DEFINITIONS;
 use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
+use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::PROVIDER_ARG_NAME;
 use graphql_ir::reexport::Intern;
 use graphql_ir::reexport::StringKey;
@@ -38,6 +39,7 @@ use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
 use intern::Lookup;
+use relay_config::ProjectName;
 
 use crate::errors::ErrorMessagesWithData;
 use crate::errors::IrParsingErrorMessages;
@@ -57,6 +59,7 @@ use crate::ParseOptions;
 use crate::RelayResolverIr;
 
 pub(crate) fn parse_docblock_ir(
+    project_name: ProjectName,
     untyped_representation: UntypedDocblockRepresentation,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     parse_options: &ParseOptions<'_>,
@@ -129,6 +132,7 @@ pub(crate) fn parse_docblock_ir(
                         source_hash,
                     )?),
                     None => DocblockIr::StrongObjectResolver(parse_strong_object_ir(
+                        project_name,
                         &mut fields,
                         description,
                         docblock_location,
@@ -225,6 +229,7 @@ fn parse_relay_resolver_ir(
 }
 
 fn parse_strong_object_ir(
+    project_name: ProjectName,
     fields: &mut HashMap<AllowedFieldName, IrField>,
     description: Option<WithLocation<StringKey>>,
     location: Location,
@@ -238,7 +243,13 @@ fn parse_strong_object_ir(
         type_str.location.span().start,
     )?;
 
-    let fragment_name = FragmentDefinitionName(format!("{}__id", identifier.value).intern());
+    let fragment_name = FragmentDefinitionName(
+        format!(
+            "{}_{}__{}",
+            project_name, identifier.value, *KEY_RESOLVER_ID_FIELD
+        )
+        .intern(),
+    );
 
     Ok(StrongObjectIr {
         type_name: identifier,

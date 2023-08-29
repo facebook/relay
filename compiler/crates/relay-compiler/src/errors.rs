@@ -11,9 +11,8 @@ use std::path::PathBuf;
 use common::Diagnostic;
 use glob::PatternError;
 use persist_query::PersistError;
+use relay_config::ProjectName;
 use thiserror::Error;
-
-use crate::compiler_state::ProjectName;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

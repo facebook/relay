@@ -36,7 +36,7 @@ extend type User {
     )
 }
 ==================================== OUTPUT ===================================
-query User__pop_star_name$normalization @__SplitOperationMetadata
+query default_User__pop_star_name$normalization @__SplitOperationMetadata
 # SplitOperationMetadata {
 #     derived_from: None,
 #     location: output-type-with-relay-resolver-fields.graphql:204:217,

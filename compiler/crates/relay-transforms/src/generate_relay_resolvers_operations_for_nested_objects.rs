@@ -24,6 +24,7 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::Field;
 use schema::FieldID;
@@ -440,6 +441,7 @@ fn generate_selections_from_interface_fields(
 }
 
 pub(crate) fn generate_name_for_nested_object_operation(
+    project_name: ProjectName,
     schema: &SDLSchema,
     field: &Field,
 ) -> WithLocation<OperationDefinitionName> {
@@ -448,7 +450,13 @@ pub(crate) fn generate_name_for_nested_object_operation(
         .unwrap_or_else(|| panic!("Expected parent type for field {:?}.", field));
 
     let normalization_name = get_normalization_operation_name(
-        format!("{}__{}", schema.get_type_name(parent_type), field.name.item).intern(),
+        format!(
+            "{}_{}__{}",
+            project_name,
+            schema.get_type_name(parent_type),
+            field.name.item
+        )
+        .intern(),
     )
     .intern();
 
@@ -458,6 +466,7 @@ pub(crate) fn generate_name_for_nested_object_operation(
 }
 
 pub fn generate_relay_resolvers_operations_for_nested_objects(
+    project_name: ProjectName,
     program: &Program,
     schema_config: &SchemaConfig,
 ) -> DiagnosticsResult<Program> {
@@ -497,7 +506,8 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                 continue;
             }
 
-            let operation_name = generate_name_for_nested_object_operation(&program.schema, field);
+            let operation_name =
+                generate_name_for_nested_object_operation(project_name, &program.schema, field);
 
             let mut directives = directives_with_artifact_source(field);
             directives.push(

@@ -71,3 +71,4 @@ pub use file_source::SourceReader;
 pub use graphql_asts::GraphQLAsts;
 pub use operation_persister::LocalPersister;
 pub use operation_persister::RemotePersister;
+pub use relay_config::ProjectName;

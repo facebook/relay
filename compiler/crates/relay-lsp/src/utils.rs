@@ -105,7 +105,7 @@ pub fn extract_project_name_from_url(
             file_path
         )));
     };
-    Ok(project_name)
+    Ok(project_name.into())
 }
 
 /// Return a parsed executable document, or parsed Docblock IR for this LSP
@@ -171,6 +171,7 @@ pub fn extract_feature_from_text(
             let docblock_ir = parse_docblock(text, source_location_key)
                 .and_then(|ast| {
                     parse_docblock_ast(
+                        project_config.name,
                         &ast,
                         Some(&executable_definitions_in_file),
                         ParseOptions {

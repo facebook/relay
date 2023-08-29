@@ -23,7 +23,6 @@ use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use indexmap::IndexMap;
-use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
 use log::warn;
@@ -38,6 +37,7 @@ pub use relay_config::LocalPersistConfig;
 use relay_config::ModuleImportConfig;
 pub use relay_config::PersistConfig;
 pub use relay_config::ProjectConfig;
+use relay_config::ProjectName;
 pub use relay_config::RemotePersistConfig;
 use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
@@ -59,7 +59,6 @@ use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 use crate::build_project::AdditionalValidations;
 use crate::compiler_state::CompilerState;
-use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
@@ -662,7 +661,7 @@ struct MultiProjectConfigFile {
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
     #[serde(skip)]
-    pub project_name: StringKey,
+    pub project_name: ProjectName,
 
     /// Path to schema.graphql
     pub schema: PathBuf,
@@ -740,7 +739,7 @@ pub struct SingleProjectConfigFile {
 impl Default for SingleProjectConfigFile {
     fn default() -> Self {
         Self {
-            project_name: "default".intern(),
+            project_name: ProjectName::default(),
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),

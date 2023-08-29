@@ -327,9 +327,9 @@ We need to modify the Newsfeed component to map over the edges and render each n
 
 ```
 function Newsfeed() {
-  const data = useLazyLoadQuery(NewsfeedFragment, {});
+  const data = useLazyLoadQuery(NewsfeedQuery, {});
   // change-line
-  const storyEdges = data.newsfeedStories.edges;
+  const storyEdges = data.viewer.newsfeedStories.edges;
   return (
     <>
       {storyEdges.map(storyEdge =>

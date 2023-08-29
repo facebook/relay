@@ -83,5 +83,8 @@ RelayResolver(
         live: None,
         location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
         fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "eb46fd9d0828f318bc5613bca9e67e42",
+        ),
     },
 )

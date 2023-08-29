@@ -42,7 +42,6 @@ use fnv::FnvHashSet;
 pub use generate_artifacts::generate_artifacts;
 pub use generate_artifacts::Artifact;
 pub use generate_artifacts::ArtifactContent;
-use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
 use log::debug;
@@ -68,6 +67,7 @@ pub use self::project_asts::ProjectAstData;
 pub use self::project_asts::ProjectAsts;
 use super::artifact_content;
 use crate::artifact_map::ArtifactMap;
+use crate::artifact_map::ArtifactSourceKey;
 use crate::compiler_state::ArtifactMapKind;
 use crate::compiler_state::CompilerState;
 use crate::compiler_state::ProjectName;
@@ -310,8 +310,8 @@ pub async fn commit_project(
     programs: Programs,
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,
-    // Definitions that are removed from the previous artifact map
-    removed_definition_names: Vec<ExecutableDefinitionName>,
+    // Definitions/Sources that are removed from the previous artifact map
+    removed_artifact_sources: Vec<ArtifactSourceKey>,
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: DashSet<PathBuf, FnvBuildHasher>,
     source_control_update_status: Arc<SourceControlUpdateStatus>,
@@ -404,7 +404,7 @@ pub async fn commit_project(
                 if !existing_artifacts.remove(&artifact.path) {
                     debug!(
                         "[{}] new artifact {:?} from definitions {:?}",
-                        project_config.name, &artifact.path, &artifact.source_definition_names
+                        project_config.name, &artifact.path, &artifact.artifact_source_keys
                     );
                 }
             }
@@ -443,7 +443,7 @@ pub async fn commit_project(
 
             log_event.time("update_artifact_map_time", || {
                 // All generated paths for removed definitions should be removed
-                for name in &removed_definition_names {
+                for name in &removed_artifact_sources {
                     if let Some((_, artifacts)) = artifact_map.0.remove(name) {
                         artifacts_to_remove.extend(artifacts.into_iter().map(|a| a.path));
                     }

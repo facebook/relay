@@ -451,8 +451,11 @@ name = "docblock-shared"
 version = "0.0.0"
 dependencies = [
  "common",
+ "hex",
  "intern",
  "lazy_static",
+ "md-5",
+ "serde",
 ]
 
 [[package]]
@@ -460,6 +463,7 @@ name = "docblock-syntax"
 version = "0.0.0"
 dependencies = [
  "common",
+ "docblock-shared",
  "fixture-tests",
  "graphql-test-helpers",
  "intern",
@@ -1645,6 +1649,7 @@ dependencies = [
  "common-path",
  "dashmap",
  "dependency-analyzer",
+ "docblock-shared",
  "docblock-syntax",
  "dunce",
  "errors",

@@ -29,6 +29,7 @@ use relay_compiler::errors::BuildProjectError;
 use relay_compiler::errors::Error;
 use relay_compiler::transform_program;
 use relay_compiler::validate_program;
+use relay_compiler::ArtifactSourceKey;
 use relay_compiler::BuildProjectFailure;
 use relay_compiler::FileSource;
 use relay_compiler::FileSourceResult;
@@ -239,7 +240,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let graphql_asts = log_event.time("parse_sources_time", || {
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
-                &compiler_state.get_dirty_definitions(&self.lsp_state.config),
+                &compiler_state.get_dirty_artifact_sources(&self.lsp_state.config),
             )
         })?;
 
@@ -417,9 +418,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
             Entry::Occupied(mut e) => {
                 let program = e.get_mut();
-                let removed_definition_names = graphql_asts
-                    .get(&project_config.name)
-                    .map(|ast| ast.removed_definition_names.as_ref());
+                let removed_definition_names = graphql_asts.get(&project_config.name).map(|ast| {
+                    ast.removed_definition_names
+                        .iter()
+                        .filter_map(|artifact_source| match artifact_source {
+                            ArtifactSourceKey::ExecutableDefinition(name) => Some(*name),
+                            // For the resolver case, we don't really need to track removed resolver defintions
+                            // here, as the documents for resolves are not accesible for the user
+                            // in the LSP program. We only care about unused fragments/operations
+                            // that are editable by the user.
+                            // We also don't write artifacts from LSP so it is safe to skip these here.
+                            ArtifactSourceKey::ResolverHash(_) => None,
+                        })
+                        .collect::<Vec<_>>()
+                });
                 program.merge_program(&base_program, removed_definition_names);
             }
         }

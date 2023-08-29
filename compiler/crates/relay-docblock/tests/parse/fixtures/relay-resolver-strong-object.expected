@@ -32,5 +32,8 @@ StrongObjectResolver(
         live: None,
         location: /path/to/test/fixture/relay-resolver-strong-object.js:0:31,
         implements_interfaces: [],
+        source_hash: ResolverSourceHash(
+            "b1c8ae1937aed7425f5a87a4762ad83d",
+        ),
     },
 )

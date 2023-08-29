@@ -50,7 +50,7 @@ fragment Foo_user on User {
     #             normalization_operation: WithLocation {
     #                 location: <generated>:59:70,
     #                 item: OperationDefinitionName(
-    #                     "User__best_friend$normalization",
+    #                     "default_User__best_friend$normalization",
     #                 ),
     #             },
     #             weak_object_instance_field: None,

@@ -10,7 +10,7 @@ type ClientUser @__RelayResolverModel {
   id: ID!
   __relay_model_instance: RelayResolverValue
     @relay_resolver(
-      fragment_name: "ClientUser__id"
+      fragment_name: "default_ClientUser__id"
       import_path: "./path/to/UserModelResolver.js"
       inject_fragment_data: "id"
     )
@@ -19,7 +19,7 @@ type ClientUser @__RelayResolverModel {
 extend type ClientUser {
   name: RelayResolverValue
     @relay_resolver(
-      fragment_name: "ClientUser____relay_model_instance"
+      fragment_name: "default_ClientUser____relay_model_instance"
       import_path: "./path/to/UserNameResolver.js"
       inject_fragment_data: "__relay_model_instance"
     )

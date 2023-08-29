@@ -15,7 +15,6 @@ use clap::ArgEnum;
 use clap::Parser;
 use common::ConsoleLogger;
 use intern::string_key::Intern;
-use intern::Lookup;
 use log::error;
 use log::info;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
@@ -26,6 +25,7 @@ use relay_compiler::FileSourceKind;
 use relay_compiler::LocalPersister;
 use relay_compiler::OperationPersister;
 use relay_compiler::PersistConfig;
+use relay_compiler::ProjectName;
 use relay_compiler::RemotePersister;
 use relay_lsp::start_language_server;
 use relay_lsp::DummyExtraDataProvider;
@@ -217,7 +217,7 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
         project_config.enabled = false;
     }
     for selected_project in projects {
-        let selected_project = selected_project.intern();
+        let selected_project = ProjectName::from(selected_project.intern());
 
         if let Some(project_config) = config.projects.get_mut(&selected_project) {
             project_config.enabled = true;
@@ -229,7 +229,7 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
                     config
                         .projects
                         .keys()
-                        .map(|name| name.lookup())
+                        .map(|name| name.to_string())
                         .collect::<Vec<_>>()
                         .join(", ")
                 ),

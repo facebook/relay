@@ -9,11 +9,11 @@ use std::sync::Arc;
 
 use common::DiagnosticsResult;
 use fnv::FnvHashMap;
+use relay_config::ProjectName;
 use schema::SDLSchema;
 
 use super::build_resolvers_schema::extend_schema_with_resolvers;
 use crate::compiler_state::CompilerState;
-use crate::compiler_state::ProjectName;
 use crate::config::ProjectConfig;
 use crate::GraphQLAsts;
 

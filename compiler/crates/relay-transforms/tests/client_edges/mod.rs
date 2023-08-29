@@ -16,6 +16,7 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
+use relay_config::ProjectName;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::client_edges;
 use relay_transforms::relay_resolvers;
@@ -32,7 +33,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         let mut next_program = client_edges(&program, &Default::default())
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-        next_program = relay_resolvers(&next_program, true)
+        next_program = relay_resolvers(ProjectName::default(), &next_program, true)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         let printer_options = PrinterOptions {

@@ -40,7 +40,32 @@ use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-pub type ProjectName = StringKey;
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Hash, PartialEq, Eq)]
+pub struct ProjectName(StringKey);
+
+impl Default for ProjectName {
+    fn default() -> Self {
+        Self("default".intern())
+    }
+}
+
+impl fmt::Display for ProjectName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<StringKey> for ProjectName {
+    fn from(key: StringKey) -> Self {
+        Self(key)
+    }
+}
+
+impl From<ProjectName> for StringKey {
+    fn from(project_name: ProjectName) -> Self {
+        project_name.0
+    }
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
@@ -236,7 +261,7 @@ pub struct ProjectConfig {
 impl Default for ProjectConfig {
     fn default() -> Self {
         Self {
-            name: "default".intern(),
+            name: ProjectName::default(),
             feature_flags: Default::default(),
             base: None,
             output: None,

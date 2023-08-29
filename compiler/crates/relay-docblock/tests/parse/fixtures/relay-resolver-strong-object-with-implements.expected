@@ -24,7 +24,7 @@ StrongObjectResolver(
         root_fragment: WithLocation {
             location: <generated>:0:0,
             item: FragmentDefinitionName(
-                "ClientUser__id",
+                "default_ClientUser__id",
             ),
         },
         description: None,
@@ -41,5 +41,8 @@ StrongObjectResolver(
                 value: "Foo",
             },
         ],
+        source_hash: ResolverSourceHash(
+            "cbb959799c8b4d36262edfc0c4e8ad7f",
+        ),
     },
 )

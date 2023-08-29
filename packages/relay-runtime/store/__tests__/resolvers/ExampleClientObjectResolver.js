@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {Query__example_client_object$normalization as ReturnType} from './__generated__/Query__example_client_object$normalization.graphql';
+import type {tests_Query__example_client_object$normalization as ReturnType} from './__generated__/tests_Query__example_client_object$normalization.graphql';
 
 /**
  * @RelayResolver

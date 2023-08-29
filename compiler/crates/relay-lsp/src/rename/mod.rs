@@ -8,10 +8,12 @@
 //! Utilities for providing the rename feature
 
 use std::collections::HashMap;
+use std::path::Path;
 use std::path::PathBuf;
 
 use common::Location as IRLocation;
 use common::SourceLocationKey;
+use common::Span;
 use extract_graphql::JavaScriptSourceFeature;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
@@ -25,6 +27,7 @@ use lsp_types::request::Request;
 use lsp_types::request::WillRenameFiles;
 use lsp_types::Location;
 use lsp_types::PrepareRenameResponse;
+use lsp_types::Range;
 use lsp_types::TextEdit;
 use lsp_types::Url;
 use lsp_types::WorkspaceEdit;
@@ -45,19 +48,12 @@ use crate::GlobalState;
 use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
 
-// todo: rename file to when renaming type info
-// todo: rename type when renaming file
-// todo: rename usage when renaming field
-// todo: rename method when renaming field
-// todo: can we rename field in response to method?
-
 /// Resolve a RenameRequest to a RenameResponse
 pub fn on_rename(
     state: &impl GlobalState,
     params: <Rename as Request>::Params,
 ) -> LSPRuntimeResult<<Rename as Request>::Result> {
-    // todo: why do I have to do this?
-    let uri = params.text_document_position.text_document.clone().uri;
+    let uri = &params.text_document_position.text_document.uri.clone();
     let text_document_position_params = lsp_types::TextDocumentPositionParams {
         text_document: params.text_document_position.text_document,
         position: params.text_document_position.position,
@@ -68,7 +64,7 @@ pub fn on_rename(
     let program = &state.get_program(&state.extract_project_name_from_url(&uri)?)?;
     let root_dir = &state.root_dir();
 
-    match feature {
+    let changes = match feature {
         crate::Feature::GraphQLDocument(document) => {
             let node_path = document.resolve((), position_span);
 
@@ -76,31 +72,21 @@ pub fn on_rename(
                 ResolutionPath::Ident(IdentPath {
                     inner: fragment_spread_name,
                     parent: IdentParent::FragmentSpreadName(_),
-                }) => {
-                    let changes = rename_fragment(
-                        fragment_spread_name.value,
-                        params.new_name,
-                        program,
-                        root_dir,
-                    );
-
-                    Ok(Some(WorkspaceEdit {
-                        changes: Some(changes),
-                        ..Default::default()
-                    }))
-                }
+                }) => Ok(rename_fragment(
+                    fragment_spread_name.value,
+                    params.new_name,
+                    program,
+                    root_dir,
+                )),
                 ResolutionPath::Ident(IdentPath {
                     inner: fragment_name,
                     parent: IdentParent::FragmentDefinitionName(_),
-                }) => {
-                    let changes =
-                        rename_fragment(fragment_name.value, params.new_name, program, root_dir);
-
-                    Ok(Some(WorkspaceEdit {
-                        changes: Some(changes),
-                        ..Default::default()
-                    }))
-                }
+                }) => Ok(rename_fragment(
+                    fragment_name.value,
+                    params.new_name,
+                    program,
+                    root_dir,
+                )),
                 ResolutionPath::Ident(IdentPath {
                     inner: operation_name,
                     parent: IdentParent::OperationDefinitionName(_),
@@ -110,12 +96,7 @@ pub fn on_rename(
                     let lsp_location =
                         transform_relay_location_to_lsp_location(root_dir, location).unwrap();
 
-                    let changes = rename_operation(params.new_name, lsp_location);
-
-                    Ok(Some(WorkspaceEdit {
-                        changes: Some(changes),
-                        ..Default::default()
-                    }))
+                    Ok(rename_operation(params.new_name, lsp_location))
                 }
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
@@ -140,19 +121,21 @@ pub fn on_rename(
                     let lsp_location =
                         transform_relay_location_to_lsp_location(root_dir, location)?;
 
-                    merge_change(&mut changes, lsp_location, &params.new_name);
+                    merge_text_edit(&mut changes, lsp_location, &params.new_name);
 
                     // todo: rename JS function
 
-                    Ok(Some(WorkspaceEdit {
-                        changes: Some(changes),
-                        ..Default::default()
-                    }))
+                    Ok(changes)
                 }
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
-    }
+    }?;
+
+    return Ok(Some(WorkspaceEdit {
+        changes: Some(changes),
+        ..Default::default()
+    }));
 }
 
 /// Resolve a PrepareRenameRequest to a PrepareRenameResponse
@@ -168,7 +151,7 @@ pub fn on_prepare_rename(
         state.extract_feature_from_text(&text_document_position_params, 1)?;
     let root_dir = &state.root_dir();
 
-    match feature {
+    let range = match feature {
         crate::Feature::GraphQLDocument(document) => {
             let node_path = document.resolve((), position_span);
 
@@ -176,34 +159,15 @@ pub fn on_prepare_rename(
                 ResolutionPath::Ident(IdentPath {
                     inner: fragment_spread_name,
                     parent: IdentParent::FragmentSpreadName(_),
-                }) => {
-                    let location =
-                        common::Location::new(source_location_key, fragment_spread_name.span);
-                    let lsp_location =
-                        transform_relay_location_to_lsp_location(root_dir, location)?;
-
-                    Ok(Some(PrepareRenameResponse::Range(lsp_location.range)))
-                }
+                }) => span_to_range(&root_dir, source_location_key, fragment_spread_name.span),
                 ResolutionPath::Ident(IdentPath {
                     inner: fragment_name,
                     parent: IdentParent::FragmentDefinitionName(_),
-                }) => {
-                    let location = common::Location::new(source_location_key, fragment_name.span);
-                    let lsp_location =
-                        transform_relay_location_to_lsp_location(root_dir, location)?;
-
-                    Ok(Some(PrepareRenameResponse::Range(lsp_location.range)))
-                }
+                }) => span_to_range(&root_dir, source_location_key, fragment_name.span),
                 ResolutionPath::Ident(IdentPath {
                     inner: operation_name,
                     parent: IdentParent::OperationDefinitionName(_),
-                }) => {
-                    let location = common::Location::new(source_location_key, operation_name.span);
-                    let lsp_location =
-                        transform_relay_location_to_lsp_location(root_dir, location)?;
-
-                    Ok(Some(PrepareRenameResponse::Range(lsp_location.range)))
-                }
+                }) => span_to_range(&root_dir, source_location_key, operation_name.span),
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
@@ -213,19 +177,17 @@ pub fn on_prepare_rename(
 
             match resolution_info {
                 DocblockResolutionInfo::FieldName(docblock_field) => {
-                    let location = common::Location::new(source_location_key, docblock_field.span);
-
-                    let lsp_location =
-                        transform_relay_location_to_lsp_location(root_dir, location)?;
-
-                    Ok(Some(PrepareRenameResponse::Range(lsp_location.range)))
+                    span_to_range(root_dir, source_location_key, docblock_field.span)
                 }
-                // todo: handle types
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
-    }
+    }?;
+
+    Ok(Some(PrepareRenameResponse::Range(range)))
 }
+
+// todo: how can I get rid of all the unwraps below and make it more functional?
 
 /// Resolve a WillRenameFilesRequest to a WillRenameFilesResponse
 pub fn on_will_rename_files(
@@ -301,14 +263,12 @@ pub fn on_will_rename_files(
                             }
                         };
 
-                        merge_changes(&mut rename_changes, changes);
+                        merge_text_changes(&mut rename_changes, changes);
                     }
 
                     Ok(())
                 }
-                JavaScriptSourceFeature::Docblock(docblock_source) => {
-                    Err(LSPRuntimeError::ExpectedError)
-                }
+                _ => Err(LSPRuntimeError::ExpectedError),
             };
 
             index += 1;
@@ -335,7 +295,7 @@ fn rename_relay_resolver_field(
             let lsp_location =
                 transform_relay_location_to_lsp_location(root_dir, location).unwrap();
 
-            merge_change(&mut map, lsp_location, &new_field_name);
+            merge_text_edit(&mut map, lsp_location, &new_field_name);
 
             map
         })
@@ -363,7 +323,7 @@ fn rename_fragment(
             let lsp_location =
                 transform_relay_location_to_lsp_location(root_dir, location).unwrap();
 
-            merge_change(&mut map, lsp_location, &new_fragment_name);
+            merge_text_edit(&mut map, lsp_location, &new_fragment_name);
 
             map
         })
@@ -418,7 +378,10 @@ impl Visitor for FragmentFinder {
     }
 }
 
-fn merge_changes(source: &mut HashMap<Url, Vec<TextEdit>>, target: HashMap<Url, Vec<TextEdit>>) {
+fn merge_text_changes(
+    source: &mut HashMap<Url, Vec<TextEdit>>,
+    target: HashMap<Url, Vec<TextEdit>>,
+) {
     for (uri, changes) in target {
         let entry = source.entry(uri);
 
@@ -429,7 +392,7 @@ fn merge_changes(source: &mut HashMap<Url, Vec<TextEdit>>, target: HashMap<Url, 
     }
 }
 
-fn merge_change(source: &mut HashMap<Url, Vec<TextEdit>>, location: Location, change: &String) {
+fn merge_text_edit(source: &mut HashMap<Url, Vec<TextEdit>>, location: Location, change: &String) {
     let entry = source.entry(location.uri);
 
     let existing_changes = entry.or_default();
@@ -438,4 +401,16 @@ fn merge_change(source: &mut HashMap<Url, Vec<TextEdit>>, location: Location, ch
         range: location.range,
         new_text: change.to_owned(),
     });
+}
+
+fn span_to_range(
+    root_dir: &Path,
+    source_location_key: SourceLocationKey,
+    span: Span,
+) -> LSPRuntimeResult<Range> {
+    let location = common::Location::new(source_location_key, span);
+
+    let lsp_location = transform_relay_location_to_lsp_location(root_dir, location)?;
+
+    Ok(lsp_location.range)
 }

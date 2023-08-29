@@ -19,6 +19,7 @@ pub(crate) fn find_field_locations(
     type_name: StringKey,
 ) -> Option<Vec<IRLocation>> {
     let type_ = program.schema.get_type(type_name)?;
+    // todo: this doesn't find usages of renamed RelayResolver fields
     let mut usage_finder = FieldUsageFinder::new(&program.schema, type_, field_name);
     usage_finder.visit_program(program);
 

@@ -8,13 +8,15 @@
 use common::Span;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
+use graphql_syntax::Identifier;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 
+#[derive(Debug)]
 pub enum DocblockResolutionInfo {
     Type(StringKey),
     RootFragment(FragmentDefinitionName),
-    FieldName(StringKey),
+    FieldName(Identifier),
     Deprecated,
 }
 
@@ -44,9 +46,7 @@ pub fn create_docblock_resolution_info(
             }
 
             if resolver_ir.field.name.span.contains(position_span) {
-                return Some(DocblockResolutionInfo::FieldName(
-                    resolver_ir.field.name.value,
-                ));
+                return Some(DocblockResolutionInfo::FieldName(resolver_ir.field.name));
             }
 
             if let Some(output_type) = &resolver_ir.output_type {
@@ -87,6 +87,10 @@ pub fn create_docblock_resolution_info(
                 if root_fragment.location.contains(position_span) {
                     return Some(DocblockResolutionInfo::RootFragment(root_fragment.item));
                 }
+            }
+
+            if resolver_ir.field.name.span.contains(position_span) {
+                return Some(DocblockResolutionInfo::FieldName(resolver_ir.field.name));
             }
 
             // @deprecated key

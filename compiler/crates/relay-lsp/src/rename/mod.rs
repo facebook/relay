@@ -28,17 +28,28 @@ use lsp_types::PrepareRenameResponse;
 use lsp_types::TextEdit;
 use lsp_types::Url;
 use lsp_types::WorkspaceEdit;
+use relay_docblock::DocblockIr;
+use relay_docblock::On;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::ResolutionPath;
 use resolution_path::ResolvePosition;
 
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::docblock_resolution_info::DocblockResolutionInfo;
+use crate::find_field_usages::find_field_locations;
 use crate::location::get_file_contents;
 use crate::location::transform_relay_location_to_lsp_location;
 use crate::utils::is_file_uri_in_dir;
 use crate::GlobalState;
 use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
+
+// todo: rename file to when renaming type info
+// todo: rename type when renaming file
+// todo: rename usage when renaming field
+// todo: rename method when renaming field
+// todo: can we rename field in response to method?
 
 /// Resolve a RenameRequest to a RenameResponse
 pub fn on_rename(
@@ -109,8 +120,38 @@ pub fn on_rename(
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
-        // todo: support docblocks
-        _ => Err(LSPRuntimeError::ExpectedError),
+        crate::Feature::DocblockIr(docblock) => {
+            let resolution_info =
+                create_docblock_resolution_info(&docblock, position_span).unwrap();
+
+            match resolution_info {
+                DocblockResolutionInfo::FieldName(docblock_field) => {
+                    let parent_type = extract_parent_type(docblock);
+
+                    let mut changes = rename_relay_resolver_field(
+                        docblock_field.value,
+                        parent_type,
+                        &params.new_name,
+                        program,
+                        root_dir,
+                    );
+
+                    let location = common::Location::new(source_location_key, docblock_field.span);
+                    let lsp_location =
+                        transform_relay_location_to_lsp_location(root_dir, location)?;
+
+                    merge_change(&mut changes, lsp_location, &params.new_name);
+
+                    // todo: rename JS function
+
+                    Ok(Some(WorkspaceEdit {
+                        changes: Some(changes),
+                        ..Default::default()
+                    }))
+                }
+                _ => Err(LSPRuntimeError::ExpectedError),
+            }
+        }
     }
 }
 
@@ -166,8 +207,23 @@ pub fn on_prepare_rename(
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
-        // todo: support docblocks
-        _ => Err(LSPRuntimeError::ExpectedError),
+        crate::Feature::DocblockIr(docblock) => {
+            let resolution_info =
+                create_docblock_resolution_info(&docblock, position_span).unwrap();
+
+            match resolution_info {
+                DocblockResolutionInfo::FieldName(docblock_field) => {
+                    let location = common::Location::new(source_location_key, docblock_field.span);
+
+                    let lsp_location =
+                        transform_relay_location_to_lsp_location(root_dir, location)?;
+
+                    Ok(Some(PrepareRenameResponse::Range(lsp_location.range)))
+                }
+                // todo: handle types
+                _ => Err(LSPRuntimeError::ExpectedError),
+            }
+        }
     }
 }
 
@@ -250,8 +306,9 @@ pub fn on_will_rename_files(
 
                     Ok(())
                 }
-                // todo: support docblocks
-                _ => Err(LSPRuntimeError::ExpectedError),
+                JavaScriptSourceFeature::Docblock(docblock_source) => {
+                    Err(LSPRuntimeError::ExpectedError)
+                }
             };
 
             index += 1;
@@ -262,6 +319,26 @@ pub fn on_will_rename_files(
         changes: Some(rename_changes),
         ..Default::default()
     }))
+}
+
+fn rename_relay_resolver_field(
+    field_name: StringKey,
+    type_name: StringKey,
+    new_field_name: &String,
+    program: &Program,
+    root_dir: &PathBuf,
+) -> HashMap<Url, Vec<TextEdit>> {
+    find_field_locations(program, field_name, type_name)
+        .unwrap()
+        .into_iter()
+        .fold(HashMap::new(), |mut map, location| {
+            let lsp_location =
+                transform_relay_location_to_lsp_location(root_dir, location).unwrap();
+
+            merge_change(&mut map, lsp_location, &new_field_name);
+
+            map
+        })
 }
 
 fn rename_operation(new_operation_name: String, location: Location) -> HashMap<Url, Vec<TextEdit>> {
@@ -286,16 +363,22 @@ fn rename_fragment(
             let lsp_location =
                 transform_relay_location_to_lsp_location(root_dir, location).unwrap();
 
-            let entry = map.entry(lsp_location.uri);
-
-            let edits = entry.or_default();
-            edits.push(TextEdit {
-                range: lsp_location.range,
-                new_text: new_fragment_name.to_owned(),
-            });
+            merge_change(&mut map, lsp_location, &new_fragment_name);
 
             map
         })
+}
+
+fn extract_parent_type(docblock: DocblockIr) -> StringKey {
+    match docblock {
+        DocblockIr::RelayResolver(resolver_ir) => match resolver_ir.on {
+            On::Type(on_type) => on_type.value.item,
+            On::Interface(on_interface) => on_interface.value.item,
+        },
+        DocblockIr::TerseRelayResolver(resolver_ir) => resolver_ir.type_.item,
+        DocblockIr::StrongObjectResolver(strong_object) => strong_object.type_name.value,
+        DocblockIr::WeakObjectType(weak_type_ir) => weak_type_ir.type_name.value,
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -344,4 +427,15 @@ fn merge_changes(source: &mut HashMap<Url, Vec<TextEdit>>, target: HashMap<Url, 
             existing_changes.push(new_change);
         }
     }
+}
+
+fn merge_change(source: &mut HashMap<Url, Vec<TextEdit>>, location: Location, change: &String) {
+    let entry = source.entry(location.uri);
+
+    let existing_changes = entry.or_default();
+
+    existing_changes.push(TextEdit {
+        range: location.range,
+        new_text: change.to_owned(),
+    });
 }

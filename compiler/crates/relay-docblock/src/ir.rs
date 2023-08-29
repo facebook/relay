@@ -1398,13 +1398,12 @@ fn get_root_fragment_for_object(
     {
         Some(RootFragment {
             fragment: WithLocation::generated(FragmentDefinitionName(
-                format!(
-                    "{}_{}__{}",
-                    project_name,
-                    object.unwrap().name.item,
-                    *RESOLVER_MODEL_INSTANCE_FIELD_NAME
-                )
-                .intern(),
+                project_name
+                    .generate_name_for_object_and_field(
+                        object.unwrap().name.item.0,
+                        *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+                    )
+                    .intern(),
             )),
             generated: true,
             inject_fragment_data: Some(FragmentDataInjectionMode::Field(

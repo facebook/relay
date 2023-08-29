@@ -192,6 +192,12 @@ module.exports = {
         infoLink: 'https://www.atlassian.com/',
         pinned: false,
       },
+      {
+        caption: 'Stacklet',
+        image: '/img/logos/stacklet.png',
+        infoLink: 'https://stacklet.io/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

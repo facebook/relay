@@ -12,7 +12,6 @@ use graphql_syntax::Identifier;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 
-#[derive(Debug)]
 pub enum DocblockResolutionInfo {
     Type(StringKey),
     RootFragment(FragmentDefinitionName),

@@ -435,7 +435,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         })
                         .collect::<Vec<_>>()
                 });
-                program.merge_program(&base_program, removed_definition_names);
+                program.merge_program(&base_program, removed_definition_names.as_deref());
             }
         }
 

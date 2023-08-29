@@ -376,7 +376,7 @@ Within `Newsfeed`, we can call both `useLazyLoadQuery` and `useFragment`, though
 ```
 export default function Newsfeed() {
   // change-line
-  const queryData = useLazyLoadQuery(NewsfeedFragment, {});
+  const queryData = useLazyLoadQuery(NewsfeedQuery, {});
   // change-line
   const data = useFragment(NewsfeedContentsFragment, queryData);
   const storyEdges = data.newsfeedStories.edges;

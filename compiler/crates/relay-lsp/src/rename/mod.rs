@@ -75,11 +75,10 @@ pub fn on_rename(
             }
         }
         Feature::DocblockIr(docblock) => {
-            let resolution_info =
-                create_docblock_resolution_info(&docblock, position_span).unwrap();
+            let resolution_info = create_docblock_resolution_info(&docblock, position_span);
 
             match resolution_info {
-                DocblockResolutionInfo::FieldName(docblock_field) => {
+                Some(DocblockResolutionInfo::FieldName(docblock_field)) => {
                     let parent_type = extract_parent_type(docblock);
 
                     let mut changes = rename_relay_resolver_field(
@@ -136,11 +135,10 @@ pub fn on_prepare_rename(
             }
         }
         Feature::DocblockIr(docblock) => {
-            let resolution_info =
-                create_docblock_resolution_info(&docblock, position_span).unwrap();
+            let resolution_info = create_docblock_resolution_info(&docblock, position_span);
 
             match resolution_info {
-                DocblockResolutionInfo::FieldName(docblock_field) => {
+                Some(DocblockResolutionInfo::FieldName(docblock_field)) => {
                     span_to_range(root_dir, source_location_key, docblock_field.span)
                 }
                 _ => Err(LSPRuntimeError::ExpectedError),
@@ -177,13 +175,11 @@ pub fn on_will_rename_files(
         let old_file_name = old_path
             .file_stem()
             .and_then(|s| s.to_str())
-            .ok_or("Unable to extract old filename")
-            .map_err(|_| LSPRuntimeError::ExpectedError)?;
+            .ok_or(LSPRuntimeError::ExpectedError)?;
         let new_file_name = new_path
             .file_stem()
             .and_then(|s| s.to_str())
-            .ok_or("Unable to extract old filename")
-            .map_err(|_| LSPRuntimeError::ExpectedError)?;
+            .ok_or(LSPRuntimeError::ExpectedError)?;
 
         if old_file_name == new_file_name {
             continue;

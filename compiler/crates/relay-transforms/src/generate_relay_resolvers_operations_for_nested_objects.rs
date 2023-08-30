@@ -449,16 +449,10 @@ pub(crate) fn generate_name_for_nested_object_operation(
         .parent_type
         .unwrap_or_else(|| panic!("Expected parent type for field {:?}.", field));
 
-    let normalization_name = get_normalization_operation_name(
-        format!(
-            "{}_{}__{}",
-            project_name,
-            schema.get_type_name(parent_type),
-            field.name.item
-        )
-        .intern(),
-    )
-    .intern();
+    let name = project_name
+        .generate_name_for_object_and_field(schema.get_type_name(parent_type), field.name.item);
+
+    let normalization_name = get_normalization_operation_name(name.intern()).intern();
 
     field
         .name

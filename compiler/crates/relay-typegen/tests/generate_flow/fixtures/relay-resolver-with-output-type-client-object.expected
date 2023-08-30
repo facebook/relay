@@ -25,24 +25,24 @@ extend type User {
   pop_star_name: ClientUser @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
-export type default_User__pop_star_name$normalization$variables = {||};
-export type default_User__pop_star_name$normalization$data = {|
+export type User__pop_star_name$normalization$variables = {||};
+export type User__pop_star_name$normalization$data = {|
   +name: ?string,
 |};
-export type default_User__pop_star_name$normalization = {|
-  response: default_User__pop_star_name$normalization$data,
-  variables: default_User__pop_star_name$normalization$variables,
+export type User__pop_star_name$normalization = {|
+  response: User__pop_star_name$normalization$data,
+  variables: User__pop_star_name$normalization$variables,
 |};
 -------------------------------------------------------------------------------
 import type { PopStarNameResolverFragment_name$key } from "PopStarNameResolverFragment_name.graphql";
-import type { default_User__pop_star_name$normalization } from "default_User__pop_star_name$normalization.graphql";
+import type { User__pop_star_name$normalization } from "User__pop_star_name$normalization.graphql";
 import type { FragmentType } from "relay-runtime";
 import userPopStarNameResolverType from "PopStarNameResolver";
 // Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType: (
   rootKey: PopStarNameResolverFragment_name$key,
-) => ?default_User__pop_star_name$normalization);
+) => ?User__pop_star_name$normalization);
 declare export opaque type Foo_user$fragmentType: FragmentType;
 export type Foo_user$data = {|
   +poppy: ?{|

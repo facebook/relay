@@ -16,7 +16,7 @@ type MyType @__RelayResolverModel {
   __relay_model_instance: Int
     @relay_resolver(
       import_path: "/path/to/test/fixture/terse-relay-resolver-with-root-fragment-on-model.js"
-      fragment_name: "default_MyType__id"
+      fragment_name: "MyType__id"
       inject_fragment_data: "id"
       import_name: "MyType"
     )
@@ -149,7 +149,7 @@ Query Text is Empty.
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "default_MyType____relay_model_instance",
+  "name": "MyType____relay_model_instance",
   "selections": [
     {
       "alias": null,
@@ -157,11 +157,11 @@ Query Text is Empty.
       "fragment": {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "default_MyType__id"
+        "name": "MyType__id"
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('default_MyType__id.graphql'), require('terse-relay-resolver-with-root-fragment-on-model').MyType, 'id', true),
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('MyType__id.graphql'), require('terse-relay-resolver-with-root-fragment-on-model').MyType, 'id', true),
       "path": "__relay_model_instance"
     }
   ],
@@ -173,7 +173,7 @@ Query Text is Empty.
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "default_MyType__id",
+  "name": "MyType__id",
   "selections": [
     {
       "kind": "ClientExtension",

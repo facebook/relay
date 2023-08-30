@@ -4,8 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a1b3e66f7a5e70cc3c43e4f356f58f08>>
- * @flow
+ * @generated SignedSource<<a55377ccde8cd5c41e914b95c668b64b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,22 +13,7 @@
 
 'use strict';
 
-/*::
-import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { Component_node$fragmentType } from "./Component_node.graphql";
-export type AppQuery$variables = {||};
-export type AppQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: Component_node$fragmentType,
-  |},
-|};
-export type AppQuery = {|
-  response: AppQuery$data,
-  variables: AppQuery$variables,
-|};
-*/
-
-var node/*: ConcreteRequest*/ = (function(){
+var node = (function(){
 var v0 = [
   {
     "kind": "Literal",
@@ -112,9 +96,6 @@ return {
 };
 })();
 
-(node/*: any*/).hash = "942e72826c882d3a02cb0cfbf267dd83";
+node.hash = "942e72826c882d3a02cb0cfbf267dd83";
 
-module.exports = ((node/*: any*/)/*: Query<
-  AppQuery$variables,
-  AppQuery$data,
->*/);
+module.exports = node;

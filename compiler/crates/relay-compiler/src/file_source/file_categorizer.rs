@@ -540,7 +540,7 @@ mod tests {
         assert_eq!(
             categorizer.categorize(&PathBuf::from("src/custom_overlapping/__generated__/c.js")),
             Err(Cow::Borrowed(
-                "Overlapping input sources are incompatible with relative generated directories. Got file in a relative generated directory with source set ProjectSet([ProjectName(\"with_custom_generated_dir\"), ProjectName(\"overlapping_generated_dir\")])."
+                "Overlapping input sources are incompatible with relative generated directories. Got file in a relative generated directory with source set ProjectSet([Named(\"with_custom_generated_dir\"), Named(\"overlapping_generated_dir\")])."
             )),
         );
     }

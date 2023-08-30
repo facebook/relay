@@ -71,11 +71,12 @@ pub fn generate_relay_resolvers_model_fragments(
                 });
 
             let model_fragment_name = FragmentDefinitionName(
-                format!(
-                    "{}_{}__{}",
-                    project_name, object.name.item.0, *RESOLVER_MODEL_INSTANCE_FIELD_NAME
-                )
-                .intern(),
+                project_name
+                    .generate_name_for_object_and_field(
+                        object.name.item.0,
+                        *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+                    )
+                    .intern(),
             );
 
             let resolver_field = program.schema.field(model_instance_field_id);
@@ -104,11 +105,12 @@ pub fn generate_relay_resolvers_model_fragments(
                 .named_field(object_type, schema_config.node_interface_id_field)
             {
                 let id_fragment_name = FragmentDefinitionName(
-                    format!(
-                        "{}_{}__{}",
-                        project_name, object.name.item.0, schema_config.node_interface_id_field
-                    )
-                    .intern(),
+                    project_name
+                        .generate_name_for_object_and_field(
+                            object.name.item.0,
+                            schema_config.node_interface_id_field,
+                        )
+                        .intern(),
                 );
 
                 let id_fragment = FragmentDefinition {

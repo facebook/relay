@@ -23,7 +23,7 @@ extend type Query {
 {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "default_Query__client_types$normalization",
+  "name": "Query__client_types$normalization",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -63,7 +63,7 @@ extend type Query {
           "normalizationInfo": {
             "concreteType": "MyClientType",
             "plural": true,
-            "normalizationNode": require('default_Query__client_types$normalization.graphql')
+            "normalizationNode": require('Query__client_types$normalization.graphql')
           }
         },
         "linkedField": {
@@ -144,7 +144,7 @@ Query Text is Empty.
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "default_MyClientType____relay_model_instance",
+  "name": "MyClientType____relay_model_instance",
   "selections": [
     {
       "kind": "ClientExtension",

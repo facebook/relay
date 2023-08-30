@@ -426,8 +426,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         .iter()
                         .filter_map(|artifact_source| match artifact_source {
                             ArtifactSourceKey::ExecutableDefinition(name) => Some(*name),
-                            // For the resolver case, we don't really need to track removed resolver defintions
-                            // here, as the documents for resolves are not accesible for the user
+                            // For the resolver case, we don't really need to track removed resolver definitions
+                            // here, as the documents for resolves are not accessible for the user
                             // in the LSP program. We only care about unused fragments/operations
                             // that are editable by the user.
                             // We also don't write artifacts from LSP so it is safe to skip these here.

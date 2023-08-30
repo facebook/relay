@@ -15,6 +15,10 @@ interface ClientOnlyInterface implements Node {
   id: ID!
 }
 
+type BestFriend implements ClientOnlyInterface {
+  id: ID!
+}
+
 extend type User {
   best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
 }

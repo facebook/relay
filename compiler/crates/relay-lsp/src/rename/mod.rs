@@ -74,7 +74,7 @@ pub fn on_rename(
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
-        crate::Feature::DocblockIr(docblock) => {
+        Feature::DocblockIr(docblock) => {
             let resolution_info =
                 create_docblock_resolution_info(&docblock, position_span).unwrap();
 
@@ -135,7 +135,7 @@ pub fn on_prepare_rename(
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
-        crate::Feature::DocblockIr(docblock) => {
+        Feature::DocblockIr(docblock) => {
             let resolution_info =
                 create_docblock_resolution_info(&docblock, position_span).unwrap();
 
@@ -159,17 +159,31 @@ pub fn on_will_rename_files(
     let mut rename_changes = HashMap::new();
 
     for file_rename in &params.files {
-        let old_file_uri = Url::parse(&file_rename.old_uri).unwrap();
-        let new_file_uri = Url::parse(&file_rename.new_uri).unwrap();
+        let old_file_uri =
+            Url::parse(&file_rename.old_uri).map_err(|_| LSPRuntimeError::ExpectedError)?;
+        let new_file_uri =
+            Url::parse(&file_rename.new_uri).map_err(|_| LSPRuntimeError::ExpectedError)?;
 
         if !is_file_uri_in_dir(state.root_dir(), &new_file_uri) {
             continue;
         }
 
-        let old_path = old_file_uri.to_file_path().unwrap();
-        let new_path = new_file_uri.to_file_path().unwrap();
-        let old_file_name = old_path.file_stem().unwrap().to_str().unwrap();
-        let new_file_name = new_path.file_stem().unwrap().to_str().unwrap();
+        let old_path = old_file_uri
+            .to_file_path()
+            .map_err(|_| LSPRuntimeError::ExpectedError)?;
+        let new_path = new_file_uri
+            .to_file_path()
+            .map_err(|_| LSPRuntimeError::ExpectedError)?;
+        let old_file_name = old_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or("Unable to extract old filename")
+            .map_err(|_| LSPRuntimeError::ExpectedError)?;
+        let new_file_name = new_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or("Unable to extract old filename")
+            .map_err(|_| LSPRuntimeError::ExpectedError)?;
 
         if old_file_name == new_file_name {
             continue;

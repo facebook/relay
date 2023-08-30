@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<27fd5fb3f07346c7af49129d773317a8>>
+ * @generated SignedSource<<c12ec82876dcc0420715ee575dae6f2f>>
  */
 
 mod compile_relay_artifacts;
@@ -1102,6 +1102,13 @@ fn relay_resolver_backing_client_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected");
     test_fixture(transform_fixture, "relay-resolver-backing-client-edge.graphql", "compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_edge_to_interface_with_child_interface_and_no_implementors() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.expected");
+    test_fixture(transform_fixture, "relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.graphql", "compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.expected", input, expected);
 }
 
 #[test]

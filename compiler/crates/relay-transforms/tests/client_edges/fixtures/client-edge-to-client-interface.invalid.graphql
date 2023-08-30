@@ -15,6 +15,7 @@ interface ClientOnlyInterface implements Node {
   id: ID!
 }
 
+# Add a concrete type so that we don't trigger an unrelated compiler error.
 type BestFriend implements ClientOnlyInterface {
   id: ID!
 }

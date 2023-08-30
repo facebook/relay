@@ -7,34 +7,51 @@
 
 //! Utilities for providing the rename feature
 
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::collections::HashMap;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::Arc;
 
-use common::{Location as IRLocation, SourceLocationKey, Span};
+use common::Location as IRLocation;
+use common::SourceLocationKey;
+use common::Span;
 use extract_graphql::JavaScriptSourceFeature;
-use graphql_ir::{FragmentDefinition, FragmentSpread, Program, Visitor};
-use graphql_syntax::{
-    parse_executable_with_error_recovery, ExecutableDefinition, OperationDefinition,
-};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::Program;
+use graphql_ir::Visitor;
+use graphql_syntax::parse_executable_with_error_recovery;
+use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::OperationDefinition;
 use intern::string_key::StringKey;
-use lsp_types::{
-    request::{PrepareRenameRequest, Rename, Request, WillRenameFiles},
-    Location as LspLocation, PrepareRenameResponse, Range, TextEdit, Url, WorkspaceEdit,
-};
-use relay_docblock::{DocblockIr, On};
-use resolution_path::{IdentParent, IdentPath, ResolutionPath, ResolvePosition};
+use lsp_types::request::PrepareRenameRequest;
+use lsp_types::request::Rename;
+use lsp_types::request::Request;
+use lsp_types::request::WillRenameFiles;
+use lsp_types::Location as LspLocation;
+use lsp_types::PrepareRenameResponse;
+use lsp_types::Range;
+use lsp_types::TextEdit;
+use lsp_types::Url;
+use lsp_types::WorkspaceEdit;
+use relay_docblock::DocblockIr;
+use relay_docblock::On;
+use resolution_path::IdentParent;
+use resolution_path::IdentPath;
+use resolution_path::ResolutionPath;
+use resolution_path::ResolvePosition;
 use schema::SDLSchema;
 
-use crate::{
-    docblock_resolution_info::{create_docblock_resolution_info, DocblockResolutionInfo},
-    find_field_usages::find_field_locations,
-    location::{get_file_contents, transform_relay_location_to_lsp_location},
-    utils::is_file_uri_in_dir,
-    Feature, GlobalState, LSPRuntimeError, LSPRuntimeResult,
-};
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::docblock_resolution_info::DocblockResolutionInfo;
+use crate::find_field_usages::find_field_locations;
+use crate::location::get_file_contents;
+use crate::location::transform_relay_location_to_lsp_location;
+use crate::utils::is_file_uri_in_dir;
+use crate::Feature;
+use crate::GlobalState;
+use crate::LSPRuntimeError;
+use crate::LSPRuntimeResult;
 
 /// Resolve a [`Rename`] request to workspace edits
 pub fn on_rename(

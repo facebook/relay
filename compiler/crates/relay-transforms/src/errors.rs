@@ -168,7 +168,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "No types implement the client interface {interface_name}. Interfaces returned by a @RelayResolver @outputType must have at least one concrete implementation."
+        "No types implement the client interface {interface_name}. Interfaces returned by a @RelayResolver must have at least one concrete implementation."
     )]
     RelayResolverClientInterfaceMustBeImplemented { interface_name: InterfaceName },
 

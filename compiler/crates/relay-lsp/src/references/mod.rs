@@ -80,10 +80,7 @@ fn get_references_response(
                         On::Type(type_) => type_.value.item,
                         On::Interface(interface) => interface.value.item,
                     },
-                    DocblockIr::TerseRelayResolver(_) => {
-                        // TODO: Implement support for terse relay resolvers.
-                        return Err(LSPRuntimeError::ExpectedError);
-                    }
+                    DocblockIr::TerseRelayResolver(terse_resolver) => terse_resolver.type_.item,
                     DocblockIr::StrongObjectResolver(_) => {
                         // TODO: Implement support for strong object.
                         return Err(LSPRuntimeError::ExpectedError);

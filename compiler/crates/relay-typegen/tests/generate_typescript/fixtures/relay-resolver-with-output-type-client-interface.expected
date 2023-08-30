@@ -36,8 +36,8 @@ extend type User {
   pop_star_game: ClientTypeWithNestedInterface @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
-export type default_User__pop_star_game$normalization$variables = {};
-export type default_User__pop_star_game$normalization$data = {
+export type User__pop_star_game$normalization$variables = {};
+export type User__pop_star_game$normalization$data = {
   readonly client_interface: {
     readonly __typename: "ClientType";
     readonly name: string | null;
@@ -47,13 +47,13 @@ export type default_User__pop_star_game$normalization$data = {
     readonly __typename: "%other";
   } | null;
 };
-export type default_User__pop_star_game$normalization = {
-  response: default_User__pop_star_game$normalization$data;
-  variables: default_User__pop_star_game$normalization$variables;
+export type User__pop_star_game$normalization = {
+  response: User__pop_star_game$normalization$data;
+  variables: User__pop_star_game$normalization$variables;
 };
 -------------------------------------------------------------------------------
-export type default_User__pop_star_name$normalization$variables = {};
-export type default_User__pop_star_name$normalization$data = {
+export type User__pop_star_name$normalization$variables = {};
+export type User__pop_star_name$normalization$data = {
   readonly __typename: "ClientType";
   readonly name: string | null;
 } | {
@@ -61,9 +61,9 @@ export type default_User__pop_star_name$normalization$data = {
   // value in case none of the concrete values match.
   readonly __typename: "%other";
 };
-export type default_User__pop_star_name$normalization = {
-  response: default_User__pop_star_name$normalization$data;
-  variables: default_User__pop_star_name$normalization$variables;
+export type User__pop_star_name$normalization = {
+  response: User__pop_star_name$normalization$data;
+  variables: User__pop_star_name$normalization$variables;
 };
 -------------------------------------------------------------------------------
 import type { FragmentRefs } from "relay-runtime";

@@ -20,7 +20,6 @@ use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::PROVIDER_ARG_NAME;
-use graphql_ir::reexport::Intern;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::parse_field_definition;
@@ -38,6 +37,7 @@ use graphql_syntax::StringNode;
 use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
+use intern::string_key::Intern;
 use intern::Lookup;
 use relay_config::ProjectName;
 
@@ -244,13 +244,10 @@ fn parse_strong_object_ir(
     )?;
 
     let fragment_name = FragmentDefinitionName(
-        format!(
-            "{}_{}__{}",
-            project_name, identifier.value, *KEY_RESOLVER_ID_FIELD
-        )
-        .intern(),
+        project_name
+            .generate_name_for_object_and_field(identifier.value, *KEY_RESOLVER_ID_FIELD)
+            .intern(),
     );
-
     Ok(StrongObjectIr {
         type_name: identifier,
         rhs_location: relay_resolver_field.value.location,

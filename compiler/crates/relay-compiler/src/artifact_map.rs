@@ -56,8 +56,8 @@ impl ArtifactMap {
             },
         };
 
-        for source_definition_name in artifact.artifact_source_keys {
-            match self.0.entry(source_definition_name) {
+        for source_key in artifact.artifact_source_keys {
+            match self.0.entry(source_key) {
                 Entry::Occupied(mut entry) => {
                     entry.get_mut().push(artifact_tuple.clone());
                 }

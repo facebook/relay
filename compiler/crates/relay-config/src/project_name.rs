@@ -28,10 +28,7 @@ impl ProjectName {
         field_name: StringKey,
     ) -> String {
         match self {
-            ProjectName::Named(project_name) => {
-                format!("{}_{}__{}", project_name, object_name, field_name)
-            }
-            ProjectName::Default => format!("{}__{}", object_name, field_name),
+            _ => format!("{}__{}", object_name, field_name),
         }
     }
 }

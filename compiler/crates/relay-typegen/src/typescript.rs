@@ -269,6 +269,10 @@ impl TypeScriptPrinter {
                         )?;
                         self.write_indentation()?;
                     }
+                    if key_value_pair.doc_comment.is_some() {
+                        write!(&mut self.result, "/** {} */\n", key_value_pair.doc_comment.as_ref().unwrap())?;
+                        self.write_indentation()?;
+                    }
                     if key_value_pair.read_only {
                         write!(&mut self.result, "readonly ")?;
                     }
@@ -435,6 +439,7 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::String,
+                    doc_comment: None,
                 })
             ]))),
             r"{
@@ -449,12 +454,14 @@ mod tests {
                     optional: true,
                     read_only: false,
                     value: AST::String,
+                    doc_comment: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
+                    doc_comment: None,
                 }),
             ]))),
             r"{
@@ -479,20 +486,24 @@ mod tests {
                             optional: true,
                             read_only: false,
                             value: AST::String,
+                            doc_comment: None,
                         }),
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: "nested_foo2".intern(),
                             optional: false,
                             read_only: true,
                             value: AST::Number,
+                            doc_comment: None,
                         }),
                     ])),
+                    doc_comment: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
+                    doc_comment: None,
                 }),
             ]))),
             r"{
@@ -520,6 +531,7 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::String,
+                    doc_comment: None,
                 }),
             ]))),
             r"{
@@ -535,12 +547,14 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::String,
+                    doc_comment: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: true,
                     read_only: true,
                     value: AST::Number,
+                    doc_comment: None,
                 })
             ]))),
             r"{
@@ -560,6 +574,7 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::OtherTypename,
+                    doc_comment: None,
                 }),
             ]))),
             r#"{

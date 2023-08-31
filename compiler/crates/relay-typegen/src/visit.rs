@@ -291,6 +291,7 @@ fn visit_fragment_spread(
                 node_selections: selections_to_map(vec![spread_selection].into_iter(), true),
                 conditional: false,
                 concrete_type: None,
+                description: None,
             })
         } else {
             spread_selection
@@ -415,6 +416,7 @@ fn get_resolver_arguments(
                         },
                         read_only: false,
                         optional: false,
+                        doc_comment: None,
                     });
                 }
             }
@@ -427,6 +429,7 @@ fn get_resolver_arguments(
                 value: AST::RawType(format!("{fragment_name}$key").intern()),
                 read_only: false,
                 optional: false,
+                doc_comment: None,
             });
         }
     }
@@ -444,6 +447,7 @@ fn get_resolver_arguments(
                 encountered_enums,
                 custom_scalars,
             ),
+            doc_comment: None,
         }));
     }
     if !args.is_empty() {
@@ -452,6 +456,7 @@ fn get_resolver_arguments(
             value: AST::ExactObject(ExactObject::new(args)),
             read_only: true,
             optional: false,
+            doc_comment: None,
         });
     }
     resolver_arguments
@@ -627,6 +632,7 @@ fn visit_relay_resolver(
         value: resolver_type,
         conditional: false,
         concrete_type: None,
+        description: None,
     }));
 }
 
@@ -717,6 +723,7 @@ fn visit_inline_fragment(
             value: AST::Nullable(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
+            description: None,
         }));
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: *MODULE_COMPONENT,
@@ -724,6 +731,7 @@ fn visit_inline_fragment(
             value: AST::Nullable(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
+            description: None,
         }));
         type_selections.push(TypeSelection::InlineFragment(TypeSelectionInlineFragment {
             fragment_name: name,
@@ -800,6 +808,7 @@ fn visit_inline_fragment(
                 node_selections: selections_to_map(inline_selections.into_iter(), true),
                 conditional: false,
                 concrete_type: None,
+                description: None,
             })]
         } else {
             // If the inline fragment is on an abstract type, its selections must be
@@ -869,6 +878,12 @@ fn visit_actor_change(
         runtime_imports,
         enclosing_linked_field_concrete_type,
     );
+
+    let description: Option<String> = field
+        .description
+        .as_ref()
+        .map(|s| s.to_string());
+
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
         special_field: ScalarFieldSpecialSchemaField::from_schema_name(
@@ -888,6 +903,7 @@ fn visit_actor_change(
         )))),
         conditional: false,
         concrete_type: None,
+        description: description,
     }));
 }
 
@@ -979,13 +995,21 @@ fn gen_visit_linked_field(
         &linked_field.directives,
     );
 
+
+    let description: Option<String> = field
+    .description
+    .as_ref()
+    .map(|s| s.to_string());
+
     type_selections.push(TypeSelection::LinkedField(TypeSelectionLinkedField {
         field_name_or_alias: key,
         node_type,
         node_selections: selections_to_map(selections.into_iter(), true),
         conditional: false,
         concrete_type: None,
+        description: description,
     }));
+
 }
 
 fn visit_scalar_field(
@@ -1025,6 +1049,12 @@ fn visit_scalar_field(
             // Note that passing concrete_type: enclosing_linked_field_concrete_type here has the effect
             // of making the emitted fields left-hand-optional, causing the compiler to panic (because
             // within updatable fragments/queries, we expect never to generate an optional type.)
+
+            let description: Option<String> = field
+            .description
+            .as_ref()
+            .map(|s| s.to_string());
+
             return type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: key,
                 special_field,
@@ -1033,9 +1063,16 @@ fn visit_scalar_field(
                 )),
                 conditional: false,
                 concrete_type: None,
+                description: description,
             }));
         }
     }
+
+
+    let description: Option<String> = field
+        .description
+        .as_ref()
+        .map(|s| s.to_string());
 
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
@@ -1045,6 +1082,7 @@ fn visit_scalar_field(
         }),
         conditional: false,
         concrete_type: None,
+        description: description,
     }));
 }
 
@@ -1255,6 +1293,7 @@ fn get_merged_object_with_optional_fields(
             optional: false,
             read_only: true,
             value: AST::FragmentReferenceType(fragment_type_name),
+            doc_comment: None,
         }));
     }
 
@@ -1310,6 +1349,7 @@ fn get_discriminated_union_ast(
                     read_only: true,
                     optional: false,
                     value: AST::OtherTypename,
+                    doc_comment: None,
                 })
             })
             .collect(),
@@ -1326,6 +1366,7 @@ fn get_discriminated_union_ast(
                         optional: false,
                         read_only: true,
                         value: AST::FragmentReferenceType(fragment_type_name),
+                        doc_comment: None,
                     }));
                 }
                 if mask_status == MaskStatus::Unmasked {
@@ -1582,6 +1623,7 @@ fn make_prop(
                                              value,
                                              read_only: true,
                                              optional: false,
+                                             doc_comment: None,
                                          });
                                          let assignable_fragment_spread_ref = Prop::KeyValuePair(KeyValuePairProp {
                                              key: *KEY_FRAGMENT_SPREADS,
@@ -1590,12 +1632,14 @@ fn make_prop(
                                              ),
                                              read_only: true,
                                              optional: false,
+                                             doc_comment: None,
                                          });
                                          let client_id_field = Prop::KeyValuePair(KeyValuePairProp {
                                              key: "__id".intern(),
                                              value: AST::String,
                                              read_only: true,
                                              optional: false,
+                                             doc_comment: None,
                                          });
 
                                          AST::InexactObject(InexactObject::new(vec![
@@ -1643,6 +1687,7 @@ fn make_prop(
                     value,
                     optional,
                     read_only: true,
+                    doc_comment: linked_field.description,
                 })
             }
         }
@@ -1656,6 +1701,7 @@ fn make_prop(
                         )),
                         optional,
                         read_only: true,
+                        doc_comment: None,
                     })
                 } else {
                     Prop::KeyValuePair(KeyValuePairProp {
@@ -1663,6 +1709,7 @@ fn make_prop(
                         value: scalar_field.value,
                         optional,
                         read_only: true,
+                        doc_comment: None,
                     })
                 }
             } else {
@@ -1674,6 +1721,7 @@ fn make_prop(
                     // all special fields are read only
                     read_only: !typegen_context.generating_updatable_types
                         || scalar_field.special_field.is_some(),
+                    doc_comment: scalar_field.description,
                 })
             }
         }
@@ -1731,6 +1779,7 @@ fn raw_response_make_prop(
                 }),
                 read_only: true,
                 optional,
+                doc_comment: None,
             })
         }
         TypeSelection::ScalarField(scalar_field) => {
@@ -1743,6 +1792,7 @@ fn raw_response_make_prop(
                         )),
                         read_only: true,
                         optional,
+                        doc_comment: None,
                     })
                 } else {
                     Prop::KeyValuePair(KeyValuePairProp {
@@ -1750,6 +1800,7 @@ fn raw_response_make_prop(
                         value: scalar_field.value,
                         read_only: true,
                         optional,
+                        doc_comment: None,
                     })
                 }
             } else {
@@ -1758,6 +1809,7 @@ fn raw_response_make_prop(
                     value: scalar_field.value,
                     read_only: true,
                     optional,
+                    doc_comment: None,
                 })
             }
         }
@@ -2044,6 +2096,7 @@ fn transform_non_nullable_input_type(
                                         encountered_enums,
                                         custom_scalars,
                                     ),
+                                    doc_comment: None,
                                 })
                             })
                             .collect(),
@@ -2110,6 +2163,7 @@ pub(crate) fn get_input_variables_type<'a>(
                         encountered_enums,
                         custom_scalars,
                     ),
+                    doc_comment: None,
                 })
             })
             .collect(),
@@ -2261,6 +2315,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
+                description: None,
             }));
         }
         if let Some(refs) = updatable_fragment_spreads.take() {
@@ -2271,6 +2326,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
+                description: None,
             }));
         }
         None
@@ -2322,12 +2378,14 @@ pub(crate) fn get_operation_type_export(
             read_only: false,
             optional: false,
             value: AST::Identifier(variables_identifier_key),
+            doc_comment: None,
         }),
         Prop::KeyValuePair(KeyValuePairProp {
             key: *RESPONSE,
             read_only: false,
             optional: false,
             value: AST::Identifier(response_identifier_key),
+            doc_comment: None,
         }),
     ];
     if let Some(raw_response_prop) = raw_response_prop {
@@ -2356,6 +2414,7 @@ fn create_edge_to_return_type_ast(
         value: AST::RawType(*KEY_DATA_ID),
         read_only: true,
         optional: false,
+        doc_comment: None,
     })];
     if inner_type.is_abstract_type() && schema.is_extension_type(*inner_type) {
         // Note: there is currently no way to create a resolver that returns an abstract
@@ -2380,6 +2439,7 @@ fn create_edge_to_return_type_ast(
             )),
             read_only: true,
             optional: false,
+            doc_comment: None,
         }))
     }
 

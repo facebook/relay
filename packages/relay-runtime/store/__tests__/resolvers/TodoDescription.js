@@ -9,8 +9,8 @@
  * @oncall relay
  */
 
-import type {tests_TodoDescription__some_client_type_with_interface$normalization} from './__generated__/tests_TodoDescription__some_client_type_with_interface$normalization.graphql';
-import type {tests_TodoDescription__some_interface$normalization} from './__generated__/tests_TodoDescription__some_interface$normalization.graphql';
+import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
+import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
 
 /**
  * @RelayResolver TodoDescription
@@ -63,7 +63,7 @@ function color(instance: TodoDescription): string {
  */
 function some_interface(
   instance: TodoDescription,
-): tests_TodoDescription__some_interface$normalization {
+): TodoDescription__some_interface$normalization {
   return {
     __typename: 'ClientTypeImplementingClientInterface',
     description: 'It was a magical place',
@@ -75,7 +75,7 @@ function some_interface(
  */
 function some_client_type_with_interface(
   instance: TodoDescription,
-): tests_TodoDescription__some_client_type_with_interface$normalization {
+): TodoDescription__some_client_type_with_interface$normalization {
   return {
     client_interface: {
       __typename: 'ClientTypeImplementingClientInterface',

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dfffcfdabe1d980c9195eb98f0ae7741>>
+ * @generated SignedSource<<4574da14e49da2cd2c7a51dfe63919b2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,8 +27,8 @@ import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__test
   args: {|
     todoID: string,
   |},
-) => LiveState<?tests_Query__todo$normalization>);
-import type { tests_Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Query__todo$normalization.graphql";
+) => LiveState<?Query__todo$normalization>);
+import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoQuery$variables = {|
   id: string,
 |};
@@ -109,7 +109,7 @@ return {
           "normalizationInfo": {
             "concreteType": "Todo",
             "plural": false,
-            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Query__todo$normalization.graphql')
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
           }
         },
         "linkedField": {

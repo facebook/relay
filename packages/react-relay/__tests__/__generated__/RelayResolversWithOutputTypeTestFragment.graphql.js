@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<696f776efa976337e6f2f5b123f925d3>>
+ * @generated SignedSource<<3667cd860cf304ea0aa637b1d9d43854>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,14 +21,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType } from "./RelayResolversWithOutputTypeTestTextStyleComponentFragment.graphql";
 import type { RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType } from "./RelayResolversWithOutputTypeTestTodoCompleteFragment.graphql";
 import type { TodoTextResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoTextResolverFragment.graphql";
-import type { tests_Todo__text$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Todo__text$normalization.graphql";
+import type { Todo__text$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__text$normalization.graphql";
 import type { FragmentType } from "relay-runtime";
 import {text as todoTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver.js";
 // Type assertion validating that `todoTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoTextResolverType: (
   rootKey: TodoTextResolverFragment$key,
-) => ?tests_Todo__text$normalization);
+) => ?Todo__text$normalization);
 declare export opaque type RelayResolversWithOutputTypeTestFragment$fragmentType: FragmentType;
 export type RelayResolversWithOutputTypeTestFragment$data = {|
   +text: ?{|
@@ -73,7 +73,7 @@ var node/*: ReaderFragment*/ = {
         "normalizationInfo": {
           "concreteType": "TodoText",
           "plural": false,
-          "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Todo__text$normalization.graphql')
+          "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__text$normalization.graphql')
         }
       },
       "linkedField": {

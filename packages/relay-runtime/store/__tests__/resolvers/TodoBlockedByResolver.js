@@ -12,7 +12,7 @@
 'use strict';
 
 // TODO: typegen for plural output type
-import type {tests_Todo__blocked_by$normalization as ReturnType} from './__generated__/tests_Todo__blocked_by$normalization.graphql';
+import type {Todo__blocked_by$normalization as ReturnType} from './__generated__/Todo__blocked_by$normalization.graphql';
 import type {TodoBlockedByResolverFragment$key} from './__generated__/TodoBlockedByResolverFragment.graphql';
 
 const {graphql} = require('relay-runtime');

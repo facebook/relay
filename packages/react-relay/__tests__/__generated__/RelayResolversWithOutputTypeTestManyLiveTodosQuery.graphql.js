@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6b166adf54254a138e3d0989a898e5e5>>
+ * @generated SignedSource<<0b40dd160bcd96708cef6246a5556bbd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,8 +23,8 @@ import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./Re
 import {many_live_todos as queryManyLiveTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryManyLiveTodos.js";
 // Type assertion validating that `queryManyLiveTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryManyLiveTodosResolverType: () => LiveState<?$ReadOnlyArray<?tests_Query__many_live_todos$normalization>>);
-import type { tests_Query__many_live_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Query__many_live_todos$normalization.graphql";
+(queryManyLiveTodosResolverType: () => LiveState<?$ReadOnlyArray<?Query__many_live_todos$normalization>>);
+import type { Query__many_live_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_live_todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables = {||};
 export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$data = {|
   +many_live_todos: ?$ReadOnlyArray<?{|
@@ -89,7 +89,7 @@ return {
           "normalizationInfo": {
             "concreteType": "Todo",
             "plural": true,
-            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Query__many_live_todos$normalization.graphql')
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_live_todos$normalization.graphql')
           }
         },
         "linkedField": {

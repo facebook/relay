@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<57d3ae3f1bd8f6d1abba6b1a3478ec68>>
+ * @generated SignedSource<<74fd0ae7e5c35857bcd216ec356d5ceb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,8 +19,8 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type tests_Query__example_client_object$normalization = {|
-  +description: ?string,
+export type Query__many_live_todos$normalization = {|
+  +todo_id: string,
 |};
 
 */
@@ -28,7 +28,7 @@ export type tests_Query__example_client_object$normalization = {|
 var node/*: NormalizationSplitOperation*/ = {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "tests_Query__example_client_object$normalization",
+  "name": "Query__many_live_todos$normalization",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -37,7 +37,7 @@ var node/*: NormalizationSplitOperation*/ = {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "description",
+          "name": "todo_id",
           "storageKey": null
         }
       ]

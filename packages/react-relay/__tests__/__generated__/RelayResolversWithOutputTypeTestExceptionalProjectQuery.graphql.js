@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<598f77dd24e474c6c081a30079ac6877>>
+ * @generated SignedSource<<acd2f74261230fa7dadf6bcb2efa7bea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,8 +28,8 @@ import {todos as queryTodosResolverType} from "../../../relay-runtime/store/__te
     first: ?number,
     last: ?number,
   |},
-) => LiveState<?tests_Query__todos$normalization>);
-import type { tests_Query__todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Query__todos$normalization.graphql";
+) => LiveState<?Query__todos$normalization>);
+import type { Query__todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables = {||};
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$data = {|
   +todos: ?{|
@@ -105,7 +105,7 @@ return {
           "normalizationInfo": {
             "concreteType": "TodoConnection",
             "plural": false,
-            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_Query__todos$normalization.graphql')
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')
           }
         },
         "linkedField": {

@@ -12,7 +12,7 @@
 'use strict';
 
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
-import type {tests_Query__todos$normalization as ReturnType} from './__generated__/tests_Query__todos$normalization.graphql';
+import type {Query__todos$normalization as ReturnType} from './__generated__/Query__todos$normalization.graphql';
 
 const {
   Selectors,

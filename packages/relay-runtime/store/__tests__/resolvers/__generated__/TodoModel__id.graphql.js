@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e64968aa5c0ace1bb16515bebbaf5b84>>
+ * @generated SignedSource<<7d9f3bc4473c46e16ae85d22bc971bf8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,14 +19,14 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type tests_TodoModel__id$fragmentType: FragmentType;
-export type tests_TodoModel__id$data = {|
+declare export opaque type TodoModel__id$fragmentType: FragmentType;
+export type TodoModel__id$data = {|
   +id: string,
-  +$fragmentType: tests_TodoModel__id$fragmentType,
+  +$fragmentType: TodoModel__id$fragmentType,
 |};
-export type tests_TodoModel__id$key = {
-  +$data?: tests_TodoModel__id$data,
-  +$fragmentSpreads: tests_TodoModel__id$fragmentType,
+export type TodoModel__id$key = {
+  +$data?: TodoModel__id$data,
+  +$fragmentSpreads: TodoModel__id$fragmentType,
   ...
 };
 */
@@ -35,7 +35,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "tests_TodoModel__id",
+  "name": "TodoModel__id",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -55,6 +55,6 @@ var node/*: ReaderFragment*/ = {
 };
 
 module.exports = ((node/*: any*/)/*: Fragment<
-  tests_TodoModel__id$fragmentType,
-  tests_TodoModel__id$data,
+  TodoModel__id$fragmentType,
+  TodoModel__id$data,
 >*/);

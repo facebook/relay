@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3ba29e794907367320bd8bd95271595d>>
+ * @generated SignedSource<<f4e1e936aee963dcef676f18fbfeacc8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,8 +19,8 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
-import type { tests_TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_TodoDescription____relay_model_instance.graphql";
-import type { tests_TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_TodoModel____relay_model_instance.graphql";
+import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
+import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -35,7 +35,7 @@ import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../
 // Type assertion validating that `todoDescriptionTextWithPrefixResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextWithPrefixResolverType: (
-  __relay_model_instance: tests_TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: {|
     prefix: string,
   |},
@@ -44,9 +44,9 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionResolverType: (
-  __relay_model_instance: tests_TodoModel____relay_model_instance$data['__relay_model_instance'],
+  __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
 ) => ?TodoDescription);
-import type { tests_TodoModel__fancy_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_TodoModel__fancy_description$normalization.graphql";
+import type { TodoModel__fancy_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestFieldWithArgumentsQuery$variables = {|
   id: string,
@@ -131,16 +131,16 @@ return {
                 "fragment": {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "tests_TodoModel____relay_model_instance"
+                  "name": "TodoModel____relay_model_instance"
                 },
                 "kind": "RelayResolver",
                 "name": "fancy_description",
-                "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true), '__relay_model_instance', false),
+                "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true), '__relay_model_instance', false),
                 "path": "todo_model.fancy_description",
                 "normalizationInfo": {
                   "concreteType": "TodoDescription",
                   "plural": false,
-                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_TodoModel__fancy_description$normalization.graphql')
+                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql')
                 }
               },
               "linkedField": {
@@ -157,11 +157,11 @@ return {
                     "fragment": {
                       "args": null,
                       "kind": "FragmentSpread",
-                      "name": "tests_TodoDescription____relay_model_instance"
+                      "name": "TodoDescription____relay_model_instance"
                     },
                     "kind": "RelayResolver",
                     "name": "text_with_prefix",
-                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/tests_TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text_with_prefix, '__relay_model_instance', true),
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text_with_prefix, '__relay_model_instance', true),
                     "path": "todo_model.fancy_description.text_with_prefix"
                   }
                 ],

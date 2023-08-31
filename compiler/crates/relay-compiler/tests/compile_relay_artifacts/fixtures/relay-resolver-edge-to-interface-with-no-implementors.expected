@@ -29,7 +29,7 @@ extend type Query {
     4 │     name
 
 
-✖︎ No types implement the client interface SomeInterface. Interfaces returned by a @RelayResolver @outputType must have at least one concrete implementation.
+✖︎ No types implement the client interface SomeInterface. Interfaces returned by a @RelayResolver must have at least one concrete implementation.
 
   <generated>:2:35
     1 │ # expected-to-throw

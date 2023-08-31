@@ -292,6 +292,7 @@ fn visit_fragment_spread(
                 conditional: false,
                 concrete_type: None,
                 description: None,
+                deprecation: None,
             })
         } else {
             spread_selection
@@ -417,6 +418,7 @@ fn get_resolver_arguments(
                         read_only: false,
                         optional: false,
                         doc_comment: None,
+                        deprecation: None,
                     });
                 }
             }
@@ -430,6 +432,7 @@ fn get_resolver_arguments(
                 read_only: false,
                 optional: false,
                 doc_comment: None,
+                deprecation: None,
             });
         }
     }
@@ -448,6 +451,7 @@ fn get_resolver_arguments(
                 custom_scalars,
             ),
             doc_comment: None,
+            deprecation: None,
         }));
     }
     if !args.is_empty() {
@@ -457,6 +461,7 @@ fn get_resolver_arguments(
             read_only: true,
             optional: false,
             doc_comment: None,
+            deprecation: None,
         });
     }
     resolver_arguments
@@ -633,6 +638,7 @@ fn visit_relay_resolver(
         conditional: false,
         concrete_type: None,
         description: None,
+        deprecation: None,
     }));
 }
 
@@ -724,6 +730,7 @@ fn visit_inline_fragment(
             conditional: false,
             concrete_type: None,
             description: None,
+            deprecation: None,
         }));
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: *MODULE_COMPONENT,
@@ -732,6 +739,7 @@ fn visit_inline_fragment(
             conditional: false,
             concrete_type: None,
             description: None,
+            deprecation: None,
         }));
         type_selections.push(TypeSelection::InlineFragment(TypeSelectionInlineFragment {
             fragment_name: name,
@@ -809,6 +817,7 @@ fn visit_inline_fragment(
                 conditional: false,
                 concrete_type: None,
                 description: None,
+                deprecation: None,
             })]
         } else {
             // If the inline fragment is on an abstract type, its selections must be
@@ -879,10 +888,7 @@ fn visit_actor_change(
         enclosing_linked_field_concrete_type,
     );
 
-    let description: Option<String> = field
-        .description
-        .as_ref()
-        .map(|s| s.to_string());
+    let description: Option<String> = field.description.as_ref().map(|s| s.to_string());
 
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
@@ -903,7 +909,8 @@ fn visit_actor_change(
         )))),
         conditional: false,
         concrete_type: None,
-        description: description,
+        description,
+        deprecation: field.deprecated(),
     }));
 }
 
@@ -995,11 +1002,7 @@ fn gen_visit_linked_field(
         &linked_field.directives,
     );
 
-
-    let description: Option<String> = field
-    .description
-    .as_ref()
-    .map(|s| s.to_string());
+    let description: Option<String> = field.description.as_ref().map(|s| s.to_string());
 
     type_selections.push(TypeSelection::LinkedField(TypeSelectionLinkedField {
         field_name_or_alias: key,
@@ -1007,9 +1010,9 @@ fn gen_visit_linked_field(
         node_selections: selections_to_map(selections.into_iter(), true),
         conditional: false,
         concrete_type: None,
-        description: description,
+        description,
+        deprecation: field.deprecated(),
     }));
-
 }
 
 fn visit_scalar_field(
@@ -1050,10 +1053,7 @@ fn visit_scalar_field(
             // of making the emitted fields left-hand-optional, causing the compiler to panic (because
             // within updatable fragments/queries, we expect never to generate an optional type.)
 
-            let description: Option<String> = field
-            .description
-            .as_ref()
-            .map(|s| s.to_string());
+            let description: Option<String> = field.description.as_ref().map(|s| s.to_string());
 
             return type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: key,
@@ -1063,16 +1063,13 @@ fn visit_scalar_field(
                 )),
                 conditional: false,
                 concrete_type: None,
-                description: description,
+                description,
+                deprecation: field.deprecated(),
             }));
         }
     }
 
-
-    let description: Option<String> = field
-        .description
-        .as_ref()
-        .map(|s| s.to_string());
+    let description: Option<String> = field.description.as_ref().map(|s| s.to_string());
 
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
@@ -1082,7 +1079,8 @@ fn visit_scalar_field(
         }),
         conditional: false,
         concrete_type: None,
-        description: description,
+        description,
+        deprecation: field.deprecated(),
     }));
 }
 
@@ -1294,6 +1292,7 @@ fn get_merged_object_with_optional_fields(
             read_only: true,
             value: AST::FragmentReferenceType(fragment_type_name),
             doc_comment: None,
+            deprecation: None,
         }));
     }
 
@@ -1350,6 +1349,7 @@ fn get_discriminated_union_ast(
                     optional: false,
                     value: AST::OtherTypename,
                     doc_comment: None,
+                    deprecation: None,
                 })
             })
             .collect(),
@@ -1367,6 +1367,7 @@ fn get_discriminated_union_ast(
                         read_only: true,
                         value: AST::FragmentReferenceType(fragment_type_name),
                         doc_comment: None,
+                        deprecation: None,
                     }));
                 }
                 if mask_status == MaskStatus::Unmasked {
@@ -1624,6 +1625,7 @@ fn make_prop(
                                              read_only: true,
                                              optional: false,
                                              doc_comment: None,
+                                             deprecation: None,
                                          });
                                          let assignable_fragment_spread_ref = Prop::KeyValuePair(KeyValuePairProp {
                                              key: *KEY_FRAGMENT_SPREADS,
@@ -1633,6 +1635,7 @@ fn make_prop(
                                              read_only: true,
                                              optional: false,
                                              doc_comment: None,
+                                             deprecation: None,
                                          });
                                          let client_id_field = Prop::KeyValuePair(KeyValuePairProp {
                                              key: "__id".intern(),
@@ -1640,6 +1643,7 @@ fn make_prop(
                                              read_only: true,
                                              optional: false,
                                              doc_comment: None,
+                                             deprecation: None,
                                          });
 
                                          AST::InexactObject(InexactObject::new(vec![
@@ -1681,13 +1685,21 @@ fn make_prop(
                         type_,
                     )
                 });
-
+                let deprecated = linked_field
+                    .deprecation
+                    .as_ref()
+                    .map(|s| s.reason.as_ref().map(|r| r.to_string()));
+                let mut deprecated_reason: Option<String> = None;
+                if deprecated.is_some() && deprecated.as_ref().unwrap().is_some() {
+                    deprecated_reason = deprecated.unwrap();
+                }
                 Prop::KeyValuePair(KeyValuePairProp {
                     key,
                     value,
                     optional,
                     read_only: true,
                     doc_comment: linked_field.description,
+                    deprecation: deprecated_reason,
                 })
             }
         }
@@ -1702,6 +1714,7 @@ fn make_prop(
                         optional,
                         read_only: true,
                         doc_comment: None,
+                        deprecation: None,
                     })
                 } else {
                     Prop::KeyValuePair(KeyValuePairProp {
@@ -1710,9 +1723,18 @@ fn make_prop(
                         optional,
                         read_only: true,
                         doc_comment: None,
+                        deprecation: None,
                     })
                 }
             } else {
+                let deprecated = scalar_field
+                    .deprecation
+                    .as_ref()
+                    .map(|s| s.reason.as_ref().map(|r| r.to_string()));
+                let mut deprecated_reason: Option<String> = None;
+                if deprecated.is_some() && deprecated.as_ref().unwrap().is_some() {
+                    deprecated_reason = deprecated.unwrap();
+                }
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: scalar_field.field_name_or_alias,
                     value: scalar_field.value,
@@ -1722,6 +1744,7 @@ fn make_prop(
                     read_only: !typegen_context.generating_updatable_types
                         || scalar_field.special_field.is_some(),
                     doc_comment: scalar_field.description,
+                    deprecation: deprecated_reason,
                 })
             }
         }
@@ -1780,6 +1803,7 @@ fn raw_response_make_prop(
                 read_only: true,
                 optional,
                 doc_comment: None,
+                deprecation: None,
             })
         }
         TypeSelection::ScalarField(scalar_field) => {
@@ -1793,6 +1817,7 @@ fn raw_response_make_prop(
                         read_only: true,
                         optional,
                         doc_comment: None,
+                        deprecation: None,
                     })
                 } else {
                     Prop::KeyValuePair(KeyValuePairProp {
@@ -1801,6 +1826,7 @@ fn raw_response_make_prop(
                         read_only: true,
                         optional,
                         doc_comment: None,
+                        deprecation: None,
                     })
                 }
             } else {
@@ -1810,6 +1836,7 @@ fn raw_response_make_prop(
                     read_only: true,
                     optional,
                     doc_comment: None,
+                    deprecation: None,
                 })
             }
         }
@@ -2097,6 +2124,7 @@ fn transform_non_nullable_input_type(
                                         custom_scalars,
                                     ),
                                     doc_comment: None,
+                                    deprecation: None,
                                 })
                             })
                             .collect(),
@@ -2164,6 +2192,7 @@ pub(crate) fn get_input_variables_type<'a>(
                         custom_scalars,
                     ),
                     doc_comment: None,
+                    deprecation: None,
                 })
             })
             .collect(),
@@ -2316,6 +2345,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 conditional: false,
                 concrete_type: None,
                 description: None,
+                deprecation: None,
             }));
         }
         if let Some(refs) = updatable_fragment_spreads.take() {
@@ -2327,6 +2357,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 conditional: false,
                 concrete_type: None,
                 description: None,
+                deprecation: None,
             }));
         }
         None
@@ -2379,6 +2410,7 @@ pub(crate) fn get_operation_type_export(
             optional: false,
             value: AST::Identifier(variables_identifier_key),
             doc_comment: None,
+            deprecation: None,
         }),
         Prop::KeyValuePair(KeyValuePairProp {
             key: *RESPONSE,
@@ -2386,6 +2418,7 @@ pub(crate) fn get_operation_type_export(
             optional: false,
             value: AST::Identifier(response_identifier_key),
             doc_comment: None,
+            deprecation: None,
         }),
     ];
     if let Some(raw_response_prop) = raw_response_prop {
@@ -2415,6 +2448,7 @@ fn create_edge_to_return_type_ast(
         read_only: true,
         optional: false,
         doc_comment: None,
+        deprecation: None,
     })];
     if inner_type.is_abstract_type() && schema.is_extension_type(*inner_type) {
         // Note: there is currently no way to create a resolver that returns an abstract
@@ -2440,6 +2474,7 @@ fn create_edge_to_return_type_ast(
             read_only: true,
             optional: false,
             doc_comment: None,
+            deprecation: None,
         }))
     }
 

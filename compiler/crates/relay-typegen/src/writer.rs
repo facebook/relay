@@ -259,6 +259,7 @@ pub struct KeyValuePairProp {
     pub read_only: bool,
     pub optional: bool,
     pub doc_comment: Option<String>,
+    pub deprecation: Option<String>,
 }
 
 impl Ord for Prop {

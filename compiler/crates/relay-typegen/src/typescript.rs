@@ -269,8 +269,21 @@ impl TypeScriptPrinter {
                         )?;
                         self.write_indentation()?;
                     }
+                    let has_doc = key_value_pair.doc_comment.is_some() || key_value_pair.deprecation.is_some();
+                    if has_doc {
+                        write!(&mut self.result, "/**\n")?;
+                    }
                     if key_value_pair.doc_comment.is_some() {
-                        write!(&mut self.result, "/** {} */\n", key_value_pair.doc_comment.as_ref().unwrap())?;
+                        self.write_indentation()?;
+                        write!(&mut self.result, "* {}\n",key_value_pair.doc_comment.as_ref().unwrap())?;
+                    }
+                    if key_value_pair.deprecation.is_some() {
+                        self.write_indentation()?;
+                        write!(&mut self.result, "* @deprecated {}\n",key_value_pair.deprecation.as_ref().unwrap())?;
+                    }
+                    if has_doc {
+                        self.write_indentation()?;
+                        write!(&mut self.result, "**/\n")?;
                         self.write_indentation()?;
                     }
                     if key_value_pair.read_only {
@@ -440,6 +453,7 @@ mod tests {
                     read_only: false,
                     value: AST::String,
                     doc_comment: None,
+                    deprecation: None,
                 })
             ]))),
             r"{
@@ -455,6 +469,7 @@ mod tests {
                     read_only: false,
                     value: AST::String,
                     doc_comment: None,
+                    deprecation: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
@@ -462,6 +477,7 @@ mod tests {
                     read_only: true,
                     value: AST::Number,
                     doc_comment: None,
+                    deprecation: None,
                 }),
             ]))),
             r"{
@@ -487,6 +503,7 @@ mod tests {
                             read_only: false,
                             value: AST::String,
                             doc_comment: None,
+                            deprecation: None,
                         }),
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: "nested_foo2".intern(),
@@ -494,9 +511,11 @@ mod tests {
                             read_only: true,
                             value: AST::Number,
                             doc_comment: None,
+                            deprecation: None,
                         }),
                     ])),
                     doc_comment: None,
+                    deprecation: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
@@ -504,6 +523,7 @@ mod tests {
                     read_only: true,
                     value: AST::Number,
                     doc_comment: None,
+                    deprecation: None,
                 }),
             ]))),
             r"{
@@ -532,6 +552,7 @@ mod tests {
                     read_only: false,
                     value: AST::String,
                     doc_comment: None,
+                    deprecation: None,
                 }),
             ]))),
             r"{
@@ -548,6 +569,7 @@ mod tests {
                     read_only: false,
                     value: AST::String,
                     doc_comment: None,
+                    deprecation: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
@@ -555,6 +577,7 @@ mod tests {
                     read_only: true,
                     value: AST::Number,
                     doc_comment: None,
+                    deprecation: None,
                 })
             ]))),
             r"{
@@ -575,6 +598,7 @@ mod tests {
                     read_only: false,
                     value: AST::OtherTypename,
                     doc_comment: None,
+                    deprecation: None,
                 }),
             ]))),
             r#"{

@@ -249,6 +249,7 @@ fn write_raw_response_and_get_raw_response_prop(
             optional: false,
             value: AST::Identifier(raw_response_identifier.intern()),
             doc_comment: None,
+            deprecation: None,
         }))
     } else {
         Ok(None)
@@ -361,6 +362,7 @@ pub(crate) fn write_fragment_type_exports_section(
         read_only: true,
         value: AST::Identifier(data_type_name.as_str().intern()),
         doc_comment: None,
+        deprecation: None,
     });
     let fragment_name = fragment_definition.name.item.0;
     let ref_type_fragment_spreads_property = Prop::KeyValuePair(KeyValuePairProp {
@@ -373,6 +375,7 @@ pub(crate) fn write_fragment_type_exports_section(
         read_only: true,
         value: AST::FragmentReference(SortedStringKeyList::new(vec![fragment_name])),
         doc_comment: None,
+        deprecation: None,
     });
     let is_plural_fragment = is_plural(fragment_definition);
     let mut ref_type = AST::InexactObject(InexactObject::new(vec![
@@ -699,6 +702,7 @@ fn generate_provided_variables_type(
                 optional: false,
                 value: provider_func,
                 doc_comment: None,
+                deprecation: None,
             });
             Some(Prop::KeyValuePair(KeyValuePairProp {
                 key: def.name.item.0,
@@ -706,6 +710,7 @@ fn generate_provided_variables_type(
                 optional: false,
                 value: AST::ExactObject(ExactObject::new(vec![provider_module])),
                 doc_comment: None,
+                deprecation: None,
             }))
         })
         .collect_vec();
@@ -791,6 +796,7 @@ fn write_abstract_validator_function(
         read_only: true,
         optional: false,
         doc_comment: None,
+        deprecation: None,
     });
     let fragment_spread_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_FRAGMENT_SPREADS,
@@ -798,6 +804,7 @@ fn write_abstract_validator_function(
         read_only: true,
         optional: false,
         doc_comment: None,
+        deprecation: None,
     });
     let parameter_discriminator = Prop::KeyValuePair(KeyValuePairProp {
         key: abstract_fragment_spread_marker,
@@ -805,6 +812,7 @@ fn write_abstract_validator_function(
         read_only: true,
         optional: true,
         doc_comment: None,
+        deprecation: None,
     });
     let return_value_discriminator = Prop::KeyValuePair(KeyValuePairProp {
         key: abstract_fragment_spread_marker,
@@ -812,6 +820,7 @@ fn write_abstract_validator_function(
         read_only: true,
         optional: false,
         doc_comment: None,
+        deprecation: None,
     });
 
     let parameter_type = AST::InexactObject(InexactObject::new(vec![
@@ -894,6 +903,7 @@ fn write_concrete_validator_function(
         read_only: true,
         optional: false,
         doc_comment: None,
+        deprecation: None,
     });
     let fragment_spread_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_FRAGMENT_SPREADS,
@@ -901,6 +911,7 @@ fn write_concrete_validator_function(
         read_only: true,
         optional: false,
         doc_comment: None,
+        deprecation: None,
     });
     let parameter_discriminator = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_TYPENAME,
@@ -908,6 +919,7 @@ fn write_concrete_validator_function(
         read_only: true,
         optional: false,
         doc_comment: None,
+        deprecation: None,
     });
     let return_value_discriminator = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_TYPENAME,
@@ -915,6 +927,7 @@ fn write_concrete_validator_function(
         read_only: true,
         optional: false,
         doc_comment: None,
+        deprecation: None,
     });
 
     let parameter_type = AST::InexactObject(InexactObject::new(vec![

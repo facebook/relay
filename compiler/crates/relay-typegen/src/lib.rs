@@ -44,7 +44,6 @@ static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
 static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
-pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariablesType";
 static VALIDATOR_EXPORT_NAME: &str = "validate";
 static LIVE_RESOLVERS_LIVE_STATE: &str = "LiveState";
 static LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH: &str =
@@ -171,6 +170,7 @@ pub fn generate_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
     fragment_locations: &FragmentLocations,
+    maybe_provided_variables: Option<String>,
 ) -> String {
     let typegen_context = TypegenContext::new(
         schema,
@@ -192,6 +192,7 @@ pub fn generate_operation_type_exports_section(
         typegen_operation,
         normalization_operation,
         &mut writer,
+        maybe_provided_variables,
     )
     .unwrap();
     writer.into_string()

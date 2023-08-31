@@ -94,19 +94,35 @@ pub fn print_request_params(
 ) -> String {
     let mut request_parameters = build_request_params(operation);
     request_parameters.id = query_id;
-
-    let mut builder = AstBuilder::default();
+    let mut builder: AstBuilder = AstBuilder::default();
     let request_parameters_ast_key = build_request_params_ast_key(
         schema,
         request_parameters,
         &mut builder,
         operation,
-        top_level_statements,
         operation.name.map(|x| x.0),
         project_config,
     );
     let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
     printer.print(request_parameters_ast_key, false)
+}
+
+pub fn print_provided_variables(
+    schema: &SDLSchema,
+    operation: &OperationDefinition,
+    project_config: &ProjectConfig,
+) -> Option<String> {
+    let mut top_level_statements = Default::default();
+    let mut builder = AstBuilder::default();
+    let maybe_provided_variables = build_provided_variables(
+        schema,
+        &mut builder,
+        operation,
+        operation.name.map(|x| x.0),
+        project_config,
+    )?;
+    let printer = JSONPrinter::new(&builder, project_config, &mut top_level_statements);
+    Some(printer.print(maybe_provided_variables, false))
 }
 
 pub struct Printer<'p> {
@@ -138,7 +154,7 @@ impl<'p> Printer<'p> {
         operation: &OperationDefinition,
         top_level_statements: &mut TopLevelStatements,
     ) -> Option<String> {
-        let key = build_provided_variables(
+        let provided_variables = build_provided_variables(
             schema,
             &mut self.builder,
             operation,
@@ -146,7 +162,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         )?;
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        Some(printer.print(key, self.dedupe))
+        Some(printer.print(provided_variables, self.dedupe))
     }
 
     pub fn print_updatable_query(
@@ -189,7 +205,6 @@ impl<'p> Printer<'p> {
             request_parameters,
             &mut self.builder,
             operation,
-            top_level_statements,
             operation.name.map(|x| x.0),
             self.project_config,
         );
@@ -253,7 +268,6 @@ impl<'p> Printer<'p> {
             request_parameters,
             &mut self.builder,
             operation,
-            top_level_statements,
             operation.name.map(|x| x.0),
             self.project_config,
         );

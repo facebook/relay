@@ -14,12 +14,9 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
-use intern::Lookup;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
-use relay_codegen::TopLevelStatement;
-use relay_codegen::CODEGEN_CONSTANTS;
 use relay_transforms::is_operation_preloadable;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
@@ -111,6 +108,7 @@ pub fn generate_updatable_query(
                 schema,
                 project_config,
                 fragment_locations,
+                None, // TODO: Add/investigrate support for provided variables in updatable queries
             )
         )?;
     }
@@ -129,7 +127,7 @@ pub fn generate_updatable_query(
         &project_config.typegen_config.language,
         &mut section,
         "node",
-        generated_types.ast_type,
+        Some(generated_types.ast_type),
         &request,
     )?;
     content_sections.push(ContentSection::Generic(section));
@@ -264,7 +262,14 @@ pub fn generate_operation(
         "relay-runtime",
     )?;
 
+    // -- Generate provided variables --
+    let mut top_level_statements = Default::default();
     if !skip_types {
+        let maybe_provided_variables = printer.print_provided_variables(
+            schema,
+            normalization_operation,
+            &mut top_level_statements,
+        );
         write!(
             section,
             "{}",
@@ -274,6 +279,7 @@ pub fn generate_operation(
                 schema,
                 project_config,
                 fragment_locations,
+                maybe_provided_variables,
             )
         )?;
     }
@@ -286,25 +292,11 @@ pub fn generate_operation(
 
     // -- Begin Top Level Statements Section --
     let mut section = GenericSection::default();
-    let mut top_level_statements = Default::default();
-    if let Some(provided_variables) =
-        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
-    {
-        let mut provided_variable_text = String::new();
-        write_variable_value_with_type(
-            &project_config.typegen_config.language,
-            &mut provided_variable_text,
-            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
-            relay_typegen::PROVIDED_VARIABLE_TYPE,
-            &provided_variables,
-        )
-        .unwrap();
-        top_level_statements.insert(
-            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
-            TopLevelStatement::VariableDefinition(provided_variable_text),
-        );
-    }
+    write!(section, "{}", &top_level_statements)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Top Level Statements Section --
 
+    // -- Begin Query Node Section --
     let request = printer.print_request(
         schema,
         normalization_operation,
@@ -313,17 +305,12 @@ pub fn generate_operation(
         &mut top_level_statements,
     );
 
-    write!(section, "{}", &top_level_statements)?;
-    content_sections.push(ContentSection::Generic(section));
-    // -- End Top Level Statements Section --
-
-    // -- Begin Query Node Section --
     let mut section = GenericSection::default();
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut section,
         "node",
-        generated_types.ast_type,
+        Some(generated_types.ast_type),
         &request,
     )?;
     content_sections.push(ContentSection::Generic(section));
@@ -469,7 +456,7 @@ pub fn generate_split_operation(
         &project_config.typegen_config.language,
         &mut section,
         "node",
-        "NormalizationSplitOperation",
+        Some("NormalizationSplitOperation"),
         &operation,
     )?;
     content_sections.push(ContentSection::Generic(section));
@@ -631,7 +618,7 @@ fn generate_read_only_fragment(
         &project_config.typegen_config.language,
         &mut section,
         "node",
-        generated_types.ast_type,
+        Some(generated_types.ast_type),
         &fragment,
     )?;
     content_sections.push(ContentSection::Generic(section));
@@ -726,7 +713,7 @@ fn generate_assignable_fragment(
         &project_config.typegen_config.language,
         &mut section,
         "node",
-        "any",
+        Some("any"),
         "{}",
     )?;
     content_sections.push(ContentSection::Generic(section));
@@ -774,17 +761,17 @@ fn write_variable_value_with_type(
     language: &TypegenLanguage,
     section: &mut dyn Write,
     variable_name: &str,
-    type_: &str,
+    type_: Option<&str>,
     value: &str,
 ) -> FmtResult {
-    match language {
-        TypegenLanguage::JavaScript => writeln!(section, "var {} = {};", variable_name, value),
-        TypegenLanguage::Flow => {
+    match (language, type_) {
+        (TypegenLanguage::Flow, Some(type_)) => {
             writeln!(section, "var {}/*: {}*/ = {};", variable_name, type_, value)
         }
-        TypegenLanguage::TypeScript => {
+        (TypegenLanguage::TypeScript, Some(type_)) => {
             writeln!(section, "const {}: {} = {};", variable_name, type_, value)
         }
+        (_, _) => writeln!(section, "var {} = {};", variable_name, value),
     }
 }
 

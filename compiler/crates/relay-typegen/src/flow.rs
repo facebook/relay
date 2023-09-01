@@ -85,10 +85,10 @@ impl Writer for FlowPrinter {
         "FragmentType"
     }
 
-    fn write_local_type(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "type {} = ", name)?;
+    fn write_type_assertion(&mut self, name: &str, value: &AST) -> FmtResult {
+        write!(&mut self.result, "({}: ", name)?;
         self.write(value)?;
-        writeln!(&mut self.result, ";")
+        writeln!(&mut self.result, ");")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {

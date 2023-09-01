@@ -75,14 +75,12 @@ use crate::ast::QueryID;
 use crate::ast::RequestParameters;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
-use crate::top_level_statements::TopLevelStatements;
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
     request_parameters: RequestParameters<'_>,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
-    top_level_statements: &TopLevelStatements,
     definition_source_location: WithLocation<StringKey>,
     project_config: &ProjectConfig,
 ) -> AstKey {
@@ -93,7 +91,7 @@ pub fn build_request_params_ast_key(
         project_config,
         definition_source_location,
     );
-    operation_builder.build_request_parameters(operation, request_parameters, top_level_statements)
+    operation_builder.build_request_parameters(operation, request_parameters)
 }
 
 pub fn build_provided_variables(
@@ -1837,7 +1835,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         &mut self,
         operation: &OperationDefinition,
         request_parameters: RequestParameters<'_>,
-        top_level_statements: &TopLevelStatements,
     ) -> AstKey {
         let mut metadata_items: Vec<ObjectEntry> = operation
             .directives
@@ -1926,20 +1923,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
         });
 
-        let provided_variables = if top_level_statements
-            .contains(CODEGEN_CONSTANTS.provided_variables_definition.lookup())
-        {
-            Some(Primitive::Variable(
-                CODEGEN_CONSTANTS.provided_variables_definition,
-            ))
-        } else {
-            self.build_operation_provided_variables(operation)
-                .map(Primitive::Key)
-        };
-        if let Some(value) = provided_variables {
+        if let Some(provided_variables) = self.build_operation_provided_variables(operation) {
             params_object.push(ObjectEntry {
                 key: CODEGEN_CONSTANTS.provided_variables,
-                value,
+                value: Primitive::Key(provided_variables),
             });
         }
 

@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "2.0.0",
+  "version": "1.3.0",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -100,6 +100,38 @@
           "default": false,
           "type": "boolean",
           "description": "Whether or not we should automatically start the Relay Compiler in watch mode when you open a project."
+        },
+        "relay.projects": {
+          "description": "This setting is only needed if your workspace has multiple Relay projects, each with their own config file. An array of project configuration in the form `{name: string, rootDirectory: string, pathToConfig: string}`. If omitted, it is assumed your workspace uses a single Relay config and the compiler will search for your config file. But you can also use this configuration if your Relay config is in a nested directory.",
+          "type": "array",
+          "default": null,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": [
+              "rootDirectory",
+              "name"
+            ],
+            "title": "A single Relay project path info",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the project. This will be used to display messages related to the project's output."
+              },
+              "rootDirectory": {
+                "type": "string",
+                "description": "A path relative to the root of your VSCode workspace for the extension to work from. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the Relay config is found."
+              },
+              "pathToConfig": {
+                "type": "string",
+                "description": "Path to a Relay config relative to the rootDirectory config option. Without this, the compiler will search for your config. This option can be omitted if your Relay config is directly below your rootDirectory."
+              },
+              "autoStartCompiler": {
+                "type": "boolean",
+                "description": "Only necessary to override the global 'autoStartCompiler' setting. Useful if you have multiple Relay projects in your workspace, but you only want the Relay compiler to run on specific projects."
+              }
+            }
+          }
         }
       }
     }

@@ -6,8 +6,10 @@
  */
 
 import {createAndStartCompiler, killCompiler} from '../compiler';
-import {getConfig} from '../config';
-import {RelayExtensionContext} from '../context';
+import {
+  createProjectContextFromExtensionContext,
+  RelayExtensionContext,
+} from '../context';
 import {
   createAndStartLanguageClient,
   killLanguageClient,
@@ -16,21 +18,28 @@ import {
 export function handleRestartLanguageServerCommand(
   context: RelayExtensionContext,
 ): void {
-  const config = getConfig();
+  Object.values(context.projects).forEach(project => {
+    const projectContext = createProjectContextFromExtensionContext(
+      context,
+      project,
+    );
 
-  // Was the relay compiler running? Should we auto start it based on their config?
-  const shouldRestartCompiler =
-    Boolean(context.compilerTerminal) || config.autoStartCompiler;
+    // Was the relay compiler running? Should we auto start it based on their config?
+    const shouldRestartCompiler =
+      Boolean(project.compilerTerminal) || project.autoStartCompiler;
 
-  const compilerKilledSuccessfully = killCompiler(context);
+    const compilerKilledSuccessfully = killCompiler(projectContext);
 
-  if (compilerKilledSuccessfully && shouldRestartCompiler) {
-    createAndStartCompiler(context);
-  }
-
-  killLanguageClient(context).then(languageClientKilledSuccessfully => {
-    if (languageClientKilledSuccessfully) {
-      createAndStartLanguageClient(context);
+    if (compilerKilledSuccessfully && shouldRestartCompiler) {
+      createAndStartCompiler(projectContext);
     }
+
+    killLanguageClient(projectContext).then(
+      languageClientKilledSuccessfully => {
+        if (languageClientKilledSuccessfully) {
+          createAndStartLanguageClient(projectContext);
+        }
+      },
+    );
   });
 }

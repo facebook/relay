@@ -8,7 +8,7 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as semver from 'semver';
-import {OutputChannel, window, workspace} from 'vscode';
+import {window, workspace} from 'vscode';
 import {SEMVER_RANGE} from '../constants';
 import {getConfig} from '../config';
 
@@ -155,22 +155,21 @@ async function findRelayCompilerBinary(
 }
 
 export async function findRelayBinaryWithWarnings(
-  outputChannel: OutputChannel,
+  log: (message: string) => void,
+  rootDirectoryRelativeToWorkspaceRoot: string | null,
 ): Promise<string | null> {
   const config = getConfig();
 
   let rootPath = workspace.rootPath || process.cwd();
-  if (config.rootDirectory) {
-    rootPath = path.join(rootPath, config.rootDirectory);
+  if (rootDirectoryRelativeToWorkspaceRoot) {
+    rootPath = path.resolve(rootPath, rootDirectoryRelativeToWorkspaceRoot);
   }
 
-  outputChannel.appendLine(
-    `Searching for the relay-compiler starting at: ${rootPath}`,
-  );
+  log(`Searching for the relay-compiler starting at: ${rootPath}`);
   const relayBinaryResult = await findRelayCompilerBinary(rootPath);
 
   if (config.pathToRelay) {
-    outputChannel.appendLine(
+    log(
       "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
     );
 
@@ -191,21 +190,21 @@ export async function findRelayBinaryWithWarnings(
     return null;
   }
   if (relayBinaryResult.kind === 'packageNotFound') {
-    outputChannel.appendLine(
+    log(
       "Could not find the 'relay-compiler' package in your node_modules. Maybe you're not inside of a project with relay installed.",
     );
 
     return null;
   }
   if (relayBinaryResult.kind === 'architectureNotSupported') {
-    outputChannel.appendLine(
+    log(
       `The 'relay-compiler' does not ship a binary for the architecture: ${process.arch}`,
     );
 
     return null;
   }
   if (relayBinaryResult.kind === 'prereleaseCompilerFound') {
-    outputChannel.appendLine(
+    log(
       [
         'You have a pre-release version of the relay-compiler package installed.',
         'We are unable to confirm if this version is compatible with the Relay',

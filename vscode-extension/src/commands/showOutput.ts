@@ -8,5 +8,6 @@
 import {RelayExtensionContext} from '../context';
 
 export function handleShowOutputCommand(context: RelayExtensionContext): void {
-  context.primaryOutputChannel.show();
+  // eslint-disable-next-line no-underscore-dangle
+  context._outputChannel.show();
 }

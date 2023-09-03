@@ -133,18 +133,16 @@ impl ValidateRequiredArguments<'_> {
                         .map(|arg| arg.name.item)
                         .any(|x| x == def.name)
                 {
-                    return Err(vec![
-                        Diagnostic::error(
-                            ValidationMessage::MissingRequiredArgument {
-                                argument_name: def.name,
-                                node_name,
-                                root_name: root_name_with_location.item,
-                                type_string: self.program.schema.get_type_string(&def.type_),
-                            },
-                            node_location,
-                        )
-                        .annotate("Root definition:", root_name_with_location.location),
-                    ]);
+                    return Err(vec![Diagnostic::error(
+                        ValidationMessage::MissingRequiredArgument {
+                            argument_name: def.name,
+                            node_name,
+                            root_name: root_name_with_location.item,
+                            type_string: self.program.schema.get_type_string(&def.type_),
+                        },
+                        node_location,
+                    )
+                    .annotate("Root definition:", root_name_with_location.location)]);
                 }
             }
         }

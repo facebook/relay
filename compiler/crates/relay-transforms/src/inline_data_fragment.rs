@@ -145,15 +145,13 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
 
             let inline_fragment = InlineFragment {
                 type_condition: None,
-                directives: vec![
-                    InlineDirectiveMetadata {
-                        fragment_name: name,
-                        arguments: spread.arguments.clone(),
-                        variable_definitions: fragment.variable_definitions.clone(),
-                        used_global_variables: fragment.used_global_variables.clone(),
-                    }
-                    .into(),
-                ],
+                directives: vec![InlineDirectiveMetadata {
+                    fragment_name: name,
+                    arguments: spread.arguments.clone(),
+                    variable_definitions: fragment.variable_definitions.clone(),
+                    used_global_variables: fragment.used_global_variables.clone(),
+                }
+                .into()],
                 selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: Some(fragment.type_condition),
                     directives: vec![],

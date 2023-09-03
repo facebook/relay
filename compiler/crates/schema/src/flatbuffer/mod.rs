@@ -628,37 +628,25 @@ mod tests {
         assert!(fb_schema.read_type("Aaaa".intern()).is_none());
         assert!(fb_schema.read_type("Zzzz".intern()).is_none());
 
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("ref_type".intern()))
-                .is_some()
-        );
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("extern_type".intern()))
-                .is_some()
-        );
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("fetchable".intern()))
-                .is_some()
-        );
+        assert!(fb_schema
+            .read_directive(DirectiveName("ref_type".intern()))
+            .is_some());
+        assert!(fb_schema
+            .read_directive(DirectiveName("extern_type".intern()))
+            .is_some());
+        assert!(fb_schema
+            .read_directive(DirectiveName("fetchable".intern()))
+            .is_some());
 
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("goto".intern()))
-                .is_none()
-        );
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("aaaa".intern()))
-                .is_none()
-        );
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("zzzz".intern()))
-                .is_none()
-        );
+        assert!(fb_schema
+            .read_directive(DirectiveName("goto".intern()))
+            .is_none());
+        assert!(fb_schema
+            .read_directive(DirectiveName("aaaa".intern()))
+            .is_none());
+        assert!(fb_schema
+            .read_directive(DirectiveName("zzzz".intern()))
+            .is_none());
 
         Ok(())
     }

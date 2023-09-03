@@ -224,15 +224,13 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         {
             self.current_client_invalid_directives.push(directive.name);
             if let Some(location) = self.current_root_client_selection {
-                Err(vec![
-                    Diagnostic::error(
-                        ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
-                            directive.name.item,
-                        ),
-                        directive.name.location,
-                    )
-                    .annotate("related location", location),
-                ])
+                Err(vec![Diagnostic::error(
+                    ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
+                        directive.name.item,
+                    ),
+                    directive.name.location,
+                )
+                .annotate("related location", location)])
             } else {
                 Ok(())
             }

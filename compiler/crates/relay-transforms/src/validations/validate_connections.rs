@@ -194,18 +194,16 @@ impl<'s> ConnectionValidation<'s> {
             edges_selection_name,
             |_, edges_type| edges_type.is_list() && edges_type.inner().is_object_or_interface(),
             || {
-                vec![
-                    Diagnostic::error(
-                        ValidationMessage::ExpectedConnectionToExposeValidEdgesField {
-                            connection_directive_name,
-                            connection_field_name,
-                            connection_type_name,
-                            edges_selection_name,
-                        },
-                        connection_field.definition.location,
-                    )
-                    .annotate("invalid field type", edges_field.definition.location),
-                ]
+                vec![Diagnostic::error(
+                    ValidationMessage::ExpectedConnectionToExposeValidEdgesField {
+                        connection_directive_name,
+                        connection_field_name,
+                        connection_type_name,
+                        edges_selection_name,
+                    },
+                    connection_field.definition.location,
+                )
+                .annotate("invalid field type", edges_field.definition.location)]
             },
         )?;
 
@@ -222,19 +220,17 @@ impl<'s> ConnectionValidation<'s> {
                         && (node_type.inner().is_abstract_type() || node_type.inner().is_object())
                 },
                 || {
-                    vec![
-                        Diagnostic::error(
-                            ValidationMessage::ExpectedConnectionToExposeValidNodeField {
-                                connection_directive_name,
-                                connection_field_name,
-                                connection_type_name,
-                                edges_selection_name,
-                                node_selection_name,
-                            },
-                            connection_field.definition.location,
-                        )
-                        .annotate("field with invalid type", edges_field.definition.location),
-                    ]
+                    vec![Diagnostic::error(
+                        ValidationMessage::ExpectedConnectionToExposeValidNodeField {
+                            connection_directive_name,
+                            connection_field_name,
+                            connection_type_name,
+                            edges_selection_name,
+                            node_selection_name,
+                        },
+                        connection_field.definition.location,
+                    )
+                    .annotate("field with invalid type", edges_field.definition.location)]
                 },
             ),
             // Validate edges.cursor selection
@@ -243,19 +239,17 @@ impl<'s> ConnectionValidation<'s> {
                 cursor_selection_name,
                 |_, cursor_type| !cursor_type.is_list() && cursor_type.inner().is_scalar(),
                 || {
-                    vec![
-                        Diagnostic::error(
-                            ValidationMessage::ExpectedConnectionToExposeValidCursorField {
-                                connection_directive_name,
-                                connection_field_name,
-                                connection_type_name,
-                                cursor_selection_name,
-                                edges_selection_name,
-                            },
-                            connection_field.definition.location,
-                        )
-                        .annotate("field with invalid type", edges_field.definition.location),
-                    ]
+                    vec![Diagnostic::error(
+                        ValidationMessage::ExpectedConnectionToExposeValidCursorField {
+                            connection_directive_name,
+                            connection_field_name,
+                            connection_type_name,
+                            cursor_selection_name,
+                            edges_selection_name,
+                        },
+                        connection_field.definition.location,
+                    )
+                    .annotate("field with invalid type", edges_field.definition.location)]
                 },
             )
         )
@@ -392,17 +386,15 @@ impl<'s> ConnectionValidation<'s> {
             match handler_val {
                 ConstantValue::String(_) => {}
                 _ => {
-                    return Err(vec![
-                        Diagnostic::error(
-                            ValidationMessage::InvalidConnectionHandlerArg {
-                                connection_directive_name: connection_directive.name.item,
-                                connection_field_name: connection_schema_field.name.item,
-                                handler_arg_name: *CONNECTION_HANDLER_ARG_NAME,
-                            },
-                            arg.value.location,
-                        )
-                        .annotate("on connection field", connection_field.definition.location),
-                    ]);
+                    return Err(vec![Diagnostic::error(
+                        ValidationMessage::InvalidConnectionHandlerArg {
+                            connection_directive_name: connection_directive.name.item,
+                            connection_field_name: connection_schema_field.name.item,
+                            handler_arg_name: *CONNECTION_HANDLER_ARG_NAME,
+                        },
+                        arg.value.location,
+                    )
+                    .annotate("on connection field", connection_field.definition.location)]);
                 }
             }
         }
@@ -425,33 +417,29 @@ impl<'s> ConnectionValidation<'s> {
                     };
                     let postfix = format!("_{}", field_alias_or_name);
                     if !string_val.lookup().ends_with(postfix.as_str()) {
-                        return Err(vec![
-                            Diagnostic::error(
-                                ValidationMessage::InvalidConnectionKeyArgPostfix {
-                                    connection_directive_name: connection_directive.name.item,
-                                    connection_field_name: connection_schema_field.name.item,
-                                    key_arg_name: *KEY_ARG_NAME,
-                                    key_arg_value: *string_val,
-                                    postfix,
-                                },
-                                arg.value.location,
-                            )
-                            .annotate("related location", connection_field.definition.location),
-                        ]);
-                    }
-                }
-                _ => {
-                    return Err(vec![
-                        Diagnostic::error(
-                            ValidationMessage::InvalidConnectionKeyArg {
+                        return Err(vec![Diagnostic::error(
+                            ValidationMessage::InvalidConnectionKeyArgPostfix {
                                 connection_directive_name: connection_directive.name.item,
                                 connection_field_name: connection_schema_field.name.item,
                                 key_arg_name: *KEY_ARG_NAME,
+                                key_arg_value: *string_val,
+                                postfix,
                             },
                             arg.value.location,
                         )
-                        .annotate("related location", connection_field.definition.location),
-                    ]);
+                        .annotate("related location", connection_field.definition.location)]);
+                    }
+                }
+                _ => {
+                    return Err(vec![Diagnostic::error(
+                        ValidationMessage::InvalidConnectionKeyArg {
+                            connection_directive_name: connection_directive.name.item,
+                            connection_field_name: connection_schema_field.name.item,
+                            key_arg_name: *KEY_ARG_NAME,
+                        },
+                        arg.value.location,
+                    )
+                    .annotate("related location", connection_field.definition.location)]);
                 }
             },
             None => {
@@ -510,17 +498,15 @@ impl<'s> ConnectionValidation<'s> {
                     })?;
                 }
                 _ => {
-                    return Err(vec![
-                        Diagnostic::error(
-                            ValidationMessage::InvalidConnectionFiltersArg {
-                                connection_directive_name: connection_directive.name.item,
-                                connection_field_name: connection_schema_field.name.item,
-                                filters_arg_name: *FILTERS_ARG_NAME,
-                            },
-                            arg.value.location,
-                        )
-                        .annotate("related location", connection_field.definition.location),
-                    ]);
+                    return Err(vec![Diagnostic::error(
+                        ValidationMessage::InvalidConnectionFiltersArg {
+                            connection_directive_name: connection_directive.name.item,
+                            connection_field_name: connection_schema_field.name.item,
+                            filters_arg_name: *FILTERS_ARG_NAME,
+                        },
+                        arg.value.location,
+                    )
+                    .annotate("related location", connection_field.definition.location)]);
                 }
             }
         }
@@ -538,17 +524,15 @@ impl<'s> ConnectionValidation<'s> {
             match value {
                 Value::Variable(_) => {}
                 _ => {
-                    return Err(vec![
-                        Diagnostic::error(
-                            ValidationMessage::InvalidConnectionDynamicKeyArg {
-                                connection_directive_name: connection_directive.name.item,
-                                connection_field_name: connection_schema_field.name.item,
-                                dynamic_key_arg_name: *DYNAMIC_KEY_ARG_NAME,
-                            },
-                            dynamic_key_arg.value.location,
-                        )
-                        .annotate("related location", connection_field.definition.location),
-                    ]);
+                    return Err(vec![Diagnostic::error(
+                        ValidationMessage::InvalidConnectionDynamicKeyArg {
+                            connection_directive_name: connection_directive.name.item,
+                            connection_field_name: connection_schema_field.name.item,
+                            dynamic_key_arg_name: *DYNAMIC_KEY_ARG_NAME,
+                        },
+                        dynamic_key_arg.value.location,
+                    )
+                    .annotate("related location", connection_field.definition.location)]);
                 }
             }
         }

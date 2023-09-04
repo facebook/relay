@@ -30,6 +30,10 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
     args.push(config.pathToConfig);
   }
 
+  if (config.pathToExtraDataProviderScript) {
+    args.push(`--extraDataProviderScript=${config.pathToExtraDataProviderScript}`);
+  }
+
   const serverOptions: ServerOptions = {
     options: {
       cwd: context.relayBinaryExecutionOptions.rootPath,

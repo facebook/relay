@@ -111,6 +111,11 @@ struct LspCommand {
     /// Verbosity level
     #[clap(long, arg_enum, default_value = "quiet-with-errors")]
     output: OutputKind,
+
+    /// Script to be called to lookup the actual definition of a GraphQL entity for
+    /// implementation-first GraphQL schemas.
+    #[clap(long)]
+    extra_data_provider_script: Option<String>,
 }
 
 #[derive(clap::Subcommand)]
@@ -309,11 +314,15 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     Ok(())
 }
 
-struct ExtraDataProvider {}
+struct ExtraDataProvider {
+    script: String,
+}
 
 impl ExtraDataProvider {
-    pub fn new() -> ExtraDataProvider {
-        ExtraDataProvider {}
+    pub fn new(script: String) -> ExtraDataProvider {
+        ExtraDataProvider {
+            script
+        }
     }
 }
 
@@ -324,7 +333,7 @@ impl LSPExtraDataProvider for ExtraDataProvider {
 
     fn resolve_field_definition(
         &self,
-        _project_name: String,
+        project_name: String,
         parent_type: String,
         field_info: Option<FieldSchemaInfo>,
     ) -> Result<Option<FieldDefinitionSourceInfo>, String> {
@@ -332,12 +341,13 @@ impl LSPExtraDataProvider for ExtraDataProvider {
             Some(field_info) => format!("{}.{}", parent_type, field_info.name),
             None => parent_type,
         };
-        let result = Command::new("./locate.sh")
+        let result = Command::new(&self.script)
+            .arg(project_name)
             .arg(entity_name)
             .output()
-            .expect("Failed to locate.sh");
+            .expect("Failed to run extra data provider script");
 
-        let result = String::from_utf8(result.stdout).expect("Failed to parse locate.sh output");
+        let result = String::from_utf8(result.stdout).expect("Failed to parse output");
 
         // Parse file_path:line_number:column_number
         let result = result.trim();
@@ -361,8 +371,12 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
 
     let config = get_config(command.config)?;
 
+    let extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync> = match command.extra_data_provider_script {
+        Some(script) => Box::new(ExtraDataProvider::new(script)),
+        None => Box::new(DummyExtraDataProvider::new())
+    };
+
     let perf_logger = Arc::new(ConsoleLogger);
-    let extra_data_provider = Box::new(ExtraDataProvider::new());
     let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> = None;
     let js_language_server = None;
 

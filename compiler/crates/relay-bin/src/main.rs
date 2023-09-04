@@ -29,6 +29,9 @@ use relay_compiler::ProjectName;
 use relay_compiler::RemotePersister;
 use relay_lsp::start_language_server;
 use relay_lsp::DummyExtraDataProvider;
+use relay_lsp::FieldDefinitionSourceInfo;
+use relay_lsp::FieldSchemaInfo;
+use relay_lsp::LSPExtraDataProvider;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentationLoader;
 use simplelog::ColorChoice;
@@ -306,13 +309,60 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     Ok(())
 }
 
+struct ExtraDataProvider {}
+
+impl ExtraDataProvider {
+    pub fn new() -> ExtraDataProvider {
+        ExtraDataProvider {}
+    }
+}
+
+impl LSPExtraDataProvider for ExtraDataProvider {
+    fn fetch_query_stats(&self, _search_token: &str) -> Vec<String> {
+        vec![]
+    }
+
+    fn resolve_field_definition(
+        &self,
+        _project_name: String,
+        parent_type: String,
+        field_info: Option<FieldSchemaInfo>,
+    ) -> Result<Option<FieldDefinitionSourceInfo>, String> {
+        let entity_name = match field_info {
+            Some(field_info) => format!("{}.{}", parent_type, field_info.name),
+            None => parent_type,
+        };
+        let result = Command::new("./locate.sh")
+            .arg(entity_name)
+            .output()
+            .expect("Failed to locate.sh");
+
+        let result = String::from_utf8(result.stdout).expect("Failed to parse locate.sh output");
+
+        // Parse file_path:line_number:column_number
+        let result = result.trim();
+        let result = result.split(':').collect::<Vec<_>>();
+        if result.len() != 3 {
+            return Ok(None);
+        }
+        let file_path = result[0];
+        let line_number = result[1].parse::<u64>().unwrap() - 1;
+
+        Ok(Some(FieldDefinitionSourceInfo {
+            file_path: file_path.to_string(),
+            line_number,
+            is_local: true,
+        }))
+    }
+}
+
 async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
     configure_logger(command.output, TerminalMode::Stderr);
 
     let config = get_config(command.config)?;
 
     let perf_logger = Arc::new(ConsoleLogger);
-    let extra_data_provider = Box::new(DummyExtraDataProvider::new());
+    let extra_data_provider = Box::new(ExtraDataProvider::new());
     let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> = None;
     let js_language_server = None;
 

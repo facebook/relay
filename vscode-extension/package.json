@@ -68,7 +68,7 @@
           ],
           "description": "Controls what is logged to the Output Channel for the Relay language server."
         },
-        "relay.pathToExtraDataProviderScript": {
+        "relay.pathToLocateCommand": {
           "scope": "workspace",
           "default": null,
           "type": [

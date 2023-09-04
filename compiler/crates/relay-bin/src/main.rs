@@ -351,9 +351,10 @@ impl LSPExtraDataProvider for ExtraDataProvider {
         let result_trimmed = result.trim();
         let result = result_trimmed.split(':').collect::<Vec<_>>();
         if result.len() != 3 {
-            return Err(
-                format!("Result '{}' did not match expected format. Please return 'file_path:line_number:column_number'", result_trimmed),
-            );
+            return Err(format!(
+                "Result '{}' did not match expected format. Please return 'file_path:line_number:column_number'",
+                result_trimmed
+            ));
         }
         let file_path = result[0];
         let line_number = result[1].parse::<u64>().unwrap() - 1;

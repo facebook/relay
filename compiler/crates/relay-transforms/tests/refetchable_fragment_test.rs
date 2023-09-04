@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5d6010d9b0356775854a925e90881577>>
+ * @generated SignedSource<<f2a33e9f40621feaf83bba7d98a60d9b>>
  */
 
 mod refetchable_fragment;
@@ -59,6 +59,13 @@ fn fragment_on_non_node_fetchable_type() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.expected");
     test_fixture(transform_fixture, "fragment-on-non-node-fetchable-type.graphql", "refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.expected", input, expected);
+}
+
+#[test]
+fn fragment_on_non_node_fetchable_type_with_token_field() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.expected");
+    test_fixture(transform_fixture, "fragment-on-non-node-fetchable-type-with-token-field.graphql", "refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.expected", input, expected);
 }
 
 #[test]

@@ -42,6 +42,7 @@ use graphql_syntax::ConstantValue;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use relay_config::ProjectName;
 use schema::ArgumentValue;
 use schema::Field;
 use schema::FieldID;
@@ -67,8 +68,13 @@ use crate::REQUIRED_DIRECTIVE_NAME;
 ///
 /// See the docblock for `relay_resolvers_spread_transform` for more details
 /// about the resulting format.
-pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
-    let transformed_fields_program = relay_resolvers_fields_transform(program, enabled)?;
+pub fn relay_resolvers(
+    project_name: ProjectName,
+    program: &Program,
+    enabled: bool,
+) -> DiagnosticsResult<Program> {
+    let transformed_fields_program =
+        relay_resolvers_fields_transform(project_name, program, enabled)?;
     relay_resolvers_spread_transform(&transformed_fields_program)
 }
 
@@ -344,10 +350,11 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
 /// root fragment dependencies are. They should simply be able to check for the
 /// presence of the `RelayResolverFieldMetadata` IR directive on the field.
 fn relay_resolvers_fields_transform(
+    project_name: ProjectName,
     program: &Program,
     enabled: bool,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = RelayResolverFieldTransform::new(program, enabled);
+    let mut transform = RelayResolverFieldTransform::new(project_name, program, enabled);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -360,6 +367,7 @@ fn relay_resolvers_fields_transform(
 }
 
 struct RelayResolverFieldTransform<'program> {
+    project_name: ProjectName,
     enabled: bool,
     program: &'program Program,
     errors: Vec<Diagnostic>,
@@ -367,12 +375,13 @@ struct RelayResolverFieldTransform<'program> {
 }
 
 impl<'program> RelayResolverFieldTransform<'program> {
-    fn new(program: &'program Program, enabled: bool) -> Self {
+    fn new(project_name: ProjectName, program: &'program Program, enabled: bool) -> Self {
         Self {
             program,
             enabled,
             errors: Default::default(),
             path: Vec::new(),
+            project_name,
         }
     }
 
@@ -452,6 +461,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     let output_type_info = if has_output_type {
                         if inner_type.is_composite_type() {
                             let normalization_operation = generate_name_for_nested_object_operation(
+                                self.project_name,
                                 &self.program.schema,
                                 self.program.schema.field(field.definition().item),
                             );

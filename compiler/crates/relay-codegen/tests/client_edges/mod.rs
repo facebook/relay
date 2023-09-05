@@ -16,6 +16,7 @@ use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
+use relay_config::ProjectName;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::client_edges;
 use relay_transforms::relay_resolvers;
@@ -30,7 +31,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         let program = Program::from_definitions(Arc::clone(&schema), ir);
         let next_program = sort_selections(
             &client_edges(&program, &Default::default())
-                .and_then(|program| relay_resolvers(&program, true))
+                .and_then(|program| relay_resolvers(ProjectName::default(), &program, true))
                 .unwrap(),
         );
         let mut result = next_program

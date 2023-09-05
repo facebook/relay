@@ -33,6 +33,7 @@ use relay_codegen::print_request;
 use relay_codegen::JsModuleFormat;
 use relay_compiler::validate;
 use relay_compiler::ProjectConfig;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema_with_custom_id;
 use relay_test_schema::get_test_schema_with_custom_id_with_extensions;
@@ -98,7 +99,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let default_schema_config = SchemaConfig::default();
 
     let project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         feature_flags: Arc::new(feature_flags),
         schema_config: SchemaConfig {
             node_interface_id_field: "global_id".intern(),

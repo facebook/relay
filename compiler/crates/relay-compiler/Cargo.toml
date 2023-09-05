@@ -21,6 +21,7 @@ common = { path = "../common" }
 common-path = "1.0.0"
 dashmap = { version = "5.4", features = ["rayon", "serde"] }
 dependency-analyzer = { path = "../dependency-analyzer" }
+docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
 dunce = "1.0.2"
 errors = { path = "../errors" }

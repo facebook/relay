@@ -46,8 +46,9 @@ function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
         if (isRequiredField === true) {
           invariant(
             false,
-            'Expected required resolver field `%` to be present. But resolvers fragment data is null/undefined.',
+            'Expected required resolver field `%s` in fragment `%s` to be present. But resolvers fragment data is null/undefined.',
             fieldName,
+            fragment.name,
           );
         } else {
           return resolverFn(null, args);
@@ -60,7 +61,9 @@ function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
         if (isRequiredField === true) {
           invariant(
             data[fieldName] != null,
-            'Expected required resolver field `%` to be non-null.',
+            'Expected required resolver field `%s` in fragment `%s` to be non-null.',
+            fieldName,
+            fragment.name,
           );
         }
 
@@ -68,7 +71,12 @@ function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
       } else {
         // If both `data` and `fieldName` is available, we expect the
         // `fieldName` field in the `data` object.
-        invariant(false, 'Missing field `%` in resolver response.', fieldName);
+        invariant(
+          false,
+          'Missing field `%s` in fragment `%s` in resolver response.',
+          fieldName,
+          fragment.name,
+        );
       }
     } else {
       // By default we will pass the full set of the fragment data to the resolver

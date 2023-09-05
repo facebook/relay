@@ -23,6 +23,7 @@ use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema_with_custom_id;
 use relay_test_schema::get_test_schema_with_custom_id_with_extensions;
@@ -68,7 +69,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         relay_config::CustomScalarType::Name("CustomBoolean".intern()),
     );
     let project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         js_module_format: JsModuleFormat::Haste,
         feature_flags: Arc::new(feature_flags),
         schema_config: SchemaConfig {

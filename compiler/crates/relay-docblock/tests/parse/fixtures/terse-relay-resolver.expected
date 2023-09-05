@@ -73,5 +73,8 @@ TerseRelayResolver(
         live: None,
         location: /path/to/test/fixture/terse-relay-resolver.js:0:371,
         fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "0a9950ad1f952f5777b27604738fcf91",
+        ),
     },
 )

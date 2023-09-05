@@ -672,8 +672,7 @@ Compare to [fragment resource](#fragment-resource).
 
 A directive added to queries which tells Relay to generate types that cover the `optimisticResponse` parameter to `commitMutation`.
 
-<!-- TODO fix this link -->
-See the [documentation](../guided-tour/updating-data/local-data-updates) for more.
+See the [guided tour on updating data](../guided-tour/updating-data/graphql-mutations/#optimistic-response) for more.
 
 ## Reader
 

@@ -12,6 +12,7 @@
 'use strict';
 
 import type {DataID} from '../util/RelayRuntimeTypes';
+import type {RecordJSON} from './RelayModernRecord';
 import type {RecordState} from './RelayRecordState';
 import type {
   MutableRecordSource,
@@ -101,14 +102,14 @@ class RelayOptimisticRecordSource implements MutableRecordSource {
     return Object.keys(this.toJSON()).length;
   }
 
-  toJSON(): {[DataID]: ?Record} {
+  toJSON(): {[DataID]: ?RecordJSON} {
     const merged = {...this._base.toJSON()};
     this._sink.getRecordIDs().forEach(dataID => {
       const record = this.get(dataID);
       if (record === undefined) {
         delete merged[dataID];
       } else {
-        merged[dataID] = record;
+        merged[dataID] = RelayModernRecord.toJSON<null | void>(record);
       }
     });
     return merged;

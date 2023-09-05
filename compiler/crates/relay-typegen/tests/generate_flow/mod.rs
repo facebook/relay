@@ -26,6 +26,7 @@ use relay_codegen::JsModuleFormat;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_config::ProjectConfig;
+use relay_config::ProjectName;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
@@ -84,7 +85,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         }),
     );
     let project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         js_module_format: JsModuleFormat::Haste,
         feature_flags: Arc::new(feature_flags),
         typegen_config: TypegenConfig {

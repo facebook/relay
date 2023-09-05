@@ -15,6 +15,7 @@ use graphql_cli::DiagnosticPrinter;
 use graphql_syntax::parse_executable;
 use graphql_syntax::ExecutableDefinition;
 use intern::string_key::Intern;
+use relay_config::ProjectName;
 use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
 
@@ -58,6 +59,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 )
                 .and_then(|ast| {
                     parse_docblock_ast(
+                        ProjectName::default(),
                         &ast,
                         Some(&executable_documents),
                         ParseOptions {

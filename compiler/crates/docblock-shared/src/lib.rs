@@ -5,12 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod resolver_source_hash;
+
 use common::ArgumentName;
 use common::DirectiveName;
 use common::ScalarName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+pub use resolver_source_hash::ResolverSourceHash;
 
 lazy_static! {
     pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
@@ -51,4 +54,8 @@ lazy_static! {
     // Note: this should **only** be used for resolvers! The id field for server
     // types is configurable in the config, and thus cannot be hard-coded.
     pub static ref KEY_RESOLVER_ID_FIELD: StringKey = "id".intern();
+
+    pub static ref RELAY_RESOLVER_SOURCE_HASH: DirectiveName = DirectiveName("resolver_source_hash".intern());
+    pub static ref RELAY_RESOLVER_SOURCE_HASH_VALUE: ArgumentName = ArgumentName("value".intern());
+
 }

@@ -174,6 +174,43 @@ fragment RelayMockPayloadGeneratorTest14Fragment on User {
 }
 `;
 
+exports[`generate mock for deferred fragments 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest61Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ...RelayMockPayloadGeneratorTest61Fragment @defer(label: "RelayMockPayloadGeneratorTest61Query$defer$RelayMockPayloadGeneratorTest61Fragment")
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest61Fragment on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "data": {
+      "node": {
+        "__typename": "__MockObject",
+        "id": "<mock-id-1>"
+      }
+    }
+  },
+  {
+    "path": [
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest61Query$defer$RelayMockPayloadGeneratorTest61Fragment",
+    "data": {
+      "__typename": "User",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+]
+`;
+
 exports[`generate mock for fragment with @argumentsDefinition 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest15Query(

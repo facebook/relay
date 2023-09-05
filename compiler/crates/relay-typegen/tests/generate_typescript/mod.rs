@@ -20,6 +20,7 @@ use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
+use relay_codegen::print_provided_variables;
 use relay_codegen::JsModuleFormat;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
@@ -103,6 +104,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             &schema,
             &project_config,
             &fragment_locations,
+            print_provided_variables(&schema, normalization_operation, &project_config),
         )
     });
 

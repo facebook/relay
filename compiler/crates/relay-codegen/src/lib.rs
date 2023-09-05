@@ -28,6 +28,7 @@ pub use build_ast::CodegenVariant;
 pub use constants::CODEGEN_CONSTANTS;
 pub use printer::print_fragment;
 pub use printer::print_operation;
+pub use printer::print_provided_variables;
 pub use printer::print_request;
 pub use printer::print_request_params;
 pub use printer::JSONPrinter;

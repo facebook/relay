@@ -363,7 +363,18 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             }
 
             match edge_to_type {
-                Type::Interface(_) => {
+                Type::Interface(interface_id) => {
+                    let interface = schema.interface(interface_id);
+                    let implementing_objects =
+                        interface.recursively_implementing_objects(Arc::as_ref(schema));
+                    if implementing_objects.is_empty() {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::RelayResolverClientInterfaceMustBeImplemented {
+                                interface_name: interface.name.item,
+                            },
+                            interface.name.location,
+                        ));
+                    }
                     if !has_output_type(resolver_directive) {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::ClientEdgeToClientInterface,

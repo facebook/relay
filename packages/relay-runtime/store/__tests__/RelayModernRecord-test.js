@@ -68,7 +68,7 @@ describe('RelayModernRecord', () => {
   });
 
   describe('fromObject()', () => {
-    it('returns the given object', () => {
+    it('returns the given JSON object', () => {
       const object = {};
       const record = RelayModernRecord.fromObject(object);
       expect(record).toBe(object);

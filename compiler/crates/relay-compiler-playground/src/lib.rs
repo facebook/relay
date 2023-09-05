@@ -314,7 +314,7 @@ fn get_project_config(
 ) -> Result<ProjectConfig, PlaygroundError> {
     let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
         .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;
-    let project_name = "test_project".intern();
+    let project_name = "test_project".intern().into();
     let typegen_config: TypegenConfig = typegen_config_json
         .map(|str| {
             serde_json::from_str(str)

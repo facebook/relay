@@ -189,13 +189,18 @@ fn apply_common_transforms(
     })?;
 
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
-        generate_relay_resolvers_model_fragments(&program, &project_config.schema_config)
+        generate_relay_resolvers_model_fragments(
+            project_config.name,
+            &program,
+            &project_config.schema_config,
+        )
     });
 
     program = log_event.time(
         "generate_relay_resolvers_operations_for_nested_objects",
         || {
             generate_relay_resolvers_operations_for_nested_objects(
+                project_config.name,
                 &program,
                 &project_config.schema_config,
             )
@@ -252,6 +257,7 @@ fn apply_reader_transforms(
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
+            project_config.name,
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
@@ -329,6 +335,7 @@ fn apply_operation_transforms(
     })?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
+            project_config.name,
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
@@ -618,12 +625,17 @@ fn apply_typegen_transforms(
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
-        generate_relay_resolvers_model_fragments(&program, &project_config.schema_config)
+        generate_relay_resolvers_model_fragments(
+            project_config.name,
+            &program,
+            &project_config.schema_config,
+        )
     });
     program = log_event.time(
         "generate_relay_resolvers_operations_for_nested_objects",
         || {
             generate_relay_resolvers_operations_for_nested_objects(
+                project_config.name,
                 &program,
                 &project_config.schema_config,
             )
@@ -648,6 +660,7 @@ fn apply_typegen_transforms(
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
+            project_config.name,
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )

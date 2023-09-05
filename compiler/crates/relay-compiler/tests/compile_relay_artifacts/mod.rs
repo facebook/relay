@@ -37,6 +37,7 @@ use relay_compiler::validate;
 use relay_compiler::ConfigFileProject;
 use relay_compiler::ProjectConfig;
 use relay_config::NonNodeIdFieldsConfig;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
@@ -116,7 +117,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     };
 
     let default_project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         feature_flags: Arc::new(feature_flags),
         js_module_format: JsModuleFormat::Haste,
         schema_config: SchemaConfig {

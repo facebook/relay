@@ -764,8 +764,8 @@ impl InMemorySchema {
                 }
                 TypeSystemDefinition::ObjectTypeExtension { .. } => {}
                 TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
+                TypeSystemDefinition::EnumTypeExtension { .. } => {}
                 TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
-                TypeSystemDefinition::EnumTypeExtension { .. } => todo!("EnumTypeExtension"),
                 TypeSystemDefinition::UnionTypeExtension { .. } => todo!("UnionTypeExtension"),
                 TypeSystemDefinition::InputObjectTypeExtension { .. } => {
                     todo!("InputObjectTypeExtension")
@@ -1469,8 +1469,52 @@ impl InMemorySchema {
                     )]);
                 }
             },
+            TypeSystemDefinition::EnumTypeExtension(EnumTypeExtension {
+                name,
+                directives,
+                values,
+            }) => {
+                let enum_id = self.type_map.get(&name.value).cloned();
+                match enum_id {
+                    Some(Type::Enum(enum_id)) => {
+                        let index = enum_id.as_usize();
+                        if self.enums.get(index).is_none() {
+                            return Err(vec![Diagnostic::error(
+                                SchemaError::ExtendUndefinedType(name.value),
+                                Location::new(*location_key, name.span),
+                            )]);
+                        }
+
+                        if let Some(values) = values {
+                            let updated_values = values
+                                .items
+                                .iter()
+                                .map(|enum_def| EnumValue {
+                                    value: enum_def.name.value,
+                                    directives: self.build_directive_values(&enum_def.directives),
+                                })
+                                .collect::<Vec<_>>();
+                            extend_without_duplicates(
+                                &mut self.enums[index].values,
+                                updated_values,
+                            );
+                        }
+                        let built_directives = self.build_directive_values(directives);
+                        extend_without_duplicates(
+                            &mut self.enums[index].directives,
+                            built_directives,
+                        );
+                    }
+                    _ => {
+                        return Err(vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::new(*location_key, name.span),
+                        )]);
+                    }
+                }
+            }
             TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
-            TypeSystemDefinition::EnumTypeExtension { .. } => todo!("EnumTypeExtension"),
+
             TypeSystemDefinition::UnionTypeExtension { .. } => todo!("UnionTypeExtension"),
             TypeSystemDefinition::InputObjectTypeExtension { .. } => {
                 todo!("InputObjectTypeExtension")

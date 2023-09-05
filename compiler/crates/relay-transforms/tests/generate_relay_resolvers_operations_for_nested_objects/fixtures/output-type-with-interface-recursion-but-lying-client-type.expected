@@ -43,13 +43,7 @@ query User__pop_star_name$normalization @__SplitOperationMetadata
 # SplitOperationMetadata {
 #     derived_from: None,
 #     location: output-type-with-interface-recursion-but-lying-client-type.graphql:547:560,
-#     parent_documents: {
-#         OperationDefinitionName(
-#             OperationDefinitionName(
-#                 "User__pop_star_name$normalization",
-#             ),
-#         ),
-#     },
+#     parent_documents: {},
 #     raw_response_type_generation_mode: Some(
 #         AllFieldsRequired,
 #     ),

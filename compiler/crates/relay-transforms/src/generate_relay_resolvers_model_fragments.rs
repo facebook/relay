@@ -9,7 +9,12 @@ use std::sync::Arc;
 
 use common::NamedItem;
 use common::WithLocation;
+use docblock_shared::ResolverSourceHash;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
+use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Program;
@@ -18,6 +23,7 @@ use graphql_ir::Selection;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::Schema;
 
@@ -28,7 +34,16 @@ lazy_static! {
         "__relay_model_instance".intern();
 }
 
+/// Currently, this is a wrapper of the hash of the resolver source code.
+/// But we can change this `ArtifactSourceKeyData` to be an
+/// enum and also represent the `fragment` or `operation` names.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ArtifactSourceKeyData(pub ResolverSourceHash);
+
+associated_data_impl!(ArtifactSourceKeyData);
+
 pub fn generate_relay_resolvers_model_fragments(
+    project_name: ProjectName,
     program: &Program,
     schema_config: &SchemaConfig,
 ) -> Program {
@@ -56,19 +71,22 @@ pub fn generate_relay_resolvers_model_fragments(
                 });
 
             let model_fragment_name = FragmentDefinitionName(
-                format!(
-                    "{}__{}",
-                    object.name.item.0, *RESOLVER_MODEL_INSTANCE_FIELD_NAME
-                )
-                .intern(),
+                project_name
+                    .generate_name_for_object_and_field(
+                        object.name.item.0,
+                        *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+                    )
+                    .intern(),
             );
 
+            let resolver_field = program.schema.field(model_instance_field_id);
+            let fragment_directives = directives_with_artifact_source(resolver_field);
             let fragment_definition = FragmentDefinition {
                 name: WithLocation::new(object.name.location, model_fragment_name),
                 variable_definitions: vec![],
                 used_global_variables: vec![],
                 type_condition: object_type,
-                directives: vec![],
+                directives: fragment_directives,
                 selections: vec![Selection::ScalarField(Arc::new(ScalarField {
                     alias: None,
                     definition: WithLocation::generated(model_instance_field_id),
@@ -87,11 +105,12 @@ pub fn generate_relay_resolvers_model_fragments(
                 .named_field(object_type, schema_config.node_interface_id_field)
             {
                 let id_fragment_name = FragmentDefinitionName(
-                    format!(
-                        "{}__{}",
-                        object.name.item.0, schema_config.node_interface_id_field
-                    )
-                    .intern(),
+                    project_name
+                        .generate_name_for_object_and_field(
+                            object.name.item.0,
+                            schema_config.node_interface_id_field,
+                        )
+                        .intern(),
                 );
 
                 let id_fragment = FragmentDefinition {
@@ -99,7 +118,7 @@ pub fn generate_relay_resolvers_model_fragments(
                     variable_definitions: vec![],
                     used_global_variables: vec![],
                     type_condition: object_type,
-                    directives: vec![],
+                    directives: directives_with_artifact_source(resolver_field),
                     selections: vec![Selection::ScalarField(Arc::new(ScalarField {
                         alias: None,
                         definition: WithLocation::generated(id_field_id),
@@ -114,4 +133,21 @@ pub fn generate_relay_resolvers_model_fragments(
     }
 
     next_program
+}
+
+fn get_resolver_source_hash(field: &schema::Field) -> Option<ResolverSourceHash> {
+    field
+        .directives
+        .named(*RELAY_RESOLVER_SOURCE_HASH)
+        .and_then(|directive| directive.arguments.named(*RELAY_RESOLVER_SOURCE_HASH_VALUE))
+        .and_then(|source| source.value.get_string_literal())
+        .map(ResolverSourceHash::from_raw)
+}
+
+pub(crate) fn directives_with_artifact_source(field: &schema::Field) -> Vec<Directive> {
+    if let Some(source_hash) = get_resolver_source_hash(field) {
+        vec![ArtifactSourceKeyData(source_hash).into()]
+    } else {
+        vec![]
+    }
 }

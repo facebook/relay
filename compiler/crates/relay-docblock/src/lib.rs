@@ -33,6 +33,7 @@ use intern::Lookup;
 pub use ir::DocblockIr;
 pub use ir::On;
 use ir::RelayResolverIr;
+use relay_config::ProjectName;
 use schema::SDLSchema;
 use untyped_representation::parse_untyped_docblock_representation;
 
@@ -41,12 +42,14 @@ pub struct ParseOptions<'a> {
 }
 
 pub fn parse_docblock_ast(
+    project_name: ProjectName,
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
     parse_options: ParseOptions<'_>,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     let untyped_representation = parse_untyped_docblock_representation(ast)?;
     parse_docblock_ir(
+        project_name,
         untyped_representation,
         definitions,
         &parse_options,

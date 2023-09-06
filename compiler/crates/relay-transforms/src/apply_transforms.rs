@@ -251,9 +251,7 @@ fn apply_reader_transforms(
     })?;
 
     program = log_event.time("required_directive", || required_directive(&program))?;
-    program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
-    })?;
+    program = log_event.time("client_edges", || client_edges(&program, project_config))?;
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
@@ -330,9 +328,7 @@ fn apply_operation_transforms(
         skip_updatable_queries(&program)
     });
 
-    program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
-    })?;
+    program = log_event.time("client_edges", || client_edges(&program, project_config))?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
             project_config.name,
@@ -642,9 +638,7 @@ fn apply_typegen_transforms(
         },
     )?;
 
-    program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
-    })?;
+    program = log_event.time("client_edges", || client_edges(&program, project_config))?;
 
     program = log_event.time(
         "transform_assignable_fragment_spreads_in_regular_queries",

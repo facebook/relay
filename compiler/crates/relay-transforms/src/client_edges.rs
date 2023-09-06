@@ -11,6 +11,8 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlag;
+use common::FeatureFlags;
 use common::Location;
 use common::NamedItem;
 use common::ObjectName;
@@ -40,6 +42,7 @@ use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use intern::Lookup;
 use lazy_static::lazy_static;
+use relay_config::ProjectConfig;
 use relay_config::SchemaConfig;
 use schema::DirectiveValue;
 use schema::Schema;
@@ -143,8 +146,15 @@ impl<'a> ClientEdgeMetadata<'a> {
         })
     }
 }
-pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesTransform::new(program, schema_config);
+pub fn client_edges(
+    program: &Program,
+    project_config: &ProjectConfig,
+) -> DiagnosticsResult<Program> {
+    let mut transform = ClientEdgesTransform::new(
+        program,
+        &project_config.schema_config,
+        &project_config.feature_flags,
+    );
     let mut next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -162,7 +172,7 @@ pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> Diagnost
     }
 }
 
-struct ClientEdgesTransform<'program, 'sc> {
+struct ClientEdgesTransform<'program, 'sc, 'flag> {
     path: Vec<&'program str>,
     document_name: Option<WithLocation<ExecutableDefinitionName>>,
     query_names: StringKeyMap<usize>,
@@ -172,10 +182,15 @@ struct ClientEdgesTransform<'program, 'sc> {
     errors: Vec<Diagnostic>,
     schema_config: &'sc SchemaConfig,
     next_key: u32,
+    relay_resolver_enable_interface_output_type: &'flag FeatureFlag,
 }
 
-impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
-    fn new(program: &'program Program, schema_config: &'sc SchemaConfig) -> Self {
+impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
+    fn new(
+        program: &'program Program,
+        schema_config: &'sc SchemaConfig,
+        feature_flags: &'flag FeatureFlags,
+    ) -> Self {
         Self {
             program,
             schema_config,
@@ -186,6 +201,8 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             new_operations: Default::default(),
             errors: Default::default(),
             next_key: 0,
+            relay_resolver_enable_interface_output_type: &feature_flags
+                .relay_resolver_enable_interface_output_type,
         }
     }
 
@@ -375,7 +392,11 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                             interface.name.location,
                         ));
                     }
-                    if !has_output_type(resolver_directive) {
+                    if !self
+                        .relay_resolver_enable_interface_output_type
+                        .is_fully_enabled()
+                        && !has_output_type(resolver_directive)
+                    {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::ClientEdgeToClientInterface,
                             field.alias_or_name_location(),
@@ -459,7 +480,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
     }
 }
 
-impl Transformer for ClientEdgesTransform<'_, '_> {
+impl Transformer for ClientEdgesTransform<'_, '_, '_> {
     const NAME: &'static str = "ClientEdgesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

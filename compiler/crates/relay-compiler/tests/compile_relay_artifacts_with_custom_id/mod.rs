@@ -94,6 +94,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         compact_query_text: FeatureFlag::Disabled,
         emit_normalization_nodes_for_client_edges: true,
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
+        relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
     };
 
     let default_schema_config = SchemaConfig::default();

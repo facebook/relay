@@ -27,6 +27,10 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub relay_resolver_enable_output_type: FeatureFlag,
 
+    #[serde(default)]
+    // Enable returning interfaces from Relay Resolvers without @outputType
+    pub relay_resolver_enable_interface_output_type: FeatureFlag,
+
     /// For now, this also disallows fragments with variable definitions
     /// This also makes @module to opt in using @no_inline internally
     /// NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to

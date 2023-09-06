@@ -46,7 +46,7 @@ export type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
   TOptions,
 >;
 
-type ReturnType<TVariables, TData, TKey> = [
+export type ReturnType<TVariables, TData, TKey> = [
   // NOTE: This $Call ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable

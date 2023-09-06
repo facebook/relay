@@ -8,6 +8,7 @@
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
+use common::FeatureFlags;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use itertools::Itertools;
@@ -28,6 +29,7 @@ pub struct TypeScriptPrinter {
     use_import_type_syntax: bool,
     include_undefined_in_nullable_union: bool,
     indentation: usize,
+    generate_jsdoc: bool,
 }
 
 impl Write for TypeScriptPrinter {
@@ -166,13 +168,14 @@ impl Writer for TypeScriptPrinter {
 }
 
 impl TypeScriptPrinter {
-    pub fn new(config: &TypegenConfig) -> Self {
+    pub fn new(config: &TypegenConfig, feature_flags: &FeatureFlags) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
             use_import_type_syntax: config.use_import_type_syntax,
             include_undefined_in_nullable_union: !config
                 .typescript_exclude_undefined_from_nullable_union,
+            generate_jsdoc: feature_flags.generate_jsdoc.is_fully_enabled(),
         }
     }
 
@@ -269,22 +272,33 @@ impl TypeScriptPrinter {
                         )?;
                         self.write_indentation()?;
                     }
-                    let has_doc = key_value_pair.doc_comment.is_some() || key_value_pair.deprecation.is_some();
-                    if has_doc {
-                        write!(&mut self.result, "/**\n")?;
-                    }
-                    if key_value_pair.doc_comment.is_some() {
-                        self.write_indentation()?;
-                        write!(&mut self.result, "* {}\n",key_value_pair.doc_comment.as_ref().unwrap())?;
-                    }
-                    if key_value_pair.deprecation.is_some() {
-                        self.write_indentation()?;
-                        write!(&mut self.result, "* @deprecated {}\n",key_value_pair.deprecation.as_ref().unwrap())?;
-                    }
-                    if has_doc {
-                        self.write_indentation()?;
-                        write!(&mut self.result, "**/\n")?;
-                        self.write_indentation()?;
+                    if self.generate_jsdoc {
+                        let has_doc = key_value_pair.doc_comment.is_some()
+                            || key_value_pair.deprecation.is_some();
+                        if has_doc {
+                            write!(&mut self.result, "/**\n")?;
+                        }
+                        if key_value_pair.doc_comment.is_some() {
+                            self.write_indentation()?;
+                            write!(
+                                &mut self.result,
+                                "* {}\n",
+                                key_value_pair.doc_comment.as_ref().unwrap()
+                            )?;
+                        }
+                        if key_value_pair.deprecation.is_some() {
+                            self.write_indentation()?;
+                            write!(
+                                &mut self.result,
+                                "* @deprecated {}\n",
+                                key_value_pair.deprecation.as_ref().unwrap()
+                            )?;
+                        }
+                        if has_doc {
+                            self.write_indentation()?;
+                            write!(&mut self.result, "**/\n")?;
+                            self.write_indentation()?;
+                        }
                     }
                     if key_value_pair.read_only {
                         write!(&mut self.result, "readonly ")?;
@@ -392,7 +406,10 @@ mod tests {
     }
 
     fn print_type_with_config(ast: &AST) -> String {
-        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &Default::default(),
+            &FeatureFlags::default(),
+        ));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -612,15 +629,24 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &Default::default(),
+            &FeatureFlags::default(),
+        ));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
-        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &Default::default(),
+            &FeatureFlags::default(),
+        ));
         printer.write_import_type(&["A", "B"], "module.ts").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
-        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &Default::default(),
+            &FeatureFlags::default(),
+        ));
         printer
             .write_import_type(&["A", "B"], "../../../module.ts.ts")
             .unwrap();
@@ -629,27 +655,39 @@ mod tests {
             "import { A, B } from \"../../../module.ts\";\n"
         );
 
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig {
-            use_import_type_syntax: true,
-            ..Default::default()
-        }));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &TypegenConfig {
+                use_import_type_syntax: true,
+                ..Default::default()
+            },
+            &FeatureFlags::default(),
+        ));
         printer.write_import_type(&["C"], "./foo").unwrap();
         assert_eq!(printer.into_string(), "import type { C } from \"./foo\";\n");
     }
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &Default::default(),
+            &FeatureFlags::default(),
+        ));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
 
-        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &Default::default(),
+            &FeatureFlags::default(),
+        ));
         printer
             .write_import_module_default("A", "../../module.ts")
             .unwrap();
         assert_eq!(printer.into_string(), "import A from \"../../module\";\n");
 
-        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &Default::default(),
+            &FeatureFlags::default(),
+        ));
         printer
             .write_import_module_default("A", "../../module.ts.ts")
             .unwrap();

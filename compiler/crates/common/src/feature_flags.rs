@@ -98,6 +98,10 @@ pub struct FeatureFlags {
     /// any existing examples.
     #[serde(default)]
     pub allow_required_in_mutation_response: FeatureFlag,
+
+    /// Annotate the generated files with jsdoc comments
+    #[serde(default)]
+    pub generate_jsdoc: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

@@ -10,6 +10,7 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::ops::Deref;
 
+use common::FeatureFlags;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use relay_config::TypegenConfig;
@@ -433,10 +434,13 @@ mod tests {
     }
 }
 
-pub(crate) fn new_writer_from_config(config: &TypegenConfig) -> Box<dyn Writer> {
+pub(crate) fn new_writer_from_config(
+    config: &TypegenConfig,
+    feature_flags: &FeatureFlags,
+) -> Box<dyn Writer> {
     match config.language {
         TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
         TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
-        TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),
+        TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config, feature_flags)),
     }
 }

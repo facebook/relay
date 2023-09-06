@@ -600,6 +600,8 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::OtherTypename,
+                    doc_comment: None,
+                    deprecation: None,
                 })
             ],))),
             r#"{|

@@ -50,11 +50,11 @@ const GuidesRescuedFromOldTutorial = [
   'guided-tour/updating-data/graphql-subscriptions',
   {
     'Updating Data': [
+      'guided-tour/updating-data/graphql-mutations',
       'guided-tour/list-data/updating-connections',
       'guided-tour/updating-data/imperatively-modifying-store-data',
       'guided-tour/updating-data/imperatively-modifying-linked-fields',
       'guided-tour/updating-data/typesafe-updaters-faq',
-      'guided-tour/updating-data/graphql-mutations',
       'guided-tour/updating-data/local-data-updates',
       'guided-tour/updating-data/client-only-data',
     ],

@@ -53,4 +53,10 @@ describe('deepFreeze()', () => {
   it('copes with null values', () => {
     expect(deepFreeze({a: null})).toBeFrozen();
   });
+
+  it('does not throw on array buffers', () => {
+    const x = new Uint16Array([21, 31]);
+    expect(() => deepFreeze(x)).not.toThrow();
+    expect(() => deepFreeze({x})).not.toThrow();
+  });
 });

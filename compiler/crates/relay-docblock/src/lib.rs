@@ -92,7 +92,7 @@ pub fn extend_schema_with_resolver_type_system_definition(
             schema.add_interface_type_extension(extension, location.source_location())?;
         }
         _ => panic!(
-            "Expected docblocks to only expose object and scalar extensions, and object and interface definitions"
+            "Expected docblocks to only expose object and scalar definitions, and object and interface extensions."
         ),
     })
 }

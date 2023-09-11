@@ -8,7 +8,6 @@
 //! Utilities for providing the goto definition feature
 
 use std::path::Path;
-use std::sync::Arc;
 
 use common::Location as IRLocation;
 use graphql_ir::FragmentDefinitionName;
@@ -21,7 +20,6 @@ use lsp_types::request::Request;
 use lsp_types::Location as LSPLocation;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
-use schema::SDLSchema;
 use schema::Schema;
 
 use crate::docblock_resolution_info::DocblockResolutionInfo;
@@ -37,7 +35,6 @@ use crate::FeatureResolutionInfo;
 fn get_references_response(
     feature_resolution_info: FeatureResolutionInfo,
     program: &Program,
-    schema: &Arc<SDLSchema>,
     root_dir: &Path,
 ) -> LSPRuntimeResult<Vec<LSPLocation>> {
     match feature_resolution_info {
@@ -94,7 +91,7 @@ fn get_references_response(
                     }
                 };
 
-                let references = find_field_locations(program, schema, field_name.value, type_name)
+                let references = find_field_locations(program, field_name.value, type_name)
                     .ok_or(LSPRuntimeError::ExpectedError)?
                     .into_iter()
                     .map(|location| transform_relay_location_to_lsp_location(root_dir, location))
@@ -142,13 +139,14 @@ pub fn on_references(
     state: &impl GlobalState,
     params: <References as Request>::Params,
 ) -> LSPRuntimeResult<<References as Request>::Result> {
-    let project_name =
-        &state.extract_project_name_from_url(&params.text_document_position.text_document.uri)?;
-    let schema = &state.get_schema(project_name)?;
-    let program = &state.get_program(project_name)?;
-
     let node_resolution_info = state.resolve_node(&params.text_document_position)?;
-    let references_response =
-        get_references_response(node_resolution_info, program, schema, &state.root_dir())?;
+    let references_response = get_references_response(
+        node_resolution_info,
+        &state
+            .get_program(&state.extract_project_name_from_url(
+                &params.text_document_position.text_document.uri,
+            )?)?,
+        &state.root_dir(),
+    )?;
     Ok(Some(references_response))
 }

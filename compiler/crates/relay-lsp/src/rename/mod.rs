@@ -10,7 +10,6 @@
 use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::Arc;
 
 use common::Location as IRLocation;
 use common::SourceLocationKey;
@@ -41,7 +40,6 @@ use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::ResolutionPath;
 use resolution_path::ResolvePosition;
-use schema::SDLSchema;
 
 use crate::docblock_resolution_info::create_docblock_resolution_info;
 use crate::docblock_resolution_info::DocblockResolutionInfo;
@@ -62,9 +60,7 @@ pub fn on_rename(
     let uri = &params.text_document_position.text_document.uri;
     let (feature, location) = state.extract_feature_from_text(&params.text_document_position, 1)?;
 
-    let project_name = &state.extract_project_name_from_url(uri)?;
-    let program = &state.get_program(project_name)?;
-    let schema = &state.get_schema(project_name)?;
+    let program = &state.get_program(&state.extract_project_name_from_url(uri)?)?;
     let root_dir = &state.root_dir();
 
     let changes = match feature {
@@ -107,7 +103,6 @@ pub fn on_rename(
                         parent_type,
                         &params.new_name,
                         program,
-                        schema,
                         root_dir,
                     )?;
 
@@ -297,16 +292,12 @@ fn rename_relay_resolver_field(
     type_name: StringKey,
     new_field_name: &str,
     program: &Program,
-    schema: &Arc<SDLSchema>,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
     let mut changes = HashMap::<Url, Vec<TextEdit>>::new();
 
-    for location in
-        find_field_locations(program, schema, field_name, type_name).unwrap_or_else(|| vec![])
-    {
+    for location in find_field_locations(program, field_name, type_name).unwrap_or_else(|| vec![]) {
         let lsp_location = transform_relay_location_to_lsp_location(root_dir, location)?;
-
         merge_text_edit(&mut changes, lsp_location, new_field_name);
     }
 

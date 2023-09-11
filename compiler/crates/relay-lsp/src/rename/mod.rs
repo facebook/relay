@@ -113,8 +113,6 @@ pub fn on_rename(
 
                     merge_text_edit(&mut changes, lsp_location, &params.new_name);
 
-                    // todo: rename JS function
-
                     Ok(changes)
                 }
                 _ => Err(LSPRuntimeError::ExpectedError),
@@ -159,9 +157,11 @@ pub fn on_prepare_rename(
             let resolution_info = create_docblock_resolution_info(&docblock, location.span());
 
             match resolution_info {
-                Some(DocblockResolutionInfo::FieldName(docblock_field)) => {
-                    span_to_range(root_dir, location.source_location(), docblock_field.span)
-                }
+                // TODO: Re-add once https://github.com/facebook/relay/issues/4447 has been resolved
+
+                // Some(DocblockResolutionInfo::FieldName(docblock_field)) => {
+                //     span_to_range(root_dir, location.source_location(), docblock_field.span)
+                // }
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
@@ -300,6 +300,8 @@ fn rename_relay_resolver_field(
         let lsp_location = transform_relay_location_to_lsp_location(root_dir, location)?;
         merge_text_edit(&mut changes, lsp_location, new_field_name);
     }
+
+    // TODO: Rename JS resolver function as well
 
     Ok(changes)
 }

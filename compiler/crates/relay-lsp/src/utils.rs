@@ -7,6 +7,7 @@
 
 use std::path::PathBuf;
 
+use common::Location;
 use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
@@ -109,13 +110,13 @@ pub fn extract_project_name_from_url(
 }
 
 /// Return a parsed executable document, or parsed Docblock IR for this LSP
-/// request, only if the request occurs within a GraphQL document or Docblock.
+/// request, only if the request occurs within a GraßphQL document or Docblock.
 pub fn extract_feature_from_text(
     project_config: &ProjectConfig,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
-) -> LSPRuntimeResult<(Feature, Span, SourceLocationKey)> {
+) -> LSPRuntimeResult<(Feature, Location)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 
@@ -162,8 +163,7 @@ pub fn extract_feature_from_text(
 
             Ok((
                 Feature::GraphQLDocument(document),
-                position_span,
-                source_location_key,
+                Location::new(source_location_key, position_span),
             ))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
@@ -203,8 +203,7 @@ pub fn extract_feature_from_text(
 
             Ok((
                 Feature::DocblockIr(docblock_ir),
-                position_span,
-                source_location_key,
+                Location::new(source_location_key, position_span),
             ))
         }
     }

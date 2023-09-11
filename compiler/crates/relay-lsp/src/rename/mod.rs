@@ -59,8 +59,7 @@ pub fn on_rename(
     params: <Rename as Request>::Params,
 ) -> LSPRuntimeResult<<Rename as Request>::Result> {
     let uri = &params.text_document_position.text_document.uri;
-    let (feature, position_span, source_location_key) =
-        state.extract_feature_from_text(&params.text_document_position, 1)?;
+    let (feature, location) = state.extract_feature_from_text(&params.text_document_position, 1)?;
 
     let project_name = &state.extract_project_name_from_url(uri)?;
     let program = &state.get_program(project_name)?;
@@ -69,7 +68,7 @@ pub fn on_rename(
 
     let changes = match feature {
         Feature::GraphQLDocument(document) => {
-            let node_path = document.resolve((), position_span);
+            let node_path = document.resolve((), location.span());
 
             match node_path {
                 ResolutionPath::Ident(IdentPath {
@@ -86,7 +85,7 @@ pub fn on_rename(
                     inner: operation_name,
                     parent: IdentParent::OperationDefinitionName(_),
                 }) => {
-                    let location = IRLocation::new(source_location_key, operation_name.span);
+                    let location = IRLocation::new(location.source_location(), operation_name.span);
                     let lsp_location =
                         transform_relay_location_to_lsp_location(root_dir, location)?;
 
@@ -96,7 +95,7 @@ pub fn on_rename(
             }
         }
         Feature::DocblockIr(docblock) => {
-            let resolution_info = create_docblock_resolution_info(&docblock, position_span);
+            let resolution_info = create_docblock_resolution_info(&docblock, location.span());
 
             match resolution_info {
                 Some(DocblockResolutionInfo::FieldName(docblock_field)) => {
@@ -111,7 +110,8 @@ pub fn on_rename(
                         root_dir,
                     )?;
 
-                    let location = common::Location::new(source_location_key, docblock_field.span);
+                    let location =
+                        common::Location::new(location.source_location(), docblock_field.span);
                     let lsp_location =
                         transform_relay_location_to_lsp_location(root_dir, location)?;
 
@@ -137,13 +137,12 @@ pub fn on_prepare_rename(
     state: &impl GlobalState,
     params: <PrepareRenameRequest as Request>::Params,
 ) -> LSPRuntimeResult<<PrepareRenameRequest as Request>::Result> {
-    let (feature, position_span, source_location_key) =
-        state.extract_feature_from_text(&params, 1)?;
+    let (feature, location) = state.extract_feature_from_text(&params, 1)?;
     let root_dir = &state.root_dir();
 
     let range = match feature {
         Feature::GraphQLDocument(document) => {
-            let node_path = document.resolve((), position_span);
+            let node_path = document.resolve((), location.span());
 
             match node_path {
                 ResolutionPath::Ident(IdentPath {
@@ -152,16 +151,20 @@ pub fn on_prepare_rename(
                         IdentParent::FragmentSpreadName(_)
                         | IdentParent::FragmentDefinitionName(_)
                         | IdentParent::OperationDefinitionName(_),
-                }) => span_to_range(&root_dir, source_location_key, fragment_spread_name.span),
+                }) => span_to_range(
+                    &root_dir,
+                    location.source_location(),
+                    fragment_spread_name.span,
+                ),
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
         Feature::DocblockIr(docblock) => {
-            let resolution_info = create_docblock_resolution_info(&docblock, position_span);
+            let resolution_info = create_docblock_resolution_info(&docblock, location.span());
 
             match resolution_info {
                 Some(DocblockResolutionInfo::FieldName(docblock_field)) => {
-                    span_to_range(root_dir, source_location_key, docblock_field.span)
+                    span_to_range(root_dir, location.source_location(), docblock_field.span)
                 }
                 _ => Err(LSPRuntimeError::ExpectedError),
             }

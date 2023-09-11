@@ -36,6 +36,7 @@ use lsp_types::Url;
 use lsp_types::WorkspaceEdit;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
+use relay_transforms::extract_module_name;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::ResolutionPath;
@@ -217,6 +218,9 @@ pub fn on_will_rename_files(
             continue;
         }
 
+        let old_name_prefix = extract_module_name(old_file_name).unwrap();
+        let new_name_prefix = extract_module_name(new_file_name).unwrap();
+
         let program = &state.get_program(&state.extract_project_name_from_url(&old_file_uri)?)?;
         let root_dir = &state.root_dir();
 
@@ -233,20 +237,24 @@ pub fn on_will_rename_files(
                     for definition in &document.definitions {
                         let changes = match definition {
                             ExecutableDefinition::Fragment(frag_def) => {
-                                let frag_name = frag_def.name.value;
-                                let old_frag_name = frag_name.to_string();
-                                let new_frag_name =
-                                    old_frag_name.replace(old_file_name, new_file_name);
+                                let old_frag_name = frag_def.name.value;
+                                let new_frag_name = replace_prefix(
+                                    &old_frag_name.to_string(),
+                                    &old_name_prefix,
+                                    &new_name_prefix,
+                                );
 
-                                rename_fragment(frag_name, new_frag_name, program, root_dir)?
+                                rename_fragment(old_frag_name, new_frag_name, program, root_dir)?
                             }
                             ExecutableDefinition::Operation(OperationDefinition {
                                 name: Some(operation_name_identifier),
                                 ..
                             }) => {
-                                let old_operation_name = operation_name_identifier.to_string();
-                                let new_operation_name =
-                                    old_operation_name.replace(old_file_name, new_file_name);
+                                let new_operation_name = replace_prefix(
+                                    &operation_name_identifier.value.to_string(),
+                                    &old_name_prefix,
+                                    &new_name_prefix,
+                                );
 
                                 let name_range =
                                     text_source.to_span_range(operation_name_identifier.span);
@@ -272,6 +280,16 @@ pub fn on_will_rename_files(
         changes: Some(rename_changes),
         ..Default::default()
     }))
+}
+
+fn replace_prefix(s: &str, old_prefix: &str, new_prefix: &str) -> String {
+    if let Some(rest) = s.strip_prefix(old_prefix) {
+        let mut result = String::from(new_prefix);
+        result.push_str(rest);
+        return result;
+    }
+
+    s.to_string()
 }
 
 fn rename_relay_resolver_field(

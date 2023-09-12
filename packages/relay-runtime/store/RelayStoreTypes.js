@@ -17,6 +17,7 @@ import type {
 } from '../multi-actor-environment';
 import type {
   GraphQLResponse,
+  GraphQLResponseWithData,
   INetwork,
   PayloadData,
   PayloadError,
@@ -56,6 +57,7 @@ import type {
 import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
 
 export opaque type FragmentType = empty;
 export type OperationTracker = RelayOperationTracker;
@@ -1070,6 +1072,13 @@ export type StreamPlaceholder = {
   +actorIdentifier: ?ActorIdentifier,
 };
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
+
+export type NormalizeResponseFunction = (
+  response: GraphQLResponseWithData,
+  selector: NormalizationSelector,
+  typeName: string,
+  options: NormalizationOptions,
+) => RelayResponsePayload;
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation or

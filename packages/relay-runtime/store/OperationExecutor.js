@@ -26,7 +26,6 @@ import type {
   LogFunction,
   ModuleImportPayload,
   MutationParameters,
-  NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
@@ -50,7 +49,6 @@ import type {
 } from '../util/NormalizationNode';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
-import type {NormalizationOptions} from './RelayResponseNormalizer';
 import type {NormalizeResponseFunction} from './RelayStoreTypes';
 
 const RelayObservable = require('../network/RelayObservable');
@@ -68,7 +66,6 @@ const {
   createReaderSelector,
 } = require('./RelayModernSelector');
 const RelayRecordSource = require('./RelayRecordSource');
-const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');

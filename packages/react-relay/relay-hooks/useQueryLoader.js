@@ -195,7 +195,7 @@ function useQueryLoader<
             }
           : options;
       if (isMountedRef.current) {
-        const updatedQueryReference = loadQuery<QueryType>(
+        const updatedQueryReference = loadQuery(
           options?.__environment ?? environment,
           preloadableRequest,
           variables,

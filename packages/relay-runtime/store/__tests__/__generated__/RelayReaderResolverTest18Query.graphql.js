@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<562123f9394049db743e603a848aa9ed>>
+ * @generated SignedSource<<ee74a7ad2d56cc30142a31d38a0784d0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
 export type RelayReaderResolverTest18Query$variables = {||};
 export type RelayReaderResolverTest18Query$data = {|
   +me: ?{|
-    +profile_picture2: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleAndDefaultValueResolverType>,
+    +profile_picture2: ?ReturnType<typeof userUserProfilePictureUriWithScaleAndDefaultValueResolverType>,
   |},
 |};
 export type RelayReaderResolverTest18Query = {|

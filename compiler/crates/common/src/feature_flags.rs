@@ -27,10 +27,9 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub relay_resolver_enable_output_type: FeatureFlag,
 
-    /// Enable hashing of the `supported` argument of 3D fields. Partial
-    /// enabling of the feature flag checks the name based on the field type.
     #[serde(default)]
-    pub hash_supported_argument: FeatureFlag,
+    // Enable returning interfaces from Relay Resolvers without @outputType
+    pub relay_resolver_enable_interface_output_type: FeatureFlag,
 
     /// For now, this also disallows fragments with variable definitions
     /// This also makes @module to opt in using @no_inline internally

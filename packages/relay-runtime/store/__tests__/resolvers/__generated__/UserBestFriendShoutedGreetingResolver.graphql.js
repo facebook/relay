@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7260934c8588418bbafb969dcb4c6a38>>
+ * @generated SignedSource<<764e5e48fe16a54ff03a9bb268e9f37a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,7 +32,7 @@ export type UserBestFriendShoutedGreetingResolver$data = {|
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
       +node: ?{|
-        +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
+        +greeting: ?ReturnType<typeof userGreetingResolverType>,
       |},
     |}>,
   |},

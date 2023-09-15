@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<398c6aa5d99cacc51917e134c70a596e>>
+ * @generated SignedSource<<c00e48b4a6a5c9cf56ad07d20ba2df3b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {throw_before_read as queryThrowBeforeReadResolverType} from "../resolver
 ) => ?mixed);
 export type RelayReaderResolverTest14Query$variables = {||};
 export type RelayReaderResolverTest14Query$data = {|
-  +throw_before_read: ?$Call<<R>((...empty[]) => R) => R, typeof queryThrowBeforeReadResolverType>,
+  +throw_before_read: ?ReturnType<typeof queryThrowBeforeReadResolverType>,
 |};
 export type RelayReaderResolverTest14Query = {|
   response: RelayReaderResolverTest14Query$data,

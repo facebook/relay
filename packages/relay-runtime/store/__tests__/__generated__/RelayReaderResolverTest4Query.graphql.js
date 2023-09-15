@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8a23e8cc512962e786b9300693c966ff>>
+ * @generated SignedSource<<ee3d9fe0fd54d056e163d5c2f6895090>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {best_friend_greeting as userBestFriendGreetingResolverType} from "../res
 export type RelayReaderResolverTest4Query$variables = {||};
 export type RelayReaderResolverTest4Query$data = {|
   +me: ?{|
-    +best_friend_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userBestFriendGreetingResolverType>,
+    +best_friend_greeting: ?ReturnType<typeof userBestFriendGreetingResolverType>,
   |},
 |};
 export type RelayReaderResolverTest4Query = {|

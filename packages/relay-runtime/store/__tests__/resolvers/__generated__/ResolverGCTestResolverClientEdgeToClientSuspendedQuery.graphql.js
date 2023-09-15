@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<42e17753455fa134f6699ddc6a414913>>
+ * @generated SignedSource<<dab0526562362c1413966043138f9457>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -39,7 +39,7 @@ export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {|
     +__typename: "User",
   |},
   +virgo_suspends_when_counter_is_odd: ?{|
-    +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+    +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
   |},
 |};
 export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery = {|

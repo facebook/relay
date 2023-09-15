@@ -11,13 +11,13 @@ use std::sync::Arc;
 use common::NamedItem;
 use common::SourceLocationKey;
 use fnv::FnvHashMap;
-use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use relay_transforms::ArtifactSourceKeyData;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::Programs;
 use relay_transforms::RawResponseGenerationMode;
@@ -27,12 +27,15 @@ use relay_transforms::UPDATABLE_DIRECTIVE;
 
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
+use crate::artifact_map::ArtifactSourceKey;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
 /// Represents a generated output artifact.
 pub struct Artifact {
-    pub source_definition_names: Vec<ExecutableDefinitionName>,
+    /// List of source definitions that this artifact is generated from.
+    /// It may be the name of the query/fragment or relay resolver hash.
+    pub artifact_source_keys: Vec<ArtifactSourceKey>,
     pub path: PathBuf,
     pub content: ArtifactContent,
     /// The source file responsible for generating this file.
@@ -68,8 +71,17 @@ pub fn generate_artifacts(
                         None
                     };
 
+                    let artifact_source_keys = if let Some(artifact_source) = ArtifactSourceKeyData::find(&normalization.directives) {
+                        vec![
+                            ArtifactSourceKey::ResolverHash(artifact_source.0)
+                        ]
+                    } else {
+                        // TODO: refactor `parent_documents` to include ArtifactSource and not ExecutableDefinition
+                       metadata.parent_documents.iter().copied().map(ArtifactSourceKey::ExecutableDefinition).collect()
+                    };
+
                     return Artifact {
-                        source_definition_names: metadata.parent_documents.iter().copied().collect(),
+                        artifact_source_keys,
                         path: project_config
                             .path_for_artifact(source_file, normalization.name.item.0),
                         content: ArtifactContent::SplitOperation {
@@ -92,7 +104,7 @@ pub fn generate_artifacts(
 
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        source_name.into(),
+                        ArtifactSourceKey::ExecutableDefinition(source_name.into()),
                         project_config,
                         &operations,
                         source_hash,
@@ -109,7 +121,7 @@ pub fn generate_artifacts(
                     let source_hash = source_hashes.get(&source_name).cloned().unwrap();
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        source_name,
+                        ArtifactSourceKey::ExecutableDefinition(source_name),
                         project_config,
                         &operations,
                         source_hash,
@@ -122,7 +134,7 @@ pub fn generate_artifacts(
                         .unwrap();
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        normalization.name.item.into(),
+                        ArtifactSourceKey::ExecutableDefinition(normalization.name.item.into()),
                         project_config,
                         &operations,
                         source_hash,
@@ -142,7 +154,7 @@ pub fn generate_artifacts(
                         .cloned()
                         .unwrap();
                     return generate_updatable_query_artifact(
-                        reader.name.item.into(),
+                        ArtifactSourceKey::ExecutableDefinition(reader.name.item.into()),
                         project_config,
                         &operations,
                         source_hash,
@@ -160,15 +172,31 @@ pub fn generate_artifacts(
             } else {
                 reader_fragment.name.item.into()
             };
-
+            // If the fragment is generated for the RelayResolver model (id, or model instance)
+            // we need to update the source definition to include the original text of the resolver.
             let source_hash = source_hashes.get(&source_name).cloned();
-            let source_definition_names = vec![source_name];
+
+            // We need this `if/else` here because of the way the compiler is handling the aritfacts
+            // deletion (see commit_project in compiler.rs).
+            // To remove the artifact, the artifact map should not contain any document/source that may
+            // generate the artifact. If we merge these sources (fragment name and resolver hash)
+            // then the removal of the source hash won't trigger the removal of the artifact, because
+            // there will be anothe key (fragment name) in the artifacts map that will point to the
+            // same generate artifact.
+            let artifact_source_keys = if let Some(artifact_source) = ArtifactSourceKeyData::find(&reader_fragment.directives) {
+                vec![
+                    ArtifactSourceKey::ResolverHash(artifact_source.0)
+                ]
+            } else {
+                vec![ArtifactSourceKey::ExecutableDefinition(source_name)]
+            };
+
             generate_reader_artifact(
                 project_config,
                 programs,
                 reader_fragment,
                 source_hash,
-                source_definition_names,
+                artifact_source_keys,
             )
         }))
         .collect();
@@ -176,7 +204,7 @@ pub fn generate_artifacts(
 
 fn generate_normalization_artifact(
     operation_printer: &mut OperationPrinter<'_>,
-    source_definition_name: ExecutableDefinitionName,
+    artifact_source: ArtifactSourceKey,
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
@@ -191,7 +219,7 @@ fn generate_normalization_artifact(
         .expect("Operations must have a normalization entry.");
 
     Artifact {
-        source_definition_names: vec![source_definition_name],
+        artifact_source_keys: vec![artifact_source],
         path: project_config.path_for_artifact(source_file, normalization.name.item.0),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(normalization),
@@ -206,7 +234,7 @@ fn generate_normalization_artifact(
 }
 
 fn generate_updatable_query_artifact(
-    source_definition_name: ExecutableDefinitionName,
+    artifact_source: ArtifactSourceKey,
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
@@ -217,7 +245,7 @@ fn generate_updatable_query_artifact(
         .expect("Updatable operations must have a reader entry.");
 
     Artifact {
-        source_definition_names: vec![source_definition_name],
+        artifact_source_keys: vec![artifact_source],
         path: project_config.path_for_artifact(source_file, reader.name.item.0),
         content: ArtifactContent::UpdatableQuery {
             reader_operation: operations.expect_reader(),
@@ -233,7 +261,7 @@ fn generate_reader_artifact(
     programs: &Programs,
     reader_fragment: &Arc<FragmentDefinition>,
     source_hash: Option<String>,
-    source_definition_names: Vec<ExecutableDefinitionName>,
+    artifact_source_keys: Vec<ArtifactSourceKey>,
 ) -> Artifact {
     let name = reader_fragment.name.item;
     let typegen_fragment = programs
@@ -241,7 +269,7 @@ fn generate_reader_artifact(
         .fragment(name)
         .expect("a type fragment should be generated for this fragment");
     Artifact {
-        source_definition_names,
+        artifact_source_keys,
         path: project_config
             .path_for_artifact(reader_fragment.name.location.source_location(), name.0),
         content: ArtifactContent::Fragment {

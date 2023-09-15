@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4b9477ac6a4eebf54b36465c2899ba62>>
+ * @generated SignedSource<<3f8b6618677d0eb2cdffcd1e4c2462eb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ import {self as todoSelfResolverType} from "../TodoSelfResolver.js";
 ) => LiveState<?mixed>);
 declare export opaque type TodoTextResolverFragment$fragmentType: FragmentType;
 export type TodoTextResolverFragment$data = {|
-  +self: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof todoSelfResolverType>["read"]>,
+  +self: ?ReturnType<ReturnType<typeof todoSelfResolverType>["read"]>,
   +$fragmentType: TodoTextResolverFragment$fragmentType,
 |};
 export type TodoTextResolverFragment$key = {

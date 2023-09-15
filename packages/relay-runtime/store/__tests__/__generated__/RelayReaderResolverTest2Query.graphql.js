@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9eb565c7646f61c3e7d54193998a2ca9>>
+ * @generated SignedSource<<78e12d18b6ac947f266db7071641def8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {constant_dependent as userConstantDependentResolverType} from "../resolv
 export type RelayReaderResolverTest2Query$variables = {||};
 export type RelayReaderResolverTest2Query$data = {|
   +me: ?{|
-    +constant_dependent: ?$Call<<R>((...empty[]) => R) => R, typeof userConstantDependentResolverType>,
+    +constant_dependent: ?ReturnType<typeof userConstantDependentResolverType>,
   |},
 |};
 export type RelayReaderResolverTest2Query = {|

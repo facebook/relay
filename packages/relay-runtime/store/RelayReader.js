@@ -845,9 +845,9 @@ class RelayReader {
     const fragmentRef = {};
     this._createFragmentPointer(
       field.fragmentSpread,
-      {
+      RelayModernRecord.fromObject<>({
         __id: dataID,
-      },
+      }),
       fragmentRef,
     );
     data[applicationName] = {
@@ -991,7 +991,7 @@ class RelayReader {
       record,
       fieldData,
     );
-    return fieldData;
+    return RelayModernRecord.fromObject<>(fieldData);
   }
 
   // Has three possible return values:

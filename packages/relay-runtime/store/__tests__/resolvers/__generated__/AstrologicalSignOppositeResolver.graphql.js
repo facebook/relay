@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af4c8075e6fd336899352c6e17215584>>
+ * @generated SignedSource<<bba3942f2a776dbd25176262adb1ee3d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {self as astrologicalSignSelfResolverType} from "../AstrologicalSignSelfR
 ) => ?mixed);
 declare export opaque type AstrologicalSignOppositeResolver$fragmentType: FragmentType;
 export type AstrologicalSignOppositeResolver$data = {|
-  +self: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignSelfResolverType>,
+  +self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
   +$fragmentType: AstrologicalSignOppositeResolver$fragmentType,
 |};
 export type AstrologicalSignOppositeResolver$key = {

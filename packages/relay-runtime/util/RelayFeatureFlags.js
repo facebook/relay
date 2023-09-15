@@ -30,6 +30,7 @@ export type FeatureFlags = {
   USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: boolean,
   LOG_MISSING_RECORDS_IN_PROD: boolean,
+  ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: boolean,
 
   // Configure RelayStoreSubscriptions to mark a subscription as affected by an
   // update if there are any overlapping IDs other than ROOT_ID or VIWER_ID,
@@ -39,6 +40,7 @@ export type FeatureFlags = {
   // read())`, so we are experimenting with this loose behavior which should be
   // more compatible.
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: boolean,
+  ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -59,6 +61,8 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: false,
   LOG_MISSING_RECORDS_IN_PROD: false,
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
+  ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
+  ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
 };
 
 module.exports = RelayFeatureFlags;

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e1a3a5a815991ed1018e6c1947848169>>
+ * @generated SignedSource<<bfae2cea241470e8276e720263a1a876>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {required_name as userRequiredNameResolverType} from "../resolvers/UserRe
 export type RelayReaderResolverTestRequiredQuery$variables = {||};
 export type RelayReaderResolverTestRequiredQuery$data = {|
   +me: ?{|
-    +required_name: ?$Call<<R>((...empty[]) => R) => R, typeof userRequiredNameResolverType>,
+    +required_name: ?ReturnType<typeof userRequiredNameResolverType>,
   |},
 |};
 export type RelayReaderResolverTestRequiredQuery = {|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d6f57f8d2bb1e6e6cfbdfb3d1fc63a34>>
+ * @generated SignedSource<<39931863f644da14711fdb5c3b5964f9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAl
 export type RelayReaderResolverTest12Query$variables = {||};
 export type RelayReaderResolverTest12Query$data = {|
   +me: ?{|
-    +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolverType>,
+    +always_throws: ?ReturnType<typeof userAlwaysThrowsResolverType>,
   |},
 |};
 export type RelayReaderResolverTest12Query = {|

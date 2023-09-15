@@ -18,6 +18,7 @@ use graphql_text_printer::PrinterOptions;
 use intern::string_key::Intern;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
+use relay_codegen::print_provided_variables;
 use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
 use relay_transforms::apply_transforms;
@@ -254,6 +255,7 @@ pub fn parse_to_types_impl(
                 &schema,
                 &project_config,
                 &fragment_locations,
+                print_provided_variables(&schema, normalization_operation, &project_config),
             )
         }))
         .collect::<Vec<_>>()
@@ -314,7 +316,7 @@ fn get_project_config(
 ) -> Result<ProjectConfig, PlaygroundError> {
     let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
         .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;
-    let project_name = "test_project".intern();
+    let project_name = "test_project".intern().into();
     let typegen_config: TypegenConfig = typegen_config_json
         .map(|str| {
             serde_json::from_str(str)

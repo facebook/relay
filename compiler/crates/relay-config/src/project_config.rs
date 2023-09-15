@@ -35,12 +35,11 @@ use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::JsModuleFormat;
+use crate::ProjectName;
 use crate::TypegenConfig;
 use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
-
-pub type ProjectName = StringKey;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
@@ -236,7 +235,7 @@ pub struct ProjectConfig {
 impl Default for ProjectConfig {
     fn default() -> Self {
         Self {
-            name: "default".intern(),
+            name: ProjectName::default(),
             feature_flags: Default::default(),
             base: None,
             output: None,

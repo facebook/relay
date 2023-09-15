@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f524105d0d1935dc0dd48162dfdb55ed>>
+ * @generated SignedSource<<a08ee4ef90c252a1d8252a613b3373b8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../../.
 (queryCounterNoFragmentResolverType: () => LiveState<?mixed>);
 export type LiveResolversTestWithGCCounterQuery$variables = {||};
 export type LiveResolversTestWithGCCounterQuery$data = {|
-  +counter_no_fragment: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterNoFragmentResolverType>["read"]>,
+  +counter_no_fragment: ?ReturnType<ReturnType<typeof queryCounterNoFragmentResolverType>["read"]>,
 |};
 export type LiveResolversTestWithGCCounterQuery = {|
   response: LiveResolversTestWithGCCounterQuery$data,

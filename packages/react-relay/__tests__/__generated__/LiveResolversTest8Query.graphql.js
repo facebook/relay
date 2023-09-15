@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<68602b619358802cc771045830c89845>>
+ * @generated SignedSource<<a782e45ea2801eaf3f7fd111d0885bb0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,7 +32,7 @@ export type LiveResolversTest8Query$variables = {|
 export type LiveResolversTest8Query$data = {|
   +node: ?{|
     +name?: ?string,
-    +resolver_that_throws?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userResolverThatThrowsResolverType>["read"]>,
+    +resolver_that_throws?: ?ReturnType<ReturnType<typeof userResolverThatThrowsResolverType>["read"]>,
   |},
 |};
 export type LiveResolversTest8Query = {|

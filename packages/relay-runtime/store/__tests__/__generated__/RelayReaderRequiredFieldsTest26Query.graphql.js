@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<911b0101a23e016e84db8fa485452142>>
+ * @generated SignedSource<<b9ef95d323658f00dd0b190efe2dd545>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -39,7 +39,7 @@ export type RelayReaderRequiredFieldsTest26Query$variables = {||};
 export type RelayReaderRequiredFieldsTest26Query$data = {|
   +me: ?{|
     +astrological_sign: {|
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
     |},
   |},
 |};

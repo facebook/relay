@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5b2da9233951e9c013a40f23baa5599a>>
+ * @generated SignedSource<<2c4f52b7e63db876ad15ccfdef1230f1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {greeting as userGreetingResolverType} from "../resolvers/UserGreetingRes
 export type RelayReaderResolverTest11Query$variables = {||};
 export type RelayReaderResolverTest11Query$data = {|
   +me: ?{|
-    +the_alias: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
+    +the_alias: ?ReturnType<typeof userGreetingResolverType>,
   |},
 |};
 export type RelayReaderResolverTest11Query = {|

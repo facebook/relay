@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4efddc145b083a9ade1245b4299e7bad>>
+ * @generated SignedSource<<b1d8741df565aaddad63768ea918f20a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ export type RelayReaderResolverTestRequiredWithParentQuery$variables = {||};
 export type RelayReaderResolverTestRequiredWithParentQuery$data = {|
   +me: ?{|
     +lastName: string,
-    +required_name: ?$Call<<R>((...empty[]) => R) => R, typeof userRequiredNameResolverType>,
+    +required_name: ?ReturnType<typeof userRequiredNameResolverType>,
   |},
 |};
 export type RelayReaderResolverTestRequiredWithParentQuery = {|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7ddb36c6c21d7b530c9ad98902c7cc1a>>
+ * @generated SignedSource<<0d04eec30308d8ca6cc4f8d7235e8537>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {always_throws as userAlwaysThrowsResolverType} from "../UserAlwaysThrows
 ) => ?mixed);
 declare export opaque type UserAlwaysThrowsTransitivelyResolver$fragmentType: FragmentType;
 export type UserAlwaysThrowsTransitivelyResolver$data = {|
-  +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolverType>,
+  +always_throws: ?ReturnType<typeof userAlwaysThrowsResolverType>,
   +$fragmentType: UserAlwaysThrowsTransitivelyResolver$fragmentType,
 |};
 export type UserAlwaysThrowsTransitivelyResolver$key = {

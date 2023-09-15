@@ -58,7 +58,16 @@ TerseRelayResolver(
             ),
             arguments: None,
             directives: [],
-            description: None,
+            description: Some(
+                StringNode {
+                    token: Token {
+                        span: 58:70,
+                        kind: Empty,
+                    },
+                    value: "Non-nullable",
+                },
+            ),
+            hack_source: None,
         },
         type_: WithLocation {
             location: /path/to/test/fixture/terse-relay-resolver-non-nullable-list-item.js:20:24,
@@ -69,5 +78,8 @@ TerseRelayResolver(
         live: None,
         location: /path/to/test/fixture/terse-relay-resolver-non-nullable-list-item.js:0:71,
         fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "12e28b8739ff3ab018186a28de3ca726",
+        ),
     },
 )

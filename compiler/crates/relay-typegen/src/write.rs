@@ -68,7 +68,6 @@ use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_RAW_RESPONSE;
 use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
-use crate::PROVIDED_VARIABLE_TYPE;
 use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
 use crate::REACT_RELAY_MULTI_ACTOR;
 use crate::VALIDATOR_EXPORT_NAME;
@@ -80,6 +79,7 @@ pub(crate) fn write_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     writer: &mut Box<dyn Writer>,
+    maybe_provided_variables_object: Option<String>,
 ) -> FmtResult {
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
@@ -168,7 +168,7 @@ pub(crate) fn write_operation_type_exports_section(
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();
-    let provided_variables_object = generate_provided_variables_type(
+    let expected_provided_variables_type = generate_provided_variables_type(
         typegen_context,
         normalization_operation,
         &mut input_object_types,
@@ -215,8 +215,17 @@ pub(crate) fn write_operation_type_exports_section(
         &query_wrapper_type.into(),
     )?;
 
-    if let Some(provided_variables) = provided_variables_object {
-        writer.write_local_type(PROVIDED_VARIABLE_TYPE, &provided_variables)?;
+    if let Some(provided_variables_type) = expected_provided_variables_type {
+        let actual_provided_variables_object = maybe_provided_variables_object.unwrap_or_else(|| {
+            panic!("Expected the provided variables object. If you see this error, it most likley a bug in the compiler.");
+    });
+
+        // Assert that expected type of provided variables matches
+        // the flow/typescript types of functions with providers.
+        writer.write_type_assertion(
+            actual_provided_variables_object.as_str(),
+            &provided_variables_type,
+        )?;
     }
 
     Ok(())

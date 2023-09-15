@@ -12,7 +12,7 @@ There are three important points to understand:
 * The list itself has properties, such as whether or not there is a next page available. We handle this with a node that represent the list itself as well as one for the current page.
 * Pagination is done by *cursors* — opaque symbols that point to the next page of results — rather than offsets.
 
-Imagine we want to show a list of the user’s friends. An a high level, we imagine a graph where the viewer and their friends are each nodes. From the viewer to each friend node is an edge, and the edge itself has properties.
+Imagine we want to show a list of the user’s friends. At a high level, we imagine a graph where the viewer and their friends are each nodes. From the viewer to each friend node is an edge, and the edge itself has properties.
 
 ![Conceptual graph with properties on its edges](/img/docs/tutorial/connections-conceptual-graph.png)
 

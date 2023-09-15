@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5020faf7c8b7e7187b9cb24199f2a8fc>>
+ * @generated SignedSource<<cc30eb7d4c9b7aefd83a4ec15532898e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,7 +35,7 @@ export type LiveResolversTest9Query$variables = {|
 |};
 export type LiveResolversTest9Query$data = {|
   +node: ?{|
-    +profile_picture_uri?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
+    +profile_picture_uri?: ?ReturnType<ReturnType<typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
   |},
 |};
 export type LiveResolversTest9Query = {|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fe5bcceaf9f7cecd478a25c8d1ccfb07>>
+ * @generated SignedSource<<62eecd9bf7d2b6ab3badd7b3fa84eaa7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {live_counter_with_possible_missing_fragment_data as queryLiveCounterWith
 ) => LiveState<?mixed>);
 export type LiveResolversTestWithGCQuery$variables = {||};
 export type LiveResolversTestWithGCQuery$data = {|
-  +live_counter_with_possible_missing_fragment_data: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveCounterWithPossibleMissingFragmentDataResolverType>["read"]>,
+  +live_counter_with_possible_missing_fragment_data: ?ReturnType<ReturnType<typeof queryLiveCounterWithPossibleMissingFragmentDataResolverType>["read"]>,
 |};
 export type LiveResolversTestWithGCQuery = {|
   response: LiveResolversTestWithGCQuery$data,

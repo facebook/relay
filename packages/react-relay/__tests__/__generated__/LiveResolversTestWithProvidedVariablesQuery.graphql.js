@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e505ac22d22db0edd2d0958b5bae1606>>
+ * @generated SignedSource<<400f1ebe4cb8a6eb66854479669fefdf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,22 +27,20 @@ import {hello_world_with_provided_variable as queryHelloWorldWithProvidedVariabl
 ) => ?mixed);
 export type LiveResolversTestWithProvidedVariablesQuery$variables = {||};
 export type LiveResolversTestWithProvidedVariablesQuery$data = {|
-  +hello_world_with_provided_variable: ?$Call<<R>((...empty[]) => R) => R, typeof queryHelloWorldWithProvidedVariableResolverType>,
+  +hello_world_with_provided_variable: ?ReturnType<typeof queryHelloWorldWithProvidedVariableResolverType>,
 |};
 export type LiveResolversTestWithProvidedVariablesQuery = {|
   response: LiveResolversTestWithProvidedVariablesQuery$data,
   variables: LiveResolversTestWithProvidedVariablesQuery$variables,
 |};
-type ProvidedVariablesType = {|
+({
+  "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
+}: {|
   +__relay_internal__pv__HelloWorldProviderjs: {|
     +get: () => string,
   |},
-|};
+|});
 */
-
-var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
-};
 
 var node/*: ClientRequest*/ = {
   "fragment": {
@@ -122,7 +120,9 @@ var node/*: ClientRequest*/ = {
     "name": "LiveResolversTestWithProvidedVariablesQuery",
     "operationKind": "query",
     "text": null,
-    "providedVariables": providedVariablesDefinition
+    "providedVariables": {
+      "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
+    }
   }
 };
 

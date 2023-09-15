@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3a6a214a1ada534e83570ac3e32c7948>>
+ * @generated SignedSource<<2aa80d619472545875baf64c512a3381>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -41,7 +41,7 @@ export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables = {
 |};
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data = {|
   +todo_model: ?{|
-    +capitalized_id_legacy: ?$Call<<R>((...empty[]) => R) => R, typeof todoModelCapitalizedIdLegacyResolverType>,
+    +capitalized_id_legacy: ?ReturnType<typeof todoModelCapitalizedIdLegacyResolverType>,
   |},
 |};
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery = {|

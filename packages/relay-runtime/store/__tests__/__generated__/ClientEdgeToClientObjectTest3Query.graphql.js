@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<230aecee09d5cbb2564f6b4b678311f8>>
+ * @generated SignedSource<<0fec25d8ab534ef425261d42d0cfe84d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -40,7 +40,7 @@ export type ClientEdgeToClientObjectTest3Query$data = {|
   +me: ?{|
     +astrological_sign: ?{|
       +__id: string,
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
       +notes: ?string,
     |},
   |},

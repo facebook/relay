@@ -136,3 +136,25 @@ impl fmt::Display for InterfaceName {
 }
 
 impl_lookup!(InterfaceName);
+
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Serialize,
+    Deserialize
+)]
+pub struct UnionName(pub StringKey);
+
+impl fmt::Display for UnionName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}
+
+impl_lookup!(UnionName);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<94f500c29cb3387a539defc3b61b9be6>>
+ * @generated SignedSource<<150848afe6e2738dd1c8396f463fd9fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {counter_suspends_when_odd as userCounterSuspendsWhenOddResolverType} fro
 (userCounterSuspendsWhenOddResolverType: () => LiveState<?mixed>);
 declare export opaque type LiveResolversTestCounterUserFragment$fragmentType: FragmentType;
 export type LiveResolversTestCounterUserFragment$data = {|
-  +counter_suspends_when_odd: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userCounterSuspendsWhenOddResolverType>["read"]>,
+  +counter_suspends_when_odd: ?ReturnType<ReturnType<typeof userCounterSuspendsWhenOddResolverType>["read"]>,
   +$fragmentType: LiveResolversTestCounterUserFragment$fragmentType,
 |};
 export type LiveResolversTestCounterUserFragment$key = {

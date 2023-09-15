@@ -21,6 +21,7 @@ use common::Named;
 use common::NamedItem;
 use common::ObjectName;
 use common::ScalarName;
+use common::UnionName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
@@ -304,6 +305,7 @@ pub struct Directive {
     pub repeatable: bool,
     pub is_extension: bool,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 impl Named for Directive {
@@ -319,6 +321,7 @@ pub struct Scalar {
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -329,6 +332,7 @@ pub struct Object {
     pub interfaces: Vec<InterfaceID>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -337,6 +341,7 @@ pub struct InputObject {
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -346,15 +351,17 @@ pub struct Enum {
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Union {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<UnionName>,
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -370,6 +377,7 @@ pub struct Field {
     /// a single parent type.
     pub parent_type: Option<Type>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 pub struct Deprecation {
@@ -546,7 +554,7 @@ impl_named_for_with_location!(Object, ObjectName);
 impl_named_for_with_location!(Field, StringKey);
 impl_named_for_with_location!(InputObject, InputObjectName);
 impl_named_for_with_location!(Interface, InterfaceName);
-impl_named_for_with_location!(Union, StringKey);
+impl_named_for_with_location!(Union, UnionName);
 impl_named_for_with_location!(Scalar, ScalarName);
 impl_named_for_with_location!(Enum, EnumName);
 

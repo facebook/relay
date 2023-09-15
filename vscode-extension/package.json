@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -67,6 +67,15 @@
             "debug"
           ],
           "description": "Controls what is logged to the Output Channel for the Relay language server."
+        },
+        "relay.pathToLocateCommand": {
+          "scope": "workspace",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Path to an optional script to look up the actual definition for a GraphQL entity for implementation-first GraphQL schemas."
         },
         "relay.pathToRelay": {
           "scope": "workspace",

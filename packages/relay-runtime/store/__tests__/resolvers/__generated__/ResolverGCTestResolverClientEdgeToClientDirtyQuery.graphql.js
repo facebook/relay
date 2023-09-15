@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<34c4e786c28bb4de0fa7578fef420e60>>
+ * @generated SignedSource<<c9a11a7ef006ea750c7e40507204c2a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -39,7 +39,7 @@ export type ResolverGCTestResolverClientEdgeToClientDirtyQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientDirtyQuery$data = {|
   +me: ?{|
     +astrological_sign: ?{|
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
     |},
   |},
 |};

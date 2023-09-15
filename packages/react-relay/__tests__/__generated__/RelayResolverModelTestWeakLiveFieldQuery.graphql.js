@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ca8e0b16222c5c4861c66693ceb028eb>>
+ * @generated SignedSource<<0b68cc974da497e1539c5b4fee8671ce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -47,7 +47,7 @@ export type RelayResolverModelTestWeakLiveFieldQuery$variables = {|
 |};
 export type RelayResolverModelTestWeakLiveFieldQuery$data = {|
   +live_todo_description: ?{|
-    +color: ?$Call<<R>((...empty[]) => R) => R, typeof todoDescriptionColorResolverType>,
+    +color: ?ReturnType<typeof todoDescriptionColorResolverType>,
     +text: ?string,
   |},
 |};

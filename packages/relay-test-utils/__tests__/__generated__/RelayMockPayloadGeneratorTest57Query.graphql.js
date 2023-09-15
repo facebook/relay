@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5ebad4a74c43826cb9f7ae36754c4ad1>>
+ * @generated SignedSource<<c07c90412074aed445e1ca25330d1255>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {name_passthrough as userNamePassthroughResolverType} from "../../../rela
 export type RelayMockPayloadGeneratorTest57Query$variables = {||};
 export type RelayMockPayloadGeneratorTest57Query$data = {|
   +me: ?{|
-    +name_passthrough: ?$Call<<R>((...empty[]) => R) => R, typeof userNamePassthroughResolverType>,
+    +name_passthrough: ?ReturnType<typeof userNamePassthroughResolverType>,
   |},
 |};
 export type RelayMockPayloadGeneratorTest57Query = {|

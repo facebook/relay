@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5aeb85d61dffad4830e2eda7c71b5cba>>
+ * @generated SignedSource<<470a26bde221de5d075143bd6e3b1840>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -38,8 +38,8 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
 ) => ?mixed);
 declare export opaque type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType: FragmentType;
 export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data = {|
-  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
-  +uri: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleResolverType>,
+  +greeting: ?ReturnType<typeof userGreetingResolverType>,
+  +uri: ?ReturnType<typeof userUserProfilePictureUriWithScaleResolverType>,
   +$fragmentType: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType,
 |};
 export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key = {

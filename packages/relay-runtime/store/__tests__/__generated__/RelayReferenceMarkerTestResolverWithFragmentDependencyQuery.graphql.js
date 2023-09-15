@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cf3082a759bff7a360e770a8a9d0aa4d>>
+ * @generated SignedSource<<f239553454fb4995a1993f2fe56e3619>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {counter as queryCounterResolverType} from "../resolvers/LiveCounterResol
 ) => LiveState<?mixed>);
 export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables = {||};
 export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data = {|
-  +counter: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolverType>["read"]>,
+  +counter: ?ReturnType<ReturnType<typeof queryCounterResolverType>["read"]>,
 |};
 export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery = {|
   response: RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data,

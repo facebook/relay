@@ -37,6 +37,7 @@ use relay_compiler::validate;
 use relay_compiler::ConfigFileProject;
 use relay_compiler::ProjectConfig;
 use relay_config::NonNodeIdFieldsConfig;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
@@ -100,7 +101,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     ];
 
     let feature_flags = FeatureFlags {
-        hash_supported_argument: FeatureFlag::Enabled,
         // test SplitOperations that do not use @no-inline D28460294
         no_inline: FeatureFlag::Limited {
             allowlist: no_inline_allowlist.into_iter().collect(),
@@ -114,10 +114,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         compact_query_text: FeatureFlag::Disabled,
         emit_normalization_nodes_for_client_edges: true,
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
+        relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
     };
 
     let default_project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         feature_flags: Arc::new(feature_flags),
         js_module_format: JsModuleFormat::Haste,
         schema_config: SchemaConfig {

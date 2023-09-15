@@ -29,7 +29,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 ) => ?mixed);
 declare export opaque type Foo_user$fragmentType: FragmentType;
 export type Foo_user$data = {|
-  +poppy: $NonMaybeType<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>>,
+  +poppy: $NonMaybeType<ReturnType<typeof userPopStarNameResolverType>>,
   +$fragmentType: Foo_user$fragmentType,
 |};
 export type Foo_user$key = {

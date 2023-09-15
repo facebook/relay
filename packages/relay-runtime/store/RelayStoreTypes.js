@@ -17,6 +17,7 @@ import type {
 } from '../multi-actor-environment';
 import type {
   GraphQLResponse,
+  GraphQLResponseWithData,
   INetwork,
   PayloadData,
   PayloadError,
@@ -49,28 +50,25 @@ import type {
   UpdatableQuery,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type {
+  Record as RelayModernRecord,
+  RecordJSON,
+} from './RelayModernRecord';
 import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
 
 export opaque type FragmentType = empty;
 export type OperationTracker = RelayOperationTracker;
+
+export type Record = RelayModernRecord;
 
 export type MutationParameters = {
   +response: {...},
   +variables: {...},
   +rawResponse?: {...},
 };
-
-/*
- * An individual cached graph object.
- */
-export type Record = {[key: string]: mixed, ...};
-
-/**
- * A collection of records keyed by id.
- */
-export type RecordObjectMap = {[DataID]: ?Record};
 
 export type FragmentMap = {[key: string]: ReaderFragment, ...};
 
@@ -249,7 +247,7 @@ export interface RecordSource {
   getStatus(dataID: DataID): RecordState;
   has(dataID: DataID): boolean;
   size(): number;
-  toJSON(): {[DataID]: ?Record, ...};
+  toJSON(): {[DataID]: ?RecordJSON};
 }
 
 /**
@@ -1074,6 +1072,13 @@ export type StreamPlaceholder = {
   +actorIdentifier: ?ActorIdentifier,
 };
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
+
+export type NormalizeResponseFunction = (
+  response: GraphQLResponseWithData,
+  selector: NormalizationSelector,
+  typeName: string,
+  options: NormalizationOptions,
+) => RelayResponsePayload;
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation or

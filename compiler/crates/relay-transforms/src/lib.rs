@@ -128,6 +128,8 @@ pub use generate_data_driven_dependency_metadata::generate_data_driven_dependenc
 pub use generate_data_driven_dependency_metadata::RelayDataDrivenDependencyMetadata;
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
+pub use generate_relay_resolvers_model_fragments::ArtifactSourceKeyData;
+pub use generate_relay_resolvers_model_fragments::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 pub use generate_relay_resolvers_operations_for_nested_objects::generate_relay_resolvers_operations_for_nested_objects;
 pub use generate_typename::generate_typename;
 pub use generate_typename::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;

@@ -23,6 +23,8 @@ import type {
   OperationDescriptor,
   Variables,
 } from 'relay-runtime';
+import type {GraphQLResponseWithData} from 'relay-runtime/network/RelayNetworkTypes';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const invariant = require('invariant');
 const {
@@ -181,12 +183,15 @@ class RelayMockPayloadGenerator {
   _mockResolvers: MockResolvers;
   _selectionMetadata: SelectionMetadata;
   _mockClientData: boolean;
+  _generateDeferredPayload: boolean;
+  _deferredPayloads: Array<GraphQLResponseWithData>;
 
   constructor(options: {
     +variables: Variables,
     +mockResolvers: MockResolvers | null,
     +selectionMetadata: SelectionMetadata | null,
     +mockClientData: ?boolean,
+    +generateDeferredPayload: ?boolean,
   }) {
     this._variables = options.variables;
     this._mockResolvers = {
@@ -196,12 +201,14 @@ class RelayMockPayloadGenerator {
     this._selectionMetadata = options.selectionMetadata ?? {};
     this._resolveValue = createValueResolver(this._mockResolvers);
     this._mockClientData = options.mockClientData ?? false;
+    this._generateDeferredPayload = options.generateDeferredPayload ?? false;
+    this._deferredPayloads = [];
   }
 
   generate(
     selections: $ReadOnlyArray<NormalizationSelection>,
     operationType: string,
-  ): MockData {
+  ): GraphQLResponse {
     const defaultValues = this._getDefaultValuesForObject(
       operationType,
       null,
@@ -209,7 +216,7 @@ class RelayMockPayloadGenerator {
       [], // path
       {},
     );
-    return this._traverse(
+    const data = this._traverse(
       {
         selections,
         typeName: operationType,
@@ -222,6 +229,8 @@ class RelayMockPayloadGenerator {
       null, // prevData
       defaultValues,
     );
+
+    return [{data}, ...this._deferredPayloads];
   }
 
   _traverse(
@@ -304,6 +313,24 @@ class RelayMockPayloadGenerator {
         // falls through
         case DEFER:
         case STREAM: {
+          if (this._generateDeferredPayload) {
+            const deferredData = this._traverseSelections(
+              selection.selections,
+              typeName,
+              isAbstractType,
+              path,
+              {},
+              defaultValues,
+            );
+
+            this._deferredPayloads.push({
+              path: [...path],
+              label: selection.label,
+              data: deferredData,
+            });
+
+            break;
+          }
           mockData = this._traverseSelections(
             selection.selections,
             typeName,
@@ -892,13 +919,14 @@ function generateData(
   variables: Variables,
   mockResolvers: MockResolvers | null,
   selectionMetadata: SelectionMetadata | null,
-  options: ?{mockClientData?: boolean},
-): MockData {
+  options: ?{mockClientData?: boolean, generateDeferredPayload?: boolean},
+): GraphQLResponse {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     mockResolvers,
     selectionMetadata,
     mockClientData: options?.mockClientData,
+    generateDeferredPayload: options?.generateDeferredPayload,
   });
   let operationType;
   if (node.name.endsWith('Mutation')) {
@@ -908,6 +936,7 @@ function generateData(
   } else {
     operationType = 'Query';
   }
+
   return mockGenerator.generate(node.selections, operationType);
 }
 
@@ -955,16 +984,41 @@ function generateDataForOperation(
   mockResolvers: ?MockResolvers,
   options: ?{mockClientData?: boolean},
 ): GraphQLSingularResponse {
-  const data = generateData(
-    operation.request.node.operation,
+  const concreteOperation = operation.request.node.operation;
+  const [initialPayload] = generateData(
+    concreteOperation,
     operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
-    options,
+    {...options, generateDeferredPayload: false},
   );
-  return {data};
+
+  return initialPayload;
+}
+
+function generateWithDefer(
+  operation: OperationDescriptor,
+  mockResolvers: ?MockResolvers,
+  options: ?{mockClientData?: boolean, generateDeferredPayload?: boolean},
+): GraphQLResponse {
+  const {generateDeferredPayload = false, ...otherOptions} = options ?? {};
+  const concreteOperation = operation.request.node.operation;
+  const payloads = generateData(
+    concreteOperation,
+    operation.request.variables,
+    mockResolvers ?? null,
+    getSelectionMetadataFromOperation(operation),
+    {...otherOptions, generateDeferredPayload: generateDeferredPayload},
+  );
+
+  if (!generateDeferredPayload) {
+    return payloads[0];
+  }
+
+  return payloads;
 }
 
 module.exports = {
   generate: generateDataForOperation,
+  generateWithDefer,
 };

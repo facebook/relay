@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<088eff0ed92988cac777b6f1125ddc2b>>
+ * @generated SignedSource<<2be21316e261d3bf70828769e5ed76d7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolverType} fr
 ) => LiveState<?mixed>);
 declare export opaque type UserNameAndCounterSuspendsWhenOdd$fragmentType: FragmentType;
 export type UserNameAndCounterSuspendsWhenOdd$data = {|
-  +counter_suspends_when_odd: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterSuspendsWhenOddResolverType>["read"]>,
+  +counter_suspends_when_odd: ?ReturnType<ReturnType<typeof queryCounterSuspendsWhenOddResolverType>["read"]>,
   +me: ?{|
     +name: ?string,
   |},

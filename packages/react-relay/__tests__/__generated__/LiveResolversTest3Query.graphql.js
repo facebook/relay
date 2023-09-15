@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<67d5266e0fa59083230f47806dc00dc3>>
+ * @generated SignedSource<<ee35c608e173bb0949ea5f84b5f56d2d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {counter_plus_one as queryCounterPlusOneResolverType} from "../../../rela
 ) => ?mixed);
 export type LiveResolversTest3Query$variables = {||};
 export type LiveResolversTest3Query$data = {|
-  +counter_plus_one: ?$Call<<R>((...empty[]) => R) => R, typeof queryCounterPlusOneResolverType>,
+  +counter_plus_one: ?ReturnType<typeof queryCounterPlusOneResolverType>,
 |};
 export type LiveResolversTest3Query = {|
   response: LiveResolversTest3Query$data,

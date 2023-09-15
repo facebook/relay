@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cc1b4271a6009af97d0f4a762cd814f4>>
+ * @generated SignedSource<<2a93ca9cc563e0dcd48ae03eef2939a1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {hello as queryHelloResolverType} from "../../../relay-runtime/store/__te
 ) => ?mixed);
 export type ClientOnlyQueriesTest2Query$variables = {||};
 export type ClientOnlyQueriesTest2Query$data = {|
-  +hello: ?$Call<<R>((...empty[]) => R) => R, typeof queryHelloResolverType>,
+  +hello: ?ReturnType<typeof queryHelloResolverType>,
 |};
 export type ClientOnlyQueriesTest2Query = {|
   response: ClientOnlyQueriesTest2Query$data,

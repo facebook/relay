@@ -99,7 +99,7 @@ type RefetchFnExact<TQuery: OperationType, TOptions = Options> = RefetchFnBase<
 type RefetchFnInexact<
   TQuery: OperationType,
   TOptions = Options,
-> = RefetchFnBase<Partial<VariablesOf<TQuery>>, TOptions>;
+> = RefetchFnBase<$ReadOnly<Partial<VariablesOf<TQuery>>>, TOptions>;
 
 type Action =
   | {
@@ -538,7 +538,7 @@ if (__DEV__) {
       }
       const recordSource = environment.getStore().getSource();
       const record = recordSource.get(id);
-      const typename = record && Record.getType(record);
+      const typename = record == null ? null : Record.getType(record);
       if (typename == null) {
         return null;
       }

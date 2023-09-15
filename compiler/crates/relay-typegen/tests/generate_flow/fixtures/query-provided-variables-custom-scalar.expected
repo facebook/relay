@@ -26,11 +26,13 @@ export type testQuery = {|
   response: testQuery$data,
   variables: testQuery$variables,
 |};
-type ProvidedVariablesType = {|
+({
+  "__relay_internal__pv__includeNameProvider": require('includeNameProvider')
+}: {|
   +__relay_internal__pv__includeNameProvider: {|
     +get: () => ?JSON,
   |},
-|};
+|});
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentWithJSONProvidedVar$fragmentType: FragmentType;

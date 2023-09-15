@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2a17651ff486f00579270758059a000e>>
+ * @generated SignedSource<<c12ec82876dcc0420715ee575dae6f2f>>
  */
 
 mod compile_relay_artifacts;
@@ -1105,6 +1105,20 @@ fn relay_resolver_backing_client_edge() {
 }
 
 #[test]
+fn relay_resolver_edge_to_interface_with_child_interface_and_no_implementors() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.expected");
+    test_fixture(transform_fixture, "relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.graphql", "compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_edge_to_interface_with_no_implementors() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-no-implementors.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-no-implementors.expected");
+    test_fixture(transform_fixture, "relay-resolver-edge-to-interface-with-no-implementors.graphql", "compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-no-implementors.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_es_modules() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-es-modules.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-es-modules.expected");
@@ -1242,6 +1256,13 @@ fn required_argument_not_passed_other_args_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.expected");
     test_fixture(transform_fixture, "required_argument_not_passed_other_args.invalid.graphql", "compile_relay_artifacts/fixtures/required_argument_not_passed_other_args.invalid.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_client_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-client-edge.graphql", "compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected", input, expected);
 }
 
 #[test]

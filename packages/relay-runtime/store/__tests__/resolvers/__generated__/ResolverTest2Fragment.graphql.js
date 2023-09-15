@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d214a2f25ffb78a871ed74501eab3a42>>
+ * @generated SignedSource<<23b59935d703571adc5d8c0cca956d3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 declare export opaque type ResolverTest2Fragment$fragmentType: FragmentType;
 type ResolverTest1FragmentRefetchableQuery$variables = any;
 export type ResolverTest2Fragment$data = {|
-  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
+  +greeting: ?ReturnType<typeof userGreetingResolverType>,
   +id: string,
   +$fragmentType: ResolverTest2Fragment$fragmentType,
 |};

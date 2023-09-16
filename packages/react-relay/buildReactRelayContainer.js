@@ -54,7 +54,9 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
 
   function forwardRef(
     props: any,
-    ref: ((null | any) => mixed) | {current: null | any, ...},
+    ref:
+      | ((null | React$ElementRef<TBase>) => mixed)
+      | {-current: null | React$ElementRef<TBase>, ...},
   ) {
     const context = useContext(ReactRelayContext);
     invariant(
@@ -78,8 +80,6 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
     );
   }
   forwardRef.displayName = containerName;
-  /* $FlowFixMe[incompatible-call] (site=www) Error found while fixing forwardRef and
-   * TRefFor types */
   const ForwardContainer = React.forwardRef(forwardRef);
 
   if (__DEV__) {

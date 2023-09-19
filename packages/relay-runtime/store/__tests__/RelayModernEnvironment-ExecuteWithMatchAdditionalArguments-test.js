@@ -210,7 +210,6 @@ describe('execute() a query with @match with additional arguments', () => {
           },
 
           __fragmentOwner: operation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },

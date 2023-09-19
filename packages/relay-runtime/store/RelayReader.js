@@ -79,7 +79,6 @@ const {
   FRAGMENT_PROP_NAME_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
   MODULE_COMPONENT_KEY,
   ROOT_ID,
   getArgumentValues,
@@ -1065,7 +1064,7 @@ class RelayReader {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
       fragmentPointers = data[FRAGMENTS_KEY] = ({}: {
-        [string]: Arguments | {...},
+        [string]: Arguments,
       });
     }
     invariant(
@@ -1073,16 +1072,17 @@ class RelayReader {
       'RelayReader: Expected fragment spread data to be an object, got `%s`.',
       fragmentPointers,
     );
+
     if (data[ID_KEY] == null) {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
     // $FlowFixMe[cannot-write] - writing into read-only field
-    fragmentPointers[fragmentSpread.name] = fragmentSpread.args
-      ? getArgumentValues(fragmentSpread.args, this._variables)
-      : {};
+    fragmentPointers[fragmentSpread.name] = getArgumentValues(
+      fragmentSpread.args,
+      this._variables,
+      this._isWithinUnmatchedTypeRefinement,
+    );
     data[FRAGMENT_OWNER_KEY] = this._owner;
-    data[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] =
-      this._isWithinUnmatchedTypeRefinement;
 
     if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
       if (

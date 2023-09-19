@@ -115,6 +115,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         emit_normalization_nodes_for_client_edges: true,
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
         relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
+        enable_resolver_normalization_ast: fixture
+            .content
+            .contains("# enable_resolver_normalization_ast"),
     };
 
     let default_project_config = ProjectConfig {

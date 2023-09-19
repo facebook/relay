@@ -64,6 +64,10 @@ pub struct FeatureFlags {
     /// Create normalization nodes for client edges to client objects
     #[serde(default)]
     pub emit_normalization_nodes_for_client_edges: bool,
+
+    /// Fully build the normalization AST for Resolvers
+    #[serde(default)]
+    pub enable_resolver_normalization_ast: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

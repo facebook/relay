@@ -308,6 +308,124 @@ impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
         };
     }
 
+    fn verify_directives_or_push_errors(&mut self, directives: &[Directive]) {
+        let allowed_directive_names = [
+            *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
+            *REQUIRED_DIRECTIVE_NAME,
+            *CHILDREN_CAN_BUBBLE_METADATA_KEY,
+            RequiredMetadataDirective::directive_name(),
+        ];
+
+        let other_directives = directives
+            .iter()
+            .filter(|directive| {
+                !allowed_directive_names
+                    .iter()
+                    .any(|item| directive.name.item == *item)
+            })
+            .collect::<Vec<_>>();
+
+        for directive in other_directives {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ClientEdgeUnsupportedDirective {
+                    directive_name: directive.name.item,
+                },
+                directive.name.location,
+            ));
+        }
+    }
+
+    fn get_edge_to_client_object_metadata_directive(
+        &mut self,
+        field: &LinkedField,
+        edge_to_type: Type,
+        waterfall_directive: Option<&Directive>,
+        resolver_directive: Option<&DirectiveValue>,
+    ) -> Option<ClientEdgeMetadataDirective> {
+        // We assume edges to client objects will be resolved on the client
+        // and thus not incur a waterfall. This will change in the future
+        // for @live Resolvers that can trigger suspense.
+        if let Some(directive) = waterfall_directive {
+            self.errors.push(Diagnostic::error_with_data(
+                ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
+                directive.name.location,
+            ));
+        }
+
+        match edge_to_type {
+            Type::Interface(interface_id) => {
+                let interface = self.program.schema.interface(interface_id);
+                let implementing_objects =
+                    interface.recursively_implementing_objects(Arc::as_ref(&self.program.schema));
+                if implementing_objects.is_empty() {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::RelayResolverClientInterfaceMustBeImplemented {
+                            interface_name: interface.name.item,
+                        },
+                        interface.name.location,
+                    ));
+                }
+                if !self
+                    .relay_resolver_enable_interface_output_type
+                    .is_fully_enabled()
+                    && !has_output_type(resolver_directive)
+                {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::ClientEdgeToClientInterface,
+                        field.alias_or_name_location(),
+                    ));
+                }
+                Some(ClientEdgeMetadataDirective::ClientObject {
+                    type_name: None,
+                    unique_id: self.get_key(),
+                })
+            }
+            Type::Union(_) => {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::ClientEdgeToClientUnion,
+                    field.alias_or_name_location(),
+                ));
+                None
+            }
+            Type::Object(object_id) => Some(ClientEdgeMetadataDirective::ClientObject {
+                type_name: Some(self.program.schema.object(object_id).name.item),
+                unique_id: self.get_key(),
+            }),
+            _ => {
+                panic!("Expected a linked field to reference either an Object, Interface, or Union")
+            }
+        }
+    }
+
+    fn get_edge_to_server_object_metadata_directive(
+        &mut self,
+        field_type: &schema::Field,
+        field_location: Location,
+        waterfall_directive: Option<&Directive>,
+        selections: Vec<Selection>,
+    ) -> ClientEdgeMetadataDirective {
+        // Client Edges to server objects must be annotated with @waterfall
+        if waterfall_directive.is_none() {
+            self.errors.push(Diagnostic::error_with_data(
+                ValidationMessageWithData::RelayResolversMissingWaterfall {
+                    field_name: field_type.name.item,
+                },
+                field_location,
+            ));
+        }
+        let client_edge_query_name = self.generate_query_name();
+
+        self.generate_client_edge_query(
+            client_edge_query_name,
+            field_type.type_.inner(),
+            selections,
+        );
+        ClientEdgeMetadataDirective::ServerObject {
+            query_name: client_edge_query_name,
+            unique_id: self.get_key(),
+        }
+    }
+
     fn transform_linked_field_impl(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let schema = &self.program.schema;
         let field_type = schema.field(field.definition.item);
@@ -334,31 +452,7 @@ impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
             return self.default_transform_linked_field(field);
         }
 
-        let allowed_directive_names = [
-            *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
-            *REQUIRED_DIRECTIVE_NAME,
-            *CHILDREN_CAN_BUBBLE_METADATA_KEY,
-            RequiredMetadataDirective::directive_name(),
-        ];
-
-        let other_directives = field
-            .directives
-            .iter()
-            .filter(|directive| {
-                !allowed_directive_names
-                    .iter()
-                    .any(|item| directive.name.item == *item)
-            })
-            .collect::<Vec<_>>();
-
-        for directive in other_directives {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::ClientEdgeUnsupportedDirective {
-                    directive_name: directive.name.item,
-                },
-                directive.name.location,
-            ));
-        }
+        self.verify_directives_or_push_errors(&field.directives);
 
         let edge_to_type = field_type.type_.inner();
 
@@ -369,106 +463,26 @@ impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
             .replace_or_else(|| field.selections.clone());
 
         let metadata_directive = if is_edge_to_client_object {
-            // We assume edges to client objects will be resolved on the client
-            // and thus not incur a waterfall. This will change in the future
-            // for @live Resolvers that can trigger suspense.
-            if let Some(directive) = waterfall_directive {
-                self.errors.push(Diagnostic::error_with_data(
-                    ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                    directive.name.location,
-                ));
-            }
-
-            match edge_to_type {
-                Type::Interface(interface_id) => {
-                    let interface = schema.interface(interface_id);
-                    let implementing_objects =
-                        interface.recursively_implementing_objects(Arc::as_ref(schema));
-                    if implementing_objects.is_empty() {
-                        self.errors.push(Diagnostic::error(
-                            ValidationMessage::RelayResolverClientInterfaceMustBeImplemented {
-                                interface_name: interface.name.item,
-                            },
-                            interface.name.location,
-                        ));
-                    }
-                    if !self
-                        .relay_resolver_enable_interface_output_type
-                        .is_fully_enabled()
-                        && !has_output_type(resolver_directive)
-                    {
-                        self.errors.push(Diagnostic::error(
-                            ValidationMessage::ClientEdgeToClientInterface,
-                            field.alias_or_name_location(),
-                        ));
-                    }
-                    ClientEdgeMetadataDirective::ClientObject {
-                        type_name: None,
-                        unique_id: self.get_key(),
-                    }
-                }
-                Type::Union(_) => {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::ClientEdgeToClientUnion,
-                        field.alias_or_name_location(),
-                    ));
-                    return Transformed::Keep;
-                }
-                Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
-                    type_name: Some(schema.object(object_id).name.item),
-                    unique_id: self.get_key(),
-                },
-                _ => {
-                    panic!(
-                        "Expected a linked field to reference either an Object, Interface, or Union"
-                    )
-                }
+            match self.get_edge_to_client_object_metadata_directive(
+                field,
+                edge_to_type,
+                waterfall_directive,
+                resolver_directive,
+            ) {
+                Some(directive) => directive,
+                None => return Transformed::Keep,
             }
         } else {
-            // Client Edges to server objects must be annotated with @waterfall
-            if waterfall_directive.is_none() {
-                self.errors.push(Diagnostic::error_with_data(
-                    ValidationMessageWithData::RelayResolversMissingWaterfall {
-                        field_name: field_type.name.item,
-                    },
-                    field.definition.location,
-                ));
-            }
-            let client_edge_query_name = self.generate_query_name();
-
-            self.generate_client_edge_query(
-                client_edge_query_name,
-                field_type.type_.inner(),
+            self.get_edge_to_server_object_metadata_directive(
+                field_type,
+                field.definition.location,
+                waterfall_directive,
                 new_selections.clone(),
-            );
-            ClientEdgeMetadataDirective::ServerObject {
-                query_name: client_edge_query_name,
-                unique_id: self.get_key(),
-            }
+            )
         };
-        let mut inline_fragment_directives: Vec<Directive> = vec![metadata_directive.into()];
-        if let Some(required_directive_metadata) = field
-            .directives
-            .named(RequiredMetadataDirective::directive_name())
-            .cloned()
-        {
-            inline_fragment_directives.push(required_directive_metadata);
-        }
 
-        let transformed_field = Arc::new(LinkedField {
-            selections: new_selections,
-            ..field.clone()
-        });
-
-        let inline_fragment = InlineFragment {
-            type_condition: None,
-            directives: inline_fragment_directives,
-            selections: vec![
-                Selection::LinkedField(transformed_field.clone()),
-                Selection::LinkedField(transformed_field),
-            ],
-            spread_location: Location::generated(),
-        };
+        let inline_fragment =
+            create_inline_fragment_for_client_edge(field, new_selections, metadata_directive);
 
         Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))
     }
@@ -477,6 +491,36 @@ impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
         let key = self.next_key;
         self.next_key += 1;
         key
+    }
+}
+
+fn create_inline_fragment_for_client_edge(
+    field: &LinkedField,
+    selections: Vec<Selection>,
+    metadata_directive: ClientEdgeMetadataDirective,
+) -> InlineFragment {
+    let mut inline_fragment_directives: Vec<Directive> = vec![metadata_directive.into()];
+    if let Some(required_directive_metadata) = field
+        .directives
+        .named(RequiredMetadataDirective::directive_name())
+        .cloned()
+    {
+        inline_fragment_directives.push(required_directive_metadata);
+    }
+
+    let transformed_field = Arc::new(LinkedField {
+        selections,
+        ..field.clone()
+    });
+
+    InlineFragment {
+        type_condition: None,
+        directives: inline_fragment_directives,
+        selections: vec![
+            Selection::LinkedField(transformed_field.clone()),
+            Selection::LinkedField(transformed_field),
+        ],
+        spread_location: Location::generated(),
     }
 }
 

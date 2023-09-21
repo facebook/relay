@@ -17,6 +17,7 @@ import type {
   NormalizationActorChange,
   NormalizationDefer,
   NormalizationLinkedField,
+  NormalizationLiveResolverField,
   NormalizationModuleImport,
   NormalizationNode,
   NormalizationResolverField,
@@ -50,6 +51,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_LIVE_RESOLVER,
   RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
@@ -327,6 +329,9 @@ class RelayResponseNormalizer {
         case RELAY_RESOLVER:
           this._normalizeResolver(selection, record, data);
           break;
+        case RELAY_LIVE_RESOLVER:
+          this._normalizeResolver(selection, record, data);
+          break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
           this._normalizeResolver(selection.backingField, record, data);
           break;
@@ -342,7 +347,7 @@ class RelayResponseNormalizer {
   }
 
   _normalizeResolver(
-    resolver: NormalizationResolverField,
+    resolver: NormalizationResolverField | NormalizationLiveResolverField,
     record: Record,
     data: PayloadData,
   ) {

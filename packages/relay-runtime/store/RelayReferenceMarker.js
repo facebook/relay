@@ -14,6 +14,7 @@
 import type {
   NormalizationClientEdgeToClientObject,
   NormalizationLinkedField,
+  NormalizationLiveResolverField,
   NormalizationModuleImport,
   NormalizationNode,
   NormalizationResolverField,
@@ -54,6 +55,7 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
   RELAY_RESOLVER,
+  RELAY_LIVE_RESOLVER,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
 } = RelayConcreteNode;
 const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
@@ -236,6 +238,9 @@ class RelayReferenceMarker {
         case RELAY_RESOLVER:
           this._traverseResolverField(selection, record);
           break;
+        case RELAY_LIVE_RESOLVER:
+          this._traverseResolverField(selection, record);
+          break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
           this._traverseClientEdgeToClientObject(selection, record);
           break;
@@ -303,7 +308,7 @@ class RelayReferenceMarker {
   }
 
   _traverseResolverField(
-    field: NormalizationResolverField,
+    field: NormalizationResolverField | NormalizationLiveResolverField,
     record: Record,
   ): ?DataID {
     const storageKey = getStorageKey(field, this._variables);

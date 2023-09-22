@@ -216,7 +216,9 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
 
 type _ComponentFromEntryPoint = <
   TPreloadParams,
+  // $FlowFixMe[unsupported-variance-annotation]
   +TComponent,
+  // $FlowFixMe[unsupported-variance-annotation]
   +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
 >(
   TEntryPoint,

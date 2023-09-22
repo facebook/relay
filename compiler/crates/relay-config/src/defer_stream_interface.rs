@@ -30,8 +30,8 @@ impl Default for DeferStreamInterface {
             stream_name: DirectiveName("stream".intern()),
             if_arg: ArgumentName("if".intern()),
             label_arg: ArgumentName("label".intern()),
-            initial_count_arg: ArgumentName("initial_count".intern()),
-            use_customized_batch_arg: ArgumentName("use_customized_batch".intern()),
+            initial_count_arg: ArgumentName("initialCount".intern()),
+            use_customized_batch_arg: ArgumentName("useCustomizedBatch".intern()),
         }
     }
 }

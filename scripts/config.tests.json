@@ -26,6 +26,16 @@
         "OpaqueScalarType": {"name": "OpaqueScalarType", "path": "../OpaqueScalarType"}
       },
       "jsModuleFormat": "commonjs",
+      "schemaConfig": {
+        "deferStreamInterface": {
+          "deferName": "defer",
+          "streamName": "stream",
+          "ifArg": "if",
+          "labelArg": "label",
+          "initialCountArg": "initial_count",
+          "useCustomizedBatchArg": "use_customized_batch"
+        }
+      },
       "featureFlags": {
         "enable_relay_resolver_transform": true,
         "no_inline": {

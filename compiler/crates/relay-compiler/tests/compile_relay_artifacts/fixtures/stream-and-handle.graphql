@@ -6,7 +6,7 @@ query streamAndHandleQuery {
 
 fragment streamAndHandleFragment on Feedback {
   actors
-    @stream(label: "actors", if: true, initial_count: 0)
+    @stream(label: "actors", if: true, initialCount: 0)
     @__clientField(handle: "actors_handler") {
     name @__clientField(handle: "name_handler")
   }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<21fb21dab6de3f65b187dd2db68deb9e>>
+ * @generated SignedSource<<11f5c357cbf50e7a7e17cbcced1fca1a>>
  */
 
 mod compile_relay_artifacts;
@@ -846,10 +846,24 @@ fn provided_variable_passed_in_argument_invalid() {
 }
 
 #[test]
+fn provided_variable_passed_in_argument_refetchable_fragment_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-passed-in-argument-refetchable-fragment-invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-passed-in-argument-refetchable-fragment-invalid.expected");
+    test_fixture(transform_fixture, "provided-variable-passed-in-argument-refetchable-fragment-invalid.graphql", "compile_relay_artifacts/fixtures/provided-variable-passed-in-argument-refetchable-fragment-invalid.expected", input, expected);
+}
+
+#[test]
 fn provided_variable_refetchable_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-refetchable-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-refetchable-fragment.expected");
     test_fixture(transform_fixture, "provided-variable-refetchable-fragment.graphql", "compile_relay_artifacts/fixtures/provided-variable-refetchable-fragment.expected", input, expected);
+}
+
+#[test]
+fn provided_variable_refetchable_fragment_combination() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-refetchable-fragment-combination.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-refetchable-fragment-combination.expected");
+    test_fixture(transform_fixture, "provided-variable-refetchable-fragment-combination.graphql", "compile_relay_artifacts/fixtures/provided-variable-refetchable-fragment-combination.expected", input, expected);
 }
 
 #[test]

@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query providedVariablePassedInArgumentRefetchableFragmentInvalid_Query {
+  node(id: 4) {
+    ...providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment @arguments(includeName: true)
+  }
+}
+
+fragment providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment on Node
+@refetchable(queryName: "refetchableQuery")
+@argumentDefinitions(
+  includeName: {type: "Boolean!", provider: "includeName_RelayProvider"}
+) {
+  id
+  name @include(if: $includeName)
+}
+==================================== ERROR ====================================
+✖︎ Passing a value to 'includeName' (a provided variable) through @arguments is not supported.
+
+  provided-variable-passed-in-argument-refetchable-fragment-invalid.graphql:4:87
+    3 │   node(id: 4) {
+    4 │     ...providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment @arguments(includeName: true)
+      │                                                                                       ^^^^^^^^^^^
+    5 │   }
+
+  ℹ︎ Provided variable defined here
+
+  provided-variable-passed-in-argument-refetchable-fragment-invalid.graphql:11:3
+   10 │ @argumentDefinitions(
+   11 │   includeName: {type: "Boolean!", provider: "includeName_RelayProvider"}
+      │   ^^^^^^^^^^^
+   12 │ ) {

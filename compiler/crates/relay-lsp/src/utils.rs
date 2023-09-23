@@ -110,7 +110,7 @@ pub fn extract_project_name_from_url(
 }
 
 /// Return a parsed executable document, or parsed Docblock IR for this LSP
-/// request, only if the request occurs within a GraßphQL document or Docblock.
+/// request, only if the request occurs within a GraphQL document or Docblock.
 pub fn extract_feature_from_text(
     project_config: &ProjectConfig,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,

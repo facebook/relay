@@ -25,11 +25,12 @@ use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::Rename;
 use lsp_types::request::Request;
 use lsp_types::request::WillRenameFiles;
-use lsp_types::Location as LspLocation;
 use lsp_types::PrepareRenameResponse;
 use lsp_types::TextEdit;
 use lsp_types::Url;
 use lsp_types::WorkspaceEdit;
+use rayon::prelude::IntoParallelRefIterator;
+use rayon::prelude::ParallelIterator;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 use relay_transforms::extract_module_name;
@@ -298,27 +299,19 @@ fn process_rename_request(
             )]))
         }
         RenameKind::FragmentName { fragment_name } => {
-            rename_fragment(fragment_name, new_name, program, root_dir)
+            Ok(rename_fragment(fragment_name, new_name, program, root_dir))
         }
         RenameKind::ResolverName {
             parent_type,
             resolver_name,
-        } => {
-            let mut changes = rename_relay_resolver_field(
-                resolver_name,
-                parent_type,
-                &new_name,
-                program,
-                root_dir,
-            )?;
-
-            let lsp_location =
-                transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
-
-            merge_text_edit(&mut changes, lsp_location, &new_name);
-
-            Ok(changes)
-        }
+        } => Ok(rename_relay_resolver_field(
+            resolver_name,
+            parent_type,
+            &new_name,
+            rename_request.location,
+            program,
+            root_dir,
+        )),
     }
 }
 
@@ -326,19 +319,15 @@ fn rename_relay_resolver_field(
     field_name: StringKey,
     type_name: StringKey,
     new_field_name: &str,
+    field_definition_location: IRLocation,
     program: &Program,
     root_dir: &PathBuf,
-) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
-    let mut changes = HashMap::<Url, Vec<TextEdit>>::new();
+) -> HashMap<Url, Vec<TextEdit>> {
+    let mut locations =
+        find_field_locations(program, field_name, type_name).unwrap_or_else(|| vec![]);
+    locations.push(field_definition_location);
 
-    for location in find_field_locations(program, field_name, type_name).unwrap_or_else(|| vec![]) {
-        let lsp_location = transform_relay_location_to_lsp_location(root_dir, location)?;
-        merge_text_edit(&mut changes, lsp_location, new_field_name);
-    }
-
-    // TODO: Rename JS resolver function as well
-
-    Ok(changes)
+    map_locations_to_text_edits(locations, new_field_name.to_owned(), root_dir)
 }
 
 fn rename_fragment(
@@ -346,15 +335,37 @@ fn rename_fragment(
     new_fragment_name: String,
     program: &Program,
     root_dir: &PathBuf,
-) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
-    let mut changes = HashMap::<Url, Vec<TextEdit>>::new();
+) -> HashMap<Url, Vec<TextEdit>> {
+    let locations = FragmentFinder::get_fragment_usages(program, fragment_name);
 
-    for location in FragmentFinder::get_fragment_usages(program, fragment_name) {
-        let lsp_location = transform_relay_location_to_lsp_location(root_dir, location)?;
-        merge_text_edit(&mut changes, lsp_location, &new_fragment_name);
+    map_locations_to_text_edits(locations, new_fragment_name, root_dir)
+}
+
+fn map_locations_to_text_edits(
+    locations: Vec<IRLocation>,
+    new_text: String,
+    root_dir: &PathBuf,
+) -> HashMap<Url, Vec<TextEdit>> {
+    let vec_res: Vec<(Url, TextEdit)> = locations
+        .par_iter()
+        .flat_map(|location| {
+            let transformed = transform_relay_location_to_lsp_location(root_dir, *location);
+            transformed.ok().map(|lsp_location| {
+                let text_edit = TextEdit {
+                    range: lsp_location.range,
+                    new_text: new_text.to_owned(),
+                };
+                (lsp_location.uri, text_edit)
+            })
+        })
+        .collect();
+
+    let mut changes: HashMap<Url, Vec<TextEdit>> = HashMap::new();
+    for (uri, text_edit) in vec_res {
+        changes.entry(uri).or_default().push(text_edit);
     }
 
-    Ok(changes)
+    changes
 }
 
 fn extract_parent_type(docblock: DocblockIr) -> StringKey {
@@ -413,13 +424,6 @@ fn merge_text_changes(
     for (uri, changes) in target {
         source.entry(uri).or_default().extend(changes);
     }
-}
-
-fn merge_text_edit(source: &mut HashMap<Url, Vec<TextEdit>>, location: LspLocation, change: &str) {
-    source.entry(location.uri).or_default().push(TextEdit {
-        range: location.range,
-        new_text: change.to_owned(),
-    });
 }
 
 fn replace_prefix(s: &str, old_prefix: &str, new_prefix: &str) -> String {

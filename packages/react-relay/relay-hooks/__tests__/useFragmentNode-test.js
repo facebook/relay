@@ -232,7 +232,6 @@ describe.each([
           useFragmentNodeTestNestedUserFragment: {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -355,7 +354,6 @@ describe.each([
                 useFragmentNodeTestUserFragment: {},
               },
               [FRAGMENT_OWNER_KEY]: owner.request,
-              __isWithinUnmatchedTypeRefinement: false,
             };
 
         setSingularOwner = _setOwner;
@@ -380,7 +378,6 @@ describe.each([
                 useFragmentNodeTestUsersFragment: {},
               },
               [FRAGMENT_OWNER_KEY]: owner.request,
-              __isWithinUnmatchedTypeRefinement: false,
             }));
 
         const [usersData] = useFragmentNode(gqlPluralFragment, usersRef);

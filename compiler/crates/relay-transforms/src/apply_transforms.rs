@@ -180,13 +180,6 @@ fn apply_common_transforms(
         )
     })?;
 
-    if project_config.feature_flags.enable_flight_transform {
-        program = log_event.time("react_flight", || react_flight(&program))?;
-        program = log_event.time("relay_client_component", || {
-            relay_client_component(&program, &project_config.feature_flags)
-        })?;
-    }
-
     program = log_event.time("relay_actor_change_transform", || {
         relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;
@@ -196,13 +189,18 @@ fn apply_common_transforms(
     })?;
 
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
-        generate_relay_resolvers_model_fragments(&program, &project_config.schema_config)
+        generate_relay_resolvers_model_fragments(
+            project_config.name,
+            &program,
+            &project_config.schema_config,
+        )
     });
 
     program = log_event.time(
         "generate_relay_resolvers_operations_for_nested_objects",
         || {
             generate_relay_resolvers_operations_for_nested_objects(
+                project_config.name,
                 &program,
                 &project_config.schema_config,
             )
@@ -253,16 +251,21 @@ fn apply_reader_transforms(
     })?;
 
     program = log_event.time("required_directive", || required_directive(&program))?;
-    program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
-    })?;
 
-    program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
-    })?;
+    if !project_config
+        .feature_flags
+        .enable_resolver_normalization_ast
+    {
+        program = log_event.time("client_edges", || client_edges(&program, project_config))?;
+
+        program = log_event.time("relay_resolvers", || {
+            relay_resolvers(
+                project_config.name,
+                &program,
+                project_config.feature_flags.enable_relay_resolver_transform,
+            )
+        })?;
+    }
 
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
@@ -288,7 +291,7 @@ fn apply_reader_transforms(
         generate_data_driven_dependency_metadata(&program)
     });
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &project_config.feature_flags)
+        hash_supported_argument(&program)
     })?;
 
     program = apply_after_custom_transforms(
@@ -331,11 +334,10 @@ fn apply_operation_transforms(
         skip_updatable_queries(&program)
     });
 
-    program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
-    })?;
+    program = log_event.time("client_edges", || client_edges(&program, project_config))?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
+            project_config.name,
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
@@ -432,7 +434,7 @@ fn apply_normalization_transforms(
     });
 
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &project_config.feature_flags)
+        hash_supported_argument(&program)
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("hash_supported_argument", &program);
@@ -625,21 +627,30 @@ fn apply_typegen_transforms(
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
-        generate_relay_resolvers_model_fragments(&program, &project_config.schema_config)
+        generate_relay_resolvers_model_fragments(
+            project_config.name,
+            &program,
+            &project_config.schema_config,
+        )
     });
-    program = log_event.time(
-        "generate_relay_resolvers_operations_for_nested_objects",
-        || {
-            generate_relay_resolvers_operations_for_nested_objects(
-                &program,
-                &project_config.schema_config,
-            )
-        },
-    )?;
 
-    program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
-    })?;
+    if !project_config
+        .feature_flags
+        .enable_resolver_normalization_ast
+    {
+        program = log_event.time(
+            "generate_relay_resolvers_operations_for_nested_objects",
+            || {
+                generate_relay_resolvers_operations_for_nested_objects(
+                    project_config.name,
+                    &program,
+                    &project_config.schema_config,
+                )
+            },
+        )?;
+    }
+
+    program = log_event.time("client_edges", || client_edges(&program, project_config))?;
 
     program = log_event.time(
         "transform_assignable_fragment_spreads_in_regular_queries",
@@ -655,6 +666,7 @@ fn apply_typegen_transforms(
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
+            project_config.name,
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )

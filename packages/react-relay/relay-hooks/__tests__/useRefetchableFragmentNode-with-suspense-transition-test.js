@@ -172,7 +172,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -264,7 +263,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
           }),
           [owner, fragment.name],
         );

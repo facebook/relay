@@ -36,6 +36,7 @@ use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
 use relay_compiler::config::Config;
 use relay_compiler::FileCategorizer;
+use relay_compiler::ProjectName;
 use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
 use relay_transforms::deprecated_fields_for_executable_definition;
@@ -280,13 +281,18 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
-        let project_config = self.config.projects.get(&project_name).unwrap();
+        let project_config = self
+            .config
+            .projects
+            .get(&ProjectName::from(project_name))
+            .unwrap();
         for (index, docblock_source) in docblock_sources.iter().enumerate() {
             let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
             let text_source = docblock_source.text_source();
             let text = &text_source.text;
             let result = parse_docblock(text, source_location_key).and_then(|ast| {
                 parse_docblock_ast(
+                    project_config.name,
                     &ast,
                     Some(&executable_definitions),
                     ParseOptions {
@@ -434,7 +440,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(Feature, Span)> {
-        let project_name = self.extract_project_name_from_url(&position.text_document.uri)?;
+        let project_name: ProjectName = self
+            .extract_project_name_from_url(&position.text_document.uri)?
+            .into();
         let project_config = self.config.projects.get(&project_name).unwrap();
 
         extract_feature_from_text(
@@ -490,7 +498,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         query_text: String,
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String> {
-        get_query_text(self, query_text, project_name)
+        get_query_text(self, query_text, (*project_name).into())
     }
 
     fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {

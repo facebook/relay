@@ -12,9 +12,10 @@ path = "tests/parse_test.rs"
 
 [dependencies]
 common = { path = "../common" }
+docblock-shared = { path = "../docblock-shared" }
 intern = { path = "../intern" }
-serde = { version = "1.0.136", features = ["derive", "rc"] }
-thiserror = "1.0.36"
+serde = { version = "1.0.185", features = ["derive", "rc"] }
+thiserror = "1.0.43"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b44cb876937da0d32e5546c3a14f940c>>
+ * @generated SignedSource<<2c4f52b7e63db876ad15ccfdef1230f1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ import {greeting as userGreetingResolverType} from "../resolvers/UserGreetingRes
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
   rootKey: UserGreetingResolver$key,
-) => mixed);
+) => ?mixed);
 export type RelayReaderResolverTest11Query$variables = {||};
 export type RelayReaderResolverTest11Query$data = {|
   +me: ?{|
-    +the_alias: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
+    +the_alias: ?ReturnType<typeof userGreetingResolverType>,
   |},
 |};
 export type RelayReaderResolverTest11Query = {|

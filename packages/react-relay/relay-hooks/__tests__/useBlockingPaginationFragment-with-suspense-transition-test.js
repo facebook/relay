@@ -186,7 +186,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 

@@ -303,7 +303,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_union(&mut self, id: UnionID) -> FmtResult {
         let union_ = self.schema.union(id);
-        write!(self.writer(), "union {}", union_.name.item)?;
+        write!(self.writer(), "union {}", union_.name.item.0)?;
         self.print_directive_values(&union_.directives)?;
         if !union_.members.is_empty() {
             let union_members = union_

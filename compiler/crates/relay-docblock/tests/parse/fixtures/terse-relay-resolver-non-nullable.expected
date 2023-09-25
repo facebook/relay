@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver User.mandatory_greeting: String!
+ * Non-nullable 
+ */
+==================================== ERROR ====================================
+✖︎ Unexpected Relay Resolver field with non-nullable type. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+
+  /path/to/test/fixture/terse-relay-resolver-non-nullable.js:11:44
+   10 │ *
+   11 │  * @RelayResolver User.mandatory_greeting: String!
+      │                                            ^^^^^^^
+   12 │  * Non-nullable

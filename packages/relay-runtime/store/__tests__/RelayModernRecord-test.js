@@ -67,6 +67,14 @@ describe('RelayModernRecord', () => {
     });
   });
 
+  describe('fromObject()', () => {
+    it('returns the given JSON object', () => {
+      const object = {};
+      const record = RelayModernRecord.fromObject(object);
+      expect(record).toBe(object);
+    });
+  });
+
   describe('getLinkedRecordIDs()', () => {
     let record;
 
@@ -150,6 +158,18 @@ describe('RelayModernRecord', () => {
     });
   });
 
+  describe('getFields()', () => {
+    it('returns an array with all the keys', () => {
+      const record = RelayModernRecord.getFields({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+        pets: {[REFS_KEY]: ['beast']},
+      });
+      expect(record).toEqual([ID_KEY, TYPENAME_KEY, 'name', 'pets']);
+    });
+  });
+
   describe('getValue()', () => {
     let record;
 
@@ -229,6 +249,50 @@ describe('RelayModernRecord', () => {
       expect(() => {
         RelayModernRecord.setValue(record, 'pet', 'Beast');
       }).toThrow(TypeError);
+    });
+  });
+
+  describe('hasValue()', () => {
+    let record;
+
+    beforeEach(() => {
+      record = {
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        fieldThatIsString: 'applesauce',
+        fieldThatIsNull: null,
+        fieldThatIsUndefined: undefined,
+      };
+    });
+
+    it('has no special treatment for the id field', () => {
+      expect(RelayModernRecord.hasValue(record, ID_KEY)).toBe(true);
+    });
+
+    it('has no special treatment for the typename field', () => {
+      expect(RelayModernRecord.hasValue(record, TYPENAME_KEY)).toBe(true);
+    });
+
+    it('returns true when the value is a string', () => {
+      expect(RelayModernRecord.hasValue(record, 'fieldThatIsString')).toBe(
+        true,
+      );
+    });
+
+    it('returns true when the value is null', () => {
+      expect(RelayModernRecord.hasValue(record, 'fieldThatIsNull')).toBe(true);
+    });
+
+    it('returns true when the value is explicitly undefined', () => {
+      expect(RelayModernRecord.hasValue(record, 'fieldThatIsUndefined')).toBe(
+        true,
+      );
+    });
+
+    it('returns false when the value is missing', () => {
+      expect(RelayModernRecord.hasValue(record, 'fieldThatIsMissing')).toBe(
+        false,
+      );
     });
   });
 

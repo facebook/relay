@@ -12,16 +12,19 @@
 'use strict';
 
 import type {DataID} from '../util/RelayRuntimeTypes';
+import type {RecordJSON} from './RelayModernRecord';
 import type {RecordState} from './RelayRecordState';
-import type {
-  MutableRecordSource,
-  Record,
-  RecordObjectMap,
-} from './RelayStoreTypes';
+import type {MutableRecordSource, Record} from './RelayStoreTypes';
 
+const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordState = require('./RelayRecordState');
 
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
+
+/**
+ * A collection of records keyed by id.
+ */
+type RecordObjectMap = {[DataID]: ?RecordJSON};
 
 /**
  * An implementation of the `MutableRecordSource` interface (defined in
@@ -34,7 +37,9 @@ class RelayRecordSource implements MutableRecordSource {
     this._records = new Map();
     if (records != null) {
       Object.keys(records).forEach(key => {
-        this._records.set(key, records[key]);
+        const object = records[key];
+        const record = RelayModernRecord.fromObject<null | void>(object);
+        this._records.set(key, record);
       });
     }
   }
@@ -82,10 +87,10 @@ class RelayRecordSource implements MutableRecordSource {
     return this._records.size;
   }
 
-  toJSON(): {[DataID]: ?Record, ...} {
-    const obj: {[DataID]: ?Record} = {};
-    for (const [key, value] of this._records) {
-      obj[key] = value;
+  toJSON(): {[DataID]: ?RecordJSON} {
+    const obj: {[DataID]: ?RecordJSON} = {};
+    for (const [key, record] of this._records) {
+      obj[key] = RelayModernRecord.toJSON<null | void>(record);
     }
     return obj;
   }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<92a6c43529a329bf52ca5f69cc61b80a>>
+ * @generated SignedSource<<5913ee23d3b454b8b62030303cd8ffbd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+) => ?mixed);
 import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -48,9 +48,9 @@ export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {|
   +me: ?{|
     +astrological_sign: ?{|
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
       +opposite: ?{|
-        +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+        +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
       |},
     |},
   |},

@@ -16,7 +16,6 @@ import type {Disposable} from '../util/RelayRuntimeTypes';
 export type FeatureFlags = {
   ENABLE_CLIENT_EDGES: boolean,
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
-  ENABLE_REACT_FLIGHT_COMPONENT_FIELD: boolean,
   ENABLE_RELAY_RESOLVERS: boolean,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean,
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: boolean,
@@ -31,6 +30,7 @@ export type FeatureFlags = {
   USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: boolean,
   LOG_MISSING_RECORDS_IN_PROD: boolean,
+  ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: boolean,
 
   // Configure RelayStoreSubscriptions to mark a subscription as affected by an
   // update if there are any overlapping IDs other than ROOT_ID or VIWER_ID,
@@ -40,12 +40,12 @@ export type FeatureFlags = {
   // read())`, so we are experimenting with this loose behavior which should be
   // more compatible.
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: boolean,
+  ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
   ENABLE_CLIENT_EDGES: false,
   ENABLE_VARIABLE_CONNECTION_KEY: false,
-  ENABLE_REACT_FLIGHT_COMPONENT_FIELD: false,
   ENABLE_RELAY_RESOLVERS: false,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: false,
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: false,
@@ -61,6 +61,8 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: false,
   LOG_MISSING_RECORDS_IN_PROD: false,
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
+  ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
+  ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
 };
 
 module.exports = RelayFeatureFlags;

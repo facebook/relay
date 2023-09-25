@@ -1,0 +1,15 @@
+# expected-to-throw
+query providedVariablePassedInArgumentRefetchableFragmentInvalid_Query {
+  node(id: 4) {
+    ...providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment @arguments(includeName: true)
+  }
+}
+
+fragment providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment on Node
+@refetchable(queryName: "refetchableQuery")
+@argumentDefinitions(
+  includeName: {type: "Boolean!", provider: "includeName_RelayProvider"}
+) {
+  id
+  name @include(if: $includeName)
+}

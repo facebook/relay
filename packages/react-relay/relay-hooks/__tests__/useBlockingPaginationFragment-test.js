@@ -135,7 +135,6 @@ describe('useBlockingPaginationFragment', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 

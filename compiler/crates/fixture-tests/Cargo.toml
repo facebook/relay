@@ -19,5 +19,5 @@ clap = { version = "3.2.25", features = ["derive", "env", "regex", "unicode", "w
 colored = "1.9"
 diff = "0.1"
 lazy_static = "1.4"
-parking_lot = { version = "0.11.2", features = ["send_guard"] }
+parking_lot = { version = "0.12.1", features = ["send_guard"] }
 signedsource = { path = "../signedsource" }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3b3f1d4d98379c00c4adf7b1b8a2f847>>
+ * @generated SignedSource<<6355092933682b9b7084e458e3781ede>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,13 +28,13 @@ import {house as astrologicalSignHouseResolverType} from "../resolvers/Astrologi
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignHouseResolverType: (
   rootKey: AstrologicalSignHouseResolver$key,
-) => mixed);
+) => ?mixed);
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+) => ?mixed);
 import {opposite as astrologicalSignOppositeResolverType} from "../resolvers/AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -56,15 +56,15 @@ export type ClientEdgeToClientObjectTest1Query$data = {|
   +me: ?{|
     +astrological_sign: ?{|
       +__id: string,
-      +house: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignHouseResolverType>,
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+      +house: ?ReturnType<typeof astrologicalSignHouseResolverType>,
+      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
       +opposite: ?{|
         +__id: string,
-        +house: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignHouseResolverType>,
-        +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+        +house: ?ReturnType<typeof astrologicalSignHouseResolverType>,
+        +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
         +opposite: ?{|
           +__id: string,
-          +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+          +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
         |},
       |},
     |},

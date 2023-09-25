@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6468af404e3077989cac236c8be0838f>>
+ * @generated SignedSource<<d42ad82db9e1d2e7b56509ffc22d3bf4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -123,9 +123,7 @@ v4 = [
               {
                 "kind": "Literal",
                 "name": "supported",
-                "value": [
-                  "PlainCommentBody"
-                ]
+                "value": "2Rll6p"
               }
             ],
             "concreteType": null,
@@ -164,7 +162,7 @@ v4 = [
               },
               (v3/*: any*/)
             ],
-            "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
+            "storageKey": "commentBody(supported:\"2Rll6p\")"
           }
         ],
         "type": "Comment",

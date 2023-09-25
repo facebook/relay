@@ -75,6 +75,11 @@ pub enum IrParsingErrorMessages {
     FieldWithMissingData { field_name: AllowedFieldName },
 
     #[error(
+        "Unexpected Relay Resolver field with non-nullable type. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values."
+    )]
+    FieldWithNonNullType,
+
+    #[error(
         "The compiler attempted to parse this `@RelayResolver` block as a {resolver_type}, but there were unexpected fields: {field_string}."
     )]
     LeftoverFields {

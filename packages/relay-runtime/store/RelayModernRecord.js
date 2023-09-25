@@ -13,7 +13,6 @@
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {Record} from './RelayStoreTypes';
 
 const deepFreeze = require('../util/deepFreeze');
 const {generateClientObjectClientID, isClientID} = require('./ClientID');
@@ -33,6 +32,18 @@ const {
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
+
+type StorageKey = string;
+
+export type RecordJSON = {
+  [StorageKey]: mixed,
+  ...
+};
+
+/*
+ * An individual cached graph object.
+ */
+export opaque type Record = RecordJSON;
 
 /**
  * @public
@@ -125,10 +136,30 @@ function create(dataID: DataID, typeName: string): Record {
 /**
  * @public
  *
+ * Convert the JSON representation of a record into a record.
+ */
+function fromObject<TMaybe: ?empty = empty>(
+  json: RecordJSON | TMaybe,
+): Record | TMaybe {
+  return json;
+}
+
+/**
+ * @public
+ *
  * Get the record's `id` if available or the client-generated identifier.
  */
 function getDataID(record: Record): DataID {
   return (record[ID_KEY]: any);
+}
+
+/**
+ * @public
+ *
+ * Get the fields of a record.
+ */
+function getFields(record: Record): Array<StorageKey> {
+  return Object.keys(record);
 }
 
 /**
@@ -145,7 +176,7 @@ function getType(record: Record): string {
  *
  * Get a scalar (non-link) field value.
  */
-function getValue(record: Record, storageKey: string): mixed {
+function getValue(record: Record, storageKey: StorageKey): mixed {
   const value = record[storageKey];
   if (value && typeof value === 'object') {
     invariant(
@@ -165,10 +196,19 @@ function getValue(record: Record, storageKey: string): mixed {
 /**
  * @public
  *
+ * Check if a record has a value for the given field.
+ */
+function hasValue(record: Record, storageKey: StorageKey): boolean {
+  return storageKey in record;
+}
+
+/**
+ * @public
+ *
  * Get the value of a field as a reference to another record. Throws if the
  * field has a different type.
  */
-function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
+function getLinkedRecordID(record: Record, storageKey: StorageKey): ?DataID {
   const maybeLink = record[storageKey];
   if (maybeLink == null) {
     return maybeLink;
@@ -200,7 +240,7 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
  */
 function getLinkedRecordIDs(
   record: Record,
-  storageKey: string,
+  storageKey: StorageKey,
 ): ?Array<?DataID> {
   const links = record[storageKey];
   if (links == null) {
@@ -336,7 +376,7 @@ function freeze(record: Record): void {
  *
  * Set the value of a storageKey to a scalar.
  */
-function setValue(record: Record, storageKey: string, value: mixed): void {
+function setValue(record: Record, storageKey: StorageKey, value: mixed): void {
   if (__DEV__) {
     const prevID = getDataID(record);
     if (storageKey === ID_KEY) {
@@ -375,7 +415,7 @@ function setValue(record: Record, storageKey: string, value: mixed): void {
  */
 function setLinkedRecordID(
   record: Record,
-  storageKey: string,
+  storageKey: StorageKey,
   linkedID: DataID,
 ): void {
   // See perf note above for why we aren't using computed property access.
@@ -391,7 +431,7 @@ function setLinkedRecordID(
  */
 function setLinkedRecordIDs(
   record: Record,
-  storageKey: string,
+  storageKey: StorageKey,
   linkedIDs: Array<?DataID>,
 ): void {
   // See perf note above for why we aren't using computed property access.
@@ -407,7 +447,7 @@ function setLinkedRecordIDs(
  */
 function setActorLinkedRecordID(
   record: Record,
-  storageKey: string,
+  storageKey: StorageKey,
   actorIdentifier: ActorIdentifier,
   linkedID: DataID,
 ): void {
@@ -425,7 +465,7 @@ function setActorLinkedRecordID(
  */
 function getActorLinkedRecordID(
   record: Record,
-  storageKey: string,
+  storageKey: StorageKey,
 ): ?[ActorIdentifier, DataID] {
   const link = record[storageKey];
   if (link == null) {
@@ -495,17 +535,31 @@ function getResolverLinkedRecordIDs(
   });
 }
 
+/**
+ * @public
+ *
+ * Convert a record to JSON.
+ */
+function toJSON<TMaybe: ?empty = empty>(
+  record: Record | TMaybe,
+): RecordJSON | TMaybe {
+  return record;
+}
+
 module.exports = {
   clone,
   copyFields,
   create,
   freeze,
+  fromObject,
   getDataID,
+  getFields,
   getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,
   getType,
   getValue,
+  hasValue,
   merge,
   setValue,
   setLinkedRecordID,
@@ -515,4 +569,5 @@ module.exports = {
   setActorLinkedRecordID,
   getResolverLinkedRecordID,
   getResolverLinkedRecordIDs,
+  toJSON,
 };

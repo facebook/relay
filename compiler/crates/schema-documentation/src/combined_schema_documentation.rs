@@ -43,6 +43,16 @@ impl<TPrimary: SchemaDocumentation, TSecondary: SchemaDocumentation> SchemaDocum
                     .get_field_argument_description(type_name, field_name, argument_name)
             })
     }
+    fn get_hack_source(&self, type_name: &str) -> Option<&str> {
+        self.primary
+            .get_hack_source(type_name)
+            .or_else(|| self.secondary.get_hack_source(type_name))
+    }
+    fn get_field_hack_source(&self, type_name: &str, field_name: &str) -> Option<&str> {
+        self.primary
+            .get_field_hack_source(type_name, field_name)
+            .or_else(|| self.secondary.get_field_hack_source(type_name, field_name))
+    }
 }
 
 impl<'a, TPrimary: SchemaDocumentation, TSecondary: SchemaDocumentation>

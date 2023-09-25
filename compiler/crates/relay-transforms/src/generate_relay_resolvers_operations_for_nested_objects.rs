@@ -24,6 +24,7 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::Field;
 use schema::FieldID;
@@ -34,11 +35,13 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use crate::generate_relay_resolvers_model_fragments::directives_with_artifact_source;
 use crate::get_normalization_operation_name;
 use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::SplitOperationMetadata;
 use crate::ValidationMessage;
+use crate::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 
 fn generate_fat_selections_from_type(
     schema: &SDLSchema,
@@ -439,6 +442,7 @@ fn generate_selections_from_interface_fields(
 }
 
 pub(crate) fn generate_name_for_nested_object_operation(
+    project_name: ProjectName,
     schema: &SDLSchema,
     field: &Field,
 ) -> WithLocation<OperationDefinitionName> {
@@ -446,10 +450,10 @@ pub(crate) fn generate_name_for_nested_object_operation(
         .parent_type
         .unwrap_or_else(|| panic!("Expected parent type for field {:?}.", field));
 
-    let normalization_name = get_normalization_operation_name(
-        format!("{}__{}", schema.get_type_name(parent_type), field.name.item).intern(),
-    )
-    .intern();
+    let name = project_name
+        .generate_name_for_object_and_field(schema.get_type_name(parent_type), field.name.item);
+
+    let normalization_name = get_normalization_operation_name(name.intern()).intern();
 
     field
         .name
@@ -457,6 +461,7 @@ pub(crate) fn generate_name_for_nested_object_operation(
 }
 
 pub fn generate_relay_resolvers_operations_for_nested_objects(
+    project_name: ProjectName,
     program: &Program,
     schema_config: &SchemaConfig,
 ) -> DiagnosticsResult<Program> {
@@ -468,6 +473,16 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
         }
 
         if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
+            // For resolvers that belong to the base schema, we don't need to generate fragments.
+            // These fragments should be generated during compilcation of the base project.
+            if field
+                .directives
+                .named(*RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE)
+                .is_some()
+            {
+                continue;
+            }
+
             let has_output_type =
                 get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
             if !has_output_type {
@@ -496,26 +511,21 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                 continue;
             }
 
-            let operation_name = generate_name_for_nested_object_operation(&program.schema, field);
+            let operation_name =
+                generate_name_for_nested_object_operation(project_name, &program.schema, field);
 
-            let parent_documents = {
-                let mut parent_documents = HashSet::default();
-                parent_documents.insert(operation_name.item.into());
-                parent_documents
-            };
-
-            let directives = vec![
+            let mut directives = directives_with_artifact_source(field);
+            directives.push(
                 SplitOperationMetadata {
                     location: field.name.location,
-                    parent_documents,
+                    parent_documents: Default::default(),
                     derived_from: None,
                     raw_response_type_generation_mode: Some(
                         RawResponseGenerationMode::AllFieldsRequired,
                     ),
                 }
                 .into(),
-            ];
-
+            );
             let operation = OperationDefinition {
                 name: operation_name,
                 type_: field.type_.inner(),

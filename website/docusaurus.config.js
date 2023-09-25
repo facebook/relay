@@ -248,10 +248,10 @@ module.exports = {
           ],
         },
         gtag: {
-          trackingID: 'UA-44373548-50',
+          trackingID: 'G-DCSC7FDGL5',
         },
         googleAnalytics: {
-          trackingID: 'UA-44373548-50',
+          trackingID: 'G-DCSC7FDGL5',
         },
       },
     ],

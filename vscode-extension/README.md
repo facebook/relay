@@ -70,6 +70,15 @@ Path to a Relay config relative to the `rootDirectory`. Without this, the compil
 
 An array of project configuration in the form `{name: string, rootDirectory: string, pathToConfig: string}`. If omitted, it is assumed your workspace uses a single Relay config and the compiler will search for your config file. But you can also use this configuration if your Relay config is in a nested directory. This configuration must be used if your workspace has multiple Relay projects, each with their own config file.
 
+#### `relay.pathToLocateCommand` (default: `null`)
+
+Path to a script to look up the actual definition for a GraphQL entity for implementation-first GraphQL schemas. This script will be called for "goto definition" requests to the LSP instead of opening the schema.
+The script will be called with 2 arguments. The first will be the relay project name, the second will be either "Type" or "Type.field" (a type or the field of a type, repectively).
+The script must respond with a single line of output matching "/absolute/file/path:1:2" where "1" is the line number in the file and "2" is the character on that line that the definition starts with. If it fails
+to match this pattern (or the script fails to execute for some reason) the GraphQL schema will be opened as a fallback.
+
+This option requires >15.0.0 of the Relay compiler to function.
+
 ## Features
 
 - IntelliSense

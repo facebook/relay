@@ -38,6 +38,7 @@ use graphql_syntax::Value;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use log::debug;
+use log::info;
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
 use lsp_types::request::ResolveCompletionItem;
@@ -968,27 +969,22 @@ fn resolve_completion_items_for_inline_fragment(
     schema: &SDLSchema,
     existing_inline_fragment: bool,
 ) -> Vec<CompletionItem> {
+    info!("resolve inline fragment completion items");
     match type_ {
         Type::Interface(id) => {
             let interface = schema.interface(id);
-            once(type_)
-                .chain(
-                    interface
-                        .implementing_objects
-                        .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
-                )
+            interface
+                .implementing_objects
+                .iter()
+                .filter_map(|id| schema.get_type(schema.object(*id).name.item.0))
                 .collect()
         }
         Type::Union(id) => {
             let union = schema.union(id);
-            once(type_)
-                .chain(
-                    union
-                        .members
-                        .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
-                )
+            union
+                .members
+                .iter()
+                .filter_map(|id| schema.get_type(schema.object(*id).name.item.0))
                 .collect()
         }
         Type::Enum(_) | Type::Object(_) | Type::InputObject(_) | Type::Scalar(_) => vec![],

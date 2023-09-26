@@ -6,7 +6,6 @@
  */
 
 //! Utilities for providing the completion language feature
-use std::iter::once;
 
 use common::ArgumentName;
 use common::DirectiveName;
@@ -38,7 +37,6 @@ use graphql_syntax::Value;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use log::debug;
-use log::info;
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
 use lsp_types::request::ResolveCompletionItem;
@@ -52,6 +50,7 @@ use lsp_types::MarkupKind;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
 use schema::InputObject;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -969,28 +968,23 @@ fn resolve_completion_items_for_inline_fragment(
     schema: &SDLSchema,
     existing_inline_fragment: bool,
 ) -> Vec<CompletionItem> {
-    info!("resolve inline fragment completion items");
     match type_ {
         Type::Interface(id) => {
             let interface = schema.interface(id);
-            interface
-                .implementing_objects
-                .iter()
-                .filter_map(|id| schema.get_type(schema.object(*id).name.item.0))
-                .collect()
+            let interface_type = schema.get_type(interface.name.item.0);
+
+            get_abstract_type_suggestions(&interface.implementing_objects, schema, interface_type)
         }
         Type::Union(id) => {
             let union = schema.union(id);
-            union
-                .members
-                .iter()
-                .filter_map(|id| schema.get_type(schema.object(*id).name.item.0))
-                .collect()
+
+            get_abstract_type_suggestions(&union.members, schema, None)
         }
         Type::Enum(_) | Type::Object(_) | Type::InputObject(_) | Type::Scalar(_) => vec![],
     }
     .into_iter()
-    .map(|type_| {
+    .enumerate()
+    .map(|(index, type_)| {
         let type_name = schema.get_type_name(type_).lookup();
         if existing_inline_fragment {
             CompletionItem::new_simple(type_name.to_owned(), "".into())
@@ -1002,7 +996,7 @@ fn resolve_completion_items_for_inline_fragment(
                 documentation: None,
                 deprecated: None,
                 preselect: None,
-                sort_text: None,
+                sort_text: Some(index.to_string()),
                 filter_text: None,
                 insert_text: Some(format!("... on {type_name} {{\n\t$1\n}}")),
                 insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
@@ -1398,6 +1392,40 @@ fn make_markdown_table_documentation(
         ]
         .join("\n"),
     })
+}
+
+fn get_abstract_type_suggestions(
+    objects: &Vec<ObjectID>,
+    schema: &SDLSchema,
+    self_type: Option<Type>,
+) -> Vec<Type> {
+    let object_types: Vec<_> = objects.iter().map(|id| schema.object(*id)).collect();
+
+    let mut interfaces = vec![];
+    let mut types = vec![];
+
+    for object_type in &object_types {
+        if let Some(t) = schema.get_type(object_type.name.item.0) {
+            types.push(t);
+        }
+
+        for interface_id in &object_type.interfaces {
+            let interface_type = schema.interface(*interface_id);
+
+            if let Some(t) = schema.get_type(interface_type.name.item.0) {
+                if Some(t) == self_type {
+                    continue;
+                }
+
+                interfaces.push(t)
+            }
+        }
+    }
+
+    types.extend(interfaces);
+    types.dedup();
+
+    types
 }
 
 #[cfg(test)]

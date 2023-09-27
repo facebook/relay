@@ -21,3 +21,6 @@ diff = "0.1"
 lazy_static = "1.4"
 parking_lot = { version = "0.12.1", features = ["send_guard"] }
 signedsource = { path = "../signedsource" }
+
+[dev-dependencies]
+tokio = { version = "1.25.0", features = ["full", "test-util", "tracing"] }

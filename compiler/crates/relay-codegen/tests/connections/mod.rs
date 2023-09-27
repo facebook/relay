@@ -24,7 +24,7 @@ use relay_transforms::transform_connections;
 use relay_transforms::validate_connections;
 use relay_transforms::ConnectionInterface;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_config = ProjectConfig {
         js_module_format: JsModuleFormat::Haste,
         ..Default::default()

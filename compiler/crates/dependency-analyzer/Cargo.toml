@@ -26,3 +26,4 @@ common = { path = "../common" }
 fixture-tests = { path = "../fixture-tests" }
 intern = { path = "../intern" }
 relay-test-schema = { path = "../relay-test-schema" }
+tokio = { version = "1.25.0", features = ["full", "test-util", "tracing"] }

@@ -671,7 +671,6 @@ fn completion_items_for_request(
     program: &Program,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
-    debug!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
@@ -983,8 +982,7 @@ fn resolve_completion_items_for_inline_fragment(
         Type::Enum(_) | Type::Object(_) | Type::InputObject(_) | Type::Scalar(_) => vec![],
     }
     .into_iter()
-    .enumerate()
-    .map(|(index, type_)| {
+    .map(|type_| {
         let type_name = schema.get_type_name(type_).lookup();
         if existing_inline_fragment {
             CompletionItem::new_simple(type_name.to_owned(), "".into())
@@ -996,7 +994,7 @@ fn resolve_completion_items_for_inline_fragment(
                 documentation: None,
                 deprecated: None,
                 preselect: None,
-                sort_text: Some(index.to_string()),
+                sort_text: None,
                 filter_text: None,
                 insert_text: Some(format!("... on {type_name} {{\n\t$1\n}}")),
                 insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
@@ -1401,8 +1399,8 @@ fn get_abstract_type_suggestions(
 ) -> Vec<Type> {
     let object_types: Vec<_> = objects.iter().map(|id| schema.object(*id)).collect();
 
-    let mut interfaces = vec![];
-    let mut types = vec![];
+    let mut interfaces = Vec::new();
+    let mut types = Vec::new();
 
     for object_type in &object_types {
         if let Some(t) = schema.get_type(object_type.name.item.0) {
@@ -1417,13 +1415,16 @@ fn get_abstract_type_suggestions(
                     continue;
                 }
 
-                interfaces.push(t)
+                if interfaces.contains(&t) {
+                    continue;
+                }
+
+                interfaces.push(t);
             }
         }
     }
 
     types.extend(interfaces);
-    types.dedup();
 
     types
 }

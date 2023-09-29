@@ -11,9 +11,6 @@
 
 'use strict';
 
-const hasWeakSetDefined = typeof WeakSet !== 'undefined';
-const hasWeakMapDefined = typeof WeakMap !== 'undefined';
-
 /**
  * Recycles subtrees from `prevData` by replacing equal subtrees in `nextData`.
  */
@@ -21,17 +18,11 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
   if (
     prevData === nextData ||
     typeof prevData !== 'object' ||
-    prevData instanceof Set ||
-    prevData instanceof Map ||
-    (hasWeakSetDefined && prevData instanceof WeakSet) ||
-    (hasWeakMapDefined && prevData instanceof WeakMap) ||
     !prevData ||
+    (prevData.constructor !== Object && !Array.isArray(prevData)) ||
     typeof nextData !== 'object' ||
-    nextData instanceof Set ||
-    nextData instanceof Map ||
-    (hasWeakSetDefined && nextData instanceof WeakSet) ||
-    (hasWeakMapDefined && nextData instanceof WeakMap) ||
-    !nextData
+    !nextData ||
+    (nextData.constructor !== Object && !Array.isArray(nextData))
   ) {
     return nextData;
   }

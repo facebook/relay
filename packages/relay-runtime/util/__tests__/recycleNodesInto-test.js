@@ -325,4 +325,18 @@ describe('recycleNodesInto', () => {
       expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
     });
   });
+
+  describe('errors', () => {
+    it('does not recycle errors with equal values', () => {
+      const a = new Error('test 1');
+      const b = new Error('test 1');
+      expect(recycleNodesInto(a, b)).toBe(b);
+    });
+
+    it('does not recycle errors with unequal values', () => {
+      const a = new Error('test 1');
+      const b = new Error('test 2');
+      expect(recycleNodesInto(a, b)).toBe(b);
+    });
+  });
 });

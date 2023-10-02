@@ -7,7 +7,6 @@
 
 use std::sync::Arc;
 
-use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use docblock_shared::ResolverSourceHash;
@@ -33,7 +32,6 @@ lazy_static! {
     // help us avoid potential collision with product code (__self, __instance can be used for something else)
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey =
         "__relay_model_instance".intern();
-    pub static ref RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE: DirectiveName = DirectiveName("__belongs_to_base_schema".intern());
 }
 
 /// Currently, this is a wrapper of the hash of the resolver source code.
@@ -60,18 +58,7 @@ pub fn generate_relay_resolvers_model_fragments(
             .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
             .is_some()
         {
-            // For resolvers that belong to the base schema, we don't need to generate operations.
-            // These operations should be generated during compilcation of the base project.
-            if object
-                .directives
-                .named(*RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE)
-                .is_some()
-            {
-                continue;
-            }
-
             let object_type = program.schema.get_type(object.name.item.0).unwrap();
-
             let model_instance_field_id = program
                 .schema
                 .named_field(object_type, *RESOLVER_MODEL_INSTANCE_FIELD_NAME)

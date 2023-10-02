@@ -129,7 +129,6 @@ pub use generate_data_driven_dependency_metadata::RelayDataDrivenDependencyMetad
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
 pub use generate_relay_resolvers_model_fragments::ArtifactSourceKeyData;
-pub use generate_relay_resolvers_model_fragments::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 pub use generate_relay_resolvers_operations_for_nested_objects::generate_relay_resolvers_operations_for_nested_objects;
 pub use generate_typename::generate_typename;
 pub use generate_typename::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
@@ -169,6 +168,7 @@ pub use relay_resolvers::FragmentDataInjectionMode;
 pub use relay_resolvers::RelayResolverMetadata;
 pub use relay_resolvers::ResolverOutputTypeInfo;
 pub use remove_base_fragments::remove_base_fragments;
+pub use remove_base_fragments::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 pub use required_directive::required_directive;
 pub use required_directive::RequiredAction;
 pub use required_directive::RequiredMetadataDirective;

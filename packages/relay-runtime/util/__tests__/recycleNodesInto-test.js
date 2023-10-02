@@ -137,6 +137,7 @@ describe('recycleNodesInto', () => {
 
       expect(recycled).not.toBe(prevData);
       expect(recycled.foo).not.toBe(prevData.foo);
+      expect(recycled).toBe(nextData);
     });
 
     it('does not recycle arrays as objects', () => {
@@ -174,6 +175,13 @@ describe('recycleNodesInto', () => {
       const nextData = [{foo: 1}, {bar: 2}];
       Object.freeze(nextData);
       expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
+    });
+
+    it('does not recycle into frozen `nextData`', () => {
+      const prevData = [{x: 1}, 2, 3];
+      const nextData = [{x: 1}, 2, 4];
+      Object.freeze(nextData);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
     });
 
     it('recycles arrays without mutating `prevData`', () => {

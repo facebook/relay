@@ -92,6 +92,9 @@ describe('ReactRelayTestMocker with Containers', () => {
     it('should resolve query', () => {
       // Should render loading state
       expect(() => {
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         testComponentTree.root.find(node => node.props.testID === 'loading');
       }).not.toThrow();
@@ -109,6 +112,9 @@ describe('ReactRelayTestMocker with Containers', () => {
       environment.mock.rejectMostRecentOperation(new Error('Uh-oh'));
 
       const errorMessage = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'error',
       );
@@ -123,6 +129,9 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
 
       const errorMessage = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'error',
       );
@@ -167,6 +176,9 @@ describe('ReactRelayTestMocker with Containers', () => {
         }
       `;
       const ProfilePicture = createFragmentContainer(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
         props => {
           return (
@@ -226,6 +238,9 @@ describe('ReactRelayTestMocker with Containers', () => {
         }),
       );
       const image = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'profile_picture',
       );
@@ -374,6 +389,9 @@ describe('ReactRelayTestMocker with Containers', () => {
         );
       });
       const list = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'list',
       );
@@ -412,6 +430,9 @@ describe('ReactRelayTestMocker with Containers', () => {
         );
       });
       const loadMore = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'loadMore',
       );
@@ -422,6 +443,9 @@ describe('ReactRelayTestMocker with Containers', () => {
       // Should show preloader
       expect(() => {
         testComponentTree.root.find(
+          // In www, this is differently typed (via react-test-renderer.js.flow) than in
+          // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+          // to get flow to accept this typing.
           // $FlowFixMe[missing-local-annot]
           node => node.props.testID === 'loadingMore',
         );
@@ -453,6 +477,9 @@ describe('ReactRelayTestMocker with Containers', () => {
         );
       });
       const list = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'list',
       );
@@ -576,12 +603,18 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
       // Make sure we're rendered correct hometown
       expect(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         testComponentTree.root.find(node => node.props.testID === 'hometown')
           .children,
       ).toEqual(['PHL']);
 
       const refetch = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'refetch',
       );
@@ -590,6 +623,9 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
       // Should load loading state
       expect(() => {
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         testComponentTree.root.find(node => node.props.testID === 'refetching');
       }).not.toThrow();
@@ -615,6 +651,9 @@ describe('ReactRelayTestMocker with Containers', () => {
         }),
       );
       expect(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         testComponentTree.root.find(node => node.props.testID === 'hometown')
           .children,
@@ -756,6 +795,9 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should resolve mutation', () => {
       const likeButton = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'likeButton',
       );
@@ -796,6 +838,9 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should reject mutation', () => {
       const likeButton = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'likeButton',
       );
@@ -880,6 +925,9 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
       expect(
         testComponentTree.root.find(
+          // In www, this is differently typed (via react-test-renderer.js.flow) than in
+          // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+          // to get flow to accept this typing.
           // $FlowFixMe[missing-local-annot]
           node => node.props.testID === 'helloMessage',
         ).children,
@@ -1008,6 +1056,9 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
 
       const reaction = testComponentTree.root.find(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         node => node.props.testID === 'reaction',
       );
@@ -1131,11 +1182,17 @@ describe('ReactRelayTestMocker with Containers', () => {
         }),
       );
       expect(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         testComponentTree.root.find(node => node.props.testID === 'user')
           .children,
       ).toEqual(['Alice']);
       expect(
+        // In www, this is differently typed (via react-test-renderer.js.flow) than in
+        // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
+        // to get flow to accept this typing.
         // $FlowFixMe[missing-local-annot]
         testComponentTree.root.find(node => node.props.testID === 'page')
           .children,

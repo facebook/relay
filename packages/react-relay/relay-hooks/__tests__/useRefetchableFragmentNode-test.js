@@ -192,7 +192,6 @@ describe.each([
           [fragmentName]: {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -200,9 +199,7 @@ describe.each([
       // Set up mocks
       jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
       jest.mock('warning');
-      jest.mock('scheduler', () =>
-        jest.requireActual('scheduler/unstable_mock'),
-      );
+      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
       /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
        * enabling Flow LTI mode */
       commitSpy = jest.fn<_, mixed>();
@@ -356,7 +353,6 @@ describe.each([
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
           }),
           [owner, fragment.name],
         );
@@ -396,7 +392,7 @@ describe.each([
 
       const Fallback = () => {
         useEffect(() => {
-          Scheduler.unstable_yieldValue('Fallback');
+          Scheduler.log('Fallback');
         });
 
         return 'Fallback';

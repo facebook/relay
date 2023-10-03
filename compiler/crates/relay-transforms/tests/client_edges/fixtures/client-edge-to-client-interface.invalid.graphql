@@ -15,6 +15,11 @@ interface ClientOnlyInterface implements Node {
   id: ID!
 }
 
+# Add a concrete type so that we don't trigger an unrelated compiler error.
+type BestFriend implements ClientOnlyInterface {
+  id: ID!
+}
+
 extend type User {
   best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
 }

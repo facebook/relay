@@ -83,7 +83,10 @@ export type {
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
-export type {MutationConfig} from './mutations/commitMutation';
+export type {
+  MutationConfig,
+  CommitMutationConfig,
+} from './mutations/commitMutation';
 export type {
   ExecuteFunction,
   FetchFunction,
@@ -95,10 +98,6 @@ export type {
   LogRequestInfoFunction,
   PayloadData,
   PayloadError,
-  ReactFlightPayloadData,
-  ReactFlightPayloadQuery,
-  ReactFlightServerTree,
-  ReactFlightServerError,
   SubscribeFunction,
   Uploadable,
   UploadableMap,
@@ -142,9 +141,6 @@ export type {
   PluralReaderSelector,
   Props,
   PublishQueue,
-  ReactFlightClientResponse,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
   ReaderSelector,
   ReadOnlyRecordProxy,
   ReadOnlyRecordSourceProxy,
@@ -171,7 +167,6 @@ export type {
   NormalizationArgument,
   NormalizationDefer,
   NormalizationField,
-  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
@@ -188,7 +183,6 @@ export type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
-  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragment,
   ReaderInlineDataFragmentSpread,
@@ -365,6 +359,7 @@ module.exports = {
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
+    getLocalVariables: RelayConcreteVariables.getLocalVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,
     fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,

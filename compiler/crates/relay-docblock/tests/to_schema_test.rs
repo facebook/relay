@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8cf2bea87a87f4c48d8c0b53b4e0c616>>
+ * @generated SignedSource<<b0c707529f8b045554b20820c2e3e271>>
  */
 
 mod to_schema;
@@ -31,6 +31,13 @@ fn client_edge_to_plural_server_object_relay_resolver_invalid() {
     let input = include_str!("to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.js");
     let expected = include_str!("to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.expected");
     test_fixture(transform_fixture, "client-edge-to-plural-server-object-relay-resolver.invalid.js", "to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.expected", input, expected);
+}
+
+#[test]
+fn legacy_relay_resolver_with_root_fragment_on_model() {
+    let input = include_str!("to_schema/fixtures/legacy-relay-resolver-with-root-fragment-on-model.js");
+    let expected = include_str!("to_schema/fixtures/legacy-relay-resolver-with-root-fragment-on-model.expected");
+    test_fixture(transform_fixture, "legacy-relay-resolver-with-root-fragment-on-model.js", "to_schema/fixtures/legacy-relay-resolver-with-root-fragment-on-model.expected", input, expected);
 }
 
 #[test]
@@ -241,6 +248,20 @@ fn terse_relay_resolver_with_output_type() {
     let input = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.js");
     let expected = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.expected");
     test_fixture(transform_fixture, "terse-relay-resolver-with-output-type.js", "to_schema/fixtures/terse-relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_with_root_fragment_on_model() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-with-root-fragment-on-model.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-with-root-fragment-on-model.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-with-root-fragment-on-model.js", "to_schema/fixtures/terse-relay-resolver-with-root-fragment-on-model.expected", input, expected);
+}
+
+#[test]
+fn terse_resolver_duplicated_invalid() {
+    let input = include_str!("to_schema/fixtures/terse-resolver-duplicated.invalid.js");
+    let expected = include_str!("to_schema/fixtures/terse-resolver-duplicated.invalid.expected");
+    test_fixture(transform_fixture, "terse-resolver-duplicated.invalid.js", "to_schema/fixtures/terse-resolver-duplicated.invalid.expected", input, expected);
 }
 
 #[test]

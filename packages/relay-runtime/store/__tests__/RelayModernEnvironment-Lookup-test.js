@@ -77,7 +77,6 @@ describe('lookup()', () => {
         __id: '4',
         __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: operation.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
     });
   });
@@ -95,7 +94,6 @@ describe('lookup()', () => {
         __id: '4',
         __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // $FlowFixMe[incompatible-use]
@@ -163,10 +161,10 @@ describe('lookup()', () => {
         __typename: 'Comment',
         id: 'comment:1',
         commentBody: {
-          __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"])',
+          __id: 'client:comment:1:commentBody(supported:"2Rll6p")',
           __typename: 'PlainCommentBody',
           text: {
-            __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
+            __id: 'client:comment:1:commentBody(supported:"2Rll6p"):text',
             __typename: 'Text',
             text: 'A comment!',
           },

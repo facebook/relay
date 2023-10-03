@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<435445042a64bbf8d7c260445e31477d>>
+ * @generated SignedSource<<8a6dc836af80579c0079b8b10936f5d1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {counter as queryCounterResolverType} from "../../../relay-runtime/store/
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolverType: (
   rootKey: LiveCounterResolver$key,
-) => LiveState<mixed>);
+) => LiveState<?mixed>);
 export type LiveResolversTest2Query$variables = {||};
 export type LiveResolversTest2Query$data = {|
-  +counter: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolverType>["read"]>,
+  +counter: ?ReturnType<ReturnType<typeof queryCounterResolverType>["read"]>,
 |};
 export type LiveResolversTest2Query = {|
   response: LiveResolversTest2Query$data,

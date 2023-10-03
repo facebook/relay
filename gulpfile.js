@@ -13,6 +13,7 @@
 const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   plugins: [
+    'babel-plugin-syntax-hermes-parser',
     '@babel/plugin-transform-flow-strip-types',
     [
       '@babel/plugin-transform-runtime',

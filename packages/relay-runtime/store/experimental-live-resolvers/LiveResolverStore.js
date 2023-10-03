@@ -23,8 +23,6 @@ import type {
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
   RecordSource,
   RequestDescriptor,
   Scheduler,
@@ -47,7 +45,6 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayReader = require('../RelayReader');
 const RelayReferenceMarker = require('../RelayReferenceMarker');
-const RelayStoreReactFlightUtils = require('../RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('../RelayStoreSubscriptions');
 const RelayStoreUtils = require('../RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
@@ -111,8 +108,6 @@ class LiveResolverStore implements Store {
   _updatedRecordIDs: DataIDSet;
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
-  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
-  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _shouldProcessClientComponents: boolean;
 
   constructor(
@@ -125,8 +120,6 @@ class LiveResolverStore implements Store {
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
       queryCacheExpirationTime?: ?number,
-      reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
-      reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
       shouldProcessClientComponents?: ?boolean,
       treatMissingFieldsAsNull?: ?boolean,
     },
@@ -170,10 +163,6 @@ class LiveResolverStore implements Store {
     this._updatedRecordIDs = new Set();
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
     this._actorIdentifier = options?.actorIdentifier;
-    this._reactFlightPayloadDeserializer =
-      options?.reactFlightPayloadDeserializer;
-    this._reactFlightServerErrorHandler =
-      options?.reactFlightServerErrorHandler;
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents ?? false;
 
@@ -212,7 +201,16 @@ class LiveResolverStore implements Store {
    * fluxStore.dispatch = wrapped;
    */
   batchLiveStateUpdates(callback: () => void) {
-    this._resolverCache.batchLiveStateUpdates(callback);
+    if (this.__log != null) {
+      this.__log({name: 'liveresolver.batch.start'});
+    }
+    try {
+      this._resolverCache.batchLiveStateUpdates(callback);
+    } finally {
+      if (this.__log != null) {
+        this.__log({name: 'liveresolver.batch.end'});
+      }
+    }
   }
 
   check(
@@ -724,8 +722,6 @@ class LiveResolverStore implements Store {
       path,
       getDataID: this._getDataID,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
-      reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,
     };
@@ -821,15 +817,7 @@ function updateTargetFromSource(
       }
     }
     if (sourceRecord && targetRecord) {
-      // ReactFlightClientResponses are lazy and only materialize when readRoot
-      // is called when we read the field, so if the record is a Flight field
-      // we always use the new record's data regardless of whether
-      // it actually changed. Let React take care of reconciliation instead.
-      const nextRecord =
-        RelayModernRecord.getType(targetRecord) ===
-        RelayStoreReactFlightUtils.REACT_FLIGHT_TYPE_NAME
-          ? sourceRecord
-          : RelayModernRecord.update(targetRecord, sourceRecord);
+      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {

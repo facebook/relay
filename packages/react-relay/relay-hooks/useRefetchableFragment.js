@@ -31,7 +31,7 @@ type RefetchVariables<TVariables, TKey> =
   //   - non-nullable if the provided ref type is non-nullable
   // prettier-ignore
   $Call<
-    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) => $Shape<TVariables>)
+    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) => Partial<TVariables>)
     & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => TVariables),
     TKey,
   >;
@@ -46,7 +46,7 @@ export type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
   TOptions,
 >;
 
-type ReturnType<TVariables, TData, TKey> = [
+export type ReturnType<TVariables, TData, TKey> = [
   // NOTE: This $Call ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
@@ -100,6 +100,7 @@ function useRefetchableFragment_LEGACY<
 
   // $FlowFixMe[incompatible-return]
   // $FlowFixMe[prop-missing]
+  // $FlowFixMe[incompatible-variance]
   return [fragmentData, refetch];
 }
 

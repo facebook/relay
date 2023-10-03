@@ -14,15 +14,10 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
-use intern::Lookup;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
-use relay_codegen::TopLevelStatement;
-use relay_codegen::CODEGEN_CONSTANTS;
 use relay_transforms::is_operation_preloadable;
-use relay_transforms::ReactFlightLocalComponentsMetadata;
-use relay_transforms::RelayClientComponentMetadata;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
 use relay_typegen::generate_fragment_type_exports_section;
@@ -113,6 +108,7 @@ pub fn generate_updatable_query(
                 schema,
                 project_config,
                 fragment_locations,
+                None, // TODO: Add/investigrate support for provided variables in updatable queries
             )
         )?;
     }
@@ -178,11 +174,20 @@ pub fn generate_operation(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
+
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
+        if project_config
+            .persist
+            .as_ref()
+            .map_or(false, |config| config.include_query_text())
+        {
+            request_parameters.text = text.clone();
+        }
     } else {
         request_parameters.text = text.clone();
-    };
+    }
+
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
@@ -235,16 +240,6 @@ pub fn generate_operation(
     if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
     }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&operation_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
-    }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
 
@@ -268,6 +263,8 @@ pub fn generate_operation(
     )?;
 
     if !skip_types {
+        let maybe_provided_variables =
+            printer.print_provided_variables(schema, normalization_operation);
         write!(
             section,
             "{}",
@@ -277,6 +274,7 @@ pub fn generate_operation(
                 schema,
                 project_config,
                 fragment_locations,
+                maybe_provided_variables,
             )
         )?;
     }
@@ -287,27 +285,8 @@ pub fn generate_operation(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
-    // -- Begin Top Level Statements Section --
-    let mut section = GenericSection::default();
     let mut top_level_statements = Default::default();
-    if let Some(provided_variables) =
-        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
-    {
-        let mut provided_variable_text = String::new();
-        write_variable_value_with_type(
-            &project_config.typegen_config.language,
-            &mut provided_variable_text,
-            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
-            relay_typegen::PROVIDED_VARIABLE_TYPE,
-            &provided_variables,
-        )
-        .unwrap();
-        top_level_statements.insert(
-            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
-            TopLevelStatement::VariableDefinition(provided_variable_text),
-        );
-    }
-
+    // -- Begin Query Node Section --
     let request = printer.print_request(
         schema,
         normalization_operation,
@@ -316,11 +295,12 @@ pub fn generate_operation(
         &mut top_level_statements,
     );
 
+    // -- Begin Top Level Statements Section --
+    let mut section: GenericSection = GenericSection::default();
     write!(section, "{}", &top_level_statements)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Top Level Statements Section --
 
-    // -- Begin Query Node Section --
     let mut section = GenericSection::default();
     write_variable_value_with_type(
         &project_config.typegen_config.language,
@@ -522,6 +502,7 @@ pub fn generate_fragment(
             project_config,
             schema,
             typegen_fragment,
+            source_hash,
             skip_types,
             fragment_locations,
         )
@@ -580,16 +561,6 @@ fn generate_read_only_fragment(
         RelayDataDrivenDependencyMetadata::find(&reader_fragment.directives)
     {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
-    }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&reader_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&reader_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
     }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
@@ -681,6 +652,7 @@ fn generate_assignable_fragment(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -731,12 +703,43 @@ fn generate_assignable_fragment(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
+    // -- Begin Fragment Node Section --
+    let mut section = GenericSection::default();
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "node",
+        "any",
+        "{}",
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Section --
+
+    // -- Begin Fragment Node Hash Section --
+    if let Some(source_hash) = source_hash {
+        let mut section = GenericSection::default();
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+        content_sections.push(ContentSection::Generic(section));
+    }
+    // -- End Fragment Node Hash Section --
+
+    // -- Begin Fragment Node Export Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(&project_config.typegen_config, &mut section, "node", None)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Export Section --
+
     // -- Begin Export Section --
     let mut section = GenericSection::default();
     // Assignable fragments should never be passed to useFragment, and thus, we
     // don't need to emit a reader fragment.
     // Instead, we only need a named validator export, i.e.
-    // module.exports.validator = ...
+    // module.exports.validate = ...
     let named_validator_export = generate_named_validator_export(
         typegen_fragment,
         schema,
@@ -920,26 +923,6 @@ fn write_data_driven_dependency_annotation(
         .flatten()
     {
         writeln!(section, "@indirectDataDrivenDependency {} {}", key, value)?;
-    }
-    Ok(())
-}
-
-fn write_react_flight_server_annotation(
-    section: &mut CommentAnnotationsSection,
-    flight_local_components_metadata: &ReactFlightLocalComponentsMetadata,
-) -> FmtResult {
-    for item in &flight_local_components_metadata.components {
-        writeln!(section, "@ReactFlightServerDependency {}", item)?;
-    }
-    Ok(())
-}
-
-fn write_react_flight_client_annotation(
-    section: &mut CommentAnnotationsSection,
-    relay_client_component_metadata: &RelayClientComponentMetadata,
-) -> FmtResult {
-    for value in &relay_client_component_metadata.split_operation_filenames {
-        writeln!(section, "@ReactFlightClientDependency {}", value)?;
     }
     Ok(())
 }

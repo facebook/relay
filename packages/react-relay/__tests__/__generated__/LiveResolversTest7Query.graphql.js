@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<516dc929f97fad9c780c5541582feb7a>>
+ * @generated SignedSource<<481c25170d36300263b682de955ebe8c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
   args: {|
     scale: ?number,
   |},
-) => LiveState<mixed>);
+) => LiveState<?mixed>);
 export type LiveResolversTest7Query$variables = {|
   id: string,
   scale: number,
@@ -36,7 +36,7 @@ export type LiveResolversTest7Query$variables = {|
 export type LiveResolversTest7Query$data = {|
   +node: ?{|
     +name?: ?string,
-    +user_profile_picture_uri_suspends_when_the_counter_is_odd?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
+    +user_profile_picture_uri_suspends_when_the_counter_is_odd?: ?ReturnType<ReturnType<typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
   |},
 |};
 export type LiveResolversTest7Query = {|

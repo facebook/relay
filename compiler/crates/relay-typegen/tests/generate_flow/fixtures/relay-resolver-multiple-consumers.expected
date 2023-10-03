@@ -28,14 +28,14 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType: (
   rootKey: relayResolver_PopStarNameResolverFragment_name$key,
-) => mixed);
+) => ?mixed);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
     +parents: $ReadOnlyArray<{|
-      +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>,
+      +pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
     |}>,
-    +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>,
+    +pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
   |},
 |};
 export type relayResolver_Query = {|

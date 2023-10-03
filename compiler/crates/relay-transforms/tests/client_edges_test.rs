@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4c8ae6c8320ef3ba5464f80d8fff1afd>>
+ * @generated SignedSource<<fdca76a18b1f6421d06d0dae776f25b7>>
  */
 
 mod client_edges;
@@ -31,6 +31,13 @@ fn client_edge_inline_fragment_no_type_condition() {
     let input = include_str!("client_edges/fixtures/client-edge-inline-fragment-no-type-condition.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge-inline-fragment-no-type-condition.expected");
     test_fixture(transform_fixture, "client-edge-inline-fragment-no-type-condition.graphql", "client_edges/fixtures/client-edge-inline-fragment-no-type-condition.expected", input, expected);
+}
+
+#[test]
+fn client_edge_to_client_interface() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-client-interface.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-client-interface.expected");
+    test_fixture(transform_fixture, "client-edge-to-client-interface.graphql", "client_edges/fixtures/client-edge-to-client-interface.expected", input, expected);
 }
 
 #[test]
@@ -87,6 +94,20 @@ fn nested_client_edges_with_variables() {
     let input = include_str!("client_edges/fixtures/nested-client-edges-with-variables.graphql");
     let expected = include_str!("client_edges/fixtures/nested-client-edges-with-variables.expected");
     test_fixture(transform_fixture, "nested-client-edges-with-variables.graphql", "client_edges/fixtures/nested-client-edges-with-variables.expected", input, expected);
+}
+
+#[test]
+fn nested_path() {
+    let input = include_str!("client_edges/fixtures/nested-path.graphql");
+    let expected = include_str!("client_edges/fixtures/nested-path.expected");
+    test_fixture(transform_fixture, "nested-path.graphql", "client_edges/fixtures/nested-path.expected", input, expected);
+}
+
+#[test]
+fn nested_path_with_alias() {
+    let input = include_str!("client_edges/fixtures/nested-path-with-alias.graphql");
+    let expected = include_str!("client_edges/fixtures/nested-path-with-alias.expected");
+    test_fixture(transform_fixture, "nested-path-with-alias.graphql", "client_edges/fixtures/nested-path-with-alias.expected", input, expected);
 }
 
 #[test]

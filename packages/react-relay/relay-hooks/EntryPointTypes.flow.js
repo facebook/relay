@@ -45,12 +45,15 @@ export type LoadQueryOptions = {
   +__nameForWarning?: ?string,
 };
 
-// Note: the phantom type parameter here helps ensures that the
-// $Parameters.js value matches the type param provided to preloadQuery.
-// eslint-disable-next-line no-unused-vars
 export type PreloadableConcreteRequest<TQuery: OperationType> = {
   kind: 'PreloadableConcreteRequest',
   params: RequestParameters,
+  // Note: the phantom type parameter here helps ensures that the
+  // $Parameters.js value matches the type param provided to preloadQuery.
+  // We also need to add usage of this generic here,
+  // becuase not using the generic in the definition makes it
+  // unconstrained in the call to a function that accepts PreloadableConcreteRequest<T>
+  __phantom__?: ?TQuery,
 };
 
 export type EnvironmentProviderOptions = {+[string]: mixed, ...};
@@ -131,8 +134,8 @@ defined during component runtime
 TExtraProps - a bag of extra props that you may define in `entrypoint` file
 and they will be passed to the EntryPointComponent as `extraProps`
 */
-type InternalEntryPointRepresentation<
-  +TEntryPointParams,
+export type InternalEntryPointRepresentation<
+  TEntryPointParams,
   TPreloadedQueries,
   TPreloadedEntryPoints,
   TRuntimeProps,
@@ -212,8 +215,10 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
 }>;
 
 type _ComponentFromEntryPoint = <
-  +TPreloadParams,
+  TPreloadParams,
+  // $FlowFixMe[unsupported-variance-annotation]
   +TComponent,
+  // $FlowFixMe[unsupported-variance-annotation]
   +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
 >(
   TEntryPoint,
@@ -238,26 +243,22 @@ export type ThinQueryParams<
   variables: TQuery['variables'],
 }>;
 
-type ThinNestedEntryPointParams<TEntryPointParams, TEntryPoint> = $ReadOnly<{
-  entryPoint: TEntryPoint,
-  entryPointParams: TEntryPointParams,
-}>;
+/**
+ * We make the type of `ThinNestedEntryPointParams` opaque, so that the only way
+ * to construct a `ThinNestedEntryPointParams` is by calling `NestedRelayEntryPoint`
+ * from `NestedRelayEntryPointBuilderUtils` module.
+ */
+declare export opaque type ThinNestedEntryPointParams;
 
 export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-export type ExtractEntryPointTypeHelper = <
-  TEntryPointParams,
-  TEntryPointComponent,
->(
+export type ExtractEntryPointTypeHelper = <TEntryPointComponent>(
   ?PreloadedEntryPoint<TEntryPointComponent>,
-) => ?ThinNestedEntryPointParams<
-  TEntryPointParams,
-  EntryPoint<TEntryPointParams, TEntryPointComponent>,
->;
+) => ?ThinNestedEntryPointParams;
 
-export type EntryPoint<+TEntryPointParams, +TEntryPointComponent> =
+export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<
     TEntryPointParams,
     ElementConfig<TEntryPointComponent>['queries'],

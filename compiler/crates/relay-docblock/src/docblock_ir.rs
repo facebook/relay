@@ -14,11 +14,12 @@ use common::NamedItem;
 use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
+use docblock_shared::ResolverSourceHash;
 use docblock_shared::ARGUMENT_DEFINITIONS;
 use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
+use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::PROVIDER_ARG_NAME;
-use graphql_ir::reexport::Intern;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::parse_field_definition;
@@ -32,8 +33,13 @@ use graphql_syntax::FragmentDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::InputValueDefinition;
 use graphql_syntax::List;
+use graphql_syntax::StringNode;
+use graphql_syntax::Token;
+use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
+use intern::string_key::Intern;
 use intern::Lookup;
+use relay_config::ProjectName;
 
 use crate::errors::ErrorMessagesWithData;
 use crate::errors::IrParsingErrorMessages;
@@ -53,6 +59,7 @@ use crate::ParseOptions;
 use crate::RelayResolverIr;
 
 pub(crate) fn parse_docblock_ir(
+    project_name: ProjectName,
     untyped_representation: UntypedDocblockRepresentation,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     parse_options: &ParseOptions<'_>,
@@ -80,6 +87,7 @@ pub(crate) fn parse_docblock_ir(
     let UntypedDocblockRepresentation {
         description,
         mut fields,
+        source_hash,
     } = untyped_representation;
 
     let resolver_field = match fields.remove(&AllowedFieldName::RelayResolverField) {
@@ -92,18 +100,22 @@ pub(crate) fn parse_docblock_ir(
                 &mut fields,
                 definitions_in_file,
                 description,
+                None, // This might be necessary for field hack source links
                 docblock_location,
                 unpopulated_ir_field,
                 parse_options,
+                source_hash,
             )?)
         }
         IrField::PopulatedIrField(populated_ir_field) => {
             if populated_ir_field.value.item.lookup().contains('.') {
                 DocblockIr::TerseRelayResolver(parse_terse_relay_resolver_ir(
                     &mut fields,
+                    description,
                     populated_ir_field,
                     definitions_in_file,
                     docblock_location,
+                    source_hash,
                 )?)
             } else {
                 match get_optional_unpopulated_field_named(
@@ -113,15 +125,19 @@ pub(crate) fn parse_docblock_ir(
                     Some(weak_field) => DocblockIr::WeakObjectType(parse_weak_object_ir(
                         &mut fields,
                         description,
+                        None, // This might be necessary for field hack source links
                         docblock_location,
                         populated_ir_field,
                         weak_field,
+                        source_hash,
                     )?),
                     None => DocblockIr::StrongObjectResolver(parse_strong_object_ir(
+                        project_name,
                         &mut fields,
                         description,
                         docblock_location,
                         populated_ir_field,
+                        source_hash,
                     )?),
                 }
             }
@@ -141,9 +157,11 @@ fn parse_relay_resolver_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     description: Option<WithLocation<StringKey>>,
+    hack_source: Option<WithLocation<StringKey>>,
     location: Location,
     _resolver_field: UnpopulatedIrField,
     parse_options: &ParseOptions<'_>,
+    source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<RelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
@@ -200,19 +218,23 @@ fn parse_relay_resolver_ir(
         root_fragment: root_fragment
             .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
         description,
+        hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         location,
         field: field_definition_stub,
         output_type,
         fragment_arguments,
+        source_hash,
     })
 }
 
 fn parse_strong_object_ir(
+    project_name: ProjectName,
     fields: &mut HashMap<AllowedFieldName, IrField>,
     description: Option<WithLocation<StringKey>>,
     location: Location,
     relay_resolver_field: PopulatedIrField,
+    source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<StrongObjectIr> {
     let type_str = relay_resolver_field.value;
     let (identifier, implements_interfaces) = parse_identifier_and_implements_interfaces(
@@ -221,8 +243,11 @@ fn parse_strong_object_ir(
         type_str.location.span().start,
     )?;
 
-    let fragment_name = FragmentDefinitionName(format!("{}__id", identifier.value).intern());
-
+    let fragment_name = FragmentDefinitionName(
+        project_name
+            .generate_name_for_object_and_field(identifier.value, *KEY_RESOLVER_ID_FIELD)
+            .intern(),
+    );
     Ok(StrongObjectIr {
         type_name: identifier,
         rhs_location: relay_resolver_field.value.location,
@@ -232,15 +257,18 @@ fn parse_strong_object_ir(
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
         location,
         implements_interfaces,
+        source_hash,
     })
 }
 
 fn parse_weak_object_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
     description: Option<WithLocation<StringKey>>,
+    hack_source: Option<WithLocation<StringKey>>,
     location: Location,
     relay_resolver_field: PopulatedIrField,
     _weak_field: UnpopulatedIrField,
+    source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<WeakObjectIr> {
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
     let identifier = assert_only_identifier(relay_resolver_field)?;
@@ -249,16 +277,20 @@ fn parse_weak_object_ir(
         type_name: identifier,
         rhs_location: relay_resolver_field.value.location,
         description,
+        hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         location,
+        source_hash,
     })
 }
 
 fn parse_terse_relay_resolver_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
+    description: Option<WithLocation<StringKey>>,
     relay_resolver_field: PopulatedIrField,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     location: Location,
+    source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<TerseRelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
@@ -289,11 +321,26 @@ fn parse_terse_relay_resolver_ir(
         }
     };
 
-    let field = parse_field_definition(
+    let mut field = parse_field_definition(
         &remaining_source[1..],
         type_str.location.source_location(),
         span_start + 1,
     )?;
+
+    field.description = description.map(|description| StringNode {
+        token: Token {
+            span: description.location.span(),
+            kind: TokenKind::Empty,
+        },
+        value: description.item,
+    });
+
+    if let TypeAnnotation::NonNull(non_null) = field.type_ {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::FieldWithNonNullType,
+            Location::new(type_str.location.source_location(), non_null.span),
+        )]);
+    }
 
     validate_field_arguments(&field.arguments, location.source_location())?;
 
@@ -331,6 +378,7 @@ fn parse_terse_relay_resolver_ir(
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
         fragment_arguments,
+        source_hash,
     })
 }
 

@@ -35,15 +35,14 @@ use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::JsModuleFormat;
+use crate::ProjectName;
 use crate::TypegenConfig;
 use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-pub type ProjectName = StringKey;
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct RemotePersistConfig {
     /// URL to send a POST request to to persist.
     pub url: String,
@@ -62,6 +61,9 @@ pub struct RemotePersistConfig {
         deserialize_with = "deserialize_semaphore_permits"
     )]
     pub semaphore_permits: Option<usize>,
+
+    #[serde(default)]
+    pub include_query_text: bool,
 }
 
 fn deserialize_semaphore_permits<'de, D>(d: D) -> Result<Option<usize>, D::Error>
@@ -98,6 +100,9 @@ pub struct LocalPersistConfig {
 
     #[serde(default)]
     pub algorithm: LocalPersistAlgorithm,
+
+    #[serde(default)]
+    pub include_query_text: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -105,6 +110,15 @@ pub struct LocalPersistConfig {
 pub enum PersistConfig {
     Remote(RemotePersistConfig),
     Local(LocalPersistConfig),
+}
+
+impl PersistConfig {
+    pub fn include_query_text(&self) -> bool {
+        match self {
+            PersistConfig::Remote(remote_config) => remote_config.include_query_text,
+            PersistConfig::Local(local_config) => local_config.include_query_text,
+        }
+    }
 }
 
 impl<'de> Deserialize<'de> for PersistConfig {
@@ -156,6 +170,10 @@ pub struct SchemaConfig {
     #[serde(default = "default_node_interface_id_field")]
     pub node_interface_id_field: StringKey,
 
+    /// The name of the variable expected by the `node` query.
+    #[serde(default = "default_node_interface_id_variable_name")]
+    pub node_interface_id_variable_name: StringKey,
+
     #[serde(default)]
     pub non_node_id_fields: Option<NonNodeIdFieldsConfig>,
 
@@ -168,6 +186,10 @@ fn default_node_interface_id_field() -> StringKey {
     "id".intern()
 }
 
+fn default_node_interface_id_variable_name() -> StringKey {
+    "id".intern()
+}
+
 fn default_unselectable_directive_name() -> DirectiveName {
     DirectiveName("unselectable".intern())
 }
@@ -177,6 +199,7 @@ impl Default for SchemaConfig {
         Self {
             connection_interface: ConnectionInterface::default(),
             node_interface_id_field: default_node_interface_id_field(),
+            node_interface_id_variable_name: default_node_interface_id_variable_name(),
             non_node_id_fields: None,
             unselectable_directive_name: default_unselectable_directive_name(),
         }
@@ -212,7 +235,7 @@ pub struct ProjectConfig {
 impl Default for ProjectConfig {
     fn default() -> Self {
         Self {
-            name: "default".intern(),
+            name: ProjectName::default(),
             feature_flags: Default::default(),
             base: None,
             output: None,

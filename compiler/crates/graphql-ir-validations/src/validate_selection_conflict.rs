@@ -612,12 +612,12 @@ enum ValidationMessage {
     },
 
     #[error(
-        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'"
+        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use an alias to distinguish the two fields."
     )]
     StreamConflictOnlyUsedInOnePlace { response_key: StringKey },
 
     #[error(
-        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
+        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them."
     )]
     StreamConflictUsedInMultiplePlaces { response_key: StringKey },
 }

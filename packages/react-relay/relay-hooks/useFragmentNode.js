@@ -17,7 +17,7 @@ const {getFragmentResourceForEnvironment} = require('./FragmentResource');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const useUnsafeRef_DEPRECATED = require('./useUnsafeRef_DEPRECATED');
 const {useEffect, useState} = require('react');
-const {getFragmentIdentifier} = require('relay-runtime');
+const {RelayFeatureFlags, getFragmentIdentifier} = require('relay-runtime');
 const warning = require('warning');
 
 type ReturnType<TFragmentData: mixed> = {
@@ -99,7 +99,7 @@ function useFragmentNode<TFragmentData: mixed>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [environment, fragmentIdentifier]);
 
-  if (__DEV__) {
+  if (RelayFeatureFlags.LOG_MISSING_RECORDS_IN_PROD || __DEV__) {
     if (
       fragmentRef != null &&
       (fragmentResult.data === undefined ||

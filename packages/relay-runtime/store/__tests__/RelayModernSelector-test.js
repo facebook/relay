@@ -132,7 +132,7 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an object, got ' +
           '`[{"__fragments":{"RelayModernSelectorTestUserFragment":{},"RelayModernSelectorTestUsersFragment":{}},"__id":"4","__fragmentOwner":' +
           JSON.stringify(operationDescriptor.request) +
-          ',"__isWithinUnmatchedTypeRefinement":false}]`.',
+          '}]`.',
       );
     });
 

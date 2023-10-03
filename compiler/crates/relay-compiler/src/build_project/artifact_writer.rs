@@ -10,6 +10,7 @@ use std::fs::create_dir_all;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
+use std::path::Path;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicUsize;
 use std::sync::Mutex;
@@ -19,6 +20,8 @@ use dashmap::DashSet;
 use log::info;
 use serde::Serialize;
 use serde::Serializer;
+use sha1::Digest;
+use sha1::Sha1;
 
 use crate::errors::BuildProjectError;
 use crate::errors::Error;
@@ -26,7 +29,12 @@ use crate::errors::Error;
 type BuildProjectResult = Result<(), BuildProjectError>;
 
 pub trait ArtifactWriter {
-    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError>;
+    fn should_write(
+        &self,
+        path: &Path,
+        content: &[u8],
+        hash: Option<String>,
+    ) -> Result<bool, BuildProjectError>;
     fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult;
     fn remove(&self, path: PathBuf) -> BuildProjectResult;
     fn finalize(&self) -> crate::errors::Result<()>;
@@ -78,11 +86,21 @@ impl ArtifactFileWriter {
     }
 }
 impl ArtifactWriter for ArtifactFileWriter {
-    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
-        content_is_different(path, content).map_err(|error| BuildProjectError::WriteFileError {
-            file: path.clone(),
+    fn should_write(
+        &self,
+        path: &Path,
+        content: &[u8],
+        hash: Option<String>,
+    ) -> Result<bool, BuildProjectError> {
+        let op = |error| BuildProjectError::WriteFileError {
+            file: path.to_owned(),
             source: error,
-        })
+        };
+        if let Some(file_hash) = hash {
+            hash_is_different(file_hash, content).map_err(op)
+        } else {
+            content_is_different(path, content).map_err(op)
+        }
     }
 
     fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
@@ -160,14 +178,23 @@ impl ArtifactDifferenceWriter {
 }
 
 impl ArtifactWriter for ArtifactDifferenceWriter {
-    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
-        Ok(!self.verify_changes_against_filesystem
-            || content_is_different(path, content).map_err(|error| {
-                BuildProjectError::WriteFileError {
-                    file: path.clone(),
-                    source: error,
-                }
-            })?)
+    fn should_write(
+        &self,
+        path: &Path,
+        content: &[u8],
+        hash: Option<String>,
+    ) -> Result<bool, BuildProjectError> {
+        let op = |error| BuildProjectError::WriteFileError {
+            file: path.to_owned(),
+            source: error,
+        };
+        if !self.verify_changes_against_filesystem {
+            Ok(true)
+        } else if let Some(file_hash) = hash {
+            hash_is_different(file_hash, content).map_err(op)
+        } else {
+            content_is_different(path, content).map_err(op)
+        }
     }
 
     fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
@@ -244,14 +271,23 @@ impl ArtifactDifferenceShardedWriter {
 }
 
 impl ArtifactWriter for ArtifactDifferenceShardedWriter {
-    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
-        Ok(!self.verify_changes_against_filesystem
-            || content_is_different(path, content).map_err(|error| {
-                BuildProjectError::WriteFileError {
-                    file: path.clone(),
-                    source: error,
-                }
-            })?)
+    fn should_write(
+        &self,
+        path: &Path,
+        content: &[u8],
+        hash: Option<String>,
+    ) -> Result<bool, BuildProjectError> {
+        let op = |error| BuildProjectError::WriteFileError {
+            file: path.to_owned(),
+            source: error,
+        };
+        if !self.verify_changes_against_filesystem {
+            Ok(true)
+        } else if let Some(file_hash) = hash {
+            hash_is_different(file_hash, content).map_err(op)
+        } else {
+            content_is_different(path, content).map_err(op)
+        }
     }
 
     fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
@@ -261,7 +297,7 @@ impl ArtifactWriter for ArtifactDifferenceShardedWriter {
             file.write_all(&content)
         })()
         .map_err(|error| BuildProjectError::WriteFileError {
-            file: path.clone(),
+            file: path.to_owned(),
             source: error,
         })?;
         self.codegen_records
@@ -305,7 +341,7 @@ fn ensure_file_directory_exists(file_path: &PathBuf) -> io::Result<()> {
     Ok(())
 }
 
-fn content_is_different(path: &PathBuf, content: &[u8]) -> io::Result<bool> {
+fn content_is_different(path: &Path, content: &[u8]) -> io::Result<bool> {
     if path.exists() {
         let existing_content = std::fs::read(path)?;
         Ok(existing_content != content)
@@ -314,9 +350,20 @@ fn content_is_different(path: &PathBuf, content: &[u8]) -> io::Result<bool> {
     }
 }
 
+fn hash_is_different(file_hash: String, content: &[u8]) -> io::Result<bool> {
+    let hasher = Sha1::new_with_prefix(content);
+    let content_hash = format!("{:x}", hasher.finalize());
+    Ok(file_hash != content_hash)
+}
+
 pub struct NoopArtifactWriter;
 impl ArtifactWriter for NoopArtifactWriter {
-    fn should_write(&self, _: &PathBuf, _: &[u8]) -> Result<bool, BuildProjectError> {
+    fn should_write(
+        &self,
+        _: &Path,
+        _: &[u8],
+        _: Option<String>,
+    ) -> Result<bool, BuildProjectError> {
         Ok(false)
     }
 
@@ -339,11 +386,21 @@ pub struct ArtifactValidationWriter {
 }
 
 impl ArtifactWriter for ArtifactValidationWriter {
-    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
-        content_is_different(path, content).map_err(|error| BuildProjectError::WriteFileError {
-            file: path.clone(),
+    fn should_write(
+        &self,
+        path: &Path,
+        content: &[u8],
+        hash: Option<String>,
+    ) -> Result<bool, BuildProjectError> {
+        let op = |error| BuildProjectError::WriteFileError {
+            file: path.to_owned(),
             source: error,
-        })
+        };
+        if let Some(file_hash) = hash {
+            hash_is_different(file_hash, content).map_err(op)
+        } else {
+            content_is_different(path, content).map_err(op)
+        }
     }
 
     fn write(&self, path: PathBuf, _: Vec<u8>) -> BuildProjectResult {

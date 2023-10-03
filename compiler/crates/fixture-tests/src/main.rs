@@ -52,7 +52,7 @@ fn main() {
                 continue;
             }
             let name = sanitize_identifier(path.file_stem().unwrap().to_str().unwrap());
-            let mut test_case = test_cases.entry(name.clone()).or_insert_with(|| TestCase {
+            let test_case = test_cases.entry(name.clone()).or_insert_with(|| TestCase {
                 name,
                 input: None,
                 expected: None,
@@ -69,7 +69,7 @@ fn main() {
                 test_case.input = Some(path);
             }
         }
-        for mut test_case in test_cases.values_mut() {
+        for test_case in test_cases.values_mut() {
             if test_case.expected.is_none() {
                 if let Some(ref input) = test_case.input {
                     let mut expected = input.clone();

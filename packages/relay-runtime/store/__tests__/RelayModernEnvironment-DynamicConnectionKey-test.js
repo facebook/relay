@@ -188,7 +188,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
 
             __fragmentOwner: operation.request,
-            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 

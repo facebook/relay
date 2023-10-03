@@ -33,6 +33,7 @@ use relay_codegen::print_request;
 use relay_codegen::JsModuleFormat;
 use relay_compiler::validate;
 use relay_compiler::ProjectConfig;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema_with_custom_id;
 use relay_test_schema::get_test_schema_with_custom_id_with_extensions;
@@ -48,6 +49,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         }
         return Ok("TODO".to_string());
     }
+
+    let node_interface_query_variable_name =
+        if fixture.content.contains("# use-custom-variable-name") {
+            Some("variable_name".intern())
+        } else {
+            None
+        };
 
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let (base, schema) = match parts.as_slice() {
@@ -76,27 +84,30 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
-        hash_supported_argument: FeatureFlag::Disabled,
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
-        enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
         emit_normalization_nodes_for_client_edges: true,
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
+        relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
+        enable_resolver_normalization_ast: false,
     };
 
+    let default_schema_config = SchemaConfig::default();
+
     let project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         feature_flags: Arc::new(feature_flags),
         schema_config: SchemaConfig {
             node_interface_id_field: "global_id".intern(),
-            ..Default::default()
+            node_interface_id_variable_name: node_interface_query_variable_name
+                .unwrap_or(default_schema_config.node_interface_id_variable_name),
+            ..default_schema_config
         },
         js_module_format: JsModuleFormat::Haste,
         ..Default::default()

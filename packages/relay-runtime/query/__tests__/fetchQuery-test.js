@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {RequiredFieldLoggerEvent} from '../../store/RelayStoreTypes';
 import type {fetchQueryTest1Query$data} from './__generated__/fetchQueryTest1Query.graphql';
 import type {RequestParameters} from 'relay-runtime';
 
@@ -239,19 +240,7 @@ describe('fetchQuery', () => {
 
 describe('fetchQuery with missing @required value', () => {
   it('provides data snapshot on next', () => {
-    const requiredFieldLogger = jest.fn<
-      [
-        | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
-        | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
-        | {
-            +error: Error,
-            +fieldPath: string,
-            +kind: 'relay_resolver.error',
-            +owner: string,
-          },
-      ],
-      void,
-    >();
+    const requiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
     const environment = createMockEnvironment({
       requiredFieldLogger,
     });
@@ -286,19 +275,7 @@ describe('fetchQuery with missing @required value', () => {
   });
 
   it('throws on resolution', () => {
-    const requiredFieldLogger = jest.fn<
-      [
-        | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
-        | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
-        | {
-            +error: Error,
-            +fieldPath: string,
-            +kind: 'relay_resolver.error',
-            +owner: string,
-          },
-      ],
-      void,
-    >();
+    const requiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
     const environment = createMockEnvironment({requiredFieldLogger});
     const query = graphql`
       query fetchQueryTest3Query {

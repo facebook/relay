@@ -5,12 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod resolver_source_hash;
+
 use common::ArgumentName;
 use common::DirectiveName;
 use common::ScalarName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+pub use resolver_source_hash::ResolverSourceHash;
 
 lazy_static! {
     pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
@@ -31,6 +34,8 @@ lazy_static! {
     pub static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
     pub static ref INJECT_FRAGMENT_DATA_ARGUMENT_NAME: ArgumentName =
         ArgumentName("inject_fragment_data".intern());
+    pub static ref GENERATED_FRAGMENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("generated_fragment".intern());
     pub static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
     pub static ref ON_TYPE_FIELD: StringKey = "onType".intern();
     pub static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
@@ -49,4 +54,8 @@ lazy_static! {
     // Note: this should **only** be used for resolvers! The id field for server
     // types is configurable in the config, and thus cannot be hard-coded.
     pub static ref KEY_RESOLVER_ID_FIELD: StringKey = "id".intern();
+
+    pub static ref RELAY_RESOLVER_SOURCE_HASH: DirectiveName = DirectiveName("resolver_source_hash".intern());
+    pub static ref RELAY_RESOLVER_SOURCE_HASH_VALUE: ArgumentName = ArgumentName("value".intern());
+
 }

@@ -14,7 +14,7 @@ use graphql_syntax::ParserFeatures;
 use graphql_text_printer::print_ir;
 use relay_test_schema::TEST_SCHEMA;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let ast = parse_executable_with_features(
         fixture.content,

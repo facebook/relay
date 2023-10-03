@@ -14,7 +14,7 @@ use graphql_syntax::parse_executable;
 use relay_lsp::find_field_usages;
 use relay_test_schema::get_test_schema;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%arguments%").collect();
     if let [document, arguments] = parts.as_slice() {
         if let [type_name, field_name] = arguments

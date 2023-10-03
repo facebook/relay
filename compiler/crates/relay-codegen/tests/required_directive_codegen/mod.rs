@@ -21,7 +21,7 @@ use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::required_directive;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let (base, schema) = match parts.as_slice() {
         [base, extensions] => (base, get_test_schema_with_extensions(extensions)),

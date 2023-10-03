@@ -12,7 +12,7 @@ use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
 use graphql_syntax::parse_document;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     parse_document(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),

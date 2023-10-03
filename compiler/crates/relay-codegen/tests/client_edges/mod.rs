@@ -48,7 +48,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             ..Default::default()
         };
         let next_program = sort_selections(
-            &client_edges(&program, &project_config)
+            &client_edges(&program, &project_config, &Default::default())
                 .and_then(|program| relay_resolvers(ProjectName::default(), &program, true))
                 .unwrap(),
         );

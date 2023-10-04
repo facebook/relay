@@ -381,6 +381,9 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         )
     }));
 
+    // Atlassian: Output id -> query text for testing / mocking usage
+    config.generate_extra_artifacts = Some(Box::new(persisted_mocks::generate_persisted_mocks));
+
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman
     } else {

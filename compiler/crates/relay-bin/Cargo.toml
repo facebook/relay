@@ -15,7 +15,12 @@ intern = { path = "../intern" }
 log = { version = "0.4.27", features = ["kv_unstable", "kv_unstable_std"] }
 relay-codemod = { path = "../relay-codemod" }
 relay-compiler = { path = "../relay-compiler" }
+relay-codegen = { path = "../relay-codegen" }
+signedsource = {path = "../signedsource"}
+serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
+serde = { version = "1.0.185", features = ["derive", "rc"] }
 relay-lsp = { path = "../relay-lsp" }
+persisted-mocks = { path = "../persisted-mocks" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 simplelog = "0.12.2"

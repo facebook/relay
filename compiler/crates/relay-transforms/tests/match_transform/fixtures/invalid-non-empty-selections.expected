@@ -31,13 +31,13 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   invalid-non-empty-selections.graphql:4:3
     3 │   id
     4 │   nameRenderer @match {
-      │   ^^^^^^^^^^^^
-    5 │     ... on PlainUserNameRenderer {
+      │ [31m  ^^^^^^^^^^^^[0m
+[1m    5 │ [0m    ... on PlainUserNameRenderer {
 
-  ℹ︎ in @match directive
+[31m  ℹ︎ in @match directive[0m
 
-  invalid-non-empty-selections.graphql:4:16
-    3 │   id
-    4 │   nameRenderer @match {
-      │                ^^^^^^
-    5 │     ... on PlainUserNameRenderer {
+  [4minvalid-non-empty-selections.graphql[0m[2m:4:16[0m
+[1m    3 │ [0m  id
+[1m    4 │ [0m  nameRenderer [31m@[0m[31mm[0m[31ma[0m[31mt[0m[31mc[0m[31mh[0m {
+      │ [31m               ^^^^^^[0m
+[1m    5 │ [0m    ... on PlainUserNameRenderer {

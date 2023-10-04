@@ -14,6 +14,6 @@ fragment UserFragment on User {
 
   fragment-with-undefined-variable.invalid.graphql:9:21
     8 │ fragment UserFragment on User {
-    9 │   name @include(if: $shouldIncludeName)
-      │                     ^^^^^^^^^^^^^^^^^^
-   10 │ }
+[1m    9 │ [0m  name @include(if: [31m$[0m[31ms[0m[31mh[0m[31mo[0m[31mu[0m[31ml[0m[31md[0m[31mI[0m[31mn[0m[31mc[0m[31ml[0m[31mu[0m[31md[0m[31me[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m)
+      │ [31m                    ^^^^^^^^^^^^^^^^^^[0m
+[1m   10 │ [0m}

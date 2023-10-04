@@ -27,6 +27,6 @@ fragment ProfilePhoto on User {
 
   unused_fragment_arg.invalid.graphql:16:30
    15 │   __typename
-   16 │   ...ProfilePhoto @arguments(size: $size)
-      │                              ^^^^^^^^^^^
-   17 │ }
+   16 │   ...ProfilePhoto @arguments([31ms[0m[31mi[0m[31mz[0m[31me[0m[31m:[0m[31m [0m[31m$[0m[31ms[0m[31mi[0m[31mz[0m[31me[0m)
+      │ [31m                             ^^^^^^^^^^^[0m
+[1m   17 │ [0m}

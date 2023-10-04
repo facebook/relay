@@ -11,18 +11,18 @@ extend type User {
   name: ID
 }
 ==================================== ERROR ====================================
-✖︎ Duplicate field definition 'name' found.
+[31m✖︎ Duplicate field definition 'name' found.[0m
 
-  invalid-object-extension-duplicated-server-field.graphql:10:3
-    9 │ extend type User {
-   10 │   name: ID
-      │   ^^^^
-   11 │ }
+  [4minvalid-object-extension-duplicated-server-field.graphql[0m[2m:10:3[0m
+[1m    9 │ [0mextend type User {
+[1m   10 │ [0m  [31mn[0m[31ma[0m[31mm[0m[31me[0m: ID
+      │ [31m  ^^^^[0m
+[1m   11 │ [0m}
 
-  ℹ︎ previously defined here
+[31m  ℹ︎ previously defined here[0m
 
-  <generated>:4:3
-    3 │ type User {
-    4 │   name: String
-      │   ^^^^
-    5 │ }
+  [4m<generated>[0m[2m:4:3[0m
+[1m    3 │ [0mtype User {
+[1m    4 │ [0m  [31mn[0m[31ma[0m[31mm[0m[31me[0m: String
+      │ [31m  ^^^^[0m
+[1m    5 │ [0m}

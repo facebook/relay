@@ -23,9 +23,9 @@ extend type User {
   pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "relayResolverWithArgsAndAlias_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5)
+[31m✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5)[0m
 
-  relay-resolver-with-args-and-alias.graphql:5:3
+  relay-resolver-with-args-and-alias.graphql[0m:5:3
     4 │   name
     5 │   profile_picture(scale: $scale) {
       │   ^^^^^^^^^^^^^^^

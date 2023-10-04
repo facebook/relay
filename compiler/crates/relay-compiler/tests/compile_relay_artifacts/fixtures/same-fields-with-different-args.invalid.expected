@@ -23,14 +23,14 @@ fragment sameFieldsWithDifferentArgs_NestedFragment2 on User {
 
   same-fields-with-different-args.invalid.graphql:14:3
    13 │ fragment sameFieldsWithDifferentArgs_NestedFragment on User {
-   14 │   firstName(if: false, unless: true)
-      │   ^^^^^^^^^
-   15 │ }
+[1m   14 │ [0m  [31mf[0m[31mi[0m[31mr[0m[31ms[0mtName(if: false, unless: true)
+      │ [31m  ^^^^^^^^^[0m
+[1m   15 │ [0m}
 
-  ℹ︎ which conflicts with this field with applied argument values (if: false, unless: false)
+[31m  ℹ︎ which conflicts with this field with applied argument values (if: false, unless: false)[0m
 
-  same-fields-with-different-args.invalid.graphql:18:3
-   17 │ fragment sameFieldsWithDifferentArgs_NestedFragment2 on User {
+  [4msame-fields-with-different-args.invalid.graphql[0m[2m:18:3[0m
+[1m   17 │ [0mfragment sameFieldsWithDifferentArgs_NestedFragment2 on User {
    18 │   firstName(if: false, unless: false)
-      │   ^^^^^^^^^
-   19 │ }
+      │ [31m  ^^^^^^^^^[0m
+[1m   19 │ [0m}

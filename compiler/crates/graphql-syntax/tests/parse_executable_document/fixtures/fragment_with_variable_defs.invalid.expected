@@ -4,10 +4,10 @@ fragment Test($x: Int = 3) on User {
   ...Bar
 }
 ==================================== ERROR ====================================
-✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+[31m✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')[0m
 
-  fragment_with_variable_defs.invalid.graphql:2:14
-    1 │ # expected-to-throw
-    2 │ fragment Test($x: Int = 3) on User {
+  [4mfragment_with_variable_defs.invalid.graphql[0m[2m:2:14[0m
+[1m    1 │ [0m# expected-to-throw
+[1m    2 │ [0mfragment Test($x: Int = 3) on User {
       │              ^
     3 │   ...Bar

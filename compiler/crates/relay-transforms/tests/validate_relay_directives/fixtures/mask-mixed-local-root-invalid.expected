@@ -10,18 +10,18 @@ fragment NonNullIDFragment on Query {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Cannot combine global and local variables when applying @relay(mask: false
+[31m✖︎ Cannot combine global and local variables when applying @relay(mask: false[0m
 
-  mask-mixed-local-root-invalid.graphql:2:52
-    1 │ # expected-to-throw
-    2 │ fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
-      │                                                    ^^
-    3 │   ...NonNullIDFragment @relay(mask: false)
+  [4mmask-mixed-local-root-invalid.graphql[0m[2m:2:52[0m
+[1m    1 │ [0m# expected-to-throw
+[1m    2 │ [0mfragment ParentQuery on Query @argumentDefinitions([31mi[0m[31md[0m: {type: "ID!"}) {
+      │ [31m                                                   ^^[0m
+[1m    3 │ [0m  ...NonNullIDFragment @relay(mask: false)
 
-  ℹ︎ related location
+[31m  ℹ︎ related location[0m
 
-  mask-mixed-local-root-invalid.graphql:7:24
-    6 │ fragment NonNullIDFragment on Query {
-    7 │   node_id_required(id: $id) {
-      │                        ^^^
-    8 │     id
+  [4mmask-mixed-local-root-invalid.graphql[0m[2m:7:24[0m
+[1m    6 │ [0mfragment NonNullIDFragment on Query {
+[1m    7 │ [0m  node_id_required(id: [31m$[0m[31mi[0m[31md[0m) {
+      │ [31m                       ^^^[0m
+[1m    8 │ [0m    id

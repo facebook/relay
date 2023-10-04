@@ -19,15 +19,15 @@ fragment Foo on User @argumentDefinitions(
 
   fragment-with-arguments-duplicate.invalid.graphql:3:10
     2 │ fragment F1 on User {
-    3 │   ...Foo @arguments(width: $myArg) @arguments(height: $myArg)
+    3 │   ...Foo [31m@[0m[31ma[0m[31mr[0m[31mg[0m[31mu[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31ms[0m[31m([0m[31mw[0m[31mi[0m[31md[0m[31mt[0m[31mh[0m[31m:[0m[31m [0m[31m$[0m[31mm[0m[31my[0m[31mA[0m[31mr[0m[31mg[0m[31m)[0m @arguments(height: $myArg)
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^
     4 │ }
 
   ℹ︎ duplicate definition
 
   fragment-with-arguments-duplicate.invalid.graphql:3:36
-    2 │ fragment F1 on User {
-    3 │   ...Foo @arguments(width: $myArg) @arguments(height: $myArg)
+[1m    2 │ [0mfragment F1 on User {
+[1m    3 │ [0m  ...Foo @arguments(width: $myArg) [31m@[0m[31ma[0m[31mr[0m[31mg[0muments(height: $myArg)
       │                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
     4 │ }
 
@@ -36,7 +36,7 @@ fragment Foo on User @argumentDefinitions(
 
   fragment-with-arguments-duplicate.invalid.graphql:7:10
     6 │ fragment F2 on User {
-    7 │   ...Foo @uncheckedArguments_DEPRECATED(width: $myArg) @arguments(height: $myArg)
+    7 │   ...Foo @uncheckedArguments_DEPRECATED(wi[31md[0m[31mt[0m[31mh[0m[31m:[0m[31m [0m[31m$[0m[31mm[0m[31my[0m[31mA[0m[31mr[0m[31mg[0m[31m)[0m @arguments(height: $myArg)
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     8 │ }
 
@@ -44,6 +44,6 @@ fragment Foo on User @argumentDefinitions(
 
   fragment-with-arguments-duplicate.invalid.graphql:7:56
     6 │ fragment F2 on User {
-    7 │   ...Foo @uncheckedArguments_DEPRECATED(width: $myArg) @arguments(height: $myArg)
+[1m    7 │ [0m  ...Foo @uncheckedArguments_DEPRECATED(width: $myArg) @arguments(height: [31m$[0m[31mm[0m[31my[0m[31mA[0m[31mr[0m[31mg[0m[31m)[0m
       │                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
     8 │ }

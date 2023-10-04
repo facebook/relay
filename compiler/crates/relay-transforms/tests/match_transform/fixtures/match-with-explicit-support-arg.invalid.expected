@@ -25,10 +25,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Invalid @match selection: the 'supported' argument is automatically added and cannot be supplied explicitly.'
+[31m✖︎ Invalid @match selection: the 'supported' argument is automatically added and cannot be supplied explicitly.'[0m
 
-  match-with-explicit-support-arg.invalid.graphql:5:5
-    4 │   nameRenderer(
-    5 │     supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]
+  [4mmatch-with-explicit-support-arg.invalid.graphql[0m[2m:5:5[0m
+[1m    4 │ [0m  nameRenderer(
+[1m    5 │ [0m    supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]
       │     ^^^^^^^^^
     6 │   ) @match {

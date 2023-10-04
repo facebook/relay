@@ -12,10 +12,10 @@ type UserWithIntID {
     name: String!
 }
 ==================================== ERROR ====================================
-✖︎ Invalid type `Int!` of field `id` on parent type `UserWithIntID`. Fields named `id` can only have `ID` or `String`-like types (e.g. custom scalars or enums).
+[31m✖︎ Invalid type `Int!` of field `id` on parent type `UserWithIntID`. Fields named `id` can only have `ID` or `String`-like types (e.g. custom scalars or enums).[0m
 
-  <generated>:2:8
-    1 │ # expected-to-throw
-    2 │ fragment UserWithIntID_fragment on UserWithIntID {
-      │        ^^
-    3 │     id
+  [4m<generated>[0m[2m:2:8[0m
+[1m    1 │ [0m# expected-to-throw
+[1m    2 │ [0mfragmen[31mt[0m[31m [0mUserWithIntID_fragment on UserWithIntID {
+      │ [31m       ^^[0m
+[1m    3 │ [0m    id

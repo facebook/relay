@@ -16,5 +16,5 @@ query NodeQuery($id: ID!) {
   connection-invalid-type.invalid.graphql:6:15
     5 │     ... on Story {
     6 │       actors @connection {
-      │               ^^^^^^^^^^
-    7 │         name
+      │ [31m              ^^^^^^^^^^[0m
+[1m    7 │ [0m        name

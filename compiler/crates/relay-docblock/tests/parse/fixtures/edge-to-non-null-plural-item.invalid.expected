@@ -32,6 +32,6 @@ graphql`
 
   /path/to/test/fixture/edge-to-non-null-plural-item.invalid.js:15:12
    14 │  * @fieldName favorite_page
-   15 │  * @edgeTo [Page!]
-      │            ^^^^^^^
-   16 │  * @rootFragment myRootFragment
+[1m   15 │ [0m * @edgeTo [31m[[0m[31mP[0m[31ma[0m[31mg[0m[31me[0m[31m![0m[31m][0m
+      │ [31m           ^^^^^^^[0m
+[1m   16 │ [0m * @rootFragment myRootFragment

@@ -16,18 +16,18 @@ query TestQuery @updatable {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+[31m✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.[0m
 
-  inline-fragment-concrete-type-to-concrete-type.invalid.graphql:3:3
-    2 │ query TestQuery @updatable {
+  [4minline-fragment-concrete-type-to-concrete-type.invalid.graphql[0m[2m:3:3[0m
+[1m    2 │ [0mquery TestQuery @updatable {
     3 │   node(id: 4) {
       │   ^^^^
     4 │     ... on Feedback {
 
 
-✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+[31m✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.[0m
 
-  inline-fragment-concrete-type-to-concrete-type.invalid.graphql:7:11
+  [4minline-fragment-concrete-type-to-concrete-type.invalid.graphql[0m[2m:7:11[0m
     6 │         edges {
     7 │           node {
       │           ^^^^

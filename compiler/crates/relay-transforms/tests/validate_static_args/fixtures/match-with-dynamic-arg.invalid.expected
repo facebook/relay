@@ -17,10 +17,10 @@ fragment matchWithVariableKey_PlainUserNameRenderer_name on PlainUserNameRendere
 
 # %extensions%
 ==================================== ERROR ====================================
-✖︎ Unexpected dynamic argument. match's 'key' argument must be a constant value because it is read by the Relay compiler.
+[31m✖︎ Unexpected dynamic argument. match's 'key' argument must be a constant value because it is read by the Relay compiler.[0m
 
-  match-with-dynamic-arg.invalid.graphql:4:30
-    3 │   me {
-    4 │     nameRenderer @match(key: $key) {
-      │                              ^^^^
-    5 │       ...matchWithVariableKey_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  [4mmatch-with-dynamic-arg.invalid.graphql[0m[2m:4:30[0m
+[1m    3 │ [0m  me {
+[1m    4 │ [0m    nameRenderer @match(key: [31m$[0m[31mk[0m[31me[0m[31my[0m) {
+      │ [31m                             ^^^^[0m
+[1m    5 │ [0m      ...matchWithVariableKey_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")

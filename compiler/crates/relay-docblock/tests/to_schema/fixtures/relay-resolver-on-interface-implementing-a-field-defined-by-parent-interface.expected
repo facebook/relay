@@ -35,10 +35,10 @@ interface MyInterface implements ParentInterface {
 }
 `;
 ==================================== ERROR ====================================
-✖︎ Unexpected Relay Resolver for a field which is defined in parent interface. The field `some_interface_field` is defined by `ParentInterface`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concrete types.
+[31m✖︎ Unexpected Relay Resolver for a field which is defined in parent interface. The field `some_interface_field` is defined by `ParentInterface`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concrete types.[0m
 
-  /path/to/test/fixture/relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.js:5:15
-    4 │  * @onInterface MyInterface
-    5 │  * @fieldName some_interface_field
-      │               ^^^^^^^^^^^^^^^^^^^^
-    6 │  * @rootFragment myRootFragment
+  [4m/path/to/test/fixture/relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.js[0m[2m:5:15[0m
+[1m    4 │ [0m * @onInterface MyInterface
+[1m    5 │ [0m * @fieldName [31ms[0m[31mo[0m[31mm[0m[31me[0m[31m_[0m[31mi[0m[31mn[0m[31mt[0m[31me[0m[31mr[0m[31mf[0m[31ma[0m[31mc[0m[31me[0m[31m_[0m[31mf[0m[31mi[0m[31me[0m[31ml[0m[31md[0m
+      │ [31m              ^^^^^^^^^^^^^^^^^^^^[0m
+[1m    6 │ [0m * @rootFragment myRootFragment

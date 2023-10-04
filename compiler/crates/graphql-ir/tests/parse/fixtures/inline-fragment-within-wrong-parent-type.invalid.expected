@@ -12,6 +12,6 @@ fragment Foo on User {
 
   inline-fragment-within-wrong-parent-type.invalid.graphql:4:12
     3 │   ... on Node {
-    4 │     ... on Page {
-      │            ^^^^
-    5 │       __typename
+    4 │     ... on P[31ma[0m[31mg[0m[31me[0m {
+      │ [31m           ^^^^[0m
+[1m    5 │ [0m      __typename

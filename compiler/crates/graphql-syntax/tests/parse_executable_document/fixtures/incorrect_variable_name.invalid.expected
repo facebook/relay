@@ -8,6 +8,6 @@
 
   incorrect_variable_name.invalid.graphql:3:18
     2 │ {
-    3 │     image(size: $100)
-      │                  ^^^
-    4 │ }
+    3 │     image(size: $[31m1[0m[31m0[0m[31m0[0m)
+      │ [31m                 ^^^[0m
+[1m    4 │ [0m}

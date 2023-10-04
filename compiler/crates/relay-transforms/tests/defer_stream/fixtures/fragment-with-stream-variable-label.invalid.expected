@@ -14,10 +14,10 @@ fragment FeedbackFragment on Feedback {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected the 'label' value to @stream to be a string literal if provided.
+[31m✖︎ Expected the 'label' value to @stream to be a string literal if provided.[0m
 
-  fragment-with-stream-variable-label.invalid.graphql:11:10
-   10 │   id
-   11 │   actors @stream(initial_count: 1, label: $label) {
-      │          ^^^^^^^
-   12 │     name
+  [4mfragment-with-stream-variable-label.invalid.graphql[0m[2m:11:10[0m
+[1m   10 │ [0m  id
+[1m   11 │ [0m  actors @stream(initial_count: 1, label: $label) {
+      │ [31m         ^^^^^^^[0m
+[1m   12 │ [0m    name

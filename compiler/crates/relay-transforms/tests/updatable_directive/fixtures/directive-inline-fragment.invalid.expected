@@ -11,7 +11,7 @@ query TestQuery @updatable {
 ✖︎ The @defer directive is not allowed in updatable operations.
 
   directive-inline-fragment.invalid.graphql:4:17
-    3 │   node(id: 4) {
-    4 │     ... on Page @defer {
-      │                 ^^^^^^
-    5 │       __typename
+[1m    3 │ [0m  node(id: 4) {
+[1m    4 │ [0m    ... on Page [31m@[0m[31md[0m[31me[0m[31mf[0m[31me[0m[31mr[0m {
+      │ [31m                ^^^^^^[0m
+[1m    5 │ [0m      __typename

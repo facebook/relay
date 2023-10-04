@@ -25,15 +25,15 @@ fragment conflictingSelectionsWithActorChange3_fragment on Query {
 ✖︎ Expected all fields on the same parent with the name or alias `username` to have the same argument values after applying fragment arguments. This field has the applied argument values: (name: "Alice")
 
   conflicting-selections-with-actor-change.invalid.graphql:13:3
-   12 │ fragment conflictingSelectionsWithActorChange2_fragment on Query {
-   13 │   username(name: "Alice") @fb_actor_change {
+[1m   12 │ [0mfragment conflictingSelectionsWithActorChange2_fragment on Query {
+[1m   13 │ [0m  [31mu[0m[31ms[0m[31me[0m[31mr[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m(name: "Alice") @fb_actor_change {
       │   ^^^^^^^^
    14 │     ...conflictingSelectionsWithActorChange1_fragment
 
-  ℹ︎ which conflicts with this field with applied argument values (name: "Bob")
+[31m  ℹ︎ which conflicts with this field with applied argument values (name: "Bob")[0m
 
-  conflicting-selections-with-actor-change.invalid.graphql:19:3
-   18 │ fragment conflictingSelectionsWithActorChange3_fragment on Query {
+  [4mconflicting-selections-with-actor-change.invalid.graphql[0m[2m:19:3[0m
+[1m   18 │ [0mfragment conflictingSelectionsWithActorChange3_fragment on Query {
    19 │   username(name: "Bob") @fb_actor_change {
       │   ^^^^^^^^
    20 │     ...conflictingSelectionsWithActorChange1_fragment

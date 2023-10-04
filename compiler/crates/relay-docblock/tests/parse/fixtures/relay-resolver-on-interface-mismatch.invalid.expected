@@ -35,6 +35,6 @@ graphql`
 
   /path/to/test/fixture/relay-resolver-on-interface-mismatch.invalid.js:20:27
    19 │ 
-   20 │   fragment myRootFragment on User {
-      │                           ^^^^^^^
-   21 │     name
+   20 │   fragment myRootFragment on [31mU[0m[31ms[0m[31me[0m[31mr[0m {
+      │ [31m                          ^^^^^^^[0m
+[1m   21 │ [0m    name

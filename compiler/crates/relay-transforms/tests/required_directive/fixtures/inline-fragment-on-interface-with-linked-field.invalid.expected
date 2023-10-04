@@ -12,6 +12,6 @@ fragment EnabledFoo on Node {
 
   inline-fragment-on-interface-with-linked-field.invalid.graphql:4:13
     3 │   ... on Actor {
-    4 │     address @required(action: LOG) {
-      │             ^^^^^^^^^
-    5 │       __typename
+    4 │     address @r[31me[0m[31mq[0m[31mu[0m[31mi[0m[31mr[0m[31me[0m[31md[0m(action: LOG) {
+      │ [31m            ^^^^^^^^^[0m
+[1m    5 │ [0m      __typename

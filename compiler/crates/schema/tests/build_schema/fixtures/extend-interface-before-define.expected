@@ -17,10 +17,10 @@ type MyType {
   is_this_cool: Boolean
 }
 ==================================== ERROR ====================================
-✖︎ Cannot extend type 'MyType', the type is not defined on the server schema.
+[31m✖︎ Cannot extend type 'MyType', the type is not defined on the server schema.[0m
 
-  <generated>:11:13
-   10 │ 
-   11 │ extend type MyType {
-      │             ^^^^^^
-   12 │   will_this_crash: Int
+  [4m<generated>[0m[2m:11:13[0m
+[1m   10 │ [0m
+[1m   11 │ [0mextend type [31mM[0m[31my[0m[31mT[0m[31my[0m[31mp[0m[31me[0m {
+      │ [31m            ^^^^^^[0m
+[1m   12 │ [0m  will_this_crash: Int

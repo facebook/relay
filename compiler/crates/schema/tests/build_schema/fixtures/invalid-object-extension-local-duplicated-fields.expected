@@ -12,18 +12,18 @@ extend type User {
   nickname: ID
 }
 ==================================== ERROR ====================================
-✖︎ Duplicate field definition 'nickname' found.
+[31m✖︎ Duplicate field definition 'nickname' found.[0m
 
-  invalid-object-extension-local-duplicated-fields.graphql:11:3
-   10 │   nickname: String
-   11 │   nickname: ID
-      │   ^^^^^^^^
-   12 │ }
+  [4minvalid-object-extension-local-duplicated-fields.graphql[0m[2m:11:3[0m
+[1m   10 │ [0m  nickname: String
+   11 │   n[31mi[0m[31mc[0m[31mk[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m: ID
+      │ [31m  ^^^^^^^^[0m
+[1m   12 │ [0m}
 
-  ℹ︎ previously defined here
+[31m  ℹ︎ previously defined here[0m
 
-  invalid-object-extension-local-duplicated-fields.graphql:10:3
-    9 │ extend type User {
-   10 │   nickname: String
-      │   ^^^^^^^^
-   11 │   nickname: ID
+  [4minvalid-object-extension-local-duplicated-fields.graphql[0m[2m:10:3[0m
+[1m    9 │ [0mextend type User {
+[1m   10 │ [0m  [31mn[0m[31mi[0m[31mc[0m[31mk[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m: String
+      │ [31m  ^^^^^^^^[0m
+[1m   11 │ [0m  nickname: ID

@@ -26,15 +26,15 @@ graphql`
 ✖︎ Unexpected conflicting argument name. This field argument
 
   /path/to/test/fixture/relay-resolver-with-conflicting-args.invalid.js:14:24
-   13 │  * @onType User
-   14 │  * @fieldName greeting(salutation: String!)
+   13 │ [0m * @onType User
+   14 │  * @fieldName greeting(salutatio[31mn[0m: String!)
       │                        ^^^^^^^^^^
    15 │  * @rootFragment myRootFragment
 
-  ℹ︎ conflicts with this fragment argument
+[31m  ℹ︎ conflicts with this fragment argument[0m
 
-  /path/to/test/fixture/relay-resolver-with-conflicting-args.invalid.js:20:56
-   19 │ 
-   20 │   fragment myRootFragment on User @argumentDefinitions(salutation: {type: "String!"}) {
-      │                                                        ^^^^^^^^^^
-   21 │     name
+  [4m/path/to/test/fixture/relay-resolver-with-conflicting-args.invalid.js[0m[2m:20:56[0m
+[1m   19 │ [0m
+[1m   20 │ [0m  fragment myRootFragment on User @argumentDefinitions(salutation: {type: "String!"}) {
+      │ [31m                                                       ^^^^^^^^^^[0m
+[1m   21 │ [0m    name

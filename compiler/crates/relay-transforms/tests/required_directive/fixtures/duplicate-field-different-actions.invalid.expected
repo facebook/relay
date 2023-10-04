@@ -7,18 +7,18 @@ fragment EnabledFoo on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ All references to a @required field must have matching `action` arguments. The `action` used for 'name'
+[31m✖︎ All references to a @required field must have matching `action` arguments. The `action` used for 'name'[0m
 
-  duplicate-field-different-actions.invalid.graphql:3:26
-    2 │ fragment EnabledFoo on User {
-    3 │   name @required(action: NONE)
-      │                          ^^^^
-    4 │   ... on User {
+  [4mduplicate-field-different-actions.invalid.graphql[0m[2m:3:26[0m
+[1m    2 │ [0mfragment EnabledFoo on User {
+[1m    3 │ [0m  name @required(action: [31mN[0m[31mO[0m[31mN[0m[31mE[0m)
+      │ [31m                         ^^^^[0m
+[1m    4 │ [0m  ... on User {
 
-  ℹ︎ should be the same as the `action` declared here
+[31m  ℹ︎ should be the same as the `action` declared here[0m
 
-  duplicate-field-different-actions.invalid.graphql:5:28
-    4 │   ... on User {
-    5 │     name @required(action: LOG)
-      │                            ^^^
-    6 │   }
+  [4mduplicate-field-different-actions.invalid.graphql[0m[2m:5:28[0m
+[1m    4 │ [0m  ... on User {
+[1m    5 │ [0m    name @required(action: [31mL[0m[31mO[0m[31mG[0m)
+      │ [31m                           ^^^[0m
+[1m    6 │ [0m  }

@@ -18,18 +18,18 @@ mutation LikeMutationReverse {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected a value of type 'ID'
+[31m✖︎ Expected a value of type 'ID'[0m
 
-  complex-object-with-invalid-constant-fields.invalid.graphql:4:17
-    3 │   feedbackLikeStrict(input: {
-    4 │     feedbackId: false
-      │                 ^^^^^
-    5 │     userID: "some-user-id"
+  [4mcomplex-object-with-invalid-constant-fields.invalid.graphql[0m[2m:4:17[0m
+[1m    3 │ [0m  feedbackLikeStrict(input: {
+[1m    4 │ [0m    feedbackId: [31mf[0m[31ma[0m[31ml[0m[31ms[0m[31me[0m
+      │ [31m                ^^^^^[0m
+[1m    5 │ [0m    userID: "some-user-id"
 
 
-✖︎ Expected a value of type 'ID'
+[31m✖︎ Expected a value of type 'ID'[0m
 
-  complex-object-with-invalid-constant-fields.invalid.graphql:14:17
+  [4mcomplex-object-with-invalid-constant-fields.invalid.graphql[0m[2m:14:17[0m
    13 │     userID: "some-user-id"
    14 │     feedbackId: false
       │                 ^^^^^

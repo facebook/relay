@@ -13,14 +13,14 @@ query selectionSetConflictWithInlineFragmentQuery {
 
   selection_set_conflict_with_inline_fragment.graphql:4:17
     3 │   username(name: "me") {
-    4 │     same_alias: name
-      │                 ^^^^
-    5 │     ... on User {
+    4 │     same_alias: na[31mm[0m[31me[0m
+      │ [31m                ^^^^[0m
+[1m    5 │ [0m    ... on User {
 
-  ℹ︎ the other field
+[31m  ℹ︎ the other field[0m
 
-  selection_set_conflict_with_inline_fragment.graphql:6:19
-    5 │     ... on User {
+  [4mselection_set_conflict_with_inline_fragment.graphql[0m[2m:6:19[0m
+[1m    5 │ [0m    ... on User {
     6 │       same_alias: id
       │                   ^^
     7 │     }

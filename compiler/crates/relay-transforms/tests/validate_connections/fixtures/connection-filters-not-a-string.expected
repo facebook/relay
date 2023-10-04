@@ -22,6 +22,6 @@ query NodeQuery($id: ID!, $orderBy: String) {
 
   connection-filters-not-a-string.graphql:7:58
     6 │       comments(first: 10, orderby: $orderBy)
-    7 │         @connection(key: "NodeQuery_comments", filters: [123]) {
+[1m    7 │ [0m        @connection(key: "NodeQuery_comments", filters: [123]) {
       │                                                          ^^^
     8 │         edges {

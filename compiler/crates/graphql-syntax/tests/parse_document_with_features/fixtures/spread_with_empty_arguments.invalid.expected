@@ -7,7 +7,7 @@ fragment Test on User {
 ✖︎ Expected an argument
 
   spread_with_empty_arguments.invalid.graphql:3:9
-    2 │ fragment Test on User {
-    3 │   ...Bar()
+[1m    2 │ [0mfragment Test on User {
+[1m    3 │ [0m  ...Bar()
       │         ^^
     4 │ }

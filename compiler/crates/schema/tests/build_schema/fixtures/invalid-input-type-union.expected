@@ -16,10 +16,10 @@ input InvalidInput {
   union: Union
 }
 ==================================== ERROR ====================================
-✖︎ Expected a field of the input object to be a valid input object, scalar, or enum. Got 'Union'.
+[31m✖︎ Expected a field of the input object to be a valid input object, scalar, or enum. Got 'Union'.[0m
 
-  <generated>:15:10
-   14 │   value: Boolean
-   15 │   union: Union
-      │          ^^^^^
-   16 │ }
+  [4m<generated>[0m[2m:15:10[0m
+[1m   14 │ [0m  value: Boolean
+[1m   15 │ [0m  union: [31mU[0m[31mn[0m[31mi[0m[31mo[0m[31mn[0m
+      │ [31m         ^^^^^[0m
+[1m   16 │ [0m}

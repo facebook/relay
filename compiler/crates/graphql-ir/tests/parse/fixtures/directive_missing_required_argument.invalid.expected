@@ -6,10 +6,10 @@ query TestQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Missing required argument: `level`
+[31m✖︎ Missing required argument: `level`[0m
 
-  directive_missing_required_argument.invalid.graphql:4:11
-    3 │   me {
-    4 │     name @customDirective # directive missing level argument
-      │           ^^^^^^^^^^^^^^^
-    5 │   }
+  [4mdirective_missing_required_argument.invalid.graphql[0m[2m:4:11[0m
+[1m    3 │ [0m  me {
+[1m    4 │ [0m    name @[31mc[0m[31mu[0m[31ms[0m[31mt[0m[31mo[0m[31mm[0m[31mD[0m[31mi[0m[31mr[0m[31me[0m[31mc[0m[31mt[0m[31mi[0m[31mv[0m[31me[0m # directive missing level argument
+      │ [31m          ^^^^^^^^^^^^^^^[0m
+[1m    5 │ [0m  }

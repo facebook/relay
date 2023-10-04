@@ -26,6 +26,6 @@ extend type User {
 
   unselectable-linked-field.invalid.graphql:5:3
     4 │   id
-    5 │   sensitiveUserInfo {
-      │   ^^^^^^^^^^^^^^^^^
-    6 │     id
+    5 │   sensitiveUserInf[31mo[0m {
+      │ [31m  ^^^^^^^^^^^^^^^^^[0m
+[1m    6 │ [0m    id

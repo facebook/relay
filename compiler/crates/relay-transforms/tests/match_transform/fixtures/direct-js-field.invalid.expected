@@ -13,6 +13,6 @@ fragment NameRendererFragment on User {
 
   direct-js-field.invalid.graphql:6:7
     5 │     ... on PlainUserNameRenderer {
-    6 │       js(module: "PlainUserNameRenderer.react")
-      │       ^^
-    7 │     }
+    6 │       [31mj[0m[31ms[0m(module: "PlainUserNameRenderer.react")
+      │ [31m      ^^[0m
+[1m    7 │ [0m    }

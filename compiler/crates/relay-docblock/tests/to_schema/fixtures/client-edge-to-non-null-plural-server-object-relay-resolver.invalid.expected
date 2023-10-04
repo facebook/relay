@@ -23,10 +23,10 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ Unexpected non-nullable type given in `@edgeTo`.
+[31m✖︎ Unexpected non-nullable type given in `@edgeTo`.[0m
 
-  /path/to/test/fixture/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.js:6:12
-    5 │  * @fieldName favorite_pages
-    6 │  * @edgeTo [Page]!
-      │            ^^^^^^^
-    7 │  * @rootFragment myRootFragment
+  [4m/path/to/test/fixture/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.js[0m[2m:6:12[0m
+[1m    5 │ [0m * @fieldName favorite_pages
+[1m    6 │ [0m * @edgeTo [31m[[0m[31mP[0m[31ma[0m[31mg[0m[31me[0m[31m][0m[31m![0m
+      │ [31m           ^^^^^^^[0m
+[1m    7 │ [0m * @rootFragment myRootFragment

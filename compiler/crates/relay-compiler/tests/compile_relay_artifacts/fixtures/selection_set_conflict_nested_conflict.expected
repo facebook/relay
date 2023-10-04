@@ -24,7 +24,7 @@ query selectionSetConflictNestedConflictQuery {
   ℹ︎ the other field
 
   selection_set_conflict_nested_conflict.graphql:10:19
-    9 │     profile_picture {
-   10 │       same_alias: height
+[1m    9 │ [0m    profile_picture {
+[1m   10 │ [0m      same_alias: height
       │                   ^^^^^^
    11 │     }

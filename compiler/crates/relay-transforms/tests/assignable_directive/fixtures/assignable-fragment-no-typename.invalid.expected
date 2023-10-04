@@ -4,10 +4,10 @@ fragment AssignableFragment on Page @assignable {
   id
 }
 ==================================== ERROR ====================================
-✖︎ Assignable fragments should contain only a single, unaliased __typename field with no directives.
+[31m✖︎ Assignable fragments should contain only a single, unaliased __typename field with no directives.[0m
 
-  assignable-fragment-no-typename.invalid.graphql:3:3
-    2 │ fragment AssignableFragment on Page @assignable {
-    3 │   id
-      │   ^^
-    4 │ }
+  [4massignable-fragment-no-typename.invalid.graphql[0m[2m:3:3[0m
+[1m    2 │ [0mfragment AssignableFragment on Page @assignable {
+[1m    3 │ [0m  [31mi[0m[31md[0m
+      │ [31m  ^^[0m
+[1m    4 │ [0m}

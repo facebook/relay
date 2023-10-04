@@ -34,34 +34,34 @@ extend type User {
   fooObject: Int
 }
 ==================================== ERROR ====================================
-✖︎ Unexpected dynamic argument. fooColorList's 'colors' argument must be a constant value because it is read by the Relay compiler.
+[31m✖︎ Unexpected dynamic argument. fooColorList's 'colors' argument must be a constant value because it is read by the Relay compiler.[0m
 
-  nonstatic-values-on-static-arg.invalid.graphql:6:39
-    5 │         fooVar @fooColorVar(color: $color1)
-    6 │         fooList @fooColorList(colors: [$color1, $color2])
-      │                                       ^^^^^^^^^^^^^^^^^^
-    7 │         fooObject @fooColorObject(colorObject: {
-
-
-✖︎ Unexpected dynamic argument. fooColorObject's 'colorObject' argument must be a constant value because it is read by the Relay compiler.
-
-  nonstatic-values-on-static-arg.invalid.graphql:7:48
-    6 │         fooList @fooColorList(colors: [$color1, $color2])
-    7 │         fooObject @fooColorObject(colorObject: {
-      │                                                ^
-    8 │           fooColorOne: $color1,
-      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    9 │           fooColorTwo: $color2,
-      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   10 │         })
-      │ ^^^^^^^^^
-   11 │     }
+  [4mnonstatic-values-on-static-arg.invalid.graphql[0m[2m:6:39[0m
+[1m    5 │ [0m        fooVar @fooColorVar(color: $color1)
+[1m    6 │ [0m        fooList @fooColorList(colors: [31m[[0m[31m$[0m[31mc[0m[31mo[0m[31ml[0m[31mo[0m[31mr[0m[31m1[0m[31m,[0m[31m [0m[31m$[0m[31mc[0m[31mo[0m[31ml[0m[31mo[0m[31mr[0m[31m2[0m[31m][0m)
+      │ [31m                                      ^^^^^^^^^^^^^^^^^^[0m
+[1m    7 │ [0m        fooObject @fooColorObject(colorObject: {
 
 
-✖︎ Unexpected dynamic argument. fooColorVar's 'color' argument must be a constant value because it is read by the Relay compiler.
+[31m✖︎ Unexpected dynamic argument. fooColorObject's 'colorObject' argument must be a constant value because it is read by the Relay compiler.[0m
 
-  nonstatic-values-on-static-arg.invalid.graphql:5:36
-    4 │     ... on User {
-    5 │         fooVar @fooColorVar(color: $color1)
-      │                                    ^^^^^^^
-    6 │         fooList @fooColorList(colors: [$color1, $color2])
+  [4mnonstatic-values-on-static-arg.invalid.graphql[0m[2m:7:48[0m
+[1m    6 │ [0m        fooList @fooColorList(colors: [$color1, $color2])
+[1m    7 │ [0m        fooObject @fooColorObject(colorObject: [31m{[0m
+      │ [31m                                               ^[0m
+[1m    8 │ [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31mf[0m[31mo[0m[31mo[0m[31mC[0m[31mo[0m[31ml[0m[31mo[0m[31mr[0m[31mO[0m[31mn[0m[31me[0m[31m:[0m[31m [0m[31m$[0m[31mc[0m[31mo[0m[31ml[0m[31mo[0m[31mr[0m[31m1[0m[31m,[0m
+      │ [31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m    9 │ [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31mf[0m[31mo[0m[31mo[0m[31mC[0m[31mo[0m[31ml[0m[31mo[0m[31mr[0m[31mT[0m[31mw[0m[31mo[0m[31m:[0m[31m [0m[31m$[0m[31mc[0m[31mo[0m[31ml[0m[31mo[0m[31mr[0m[31m2[0m[31m,[0m
+      │ [31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m   10 │ [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m [0m[31m}[0m)
+      │ [31m^^^^^^^^^[0m
+[1m   11 │ [0m    }
+
+
+[31m✖︎ Unexpected dynamic argument. fooColorVar's 'color' argument must be a constant value because it is read by the Relay compiler.[0m
+
+  [4mnonstatic-values-on-static-arg.invalid.graphql[0m[2m:5:36[0m
+[1m    4 │ [0m    ... on User {
+[1m    5 │ [0m        fooVar @fooColorVar(color: [31m$[0m[31mc[0m[31mo[0m[31ml[0m[31mo[0m[31mr[0m[31m1[0m)
+      │ [31m                                   ^^^^^^^[0m
+[1m    6 │ [0m        fooList @fooColorList(colors: [$color1, $color2])

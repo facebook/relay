@@ -10,6 +10,6 @@ query TestQuery @updatable {
 
   include.invalid.graphql:3:15
     2 │ query TestQuery @updatable {
-    3 │   node(id: 4) @include(if: true) {
-      │               ^^^^^^^^
-    4 │     id
+[1m    3 │ [0m  node(id: 4) [31m@[0m[31mi[0m[31mn[0m[31mc[0m[31ml[0m[31mu[0m[31md[0m[31me[0m(if: true) {
+      │ [31m              ^^^^^^^^[0m
+[1m    4 │ [0m    id

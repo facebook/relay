@@ -17,19 +17,19 @@ query Query {
     ...Fragment2 @skip(if: true)
 }
 ==================================== ERROR ====================================
-✖︎ After applying transforms to the fragment `Fragment1` selections of the `Fragment1` that would be sent to the server are empty. This is likely due to the use of `@skip`/`@include` directives with constant values that remove all selections in the fragment. 
+[31m✖︎ After applying transforms to the fragment `Fragment1` selections of the `Fragment1` that would be sent to the server are empty. This is likely due to the use of `@skip`/`@include` directives with constant values that remove all selections in the fragment. [0m
 
-  skipped-fragment.graphql:3:10
-    2 │ 
-    3 │ fragment Fragment1 on Query {
-      │          ^^^^^^^^^
-    4 │     me @skip(if: true) {
+  [4mskipped-fragment.graphql[0m[2m:3:10[0m
+[1m    2 │ [0m
+[1m    3 │ [0mfragment [31mF[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31m1[0m on Query {
+      │ [31m         ^^^^^^^^^[0m
+[1m    4 │ [0m    me @skip(if: true) {
 
 
 ✖︎ After applying transforms to the query `Query` selections of the `Query` that would be sent to the server are empty. This is likely due to the use of `@skip`/`@include` directives with constant values that remove all selections in the query. 
 
   skipped-fragment.graphql:15:7
    14 │ 
-   15 │ query Query {
-      │       ^^^^^
-   16 │     ...Fragment2 @skip(if: true)
+   15 │ query [31mQ[0m[31mu[0m[31me[0m[31mr[0m[31my[0m {
+      │ [31m      ^^^^^[0m
+[1m   16 │ [0m    ...Fragment2 @skip(if: true)

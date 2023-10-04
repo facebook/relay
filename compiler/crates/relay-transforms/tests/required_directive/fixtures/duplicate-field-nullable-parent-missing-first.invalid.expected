@@ -18,13 +18,13 @@ fragment EnabledFoo on Node {
   duplicate-field-nullable-parent-missing-first.invalid.graphql:11:5
    10 │     # could get nulled out here if name is missing
    11 │     name @required(action: LOG)
-      │     ^^^^
-   12 │   }
+      │ [31m    ^^^^[0m
+[1m   12 │ [0m  }
 
-  ℹ︎ but is missing from
+[31m  ℹ︎ but is missing from[0m
 
-  duplicate-field-nullable-parent-missing-first.invalid.graphql:4:5
-    3 │   ... on User {
-    4 │     actor {
-      │     ^^^^^
-    5 │       # but then the value will also get created here, which is bad
+  [4mduplicate-field-nullable-parent-missing-first.invalid.graphql[0m[2m:4:5[0m
+[1m    3 │ [0m  ... on User {
+[1m    4 │ [0m    [31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m {
+      │ [31m    ^^^^^[0m
+[1m    5 │ [0m      # but then the value will also get created here, which is bad

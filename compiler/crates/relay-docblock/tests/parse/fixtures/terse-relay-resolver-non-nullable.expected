@@ -13,10 +13,10 @@
  * Non-nullable 
  */
 ==================================== ERROR ====================================
-✖︎ Unexpected Relay Resolver field with non-nullable type. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+[31m✖︎ Unexpected Relay Resolver field with non-nullable type. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.[0m
 
-  /path/to/test/fixture/terse-relay-resolver-non-nullable.js:11:44
-   10 │ *
-   11 │  * @RelayResolver User.mandatory_greeting: String!
-      │                                            ^^^^^^^
-   12 │  * Non-nullable
+  [4m/path/to/test/fixture/terse-relay-resolver-non-nullable.js[0m[2m:11:44[0m
+[1m   10 │ [0m*
+[1m   11 │ [0m * @RelayResolver User.mandatory_greeting: [31mS[0m[31mt[0m[31mr[0m[31mi[0m[31mn[0m[31mg[0m[31m![0m
+      │ [31m                                           ^^^^^^^[0m
+[1m   12 │ [0m * Non-nullable

@@ -9,31 +9,31 @@ fragment DuplicateArguments on User {
 
   duplicate_arguments.invalid.graphql:3:7
     2 │ fragment DuplicateArguments on User {
-    3 │   url(relative: true, relative: true)
-      │       ^^^^^^^^^^^^^^
-    4 │     @customDirective(level: 1, level: 2)
+    3 │   url(relative: tru[31me[0m, relative: true)
+      │ [31m      ^^^^^^^^^^^^^^[0m
+[1m    4 │ [0m    @customDirective(level: 1, level: 2)
 
   ℹ︎ conflicts with
 
   duplicate_arguments.invalid.graphql:3:23
     2 │ fragment DuplicateArguments on User {
-    3 │   url(relative: true, relative: true)
-      │                       ^^^^^^^^^^^^^^
-    4 │     @customDirective(level: 1, level: 2)
+    3 │   url(relative: true, relative: t[31mr[0m[31mu[0m[31me[0m)
+      │ [31m                      ^^^^^^^^^^^^^^[0m
+[1m    4 │ [0m    @customDirective(level: 1, level: 2)
 
 
 ✖︎ Duplicate argument `level`
 
   duplicate_arguments.invalid.graphql:4:22
     3 │   url(relative: true, relative: true)
-    4 │     @customDirective(level: 1, level: 2)
-      │                      ^^^^^^^^
-    5 │ }
+    4 │     @customDirective([31ml[0m[31me[0m[31mv[0m[31me[0m[31ml[0m[31m:[0m[31m [0m[31m1[0m, level: 2)
+      │ [31m                     ^^^^^^^^[0m
+[1m    5 │ [0m}
 
-  ℹ︎ conflicts with
+[31m  ℹ︎ conflicts with[0m
 
-  duplicate_arguments.invalid.graphql:4:32
-    3 │   url(relative: true, relative: true)
-    4 │     @customDirective(level: 1, level: 2)
+  [4mduplicate_arguments.invalid.graphql[0m[2m:4:32[0m
+[1m    3 │ [0m  url(relative: true, relative: true)
+[1m    4 │ [0m    @customDirective(level: 1, lev[31me[0ml: 2)
       │                                ^^^^^^^^
     5 │ }

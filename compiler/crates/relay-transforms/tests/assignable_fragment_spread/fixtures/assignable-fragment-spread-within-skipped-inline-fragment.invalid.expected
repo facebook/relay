@@ -16,14 +16,14 @@ fragment Assignable_user on User @assignable {
 
   assignable-fragment-spread-within-skipped-inline-fragment.invalid.graphql:4:9
     3 │   node(id: "4") {
-    4 │     ... @skip(if: $skip) {
-      │         ^^^^^
-    5 │       ...Assignable_user
+[1m    4 │ [0m    ... [31m@[0m[31ms[0m[31mk[0m[31mi[0m[31mp[0m(if: $skip) {
+      │ [31m        ^^^^^[0m
+[1m    5 │ [0m      ...Assignable_user
 
-  ℹ︎ enclosing linked field
+[31m  ℹ︎ enclosing linked field[0m
 
-  assignable-fragment-spread-within-skipped-inline-fragment.invalid.graphql:3:3
-    2 │ query TestQuery($skip: Boolean!) {
-    3 │   node(id: "4") {
+  [4massignable-fragment-spread-within-skipped-inline-fragment.invalid.graphql[0m[2m:3:3[0m
+[1m    2 │ [0mquery TestQuery($skip: Boolean!) {
+[1m    3 │ [0m  node(id: "4") {
       │   ^^^^
     4 │     ... @skip(if: $skip) {

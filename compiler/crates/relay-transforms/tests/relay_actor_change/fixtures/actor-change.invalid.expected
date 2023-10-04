@@ -21,28 +21,28 @@ fragment ForActorChange on User {
   name
 }
 ==================================== ERROR ====================================
-✖︎ Actor change directive (@as_actor) cannot be applied to scalar fields.
+[31m✖︎ Actor change directive (@as_actor) cannot be applied to scalar fields.[0m
 
-  actor-change.invalid.graphql:3:3
-    2 │ fragment UserFragmentWithScalarField on User {
-    3 │   name @fb_actor_change
-      │   ^^^^
-    4 │ }
-
-
-✖︎ Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread.
-
-  actor-change.invalid.graphql:13:3
-   12 │ fragment UserFragmentWithLinkedFieldAndSpread on User {
-   13 │   author @fb_actor_change {
-      │   ^^^^^^
-   14 │     name
+  [4mactor-change.invalid.graphql[0m[2m:3:3[0m
+[1m    2 │ [0mfragment UserFragmentWithScalarField on User {
+[1m    3 │ [0m  [31mn[0m[31ma[0m[31mm[0m[31me[0m @fb_actor_change
+      │ [31m  ^^^^[0m
+[1m    4 │ [0m}
 
 
-✖︎ Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread.
+[31m✖︎ Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread.[0m
 
-  actor-change.invalid.graphql:8:5
-    7 │   author @fb_actor_change {
-    8 │     name
-      │     ^^^^
-    9 │   }
+  [4mactor-change.invalid.graphql[0m[2m:13:3[0m
+[1m   12 │ [0mfragment UserFragmentWithLinkedFieldAndSpread on User {
+[1m   13 │ [0m  [31ma[0m[31mu[0m[31mt[0m[31mh[0m[31mo[0m[31mr[0m @fb_actor_change {
+      │ [31m  ^^^^^^[0m
+[1m   14 │ [0m    name
+
+
+[31m✖︎ Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread.[0m
+
+  [4mactor-change.invalid.graphql[0m[2m:8:5[0m
+[1m    7 │ [0m  author @fb_actor_change {
+[1m    8 │ [0m    [31mn[0m[31ma[0m[31mm[0m[31me[0m
+      │ [31m    ^^^^[0m
+[1m    9 │ [0m  }

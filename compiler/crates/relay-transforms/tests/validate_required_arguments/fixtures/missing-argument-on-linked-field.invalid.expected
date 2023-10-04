@@ -16,10 +16,10 @@ query missingArgumentOnLinkedFieldViewerQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Missing required argument: `supported`
+[31m✖︎ Missing required argument: `supported`[0m
 
-  missing-argument-on-linked-field.invalid.graphql:3:3
-    2 │ fragment missingArgumentOnLinkedFieldSomeComment on Comment {
-    3 │   commentBody {
-      │   ^^^^^^^^^^^
-    4 │     ... on PlainCommentBody {
+  [4mmissing-argument-on-linked-field.invalid.graphql[0m[2m:3:3[0m
+[1m    2 │ [0mfragment missingArgumentOnLinkedFieldSomeComment on Comment {
+[1m    3 │ [0m  [31mc[0m[31mo[0m[31mm[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31mB[0m[31mo[0m[31md[0m[31my[0m {
+      │ [31m  ^^^^^^^^^^^[0m
+[1m    4 │ [0m    ... on PlainCommentBody {

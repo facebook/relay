@@ -38,7 +38,7 @@ fragment fragmentOnQueryWithCycle_Profile on User
       │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    27 │       }
 
-  ℹ︎ other member of the cycle
+[31m  ℹ︎ other member of the cycle[0m
 
   fragment-on-query-with-cycle.invalid.graphql:2:10
     1 │ # expected-to-throw
@@ -50,7 +50,7 @@ fragment fragmentOnQueryWithCycle_Profile on User
 
   fragment-on-query-with-cycle.invalid.graphql:9:10
     8 │       name
-    9 │       ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
+    9 │       ...[31mf[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31mO[0m[31mn[0m[31mQ[0m[31mu[0m[31me[0m[31mr[0m[31my[0m[31mW[0m[31mi[0m[31mt[0m[31mh[0m[31mC[0m[31my[0m[31mc[0m[31ml[0m[31me[0m[31m_[0m[31mP[0m[31mr[0m[31mo[0mfile @arguments(includeProfile: true)
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    10 │     }
 
@@ -58,6 +58,6 @@ fragment fragmentOnQueryWithCycle_Profile on User
 
   fragment-on-query-with-cycle.invalid.graphql:26:12
    25 │       node {
-   26 │         ...fragmentOnQueryWithCycle_Profile
+   26 │         ...[31mf[0m[31mr[0m[31ma[0mgmentO[31mn[0m[31mQ[0m[31mu[0m[31me[0m[31mr[0m[31my[0m[31mW[0m[31mi[0mthCycle_Profile
       │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    27 │       }

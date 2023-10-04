@@ -18,6 +18,6 @@ query Test($id: ID!, $id: ID) {
 
   duplicate_variables_invalid.graphql:2:12
     1 │ # expected-to-throw
-    2 │ query Test($id: ID!, $id: ID) {
-      │            ^^^^^^^^
-    3 │   user(id: $id) {
+    2 │ query Test([31m$[0m[31mi[0m[31md[0m[31m:[0m[31m [0m[31mI[0m[31mD[0m[31m![0m, $id: ID) {
+      │ [31m           ^^^^^^^^[0m
+[1m    3 │ [0m  user(id: $id) {

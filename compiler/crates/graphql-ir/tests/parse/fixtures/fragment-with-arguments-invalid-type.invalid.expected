@@ -11,10 +11,10 @@ fragment TestFragment on User
   ...Foo @arguments(localId: $myArg)
 }
 ==================================== ERROR ====================================
-✖︎ Unknown type 'UnknownType'.
+[31m✖︎ Unknown type 'UnknownType'.[0m
 
-  fragment-with-arguments-invalid-type.invalid.graphql:3:39
-    2 │ fragment TestFragment on User
-    3 │   @argumentDefinitions(myArg: {type: "UnknownType"}) {
-      │                                       ^^^^^^^^^^^
-    4 │   profilePicture(size: $PictureSize) {
+  [4mfragment-with-arguments-invalid-type.invalid.graphql[0m[2m:3:39[0m
+[1m    2 │ [0mfragment TestFragment on User
+[1m    3 │ [0m  @argumentDefinitions(myArg: {type: "[31mU[0m[31mn[0m[31mk[0m[31mn[0m[31mo[0m[31mw[0m[31mn[0m[31mT[0m[31my[0m[31mp[0m[31me[0m"}) {
+      │ [31m                                      ^^^^^^^^^^^[0m
+[1m    4 │ [0m  profilePicture(size: $PictureSize) {

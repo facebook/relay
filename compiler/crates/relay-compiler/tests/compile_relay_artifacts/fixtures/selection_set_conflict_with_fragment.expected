@@ -18,10 +18,10 @@ fragment selectionSetConflictWithFragmentFrag on User {
       │                 ^^^^
     5 │     ...selectionSetConflictWithFragmentFrag
 
-  ℹ︎ the other field
+[31m  ℹ︎ the other field[0m
 
-  selection_set_conflict_with_fragment.graphql:9:15
-    8 │ fragment selectionSetConflictWithFragmentFrag on User {
+  [4mselection_set_conflict_with_fragment.graphql[0m[2m:9:15[0m
+[1m    8 │ [0mfragment selectionSetConflictWithFragmentFrag on User {
     9 │   same_alias: id
-      │               ^^
-   10 │ }
+      │ [31m              ^^[0m
+[1m   10 │ [0m}

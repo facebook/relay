@@ -24,16 +24,16 @@ fragment Profile on User {
 ==================================== ERROR ====================================
 ✖︎ Found a circular reference from fragment 'Profile'.
 
-  rejects-cyclic-fragments.invalid.graphql:18:12
-   17 │       node {
-   18 │         ...Profile
-      │            ^^^^^^^
-   19 │       }
+  [4mrejects-cyclic-fragments.invalid.graphql[0m[2m:18:12[0m
+[1m   17 │ [0m      node {
+[1m   18 │ [0m        ...[31mP[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m
+      │ [31m           ^^^^^^^[0m
+[1m   19 │ [0m      }
 
-  ℹ︎ other member of the cycle
+[31m  ℹ︎ other member of the cycle[0m
 
-  rejects-cyclic-fragments.invalid.graphql:5:8
-    4 │     id
-    5 │     ...Profile
-      │        ^^^^^^^
-    6 │   }
+  [4mrejects-cyclic-fragments.invalid.graphql[0m[2m:5:8[0m
+[1m    4 │ [0m    id
+[1m    5 │ [0m    ...[31mP[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m
+      │ [31m       ^^^^^^^[0m
+[1m    6 │ [0m  }

@@ -10,11 +10,11 @@ query TestQuery @updatable {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Only fragments decorated with the @assignable directive can be spread within updatable operations. You can try adding the @assignable directive to the fragment Test_page.
+[31m✖︎ Only fragments decorated with the @assignable directive can be spread within updatable operations. You can try adding the @assignable directive to the fragment Test_page.[0m
 
-  directive-fragment-spread.invalid.graphql:8:8
+  [4mdirective-fragment-spread.invalid.graphql[0m[2m:8:8[0m
     7 │   node(id: 4) {
-    8 │     ...Test_page @customDirective(level: 1)
+    8 │     ...Test_pa[31mg[0m[31me[0m @customDirective(level: 1)
       │        ^^^^^^^^^
     9 │   }
 

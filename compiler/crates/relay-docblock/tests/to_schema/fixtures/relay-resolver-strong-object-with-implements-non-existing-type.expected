@@ -15,7 +15,7 @@
 ✖︎ The type `TweedUnit` is not an existing GraphQL type. Did you mean `FeedUnit`?
 
   /path/to/test/fixture/relay-resolver-strong-object-with-implements-non-existing-type.js:2:19
-    1 │ *
-    2 │  * @RelayResolver FriendGroup implements TweedUnit
-      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │
+[1m    1 │ [0m*
+[1m    2 │ [0m * @RelayResolver [31mF[0m[31mr[0m[31mi[0m[31me[0m[31mn[0m[31md[0m[31mG[0m[31mr[0m[31mo[0m[31mu[0m[31mp[0m[31m [0m[31mi[0m[31mm[0m[31mp[0m[31ml[0m[31me[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31ms[0m[31m [0m[31mT[0m[31mw[0m[31me[0m[31me[0m[31md[0m[31mU[0m[31mn[0m[31mi[0m[31mt[0m
+      │ [31m                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+    3 │ [0m

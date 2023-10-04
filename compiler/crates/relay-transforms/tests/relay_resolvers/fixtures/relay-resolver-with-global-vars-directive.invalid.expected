@@ -17,10 +17,10 @@ extend type User {
   pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
 }
 ==================================== ERROR ====================================
-✖︎ The usage of global variable `$should_include_address` is not supported in the Relay resolvers fragments. Please, add this variable to the `@argumentDefinitions` of the `PopStarNameResolverFragment_name` fragment.
+[31m✖︎ The usage of global variable `$should_include_address` is not supported in the Relay resolvers fragments. Please, add this variable to the `@argumentDefinitions` of the `PopStarNameResolverFragment_name` fragment.[0m
 
-  relay-resolver-with-global-vars-directive.invalid.graphql:8:24
-    7 │   }
-    8 │   address @include(if: $should_include_address) {
-      │                        ^^^^^^^^^^^^^^^^^^^^^^^
-    9 │     street
+  [4mrelay-resolver-with-global-vars-directive.invalid.graphql[0m[2m:8:24[0m
+[1m    7 │ [0m  }
+[1m    8 │ [0m  address @include(if: [31m$[0m[31ms[0m[31mh[0m[31mo[0m[31mu[0m[31ml[0m[31md[0m[31m_[0m[31mi[0m[31mn[0m[31mc[0m[31ml[0m[31mu[0m[31md[0m[31me[0m[31m_[0m[31ma[0m[31md[0m[31md[0m[31mr[0m[31me[0m[31ms[0m[31ms[0m) {
+      │ [31m                       ^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m    9 │ [0m    street

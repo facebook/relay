@@ -43,15 +43,15 @@ fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsB on Actor {
 ✖︎ Expected all fields on the same parent with the name or alias `profilePicture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (size: [42])
 
   selection_set_conflict_invalid_same_fragments_in_different_contexts.graphql:31:3
-   30 │ fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsA on Actor {
-   31 │   profilePicture(size: [42]) {
-      │   ^^^^^^^^^^^^^^
-   32 │     uri
+[1m   30 │ [0mfragment selectionSetConflictInvalidSameFragmentsInDifferentContextsA on Actor {
+[1m   31 │ [0m  [31mp[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m[31mP[0m[31mi[0m[31mc[0m[31mt[0m[31mu[0m[31mr[0m[31me[0m(size: [42]) {
+      │ [31m  ^^^^^^^^^^^^^^[0m
+[1m   32 │ [0m    uri
 
-  ℹ︎ which conflicts with this field with applied argument values 
+[31m  ℹ︎ which conflicts with this field with applied argument values [0m
 
-  selection_set_conflict_invalid_same_fragments_in_different_contexts.graphql:37:3
-   36 │ fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsB on Actor {
-   37 │   profilePicture {
-      │   ^^^^^^^^^^^^^^
-   38 │     uri
+  [4mselection_set_conflict_invalid_same_fragments_in_different_contexts.graphql[0m[2m:37:3[0m
+[1m   36 │ [0mfragment selectionSetConflictInvalidSameFragmentsInDifferentContextsB on Actor {
+   37 │   prof[31mi[0m[31ml[0m[31me[0m[31mP[0m[31mi[0m[31mc[0mture {
+      │ [31m  ^^^^^^^^^^^^^^[0m
+[1m   38 │ [0m    uri

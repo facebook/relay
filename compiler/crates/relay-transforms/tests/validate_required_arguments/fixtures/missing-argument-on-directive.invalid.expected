@@ -9,10 +9,10 @@ query missingArgumentOnDirectiveViewerQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Missing required argument: `level`
+[31m✖︎ Missing required argument: `level`[0m
 
-  missing-argument-on-directive.invalid.graphql:5:11
-    4 │   node {
-    5 │     body @customDirective {
-      │           ^^^^^^^^^^^^^^^
-    6 │       text
+  [4mmissing-argument-on-directive.invalid.graphql[0m[2m:5:11[0m
+[1m    4 │ [0m  node {
+[1m    5 │ [0m    body @[31mc[0m[31mu[0m[31ms[0m[31mt[0m[31mo[0m[31mm[0m[31mD[0m[31mi[0m[31mr[0m[31me[0m[31mc[0m[31mt[0m[31mi[0m[31mv[0m[31me[0m {
+      │ [31m          ^^^^^^^^^^^^^^^[0m
+[1m    6 │ [0m      text

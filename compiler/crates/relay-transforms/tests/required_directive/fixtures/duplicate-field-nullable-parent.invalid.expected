@@ -13,11 +13,11 @@ fragment EnabledFoo on Node {
   }
 }
 ==================================== ERROR ====================================
-✖︎ @required fields must be included in all instances of their parent. The field 'name` is marked as @required here
+[31m✖︎ @required fields must be included in all instances of their parent. The field 'name` is marked as @required here[0m
 
-  duplicate-field-nullable-parent.invalid.graphql:5:5
-    4 │     # could get nulled out here if name is missing
-    5 │     name @required(action: LOG)
+  [4mduplicate-field-nullable-parent.invalid.graphql[0m[2m:5:5[0m
+[1m    4 │ [0m    # could get nulled out here if name is missing
+[1m    5 │ [0m    [31mn[0m[31ma[0m[31mm[0m[31me[0m @required(action: LOG)
       │     ^^^^
     6 │   }
 

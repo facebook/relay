@@ -12,6 +12,6 @@ fragment FeedbackFragment on Feedback {
 
   stream.invalid.graphql:5:9
     4 │   id
-    5 │   actor @stream(initial_count: 1) {
-      │         ^^^^^^^
-    6 │     name
+[1m    5 │ [0m  actor [31m@[0m[31ms[0m[31mt[0m[31mr[0m[31me[0m[31ma[0m[31mm[0m(initial_count: 1) {
+      │ [31m        ^^^^^^^[0m
+[1m    6 │ [0m    name

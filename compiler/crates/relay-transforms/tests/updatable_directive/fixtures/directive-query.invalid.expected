@@ -10,6 +10,6 @@ query TestQuery @updatable @live_query {
 
   directive-query.invalid.graphql:2:28
     1 │ # expected-to-throw
-    2 │ query TestQuery @updatable @live_query {
-      │                            ^^^^^^^^^^^
-    3 │   node(id: 4) {
+    2 │ query TestQuery @updatable [31m@[0m[31ml[0m[31mi[0m[31mv[0m[31me[0m[31m_[0m[31mq[0m[31mu[0m[31me[0m[31mr[0m[31my[0m {
+      │ [31m                           ^^^^^^^^^^^[0m
+[1m    3 │ [0m  node(id: 4) {

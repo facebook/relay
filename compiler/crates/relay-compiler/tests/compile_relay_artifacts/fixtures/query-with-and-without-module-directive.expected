@@ -28,14 +28,14 @@ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on Mar
 
   query-with-and-without-module-directive.graphql:15:8
    14 │   without_module: nameRenderer {
-   15 │     ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
-      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   16 │   }
+   15 │     ...queryWi[31mt[0m[31mh[0m[31mA[0m[31mn[0m[31md[0m[31mW[0m[31mi[0m[31mt[0m[31mh[0m[31mo[0m[31mu[0m[31mt[0m[31mM[0moduleDirective_MarkdownUserNameRenderer_name
+      │ [31m       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m   16 │ [0m  }
 
-  ℹ︎ fragment definition
+[31m  ℹ︎ fragment definition[0m
 
-  query-with-and-without-module-directive.graphql:19:10
-   18 │ 
-   19 │ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   20 │   markdown
+  [4mquery-with-and-without-module-directive.graphql[0m[2m:19:10[0m
+[1m   18 │ [0m
+[1m   19 │ [0mfragment queryWithAndWithoutModuleDirective_Markdow[31mn[0m[31mU[0m[31ms[0m[31me[0m[31mr[0m[31mN[0m[31ma[0m[31mm[0meR[31me[0m[31mn[0m[31md[0m[31me[0m[31mr[0m[31me[0m[31mr[0m[31m_[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m on MarkdownUserNameRenderer {
+      │ [31m         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m   20 │ [0m  markdown

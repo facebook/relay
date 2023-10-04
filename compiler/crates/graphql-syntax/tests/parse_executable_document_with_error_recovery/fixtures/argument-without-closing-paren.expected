@@ -140,6 +140,6 @@ Errors:
 
   argument-without-closing-paren.graphql:2:22
     1 │ fragment Test on User {
-    2 │   photo (size: $size {
-      │                      ^
-    3 │     url
+[1m    2 │ [0m  photo (size: $size [31m{[0m
+      │ [31m                     ^[0m
+[1m    3 │ [0m    url

@@ -27,28 +27,28 @@ query EnumValueQuery3 {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected value of type 'PhotoSize' to be a valid enum value, got string. Consider removing quotes.
+[31m✖︎ Expected value of type 'PhotoSize' to be a valid enum value, got string. Consider removing quotes.[0m
 
-  enum-values.invalid.graphql:4:28
-    3 │   me {
-    4 │     profilePicture(preset: "LARGE") {
-      │                            ^^^^^^^
-    5 │       # error: string not enum
+  [4menum-values.invalid.graphql[0m[2m:4:28[0m
+[1m    3 │ [0m  me {
+[1m    4 │ [0m    profilePicture(preset: [31m"[0m[31mL[0m[31mA[0m[31mR[0m[31mG[0m[31mE[0m[31m"[0m) {
+      │ [31m                           ^^^^^^^[0m
+[1m    5 │ [0m      # error: string not enum
 
 
-✖︎ Expected a value of type 'PhotoSize'
+[31m✖︎ Expected a value of type 'PhotoSize'[0m
 
-  enum-values.invalid.graphql:13:28
-   12 │   me {
+  [4menum-values.invalid.graphql[0m[2m:13:28[0m
+[1m   12 │ [0m  me {
    13 │     profilePicture(preset: 128) {
-      │                            ^^^
-   14 │       # error: int not enum
+      │ [31m                           ^^^[0m
+[1m   14 │ [0m      # error: int not enum
 
 
 ✖︎ Expected a value of type 'PhotoSize'
 
   enum-values.invalid.graphql:22:28
    21 │   me {
-   22 │     profilePicture(preset: [LARGE]) {
+[1m   22 │ [0m    profilePicture(preset: [LARGE]) {
       │                            ^^^^^^^
    23 │       # error: list of enum, not enum

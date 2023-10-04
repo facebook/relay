@@ -10,10 +10,10 @@ fragment Foo($size: [Int], $b: Boolean!) on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Cannot combine fragment arguments syntax with the '@arguments' directive
+[31m✖︎ Cannot combine fragment arguments syntax with the '@arguments' directive[0m
 
-  fragment-with-both-arguments-and-directive.invalid.graphql:3:22
-    2 │ fragment TestFragment on User {
-    3 │   ...Foo(size: [10]) @arguments(b: false)
+  [4mfragment-with-both-arguments-and-directive.invalid.graphql[0m[2m:3:22[0m
+[1m    2 │ [0mfragment TestFragment on User {
+[1m    3 │ [0m  ...Foo(size: [10]) @arguments(b: false)
       │                      ^^^^^^^^^^^^^^^^^^^^
     4 │ }

@@ -28,10 +28,10 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ Found `@onInterface` docblock field referring to an object type. Did you mean `@onType`?
+[31m✖︎ Found `@onInterface` docblock field referring to an object type. Did you mean `@onType`?[0m
 
-  /path/to/test/fixture/relay-resolver-on-invalid-interface.invalid.js:4:5
-    3 │  *
-    4 │  * @onInterface User
-      │     ^^^^^^^^^^^
-    5 │  * @fieldName favorite_page
+  [4m/path/to/test/fixture/relay-resolver-on-invalid-interface.invalid.js[0m[2m:4:5[0m
+[1m    3 │ [0m *
+[1m    4 │ [0m * @[31mo[0m[31mn[0m[31mI[0m[31mn[0m[31mt[0m[31me[0m[31mr[0m[31mf[0m[31ma[0m[31mc[0m[31me[0m User
+      │ [31m    ^^^^^^^^^^^[0m
+[1m    5 │ [0m * @fieldName favorite_page

@@ -22,10 +22,10 @@ graphql`
  * @rootFragment missingFragment
  */
 ==================================== ERROR ====================================
-✖︎ Fragment `missingFragment` not found. Did you mean `myRootFragment`?
+[31m✖︎ Fragment `missingFragment` not found. Did you mean `myRootFragment`?[0m
 
-  /path/to/test/fixture/relay-resolver-with-fragment.invalid.js:21:18
-   20 │  * @fieldName my_field
-   21 │  * @rootFragment missingFragment
-      │                  ^^^^^^^^^^^^^^^
-   22 │
+  [4m/path/to/test/fixture/relay-resolver-with-fragment.invalid.js[0m[2m:21:18[0m
+[1m   20 │ [0m * @fieldName my_field
+   21 │  * @rootFragment missingFr[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m
+      │ [31m                 ^^^^^^^^^^^^^^^[0m
+[1m   22 │ [0m

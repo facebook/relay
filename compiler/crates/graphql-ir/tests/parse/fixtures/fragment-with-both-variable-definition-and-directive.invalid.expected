@@ -10,14 +10,14 @@ fragment TestFragment($size: [Int]) on User @argumentDefinitions(if: {type: "Boo
 
   fragment-with-both-variable-definition-and-directive.invalid.graphql:2:45
     1 │ # expected-to-throw
-    2 │ fragment TestFragment($size: [Int]) on User @argumentDefinitions(if: {type: "Boolean!"}) {
+    2 │ fragment TestFragment($size: [Int]) on User @argumentDefinit[31mi[0m[31mo[0m[31mn[0m[31ms[0m[31m([0mi[0mf: {type[31m:[0m[31m [0m[31m"[0m[31mB[0m[31mo[0m[31mo[0m[31ml[0m[31me[0m[31ma[0m[31mn[0m[31m![0m[31m"[0m}) {
       │                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     3 │   profilePicture(size: $size) @include(if: $if) {
 
-  ℹ︎ variables are previously defined here
+[31m  ℹ︎ variables are previously defined here[0m
 
-  fragment-with-both-variable-definition-and-directive.invalid.graphql:2:22
-    1 │ # expected-to-throw
-    2 │ fragment TestFragment($size: [Int]) on User @argumentDefinitions(if: {type: "Boolean!"}) {
+  [4mfragment-with-both-variable-definition-and-directive.invalid.graphql[0m[2m:2:22[0m
+[1m    1 │ [0m# expected-to-throw
+[1m    2 │ [0mfragment TestFragment[31m([0m$size: [Int]) on User @argumentDefinitions(if: {type: "Boolean!"}) {
       │                      ^^^^^^^^^^^^^^
     3 │   profilePicture(size: $size) @include(if: $if) {

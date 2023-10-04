@@ -6,10 +6,10 @@ subscription SubscriptionWithAnyOtherNameIsInvalidSubscription {
     }
 }
 ==================================== ERROR ====================================
-✖︎ Subscriptions in graphql tags must start with the module name ('SubscriptionWithInvalidName') and end with 'Subscription'. Got 'SubscriptionWithAnyOtherNameIsInvalidSubscription' instead.
+[31m✖︎ Subscriptions in graphql tags must start with the module name ('SubscriptionWithInvalidName') and end with 'Subscription'. Got 'SubscriptionWithAnyOtherNameIsInvalidSubscription' instead.[0m
 
-  SubscriptionWithInvalidName.invalid.graphql:2:14
-    1 │ #expected-to-throw
-    2 │ subscription SubscriptionWithAnyOtherNameIsInvalidSubscription {
-      │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │     feedbackLikeSubscribe(input: null) {
+  [4mSubscriptionWithInvalidName.invalid.graphql[0m[2m:2:14[0m
+[1m    1 │ [0m#expected-to-throw
+[1m    2 │ [0msubscription [31mS[0m[31mu[0m[31mb[0m[31ms[0m[31mc[0m[31mr[0m[31mi[0m[31mp[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m[31mW[0m[31mi[0m[31mt[0m[31mh[0m[31mA[0m[31mn[0m[31my[0m[31mO[0m[31mt[0m[31mh[0m[31me[0m[31mr[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m[31mI[0m[31ms[0m[31mI[0m[31mn[0m[31mv[0m[31ma[0m[31ml[0m[31mi[0m[31md[0m[31mS[0m[31mu[0m[31mb[0m[31ms[0m[31mc[0m[31mr[0m[31mi[0m[31mp[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m {
+      │ [31m             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m    3 │ [0m    feedbackLikeSubscribe(input: null) {

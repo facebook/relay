@@ -21,15 +21,15 @@ fragment VariableAsType on User
 
   argument_definitions_typo.invalid.graphql:6:26
     5 │   id: { type: "ID" }
-    6 │   size: { type: "[Int]", defaultValu: [100] } # uh-oh, typo
-      │                          ^^^^^^^^^^^^^^^^^^
-    7 │ ) {
+    6 │   size: { type: "[Int]", [31md[0m[31me[0m[31mf[0m[31ma[0m[31mu[0m[31ml[0m[31mt[0m[31mV[0m[31ma[0m[31ml[0m[31mu[0m[31m:[0m[31m [0m[31m[[0m[31m1[0m[31m0[0m[31m0[0m[31m][0m } # uh-oh, typo
+      │ [31m                         ^^^^^^^^^^^^^^^^^^[0m
+[1m    7 │ [0m) {
 
 
-✖︎ Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties
+[31m✖︎ Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties[0m
 
-  argument_definitions_typo.invalid.graphql:14:9
-   13 │   id: { type: "ID" }
-   14 │   size: { type: $typeVariable } # needs to be literal
-      │         ^^^^^^^^^^^^^^^^^^^^^^^
-   15 │ ) {
+  [4margument_definitions_typo.invalid.graphql[0m[2m:14:9[0m
+[1m   13 │ [0m  id: { type: "ID" }
+[1m   14 │ [0m  size: [31m{[0m[31m [0m[31mt[0m[31my[0m[31mp[0me: $typeVariable } # needs to be literal
+      │ [31m        ^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m   15 │ [0m) {

@@ -10,6 +10,6 @@ mutation CommentDeleteMutation($input: CommentDeleteInput) {
 
   delete-on-unspported-type.invalid.graphql:4:16
     3 │   commentDelete(input: $input) {
-    4 │     __typename @deleteRecord
-      │                ^^^^^^^^^^^^^
-    5 │   }
+[1m    4 │ [0m    __typename [31m@[0m[31md[0m[31me[0m[31ml[0m[31me[0m[31mt[0m[31me[0m[31mR[0m[31me[0m[31mc[0m[31mo[0m[31mr[0m[31md[0m
+      │ [31m               ^^^^^^^^^^^^^[0m
+[1m    5 │ [0m  }

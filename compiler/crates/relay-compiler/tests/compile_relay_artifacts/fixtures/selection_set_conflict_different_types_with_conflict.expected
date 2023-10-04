@@ -13,11 +13,11 @@ fragment selectionSetConflictDifferentTypesWithConflictFrag2 on Actor {
   same_alias: name
 }
 ==================================== ERROR ====================================
-✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'id' and 'name'
+[31m✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'id' and 'name'[0m
 
-  selection_set_conflict_different_types_with_conflict.graphql:9:15
-    8 │ fragment selectionSetConflictDifferentTypesWithConflictFrag1 on User {
-    9 │   same_alias: id
+  [4mselection_set_conflict_different_types_with_conflict.graphql[0m[2m:9:15[0m
+[1m    8 │ [0mfragment selectionSetConflictDifferentTypesWithConflictFrag1 on User {
+    9 │ [0m  same_alias: id
       │               ^^
    10 │ }
 

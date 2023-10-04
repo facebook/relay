@@ -12,6 +12,6 @@
 
   missing_zero_on_float.invalid.graphql:4:14
     3 │     friends(
-    4 │         arg: .5
+[1m    4 │ [0m        arg: [31m.[0m[31m5[0m
       │              ^^
     5 │     ) {

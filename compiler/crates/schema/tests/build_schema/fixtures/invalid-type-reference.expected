@@ -5,9 +5,9 @@ type User {
   emails: [Email!]!
 }
 ==================================== ERROR ====================================
-✖︎ Reference to undefined type 'Email'.
+[31m✖︎ Reference to undefined type 'Email'.[0m
 
-  <generated>:4:12
+  [4m<generated>[0m:4:12
     3 │ type User {
     4 │   emails: [Email!]!
       │            ^^^^^

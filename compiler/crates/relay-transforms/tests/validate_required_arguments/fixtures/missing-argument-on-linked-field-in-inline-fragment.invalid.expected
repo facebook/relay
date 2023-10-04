@@ -14,10 +14,10 @@ query missingArgumentOnLinkedFieldInInlineFragmentViewerQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Missing required argument: `supported`
+[31m✖︎ Missing required argument: `supported`[0m
 
-  missing-argument-on-linked-field-in-inline-fragment.invalid.graphql:5:7
-    4 │     ... on Comment {
-    5 │       commentBody {
-      │       ^^^^^^^^^^^
-    6 │         ... on PlainCommentBody {
+  [4mmissing-argument-on-linked-field-in-inline-fragment.invalid.graphql[0m[2m:5:7[0m
+[1m    4 │ [0m    ... on Comment {
+[1m    5 │ [0m      [31mc[0m[31mo[0m[31mm[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31mB[0m[31mo[0m[31md[0m[31my[0m {
+      │ [31m      ^^^^^^^^^^^[0m
+[1m    6 │ [0m        ... on PlainCommentBody {

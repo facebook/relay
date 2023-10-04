@@ -10,14 +10,14 @@ fragment EnabledFoo on User {
 
   none-action-bubble-to-throw.invalid.graphql:3:29
     2 │ fragment EnabledFoo on User {
-    3 │   address @required(action: THROW) {
-      │                             ^^^^^
-    4 │     city @required(action: NONE)
+    3 │   address @required(action: THR[31mO[0m[31mW[0m) {
+      │ [31m                            ^^^^^[0m
+[1m    4 │ [0m    city @required(action: NONE)
 
-  ℹ︎ so that it can match its parent
+[31m  ℹ︎ so that it can match its parent[0m
 
-  none-action-bubble-to-throw.invalid.graphql:4:28
-    3 │   address @required(action: THROW) {
-    4 │     city @required(action: NONE)
-      │                            ^^^^
-    5 │   }
+  [4mnone-action-bubble-to-throw.invalid.graphql[0m[2m:4:28[0m
+[1m    3 │ [0m  address @required(action: THROW) {
+[1m    4 │ [0m    city @required(action: [31mN[0m[31mO[0m[31mN[0m[31mE[0m)
+      │ [31m                           ^^^^[0m
+[1m    5 │ [0m  }

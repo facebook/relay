@@ -15,6 +15,6 @@ type Page implements User @source("") {
 
   <generated>:9:35
     8 │ 
-    9 │ type Page implements User @source("") {
-      │                                   ^^
-   10 │   id: ID
+    9 │ type Page implements User @source([31m"[0m[31m"[0m) {
+      │ [31m                                  ^^[0m
+[1m   10 │ [0m  id: ID

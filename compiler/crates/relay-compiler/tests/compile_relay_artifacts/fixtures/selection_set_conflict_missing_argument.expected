@@ -16,13 +16,13 @@ query selectionSetConflictMissingArgumentQuery {
   selection_set_conflict_missing_argument.graphql:4:5
     3 │   me {
     4 │     profile_picture(scale: 1.5, media_type: "image/jpeg") {
-      │     ^^^^^^^^^^^^^^^
-    5 │       width
+      │ [31m    ^^^^^^^^^^^^^^^[0m
+[1m    5 │ [0m      width
 
-  ℹ︎ which conflicts with this field with applied argument values (scale: 1)
+[31m  ℹ︎ which conflicts with this field with applied argument values (scale: 1)[0m
 
-  selection_set_conflict_missing_argument.graphql:7:5
-    6 │     }
-    7 │     profile_picture(scale: 1.0) {
+  [4mselection_set_conflict_missing_argument.graphql[0m[2m:7:5[0m
+[1m    6 │ [0m    }
+[1m    7 │ [0m    [31mp[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m[31m_[0m[31mp[0m[31mi[0m[31mc[0m[31mt[0m[31mu[0m[31mr[0m[31me[0m(scale: 1.0) {
       │     ^^^^^^^^^^^^^^^
     8 │       width

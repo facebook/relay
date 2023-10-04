@@ -6,10 +6,10 @@ fragment Foo on User {
 
 directive @my_directive(my_arg: String! @deprecated) on FIELD
 ==================================== OUTPUT ===================================
-ℹ The argument `my_arg` of the directive `@my_directive` is deprecated.
+[34mℹ The argument `my_arg` of the directive `@my_directive` is deprecated.[0m
 
-  deprecated_directive_arg.graphql:2:20
-    1 │ fragment Foo on User {
-    2 │   id @my_directive(my_arg: "Hello")
-      │                    ^^^^^^
-    3 │ }
+  [4mdeprecated_directive_arg.graphql[0m[2m:2:20[0m
+[1m    1 │ [0mfragment Foo on User {
+[1m    2 │ [0m  id @my_directive([34mm[0m[34my[0m[34m_[0m[34ma[0m[34mr[0m[34mg[0m: "Hello")
+      │ [34m                   ^^^^^^[0m
+[1m    3 │ [0m}

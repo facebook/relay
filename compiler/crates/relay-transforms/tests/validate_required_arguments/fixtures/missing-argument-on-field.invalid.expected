@@ -8,10 +8,10 @@ query missingArgumentOnFieldTestQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Missing required argument: `capitalize`
+[31m✖︎ Missing required argument: `capitalize`[0m
 
-  missing-argument-on-field.invalid.graphql:5:7
-    4 │     hometown {
-    5 │       nameWithArgs
-      │       ^^^^^^^^^^^^
-    6 │     }
+  [4mmissing-argument-on-field.invalid.graphql[0m[2m:5:7[0m
+[1m    4 │ [0m    hometown {
+[1m    5 │ [0m      [31mn[0m[31ma[0m[31mm[0m[31me[0m[31mW[0m[31mi[0m[31mt[0m[31mh[0m[31mA[0m[31mr[0m[31mg[0m[31ms[0m
+      │ [31m      ^^^^^^^^^^^^[0m
+[1m    6 │ [0m    }

@@ -10,6 +10,6 @@ fragment unusedFragmentArgdefInvalidSuppressionArg on User @argumentDefinitions(
 
   unused_fragment_argdef_invalid_suppression_arg.invalid.graphql:3:56
     2 │ fragment unusedFragmentArgdefInvalidSuppressionArg on User @argumentDefinitions(
-    3 │   size: { type: "Int", unusedLocalVariable_DEPRECATED: false }
-      │                                                        ^^^^^
-    4 │ ) {
+    3 │   size: { type: "Int", unusedLocalVariable_DEPRECATED: [31mf[0m[31ma[0m[31ml[0m[31ms[0m[31me[0m }
+      │ [31m                                                       ^^^^^[0m
+[1m    4 │ [0m) {

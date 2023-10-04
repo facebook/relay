@@ -26,10 +26,10 @@ fragment PaginationFragment on Node
   }
 }
 ==================================== ERROR ====================================
-✖︎ Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections cannot appear inside plural fields.
+[31m✖︎ Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections cannot appear inside plural fields.[0m
 
-  refetchable-fragment-with-connection-unstable-path.invalid.graphql:2:10
-    1 │ # expected-to-throw
-    2 │ fragment PaginationFragment on Node
-      │          ^^^^^^^^^^^^^^^^^^
-    3 │   @refetchable(queryName: "RefetchableFragmentQuery")
+  [4mrefetchable-fragment-with-connection-unstable-path.invalid.graphql[0m[2m:2:10[0m
+[1m    1 │ [0m# expected-to-throw
+[1m    2 │ [0mfragment [31mP[0m[31ma[0m[31mg[0m[31mi[0m[31mn[0m[31ma[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m[31mF[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m on Node
+      │ [31m         ^^^^^^^^^^^^^^^^^^[0m
+[1m    3 │ [0m  @refetchable(queryName: "RefetchableFragmentQuery")

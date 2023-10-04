@@ -11,11 +11,11 @@ query selectionSetConflictDifferentArgumentsQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5)
+[31m✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5)[0m
 
-  selection_set_conflict_different_arguments.graphql:4:5
-    3 │   me {
-    4 │     profile_picture(scale: 1.5) {
+  [4mselection_set_conflict_different_arguments.graphql[0m[2m:4:5[0m
+[1m    3 │ [0m  me {
+[1m    4 │ [0m    [31mp[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m[31m_[0m[31mp[0m[31mi[0m[31mc[0m[31mt[0mu[0mre(scale: 1.5) {
       │     ^^^^^^^^^^^^^^^
     5 │       width
 

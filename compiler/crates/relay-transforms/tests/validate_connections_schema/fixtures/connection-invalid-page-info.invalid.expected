@@ -43,19 +43,19 @@ type BadConnectionPageInfo {
   startCursor: String
 }
 ==================================== ERROR ====================================
+[31m✖︎ @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'pageInfo { hasPreviousPage }' field that returns a scalar.[0m
+
+  [4mconnection-invalid-page-info.invalid.graphql[0m[2m:6:7[0m
+[1m    5 │ [0m    ... on User {
+[1m    6 │ [0m      [31mb[0m[31ma[0m[31md[0m[31mC[0m[31mo[0m[31mn[0m[31mn[0m[31me[0m[31mc[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+      │ [31m      ^^^^^^^^^^^^^[0m
+[1m    7 │ [0m        edges {
+
+
 ✖︎ @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'pageInfo { endCursor }' field that returns a scalar.
 
   connection-invalid-page-info.invalid.graphql:6:7
     5 │     ... on User {
-    6 │       badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
-      │       ^^^^^^^^^^^^^
-    7 │         edges {
-
-
-✖︎ @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'pageInfo { hasPreviousPage }' field that returns a scalar.
-
-  connection-invalid-page-info.invalid.graphql:6:7
-    5 │     ... on User {
-    6 │       badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
-      │       ^^^^^^^^^^^^^
-    7 │         edges {
+    6 │       bad[31mC[0m[31mo[0m[31mn[0m[31mn[0m[31me[0m[31mc[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+      │ [31m      ^^^^^^^^^^^^^[0m
+[1m    7 │ [0m        edges {

@@ -7,10 +7,10 @@ type MyNewType {
   some_old_field(my_arg: String! @deprecated(reason: "Not supported any more.")): String
 }
 ==================================== OUTPUT ===================================
-ℹ The argument `my_arg` of the field `MyNewType.some_old_field` is deprecated. Deprecation reason: "Not supported any more."
+[34mℹ The argument `my_arg` of the field `MyNewType.some_old_field` is deprecated. Deprecation reason: "Not supported any more."[0m
 
-  deprecated_field_arg_with_reason.graphql:2:18
-    1 │ fragment Foo on MyNewType {
-    2 │   some_old_field(my_arg: "Hello")
-      │                  ^^^^^^
-    3 │ }
+  [4mdeprecated_field_arg_with_reason.graphql[0m[2m:2:18[0m
+[1m    1 │ [0mfragment Foo on MyNewType {
+[1m    2 │ [0m  some_old_field([34mm[0m[34my[0m[34m_[0m[34ma[0m[34mr[0m[34mg[0m: "Hello")
+      │ [34m                 ^^^^^^[0m
+[1m    3 │ [0m}

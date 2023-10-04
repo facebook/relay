@@ -6,18 +6,18 @@ query EnabledUserQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ The directive `@required` can only be used once at this location.
+[31m✖︎ The directive `@required` can only be used once at this location.[0m
 
-  required-with-different-actions.invalid.graphql:3:30
-    2 │ query EnabledUserQuery {
-    3 │   me @required(action: NONE) @required(action: THROW) {
-      │                              ^^^^^^^^^
-    4 │     id
+  [4mrequired-with-different-actions.invalid.graphql[0m[2m:3:30[0m
+[1m    2 │ [0mquery EnabledUserQuery {
+[1m    3 │ [0m  me @required(action: NONE) [31m@[0m[31mr[0m[31me[0m[31mq[0m[31mu[0m[31mi[0m[31mr[0m[31me[0m[31md[0m(action: THROW) {
+      │ [31m                             ^^^^^^^^^[0m
+[1m    4 │ [0m    id
 
-  ℹ︎ previously used here
+[31m  ℹ︎ previously used here[0m
 
-  required-with-different-actions.invalid.graphql:3:6
-    2 │ query EnabledUserQuery {
-    3 │   me @required(action: NONE) @required(action: THROW) {
-      │      ^^^^^^^^^
-    4 │     id
+  [4mrequired-with-different-actions.invalid.graphql[0m[2m:3:6[0m
+[1m    2 │ [0mquery EnabledUserQuery {
+[1m    3 │ [0m  me [31m@[0m[31mr[0m[31me[0m[31mq[0m[31mu[0m[31mi[0m[31mr[0m[31me[0m[31md[0m(action: NONE) @required(action: THROW) {
+      │ [31m     ^^^^^^^^^[0m
+[1m    4 │ [0m    id

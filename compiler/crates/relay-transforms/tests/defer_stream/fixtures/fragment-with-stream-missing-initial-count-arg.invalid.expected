@@ -19,6 +19,6 @@ fragment FeedbackFragment on Feedback {
 
   fragment-with-stream-missing-initial-count-arg.invalid.graphql:11:11
    10 │   id
-   11 │   actors @stream(label: "StreamedActorsLabel") {
+   11 │   actors @[31ms[0m[31mt[0m[31mr[0m[31me[0m[31ma[0m[31mm[0m(label: "StreamedActorsLabel") {
       │           ^^^^^^
    12 │     # invalid: missing initial_count

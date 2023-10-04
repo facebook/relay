@@ -20,6 +20,6 @@ fragment EnabledFoo on Comment {
 
   none-action-bubble-to-log-across-inline-fragment.invalid.graphql:5:30
     4 │     ... on User {
-    5 │       name @required(action: NONE)
-      │                              ^^^^
-    6 │     }
+[1m    5 │ [0m      name @required(action: [31mN[0m[31mO[0m[31mN[0m[31mE[0m)
+      │ [31m                             ^^^^[0m
+[1m    6 │ [0m    }

@@ -11,11 +11,28 @@ fragment duplicateDirectiveOnField on User {
     name @customDirective(level: 1) @customDirective(level: 2)
 }
 ==================================== ERROR ====================================
+[31m✖︎ The directive `@preloadable` can only be used once at this location.[0m
+
+  [4mduplicate-directive.invalid.graphql[0m[2m:3:44[0m
+[1m    2 │ [0m
+[1m    3 │ [0mquery duplicateDirectiveQuery @preloadable @preloadable {
+      │                                            ^^^^^^^^^^^^
+    4 │     viewer {
+
+  ℹ︎ previously used here
+
+  duplicate-directive.invalid.graphql:3:31
+[1m    2 │ [0m
+[1m    3 │ [0mquery duplicateDirectiveQuery [31m@[0m[31mp[0m[31mr[0m[31me[0m[31ml[0m[31mo[0m[31ma[0m[31md[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m @preloadable {
+      │                               ^^^^^^^^^^^^
+    4 │     viewer {
+
+
 ✖︎ The directive `@customDirective` can only be used once at this location.
 
-  duplicate-directive.invalid.graphql:10:37
-    9 │ fragment duplicateDirectiveOnField on User {
-   10 │     name @customDirective(level: 1) @customDirective(level: 2)
+  [4mduplicate-directive.invalid.graphql[0m[2m:10:37[0m
+[1m    9 │ [0mfragment duplicateDirectiveOnField on User {
+[1m   10 │ [0m    name @customDirective(level: 1) [31m@[0m[31mc[0m[31mu[0m[31ms[0m[31mt[0m[31mo[0m[31mm[0mDirective(level: 2)
       │                                     ^^^^^^^^^^^^^^^^
    11 │ }
 
@@ -24,22 +41,5 @@ fragment duplicateDirectiveOnField on User {
   duplicate-directive.invalid.graphql:10:10
     9 │ fragment duplicateDirectiveOnField on User {
    10 │     name @customDirective(level: 1) @customDirective(level: 2)
-      │          ^^^^^^^^^^^^^^^^
-   11 │ }
-
-
-✖︎ The directive `@preloadable` can only be used once at this location.
-
-  duplicate-directive.invalid.graphql:3:44
-    2 │ 
-    3 │ query duplicateDirectiveQuery @preloadable @preloadable {
-      │                                            ^^^^^^^^^^^^
-    4 │     viewer {
-
-  ℹ︎ previously used here
-
-  duplicate-directive.invalid.graphql:3:31
-    2 │ 
-    3 │ query duplicateDirectiveQuery @preloadable @preloadable {
-      │                               ^^^^^^^^^^^^
-    4 │     viewer {
+      │ [31m         ^^^^^^^^^^^^^^^^[0m
+[1m   11 │ [0m}

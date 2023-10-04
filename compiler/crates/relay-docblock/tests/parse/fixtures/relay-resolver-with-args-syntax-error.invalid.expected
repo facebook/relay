@@ -27,6 +27,6 @@ graphql`
 
   /path/to/test/fixture/relay-resolver-with-args-syntax-error.invalid.js:14:34
    13 │  * @onType User
-   14 │  * @fieldName greeting(salutation)
-      │                                  ^
-   15 │  * @rootFragment myRootFragment
+   14 │  * @fieldName greeting(salutation[31m)[0m
+      │ [31m                                 ^[0m
+[1m   15 │ [0m * @rootFragment myRootFragment

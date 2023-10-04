@@ -22,10 +22,10 @@ query selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflict
       │                     ^^^^^^^^^^
     7 │         same_alias: sortKey
 
-  ℹ︎ the other field
+[31m  ℹ︎ the other field[0m
 
-  selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.graphql:7:21
-    6 │         same_alias: showBeeper
-    7 │         same_alias: sortKey
-      │                     ^^^^^^^
-    8 │       }
+  [4mselection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.graphql[0m[2m:7:21[0m
+[1m    6 │ [0m        same_alias: showBeeper
+[1m    7 │ [0m        same_alias: [31ms[0m[31mo[0m[31mr[0m[31mt[0m[31mK[0m[31me[0m[31my[0m
+      │ [31m                    ^^^^^^^[0m
+[1m    8 │ [0m      }

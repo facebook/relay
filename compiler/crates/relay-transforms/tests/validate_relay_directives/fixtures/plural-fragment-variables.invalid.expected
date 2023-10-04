@@ -4,10 +4,10 @@ fragment PluralFragment on User @relay(plural: $plural) {
   name
 }
 ==================================== ERROR ====================================
-✖︎ Expected the `plural` argument to @relay to be a boolean literal if specified.
+[31m✖︎ Expected the `plural` argument to @relay to be a boolean literal if specified.[0m
 
-  plural-fragment-variables.invalid.graphql:2:48
-    1 │ # expected-to-throw
-    2 │ fragment PluralFragment on User @relay(plural: $plural) {
-      │                                                ^^^^^^^
-    3 │   name
+  [4mplural-fragment-variables.invalid.graphql[0m[2m:2:48[0m
+[1m    1 │ [0m# expected-to-throw
+[1m    2 │ [0mfragment PluralFragment on User @relay(plural: [31m$[0m[31mp[0m[31ml[0m[31mu[0m[31mr[0m[31ma[0m[31ml[0m) {
+      │ [31m                                               ^^^^^^^[0m
+[1m    3 │ [0m  name

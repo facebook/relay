@@ -14,6 +14,6 @@ fragment Foo on User {
 
   fragment-spread-within-wrong-parent-type.invalid.graphql:8:5
     7 │   ... on Node {
-    8 │     ...PageFrag
-      │     ^^^^^^^^^^^
-    9 │   }
+    8 │     ...P[31ma[0m[31mg[0m[31me[0m[31mF[0m[31mr[0m[31ma[0m[31mg[0m
+      │ [31m    ^^^^^^^^^^^[0m
+[1m    9 │ [0m  }

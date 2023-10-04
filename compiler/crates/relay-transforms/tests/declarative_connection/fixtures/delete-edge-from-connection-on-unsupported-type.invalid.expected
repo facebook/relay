@@ -9,10 +9,10 @@ mutation CommentDeleteMutation(
   }
 }
 ==================================== ERROR ====================================
-✖︎ Invalid use of @deleteEdge on field '__typename'. Expected field type 'ID', got 'String!'.
+[31m✖︎ Invalid use of @deleteEdge on field '__typename'. Expected field type 'ID', got 'String!'.[0m
 
-  delete-edge-from-connection-on-unsupported-type.invalid.graphql:7:16
-    6 │   commentDelete(input: $input) {
-    7 │     __typename @deleteEdge(connections: $connections)
+  [4mdelete-edge-from-connection-on-unsupported-type.invalid.graphql[0m[2m:7:16[0m
+[1m    6 │ [0m  commentDelete(input: $input) {
+[1m    7 │ [0m    __typename [31m@[0m[31md[0m[31me[0m[31ml[0m[31me[0m[31mt[0m[31me[0m[31mE[0m[31md[0m[31mg[0m[31me[0m(connections: $connections)
       │                ^^^^^^^^^^^
     8 │   }

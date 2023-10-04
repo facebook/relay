@@ -13,10 +13,10 @@ mutation CommentCreateMutation(
   }
 }
 ==================================== ERROR ====================================
-✖︎ Invalid use of @appendNode on scalar field '__typename'.
+[31m✖︎ Invalid use of @appendNode on scalar field '__typename'.[0m
 
-  append-node-unsupported.invalid.graphql:9:7
-    8 │     viewer {
-    9 │       __typename
-      │       ^^^^^^^^^^
-   10 │         @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)
+  [4mappend-node-unsupported.invalid.graphql[0m[2m:9:7[0m
+[1m    8 │ [0m    viewer {
+[1m    9 │ [0m      [31m_[0m[31m_[0m[31mt[0m[31my[0m[31mp[0m[31me[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m
+      │ [31m      ^^^^^^^^^^[0m
+[1m   10 │ [0m        @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)

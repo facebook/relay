@@ -25,10 +25,10 @@ extend type User {
   best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
 }
 ==================================== ERROR ====================================
-✖︎ Client Edges that reference client-defined interface types are not currently supported in Relay.
+[31m✖︎ Client Edges that reference client-defined interface types are not currently supported in Relay.[0m
 
-  client-edge-to-client-interface.invalid.graphql:3:3
-    2 │ fragment Foo_user on User {
-    3 │   best_friend {
-      │   ^^^^^^^^^^^
-    4 │     id
+  [4mclient-edge-to-client-interface.invalid.graphql[0m[2m:3:3[0m
+[1m    2 │ [0mfragment Foo_user on User {
+[1m    3 │ [0m  [31mb[0m[31me[0m[31ms[0m[31mt[0m[31m_[0m[31mf[0m[31mr[0m[31mi[0m[31me[0m[31mn[0m[31md[0m {
+      │ [31m  ^^^^^^^^^^^[0m
+[1m    4 │ [0m    id

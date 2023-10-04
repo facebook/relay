@@ -13,35 +13,35 @@ query selectionSetConflictMultipleConflictsWithDifferentArgsQuery {
   }
 }
 ==================================== ERROR ====================================
+[31m✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'actor_key' and 'id'[0m
+
+  [4mselection_set_conflict_multiple_conflicts_with_different_args.graphql[0m[2m:5:19[0m
+[1m    4 │ [0m    ... on Page {
+[1m    5 │ [0m      same_alias: [31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m[31m_[0m[31mk[0m[31me[0m[31my[0m
+      │ [31m                  ^^^^^^^^^[0m
+[1m    6 │ [0m    }
+
+[31m  ℹ︎ the other field[0m
+
+  [4mselection_set_conflict_multiple_conflicts_with_different_args.graphql[0m[2m:10:19[0m
+[1m    9 │ [0m    ... on Actor {
+[1m   10 │ [0m      same_alias: id
+      │                   ^^
+   11 │     }
+
+
 ✖︎ Expected all fields on the same parent with the name or alias `root_alias` to have the same argument values after applying fragment arguments. This field has the applied argument values: (ids: [1, 2, 3])
 
   selection_set_conflict_multiple_conflicts_with_different_args.graphql:3:15
     2 │ query selectionSetConflictMultipleConflictsWithDifferentArgsQuery {
     3 │   root_alias: nodes(ids: [1, 2, 3]) {
-      │               ^^^^^
-    4 │     ... on Page {
+      │ [31m              ^^^^^[0m
+[1m    4 │ [0m    ... on Page {
 
-  ℹ︎ which conflicts with this field with applied argument values (ids: [1, 2])
+[31m  ℹ︎ which conflicts with this field with applied argument values (ids: [1, 2])[0m
 
-  selection_set_conflict_multiple_conflicts_with_different_args.graphql:8:15
+  [4mselection_set_conflict_multiple_conflicts_with_different_args.graphql[0m[2m:8:15[0m
     7 │   }
-    8 │   root_alias: nodes(ids: [1, 2]) {
-      │               ^^^^^
-    9 │     ... on Actor {
-
-
-✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'actor_key' and 'id'
-
-  selection_set_conflict_multiple_conflicts_with_different_args.graphql:5:19
-    4 │     ... on Page {
-    5 │       same_alias: actor_key
-      │                   ^^^^^^^^^
-    6 │     }
-
-  ℹ︎ the other field
-
-  selection_set_conflict_multiple_conflicts_with_different_args.graphql:10:19
-    9 │     ... on Actor {
-   10 │       same_alias: id
-      │                   ^^
-   11 │     }
+    8 │   root_alias: nod[31me[0m[31ms[0m(ids: [1, 2]) {
+      │ [31m              ^^^^^[0m
+[1m    9 │ [0m    ... on Actor {

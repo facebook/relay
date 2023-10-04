@@ -25,10 +25,10 @@ extend type User {
   pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
 }
 ==================================== ERROR ====================================
-✖︎ Using fragment spread `...AddressFragment` is not supported in the Relay resolvers fragments. The runtime API for reading the data of these fragments is not implemented, yet.
+[31m✖︎ Using fragment spread `...AddressFragment` is not supported in the Relay resolvers fragments. The runtime API for reading the data of these fragments is not implemented, yet.[0m
 
-  fragment-spread-usage.invalid.graphql:12:6
-   11 │   # but it is not supported in the resolver field fragment, yet
-   12 │   ...AddressFragment
-      │      ^^^^^^^^^^^^^^^
-   13 │ }
+  [4mfragment-spread-usage.invalid.graphql[0m[2m:12:6[0m
+[1m   11 │ [0m  # but it is not supported in the resolver field fragment, yet
+[1m   12 │ [0m  ...[31mA[0m[31md[0m[31md[0m[31mr[0m[31me[0m[31ms[0m[31ms[0m[31mF[0m[31mr[0m[31ma[0mgme[31mn[0m[31mt[0m
+      │ [31m     ^^^^^^^^^^^^^^^[0m
+[1m   13 │ [0m}

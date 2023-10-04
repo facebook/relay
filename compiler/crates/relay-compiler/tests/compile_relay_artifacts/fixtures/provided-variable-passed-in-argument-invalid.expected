@@ -25,5 +25,5 @@ query providedVariablePassedInArgumentInvalid_Query {
   provided-variable-passed-in-argument-invalid.graphql:3:24
     2 │ fragment providedVariablePassedInArgumentInvalid_fragment on User
     3 │   @argumentDefinitions(var: {type: "Boolean!", provider: "var_RelayProvider"}
-      │                        ^^^
-    4 │ ) {
+      │ [31m                       ^^^[0m
+[1m    4 │ [0m) {

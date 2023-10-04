@@ -22,15 +22,15 @@ mutation LikeMutationReverse($feedbackId: ID! $userID: String!) {
 
   complex-object-with-invalid-fields.invalid.graphql:4:13
     3 │   feedbackLikeStrict(input: {
-    4 │     userID: $userID
-      │             ^^^^^^^
-    5 │     feedbackId: $feedbackId
+[1m    4 │ [0m    userID: [31m$[0m[31mu[0m[31ms[0m[31me[0m[31mr[0m[31mI[0m[31mD[0m
+      │ [31m            ^^^^^^^[0m
+[1m    5 │ [0m    feedbackId: $feedbackId
 
 
-✖︎ Variable was defined as type 'String!' but used where a variable of type 'ID!' is expected.
+[31m✖︎ Variable was defined as type 'String!' but used where a variable of type 'ID!' is expected.[0m
 
-  complex-object-with-invalid-fields.invalid.graphql:14:13
-   13 │     feedbackId: $feedbackId
-   14 │     userID: $userID
+  [4mcomplex-object-with-invalid-fields.invalid.graphql[0m[2m:14:13[0m
+[1m   13 │ [0m    feedbackId: $feedbackId
+[1m   14 │ [0m    userID: [31m$[0muserID
       │             ^^^^^^^
    15 │   }) {

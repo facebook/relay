@@ -11,10 +11,10 @@ fragment StoryFragment on Story {
   seenState
 }
 ==================================== ERROR ====================================
-✖︎ The directive 'fb_actor_change' automatically adds 'actor_key' to the selection of the field 'story'. But the field 'actor_key' does not exist on the type 'Story'. Please makes sure the GraphQL schema supports actor change on 'Story'.
+[31m✖︎ The directive 'fb_actor_change' automatically adds 'actor_key' to the selection of the field 'story'. But the field 'actor_key' does not exist on the type 'Story'. Please makes sure the GraphQL schema supports actor change on 'Story'.[0m
 
-  actor-change-no-viewer.invalid.graphql:4:9
-    3 │ fragment TestFragment on Query {
-    4 │   story @fb_actor_change {
-      │         ^^^^^^^^^^^^^^^^
-    5 │     ...StoryFragment
+  [4mactor-change-no-viewer.invalid.graphql[0m[2m:4:9[0m
+[1m    3 │ [0mfragment TestFragment on Query {
+[1m    4 │ [0m  story [31m@[0m[31mf[0m[31mb[0m[31m_[0m[31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m[31m_[0m[31mc[0m[31mh[0m[31ma[0m[31mn[0m[31mg[0m[31me[0m {
+      │ [31m        ^^^^^^^^^^^^^^^^[0m
+[1m    5 │ [0m    ...StoryFragment

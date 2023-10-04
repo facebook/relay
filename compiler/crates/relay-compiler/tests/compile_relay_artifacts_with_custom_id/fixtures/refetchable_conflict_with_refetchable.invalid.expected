@@ -13,18 +13,18 @@ fragment refetchableConflictWithRefetchableF2 on Node
   global_id
 }
 ==================================== ERROR ====================================
-✖︎ Duplicate definition for @refetchable operation 'refetchableConflictWithRefetchableQuery' from fragments 'refetchableConflictWithRefetchableF1' and 'refetchableConflictWithRefetchableF2'
+[31m✖︎ Duplicate definition for @refetchable operation 'refetchableConflictWithRefetchableQuery' from fragments 'refetchableConflictWithRefetchableF1' and 'refetchableConflictWithRefetchableF2'[0m
 
-  refetchable_conflict_with_refetchable.invalid.graphql:3:10
-    2 │ 
-    3 │ fragment refetchableConflictWithRefetchableF1 on Node
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    4 │   @refetchable(queryName: "refetchableConflictWithRefetchableQuery")
+  [4mrefetchable_conflict_with_refetchable.invalid.graphql[0m[2m:3:10[0m
+[1m    2 │ [0m
+[1m    3 │ [0mfragment [31mr[0m[31me[0m[31mf[0m[31me[0m[31mt[0m[31mc[0m[31mh[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31mC[0m[31mo[0m[31mn[0m[31mf[0m[31ml[0m[31mi[0m[31mc[0m[31mt[0m[31mW[0m[31mi[0m[31mt[0m[31mh[0m[31mR[0m[31me[0m[31mf[0m[31me[0m[31mt[0m[31mc[0m[31mh[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31mF[0m[31m1[0m on Node
+      │ [31m         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m    4 │ [0m  @refetchable(queryName: "refetchableConflictWithRefetchableQuery")
 
-  ℹ︎ also defined here
+[31m  ℹ︎ also defined here[0m
 
-  refetchable_conflict_with_refetchable.invalid.graphql:9:10
-    8 │ 
-    9 │ fragment refetchableConflictWithRefetchableF2 on Node
+  [4mrefetchable_conflict_with_refetchable.invalid.graphql[0m[2m:9:10[0m
+[1m    8 │ [0m
+[1m    9 │ [0mfragment [31mr[0m[31me[0m[31mf[0m[31me[0m[31mt[0m[31mc[0m[31mh[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31mC[0m[31mo[0m[31mn[0m[31mf[0m[31ml[0m[31mi[0m[31mc[0m[31mt[0mWithRefetchableF2 on Node
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    10 │   @refetchable(queryName: "refetchableConflictWithRefetchableQuery")

@@ -19,18 +19,18 @@ fragment TestFragment on Node {
     }
 }
 ==================================== ERROR ====================================
-✖︎ Field 'actor' is ambiguous because it references fields with different types: 'actor' with type 'Actor' and 'actors' with type '[Actor]'
+[31m✖︎ Field 'actor' is ambiguous because it references fields with different types: 'actor' with type 'Actor' and 'actors' with type '[Actor]'[0m
 
-  same-alias-list-non-list.graphql:10:9
-    9 │     ... on Feedback {
-   10 │         actor {
-      │         ^^^^^
-   11 │             name
+  [4msame-alias-list-non-list.graphql[0m[2m:10:9[0m
+[1m    9 │ [0m    ... on Feedback {
+[1m   10 │ [0m        [31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m {
+      │ [31m        ^^^^^[0m
+[1m   11 │ [0m            name
 
-  ℹ︎ the other field
+[31m  ℹ︎ the other field[0m
 
-  same-alias-list-non-list.graphql:15:16
-   14 │     ... on Comment {
-   15 │         actor: actors {
-      │                ^^^^^^
-   16 │             name
+  [4msame-alias-list-non-list.graphql[0m[2m:15:16[0m
+[1m   14 │ [0m    ... on Comment {
+[1m   15 │ [0m        actor: [31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m[31ms[0m {
+      │ [31m               ^^^^^^[0m
+[1m   16 │ [0m            name

@@ -9,19 +9,19 @@ fragment Foo_user on User {
 
 # %extensions%
 ==================================== ERROR ====================================
-✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+[31m✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.[0m
 
-  unexpected-waterfall.invalid.graphql:3:8
-    2 │ fragment Foo_user on User {
-    3 │   name @waterfall
-      │        ^^^^^^^^^^
-    4 │   nearest_neighbor @waterfall {
+  [4munexpected-waterfall.invalid.graphql[0m[2m:3:8[0m
+[1m    2 │ [0mfragment Foo_user on User {
+[1m    3 │ [0m  name [31m@[0m[31mw[0m[31ma[0m[31mt[0m[31me[0m[31mr[0m[31mf[0m[31ma[0m[31ml[0m[31ml[0m
+      │ [31m       ^^^^^^^^^^[0m
+[1m    4 │ [0m  nearest_neighbor @waterfall {
 
 
-✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+[31m✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.[0m
 
-  unexpected-waterfall.invalid.graphql:4:20
-    3 │   name @waterfall
-    4 │   nearest_neighbor @waterfall {
-      │                    ^^^^^^^^^^
-    5 │     __typename
+  [4munexpected-waterfall.invalid.graphql[0m[2m:4:20[0m
+[1m    3 │ [0m  name @waterfall
+[1m    4 │ [0m  nearest_neighbor [31m@[0m[31mw[0m[31ma[0m[31mt[0m[31me[0m[31mr[0m[31mf[0m[31ma[0m[31ml[0m[31ml[0m {
+      │ [31m                   ^^^^^^^^^^[0m
+[1m    5 │ [0m    __typename

@@ -26,10 +26,10 @@ query NodeQuery($id: ID!, $ordering: String) {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected the `filters` argument to `@connection` to be a list of argument names to the connection field to use to identify the connection, got `ordering`. Not specifying `filters` is often recommended and will use all fields.
+[31m✖︎ Expected the `filters` argument to `@connection` to be a list of argument names to the connection field to use to identify the connection, got `ordering`. Not specifying `filters` is often recommended and will use all fields.[0m
 
-  connection-filters-not-an-arg.graphql:8:57
-    7 │       comments(first: 10, orderby: $ordering)
-    8 │         @connection(key: "NodeQuery_comments", filters: ["ordering"]) {
-      │                                                         ^^^^^^^^^^^^
-    9 │         edges {
+  [4mconnection-filters-not-an-arg.graphql[0m[2m:8:57[0m
+[1m    7 │ [0m      comments(first: 10, orderby: $ordering)
+    8 │         @connection(key: "NodeQuery_comments", filters: [31m[[0m[31m"[0m[31mo[0m[31mr[0m[31md[0m[31me[0m[31mr[0m[31mi[0m[31mn[0m[31mg[0m[31m"[0m[31m][0m) {
+      │ [31m                                                        ^^^^^^^^^^^^[0m
+[1m    9 │ [0m        edges {

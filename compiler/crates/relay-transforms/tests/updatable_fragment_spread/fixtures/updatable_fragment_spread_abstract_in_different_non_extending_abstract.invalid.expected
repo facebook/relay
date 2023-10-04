@@ -10,10 +10,10 @@ fragment Updatable_actor on Actor @updatable {
   __id
 }
 ==================================== ERROR ====================================
-✖︎ This updatable fragment has type `Actor`, and is found within a linked field with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `Actor`.
+[31m✖︎ This updatable fragment has type `Actor`, and is found within a linked field with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `Actor`.[0m
 
-  updatable_fragment_spread_abstract_in_different_non_extending_abstract.invalid.graphql:4:8
-    3 │   node {
-    4 │     ...Updatable_actor
-      │        ^^^^^^^^^^^^^^^
-    5 │   }
+  [4mupdatable_fragment_spread_abstract_in_different_non_extending_abstract.invalid.graphql[0m[2m:4:8[0m
+[1m    3 │ [0m  node {
+[1m    4 │ [0m    ...[31mU[0m[31mp[0m[31md[0m[31ma[0m[31mt[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31m_[0m[31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m
+      │ [31m       ^^^^^^^^^^^^^^^[0m
+[1m    5 │ [0m  }

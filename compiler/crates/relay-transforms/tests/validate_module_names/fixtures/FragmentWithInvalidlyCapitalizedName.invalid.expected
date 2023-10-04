@@ -8,6 +8,6 @@ fragment fragmentWithInvalidlyCapitalizedName on User {
 
   FragmentWithInvalidlyCapitalizedName.invalid.graphql:2:10
     1 │ #expected-to-throw
-    2 │ fragment fragmentWithInvalidlyCapitalizedName on User {
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │     name
+[1m    2 │ [0mfragment [31mf[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31mW[0m[31mi[0m[31mt[0m[31mh[0m[31mI[0m[31mn[0m[31mv[0m[31ma[0m[31ml[0m[31mi[0m[31md[0m[31ml[0m[31my[0m[31mC[0m[31ma[0m[31mp[0m[31mi[0m[31mt[0m[31ma[0m[31ml[0m[31mi[0m[31mz[0m[31me[0m[31md[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m on User {
+      │ [31m         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m    3 │ [0m    name

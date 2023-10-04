@@ -18,6 +18,6 @@ fragment EnabledFoo on User {
 
   log-action-bubble-to-throw.invalid.graphql:4:28
     3 │   address @required(action: THROW) {
-    4 │     city @required(action: LOG)
-      │                            ^^^
-    5 │   }
+[1m    4 │ [0m    city @required(action: [31mL[0m[31mO[0m[31mG[0m)
+      │ [31m                           ^^^[0m
+[1m    5 │ [0m  }

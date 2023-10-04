@@ -14,8 +14,8 @@ query Test(
   multiple_parse_errors.invalid.graphql:5:5
     4 │     $arg: String,
     5 │     width: Int # missing $
-      │     ^^^^^
-    6 │     height: Int # missing $
+      │ [31m    ^^^^^[0m
+[1m    6 │ [0m    height: Int # missing $
 
 
 ✖︎ Unsupported character

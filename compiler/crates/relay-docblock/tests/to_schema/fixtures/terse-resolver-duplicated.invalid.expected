@@ -38,18 +38,18 @@ fragment myRootFragment2 on User {
 }
 `
 ==================================== ERROR ====================================
-✖︎ Duplicate field definition 'favorite_page' found.
+[31m✖︎ Duplicate field definition 'favorite_page' found.[0m
 
-  /path/to/test/fixture/terse-resolver-duplicated.invalid.js:2:23
-    1 │ *
-    2 │ * @RelayResolver User.favorite_page: Page
-      │                       ^^^^^^^^^^^^^
-    3 │ * @rootFragment myRootFragment2
+  [4m/path/to/test/fixture/terse-resolver-duplicated.invalid.js[0m[2m:2:23[0m
+[1m    1 │ [0m*
+[1m    2 │ [0m* @RelayResolver User.[31mf[0m[31ma[0m[31mv[0m[31mo[0m[31mr[0m[31mi[0m[31mt[0m[31me[0m[31m_[0m[31mp[0m[31ma[0m[31mg[0m[31me[0m: Page
+      │ [31m                      ^^^^^^^^^^^^^[0m
+[1m    3 │ [0m* @rootFragment myRootFragment2
 
-  ℹ︎ previously defined here
+[31m  ℹ︎ previously defined here[0m
 
-  /path/to/test/fixture/terse-resolver-duplicated.invalid.js:2:24
-    1 │ *
-    2 │ * @RelayResolver User.favorite_page: Page
-      │                        ^^^^^^^^^^^^^
-    3 │ * @rootFragment myRootFragment2
+  [4m/path/to/test/fixture/terse-resolver-duplicated.invalid.js[0m[2m:2:24[0m
+[1m    1 │ [0m*
+[1m    2 │ [0m* @RelayResolver User.f[31ma[0m[31mv[0m[31mo[0m[31mr[0m[31mi[0m[31mt[0m[31me[0m[31m_[0m[31mp[0m[31ma[0m[31mg[0m[31me[0m[31m:[0m Page
+      │ [31m                       ^^^^^^^^^^^^^[0m
+[1m    3 │ [0m* @rootFragment myRootFragment2

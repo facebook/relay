@@ -41,19 +41,19 @@ fragment refetchableFragmentDirectivesNotValidOnQuery on Node
   id
 }
 ==================================== ERROR ====================================
-✖︎ Directive 'defer' not supported in this location
+[31m✖︎ Directive 'defer' not supported in this location[0m
 
-  refetchable_fragment_directives.invalid.graphql:38:15
-   37 │   queryName: "refetchableFragmentDirectivesQuery"
-   38 │   directives: ["@defer"] # invalid on queries
-      │               ^^^^^^^^^^
-   39 │ ) {
+  [4mrefetchable_fragment_directives.invalid.graphql[0m[2m:38:15[0m
+[1m   37 │ [0m  queryName: "refetchableFragmentDirectivesQuery"
+[1m   38 │ [0m  directives: ["@d[31me[0m[31mf[0m[31me[0m[31mr[0m[31m"[0m[31m][0m # invalid on queries
+      │ [31m              ^^^^^^^^^^[0m
+[1m   39 │ [0m) {
 
 
-✖︎ Expected a at ('@')
+[31m✖︎ Expected a at ('@')[0m
 
-  refetchable_fragment_directives.invalid.graphql:22:15
-   21 │   queryName: "refetchableFragmentDirectivesQuery"
+  [4mrefetchable_fragment_directives.invalid.graphql[0m[2m:22:15[0m
+[1m   21 │ [0m  queryName: "refetchableFragmentDirectivesQuery"
    22 │   directives: ["invalid syntax"]
       │               ^^^^^^^^^^^^^^^^^^
    23 │ ) {

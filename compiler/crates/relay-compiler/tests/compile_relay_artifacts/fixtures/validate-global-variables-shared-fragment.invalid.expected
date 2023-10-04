@@ -32,13 +32,13 @@ fragment validateGlobalVariablesSharedFragment_nonNull on User {
   validate-global-variables-shared-fragment.invalid.graphql:2:50
     1 │ # expected-to-throw
     2 │ query validateGlobalVariablesSharedFragmentQuery($condition: Boolean) {
-      │                                                  ^^^^^^^^^^
-    3 │   me {
+      │ [31m                                                 ^^^^^^^^^^[0m
+[1m    3 │ [0m  me {
 
-  ℹ︎ Variable is used as 'Boolean!'
+[31m  ℹ︎ Variable is used as 'Boolean!'[0m
 
-  validate-global-variables-shared-fragment.invalid.graphql:24:20
-   23 │   # ERROR: nullable values flows into non-nullable arg
-   24 │   ... @include(if: $condition) {
-      │                    ^^^^^^^^^^
-   25 │     lastName
+  [4mvalidate-global-variables-shared-fragment.invalid.graphql[0m[2m:24:20[0m
+[1m   23 │ [0m  # ERROR: nullable values flows into non-nullable arg
+[1m   24 │ [0m  ... @include(if: [31m$[0m[31mc[0m[31mo[0m[31mn[0m[31md[0m[31mi[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m) {
+      │ [31m                   ^^^^^^^^^^[0m
+[1m   25 │ [0m    lastName

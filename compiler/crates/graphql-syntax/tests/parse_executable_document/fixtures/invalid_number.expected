@@ -6,10 +6,10 @@ query TestQuery {
     }
 }
 ==================================== ERROR ====================================
-✖︎ Invalid number value, expected an int or float
+[31m✖︎ Invalid number value, expected an int or float[0m
 
-  invalid_number.graphql:3:20
-    2 │ query TestQuery {
-    3 │     friends(first: 1.23.4) {
-      │                    ^^^^^
-    4 │         count
+  [4minvalid_number.graphql[0m[2m:3:20[0m
+[1m    2 │ [0mquery TestQuery {
+[1m    3 │ [0m    friends(first: [31m1[0m[31m.[0m[31m2[0m[31m3[0m[31m.[0m4) {
+      │ [31m                   ^^^^^[0m
+[1m    4 │ [0m        count

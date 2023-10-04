@@ -13,9 +13,9 @@ query QueryWithUnusedVariable {
 
   query-with-undefined-variable.invalid.graphql:6:19
     5 │   }
-    6 │   node2: node(id: $id2) {
-      │                   ^^^^
-    7 │     id
+[1m    6 │ [0m  node2: node(id: [31m$[0m[31mi[0m[31md[0m[31m2[0m) {
+      │ [31m                  ^^^^[0m
+[1m    7 │ [0m    id
 
 
 ✖︎ Expected variable `$id` to be defined on the operation

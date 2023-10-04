@@ -37,7 +37,7 @@ use relay_typegen::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (source, get_test_schema_with_extensions(extensions)),

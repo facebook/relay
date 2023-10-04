@@ -11,8 +11,6 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
-use common::FeatureFlag;
-use common::FeatureFlags;
 use common::Location;
 use common::NamedItem;
 use common::ObjectName;
@@ -27,6 +25,7 @@ use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
@@ -43,7 +42,6 @@ use intern::string_key::StringKeyMap;
 use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
-use relay_config::SchemaConfig;
 use schema::DirectiveValue;
 use schema::Schema;
 use schema::Type;
@@ -149,12 +147,9 @@ impl<'a> ClientEdgeMetadata<'a> {
 pub fn client_edges(
     program: &Program,
     project_config: &ProjectConfig,
+    base_fragment_names: &FragmentDefinitionNameSet,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesTransform::new(
-        program,
-        &project_config.schema_config,
-        &project_config.feature_flags,
-    );
+    let mut transform = ClientEdgesTransform::new(program, project_config, base_fragment_names);
     let mut next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -172,7 +167,7 @@ pub fn client_edges(
     }
 }
 
-struct ClientEdgesTransform<'program, 'sc, 'flag> {
+struct ClientEdgesTransform<'program, 'pc> {
     path: Vec<&'program str>,
     document_name: Option<WithLocation<ExecutableDefinitionName>>,
     query_names: StringKeyMap<usize>,
@@ -180,20 +175,19 @@ struct ClientEdgesTransform<'program, 'sc, 'flag> {
     new_fragments: Vec<Arc<FragmentDefinition>>,
     new_operations: Vec<OperationDefinition>,
     errors: Vec<Diagnostic>,
-    schema_config: &'sc SchemaConfig,
+    project_config: &'pc ProjectConfig,
     next_key: u32,
-    relay_resolver_enable_interface_output_type: &'flag FeatureFlag,
+    base_fragment_names: &'program FragmentDefinitionNameSet,
 }
 
-impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
+impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
     fn new(
         program: &'program Program,
-        schema_config: &'sc SchemaConfig,
-        feature_flags: &'flag FeatureFlags,
+        project_config: &'pc ProjectConfig,
+        base_fragment_names: &'program FragmentDefinitionNameSet,
     ) -> Self {
         Self {
             program,
-            schema_config,
             path: Default::default(),
             query_names: Default::default(),
             document_name: Default::default(),
@@ -201,19 +195,17 @@ impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
             new_operations: Default::default(),
             errors: Default::default(),
             next_key: 0,
-            relay_resolver_enable_interface_output_type: &feature_flags
-                .relay_resolver_enable_interface_output_type,
+            project_config,
+            base_fragment_names,
         }
     }
 
-    fn generate_query_name(&mut self) -> OperationDefinitionName {
-        let document_name = self.document_name.expect("We are within a document");
-        let name_root = format!(
-            "ClientEdgeQuery_{}_{}",
-            document_name.item,
-            self.path.join("__")
-        )
-        .intern();
+    fn generate_query_name(
+        &mut self,
+        document_name: ExecutableDefinitionName,
+    ) -> OperationDefinitionName {
+        let name_root =
+            format!("ClientEdgeQuery_{}_{}", document_name, self.path.join("__")).intern();
 
         // Due to duplicate inline fragments, or inline fragments without type
         // conditions, it's possible that multiple fields will have the same
@@ -266,7 +258,8 @@ impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
             selections,
         };
 
-        let mut transformer = RefetchableFragment::new(self.program, self.schema_config, false);
+        let mut transformer =
+            RefetchableFragment::new(self.program, &self.project_config.schema_config, false);
 
         let refetchable_fragment = transformer
             .transform_refetch_fragment_with_refetchable_directive(
@@ -366,6 +359,8 @@ impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
                     ));
                 }
                 if !self
+                    .project_config
+                    .feature_flags
                     .relay_resolver_enable_interface_output_type
                     .is_fully_enabled()
                     && !has_output_type(resolver_directive)
@@ -413,13 +408,26 @@ impl<'program, 'sc, 'flag> ClientEdgesTransform<'program, 'sc, 'flag> {
                 field_location,
             ));
         }
-        let client_edge_query_name = self.generate_query_name();
+        let document_name = self.document_name.expect("We are within a document");
+        let client_edge_query_name = self.generate_query_name(document_name.item);
 
-        self.generate_client_edge_query(
-            client_edge_query_name,
-            field_type.type_.inner(),
-            selections,
-        );
+        let should_generate_query =
+            if let ExecutableDefinitionName::FragmentDefinitionName(fragment_name) =
+                document_name.item
+            {
+                // For base fragments we don't need to generate refetch queries
+                !self.base_fragment_names.contains(&fragment_name)
+            } else {
+                true
+            };
+        if should_generate_query {
+            self.generate_client_edge_query(
+                client_edge_query_name,
+                field_type.type_.inner(),
+                selections,
+            );
+        }
+
         ClientEdgeMetadataDirective::ServerObject {
             query_name: client_edge_query_name,
             unique_id: self.get_key(),
@@ -524,7 +532,7 @@ fn create_inline_fragment_for_client_edge(
     }
 }
 
-impl Transformer for ClientEdgesTransform<'_, '_, '_> {
+impl Transformer for ClientEdgesTransform<'_, '_> {
     const NAME: &'static str = "ClientEdgesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

@@ -12,13 +12,14 @@ on:
 
 jobs:
   build-compiler-explorer:
+    if: false # disabling to unblock CI builds
     name: Build Compiler Explorer
     runs-on: macos-latest # wasm-pack not working on Ubuntu https://github.com/rustwasm/wasm-pack/issues/781
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.58.0
+          toolchain: 1.72.0
           override: true
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh

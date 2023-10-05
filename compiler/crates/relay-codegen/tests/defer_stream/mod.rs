@@ -20,7 +20,7 @@ use relay_test_schema::get_test_schema;
 use relay_transforms::sort_selections;
 use relay_transforms::transform_defer_stream;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),

@@ -714,6 +714,11 @@ export type LiveResolverBatchEndLogEvent = {
   +name: 'liveresolver.batch.end',
 };
 
+export type UseFragmentSubscriptionMissedUpdates = {
+  +name: 'useFragment.subscription.missedUpdates',
+  +hasDataChanges: boolean,
+};
+
 export type LogEvent =
   | SuspenseFragmentLogEvent
   | SuspenseQueryLogEvent
@@ -741,7 +746,8 @@ export type LogEvent =
   | StoreNotifySubscriptionLogEvent
   | EntrypointRootConsumeLogEvent
   | LiveResolverBatchStartLogEvent
-  | LiveResolverBatchEndLogEvent;
+  | LiveResolverBatchEndLogEvent
+  | UseFragmentSubscriptionMissedUpdates;
 
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;

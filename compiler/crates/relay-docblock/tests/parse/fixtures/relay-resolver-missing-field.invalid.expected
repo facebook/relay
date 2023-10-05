@@ -32,6 +32,6 @@ graphql`
       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    13 │  * @edgeTo Page
       │ ^^^^^^^^^^^^^^^
-   14 │  * @rootFra[31mg[0mment myRootFragment
+   14 │  * @rootFragment myRootFragment
       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[1m   15 │ [0m
+   15 │

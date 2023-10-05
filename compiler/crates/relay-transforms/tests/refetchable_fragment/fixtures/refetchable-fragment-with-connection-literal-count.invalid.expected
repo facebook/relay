@@ -17,10 +17,10 @@ fragment PaginationFragment on Node
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.[0m
+✖︎ Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
 
-  [4mrefetchable-fragment-with-connection-literal-count.invalid.graphql[0m:2:10[0m
+  refetchable-fragment-with-connection-literal-count.invalid.graphql:2:10
     1 │ # expected-to-throw
-    2 │ fragment Paginati[31mo[0m[31mn[0m[31mF[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0mnt on Node
-      │ [31m         ^^^^^^^^^^^^^^^^^^[0m
-[1m    3 │ [0m  @refetchable(queryName: "RefetchableFragmentQuery")
+    2 │ fragment PaginationFragment on Node
+      │          ^^^^^^^^^^^^^^^^^^
+    3 │   @refetchable(queryName: "RefetchableFragmentQuery")

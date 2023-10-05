@@ -11,10 +11,10 @@ fragment TestFragment on User
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Expected the 'provider' value to @argumentDefinitions to be a string literal if provided.[0m
+✖︎ Expected the 'provider' value to @argumentDefinitions to be a string literal if provided.
 
-  [4mfragment_with_invalid_type_provider.graphql[0m[2m:6:61[0m
-[1m    5 │ [0m    size: {type: "[Int]", defaultValue: [100]}
-[1m    6 │ [0m    arg_with_enabled_provider0: {type: "Boolean", provider: [31m5[0m} 
-      │ [31m                                                            ^[0m
-[1m    7 │ [0m  ) {
+  fragment_with_invalid_type_provider.graphql:6:61
+    5 │     size: {type: "[Int]", defaultValue: [100]}
+    6 │     arg_with_enabled_provider0: {type: "Boolean", provider: 5} 
+      │                                                             ^
+    7 │   ) {

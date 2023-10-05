@@ -23,6 +23,6 @@ query selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery {
 
   selection_set_conflict_different_types_with_conflict_different_shape.graphql:8:19
     7 │     ... on Page {
-[1m    8 │ [0m      same_alias: [31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m[31mC[0m[31mo[0m[31mu[0m[31mn[0m[31mt[0m
-      │ [31m                  ^^^^^^^^^^[0m
-[1m    9 │ [0m    }
+    8 │       same_alias: actorCount
+      │                   ^^^^^^^^^^
+    9 │     }

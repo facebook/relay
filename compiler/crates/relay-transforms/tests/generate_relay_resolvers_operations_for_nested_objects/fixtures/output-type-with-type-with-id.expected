@@ -21,10 +21,10 @@ extend type User {
   todo: Todo @relay_resolver(import_path: "TodoResolver", has_output_type: true)
 }
 ==================================== ERROR ====================================
-[31m✖︎ Field name `id` is reserved for strong objects (objects that implement Node interface). Defining `id` fields is not currently supported on @RelayResolver with @outputType.[0m
+✖︎ Field name `id` is reserved for strong objects (objects that implement Node interface). Defining `id` fields is not currently supported on @RelayResolver with @outputType.
 
-  [4moutput-type-with-type-with-id.graphql[0m[2m:4:3[0m
-[1m    3 │ [0mtype Context {
-[1m    4 │ [0m  [31mi[0m[31md[0m: ID!
-      │ [31m  ^^[0m
-[1m    5 │ [0m}
+  output-type-with-type-with-id.graphql:4:3
+    3 │ type Context {
+    4 │   id: ID!
+      │   ^^
+    5 │ }

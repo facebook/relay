@@ -12,10 +12,10 @@
  * @RelayResolver ClientUser Foo Baz Baz Abracadabra
  */
 ==================================== ERROR ====================================
-[31m✖︎ Expected a end of file[0m
+✖︎ Expected a end of file
 
-  [4m/path/to/test/fixture/relay-resolver-strong-object-with-gibberish.invalid.js[0m[2m:11:30[0m
-[1m   10 │ [0m*
-[1m   11 │ [0m * @RelayResolver ClientUser [31mF[0m[31mo[0m[31mo[0m Baz Baz Abracadabra
+  /path/to/test/fixture/relay-resolver-strong-object-with-gibberish.invalid.js:11:30
+   10 │ *
+   11 │  * @RelayResolver ClientUser Foo Baz Baz Abracadabra
       │                              ^^^
    12 │

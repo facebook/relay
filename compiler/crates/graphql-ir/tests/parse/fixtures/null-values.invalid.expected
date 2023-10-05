@@ -11,5 +11,5 @@ query NullValuesQuery {
   null-values.invalid.graphql:3:24
     2 │ query NullValuesQuery {
     3 │   node_id_required(id: null) {
-      │ [31m                       ^^^^[0m
-[1m    4 │ [0m    id
+      │                        ^^^^
+    4 │     id

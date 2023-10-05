@@ -45,14 +45,14 @@ fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUs
 
   module-overlap-within-document.invalid.graphql:25:7
    24 │     ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
-[1m   25 │ [0m      [31m@[0m[31mm[0modul[31me[0m(name: "BarMarkdownUserNameRenderer.react")
-      │ [31m      ^^^^^^^[0m
-[1m   26 │ [0m  }
+   25 │       @module(name: "BarMarkdownUserNameRenderer.react")
+      │       ^^^^^^^
+   26 │   }
 
-[31m  ℹ︎ conflicts with[0m
+  ℹ︎ conflicts with
 
-  [4mmodule-overlap-within-document.invalid.graphql[0m[2m:13:7[0m
-[1m   12 │ [0m    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+  module-overlap-within-document.invalid.graphql:13:7
+   12 │     ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
    13 │       @module(name: "FooMarkdownUserNameRenderer.react")
-      │ [31m      ^^^^^^^[0m
-[1m   14 │ [0m    ...moduleOverlapWithinDocument_PlainUserNameRenderer_name
+      │       ^^^^^^^
+   14 │     ...moduleOverlapWithinDocument_PlainUserNameRenderer_name

@@ -27,12 +27,12 @@ query LiteralObjectArgument3 {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ The type `CheckinSearchInput` has no field `unknownField`.
-See https://relay.dev/docs/error-reference/unknown-field/[0m
+✖︎ The type `CheckinSearchInput` has no field `unknownField`.
+See https://relay.dev/docs/error-reference/unknown-field/
 
-  [4mliteral-object-argument.invalid.graphql[0m[2m:5:7[0m
+  literal-object-argument.invalid.graphql:5:7
     4 │     query: {
-    5 │       unk[31mn[0m[31mo[0m[31mw[0m[31mn[0m[31mF[0m[31mi[0m[31me[0m[31ml[0m[31md[0m: "Facebook" # error: unknown field
+    5 │       unknownField: "Facebook" # error: unknown field
       │       ^^^^^^^^^^^^
     6 │     }
 

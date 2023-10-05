@@ -22,5 +22,5 @@ fragment circularNoInlineFragment_feedback on Feedback @no_inline
   circular-no-inline-fragment.graphql:10:10
     9 │ 
    10 │ fragment circularNoInlineFragment_feedback on Feedback @no_inline
-      │ [31m         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m   11 │ [0m  @argumentDefinitions(
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   11 │   @argumentDefinitions(

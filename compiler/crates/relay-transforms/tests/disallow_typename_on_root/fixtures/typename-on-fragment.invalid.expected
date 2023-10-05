@@ -4,10 +4,10 @@ fragment TestFragment on Query {
   __typename
 }
 ==================================== ERROR ====================================
-[31m✖︎ Relay does not allow `__typename` field on Query, Mutation or Subscription.[0m
+✖︎ Relay does not allow `__typename` field on Query, Mutation or Subscription.
 
-  [4mtypename-on-fragment.invalid.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mfragment TestFragment on Query {
-[1m    3 │ [0m  [31m_[0m[31m_[0m[31mt[0m[31my[0m[31mp[0m[31me[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m
-      │ [31m  ^^^^^^^^^^[0m
-[1m    4 │ [0m}
+  typename-on-fragment.invalid.graphql:3:3
+    2 │ fragment TestFragment on Query {
+    3 │   __typename
+      │   ^^^^^^^^^^
+    4 │ }

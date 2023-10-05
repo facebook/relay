@@ -17,6 +17,6 @@ fragment Foo on User @argumentDefinitions(
 
   fragment_with_arguments_incorrect_nullability.invalid.graphql:6:30
     5 │ ) {
-    6 │   ...Foo @arguments(localId: [31m$[0m[31mi[0m[31md[0m)
-      │ [31m                             ^^^[0m
-[1m    7 │ [0m}
+    6 │   ...Foo @arguments(localId: $id)
+      │                              ^^^
+    7 │ }

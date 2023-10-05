@@ -11,18 +11,18 @@ fragment TestFragment on User
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Module-provided variable ('arg_with_enabled_provider0') may not declare a default value[0m
+✖︎ Module-provided variable ('arg_with_enabled_provider0') may not declare a default value
 
-  [4mfragment_with_invalid_defaultvalue_provider.graphql[0m[2m:6:52[0m
-[1m    5 │ [0m    size: {type: "[Int]", defaultValue: [100]}
-[1m    6 │ [0m    arg_with_enabled_provider0: {type: "Boolean!", [31mp[0m[31mr[0m[31mo[0m[31mv[0m[31mi[0m[31md[0m[31me[0m[31mr[0m[31m:[0m[31m [0m[31m"[0m[31mt[0m[31me[0m[31ms[0m[31mt[0m[31m_[0m[31mf[0m[31mo[0m[31mo[0m[31m_[0m[31mg[0m[31mk[0m[31m.[0m[31mj[0m[31ms[0m[31m"[0m, defaultValue: true} 
-      │ [31m                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m    7 │ [0m  ) {
+  fragment_with_invalid_defaultvalue_provider.graphql:6:52
+    5 │     size: {type: "[Int]", defaultValue: [100]}
+    6 │     arg_with_enabled_provider0: {type: "Boolean!", provider: "test_foo_gk.js", defaultValue: true} 
+      │                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │   ) {
 
-[31m  ℹ︎ Default value declared here[0m
+  ℹ︎ Default value declared here
 
-  [4mfragment_with_invalid_defaultvalue_provider.graphql[0m[2m:6:80[0m
-[1m    5 │ [0m    size: {type: "[Int]", defaultValue: [100]}
-[1m    6 │ [0m    arg_with_enabled_provider0: {type: "Boolean!", provider: "test_foo_gk.js", [31md[0m[31me[0m[31mf[0m[31ma[0m[31mu[0m[31ml[0m[31mt[0m[31mV[0m[31ma[0m[31ml[0m[31mu[0m[31me[0m[31m:[0m[31m [0m[31mt[0m[31mr[0m[31mu[0m[31me[0m} 
-      │ [31m                                                                               ^^^^^^^^^^^^^^^^^^[0m
-[1m    7 │ [0m  ) {
+  fragment_with_invalid_defaultvalue_provider.graphql:6:80
+    5 │     size: {type: "[Int]", defaultValue: [100]}
+    6 │     arg_with_enabled_provider0: {type: "Boolean!", provider: "test_foo_gk.js", defaultValue: true} 
+      │                                                                                ^^^^^^^^^^^^^^^^^^
+    7 │   ) {

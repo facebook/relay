@@ -11,20 +11,20 @@ fragment PlainUserNameRenderer_name on Actor {
   __typename
 }
 ==================================== ERROR ====================================
-[31m✖︎ @match on a field without the `supported` argument is a no-op, please remove the `@match`.[0m
+✖︎ @match on a field without the `supported` argument is a no-op, please remove the `@match`.
 
-  [4mno-server-supported-arg.invalid.graphql[0m[2m:4:10[0m
-[1m    3 │ [0m  id
-[1m    4 │ [0m  actors [31m@[0m[31mm[0m[31ma[0m[31mt[0m[31mc[0m[31mh[0m {
-      │ [31m         ^^^^^^[0m
-[1m    5 │ [0m    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  no-server-supported-arg.invalid.graphql:4:10
+    3 │   id
+    4 │   actors @match {
+      │          ^^^^^^
+    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
 
 
-[31m✖︎ @module used on invalid fragment spread '...PlainUserNameRenderer_name'. @module may only be used with fragments on a concrete (object) type, but the fragment has abstract type 'Actor'.[0m
+✖︎ @module used on invalid fragment spread '...PlainUserNameRenderer_name'. @module may only be used with fragments on a concrete (object) type, but the fragment has abstract type 'Actor'.
 
-  [4mno-server-supported-arg.invalid.graphql[0m[2m:5:8[0m
-[1m    4 │ [0m  actors @match {
-[1m    5 │ [0m    ...[31mP[0m[31ml[0m[31ma[0m[31mi[0m[31mn[0m[31mU[0m[31ms[0m[31me[0m[31mr[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m[31mR[0m[31me[0m[31mn[0m[31md[0m[31me[0m[31mr[0m[31me[0m[31mr[0m[31m_[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m @module(name: "PlainUserNameRenderer.react")
+  no-server-supported-arg.invalid.graphql:5:8
+    4 │   actors @match {
+    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
       │        ^^^^^^^^^^^^^^^^^^^^^^^^^^
     6 │   }
 
@@ -32,6 +32,6 @@ fragment PlainUserNameRenderer_name on Actor {
 
   no-server-supported-arg.invalid.graphql:9:10
     8 │ 
-    9 │ fragment [31mP[0m[31ml[0m[31ma[0m[31mi[0m[31mn[0m[31mU[0m[31ms[0m[31me[0m[31mr[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m[31mR[0m[31me[0m[31mn[0m[31md[0m[31me[0m[31mr[0m[31me[0m[31mr[0m[31m_[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m on Actor {
-      │ [31m         ^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m   10 │ [0m  __typename
+    9 │ fragment PlainUserNameRenderer_name on Actor {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   __typename

@@ -4,10 +4,10 @@ fragment Foo on Users {
   id
 }
 ==================================== ERROR ====================================
-[31m✖︎ Unknown type 'Users'. Did you mean `User` or `Query`?[0m
+✖︎ Unknown type 'Users'. Did you mean `User` or `Query`?
 
-  [4munknown-fragment-type-suggestions.invalid.graphql[0m[2m:2:17[0m
-[1m    1 │ [0m# expected-to-throw
-[1m    2 │ [0mfragment Foo on [31mU[0m[31ms[0m[31me[0m[31mr[0m[31ms[0m {
-      │ [31m                ^^^^^[0m
-[1m    3 │ [0m  id
+  unknown-fragment-type-suggestions.invalid.graphql:2:17
+    1 │ # expected-to-throw
+    2 │ fragment Foo on Users {
+      │                 ^^^^^
+    3 │   id

@@ -17,18 +17,18 @@ fragment NullableIDListFragment on Query {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Cannot combine variables with incompatible types ID and [ID!] when applying @relay(mask: false[0m
+✖︎ Cannot combine variables with incompatible types ID and [ID!] when applying @relay(mask: false
 
-  [4mmask-incompatible-type-query.invalid.graphql[0m[2m:2:19[0m
-[1m    1 │ [0m# expected-to-throw
-[1m    2 │ [0mquery ParentQuery([31m$[0m[31mi[0m[31md[0m: ID) {
-      │ [31m                  ^^^[0m
-[1m    3 │ [0m  ...NullableIDListFragment @relay(mask: false)
+  mask-incompatible-type-query.invalid.graphql:2:19
+    1 │ # expected-to-throw
+    2 │ query ParentQuery($id: ID) {
+      │                   ^^^
+    3 │   ...NullableIDListFragment @relay(mask: false)
 
-[31m  ℹ︎ related location[0m
+  ℹ︎ related location
 
-  [4mmask-incompatible-type-query.invalid.graphql[0m[2m:14:14[0m
-[1m   13 │ [0mfragment NullableIDListFragment on Query {
-[1m   14 │ [0m  nodes(ids: [31m$[0m[31mi[0m[31md[0m) {
-      │ [31m             ^^^[0m
-[1m   15 │ [0m    id
+  mask-incompatible-type-query.invalid.graphql:14:14
+   13 │ fragment NullableIDListFragment on Query {
+   14 │   nodes(ids: $id) {
+      │              ^^^
+   15 │     id

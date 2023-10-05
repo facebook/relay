@@ -41,19 +41,19 @@ extend type User {
   pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== ERROR ====================================
-[31m✖︎ @RelayResolver type recursion detected for the output type `IStageName`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.[0m
+✖︎ @RelayResolver type recursion detected for the output type `IStageName`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
 
-  [4moutput-type-with-client-interface-and-object-recursion.invalid.graphql[0m[2m:18:3[0m
-[1m   17 │ [0mtype ClientType {
+  output-type-with-client-interface-and-object-recursion.invalid.graphql:18:3
+   17 │ type ClientType {
    18 │   stage_name: IStageName
-      │ [31m  ^^^^^^^^^^[0m
-[1m   19 │ [0m}
+      │   ^^^^^^^^^^
+   19 │ }
 
 
 ✖︎ @RelayResolver type recursion detected for the output type `IStageName`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
 
   output-type-with-client-interface-and-object-recursion.invalid.graphql:18:3
    17 │ type ClientType {
-[1m   18 │ [0m  [31ms[0m[31mt[0m[31ma[0m[31mg[0m[31me[0m[31m_[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m: IStageName
-      │ [31m  ^^^^^^^^^^[0m
-[1m   19 │ [0m}
+   18 │   stage_name: IStageName
+      │   ^^^^^^^^^^
+   19 │ }

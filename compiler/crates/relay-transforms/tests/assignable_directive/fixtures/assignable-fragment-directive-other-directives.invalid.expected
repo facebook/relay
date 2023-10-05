@@ -8,6 +8,6 @@ fragment AssignableFragment on Page @assignable @refetchable(queryName: "Foo") {
 
   assignable-fragment-directive-other-directives.invalid.graphql:2:49
     1 │ # expected-to-throw
-    2 │ fragment AssignableFragment on Page @assignable @refet[31mc[0m[31mh[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m(queryName: "Foo") {
-      │ [31m                                                ^^^^^^^^^^^^[0m
-[1m    3 │ [0m  __typename
+    2 │ fragment AssignableFragment on Page @assignable @refetchable(queryName: "Foo") {
+      │                                                 ^^^^^^^^^^^^
+    3 │   __typename

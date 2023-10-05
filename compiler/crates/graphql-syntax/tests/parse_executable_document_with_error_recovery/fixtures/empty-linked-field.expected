@@ -85,7 +85,7 @@ Errors:
 
   empty-linked-field.graphql:2:10
     1 │ fragment Test on User {
-    2 │     user {[0m
+    2 │     user {
       │          ^
     3 │     }
       │ ^^^^^

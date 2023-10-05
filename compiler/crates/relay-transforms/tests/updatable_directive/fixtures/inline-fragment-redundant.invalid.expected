@@ -14,29 +14,29 @@ query TestQuery @updatable {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Within updatable operations, a single linked field cannot have multiple inline fragments with the same type condition. However, within node, there were multiple inline fragments narrowing the type to `Comment`.[0m
+✖︎ Within updatable operations, a single linked field cannot have multiple inline fragments with the same type condition. However, within node, there were multiple inline fragments narrowing the type to `Comment`.
 
-  [4minline-fragment-redundant.invalid.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mquery TestQuery @updatable {
-[1m    3 │ [0m  [31mn[0m[31mo[0m[31md[0m[31me[0m(id: 4) {
-      │ [31m  ^^^^[0m
-[1m    4 │ [0m    ... on Page {
-
-
-[31m✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.[0m
-
-  [4minline-fragment-redundant.invalid.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mquery TestQuery @updatable {
-[1m    3 │ [0m  [31mn[0m[31mo[0m[31md[0m[31me[0m(id: 4) {
-      │ [31m  ^^^^[0m
-[1m    4 │ [0m    ... on Page {
+  inline-fragment-redundant.invalid.graphql:3:3
+    2 │ query TestQuery @updatable {
+    3 │   node(id: 4) {
+      │   ^^^^
+    4 │     ... on Page {
 
 
 ✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
 
   inline-fragment-redundant.invalid.graphql:3:3
     2 │ query TestQuery @updatable {
-    3 │   n[31mo[0m[31md[0me(id: 4) {
+    3 │   node(id: 4) {
+      │   ^^^^
+    4 │     ... on Page {
+
+
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  inline-fragment-redundant.invalid.graphql:3:3
+    2 │ query TestQuery @updatable {
+    3 │   node(id: 4) {
       │   ^^^^
     4 │     ... on Page {
 

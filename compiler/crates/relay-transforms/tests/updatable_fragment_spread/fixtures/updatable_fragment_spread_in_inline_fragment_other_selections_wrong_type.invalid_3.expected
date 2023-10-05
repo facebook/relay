@@ -14,18 +14,18 @@ fragment Updatable_user on User @updatable {
   __typename
 }
 ==================================== ERROR ====================================
-[31m✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @include.[0m
+✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @include.
 
-  [4mupdatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_3.graphql[0m[2m:8:5[0m
-[1m    7 │ [0m    }
-[1m    8 │ [0m    [31mi[0m[31md[0m
-      │ [31m    ^^[0m
-[1m    9 │ [0m  }
+  updatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_3.graphql:8:5
+    7 │     }
+    8 │     id
+      │     ^^
+    9 │   }
 
-[31m  ℹ︎ enclosing linked field[0m
+  ℹ︎ enclosing linked field
 
-  [4mupdatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_3.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mfragment Foo on Query {
-[1m    3 │ [0m  [31mn[0m[31mo[0m[31md[0m[31me[0m(id: "4") {
-      │ [31m  ^^^^[0m
-[1m    4 │ [0m    ... on User {
+  updatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_3.graphql:3:3
+    2 │ fragment Foo on Query {
+    3 │   node(id: "4") {
+      │   ^^^^
+    4 │     ... on User {

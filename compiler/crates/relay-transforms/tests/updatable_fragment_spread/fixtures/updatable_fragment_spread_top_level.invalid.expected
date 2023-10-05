@@ -8,10 +8,10 @@ fragment Updatable_viewer on Viewer @updatable {
   __typename
 }
 ==================================== ERROR ====================================
-[31m✖︎ Updatable fragments cannot be spread at the top level.[0m
+✖︎ Updatable fragments cannot be spread at the top level.
 
-  [4mupdatable_fragment_spread_top_level.invalid.graphql[0m[2m:3:6[0m
-[1m    2 │ [0mfragment Foo on Viewer {
-[1m    3 │ [0m  ...[31mU[0m[31mp[0m[31md[0m[31ma[0m[31mt[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31m_[0m[31mv[0m[31mi[0m[31me[0m[31mw[0m[31me[0m[31mr[0m
-      │ [31m     ^^^^^^^^^^^^^^^^[0m
-[1m    4 │ [0m}
+  updatable_fragment_spread_top_level.invalid.graphql:3:6
+    2 │ fragment Foo on Viewer {
+    3 │   ...Updatable_viewer
+      │      ^^^^^^^^^^^^^^^^
+    4 │ }

@@ -11,10 +11,10 @@ fragment Foo on User {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Invalid type 'Page' in inline fragment, this type can never occur for parent type 'User'[0m
+✖︎ Invalid type 'Page' in inline fragment, this type can never occur for parent type 'User'
 
-  [4minline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.graphql[0m[2m:6:14[0m
-[1m    5 │ [0m    ... on Node {
-[1m    6 │ [0m      ... on [31mP[0m[31ma[0m[31mg[0m[31me[0m {
-      │ [31m             ^^^^[0m
-[1m    7 │ [0m        __typename
+  inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.graphql:6:14
+    5 │     ... on Node {
+    6 │       ... on Page {
+      │              ^^^^
+    7 │         __typename

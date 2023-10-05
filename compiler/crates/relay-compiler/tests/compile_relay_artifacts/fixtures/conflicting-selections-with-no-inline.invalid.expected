@@ -24,13 +24,13 @@ query conflictingSelectionsWithNoInlineQuery {
   conflicting-selections-with-no-inline.invalid.graphql:4:3
     3 │ fragment conflictingSelectionsWithNoInline_fragment on Query @no_inline {
     4 │   node(id: 4) {
-      │ [31m  ^^^^[0m
-[1m    5 │ [0m    ... on User {
+      │   ^^^^
+    5 │     ... on User {
 
-[31m  ℹ︎ which conflicts with this field with applied argument values (id: 5)[0m
+  ℹ︎ which conflicts with this field with applied argument values (id: 5)
 
-  [4mconflicting-selections-with-no-inline.invalid.graphql[0m[2m:14:3[0m
+  conflicting-selections-with-no-inline.invalid.graphql:14:3
    13 │   ...conflictingSelectionsWithNoInline_fragment
-[1m   14 │ [0m  [31mn[0m[31mo[0m[31md[0m[31me[0m(id: 5) {
+   14 │   node(id: 5) {
       │   ^^^^
    15 │     ... on User {

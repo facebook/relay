@@ -10,6 +10,6 @@ mutation MutationWithAnotherNameMutation {
 
   MutationWithInvalidName.invalid.graphql:2:10
     1 │ #expected-to-throw
-    2 │ mutation MutationWithAnotherNameMut[31ma[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m {
-      │ [31m         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m    3 │ [0m    commentCreate(input: null) {
+    2 │ mutation MutationWithAnotherNameMutation {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │     commentCreate(input: null) {

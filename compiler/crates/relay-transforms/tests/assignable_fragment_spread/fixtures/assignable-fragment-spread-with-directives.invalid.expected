@@ -14,6 +14,6 @@ fragment Assignable_user on User @assignable {
 
   assignable-fragment-spread-with-directives.invalid.graphql:4:24
     3 │   node(id: "4") {
-    4 │     ...Assignable_user [31m@[0m[31md[0m[31me[0m[31mf[0m[31me[0m[31mr[0m
-      │ [31m                       ^^^^^^[0m
-[1m    5 │ [0m  }
+    4 │     ...Assignable_user @defer
+      │                        ^^^^^^
+    5 │   }

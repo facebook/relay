@@ -16,10 +16,10 @@ fragment User_data_with_args on User
   username @include(if: $foo)
 }
 ==================================== ERROR ====================================
-[31m✖︎ Variable `$foo` is never used in operation `QueryWithId`[0m
+✖︎ Variable `$foo` is never used in operation `QueryWithId`
 
-  [4mquery-with-unused-root-variable-shadowed-by-local.invalid.graphql[0m[2m:2:28[0m
-[1m    1 │ [0m# expected-to-throw
-[1m    2 │ [0mquery QueryWithId($id: ID, [31m$[0m[31mf[0m[31mo[0m[31mo[0m: Boolean!) {
-      │ [31m                           ^^^^[0m
-[1m    3 │ [0m  node(id: $id) {
+  query-with-unused-root-variable-shadowed-by-local.invalid.graphql:2:28
+    1 │ # expected-to-throw
+    2 │ query QueryWithId($id: ID, $foo: Boolean!) {
+      │                            ^^^^
+    3 │   node(id: $id) {

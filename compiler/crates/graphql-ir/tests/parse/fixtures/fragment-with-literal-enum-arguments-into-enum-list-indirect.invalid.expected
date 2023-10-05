@@ -17,10 +17,10 @@ fragment ChildFragment on User
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Variable was defined as type 'Environment!' but used where a variable of type '[Environment!]!' is expected.[0m
+✖︎ Variable was defined as type 'Environment!' but used where a variable of type '[Environment!]!' is expected.
 
-  [4mfragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql[0m[2m:13:26[0m
+  fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql:13:26
    12 │   # the singular -> list promotion only works for literal values
-[1m   13 │ [0m  checkins(environments: [31m$[0m[31me[0m[31mn[0mvironme[31mn[0m[31mt[0m) {
-      │ [31m                         ^^^^^^^^^^^^[0m
-[1m   14 │ [0m    # expected error
+   13 │   checkins(environments: $environment) {
+      │                          ^^^^^^^^^^^^
+   14 │     # expected error

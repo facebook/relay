@@ -109,9 +109,9 @@ Errors:
 ✖︎ Expected a open brace ('{')
 
   inline-fragment-without-selection.graphql:2:14
-[1m    1 │ [0mfragment Test on User {
-[1m    2 │ [0m  ... on User 
+    1 │ fragment Test on User {
+    2 │   ... on User 
       │              ^
     3 │   username
-      │ [31m^^[0m
-[1m    4 │ [0m}
+      │ ^^
+    4 │ }

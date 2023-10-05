@@ -61,37 +61,37 @@ fragment TestFragmentD on User
     }
 }
 ==================================== ERROR ====================================
-[31m✖︎ All provided variables using module 'varProvider2' must declare the same type. Expected '[Int]' but found '[Int]!'[0m
+✖︎ All provided variables using module 'varProvider2' must declare the same type. Expected '[Int]' but found '[Int]!'
 
-  [4mconflict_warn_infrequent_definitions.graphql[0m[2m:52:5[0m
-[1m   51 │ [0m    # Same frequency, but [Int] < [Int]!
-[1m   52 │ [0m    [31mv[0m[31ma[0m[31mr[0m[31m1[0m: {type: "[Int]!", provider: "varProvider2"}
-      │ [31m    ^^^^[0m
-[1m   53 │ [0m    var2: {type: "[Int]", provider: "varProvider2"}
-
-
-[31m✖︎ Modules 'var(Provider1' and 'var)Provider1' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)[0m
-
-  [4mconflict_warn_infrequent_definitions.graphql[0m[2m:38:5[0m
-[1m   37 │ [0m    # Same frequency, but var(Provider1 < var)Provider1
-[1m   38 │ [0m    [31mv[0m[31ma[0m[31mr[0m[31m1[0m: {type: "[Int]", provider: "var)Provider1"}
-      │ [31m    ^^^^[0m
-[1m   39 │ [0m    var2: {type: "[Int]", provider: "var(Provider1"}
+  conflict_warn_infrequent_definitions.graphql:52:5
+   51 │     # Same frequency, but [Int] < [Int]!
+   52 │     var1: {type: "[Int]!", provider: "varProvider2"}
+      │     ^^^^
+   53 │     var2: {type: "[Int]", provider: "varProvider2"}
 
 
-[31m✖︎ Modules 'varProvider' and '../varProvider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)[0m
+✖︎ Modules 'var(Provider1' and 'var)Provider1' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
 
-  [4mconflict_warn_infrequent_definitions.graphql[0m[2m:10:5[0m
-[1m    9 │ [0m    var1: {type: "[Int]", provider: "var Provider"}
-[1m   10 │ [0m    [31mv[0m[31ma[0m[31mr[0m[31m2[0m: {type: "[Int]", provider: "../varProvider"}
-      │ [31m    ^^^^[0m
-[1m   11 │ [0m    var3: {type: "[Int]", provider: "varProvider"}
+  conflict_warn_infrequent_definitions.graphql:38:5
+   37 │     # Same frequency, but var(Provider1 < var)Provider1
+   38 │     var1: {type: "[Int]", provider: "var)Provider1"}
+      │     ^^^^
+   39 │     var2: {type: "[Int]", provider: "var(Provider1"}
 
 
-[31m✖︎ Modules 'varProvider' and 'var Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)[0m
+✖︎ Modules 'varProvider' and '../varProvider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
 
-  [4mconflict_warn_infrequent_definitions.graphql[0m[2m:9:5[0m
-[1m    8 │ [0m    # varProvider module used more frequently
-[1m    9 │ [0m    [31mv[0m[31ma[0m[31mr[0m[31m1[0m: {type: "[Int]", provider: "var Provider"}
-      │ [31m    ^^^^[0m
-[1m   10 │ [0m    var2: {type: "[Int]", provider: "../varProvider"}
+  conflict_warn_infrequent_definitions.graphql:10:5
+    9 │     var1: {type: "[Int]", provider: "var Provider"}
+   10 │     var2: {type: "[Int]", provider: "../varProvider"}
+      │     ^^^^
+   11 │     var3: {type: "[Int]", provider: "varProvider"}
+
+
+✖︎ Modules 'varProvider' and 'var Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflict_warn_infrequent_definitions.graphql:9:5
+    8 │     # varProvider module used more frequently
+    9 │     var1: {type: "[Int]", provider: "var Provider"}
+      │     ^^^^
+   10 │     var2: {type: "[Int]", provider: "../varProvider"}

@@ -21,13 +21,13 @@ fragment unusedFragmentArgdefProfilePhoto on User
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Variable `$suppressedButUsed` of fragment `unusedFragmentArgdefProfile` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed.[0m
+✖︎ Variable `$suppressedButUsed` of fragment `unusedFragmentArgdefProfile` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed.
 
-  [4munused_fragment_argdef.invalid.graphql[0m[2m:7:42[0m
-[1m    6 │ [0m  unusedButSuppressed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
-    7 │   suppressedButUsed: { type: "Boolean!", unusedLoca[31ml[0m[31mV[0m[31ma[0m[31mr[0m[31mi[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31m_[0m[31mD[0m[31mE[0m[31mP[0m[31mR[0m[31mE[0m[31mC[0m[31mA[0m[31mT[0m[31mE[0m[31mD[0m[31m:[0m[31m [0m[31mt[0m[31mr[0m[31mu[0m[31me[0m }
-      │ [31m                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m    8 │ [0m  unusedOne: { type: "Boolean!" }
+  unused_fragment_argdef.invalid.graphql:7:42
+    6 │   unusedButSuppressed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+    7 │   suppressedButUsed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+      │                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    8 │   unusedOne: { type: "Boolean!" }
 
 
 ✖︎ Variable `$unusedOne` is never used in fragment `unusedFragmentArgdefProfile`. `@argumentDefinitions` defines local variables, global variables are implicitly available.
@@ -42,7 +42,7 @@ fragment unusedFragmentArgdefProfilePhoto on User
 ✖︎ Variable `$unusedTwo` is never used in fragment `unusedFragmentArgdefProfile`. `@argumentDefinitions` defines local variables, global variables are implicitly available.
 
   unused_fragment_argdef.invalid.graphql:9:3
-[1m    8 │ [0m  unusedOne: { type: "Boolean!" }
+    8 │   unusedOne: { type: "Boolean!" }
     9 │   unusedTwo: { type: "Boolean!" }
-      │ [31m  ^^^^^^^^^[0m
-[1m   10 │ [0m) {
+      │   ^^^^^^^^^
+   10 │ ) {

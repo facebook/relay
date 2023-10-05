@@ -10,6 +10,6 @@ query TestQuery @updatable {
 
   directive-linked-field.invalid.graphql:3:15
     2 │ query TestQuery @updatable {
-[1m    3 │ [0m  node(id: 4) [31m@[0m[31mc[0m[31mu[0m[31ms[0m[31mt[0m[31mo[0m[31mm[0m[31mD[0m[31mi[0m[31mr[0m[31me[0m[31mc[0m[31mt[0m[31mi[0m[31mv[0m[31me[0m(level: 1) {
-      │ [31m              ^^^^^^^^^^^^^^^^[0m
-[1m    4 │ [0m    id
+    3 │   node(id: 4) @customDirective(level: 1) {
+      │               ^^^^^^^^^^^^^^^^
+    4 │     id

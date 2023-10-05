@@ -19,10 +19,10 @@ query selectionSetConflictConflictingListAndNonListTypesQuery {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'actors' with type '[Actor]' and 'actorCount' with type 'Int'[0m
+✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'actors' with type '[Actor]' and 'actorCount' with type 'Int'
 
-  [4mselection_set_conflict_conflicting_list_and_non_list_types.graphql[0m[2m:8:25[0m
-[1m    7 │ [0m          ... on Story {
+  selection_set_conflict_conflicting_list_and_non_list_types.graphql:8:25
+    7 │           ... on Story {
     8 │             same_alias: actors {
       │                         ^^^^^^
     9 │               id
@@ -31,6 +31,6 @@ query selectionSetConflictConflictingListAndNonListTypesQuery {
 
   selection_set_conflict_conflicting_list_and_non_list_types.graphql:13:25
    12 │           ... on PhotoStory {
-[1m   13 │ [0m            same_alias: actor[31mC[0m[31mo[0m[31mu[0m[31mn[0m[31mt[0m
-      │ [31m                        ^^^^^^^^^^[0m
-[1m   14 │ [0m          }
+   13 │             same_alias: actorCount
+      │                         ^^^^^^^^^^
+   14 │           }

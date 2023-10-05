@@ -11,10 +11,10 @@ fragment WrongViewerFragment on WithWrongViewer {
   __typename
 }
 ==================================== ERROR ====================================
-[31m✖︎ The directive 'fb_actor_change' automatically adds 'actor_key' to the selection of the field 'wrongViewer'. The field 'actor_key' should be defined as a scalar field in the GraphQL Schema, but is defined with the type 'Viewer' instead.[0m
+✖︎ The directive 'fb_actor_change' automatically adds 'actor_key' to the selection of the field 'wrongViewer'. The field 'actor_key' should be defined as a scalar field in the GraphQL Schema, but is defined with the type 'Viewer' instead.
 
-  [4mactor-change-wrong-viewer.invalid.graphql[0m[2m:4:15[0m
-[1m    3 │ [0mfragment TestFragment on Query {
-[1m    4 │ [0m  wrongViewer [31m@[0m[31mf[0m[31mb[0m[31m_[0m[31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m[31m_[0m[31mc[0m[31mh[0m[31ma[0m[31mn[0m[31mg[0m[31me[0m {
-      │ [31m              ^^^^^^^^^^^^^^^^[0m
-[1m    5 │ [0m    ...WrongViewerFragment
+  actor-change-wrong-viewer.invalid.graphql:4:15
+    3 │ fragment TestFragment on Query {
+    4 │   wrongViewer @fb_actor_change {
+      │               ^^^^^^^^^^^^^^^^
+    5 │     ...WrongViewerFragment

@@ -13,18 +13,18 @@ query TestQuery {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'width' and 'height'[0m
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'width' and 'height'
 
-  [4msame-alias-nested.graphql[0m[2m:5:19[0m
-[1m    4 │ [0m    profile_picture {
-[1m    5 │ [0m      same_alias: [31mw[0m[31mi[0m[31md[0m[31mt[0m[31mh[0m
-      │ [31m                  ^^^^^[0m
-[1m    6 │ [0m    }
+  same-alias-nested.graphql:5:19
+    4 │     profile_picture {
+    5 │       same_alias: width
+      │                   ^^^^^
+    6 │     }
 
-[31m  ℹ︎ the other field[0m
+  ℹ︎ the other field
 
-  [4msame-alias-nested.graphql[0m[2m:10:19[0m
-[1m    9 │ [0m    profile_picture {
-[1m   10 │ [0m      same_alias: [31mh[0m[31me[0m[31mi[0m[31mg[0m[31mh[0m[31mt[0m
-      │ [31m                  ^^^^^^[0m
-[1m   11 │ [0m    }
+  same-alias-nested.graphql:10:19
+    9 │     profile_picture {
+   10 │       same_alias: height
+      │                   ^^^^^^
+   11 │     }

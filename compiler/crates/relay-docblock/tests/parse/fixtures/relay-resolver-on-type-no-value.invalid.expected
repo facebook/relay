@@ -27,6 +27,6 @@ graphql`
 
   /path/to/test/fixture/relay-resolver-on-type-no-value.invalid.js:13:5
    12 │  *
-   13 │  * @o[31mn[0m[31mT[0m[31my[0m[31mp[0m[31me[0m
-      │ [31m    ^^^^^^[0m
-[1m   14 │ [0m * @fieldName favorite_page
+   13 │  * @onType
+      │     ^^^^^^
+   14 │  * @fieldName favorite_page

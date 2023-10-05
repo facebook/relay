@@ -9,19 +9,19 @@ query TestQuery($Id: ID!) {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ No fields can have an alias that start with two underscores.[0m
+✖︎ No fields can have an alias that start with two underscores.
 
-  [4mdouble_underscore.invalid.graphql[0m[2m:4:5[0m
-[1m    3 │ [0m  node(id: $Id) {
-[1m    4 │ [0m    [31m_[0m[31m_[0m[31mf[0m[31mo[0m[31mo[0m: id
-      │ [31m    ^^^^^[0m
-[1m    5 │ [0m    ... on User {
+  double_underscore.invalid.graphql:4:5
+    3 │   node(id: $Id) {
+    4 │     __foo: id
+      │     ^^^^^
+    5 │     ... on User {
 
 
-[31m✖︎ No fields can have an alias that start with two underscores.[0m
+✖︎ No fields can have an alias that start with two underscores.
 
-  [4mdouble_underscore.invalid.graphql[0m[2m:6:7[0m
-[1m    5 │ [0m    ... on User {
-[1m    6 │ [0m      [31m_[0m[31m_[0m[31mb[0m[31ma[0m[31mr[0m: name
-      │ [31m      ^^^^^[0m
-[1m    7 │ [0m    }
+  double_underscore.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       __bar: name
+      │       ^^^^^
+    7 │     }

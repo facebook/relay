@@ -21,10 +21,10 @@ interface IFoo {
 }
 `
 ==================================== ERROR ====================================
-[31m✖︎ The type `User` is an object. Please use a client-defined interface instead.[0m
+✖︎ The type `User` is an object. Please use a client-defined interface instead.
 
-  [4m/path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-non-interface.js[0m[2m:2:19[0m
-[1m    1 │ [0m*
-[1m    2 │ [0m * @RelayResolver [31mC[0m[31ml[0m[31mi[0m[31me[0m[31mn[0m[31mt[0m[31mU[0m[31ms[0m[31me[0m[31mr[0m[31m [0m[31mi[0m[31mm[0m[31mp[0m[31ml[0m[31me[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31ms[0m[31m [0m[31mU[0m[31ms[0m[31me[0m[31mr[0m
-      │ [31m                  ^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m    3 │ [0m
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-non-interface.js:2:19
+    1 │ *
+    2 │  * @RelayResolver ClientUser implements User
+      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │

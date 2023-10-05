@@ -32,18 +32,18 @@ type Bar {
   users: [User]
 }
 ==================================== ERROR ====================================
-[31m✖︎ Unexpected directive: 'stream'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.[0m
+✖︎ Unexpected directive: 'stream'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
 
-  [4mfragment-with-stream-child-of-client.invalid.graphql[0m[2m:13:13[0m
-[1m   12 │ [0m    bar {
-[1m   13 │ [0m      users [31m@[0m[31ms[0m[31mt[0m[31mr[0m[31me[0m[31ma[0m[31mm[0m(initial_count: 1, label: "StreamedActorsLabel") {
-      │ [31m            ^^^^^^^[0m
-[1m   14 │ [0m        id
+  fragment-with-stream-child-of-client.invalid.graphql:13:13
+   12 │     bar {
+   13 │       users @stream(initial_count: 1, label: "StreamedActorsLabel") {
+      │             ^^^^^^^
+   14 │         id
 
-[31m  ℹ︎ related location[0m
+  ℹ︎ related location
 
-  [4mfragment-with-stream-child-of-client.invalid.graphql[0m[2m:11:3[0m
-[1m   10 │ [0m  id
-[1m   11 │ [0m  [31mf[0m[31mo[0m[31mo[0m {
-      │ [31m  ^^^[0m
-[1m   12 │ [0m    bar {
+  fragment-with-stream-child-of-client.invalid.graphql:11:3
+   10 │   id
+   11 │   foo {
+      │   ^^^
+   12 │     bar {

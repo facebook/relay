@@ -31,10 +31,10 @@ graphql`
       │            ^^^^^
    14 │  * @fieldName favorite_page
 
-[31m  ℹ︎ with fragment type condition[0m
+  ℹ︎ with fragment type condition
 
-  [4m/path/to/test/fixture/relay-resolver-on-type-mismatch.invalid.js[0m[2m:20:27[0m
-[1m   19 │ [0m
-[1m   20 │ [0m  fragment myRootFragment [31mo[0m[31mn[0m[31m [0m[31mU[0m[31ms[0mer {
+  /path/to/test/fixture/relay-resolver-on-type-mismatch.invalid.js:20:27
+   19 │ 
+   20 │   fragment myRootFragment on User {
       │                           ^^^^^^^
    21 │     name

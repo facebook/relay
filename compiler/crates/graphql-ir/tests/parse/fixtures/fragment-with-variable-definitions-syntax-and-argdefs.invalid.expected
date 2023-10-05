@@ -21,8 +21,8 @@ fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"})
 ✖︎ Cannot combine fragment variable definitions syntax with the '@argumentDefinitions' directive
 
   fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql:16:37
-[1m   15 │ [0m
-[1m   16 │ [0mfragment Foo($localId: ID!) on User [31m@[0m[31ma[0m[31mr[0m[31mg[0m[31mu[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31mD[0m[31me[0m[31mf[0m[31mi[0m[31mn[0m[31mi[0m[31mt[0m[31mi[0m[31mo[0mns(loc[31ma[0m[31ml[0m[31mI[0m[31md[0m[31m:[0m[31m [0m[31m{[0m[31mt[0m[31my[0m[31mp[0m[31me[0m: "[31mI[0m[31mD[0m[31m![0m[31m"[0m[31m}[0m[31m)[0m {
+   15 │ 
+   16 │ fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"}) {
       │                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    17 │   id
 
@@ -30,6 +30,6 @@ fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"})
 
   fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql:16:13
    15 │ 
-   16 │ fragment Foo[31m([0m[31m$[0m[31ml[0m[31mo[0mcalId: I[31mD[0m[31m![0m[31m)[0m on User @argumentDefinitions(localId: {type: "ID!"}) {
+   16 │ fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"}) {
       │             ^^^^^^^^^^^^^^^
    17 │   id

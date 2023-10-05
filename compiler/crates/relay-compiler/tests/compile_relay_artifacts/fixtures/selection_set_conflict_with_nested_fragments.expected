@@ -23,10 +23,10 @@ fragment selectionSetConflictWithNestedFragmentsFrag2 on User {
       │                 ^^^^
     5 │     ...selectionSetConflictWithNestedFragmentsFrag
 
-[31m  ℹ︎ the other field[0m
+  ℹ︎ the other field
 
-  [4mselection_set_conflict_with_nested_fragments.graphql[0m[2m:14:15[0m
-[1m   13 │ [0mfragment selectionSetConflictWithNestedFragmentsFrag2 on User {
+  selection_set_conflict_with_nested_fragments.graphql:14:15
+   13 │ fragment selectionSetConflictWithNestedFragmentsFrag2 on User {
    14 │   same_alias: id
       │               ^^
    15 │ }

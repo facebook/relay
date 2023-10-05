@@ -14,10 +14,10 @@
  * Relay expects id fields to be readable directly. They can't be implemented via resolvers.
  */
 ==================================== ERROR ====================================
-[31m✖︎ Relay Resolvers may not be used to implement the `id` field.[0m
+✖︎ Relay Resolvers may not be used to implement the `id` field.
 
-  [4m/path/to/test/fixture/terse-relay-resolver-id.invalid.js[0m[2m:2:36[0m
-[1m    1 │ [0m*
-[1m    2 │ [0m * @RelayResolver PlainCommentBody.[31mi[0m[31md[0m: ID
-      │ [31m                                   ^^[0m
-[1m    3 │ [0m *
+  /path/to/test/fixture/terse-relay-resolver-id.invalid.js:2:36
+    1 │ *
+    2 │  * @RelayResolver PlainCommentBody.id: ID
+      │                                    ^^
+    3 │  *

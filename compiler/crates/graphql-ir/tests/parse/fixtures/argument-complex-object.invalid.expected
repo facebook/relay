@@ -10,14 +10,14 @@ query ObjectArgument($text: String!) {
 
   argument-complex-object.invalid.graphql:3:30
     2 │ query ObjectArgument($text: String!) {
-    3 │   checkinSearchQuery(query: {[31mq[0m[31mu[0m[31me[0m[31mr[0m[31my[0m: $text, query: "YES"}) {
-      │ [31m                             ^^^^^[0m
-[1m    4 │ [0m    query
+    3 │   checkinSearchQuery(query: {query: $text, query: "YES"}) {
+      │                              ^^^^^
+    4 │     query
 
-[31m  ℹ︎ also defined here[0m
+  ℹ︎ also defined here
 
-  [4margument-complex-object.invalid.graphql[0m[2m:3:44[0m
-[1m    2 │ [0mquery ObjectArgument($text: String!) {
-[1m    3 │ [0m  checkinSearchQuery(query: {query: $text, [31mq[0m[31mu[0m[31me[0m[31mr[0m[31my[0m: "YES"}) {
-      │ [31m                                           ^^^^^[0m
-[1m    4 │ [0m    query
+  argument-complex-object.invalid.graphql:3:44
+    2 │ query ObjectArgument($text: String!) {
+    3 │   checkinSearchQuery(query: {query: $text, query: "YES"}) {
+      │                                            ^^^^^
+    4 │     query

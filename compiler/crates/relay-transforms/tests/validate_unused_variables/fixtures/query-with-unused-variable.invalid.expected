@@ -12,28 +12,28 @@ query QueryWithUnusedVariables($also_unused: ID, $another_unused: String) {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Variable `$also_unused` is never used in operation `QueryWithUnusedVariables`[0m
+✖︎ Variable `$also_unused` is never used in operation `QueryWithUnusedVariables`
 
-  [4mquery-with-unused-variable.invalid.graphql[0m[2m:8:32[0m
-[1m    7 │ [0m
-[1m    8 │ [0mquery QueryWithUnusedVariables([31m$[0m[31ma[0m[31ml[0m[31ms[0m[31mo[0m[31m_[0m[31mu[0m[31mn[0m[31mu[0m[31ms[0m[31me[0m[31md[0m: ID, $another_unused: String) {
-      │ [31m                               ^^^^^^^^^^^^[0m
-[1m    9 │ [0m  node {
-
-
-[31m✖︎ Variable `$another_unused` is never used in operation `QueryWithUnusedVariables`[0m
-
-  [4mquery-with-unused-variable.invalid.graphql[0m[2m:8:50[0m
-[1m    7 │ [0m
-[1m    8 │ [0mquery QueryWithUnusedVariables($also_unused: ID, [31m$[0m[31ma[0m[31mn[0m[31mo[0m[31mt[0m[31mh[0m[31me[0m[31mr[0m[31m_[0m[31mu[0m[31mn[0m[31mu[0m[31ms[0m[31me[0m[31md[0m: String) {
-      │ [31m                                                 ^^^^^^^^^^^^^^^[0m
-[1m    9 │ [0m  node {
+  query-with-unused-variable.invalid.graphql:8:32
+    7 │ 
+    8 │ query QueryWithUnusedVariables($also_unused: ID, $another_unused: String) {
+      │                                ^^^^^^^^^^^^
+    9 │   node {
 
 
-[31m✖︎ Variable `$unused` is never used in operation `QueryWithUnusedVariable`[0m
+✖︎ Variable `$another_unused` is never used in operation `QueryWithUnusedVariables`
 
-  [4mquery-with-unused-variable.invalid.graphql[0m[2m:2:31[0m
-[1m    1 │ [0m#expected-to-throw
-[1m    2 │ [0mquery QueryWithUnusedVariable([31m$[0m[31mu[0m[31mn[0m[31mu[0m[31ms[0m[31me[0m[31md[0m: ID) {
-      │ [31m                              ^^^^^^^[0m
-[1m    3 │ [0m  node {
+  query-with-unused-variable.invalid.graphql:8:50
+    7 │ 
+    8 │ query QueryWithUnusedVariables($also_unused: ID, $another_unused: String) {
+      │                                                  ^^^^^^^^^^^^^^^
+    9 │   node {
+
+
+✖︎ Variable `$unused` is never used in operation `QueryWithUnusedVariable`
+
+  query-with-unused-variable.invalid.graphql:2:31
+    1 │ #expected-to-throw
+    2 │ query QueryWithUnusedVariable($unused: ID) {
+      │                               ^^^^^^^
+    3 │   node {

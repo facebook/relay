@@ -16,10 +16,10 @@ fragment EnabledFoo on User {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ @required fields must be included in all instances of their parent. The field 'name` is marked as @required here[0m
+✖︎ @required fields must be included in all instances of their parent. The field 'name` is marked as @required here
 
-  [4mduplicate-linked-field-nullable-parent.invalid.graphql[0m[2m:5:7[0m
-[1m    4 │ [0m    hometown {
+  duplicate-linked-field-nullable-parent.invalid.graphql:5:7
+    4 │     hometown {
     5 │       name @required(action: LOG)
       │       ^^^^
     6 │       address {

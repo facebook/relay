@@ -10,18 +10,18 @@ fragment PhotoFragment on Image @inline {
   uri
 }
 ==================================== ERROR ====================================
-[31m✖︎ Cannot use @relay(mask: false) on fragment spreads for fragments with directives.[0m
+✖︎ Cannot use @relay(mask: false) on fragment spreads for fragments with directives.
 
-  [4munmasked-spread-with-directive.invalid.graphql[0m[2m:4:8[0m
-[1m    3 │ [0m  profilePicture {
-[1m    4 │ [0m    ...[31mP[0m[31mh[0m[31mo[0m[31mt[0m[31mo[0m[31mF[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m @relay(mask: false)
-      │ [31m       ^^^^^^^^^^^^^[0m
-[1m    5 │ [0m  }
+  unmasked-spread-with-directive.invalid.graphql:4:8
+    3 │   profilePicture {
+    4 │     ...PhotoFragment @relay(mask: false)
+      │        ^^^^^^^^^^^^^
+    5 │   }
 
-[31m  ℹ︎ related location[0m
+  ℹ︎ related location
 
-  [4munmasked-spread-with-directive.invalid.graphql[0m[2m:8:10[0m
-[1m    7 │ [0m
-[1m    8 │ [0mfragment [31mP[0m[31mh[0m[31mo[0m[31mt[0m[31mo[0m[31mF[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m on Image @inline {
-      │ [31m         ^^^^^^^^^^^^^[0m
-[1m    9 │ [0m  uri
+  unmasked-spread-with-directive.invalid.graphql:8:10
+    7 │ 
+    8 │ fragment PhotoFragment on Image @inline {
+      │          ^^^^^^^^^^^^^
+    9 │   uri

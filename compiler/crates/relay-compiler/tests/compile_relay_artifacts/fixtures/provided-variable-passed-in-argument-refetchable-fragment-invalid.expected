@@ -18,8 +18,8 @@ fragment providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment on 
 ✖︎ Passing a value to 'includeName' (a provided variable) through @arguments is not supported.
 
   provided-variable-passed-in-argument-refetchable-fragment-invalid.graphql:4:87
-[1m    3 │ [0m  node(id: 4) {
-[1m    4 │ [0m    ...providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment @arguments(includeName: true)
+    3 │   node(id: 4) {
+    4 │     ...providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment @arguments(includeName: true)
       │                                                                                       ^^^^^^^^^^^
     5 │   }
 
@@ -27,6 +27,6 @@ fragment providedVariablePassedInArgumentRefetchableFragmentInvalid_Fragment on 
 
   provided-variable-passed-in-argument-refetchable-fragment-invalid.graphql:11:3
    10 │ @argumentDefinitions(
-   11 │   inclu[31md[0m[31me[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m: {type: "Boolean!", provider: "includeName_RelayProvider"}
+   11 │   includeName: {type: "Boolean!", provider: "includeName_RelayProvider"}
       │   ^^^^^^^^^^^
    12 │ ) {

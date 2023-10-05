@@ -29,58 +29,58 @@
  }
 `
 ==================================== ERROR ====================================
-[31m✖︎ The compiler attempted to parse this `@RelayResolver` block as a terse resolver declaration, but there were unexpected fields: @fieldName, @onType, @onInterface, @edgeTo, @outputType, and @weak.[0m
+✖︎ The compiler attempted to parse this `@RelayResolver` block as a terse resolver declaration, but there were unexpected fields: @fieldName, @onType, @onInterface, @edgeTo, @outputType, and @weak.
 
-  [4m/path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js[0m[2m:11:5[0m
-[1m   10 │ [0m*
-[1m   11 │ [0m * @[31mR[0m[31me[0m[31ml[0mayResolver User.favorite_page: Page
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:11:5
+   10 │ *
+   11 │  * @RelayResolver User.favorite_page: Page
       │     ^^^^^^^^^^^^^
    12 │  * @rootFragment myRootFragment
 
-[31m  ℹ︎ Unexpected field[0m
+  ℹ︎ Unexpected field
 
-  [4m/path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js[0m[2m:13:5[0m
-[1m   12 │ [0m * @rootFragment myRootFragment
-[1m   13 │ [0m * @[31mo[0m[31mn[0m[31mT[0m[31my[0m[31mp[0m[31me[0m User
-      │ [31m    ^^^^^^[0m
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:13:5
+   12 │  * @rootFragment myRootFragment
+   13 │  * @onType User
+      │     ^^^^^^
    14 │  * @edgeTo User
 
   ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:14:5
    13 │  * @onType User
-[1m   14 │ [0m * @[31me[0m[31md[0m[31mg[0m[31me[0m[31mT[0m[31mo[0m User
-      │ [31m    ^^^^^^[0m
-[1m   15 │ [0m * @onInterface User
-
-[31m  ℹ︎ Unexpected field[0m
-
-  [4m/path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js[0m[2m:15:5[0m
-[1m   14 │ [0m * @edgeTo User
+   14 │  * @edgeTo User
+      │     ^^^^^^
    15 │  * @onInterface User
-      │ [31m    ^^^^^^^^^^^[0m
-[1m   16 │ [0m * @outputType User
 
-[31m  ℹ︎ Unexpected field[0m
+  ℹ︎ Unexpected field
 
-  [4m/path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js[0m[2m:16:5[0m
-[1m   15 │ [0m * @onInterface User
-[1m   16 │ [0m * @[31mo[0m[31mu[0m[31mt[0m[31mp[0m[31mu[0m[31mt[0m[31mT[0m[31my[0m[31mp[0m[31me[0m User
-      │ [31m    ^^^^^^^^^^[0m
-[1m   17 │ [0m * @fieldName my_field
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:15:5
+   14 │  * @edgeTo User
+   15 │  * @onInterface User
+      │     ^^^^^^^^^^^
+   16 │  * @outputType User
 
-[31m  ℹ︎ Unexpected field[0m
+  ℹ︎ Unexpected field
 
-  [4m/path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js[0m[2m:17:5[0m
-[1m   16 │ [0m * @outputType User
-[1m   17 │ [0m * @[31mf[0m[31mi[0m[31me[0m[31ml[0m[31md[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m my_field
-      │ [31m    ^^^^^^^^^[0m
-[1m   18 │ [0m * @weak
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:16:5
+   15 │  * @onInterface User
+   16 │  * @outputType User
+      │     ^^^^^^^^^^
+   17 │  * @fieldName my_field
 
-[31m  ℹ︎ Unexpected field[0m
+  ℹ︎ Unexpected field
 
-  [4m/path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js[0m[2m:18:5[0m
-[1m   17 │ [0m * @fieldName my_field
-[1m   18 │ [0m * @[31mw[0m[31me[0m[31ma[0m[31mk[0m
-      │ [31m    ^^^^[0m
-[1m   19 │ [0m *
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:17:5
+   16 │  * @outputType User
+   17 │  * @fieldName my_field
+      │     ^^^^^^^^^
+   18 │  * @weak
+
+  ℹ︎ Unexpected field
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:18:5
+   17 │  * @fieldName my_field
+   18 │  * @weak
+      │     ^^^^
+   19 │  *

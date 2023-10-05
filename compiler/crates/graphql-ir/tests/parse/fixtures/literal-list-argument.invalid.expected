@@ -33,19 +33,19 @@ query LiteralListArgumentQuery3 {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Expected a value of type 'String'[0m
+✖︎ Expected a value of type 'String'
 
-  [4mliteral-list-argument.invalid.graphql[0m[2m:6:14[0m
-[1m    5 │ [0m      {
-    6 │         lat: [31m0[0m[31m.[0m[31m0[0m # error: float not string
+  literal-list-argument.invalid.graphql:6:14
+    5 │       {
+    6 │         lat: 0.0 # error: float not string
       │              ^^^
     7 │         lon: "0.0"
 
 
-[31m✖︎ Expected a value of type 'WayPoint'[0m
+✖︎ Expected a value of type 'WayPoint'
 
-  [4mliteral-list-argument.invalid.graphql[0m[2m:18:21[0m
-[1m   17 │ [0mquery LiteralListArgumentQuery2 {
+  literal-list-argument.invalid.graphql:18:21
+   17 │ query LiteralListArgumentQuery2 {
    18 │   route(waypoints: ["waypoint"]) {
       │                     ^^^^^^^^^^
    19 │     # error: string not input object

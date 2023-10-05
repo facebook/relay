@@ -16,19 +16,19 @@ fragment Updatable_user on User @updatable {
   __id
 }
 ==================================== ERROR ====================================
-[31m✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not contain an unaliased __typename selection with no directives.[0m
+✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not contain an unaliased __typename selection with no directives.
 
-  [4mupdatable_fragment_spread_in_inline_fragment_other_selections_abstract_type_condition.invalid.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mfragment Foo on Query {
-[1m    3 │ [0m  [31mn[0m[31mo[0m[31md[0m[31me[0m(id: "4") {
-      │ [31m  ^^^^[0m
-[1m    4 │ [0m    ... on User {
+  updatable_fragment_spread_in_inline_fragment_other_selections_abstract_type_condition.invalid.graphql:3:3
+    2 │ fragment Foo on Query {
+    3 │   node(id: "4") {
+      │   ^^^^
+    4 │     ... on User {
 
 
-[31m✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not refine to a concrete type.[0m
+✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not refine to a concrete type.
 
-  [4mupdatable_fragment_spread_in_inline_fragment_other_selections_abstract_type_condition.invalid.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mfragment Foo on Query {
-[1m    3 │ [0m  [31mn[0m[31mo[0m[31md[0m[31me[0m(id: "4") {
-      │ [31m  ^^^^[0m
-[1m    4 │ [0m    ... on User {
+  updatable_fragment_spread_in_inline_fragment_other_selections_abstract_type_condition.invalid.graphql:3:3
+    2 │ fragment Foo on Query {
+    3 │   node(id: "4") {
+      │   ^^^^
+    4 │     ... on User {

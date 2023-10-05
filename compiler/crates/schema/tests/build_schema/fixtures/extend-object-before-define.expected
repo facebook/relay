@@ -20,10 +20,10 @@ type MyType {
   is_this_cool: Boolean
 }
 ==================================== ERROR ====================================
-[31m✖︎ Cannot extend type 'MyType', the type is not defined on the server schema.[0m
+✖︎ Cannot extend type 'MyType', the type is not defined on the server schema.
 
-  [4m<generated>[0m[2m:14:13[0m
-[1m   13 │ [0m# -- https://spec.graphql.org/June2018/#InterfaceTypeExtension
-   14 │ extend type [31mM[0m[31my[0m[31mT[0m[31my[0m[31mp[0m[31me[0m {
-      │ [31m            ^^^^^^[0m
-[1m   15 │ [0m  will_this_crash: Int
+  <generated>:14:13
+   13 │ # -- https://spec.graphql.org/June2018/#InterfaceTypeExtension
+   14 │ extend type MyType {
+      │             ^^^^^^
+   15 │   will_this_crash: Int

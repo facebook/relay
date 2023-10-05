@@ -26,5 +26,5 @@ fragment refetchableWithArgumentsF2 on Node {
   refetchable-with-arguments.invalid.graphql:10:24
     9 │ fragment refetchableWithArgumentsF1 on Node
    10 │   @argumentDefinitions(site: {type: "String"})
-      │ [31m                       ^^^^[0m
-[1m   11 │ [0m  @refetchable(queryName: "RefetchableWithArgumentsRefetchQuery")
+      │                        ^^^^
+   11 │   @refetchable(queryName: "RefetchableWithArgumentsRefetchQuery")

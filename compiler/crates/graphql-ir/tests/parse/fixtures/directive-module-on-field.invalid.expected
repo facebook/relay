@@ -16,6 +16,6 @@ fragment Example on User {
 
   directive-module-on-field.invalid.graphql:6:25
     5 │       node {
-[1m    6 │ [0m        profilePicture @[31mm[0m[31mo[0m[31md[0m[31mu[0m[31ml[0m[31me[0m(preset: $preset) {
+    6 │         profilePicture @module(preset: $preset) {
       │                         ^^^^^^
     7 │           uri

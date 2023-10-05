@@ -22,7 +22,7 @@ fragment FeedbackFragment on Feedback {
 
   fragment-with-stream-duplicate-label.invalid.graphql:11:10
    10 │   id
-   11 │   actors [31m@[0m[31ms[0m[31mt[0m[31mr[0m[31me[0m[31ma[0m[31mm[0m(initial_count: 1, label: "actors") {
+   11 │   actors @stream(initial_count: 1, label: "actors") {
       │          ^^^^^^^
    12 │     name
 
@@ -31,5 +31,5 @@ fragment FeedbackFragment on Feedback {
   fragment-with-stream-duplicate-label.invalid.graphql:14:23
    13 │   }
    14 │   otherActors: actors @stream(initial_count: 1, label: "actors") {
-      │ [31m                      ^^^^^^^[0m
-[1m   15 │ [0m    # invalid: duplicate label
+      │                       ^^^^^^^
+   15 │     # invalid: duplicate label

@@ -13,6 +13,6 @@ input InvalidInput {
 
   <generated>:8:9
     7 │   value: String
-    8 │   node: No[31md[0m[31me[0m
-      │ [31m        ^^^^[0m
-[1m    9 │ [0m}
+    8 │   node: Node
+      │         ^^^^
+    9 │ }

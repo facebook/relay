@@ -14,10 +14,10 @@ type UserWithDisallowedCustomIDType {
     name: String!
 }
 ==================================== ERROR ====================================
-[31m✖︎ Disallowed type `DisallowedCustomIDType!` of field `id` on parent type `UserWithDisallowedCustomIDType` cannot be used by Relay to identify entities. For a detailed explanation, check out https://relay.dev/docs/debugging/disallowed-id-types-error[0m
+✖︎ Disallowed type `DisallowedCustomIDType!` of field `id` on parent type `UserWithDisallowedCustomIDType` cannot be used by Relay to identify entities. For a detailed explanation, check out https://relay.dev/docs/debugging/disallowed-id-types-error
 
-  [4m<generated>[0m[2m:2:56[0m
-[1m    1 │ [0m# expected-to-throw
-[1m    2 │ [0mfragment UserWithDisallowedCustomIDType_fragment on Use[31mr[0m[31mW[0mithDisallowedCustomIDType {
-      │ [31m                                                       ^^[0m
-[1m    3 │ [0m    id
+  <generated>:2:56
+    1 │ # expected-to-throw
+    2 │ fragment UserWithDisallowedCustomIDType_fragment on UserWithDisallowedCustomIDType {
+      │                                                        ^^
+    3 │     id

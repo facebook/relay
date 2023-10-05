@@ -10,10 +10,10 @@ fragment Updatable_comment on Comment @updatable {
   __id
 }
 ==================================== ERROR ====================================
-[31m✖︎ Invalid fragment spread 'Updatable_comment', the type of this fragment ('Comment') can never occur for parent type 'Story'[0m
+✖︎ Invalid fragment spread 'Updatable_comment', the type of this fragment ('Comment') can never occur for parent type 'Story'
 
-  [4mupdatable_fragment_spread_concrete_in_different_concrete.invalid.graphql[0m[2m:4:5[0m
-[1m    3 │ [0m  story {
-[1m    4 │ [0m    [31m.[0m[31m.[0m[31m.[0m[31mU[0m[31mp[0m[31md[0m[31ma[0m[31mt[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31m_[0m[31mc[0m[31mo[0m[31mm[0mment
+  updatable_fragment_spread_concrete_in_different_concrete.invalid.graphql:4:5
+    3 │   story {
+    4 │     ...Updatable_comment
       │     ^^^^^^^^^^^^^^^^^^^^
     5 │   }

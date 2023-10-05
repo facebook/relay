@@ -12,18 +12,18 @@ extend type Query {
   resolver_field: User @relay_resolver(import_path: "ResolverModule")
 }
 ==================================== ERROR ====================================
-[31m✖︎ Fields defined using Relay Resolvers are not allowed within @updatable operations.[0m
+✖︎ Fields defined using Relay Resolvers are not allowed within @updatable operations.
 
-  [4mresolver-linked.invalid.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mquery resolverQuery @updatable {
-[1m    3 │ [0m  [31mr[0m[31me[0m[31ms[0m[31mo[0m[31ml[0m[31mv[0m[31me[0m[31mr[0m[31m_[0m[31mf[0m[31mi[0m[31me[0m[31ml[0m[31md[0m {
-      │ [31m  ^^^^^^^^^^^^^^[0m
-[1m    4 │ [0m    id
+  resolver-linked.invalid.graphql:3:3
+    2 │ query resolverQuery @updatable {
+    3 │   resolver_field {
+      │   ^^^^^^^^^^^^^^
+    4 │     id
 
-[31m  ℹ︎ The field is defined here:[0m
+  ℹ︎ The field is defined here:
 
-  [4m<generated>[0m[2m:2:5[0m
-[1m    1 │ [0m# expected-to-throw
-[1m    2 │ [0mquer[31my[0m[31m [0m[31mr[0m[31me[0m[31ms[0m[31mo[0m[31ml[0m[31mv[0m[31me[0m[31mr[0m[31mQ[0m[31mu[0m[31me[0m[31mr[0my @updatable {
-      │ [31m    ^^^^^^^^^^^^^^[0m
-[1m    3 │ [0m  resolver_field {
+  <generated>:2:5
+    1 │ # expected-to-throw
+    2 │ query resolverQuery @updatable {
+      │     ^^^^^^^^^^^^^^
+    3 │   resolver_field {

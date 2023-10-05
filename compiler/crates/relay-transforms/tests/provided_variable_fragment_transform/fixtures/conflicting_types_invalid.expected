@@ -61,37 +61,37 @@ fragment FragmentD on User
     }
 }
 ==================================== ERROR ====================================
-[31m✖︎ All provided variables using module 'varProviderA' must declare the same type. Expected '[Int]!' but found '[Int]'[0m
+✖︎ All provided variables using module 'varProviderA' must declare the same type. Expected '[Int]!' but found '[Int]'
 
-  [4mconflicting_types_invalid.graphql[0m[2m:4:5[0m
-[1m    3 │ [0m  @argumentDefinitions(
-[1m    4 │ [0m    [31mv[0m[31ma[0m[31mr[0m[31m1[0m: {type: "[Int]", provider: "varProviderA"}
-      │ [31m    ^^^^[0m
-[1m    5 │ [0m    var2: {type: "[Int]!", provider: "varProviderA"}
-
-
-[31m✖︎ All provided variables using module 'varProviderB' must declare the same type. Expected 'Int' but found '[Int]'[0m
-
-  [4mconflicting_types_invalid.graphql[0m[2m:26:5[0m
-[1m   25 │ [0m  @argumentDefinitions(
-[1m   26 │ [0m    [31mv[0m[31ma[0m[31mr[0m[31m1[0m: {type: "[Int]", provider: "varProviderB"}
-      │ [31m    ^^^^[0m
-[1m   27 │ [0m    var2: {type: "Int", provider: "varProviderB"}
+  conflicting_types_invalid.graphql:4:5
+    3 │   @argumentDefinitions(
+    4 │     var1: {type: "[Int]", provider: "varProviderA"}
+      │     ^^^^
+    5 │     var2: {type: "[Int]!", provider: "varProviderA"}
 
 
-[31m✖︎ All provided variables using module 'varProviderC' must declare the same type. Expected 'Float' but found 'Int'[0m
+✖︎ All provided variables using module 'varProviderB' must declare the same type. Expected 'Int' but found '[Int]'
 
-  [4mconflicting_types_invalid.graphql[0m[2m:40:5[0m
-[1m   39 │ [0m    var1: {type: "Float", provider: "varProviderC"}
-[1m   40 │ [0m    [31mv[0m[31ma[0m[31mr[0m[31m2[0m: {type: "Int", provider: "varProviderC"}
-      │ [31m    ^^^^[0m
-[1m   41 │ [0m) {
+  conflicting_types_invalid.graphql:26:5
+   25 │   @argumentDefinitions(
+   26 │     var1: {type: "[Int]", provider: "varProviderB"}
+      │     ^^^^
+   27 │     var2: {type: "Int", provider: "varProviderB"}
+
+
+✖︎ All provided variables using module 'varProviderC' must declare the same type. Expected 'Float' but found 'Int'
+
+  conflicting_types_invalid.graphql:40:5
+   39 │     var1: {type: "Float", provider: "varProviderC"}
+   40 │     var2: {type: "Int", provider: "varProviderC"}
+      │     ^^^^
+   41 │ ) {
 
 
 ✖︎ All provided variables using module 'varProviderD' must declare the same type. Expected 'Float' but found 'Float!'
 
   conflicting_types_invalid.graphql:53:5
    52 │     var1: {type: "Float", provider: "varProviderD"}
-[1m   53 │ [0m    [31mv[0m[31ma[0m[31mr[0m[31m2[0m: {type: "Float!", provider: "varProviderD"}
-      │ [31m    ^^^^[0m
-[1m   54 │ [0m) {
+   53 │     var2: {type: "Float!", provider: "varProviderD"}
+      │     ^^^^
+   54 │ ) {

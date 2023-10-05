@@ -27,6 +27,6 @@ graphql`
 
   /path/to/test/fixture/client-edge-to-plural-server-object-relay-resolver.invalid.js:6:12
     5 │  * @fieldName favorite_pages
-    6 │  * @edgeTo [31m[[0m[31mP[0m[31ma[0m[31mg[0m[31me[0m[31m][0m
-      │ [31m           ^^^^^^[0m
-[1m    7 │ [0m * @rootFragment myRootFragment
+    6 │  * @edgeTo [Page]
+      │            ^^^^^^
+    7 │  * @rootFragment myRootFragment

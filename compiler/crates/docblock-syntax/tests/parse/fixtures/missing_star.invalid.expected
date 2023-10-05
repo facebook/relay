@@ -4,9 +4,9 @@
   expected-to-throw
 */
 ==================================== ERROR ====================================
-[31m✖︎ Expected "*".[0m
+✖︎ Expected "*".
 
-  [4mmissing_star.invalid.ecmascript[0m:3:3
+  missing_star.invalid.ecmascript:3:3
     2 │  * @fieldName field value
     3 │   expected-to-throw
-      │ [31m  ^[0m
+      │   ^

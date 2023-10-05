@@ -33,5 +33,5 @@ graphql`
   /path/to/test/fixture/output-type-invalid-type.js:15:5
    14 │  * @fieldName favorite_page
    15 │  * @outputType **LOL**
-      │ [31m    ^^^^^^^^^^[0m
-[1m   16 │ [0m * @rootFragment myRootFragment
+      │     ^^^^^^^^^^
+   16 │  * @rootFragment myRootFragment

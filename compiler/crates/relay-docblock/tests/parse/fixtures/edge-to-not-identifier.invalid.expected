@@ -28,37 +28,37 @@ graphql`
  }
 `
 ==================================== ERROR ====================================
-[31m✖︎ Unsupported character[0m
+✖︎ Unsupported character
 
-  [4m/path/to/test/fixture/edge-to-not-identifier.invalid.js[0m[2m:15:12[0m
-[1m   14 │ [0m * @fieldName favorite_page
+  /path/to/test/fixture/edge-to-not-identifier.invalid.js:15:12
+   14 │  * @fieldName favorite_page
    15 │  * @edgeTo **LOL**
       │            ^
    16 │  * @rootFragment myRootFragment
-
-
-[31m✖︎ Unsupported character[0m
-
-  [4m/path/to/test/fixture/edge-to-not-identifier.invalid.js[0m[2m:15:18[0m
-[1m   14 │ [0m * @fieldName favorite_page
-[1m   15 │ [0m * @edgeTo **LOL*[31m*[0m
-      │ [31m                 ^[0m
-[1m   16 │ [0m * @rootFragment myRootFragment
-
-
-✖︎ Unsupported character
-
-  [4m/path/to/test/fixture/edge-to-not-identifier.invalid.js[0m[2m:15:17[0m
-[1m   14 │ [0m * @fieldName favorite_page
-[1m   15 │ [0m * @edgeTo **LOL[31m*[0m*
-      │ [31m                ^[0m
-[1m   16 │ [0m * @rootFragment myRootFragment
 
 
 ✖︎ Unsupported character
 
   /path/to/test/fixture/edge-to-not-identifier.invalid.js:15:13
    14 │  * @fieldName favorite_page
-[1m   15 │ [0m * @edgeTo *[31m*[0mLOL**
-      │ [31m            ^[0m
-[1m   16 │ [0m * @rootFragment myRootFragment
+   15 │  * @edgeTo **LOL**
+      │             ^
+   16 │  * @rootFragment myRootFragment
+
+
+✖︎ Unsupported character
+
+  /path/to/test/fixture/edge-to-not-identifier.invalid.js:15:17
+   14 │  * @fieldName favorite_page
+   15 │  * @edgeTo **LOL**
+      │                 ^
+   16 │  * @rootFragment myRootFragment
+
+
+✖︎ Unsupported character
+
+  /path/to/test/fixture/edge-to-not-identifier.invalid.js:15:18
+   14 │  * @fieldName favorite_page
+   15 │  * @edgeTo **LOL**
+      │                  ^
+   16 │  * @rootFragment myRootFragment

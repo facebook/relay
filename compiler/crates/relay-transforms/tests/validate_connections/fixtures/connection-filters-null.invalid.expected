@@ -20,16 +20,16 @@ query NodeQuery($id: ID!, $orderBy: String) {
 ==================================== ERROR ====================================
 ✖︎ Expected the filters argument to @connection to be a list of string literals for field 'comments'.
 
-  [4mconnection-filters-null.invalid.graphql[0m[2m:7:57[0m
-[1m    6 │ [0m      comments(first: 10, orderby: $orderBy)
-[1m    7 │ [0m        @connection(key: "NodeQuery_comments", filters: null) {
-      │ [31m                                                        ^^^^[0m
-[1m    8 │ [0m        edges {
+  connection-filters-null.invalid.graphql:7:57
+    6 │       comments(first: 10, orderby: $orderBy)
+    7 │         @connection(key: "NodeQuery_comments", filters: null) {
+      │                                                         ^^^^
+    8 │         edges {
 
-[31m  ℹ︎ related location[0m
+  ℹ︎ related location
 
-  [4mconnection-filters-null.invalid.graphql[0m[2m:6:7[0m
-[1m    5 │ [0m    ... on Story {
-[1m    6 │ [0m      [31mc[0m[31mo[0m[31mm[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31ms[0m(first: 10, orderby: $orderBy)
+  connection-filters-null.invalid.graphql:6:7
+    5 │     ... on Story {
+    6 │       comments(first: 10, orderby: $orderBy)
       │       ^^^^^^^^
     7 │         @connection(key: "NodeQuery_comments", filters: null) {

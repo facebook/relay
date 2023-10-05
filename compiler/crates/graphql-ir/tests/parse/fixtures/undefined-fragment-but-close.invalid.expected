@@ -21,10 +21,10 @@ fragment Foo on User {
   ...SomeUndefinedFragment
 }
 ==================================== ERROR ====================================
-[31m✖︎ Undefined fragment 'SomeUndefinedFragment'. Did you mean `SomeUnrefinedFragment` or `OneUndefinedFragment`?[0m
+✖︎ Undefined fragment 'SomeUndefinedFragment'. Did you mean `SomeUnrefinedFragment` or `OneUndefinedFragment`?
 
-  [4mundefined-fragment-but-close.invalid.graphql[0m[2m:20:6[0m
-[1m   19 │ [0mfragment Foo on User {
-[1m   20 │ [0m  ...[31mS[0m[31mo[0m[31mm[0m[31me[0m[31mU[0m[31mn[0m[31md[0m[31me[0m[31mf[0m[31mi[0m[31mn[0m[31me[0m[31md[0m[31mF[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m
-      │ [31m     ^^^^^^^^^^^^^^^^^^^^^[0m
-[1m   21 │ [0m}
+  undefined-fragment-but-close.invalid.graphql:20:6
+   19 │ fragment Foo on User {
+   20 │   ...SomeUndefinedFragment
+      │      ^^^^^^^^^^^^^^^^^^^^^
+   21 │ }

@@ -13,18 +13,18 @@ query refetchableConflictWithOperationQuery {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ A unique query name has to be specified in `@refetchable`, an operation `refetchableConflictWithOperationQuery` already exists.[0m
+✖︎ A unique query name has to be specified in `@refetchable`, an operation `refetchableConflictWithOperationQuery` already exists.
 
-  [4mrefetchable_conflict_with_operation.invalid.graphql[0m[2m:4:27[0m
-[1m    3 │ [0mfragment refetchableConflictWithOperationF on Node
-[1m    4 │ [0m  @refetchable(queryName: [31m"[0m[31mr[0m[31me[0m[31mf[0m[31me[0m[31mt[0m[31mc[0m[31mh[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31mC[0m[31mo[0m[31mn[0m[31mf[0m[31ml[0m[31mi[0m[31mc[0m[31mt[0m[31mW[0m[31mi[0m[31mt[0m[31mh[0m[31mO[0m[31mp[0m[31me[0m[31mr[0m[31ma[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m[31mQ[0m[31mu[0m[31me[0m[31mr[0m[31my[0m[31m"[0m)
-      │ [31m                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m    5 │ [0m{
+  refetchable_conflict_with_operation.invalid.graphql:4:27
+    3 │ fragment refetchableConflictWithOperationF on Node
+    4 │   @refetchable(queryName: "refetchableConflictWithOperationQuery")
+      │                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │ {
 
-[31m  ℹ︎ an operation with that name is already defined here[0m
+  ℹ︎ an operation with that name is already defined here
 
-  [4mrefetchable_conflict_with_operation.invalid.graphql[0m[2m:9:7[0m
-[1m    8 │ [0m
-[1m    9 │ [0mquery [31mr[0m[31me[0m[31mf[0m[31me[0m[31mt[0m[31mc[0m[31mh[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31mC[0m[31mo[0m[31mn[0m[31mf[0m[31ml[0m[31mi[0mctWithOperationQuery {
+  refetchable_conflict_with_operation.invalid.graphql:9:7
+    8 │ 
+    9 │ query refetchableConflictWithOperationQuery {
       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    10 │   node(global_id: "y") {

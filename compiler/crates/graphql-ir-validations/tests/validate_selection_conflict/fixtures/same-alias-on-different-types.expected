@@ -7,18 +7,18 @@ query TestQuery {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'name' and 'canViewerComment'[0m
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'name' and 'canViewerComment'
 
-  [4msame-alias-on-different-types.graphql[0m[2m:4:17[0m
-[1m    3 │ [0m  me {
-[1m    4 │ [0m    same_alias: [31mn[0m[31ma[0m[31mm[0m[31me[0m
-      │ [31m                ^^^^[0m
-[1m    5 │ [0m    same_alias: canViewerComment
+  same-alias-on-different-types.graphql:4:17
+    3 │   me {
+    4 │     same_alias: name
+      │                 ^^^^
+    5 │     same_alias: canViewerComment
 
-[31m  ℹ︎ the other field[0m
+  ℹ︎ the other field
 
-  [4msame-alias-on-different-types.graphql[0m[2m:5:17[0m
-[1m    4 │ [0m    same_alias: name
-[1m    5 │ [0m    same_alias: [31mc[0m[31ma[0m[31mn[0m[31mV[0m[31mi[0m[31me[0m[31mw[0m[31me[0m[31mr[0m[31mC[0m[31mo[0m[31mm[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m
-      │ [31m                ^^^^^^^^^^^^^^^^[0m
-[1m    6 │ [0m  }
+  same-alias-on-different-types.graphql:5:17
+    4 │     same_alias: name
+    5 │     same_alias: canViewerComment
+      │                 ^^^^^^^^^^^^^^^^
+    6 │   }

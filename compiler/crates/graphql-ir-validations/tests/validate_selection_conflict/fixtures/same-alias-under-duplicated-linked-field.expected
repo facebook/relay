@@ -23,13 +23,13 @@ query TestQuery {
   same-alias-under-duplicated-linked-field.graphql:10:26
     9 │         profile_picture {
    10 │             same_alias2: height
-      │ [31m                         ^^^^^^[0m
-[1m   11 │ [0m        }
+      │                          ^^^^^^
+   11 │         }
 
-[31m  ℹ︎ the other field[0m
+  ℹ︎ the other field
 
-  [4msame-alias-under-duplicated-linked-field.graphql[0m[2m:15:26[0m
-[1m   14 │ [0m        profile_picture {
-[1m   15 │ [0m            same_alias2: [31mw[0m[31mi[0m[31md[0m[31mt[0m[31mh[0m
-      │ [31m                         ^^^^^[0m
-[1m   16 │ [0m        }
+  same-alias-under-duplicated-linked-field.graphql:15:26
+   14 │         profile_picture {
+   15 │             same_alias2: width
+      │                          ^^^^^
+   16 │         }

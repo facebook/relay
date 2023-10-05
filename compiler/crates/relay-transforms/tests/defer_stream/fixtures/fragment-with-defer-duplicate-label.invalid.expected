@@ -28,14 +28,14 @@ fragment OtherDeferredFragment on User {
 
   fragment-with-defer-duplicate-label.invalid.graphql:12:23
    11 │   emailAddresses
-[1m   12 │ [0m  ...DeferredFragment [31m@[0m[31md[0m[31me[0m[31mf[0m[31me[0mr(label: "deferred")
+   12 │   ...DeferredFragment @defer(label: "deferred")
       │                       ^^^^^^
    13 │   ...OtherDeferredFragment @defer(label: "deferred")
 
   ℹ︎ related location
 
-  [4mfragment-with-defer-duplicate-label.invalid.graphql[0m[2m:13:28[0m
-[1m   12 │ [0m  ...DeferredFragment @defer(label: "deferred")
-[1m   13 │ [0m  ...OtherDeferredFragment [31m@[0m[31md[0m[31me[0m[31mf[0m[31me[0m[31mr[0m(label: "deferred")
-      │ [31m                           ^^^^^^[0m
-[1m   14 │ [0m}
+  fragment-with-defer-duplicate-label.invalid.graphql:13:28
+   12 │   ...DeferredFragment @defer(label: "deferred")
+   13 │   ...OtherDeferredFragment @defer(label: "deferred")
+      │                            ^^^^^^
+   14 │ }

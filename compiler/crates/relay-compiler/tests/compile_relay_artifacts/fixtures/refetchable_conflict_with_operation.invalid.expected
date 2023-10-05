@@ -25,6 +25,6 @@ query refetchableConflictWithOperationQuery {
 
   refetchable_conflict_with_operation.invalid.graphql:9:7
     8 │ 
-    9 │ query refetchableConfl[31mi[0m[31mc[0m[31mt[0m[31mW[0m[31mi[0m[31mt[0m[31mh[0m[31mO[0m[31mp[0m[31me[0m[31mr[0m[31ma[0m[31mt[0m[31mi[0m[31mo[0m[31mn[0m[31mQ[0m[31mu[0m[31me[0m[31mr[0m[31my[0m {
-      │ [31m      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m   10 │ [0m  node(id: "y") {
+    9 │ query refetchableConflictWithOperationQuery {
+      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   node(id: "y") {

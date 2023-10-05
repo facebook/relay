@@ -32,28 +32,28 @@ extend type User {
   top_level: IStageName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== ERROR ====================================
-[31m✖︎ No types implement the client interface IStageName. Interfaces returned by a @RelayResolver must have at least one concrete implementation.[0m
+✖︎ No types implement the client interface IStageName. Interfaces returned by a @RelayResolver must have at least one concrete implementation.
 
-  [4moutput-type-with-unimplemented-interface.invalid.graphql[0m[2m:7:11[0m
-[1m    6 │ [0m
-[1m    7 │ [0minterface [31mI[0m[31mS[0m[31mt[0m[31ma[0m[31mg[0m[31me[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m {
-      │ [31m          ^^^^^^^^^^[0m
-[1m    8 │ [0m  value: String
-
-
-[31m✖︎ No types implement the client interface IStageName. Interfaces returned by a @RelayResolver must have at least one concrete implementation.[0m
-
-  [4moutput-type-with-unimplemented-interface.invalid.graphql[0m[2m:7:11[0m
-[1m    6 │ [0m
-[1m    7 │ [0minterface [31mI[0m[31mS[0m[31mt[0m[31ma[0m[31mg[0m[31me[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m {
-      │ [31m          ^^^^^^^^^^[0m
-[1m    8 │ [0m  value: String
+  output-type-with-unimplemented-interface.invalid.graphql:7:11
+    6 │ 
+    7 │ interface IStageName {
+      │           ^^^^^^^^^^
+    8 │   value: String
 
 
-[31m✖︎ No types implement the client interface IStageName. Interfaces returned by a @RelayResolver must have at least one concrete implementation.[0m
+✖︎ No types implement the client interface IStageName. Interfaces returned by a @RelayResolver must have at least one concrete implementation.
 
-  [4moutput-type-with-unimplemented-interface.invalid.graphql[0m[2m:7:11[0m
-[1m    6 │ [0m
-[1m    7 │ [0minterface [31mI[0m[31mS[0m[31mt[0m[31ma[0m[31mg[0m[31me[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m {
-      │ [31m          ^^^^^^^^^^[0m
-[1m    8 │ [0m  value: String
+  output-type-with-unimplemented-interface.invalid.graphql:7:11
+    6 │ 
+    7 │ interface IStageName {
+      │           ^^^^^^^^^^
+    8 │   value: String
+
+
+✖︎ No types implement the client interface IStageName. Interfaces returned by a @RelayResolver must have at least one concrete implementation.
+
+  output-type-with-unimplemented-interface.invalid.graphql:7:11
+    6 │ 
+    7 │ interface IStageName {
+      │           ^^^^^^^^^^
+    8 │   value: String

@@ -8,11 +8,11 @@ query TestQuery($id: ID!) @module @match {
 ==================================== ERROR ====================================
 ✖︎ Directive 'module' not supported in this location
 
-  [4mdirective-module-match-on-query.invalid.graphql[0m[2m:2:28[0m
-[1m    1 │ [0m# expected-to-throw
-[1m    2 │ [0mquery TestQuery($id: ID!) @[31mm[0m[31mo[0m[31md[0m[31mu[0m[31ml[0m[31me[0m @match {
-      │ [31m                           ^^^^^^[0m
-    3 │ [0m  foo: node(id: $id) {
+  directive-module-match-on-query.invalid.graphql:2:28
+    1 │ # expected-to-throw
+    2 │ query TestQuery($id: ID!) @module @match {
+      │                            ^^^^^^
+    3 │   foo: node(id: $id) {
 
 
 ✖︎ Directive 'match' not supported in this location

@@ -14,10 +14,10 @@ fragment EnabledFoo on User {
       │                             ^^^
     4 │     city @required(action: NONE)
 
-[31m  ℹ︎ so that it can match its parent[0m
+  ℹ︎ so that it can match its parent
 
-  [4mnone-action-bubble-to-log.invalid.graphql[0m[2m:4:28[0m
-[1m    3 │ [0m  address @required(action: LOG) {
-[1m    4 │ [0m    city @required(action: [31mN[0m[31mO[0m[31mN[0m[31mE[0m)
-      │ [31m                           ^^^^[0m
-[1m    5 │ [0m  }
+  none-action-bubble-to-log.invalid.graphql:4:28
+    3 │   address @required(action: LOG) {
+    4 │     city @required(action: NONE)
+      │                            ^^^^
+    5 │   }

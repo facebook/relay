@@ -14,6 +14,6 @@ fragment updatableFragmentSpreadWithInclude_user on User @updatable {
 
   updatable-fragment-spread-with-include.invalid.graphql:4:8
     3 │   me {
-    4 │     ...updatableFragmentSpreadWithI[31mn[0m[31mc[0m[31ml[0m[31mu[0m[31md[0m[31me[0m[31m_[0m[31mu[0m[31ms[0m[31me[0m[31mr[0m @include(if: $if)
-      │ [31m       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m    5 │ [0m  }
+    4 │     ...updatableFragmentSpreadWithInclude_user @include(if: $if)
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │   }

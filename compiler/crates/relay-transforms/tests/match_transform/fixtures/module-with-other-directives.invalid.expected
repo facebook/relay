@@ -27,15 +27,15 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
   module-with-other-directives.invalid.graphql:5:81
     4 │   nameRenderer {
-    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react") @[31ms[0m[31mt[0m[31mr[0m[31me[0m[31ma[0m[31mm[0m
-      │ [31m                                                                                ^^^^^^[0m
-[1m    6 │ [0m    ...MarkdownUserNameRenderer_name
+    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react") @stream
+      │                                                                                 ^^^^^^
+    6 │     ...MarkdownUserNameRenderer_name
 
 
 ✖︎ Directive 'stream' not supported in this location
 
   module-with-other-directives.invalid.graphql:7:56
     6 │     ...MarkdownUserNameRenderer_name
-[1m    7 │ [0m      @module(name: "MarkdownUserNameRenderer.react") @stream
+    7 │       @module(name: "MarkdownUserNameRenderer.react") @stream
       │                                                        ^^^^^^
     8 │   }

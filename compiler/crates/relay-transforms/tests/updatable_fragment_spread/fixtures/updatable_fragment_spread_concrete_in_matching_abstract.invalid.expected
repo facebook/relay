@@ -10,10 +10,10 @@ fragment Updatable_comment on Comment @updatable {
   __id
 }
 ==================================== ERROR ====================================
-[31m✖︎ This updatable fragment has type `Comment`, and is found within a linked field with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `Comment`.[0m
+✖︎ This updatable fragment has type `Comment`, and is found within a linked field with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `Comment`.
 
-  [4mupdatable_fragment_spread_concrete_in_matching_abstract.invalid.graphql[0m[2m:4:8[0m
-[1m    3 │ [0m  node {
-[1m    4 │ [0m    ...[31mU[0m[31mp[0m[31md[0m[31ma[0m[31mt[0m[31ma[0m[31mb[0m[31ml[0m[31me[0m[31m_[0m[31mc[0m[31mo[0m[31mm[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m
-      │ [31m       ^^^^^^^^^^^^^^^^^[0m
-[1m    5 │ [0m  }
+  updatable_fragment_spread_concrete_in_matching_abstract.invalid.graphql:4:8
+    3 │   node {
+    4 │     ...Updatable_comment
+      │        ^^^^^^^^^^^^^^^^^
+    5 │   }

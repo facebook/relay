@@ -9,6 +9,6 @@ fragment TypenameWithArguments on User {
 
   typename_with_arguments.invalid.graphql:4:13
     3 │ fragment TypenameWithArguments on User {
-    4 │   __typename[31m([0m[31ma[0m[31mr[0m[31mg[0m[31m:[0m[31m [0m[31m1[0m[31m)[0m
-      │ [31m            ^^^^^^^^[0m
-[1m    5 │ [0m}
+    4 │   __typename(arg: 1)
+      │             ^^^^^^^^
+    5 │ }

@@ -17,11 +17,11 @@ query selectionSetConflictConflictingNullableAndNonNullableTypesQuery {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Field 'same_alias' is ambiguous because it references two different fields: '__typename' and 'lastName'[0m
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: '__typename' and 'lastName'
 
-  [4mselection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql[0m[2m:8:25[0m
-[1m    7 │ [0m          ... on Story {
-[1m    8 │ [0m            same_alias: __typename
+  selection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql:8:25
+    7 │           ... on Story {
+    8 │             same_alias: __typename
       │                         ^^^^^^^^^^
     9 │           }
 
@@ -29,6 +29,6 @@ query selectionSetConflictConflictingNullableAndNonNullableTypesQuery {
 
   selection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql:11:25
    10 │           ... on PhotoStory {
-[1m   11 │ [0m            same_alias: lastName
+   11 │             same_alias: lastName
       │                         ^^^^^^^^
    12 │           }

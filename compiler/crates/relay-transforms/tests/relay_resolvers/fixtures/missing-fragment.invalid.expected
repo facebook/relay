@@ -14,6 +14,6 @@ extend type User {
 
   missing-fragment.invalid.graphql:4:3
     3 │ extend type User {
-    4 │   pop_star[31m_[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
-      │ [31m  ^^^^^^^^^^^^^[0m
-[1m    5 │ [0m}
+    4 │   pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+      │   ^^^^^^^^^^^^^
+    5 │ }

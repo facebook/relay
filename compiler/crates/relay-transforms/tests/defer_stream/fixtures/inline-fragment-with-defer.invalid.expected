@@ -16,10 +16,10 @@ fragment UserFragment on User {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads.[0m
+✖︎ Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads.
 
-  [4minline-fragment-with-defer.invalid.graphql[0m[2m:12:15[0m
-[1m   11 │ [0m  emailAddresses
-[1m   12 │ [0m  ... on User [31m@[0m[31md[0m[31me[0m[31mf[0m[31me[0m[31mr[0m(label: "DeferredFragmentLabel") {
-      │ [31m              ^^^^^^[0m
-[1m   13 │ [0m    id
+  inline-fragment-with-defer.invalid.graphql:12:15
+   11 │   emailAddresses
+   12 │   ... on User @defer(label: "DeferredFragmentLabel") {
+      │               ^^^^^^
+   13 │     id

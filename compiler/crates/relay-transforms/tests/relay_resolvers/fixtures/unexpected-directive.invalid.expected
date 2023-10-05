@@ -26,10 +26,10 @@ extend type User {
   pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
 }
 ==================================== ERROR ====================================
-[31m✖︎ Unexpected directive on Relay Resolver field. Relay Resolver fields do not currently support directives.[0m
+✖︎ Unexpected directive on Relay Resolver field. Relay Resolver fields do not currently support directives.
 
-  [4munexpected-directive.invalid.graphql[0m[2m:3:17[0m
-[1m    2 │ [0mfragment Foo_user on User {
-[1m    3 │ [0m  pop_star_name [31m@[0m[31ms[0m[31mo[0m[31mm[0m[31me[0m[31mD[0m[31mi[0m[31mr[0m[31me[0m[31mc[0m[31mt[0m[31mi[0m[31mv[0m[31me[0m
-      │ [31m                ^^^^^^^^^^^^^^[0m
-[1m    4 │ [0m}
+  unexpected-directive.invalid.graphql:3:17
+    2 │ fragment Foo_user on User {
+    3 │   pop_star_name @someDirective
+      │                 ^^^^^^^^^^^^^^
+    4 │ }

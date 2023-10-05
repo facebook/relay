@@ -19,6 +19,6 @@ query NodeQuery($id: ID!) {
 
   connection-invalid-key-type.invalid.graphql:6:44
     5 │     ... on Story {
-[1m    6 │ [0m      comments(first: 10) @connection(key: [31m1[0m[31m0[0m) {
-      │ [31m                                           ^^[0m
-[1m    7 │ [0m        edges {
+    6 │       comments(first: 10) @connection(key: 10) {
+      │                                            ^^
+    7 │         edges {

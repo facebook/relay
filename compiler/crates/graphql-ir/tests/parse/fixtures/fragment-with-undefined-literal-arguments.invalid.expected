@@ -10,10 +10,10 @@ fragment ChildFragment on User {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Unknown argument 'prize'.[0m
+✖︎ Unknown argument 'prize'.
 
-  [4mfragment-with-undefined-literal-arguments.invalid.graphql[0m[2m:3:31[0m
-[1m    2 │ [0mfragment ParentFragment on User {
-[1m    3 │ [0m  ...ChildFragment @arguments([31mp[0m[31mr[0m[31mi[0m[31mz[0m[31me[0m[31m:[0m[31m [0m[31m4[0m[31m2[0m) # error: $prize not defined
-      │ [31m                              ^^^^^^^^^[0m
-[1m    4 │ [0m}
+  fragment-with-undefined-literal-arguments.invalid.graphql:3:31
+    2 │ fragment ParentFragment on User {
+    3 │   ...ChildFragment @arguments(prize: 42) # error: $prize not defined
+      │                               ^^^^^^^^^
+    4 │ }

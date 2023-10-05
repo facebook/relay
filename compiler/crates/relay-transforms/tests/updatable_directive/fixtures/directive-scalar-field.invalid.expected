@@ -6,10 +6,10 @@ query TestQuery @updatable {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ The @customDirective directive is not allowed in updatable operations.[0m
+✖︎ The @customDirective directive is not allowed in updatable operations.
 
-  [4mdirective-scalar-field.invalid.graphql[0m[2m:4:8[0m
-[1m    3 │ [0m  node(id: 4) {
-[1m    4 │ [0m    id [31m@[0m[31mc[0m[31mu[0m[31ms[0m[31mt[0m[31mo[0m[31mm[0m[31mD[0m[31mi[0m[31mr[0m[31me[0m[31mc[0m[31mt[0m[31mi[0m[31mv[0m[31me[0m(level: 1)
-      │ [31m       ^^^^^^^^^^^^^^^^[0m
-[1m    5 │ [0m  }
+  directive-scalar-field.invalid.graphql:4:8
+    3 │   node(id: 4) {
+    4 │     id @customDirective(level: 1)
+      │        ^^^^^^^^^^^^^^^^
+    5 │   }

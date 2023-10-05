@@ -27,14 +27,14 @@ fragment fragmentWithDeferArgumentsWithoutLabel_DeferredFragment on User @argume
 
   fragment-with-defer-arguments-without-label.graphql:20:3
    19 │   name
-[1m   20 │ [0m  [31mp[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m[31m_[0m[31mp[0m[31mi[0m[31mc[0m[31mt[0m[31mu[0m[31mr[0m[31me[0m(scale: $scale) {
+   20 │   profile_picture(scale: $scale) {
       │   ^^^^^^^^^^^^^^^
    21 │     uri
 
-[31m  ℹ︎ which conflicts with this field with applied argument values (scale: 2)[0m
+  ℹ︎ which conflicts with this field with applied argument values (scale: 2)
 
-  [4mfragment-with-defer-arguments-without-label.graphql[0m[2m:20:3[0m
-[1m   19 │ [0m  name
-   20 │   p[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0me_picture(scale: $scale) {
+  fragment-with-defer-arguments-without-label.graphql:20:3
+   19 │   name
+   20 │   profile_picture(scale: $scale) {
       │   ^^^^^^^^^^^^^^^
    21 │     uri

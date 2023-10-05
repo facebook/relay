@@ -18,10 +18,10 @@ extend type User {
   best_friend: ClientOnlyUnion @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
 }
 ==================================== ERROR ====================================
-[31m✖︎ Client Edges that reference client-defined union types are not currently supported in Relay.[0m
+✖︎ Client Edges that reference client-defined union types are not currently supported in Relay.
 
-  [4mclient-edge-to-client-union.invalid.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mfragment Foo_user on User {
-[1m    3 │ [0m  [31mb[0m[31me[0m[31ms[0m[31mt[0m[31m_[0m[31mf[0m[31mr[0m[31mi[0m[31me[0m[31mn[0m[31md[0m {
-      │ [31m  ^^^^^^^^^^^[0m
-[1m    4 │ [0m    __typename
+  client-edge-to-client-union.invalid.graphql:3:3
+    2 │ fragment Foo_user on User {
+    3 │   best_friend {
+      │   ^^^^^^^^^^^
+    4 │     __typename

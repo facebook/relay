@@ -16,10 +16,10 @@ fragment Foo_node on Node {
   __id
 }
 ==================================== ERROR ====================================
-[31m✖︎ Undefined fragment 'Updatable_user'.[0m
+✖︎ Undefined fragment 'Updatable_user'.
 
-  [4mupdatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_1.graphql[0m[2m:6:10[0m
-[1m    5 │ [0m      __typename
-[1m    6 │ [0m      ...[31mU[0m[31mp[0m[31md[0m[31ma[0mtable_user
+  updatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_1.graphql:6:10
+    5 │       __typename
+    6 │       ...Updatable_user
       │          ^^^^^^^^^^^^^^
     7 │     }

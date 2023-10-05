@@ -24,11 +24,11 @@ fragment multipleModulesDifferentComponent_MarkdownUserNameRenderer_name on Mark
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.[0m
+✖︎ Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.
 
-  [4mmultiple-modules-different-component.invalid.graphql[0m[2m:12:12[0m
-[1m   11 │ [0m      nameRenderer {
-   12 │         ...[31mm[0m[31mu[0mltipleModulesDifferentCo[31mm[0m[31mp[0m[31mo[0m[31mn[0m[31me[0m[31mn[0m[31mt[0m[31m_[0m[31mM[0m[31ma[0m[31mr[0m[31mk[0mdownUserNameRenderer_name
+  multiple-modules-different-component.invalid.graphql:12:12
+   11 │       nameRenderer {
+   12 │         ...multipleModulesDifferentComponent_MarkdownUserNameRenderer_name
       │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    13 │           @module(name: "OtherMarkdownUserNameRenderer.react")
 
@@ -36,6 +36,6 @@ fragment multipleModulesDifferentComponent_MarkdownUserNameRenderer_name on Mark
 
   multiple-modules-different-component.invalid.graphql:6:12
     5 │       nameRenderer {
-    6 │         ...multipleModulesDifferentCompone[31mn[0m[31mt[0m[31m_[0m[31mM[0m[31ma[0m[31mr[0m[31mk[0m[31md[0m[31mo[0m[31mw[0m[31mn[0m[31mU[0m[31ms[0m[31me[0m[31mr[0m[31mN[0m[31ma[0m[31mm[0m[31me[0m[31mR[0m[31me[0m[31mn[0m[31md[0m[31me[0m[31mr[0m[31me[0m[31mr[0m[31m_[0m[31mn[0m[31ma[0m[31mm[0m[31me[0m
-      │ [31m           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m    7 │ [0m          @module(name: "MarkdownUserNameRenderer.react")
+    6 │         ...multipleModulesDifferentComponent_MarkdownUserNameRenderer_name
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │           @module(name: "MarkdownUserNameRenderer.react")

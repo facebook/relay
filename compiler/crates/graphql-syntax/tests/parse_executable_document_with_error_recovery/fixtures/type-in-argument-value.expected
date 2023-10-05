@@ -127,33 +127,33 @@ ExecutableDocument {
     ],
 }
 Errors:
-[31m✖︎ Expected a colon (':')[0m
+✖︎ Expected a colon (':')
 
-  [4mtype-in-argument-value.graphql[0m[2m:1:23[0m
-[1m    1 │ [0m query Test @test(: ID[31m![0m) {
-      │ [31m                      ^[0m
-[1m    2 │ [0m    node {
-
-
-[31m✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')[0m
-
-  [4mtype-in-argument-value.graphql[0m[2m:1:23[0m
-[1m    1 │ [0m query Test @test(: ID[31m![0m) {
-      │ [31m                      ^[0m
-[1m    2 │ [0m    node {
-
-
-[31m✖︎ Expected a open brace ('{')[0m
-
-  [4mtype-in-argument-value.graphql[0m[2m:1:24[0m
-[1m    1 │ [0m query Test @test(: ID![31m)[0m {
-      │ [31m                       ^[0m
-[1m    2 │ [0m    node {
+  type-in-argument-value.graphql:1:23
+    1 │  query Test @test(: ID!) {
+      │                       ^
+    2 │     node {
 
 
 ✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
 
   type-in-argument-value.graphql:1:19
-    1 │  query Test @test([31m:[0m ID!) {
-      │ [31m                  ^[0m
-[1m    2 │ [0m    node {
+    1 │  query Test @test(: ID!) {
+      │                   ^
+    2 │     node {
+
+
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  type-in-argument-value.graphql:1:23
+    1 │  query Test @test(: ID!) {
+      │                       ^
+    2 │     node {
+
+
+✖︎ Expected a open brace ('{')
+
+  type-in-argument-value.graphql:1:24
+    1 │  query Test @test(: ID!) {
+      │                        ^
+    2 │     node {

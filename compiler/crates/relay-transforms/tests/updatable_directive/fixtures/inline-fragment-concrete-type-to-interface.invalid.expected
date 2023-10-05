@@ -16,15 +16,6 @@ query TestQuery @updatable {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.[0m
-
-  [4minline-fragment-concrete-type-to-interface.invalid.graphql[0m[2m:7:11[0m
-[1m    6 │ [0m        edges {
-[1m    7 │ [0m          [31mn[0m[31mo[0m[31md[0m[31me[0m {
-      │ [31m          ^^^^[0m
-[1m    8 │ [0m            ... on Node {
-
-
 ✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
 
   inline-fragment-concrete-type-to-interface.invalid.graphql:3:3
@@ -32,6 +23,15 @@ query TestQuery @updatable {
     3 │   node(id: 4) {
       │   ^^^^
     4 │     ... on Feedback {
+
+
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  inline-fragment-concrete-type-to-interface.invalid.graphql:7:11
+    6 │         edges {
+    7 │           node {
+      │           ^^^^
+    8 │             ... on Node {
 
 
 ✖︎ Within updatable operations, each inline fragment spread must have a type condition narrowing the type to a unique concrete type. `Node` is not a concrete type.

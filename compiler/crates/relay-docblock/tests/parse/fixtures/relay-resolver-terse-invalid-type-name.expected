@@ -12,10 +12,10 @@
  * @RelayResolver 999
  */
 ==================================== ERROR ====================================
-[31m✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')[0m
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
 
-  [4m/path/to/test/fixture/relay-resolver-terse-invalid-type-name.js[0m[2m:11:19[0m
-[1m   10 │ [0m*
-[1m   11 │ [0m * @RelayResolver [31m9[0m[31m9[0m[31m9[0m
-      │ [31m                  ^^^[0m
-[1m   12 │ [0m
+  /path/to/test/fixture/relay-resolver-terse-invalid-type-name.js:11:19
+   10 │ *
+   11 │  * @RelayResolver 999
+      │                   ^^^
+   12 │

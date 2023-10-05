@@ -4,10 +4,10 @@ fragment Foo on User @argumentDefinitions(user: {type: "User!"}) {
   id
 }
 ==================================== ERROR ====================================
-[31m✖︎ Expected argument definition to have an input type (scalar, enum, or input object), found type 'User'[0m
+✖︎ Expected argument definition to have an input type (scalar, enum, or input object), found type 'User'
 
-  [4mfragment-with-argument-type.invalid.graphql[0m[2m:2:49[0m
-[1m    1 │ [0m# expected-to-throw
-[1m    2 │ [0mfragment Foo on User @argumentDefinitions(user: [31m{[0m[31mt[0m[31my[0m[31mp[0m[31me[0m[31m:[0m[31m [0m[31m"[0m[31mU[0m[31ms[0mer!"}) {
+  fragment-with-argument-type.invalid.graphql:2:49
+    1 │ # expected-to-throw
+    2 │ fragment Foo on User @argumentDefinitions(user: {type: "User!"}) {
       │                                                 ^^^^^^^^^^^^^^^
     3 │   id

@@ -17,18 +17,18 @@ fragment StringFragment on Query {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Cannot combine variables with incompatible types Int and ID when applying @relay(mask: false[0m
+✖︎ Cannot combine variables with incompatible types Int and ID when applying @relay(mask: false
 
-  [4mmask-incompatible-type-invalid.graphql[0m[2m:14:16[0m
-[1m   13 │ [0mfragment StringFragment on Query {
-[1m   14 │ [0m  task(number: [31m$[0m[31mi[0m[31md[0m) {
-      │ [31m               ^^^[0m
-[1m   15 │ [0m    title
+  mask-incompatible-type-invalid.graphql:14:16
+   13 │ fragment StringFragment on Query {
+   14 │   task(number: $id) {
+      │                ^^^
+   15 │     title
 
-[31m  ℹ︎ related location[0m
+  ℹ︎ related location
 
-  [4mmask-incompatible-type-invalid.graphql[0m[2m:8:12[0m
-[1m    7 │ [0mfragment NullableIDFragment on Query {
-[1m    8 │ [0m  node(id: [31m$[0m[31mi[0m[31md[0m) {
-      │ [31m           ^^^[0m
-[1m    9 │ [0m    id
+  mask-incompatible-type-invalid.graphql:8:12
+    7 │ fragment NullableIDFragment on Query {
+    8 │   node(id: $id) {
+      │            ^^^
+    9 │     id

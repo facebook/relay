@@ -15,6 +15,6 @@ fragment EnabledFoo on Node {
 
   inline-fragment-on-interface-in-concrete.invalid.graphql:8:12
     7 │       # be fine to just not allow it.
-[1m    8 │ [0m      name @req[31mu[0m[31mi[0m[31mr[0m[31me[0m[31md[0m(action: LOG)
-      │ [31m           ^^^^^^^^^[0m
-[1m    9 │ [0m    }
+    8 │       name @required(action: LOG)
+      │            ^^^^^^^^^
+    9 │     }

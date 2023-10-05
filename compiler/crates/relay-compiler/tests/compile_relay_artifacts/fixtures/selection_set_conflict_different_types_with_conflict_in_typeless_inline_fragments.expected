@@ -29,6 +29,6 @@ fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragments
 
   selection_set_conflict_different_types_with_conflict_in_typeless_inline_fragments.graphql:15:17
    14 │   ... @skip(if: false) {
-[1m   15 │ [0m    same_alias: [31mn[0mame
+   15 │     same_alias: name
       │                 ^^^^
    16 │   }

@@ -19,5 +19,5 @@ query EnabledUserQuery {
   multiple-required-fields.invalid.graphql:3:6
     2 │ query EnabledUserQuery {
     3 │   me @required(action: NONE) @required(action: NONE) {
-      │ [31m     ^^^^^^^^^[0m
-[1m    4 │ [0m    id
+      │      ^^^^^^^^^
+    4 │     id

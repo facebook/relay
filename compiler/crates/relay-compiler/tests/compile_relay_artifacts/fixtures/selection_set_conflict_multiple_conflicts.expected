@@ -13,52 +13,52 @@ query selectionSetConflictMultipleConflictsQuery {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'profile_picture' with type 'Image'[0m
+✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'profile_picture' with type 'Image'
 
-  [4mselection_set_conflict_multiple_conflicts.graphql[0m[2m:4:17[0m
-[1m    3 │ [0m  me {
-[1m    4 │ [0m    same_alias: [31mi[0m[31md[0m
-      │ [31m                ^^[0m
-[1m    5 │ [0m    same_alias: name
+  selection_set_conflict_multiple_conflicts.graphql:4:17
+    3 │   me {
+    4 │     same_alias: id
+      │                 ^^
+    5 │     same_alias: name
 
-[31m  ℹ︎ the other field[0m
+  ℹ︎ the other field
 
-  [4mselection_set_conflict_multiple_conflicts.graphql[0m[2m:6:17[0m
-[1m    5 │ [0m    same_alias: name
-[1m    6 │ [0m    same_alias: [31mp[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m[31m_[0m[31mp[0m[31mi[0m[31mc[0m[31mt[0m[31mu[0m[31mr[0m[31me[0m {
-      │ [31m                ^^^^^^^^^^^^^^^[0m
-[1m    7 │ [0m      size: width
-
-
-[31m✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'profile_picture' with type 'Image'[0m
-
-  [4mselection_set_conflict_multiple_conflicts.graphql[0m[2m:4:17[0m
-[1m    3 │ [0m  me {
-[1m    4 │ [0m    same_alias: [31mi[0m[31md[0m
-      │ [31m                ^^[0m
-[1m    5 │ [0m    same_alias: name
-
-[31m  ℹ︎ the other field[0m
-
-  [4mselection_set_conflict_multiple_conflicts.graphql[0m[2m:9:17[0m
-[1m    8 │ [0m    }
-[1m    9 │ [0m    same_alias: [31mp[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m[31m_[0m[31mp[0m[31mi[0m[31mc[0m[31mt[0m[31mu[0m[31mr[0m[31me[0m {
-      │ [31m                ^^^^^^^^^^^^^^^[0m
-[1m   10 │ [0m      size: height
+  selection_set_conflict_multiple_conflicts.graphql:6:17
+    5 │     same_alias: name
+    6 │     same_alias: profile_picture {
+      │                 ^^^^^^^^^^^^^^^
+    7 │       size: width
 
 
-[31m✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'id' and 'name'[0m
+✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'profile_picture' with type 'Image'
 
-  [4mselection_set_conflict_multiple_conflicts.graphql[0m[2m:4:17[0m
-[1m    3 │ [0m  me {
-[1m    4 │ [0m    same_alias: [31mi[0m[31md[0m
-      │ [31m                ^^[0m
-[1m    5 │ [0m    same_alias: name
+  selection_set_conflict_multiple_conflicts.graphql:4:17
+    3 │   me {
+    4 │     same_alias: id
+      │                 ^^
+    5 │     same_alias: name
 
-[31m  ℹ︎ the other field[0m
+  ℹ︎ the other field
 
-  [4mselection_set_conflict_multiple_conflicts.graphql[0m[2m:5:17[0m
-[1m    4 │ [0m    same_alias: id
-[1m    5 │ [0m    same_alias: [31mn[0m[31ma[0m[31mm[0m[31me[0m
-      │ [31m                ^^^^[0m
-[1m    6 │ [0m    same_alias: profile_picture {
+  selection_set_conflict_multiple_conflicts.graphql:9:17
+    8 │     }
+    9 │     same_alias: profile_picture {
+      │                 ^^^^^^^^^^^^^^^
+   10 │       size: height
+
+
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'id' and 'name'
+
+  selection_set_conflict_multiple_conflicts.graphql:4:17
+    3 │   me {
+    4 │     same_alias: id
+      │                 ^^
+    5 │     same_alias: name
+
+  ℹ︎ the other field
+
+  selection_set_conflict_multiple_conflicts.graphql:5:17
+    4 │     same_alias: id
+    5 │     same_alias: name
+      │                 ^^^^
+    6 │     same_alias: profile_picture {

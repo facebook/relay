@@ -11,6 +11,6 @@ fragment RefetchableFragment on User
 
   fragment-on-node-with-id-argument-used.invalid.graphql:4:18
     3 │   @refetchable(queryName: "RefetchableFragmentQuery") {
-[1m    4 │ [0m  friends(after: [31m$[0m[31mi[0m[31md[0m) {
-      │ [31m                 ^^^[0m
-[1m    5 │ [0m    __typename
+    4 │   friends(after: $id) {
+      │                  ^^^
+    5 │     __typename

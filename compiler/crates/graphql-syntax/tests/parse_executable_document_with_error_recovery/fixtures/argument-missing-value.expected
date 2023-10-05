@@ -105,10 +105,10 @@ ExecutableDocument {
     ],
 }
 Errors:
-[31m✖︎ Expected a value ('$example', boolean, integer, float, string, null, list, or object)[0m
+✖︎ Expected a value ('$example', boolean, integer, float, string, null, list, or object)
 
-  [4margument-missing-value.graphql[0m[2m:2:13[0m
-[1m    1 │ [0mfragment Test on User {
-[1m    2 │ [0m  photo(size[31m:[0m)
-      │ [31m            ^[0m
-[1m    3 │ [0m}
+  argument-missing-value.graphql:2:13
+    1 │ fragment Test on User {
+    2 │   photo(size:)
+      │             ^
+    3 │ }

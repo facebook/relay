@@ -10,6 +10,6 @@ mutation LikeMutation($feedbackId: ID!) {
 
   complex-object-with-missing-fields.invalid.graphql:3:29
     2 │ mutation LikeMutation($feedbackId: ID!) {
-    3 │   feedbackLikeStrict(input: {feedbackId: $[31mf[0m[31me[0m[31me[0m[31md[0m[31mb[0m[31ma[0m[31mc[0m[31mk[0m[31mI[0m[31md[0m[31m}[0m) {
-      │ [31m                            ^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m    4 │ [0m    __typename
+    3 │   feedbackLikeStrict(input: {feedbackId: $feedbackId}) {
+      │                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │     __typename

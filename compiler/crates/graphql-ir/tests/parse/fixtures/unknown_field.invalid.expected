@@ -30,111 +30,111 @@ query Q4 {
   }
 }
 ==================================== ERROR ====================================
-[31m✖︎ The type `Query` has no field `taskc`. Did you mean `task`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
+✖︎ The type `Query` has no field `taskc`. Did you mean `task`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
-  [4munknown_field.invalid.graphql[0m[2m:3:3[0m
-[1m    2 │ [0mquery Q1 {
-[1m    3 │ [0m  [31mt[0m[31ma[0m[31ms[0m[31mk[0m[31mc[0m(task_id: 123) {
-      │ [31m  ^^^^^[0m
-[1m    4 │ [0m    title
-
-
-[31m✖︎ The type `Query` has no field `my`. Did you mean `me`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
-
-  [4munknown_field.invalid.graphql[0m[2m:9:3[0m
-[1m    8 │ [0mquery Q2 {
-[1m    9 │ [0m  [31mm[0m[31my[0m
-      │ [31m  ^^[0m
-[1m   10 │ [0m}
+  unknown_field.invalid.graphql:3:3
+    2 │ query Q1 {
+    3 │   taskc(task_id: 123) {
+      │   ^^^^^
+    4 │     title
 
 
-[31m✖︎ The type `Query` has no field `stor`. Did you mean `story`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
+✖︎ The type `Query` has no field `my`. Did you mean `me`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
-  [4munknown_field.invalid.graphql[0m[2m:13:3[0m
-[1m   12 │ [0mquery Q3 {
-[1m   13 │ [0m  [31ms[0m[31mt[0m[31mo[0m[31mr[0m {
-      │ [31m  ^^^^[0m
-[1m   14 │ [0m    names
-
-
-[31m✖︎ The type `Story` has no field `names`. Did you mean `name`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
-
-  [4munknown_field.invalid.graphql[0m[2m:21:5[0m
-[1m   20 │ [0m  story {
-[1m   21 │ [0m    [31mn[0m[31ma[0m[31mm[0m[31me[0m[31ms[0m
-      │ [31m    ^^^^^[0m
-[1m   22 │ [0m    ids
+  unknown_field.invalid.graphql:9:3
+    8 │ query Q2 {
+    9 │   my
+      │   ^^
+   10 │ }
 
 
-[31m✖︎ The type `Story` has no field `ids`. Did you mean `id`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
+✖︎ The type `Query` has no field `stor`. Did you mean `story`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
-  [4munknown_field.invalid.graphql[0m[2m:22:5[0m
-[1m   21 │ [0m    names
-[1m   22 │ [0m    [31mi[0m[31md[0m[31ms[0m
-      │ [31m    ^^^[0m
-[1m   23 │ [0m    actro
-
-
-[31m✖︎ The type `Story` has no field `actro`. Did you mean `actor`, `actors`, or `author`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
-
-  [4munknown_field.invalid.graphql[0m[2m:23:5[0m
-[1m   22 │ [0m    ids
-[1m   23 │ [0m    [31ma[0m[31mc[0m[31mt[0m[31mr[0m[31mo[0m
-      │ [31m    ^^^^^[0m
-[1m   24 │ [0m    nod
+  unknown_field.invalid.graphql:13:3
+   12 │ query Q3 {
+   13 │   stor {
+      │   ^^^^
+   14 │     names
 
 
-[31m✖︎ The type `Story` has no field `nod`. Did you mean `body` or `id`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
+✖︎ The type `Story` has no field `names`. Did you mean `name`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
-  [4munknown_field.invalid.graphql[0m[2m:24:5[0m
-[1m   23 │ [0m    actro
-[1m   24 │ [0m    [31mn[0m[31mo[0m[31md[0m
-      │ [31m    ^^^[0m
-[1m   25 │ [0m    x_actor
-
-
-[31m✖︎ The type `Story` has no field `x_actor`. Did you mean `actor` or `actors`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
-
-  [4munknown_field.invalid.graphql[0m[2m:25:5[0m
-[1m   24 │ [0m    nod
-[1m   25 │ [0m    [31mx[0m[31m_[0m[31ma[0m[31mc[0m[31mt[0m[31mo[0m[31mr[0m
-      │ [31m    ^^^^^^^[0m
-[1m   26 │ [0m    x_canViewersComment
+  unknown_field.invalid.graphql:21:5
+   20 │   story {
+   21 │     names
+      │     ^^^^^
+   22 │     ids
 
 
-[31m✖︎ The type `Story` has no field `x_canViewersComment`. Did you mean `canViewerComment`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
+✖︎ The type `Story` has no field `ids`. Did you mean `id`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
-  [4munknown_field.invalid.graphql[0m[2m:26:5[0m
-[1m   25 │ [0m    x_actor
-[1m   26 │ [0m    [31mx[0m[31m_[0m[31mc[0m[31ma[0m[31mn[0m[31mV[0m[31mi[0m[31me[0m[31mw[0m[31me[0m[31mr[0m[31ms[0m[31mC[0m[31mo[0m[31mm[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m
-      │ [31m    ^^^^^^^^^^^^^^^^^^^[0m
-[1m   27 │ [0m    long_prefix_canViewerComment
-
-
-[31m✖︎ The type `Story` has no field `long_prefix_canViewerComment`. Did you mean `canViewerComment`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
-
-  [4munknown_field.invalid.graphql[0m[2m:27:5[0m
-[1m   26 │ [0m    x_canViewersComment
-[1m   27 │ [0m    [31ml[0m[31mo[0m[31mn[0m[31mg[0m[31m_[0m[31mp[0m[31mr[0m[31me[0m[31mf[0m[31mi[0m[31mx[0m[31m_[0m[31mc[0m[31ma[0m[31mn[0m[31mV[0m[31mi[0m[31me[0m[31mw[0m[31me[0m[31mr[0m[31mC[0m[31mo[0m[31mm[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m
-      │ [31m    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-[1m   28 │ [0m    viewerComment
+  unknown_field.invalid.graphql:22:5
+   21 │     names
+   22 │     ids
+      │     ^^^
+   23 │     actro
 
 
-[31m✖︎ The type `Story` has no field `viewerComment`. Did you mean `canViewerComment`?
-See https://relay.dev/docs/error-reference/unknown-field/[0m
+✖︎ The type `Story` has no field `actro`. Did you mean `actor`, `actors`, or `author`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
-  [4munknown_field.invalid.graphql[0m[2m:28:5[0m
-[1m   27 │ [0m    long_prefix_canViewerComment
-[1m   28 │ [0m    [31mv[0m[31mi[0m[31me[0m[31mw[0m[31me[0m[31mr[0m[31mC[0m[31mo[0m[31mm[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m
-      │ [31m    ^^^^^^^^^^^^^[0m
-[1m   29 │ [0m  }
+  unknown_field.invalid.graphql:23:5
+   22 │     ids
+   23 │     actro
+      │     ^^^^^
+   24 │     nod
+
+
+✖︎ The type `Story` has no field `nod`. Did you mean `body` or `id`?
+See https://relay.dev/docs/error-reference/unknown-field/
+
+  unknown_field.invalid.graphql:24:5
+   23 │     actro
+   24 │     nod
+      │     ^^^
+   25 │     x_actor
+
+
+✖︎ The type `Story` has no field `x_actor`. Did you mean `actor` or `actors`?
+See https://relay.dev/docs/error-reference/unknown-field/
+
+  unknown_field.invalid.graphql:25:5
+   24 │     nod
+   25 │     x_actor
+      │     ^^^^^^^
+   26 │     x_canViewersComment
+
+
+✖︎ The type `Story` has no field `x_canViewersComment`. Did you mean `canViewerComment`?
+See https://relay.dev/docs/error-reference/unknown-field/
+
+  unknown_field.invalid.graphql:26:5
+   25 │     x_actor
+   26 │     x_canViewersComment
+      │     ^^^^^^^^^^^^^^^^^^^
+   27 │     long_prefix_canViewerComment
+
+
+✖︎ The type `Story` has no field `long_prefix_canViewerComment`. Did you mean `canViewerComment`?
+See https://relay.dev/docs/error-reference/unknown-field/
+
+  unknown_field.invalid.graphql:27:5
+   26 │     x_canViewersComment
+   27 │     long_prefix_canViewerComment
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   28 │     viewerComment
+
+
+✖︎ The type `Story` has no field `viewerComment`. Did you mean `canViewerComment`?
+See https://relay.dev/docs/error-reference/unknown-field/
+
+  unknown_field.invalid.graphql:28:5
+   27 │     long_prefix_canViewerComment
+   28 │     viewerComment
+      │     ^^^^^^^^^^^^^
+   29 │   }

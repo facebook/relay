@@ -23,10 +23,10 @@ fragment noInlineFragmentInRawResponseQuery_child on User
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    13 │ @no_inline {
 
-[31m  ℹ︎ The query with @raw_response_type[0m
+  ℹ︎ The query with @raw_response_type
 
-  [4mno-inline-fragment-in-raw-response-query.graphql[0m[2m:2:7[0m
-[1m    1 │ [0m# expected-to-throw
-[1m    2 │ [0mquery [31mn[0m[31mo[0m[31mI[0m[31mn[0m[31ml[0m[31mi[0m[31mn[0m[31me[0m[31mF[0m[31mr[0m[31ma[0m[31mg[0m[31mm[0m[31me[0m[31mn[0m[31mt[0m[31mI[0m[31mn[0m[31mR[0m[31ma[0m[31mw[0m[31mR[0m[31me[0m[31ms[0m[31mp[0m[31mo[0m[31mn[0m[31ms[0m[31me[0m[31mQ[0m[31mu[0m[31me[0m[31mr[0m[31my[0m[31mQ[0m[31mu[0m[31me[0m[31mr[0m[31my[0m @raw_response_type {
+  no-inline-fragment-in-raw-response-query.graphql:2:7
+    1 │ # expected-to-throw
+    2 │ query noInlineFragmentInRawResponseQueryQuery @raw_response_type {
       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     3 │   me {

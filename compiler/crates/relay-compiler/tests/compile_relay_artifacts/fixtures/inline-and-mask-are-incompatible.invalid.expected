@@ -15,8 +15,8 @@ fragment inlineAndMaskAreIncompatible_Profile on User @inline {
 
   inline-and-mask-are-incompatible.invalid.graphql:5:8
     4 │   me {
-    5 │     ...inlineAndMaskAreIncompati[31mb[0m[31ml[0m[31me[0m[31m_[0m[31mP[0m[31mr[0m[31mo[0m[31mf[0m[31mi[0m[31ml[0m[31me[0m @relay(mask: false)
-      │ [31m       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+    5 │     ...inlineAndMaskAreIncompatible_Profile @relay(mask: false)
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     6 │   }
 
   ℹ︎ related location

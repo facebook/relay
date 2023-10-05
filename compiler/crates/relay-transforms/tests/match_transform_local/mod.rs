@@ -12,7 +12,7 @@ use relay_config::DynamicModuleProvider;
 use relay_config::ModuleImportConfig;
 use relay_transforms::transform_match;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let flags = FeatureFlags::default();
     let module_import_config = ModuleImportConfig {
         dynamic_module_provider: Some(DynamicModuleProvider::JSResource),

@@ -28,3 +28,4 @@ thiserror = "1.0.43"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
+tokio = { version = "1.29.1", features = ["full", "test-util", "tracing"] }

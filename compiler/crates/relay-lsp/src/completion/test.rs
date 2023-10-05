@@ -310,15 +310,27 @@ fn inline_fragment_on_interface() {
         "#,
         None,
     );
+    assert_labels(items.unwrap(), vec!["... on SimpleNamed", "... on User"]);
+}
+
+#[test]
+fn inline_fragment_on_interface_objects_implement_interface_implementing_base_interface() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on UserNameRenderable {
+                ... on |a
+            }
+        "#,
+        None,
+    );
+
     assert_labels(
         items.unwrap(),
         vec![
-            "... on Node",
-            "... on User",
-            "... on SimpleNamed",
-            "... on HasJsField",
-            "... on Actor",
-            "... on AllConcreteTypesImplementNode",
+            "... on PlainUserNameRenderer",
+            "... on ImplementsImplementsUserNameRenderableAndUserNameRenderable",
+            "... on MarkdownUserNameRenderer",
+            "... on ImplementsUserNameRenderable",
         ],
     );
 }
@@ -333,17 +345,7 @@ fn inline_fragment_on_interface_with_existing_inline_fragment() {
         "#,
         None,
     );
-    assert_labels(
-        items.unwrap(),
-        vec![
-            "Node",
-            "User",
-            "Actor",
-            "HasJsField",
-            "SimpleNamed",
-            "AllConcreteTypesImplementNode",
-        ],
-    );
+    assert_labels(items.unwrap(), vec!["User", "SimpleNamed"]);
 }
 
 #[test]

@@ -50,6 +50,7 @@ use lsp_types::MarkupKind;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
 use schema::InputObject;
+use schema::InterfaceID;
 use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -970,9 +971,8 @@ fn resolve_completion_items_for_inline_fragment(
     match type_ {
         Type::Interface(id) => {
             let interface = schema.interface(id);
-            let interface_type = schema.get_type(interface.name.item.0);
 
-            get_abstract_type_suggestions(&interface.implementing_objects, schema, interface_type)
+            get_abstract_type_suggestions(&interface.implementing_objects, schema, Some(&id))
         }
         Type::Union(id) => {
             let union = schema.union(id);
@@ -1395,7 +1395,7 @@ fn make_markdown_table_documentation(
 fn get_abstract_type_suggestions(
     objects: &Vec<ObjectID>,
     schema: &SDLSchema,
-    self_type: Option<Type>,
+    base_interface_id: Option<&InterfaceID>,
 ) -> Vec<Type> {
     let object_types: Vec<_> = objects.iter().map(|id| schema.object(*id)).collect();
 
@@ -1410,11 +1410,13 @@ fn get_abstract_type_suggestions(
         for interface_id in &object_type.interfaces {
             let interface_type = schema.interface(*interface_id);
 
-            if let Some(t) = schema.get_type(interface_type.name.item.0) {
-                if Some(t) == self_type {
+            if let Some(base_id) = base_interface_id {
+                if interface_id == base_id || !interface_type.interfaces.contains(base_id) {
                     continue;
                 }
+            }
 
+            if let Some(t) = schema.get_type(interface_type.name.item.0) {
                 if interfaces.contains(&t) {
                     continue;
                 }

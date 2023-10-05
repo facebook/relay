@@ -1,0 +1,64 @@
+jobs:
+- job:
+  displayName: Build Javascript
+  steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "16.13.1"
+      displayName: "Install Node.js 16.13.1"
+
+    - task: npmAuthenticate@0
+      displayName: NPM Authenticate
+      inputs:
+        workingFile: .npmrc
+
+    - script: yarn --frozen-lockfile --ignore-scripts
+      displayName: Install Node dependencies
+
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: relay-bin-linux-x64
+        targetPath: "$(System.DefaultWorkingDirectory)/artifacts/linux-x64"
+    
+    # - task: DownloadPipelineArtifact@2
+    #   inputs:
+    #     artifact: relay-bin-linux-arm64
+    #     targetPath: "$(System.DefaultWorkingDirectory)/artifacts/linux-arm64"
+
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: relay-bin-macos-x64
+        targetPath: "$(System.DefaultWorkingDirectory)/artifacts/macos-x64"
+
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: relay-bin-macos-arm64
+        targetPath: "$(System.DefaultWorkingDirectory)/artifacts/macos-arm64"
+
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: relay-bin-win-x64
+        targetPath: "$(System.DefaultWorkingDirectory)/artifacts/win-x64"
+
+    - script: |
+        chmod +x linux-x64/relay
+        chmod +x macos-x64/relay
+        chmod +x macos-arm64/relay
+      displayName: Mark binaries as executable
+      workingDirectory: "$(System.DefaultWorkingDirectory)/artifacts"
+
+    - script: yarn run gulp release
+
+    - template: /.azure-devops/steps/publish.yml@self
+
+  # - script: npm run ci:precheck
+  #   displayName: Run CI Pre-check
+
+  # - script: npm version
+  #   displayName: Get versions
+
+  # - script: npm ci
+  #   displayName: Install dependencies
+
+  # - script: npm run bundlesize
+  #   displayName: Build & Check bundle size

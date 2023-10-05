@@ -1,0 +1,63 @@
+# defaults for any parameters that aren't specified
+parameters:
+  rust: stable
+  components: []
+  targets: []
+
+steps:
+  - script: |
+      set -e
+      chmod +x ./.azure-devops/tools/rustup-init-linux
+      ./.azure-devops/tools/rustup-init-linux -y --profile minimal --default-toolchain $RUSTUP_TOOLCHAIN
+      echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+    workingDirectory: $(System.DefaultWorkingDirectory)
+    env:
+      RUSTUP_TOOLCHAIN: ${{parameters.rust}}
+    displayName: "Install rust (*nix)"
+    condition: eq(variables['os'], 'ubuntu-latest')
+
+  - script: |
+      set -e
+      chmod +x ./.azure-devops/tools/rustup-init-mac
+      ./.azure-devops/tools/rustup-init-mac -y --profile minimal --default-toolchain $RUSTUP_TOOLCHAIN
+      echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+    workingDirectory: $(System.DefaultWorkingDirectory)
+    env:
+      RUSTUP_TOOLCHAIN: ${{parameters.rust}}
+    displayName: "Install rust (MacOS)"
+    condition: eq(variables['os'], 'macos-latest')
+
+  - script: |
+      ./.azure-devops/tools/rustup-init.exe -y --profile minimal --default-toolchain %RUSTUP_TOOLCHAIN% --default-host x86_64-pc-windows-msvc
+      set PATH=%PATH%;%USERPROFILE%\.cargo\bin
+      echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
+    workingDirectory: $(System.DefaultWorkingDirectory)
+    env:
+      RUSTUP_TOOLCHAIN: ${{parameters.rust}}
+    displayName: "Install rust (Windows)"
+    condition: eq(variables['os'], 'windows-latest')
+
+  # Set correct toolchain
+  - bash: |
+      rustup default $RUSTUP_TOOLCHAIN
+      rustup update $RUSTUP_TOOLCHAIN
+    env:
+      RUSTUP_TOOLCHAIN: ${{parameters.rust}}
+    displayName: "Set correct Rust version"
+
+  # Install additional targets:
+  - ${{ each target in parameters.targets }}:
+    - script: rustup target add ${{ target }}
+      displayName: "Adding target '${{ target }}'"
+
+  # Install additional components:
+  - ${{ each component in parameters.components }}:
+    - script: rustup component add ${{ component }}
+      displayName: "Adding component '${{ component }}'"
+
+  # See what we got
+  - script: |
+      rustc --version
+      cargo --version
+      rustup --version
+    displayName: Check installed rust version

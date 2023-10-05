@@ -1,0 +1,54 @@
+# Visit https://aka.ms/teamscoral for more information on how to use this template.
+
+# https://domoreexp.visualstudio.com/Teamspace/_build?definitionId=<1111>
+
+resources:
+  repositories:
+  - repository: SkypeSpaces-Infra
+    type: git
+    name: SkypeSpaces-Infra
+
+name: $(date:yyyyMMdd)$(rev:rr)
+
+variables:
+- name: service_id
+  value: 6cc5a4c4-d945-41d8-97b3-c63ba3226acd
+
+parameters:
+  - name: publishPackage
+    default: true
+    displayName: Publish package?
+    type: boolean
+
+trigger:
+  branches:
+    include:
+    - release/microsoft
+
+extends:
+  template: azure-devops-templates/steps/coral/general_build_template.yml@SkypeSpaces-Infra
+  parameters:
+    name: build_and_deploy
+    pool:
+      vmImage: ubuntu-latest
+    jobParams:
+      displayName: Build and Publish
+      workspace:
+        clean: all
+    service_tree:
+      service_id: ${{ variables.service_id }}
+      isProduction: true
+    checkout:
+      repo: self
+      clean: true
+
+    stages:
+      - stage: build_compiler
+        displayName: Build Relay Compiler
+        jobs:
+        - template: /.azure-devops/steps/build-compiler.yml@self  
+      - stage: build_javascript
+        dependsOn: ["build_compiler"]
+        displayName: Build Relay Javascript and Publish
+        jobs:
+        - template: /.azure-devops/steps/build.yml@self

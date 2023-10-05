@@ -1,0 +1,15 @@
+steps:
+  - ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/release/microsoft') }}:
+    - script: node ./.azure-devops/tools/updatePackageVersion.js $(Build.SourceBranch)
+      displayName: Update package version
+
+  - task: Npm@1
+    condition: ne(variables['Build.SourceBranch'], 'refs/heads/main')
+    displayName: Publish package
+    continueOnError: true
+    inputs:
+      command: publish
+      verbose: false
+      publishRegistry: useFeed
+      publishFeed: '1866497d-5902-4d86-84b4-9596b06ba254'
+      workingDir: dist/relay-compiler

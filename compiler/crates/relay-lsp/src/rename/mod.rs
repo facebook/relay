@@ -12,6 +12,7 @@ use std::path::PathBuf;
 
 use common::Location as IRLocation;
 use common::SourceLocationKey;
+use common::Span;
 use extract_graphql::JavaScriptSourceFeature;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -21,6 +22,7 @@ use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::OperationDefinition;
 use intern::string_key::StringKey;
+use log::info;
 use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::Rename;
 use lsp_types::request::Request;
@@ -38,6 +40,7 @@ use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::ResolutionPath;
 use resolution_path::ResolvePosition;
+use resolution_path::VariableIdentifierPath;
 
 use crate::docblock_resolution_info::create_docblock_resolution_info;
 use crate::docblock_resolution_info::DocblockResolutionInfo;
@@ -213,6 +216,9 @@ pub enum RenameKind {
         resolver_name: StringKey,
         parent_type: StringKey,
     },
+    VariableName {
+        variable_name: StringKey,
+    },
 }
 
 #[derive(Debug)]
@@ -237,6 +243,18 @@ fn create_rename_request(
             let node_path = document.resolve((), location.span());
 
             match node_path {
+                ResolutionPath::VariableIdentifier(VariableIdentifierPath {
+                    inner: variable,
+                    ..
+                }) => {
+                    let span_without_dollar = Span::new(variable.span.start + 1, variable.span.end);
+                    let location = IRLocation::new(location.source_location(), span_without_dollar);
+                    let kind = RenameKind::VariableName {
+                        variable_name: variable.name,
+                    };
+
+                    Ok(RenameRequest::new(kind, location))
+                }
                 ResolutionPath::Ident(IdentPath {
                     inner: fragment_name,
                     parent:
@@ -286,6 +304,18 @@ fn process_rename_request(
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
     match rename_request.kind {
+        RenameKind::VariableName { variable_name } => {
+            let lsp_location =
+                transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
+
+            Ok(HashMap::from([(
+                lsp_location.uri,
+                vec![TextEdit {
+                    new_text: new_name,
+                    range: lsp_location.range,
+                }],
+            )]))
+        }
         RenameKind::OperationName => {
             let lsp_location =
                 transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
@@ -381,19 +411,19 @@ fn extract_parent_type(docblock: DocblockIr) -> StringKey {
 }
 
 #[derive(Debug, Clone)]
-pub struct FragmentFinder {
+struct FragmentFinder {
     fragment_locations: Vec<IRLocation>,
     fragment_name: StringKey,
 }
 
 impl FragmentFinder {
     pub fn get_fragment_usages(program: &Program, name: StringKey) -> Vec<IRLocation> {
-        let mut fragment_finder = FragmentFinder {
+        let mut finder = FragmentFinder {
             fragment_locations: vec![],
             fragment_name: name,
         };
-        fragment_finder.visit_program(program);
-        fragment_finder.fragment_locations
+        finder.visit_program(program);
+        finder.fragment_locations
     }
 }
 

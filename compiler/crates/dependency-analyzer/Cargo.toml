@@ -20,9 +20,11 @@ graphql-syntax = { path = "../graphql-syntax" }
 relay-transforms = { path = "../relay-transforms" }
 rustc-hash = "1.1.0"
 schema = { path = "../schema" }
+serde = { version = "1.0.185", features = ["derive", "rc"] }
 
 [dev-dependencies]
 common = { path = "../common" }
 fixture-tests = { path = "../fixture-tests" }
 intern = { path = "../intern" }
 relay-test-schema = { path = "../relay-test-schema" }
+tokio = { version = "1.29.1", features = ["full", "test-util", "tracing"] }

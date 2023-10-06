@@ -160,7 +160,6 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           },
 
           __fragmentOwner: operation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'FeedbackAuthor.react',
         },
       },

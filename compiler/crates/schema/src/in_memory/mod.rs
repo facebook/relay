@@ -765,12 +765,18 @@ impl InMemorySchema {
                 TypeSystemDefinition::ObjectTypeExtension { .. } => {}
                 TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
                 TypeSystemDefinition::EnumTypeExtension { .. } => {}
-                TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
-                TypeSystemDefinition::UnionTypeExtension { .. } => todo!("UnionTypeExtension"),
-                TypeSystemDefinition::InputObjectTypeExtension { .. } => {
-                    todo!("InputObjectTypeExtension")
+                TypeSystemDefinition::SchemaExtension { .. } => {
+                    todo!("SchemaExtension not implemented: {}", definition)
                 }
-                TypeSystemDefinition::ScalarTypeExtension { .. } => todo!("ScalarTypeExtension"),
+                TypeSystemDefinition::UnionTypeExtension { .. } => {
+                    todo!("UnionTypeExtension not implemented: {}", definition)
+                }
+                TypeSystemDefinition::InputObjectTypeExtension { .. } => {
+                    todo!("InputObjectTypeExtension not implemented: {}", definition)
+                }
+                TypeSystemDefinition::ScalarTypeExtension { .. } => {
+                    todo!("ScalarTypeExtension not implemented: {}", definition)
+                }
             }
         }
 

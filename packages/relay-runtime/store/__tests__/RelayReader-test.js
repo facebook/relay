@@ -268,7 +268,6 @@ describe('RelayReader', () => {
           {},
       },
       __fragmentOwner: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(data.__fragmentOwner).toBe(owner.request);
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
@@ -315,7 +314,6 @@ describe('RelayReader', () => {
           },
       },
       __fragmentOwner: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
@@ -359,7 +357,6 @@ describe('RelayReader', () => {
           },
       },
       __fragmentOwner: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
@@ -664,7 +661,6 @@ describe('RelayReader', () => {
               {},
           },
           __fragmentOwner: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -717,7 +713,6 @@ describe('RelayReader', () => {
               {},
           },
           __fragmentOwner: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
@@ -900,7 +895,6 @@ describe('RelayReader', () => {
               {},
           },
           __fragmentOwner: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -953,7 +947,6 @@ describe('RelayReader', () => {
               {},
           },
           __fragmentOwner: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
@@ -1788,7 +1781,6 @@ describe('RelayReader', () => {
             __viewer: 'viewer-id',
             __fragmentRef: {
               __fragmentOwner: owner.request,
-              __isWithinUnmatchedTypeRefinement: false,
               __fragments: {
                 RelayReaderTestActorChangeFragment: {},
               },

@@ -84,16 +84,16 @@ impl fmt::Display for TypeSystemDefinition {
             }) => write_object_helper(f, &name.value, interfaces, fields, directives, true),
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
                 name,
+                interfaces,
                 fields,
                 directives,
-                ..
-            }) => write_interface_helper(f, &name.value, fields, directives, false),
+            }) => write_interface_helper(f, &name.value, interfaces, fields, directives, false),
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
                 name,
-                interfaces: _,
+                interfaces,
                 fields,
                 directives,
-            }) => write_interface_helper(f, &name.value, fields, directives, true),
+            }) => write_interface_helper(f, &name.value, interfaces, fields, directives, true),
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
                 name,
                 directives,
@@ -617,6 +617,7 @@ fn write_object_helper(
 fn write_interface_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
+    interfaces: &[Identifier],
     fields: &Option<List<FieldDefinition>>,
     directives: &[ConstantDirective],
     is_extension: bool,
@@ -626,6 +627,10 @@ fn write_interface_helper(
     }
 
     write!(f, "interface {}", name)?;
+    if !interfaces.is_empty() {
+        write!(f, " implements ")?;
+        write_list(f, interfaces, " & ")?;
+    }
     write_directives(f, directives)?;
     if let Some(fields) = fields.as_ref() {
         write_fields(f, &fields.items)?;

@@ -27,9 +27,9 @@ const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
   CLIENT_EDGE_TRAVERSAL_PATH,
   FRAGMENT_OWNER_KEY,
+  FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
   FRAGMENTS_KEY,
   ID_KEY,
-  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
 } = require('./RelayStoreUtils');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
@@ -78,8 +78,6 @@ function getSingularSelector(
   const dataID = item[ID_KEY];
   const fragments = item[FRAGMENTS_KEY];
   const mixedOwner = item[FRAGMENT_OWNER_KEY];
-  const isWithinUnmatchedTypeRefinement =
-    item[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] === true;
   const mixedClientEdgeTraversalPath = item[CLIENT_EDGE_TRAVERSAL_PATH];
   if (
     typeof dataID === 'string' &&
@@ -102,6 +100,11 @@ function getSingularSelector(
       owner.variables,
       argumentVariables,
     );
+
+    const isWithinUnmatchedTypeRefinement =
+      argumentVariables[
+        FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
+      ] === true;
 
     return createReaderSelector(
       fragment,

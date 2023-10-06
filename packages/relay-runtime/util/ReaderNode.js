@@ -241,7 +241,7 @@ export type ReaderRequiredField = {
 
 type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
 // With ES6 imports, a resolver function might be exported under the `default` key.
-type ResolverModule = ResolverFunction | {default: ResolverFunction};
+export type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
 export type ResolverNormalizationInfo = {
   +concreteType: string | null,

@@ -14,6 +14,7 @@
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   NormalizationLinkedField,
+  NormalizationLiveResolverField,
   NormalizationModuleImport,
   NormalizationNode,
   NormalizationResolverField,
@@ -62,6 +63,7 @@ const {
   LINKED_HANDLE,
   MODULE_IMPORT,
   RELAY_RESOLVER,
+  RELAY_LIVE_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -455,6 +457,9 @@ class DataChecker {
         case RELAY_RESOLVER:
           this._checkResolver(selection, dataID);
           break;
+        case RELAY_LIVE_RESOLVER:
+          this._checkResolver(selection, dataID);
+          break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
           this._checkResolver(selection.backingField, dataID);
           break;
@@ -468,7 +473,10 @@ class DataChecker {
       }
     });
   }
-  _checkResolver(resolver: NormalizationResolverField, dataID: DataID) {
+  _checkResolver(
+    resolver: NormalizationResolverField | NormalizationLiveResolverField,
+    dataID: DataID,
+  ) {
     if (resolver.fragment) {
       this._traverseSelections([resolver.fragment], dataID);
     }

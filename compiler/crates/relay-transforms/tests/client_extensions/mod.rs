@@ -18,7 +18,7 @@ use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::client_extensions;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let source_location = SourceLocationKey::standalone(fixture.file_name);

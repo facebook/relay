@@ -168,6 +168,7 @@ pub use relay_resolvers::FragmentDataInjectionMode;
 pub use relay_resolvers::RelayResolverMetadata;
 pub use relay_resolvers::ResolverOutputTypeInfo;
 pub use remove_base_fragments::remove_base_fragments;
+pub use remove_base_fragments::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 pub use required_directive::required_directive;
 pub use required_directive::RequiredAction;
 pub use required_directive::RequiredMetadataDirective;

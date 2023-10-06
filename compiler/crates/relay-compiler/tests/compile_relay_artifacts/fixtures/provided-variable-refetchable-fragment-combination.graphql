@@ -1,0 +1,14 @@
+query providedVariableRefetchableFragmentCombination_Query {
+  node(id: 4) {
+    ...providedVariableRefetchableFragmentCombination_Fragment
+  }
+}
+
+fragment providedVariableRefetchableFragmentCombination_Fragment on Node
+@refetchable(queryName: "refetchableQuery")
+@argumentDefinitions(
+  includeName: {type: "Boolean!", provider: "includeName_RelayProvider"}
+) {
+  id
+  name @include(if: $includeName)
+}

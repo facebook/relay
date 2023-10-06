@@ -335,7 +335,6 @@ function cloneEventWithSets(event: LogEvent) {
             __id: '4',
             __fragments: {RelayModernStoreTest4Fragment: {}},
             __fragmentOwner: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,

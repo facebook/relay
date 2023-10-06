@@ -257,7 +257,17 @@ function subscribeToSnapshot(
           prevState.kind !== 'singular' ||
           prevState.snapshot.selector !== latestSnapshot.selector
         ) {
-          return prevState;
+          const updates = handleMissedUpdates(environment, prevState);
+          if (updates != null) {
+            const [dataChanged, nextState] = updates;
+            environment.__log({
+              name: 'useFragment.subscription.missedUpdates',
+              hasDataChanges: dataChanged,
+            });
+            return dataChanged ? nextState : prevState;
+          } else {
+            return prevState;
+          }
         }
         return {
           kind: 'singular',
@@ -280,7 +290,17 @@ function subscribeToSnapshot(
             prevState.kind !== 'plural' ||
             prevState.snapshots[index]?.selector !== latestSnapshot.selector
           ) {
-            return prevState;
+            const updates = handleMissedUpdates(environment, prevState);
+            if (updates != null) {
+              const [dataChanged, nextState] = updates;
+              environment.__log({
+                name: 'useFragment.subscription.missedUpdates',
+                hasDataChanges: dataChanged,
+              });
+              return dataChanged ? nextState : prevState;
+            } else {
+              return prevState;
+            }
           }
           const updated = [...prevState.snapshots];
           updated[index] = latestSnapshot;

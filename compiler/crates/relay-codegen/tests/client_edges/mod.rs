@@ -7,6 +7,8 @@
 
 use std::sync::Arc;
 
+use common::FeatureFlag;
+use common::FeatureFlags;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
@@ -22,15 +24,31 @@ use relay_transforms::client_edges;
 use relay_transforms::relay_resolvers;
 use relay_transforms::sort_selections;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let ast = parse_executable(base, SourceLocationKey::standalone(fixture.file_name)).unwrap();
         let schema = get_test_schema_with_extensions(extensions);
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
+        let relay_resolver_enable_interface_output_type = if fixture
+            .content
+            .contains("# relay-resolver-enable-interface-output-type")
+        {
+            FeatureFlag::Enabled
+        } else {
+            FeatureFlag::Disabled
+        };
+        let feature_flags = Arc::new(FeatureFlags {
+            relay_resolver_enable_interface_output_type,
+            ..Default::default()
+        });
+        let project_config: ProjectConfig = ProjectConfig {
+            feature_flags,
+            ..Default::default()
+        };
         let next_program = sort_selections(
-            &client_edges(&program, &Default::default())
+            &client_edges(&program, &project_config, &Default::default())
                 .and_then(|program| relay_resolvers(ProjectName::default(), &program, true))
                 .unwrap(),
         );

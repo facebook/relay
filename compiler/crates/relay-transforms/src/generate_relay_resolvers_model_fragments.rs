@@ -59,7 +59,6 @@ pub fn generate_relay_resolvers_model_fragments(
             .is_some()
         {
             let object_type = program.schema.get_type(object.name.item.0).unwrap();
-
             let model_instance_field_id = program
                 .schema
                 .named_field(object_type, *RESOLVER_MODEL_INSTANCE_FIELD_NAME)

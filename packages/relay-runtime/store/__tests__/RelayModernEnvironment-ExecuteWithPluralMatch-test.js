@@ -206,7 +206,6 @@ describe('execute() a query with plural @match', () => {
             },
 
             __fragmentOwner: operation.request,
-            __isWithinUnmatchedTypeRefinement: false,
             __module_component: 'MarkdownUserNameRenderer.react',
           },
         ],

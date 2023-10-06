@@ -20,6 +20,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinitionName;
+use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::Variable;
@@ -72,6 +73,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
         arguments: fragment
             .variable_definitions
             .iter()
+            .filter(|def| ProvidedVariableMetadata::find(&def.directives).is_none())
             .map(|var| Argument {
                 name: var.name.map(|x| ArgumentName(x.0)),
                 value: WithLocation::new(

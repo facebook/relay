@@ -11,55 +11,39 @@
 
 'use strict';
 
-import type {RefetchFnDynamic} from './useRefetchableFragmentInternal_REACT_CACHE';
-import type {
-  FragmentType,
-  GraphQLTaggedNode,
-  OperationType,
-} from 'relay-runtime';
+import type {ReturnType} from '../useRefetchableFragment';
+import type {FragmentType, RefetchableFragment, Variables} from 'relay-runtime';
 
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 
-type ReturnType<TQuery: OperationType, TKey: ?{+$data?: mixed, ...}> = [
-  // NOTE: This $Call ensures that the type of the returned data is either:
-  //   - nullable if the provided ref type is nullable
-  //   - non-nullable if the provided ref type is non-nullable
-  // prettier-ignore
-  $Call<
-    & (<TFragmentData>( { +$data?: TFragmentData, ... }) =>  TFragmentData)
-    & (<TFragmentData>(?{ +$data?: TFragmentData, ... }) => ?TFragmentData),
-    TKey,
-  >,
-  RefetchFnDynamic<TQuery, TKey>,
-];
-
 function useRefetchableFragment<
-  TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
+  TFragmentType: FragmentType,
+  TVariables: Variables,
+  TData,
+  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
 >(
-  fragmentInput: GraphQLTaggedNode,
+  fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   fragmentRef: TKey,
-): ReturnType<TQuery, TKey> {
+): ReturnType<TVariables, TData, TKey> {
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
     fragmentNode,
     'first argument of useRefetchableFragment()',
   );
-  const {fragmentData, refetch} = useRefetchableFragmentInternal<TQuery, TKey>(
-    fragmentNode,
-    fragmentRef,
-    'useRefetchableFragment()',
-  );
+  const {fragmentData, refetch} = useRefetchableFragmentInternal<
+    {variables: TVariables, response: TData},
+    {data?: TData},
+  >(fragmentNode, fragmentRef, 'useRefetchableFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useDebugValue({fragment: fragmentNode.name, data: fragmentData});
   }
-  /* $FlowExpectedError[prop-missing] : Exposed options is a subset of internal
-   * options */
-  return [fragmentData, (refetch: RefetchFnDynamic<TQuery, TKey>)];
+  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[prop-missing]
+  return [fragmentData, refetch];
 }
 
 module.exports = useRefetchableFragment;

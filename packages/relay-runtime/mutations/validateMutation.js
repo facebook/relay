@@ -30,6 +30,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_LIVE_RESOLVER,
   RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
@@ -164,6 +165,7 @@ if (__DEV__) {
       case TYPE_DISCRIMINATOR:
         return validateAbstractKey(context, selection.abstractKey);
       case RELAY_RESOLVER:
+      case RELAY_LIVE_RESOLVER:
       case CLIENT_EDGE_TO_CLIENT_OBJECT:
       case LINKED_HANDLE:
       case SCALAR_HANDLE:

@@ -19,7 +19,7 @@ use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::inline_fragments;
 use relay_transforms::skip_redundant_nodes;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let printer_options = PrinterOptions {

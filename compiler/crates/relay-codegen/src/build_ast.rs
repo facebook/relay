@@ -75,14 +75,12 @@ use crate::ast::QueryID;
 use crate::ast::RequestParameters;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
-use crate::top_level_statements::TopLevelStatements;
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
     request_parameters: RequestParameters<'_>,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
-    top_level_statements: &TopLevelStatements,
     definition_source_location: WithLocation<StringKey>,
     project_config: &ProjectConfig,
 ) -> AstKey {
@@ -93,7 +91,7 @@ pub fn build_request_params_ast_key(
         project_config,
         definition_source_location,
     );
-    operation_builder.build_request_parameters(operation, request_parameters, top_level_statements)
+    operation_builder.build_request_parameters(operation, request_parameters)
 }
 
 pub fn build_provided_variables(
@@ -637,6 +635,25 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
+        if self
+            .project_config
+            .feature_flags
+            .enable_resolver_normalization_ast
+        {
+            self.build_normalization_relay_resolver_execution_time(resolver_metadata)
+        } else {
+            self.build_normalization_relay_resolver_read_time(resolver_metadata, inline_fragment)
+        }
+    }
+
+    // For read time execution time Relay Resolvers in the normalization AST,
+    // we do not need to include resolver modules since those modules will be
+    // evaluated at read time.
+    fn build_normalization_relay_resolver_read_time(
+        &mut self,
+        resolver_metadata: &RelayResolverMetadata,
+        inline_fragment: Option<Primitive>,
+    ) -> Primitive {
         let field_name = resolver_metadata.field_name(self.schema);
         let field_arguments = &resolver_metadata.field_arguments;
         let args = self.build_arguments(field_arguments);
@@ -665,6 +682,65 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }
             },
             is_output_type: Primitive::Bool(is_output_type),
+        }))
+    }
+
+    // For execution time Relay Resolvers in the normalization AST, we need to
+    // also include enough information for resolver function backing each field,
+    // so that normalization AST have full information on how to resolve client
+    // edges and fields. That means we need to include the resolver module. Note
+    // that we don't support inline fragment as we did for read time resolvers
+    fn build_normalization_relay_resolver_execution_time(
+        &mut self,
+        resolver_metadata: &RelayResolverMetadata,
+    ) -> Primitive {
+        let field_name = resolver_metadata.field_name(self.schema);
+        let field_arguments = &resolver_metadata.field_arguments;
+        let args = self.build_arguments(field_arguments);
+        let is_output_type = resolver_metadata
+            .output_type_info
+            .normalization_ast_should_have_is_output_type_true();
+        let module = resolver_metadata.import_path;
+
+        let import_path = self
+            .project_config
+            .js_module_import_path(self.definition_source_location, module);
+
+        let variable_name = resolver_metadata.generate_local_resolver_name(self.schema);
+        let resolver_js_module = JSModuleDependency {
+            path: import_path,
+            import_name: match resolver_metadata.import_name {
+                Some(name) => ModuleImportName::Named {
+                    name,
+                    import_as: Some(variable_name),
+                },
+                None => ModuleImportName::Default(variable_name),
+            },
+        };
+        let kind = if resolver_metadata.live {
+            CODEGEN_CONSTANTS.relay_live_resolver
+        } else {
+            CODEGEN_CONSTANTS.relay_resolver
+        };
+        Primitive::Key(self.object(object! {
+            name: Primitive::String(field_name),
+            args: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => Primitive::Key(key),
+            },
+            kind: Primitive::String(kind),
+            storage_key: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => {
+                    if is_static_storage_key_available(&resolver_metadata.field_arguments) {
+                        Primitive::StorageKey(field_name, key)
+                    } else {
+                        Primitive::SkippableNull
+                    }
+                }
+            },
+            is_output_type: Primitive::Bool(is_output_type),
+            resolver_module: Primitive::JSModuleDependency(resolver_js_module),
         }))
     }
 
@@ -1243,6 +1319,29 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         })
     }
 
+    fn build_client_edge_with_enabled_resolver_normalization_ast(
+        &mut self,
+        context: &mut ContextualMetadata,
+        client_edge_metadata: ClientEdgeMetadata<'_>,
+    ) -> Primitive {
+        let backing_field_primitives =
+            self.build_selections_from_selection(context, &client_edge_metadata.backing_field);
+
+        if backing_field_primitives.len() != 1 {
+            panic!(
+                "Expected client edge backing field to be transformed into exactly one primitive."
+            )
+        }
+        let backing_field = backing_field_primitives.into_iter().next().unwrap();
+
+        let selections_item = self.build_linked_field(context, client_edge_metadata.linked_field);
+        Primitive::Key(self.object(object! {
+            kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+            client_edge_backing_field_key: backing_field,
+            client_edge_selections_key: selections_item,
+        }))
+    }
+
     fn build_normalization_client_edge(
         &mut self,
         context: &mut ContextualMetadata,
@@ -1387,7 +1486,18 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             )
                         }
                         CodegenVariant::Normalization => {
-                            self.build_normalization_client_edge(context, client_edge_metadata)
+                            if self
+                                .project_config
+                                .feature_flags
+                                .enable_resolver_normalization_ast
+                            {
+                                self.build_client_edge_with_enabled_resolver_normalization_ast(
+                                    context,
+                                    client_edge_metadata,
+                                )
+                            } else {
+                                self.build_normalization_client_edge(context, client_edge_metadata)
+                            }
                         }
                     }
                 } else if
@@ -1837,7 +1947,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         &mut self,
         operation: &OperationDefinition,
         request_parameters: RequestParameters<'_>,
-        top_level_statements: &TopLevelStatements,
     ) -> AstKey {
         let mut metadata_items: Vec<ObjectEntry> = operation
             .directives
@@ -1926,20 +2035,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
         });
 
-        let provided_variables = if top_level_statements
-            .contains(CODEGEN_CONSTANTS.provided_variables_definition.lookup())
-        {
-            Some(Primitive::Variable(
-                CODEGEN_CONSTANTS.provided_variables_definition,
-            ))
-        } else {
-            self.build_operation_provided_variables(operation)
-                .map(Primitive::Key)
-        };
-        if let Some(value) = provided_variables {
+        if let Some(provided_variables) = self.build_operation_provided_variables(operation) {
             params_object.push(ObjectEntry {
                 key: CODEGEN_CONSTANTS.provided_variables,
-                value,
+                value: Primitive::Key(provided_variables),
             });
         }
 

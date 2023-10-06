@@ -21,7 +21,7 @@ use relay_transforms::transform_connections;
 use relay_transforms::validate_connections;
 use relay_transforms::ConnectionInterface;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     let schema = get_test_schema();

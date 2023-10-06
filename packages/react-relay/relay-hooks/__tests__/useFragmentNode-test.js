@@ -232,7 +232,6 @@ describe.each([
           useFragmentNodeTestNestedUserFragment: {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -355,7 +354,6 @@ describe.each([
                 useFragmentNodeTestUserFragment: {},
               },
               [FRAGMENT_OWNER_KEY]: owner.request,
-              __isWithinUnmatchedTypeRefinement: false,
             };
 
         setSingularOwner = _setOwner;
@@ -380,7 +378,6 @@ describe.each([
                 useFragmentNodeTestUsersFragment: {},
               },
               [FRAGMENT_OWNER_KEY]: owner.request,
-              __isWithinUnmatchedTypeRefinement: false,
             }));
 
         const [usersData] = useFragmentNode(gqlPluralFragment, usersRef);
@@ -947,6 +944,133 @@ describe.each([
           ]);
           assertFragmentResults([expectedData, expectedData]);
         }
+
+        // Update latest rendered data
+        environment.commitPayload(newQuery, {
+          node: {
+            __typename: 'User',
+            id: '200',
+            // Update name
+            name: 'Foo Updated',
+            username: 'userfoo',
+            profile_picture: null,
+          },
+        });
+        expectSchedulerToFlushAndYield([
+          'Hey user,',
+          'Foo Updated',
+          ['with id ', '200', '!'],
+        ]);
+        assertFragmentResults([
+          {
+            data: {
+              id: '200',
+              // Assert name is updated
+              name: 'Foo Updated',
+              profile_picture: null,
+              ...createFragmentRef('200', newQuery),
+            },
+          },
+        ]);
+      });
+    });
+
+    it('should ignore updates to initially rendered data when fragment pointers change, but still handle updates to the new data', () => {
+      const Scheduler = require('scheduler');
+      const YieldChild = (props: any) => {
+        // NOTE the unstable_yield method will move to the static renderer.
+        // When React sync runs we need to update this.
+        Scheduler.log(props.children);
+        return props.children;
+      };
+      const YieldyUserComponent = ({user}: any) => (
+        <>
+          <YieldChild>Hey user,</YieldChild>
+          <YieldChild>{user.name}</YieldChild>
+          <YieldChild>with id {user.id}!</YieldChild>
+        </>
+      );
+
+      // Assert initial render
+      // $FlowFixMe[incompatible-type]
+      SingularRenderer = YieldyUserComponent;
+      internalAct(() => {
+        renderSingularFragment({isConcurrent: true});
+      });
+      expectSchedulerToHaveYielded([
+        'Hey user,',
+        'Alice',
+        ['with id ', '1', '!'],
+      ]);
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: null,
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
+
+      const newVariables = {...singularVariables, id: '200'};
+      const newQuery = createOperationDescriptor(
+        gqlSingularQuery,
+        newVariables,
+      );
+      internalAct(() => {
+        environment.commitPayload(newQuery, {
+          node: {
+            __typename: 'User',
+            id: '200',
+            name: 'Foo',
+            username: 'userfoo',
+            profile_picture: null,
+          },
+        });
+      });
+
+      internalAct(() => {
+        // Pass new fragment ref that points to new ID 200
+        setSingularOwner(newQuery);
+
+        // Flush some of the changes, but don't commit
+        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Foo']);
+
+        // Trigger an update for initially rendered data and for the new data
+        // while second render is in progress
+        environment.commitUpdate(store => {
+          store.get('1')?.setValue('Alice in Wonderland', 'name');
+          store.get('200')?.setValue('Foo Bar', 'name');
+        });
+
+        // Assert the component renders the data from newQuery/newVariables,
+        // ignoring any updates triggered while render was in progress.
+        const expectedData = {
+          data: {
+            id: '200',
+            name: 'Foo',
+            profile_picture: null,
+            ...createFragmentRef('200', newQuery),
+          },
+        };
+        expectSchedulerToFlushAndYield([
+          ['with id ', '200', '!'],
+          'Hey user,',
+          'Foo Bar',
+          ['with id ', '200', '!'],
+        ]);
+        assertFragmentResults([
+          expectedData,
+          {
+            data: {
+              id: '200',
+              name: 'Foo Bar',
+              profile_picture: null,
+              ...createFragmentRef('200', newQuery),
+            },
+          },
+        ]);
 
         // Update latest rendered data
         environment.commitPayload(newQuery, {

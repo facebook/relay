@@ -41,6 +41,7 @@ use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::SplitOperationMetadata;
 use crate::ValidationMessage;
+use crate::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 
 fn generate_fat_selections_from_type(
     schema: &SDLSchema,
@@ -472,6 +473,16 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
         }
 
         if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
+            // For resolvers that belong to the base schema, we don't need to generate fragments.
+            // These fragments should be generated during compilcation of the base project.
+            if field
+                .directives
+                .named(*RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE)
+                .is_some()
+            {
+                continue;
+            }
+
             let has_output_type =
                 get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
             if !has_output_type {

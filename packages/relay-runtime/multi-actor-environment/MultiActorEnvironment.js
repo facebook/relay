@@ -48,6 +48,7 @@ const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProv
 const RelayObservable = require('../network/RelayObservable');
 const defaultGetDataID = require('../store/defaultGetDataID');
 const defaultRequiredFieldLogger = require('../store/defaultRequiredFieldLogger');
+const normalizeResponse = require('../store/normalizeResponse');
 const OperationExecutor = require('../store/OperationExecutor');
 const RelayModernStore = require('../store/RelayModernStore');
 const RelayRecordSource = require('../store/RelayRecordSource');
@@ -469,6 +470,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
         log: this._logFn,
+        normalizeResponse: normalizeResponse,
       });
       return () => executor.cancel();
     });

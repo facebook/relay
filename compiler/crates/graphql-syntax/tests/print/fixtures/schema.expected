@@ -21,11 +21,19 @@ type Mutation {
   success: boolean
 }
 
-interface XIGHuman @source(schema: "instagram", name: "Human") {
+interface HasName {
   name: String
 }
 
-extend interface XIGHuman {
+interface HasNickname {
+  nickname: String
+}
+
+interface XIGHuman implements Animal @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+extend interface XIGHuman implements HasNickname {
   nickname: String
 }
 
@@ -104,11 +112,19 @@ type Mutation {
   success: boolean
 }
 
-interface XIGHuman @source(schema: "instagram", name: "Human") {
+interface HasName {
   name: String
 }
 
-extend interface XIGHuman {
+interface HasNickname {
+  nickname: String
+}
+
+interface XIGHuman implements Animal @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+extend interface XIGHuman implements HasNickname {
   nickname: String
 }
 

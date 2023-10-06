@@ -32,7 +32,7 @@
 //! `tests/first_transform/mod.rs` exports the transform to test, for example:
 //!
 //! ```ignore
-//! pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+//! pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 //!   Ok(fixture.to_uppercase())
 //! }
 //! ```
@@ -54,11 +54,12 @@ mod print_diff;
 
 use std::env;
 use std::fs::File;
+use std::future::Future;
 use std::io::prelude::*;
 use std::sync::Arc;
 
 use lazy_static::lazy_static;
-use parking_lot::Mutex;
+use tokio::sync::Mutex;
 
 lazy_static! {
     static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
@@ -72,16 +73,30 @@ pub struct Fixture<'a> {
     pub content: &'a str,
 }
 
+// https://stackoverflow.com/a/70511636
+pub trait AsyncFn<T>: Fn(T) -> <Self as AsyncFn<T>>::Fut {
+    type Fut: Future<Output = <Self as AsyncFn<T>>::Output>;
+    type Output;
+}
+impl<T, F, Fut> AsyncFn<T> for F
+where
+    F: Fn(T) -> Fut,
+    Fut: Future,
+{
+    type Fut = Fut;
+    type Output = Fut::Output;
+}
+
 /// This is an internal function and is typically called from generated code
 /// containing one test per fixture.
-pub fn test_fixture<T, U, V>(
+pub async fn test_fixture<T, U, V>(
     transform: T,
     input_file_name: &str,
     expected_file_name: &str,
     input: &str,
     expected: &str,
 ) where
-    T: FnOnce(&Fixture<'_>) -> Result<U, V>,
+    T: for<'b> AsyncFn<&'b Fixture<'b>, Output = Result<U, V>>,
     U: std::fmt::Display,
     V: std::fmt::Display,
 {
@@ -93,9 +108,8 @@ pub fn test_fixture<T, U, V>(
     let actual_result: Result<U, V>;
     {
         let _guard = LOCK.lock();
-        colored::control::set_override(false);
-        actual_result = transform(&fixture);
-        colored::control::unset_override();
+        env::set_var("NO_COLOR", "1");
+        actual_result = transform(&fixture).await;
     }
 
     let actual = match &actual_result {

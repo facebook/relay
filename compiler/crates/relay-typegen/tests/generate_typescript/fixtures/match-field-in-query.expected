@@ -24,7 +24,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type NameRendererQuery$variables = {};
+export type NameRendererQuery$variables = Record<PropertyKey, never>;
 export type NameRendererQuery$data = {
   readonly me: {
     readonly nameRenderer: {

@@ -27,7 +27,7 @@ query UnionTypeTest {
   }
 }
 ==================================== OUTPUT ===================================
-export type UnionTypeTest$variables = {};
+export type UnionTypeTest$variables = Record<PropertyKey, never>;
 export type UnionTypeTest$data = {
   readonly neverNode: {
     readonly __typename: "FakeNode";
@@ -36,7 +36,7 @@ export type UnionTypeTest$data = {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
-  } | null;
+  } | null | undefined;
 };
 export type UnionTypeTest = {
   response: UnionTypeTest$data;
@@ -47,18 +47,18 @@ import { FragmentRefs } from "relay-runtime";
 export type LinkedField$data = {
   readonly actor: {
     readonly id: string;
-  } | null;
+  } | null | undefined;
   readonly hometown: {
     readonly id: string;
     readonly profilePicture: {
-      readonly uri: string | null;
-    } | null;
-  } | null;
+      readonly uri: string | null | undefined;
+    } | null | undefined;
+  } | null | undefined;
   readonly profilePicture: {
-    readonly height: number | null;
-    readonly uri: string | null;
-    readonly width: number | null;
-  } | null;
+    readonly height: number | null | undefined;
+    readonly uri: string | null | undefined;
+    readonly width: number | null | undefined;
+  } | null | undefined;
   readonly " $fragmentType": "LinkedField";
 };
 export type LinkedField$key = {

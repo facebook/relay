@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dc250fcec79eeebf8d9776fb18a49d95>>
+ * @generated SignedSource<<e4b294cf76b8dd333d53392e33d0f9f2>>
  */
 
 mod generate_typescript;
@@ -237,6 +237,13 @@ async fn refetchable_fragment() {
 }
 
 #[tokio::test]
+async fn regular_query_with_assignable_fragment_spread() {
+    let input = include_str!("generate_typescript/fixtures/regular-query-with-assignable-fragment-spread.graphql");
+    let expected = include_str!("generate_typescript/fixtures/regular-query-with-assignable-fragment-spread.expected");
+    test_fixture(transform_fixture, "regular-query-with-assignable-fragment-spread.graphql", "generate_typescript/fixtures/regular-query-with-assignable-fragment-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn relay_client_id_field() {
     let input = include_str!("generate_typescript/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("generate_typescript/fixtures/relay-client-id-field.expected");
@@ -430,4 +437,88 @@ async fn unmasked_fragment_spreads() {
     let input = include_str!("generate_typescript/fixtures/unmasked-fragment-spreads.graphql");
     let expected = include_str!("generate_typescript/fixtures/unmasked-fragment-spreads.expected");
     test_fixture(transform_fixture, "unmasked-fragment-spreads.graphql", "generate_typescript/fixtures/unmasked-fragment-spreads.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_fragment_spread() {
+    let input = include_str!("generate_typescript/fixtures/updatable-fragment-spread.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-fragment-spread.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread.graphql", "generate_typescript/fixtures/updatable-fragment-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_fragment_spread_and_regular_spread() {
+    let input = include_str!("generate_typescript/fixtures/updatable-fragment-spread-and-regular-spread.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-fragment-spread-and-regular-spread.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-and-regular-spread.graphql", "generate_typescript/fixtures/updatable-fragment-spread-and-regular-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_fragment_spread_multiple() {
+    let input = include_str!("generate_typescript/fixtures/updatable-fragment-spread-multiple.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-fragment-spread-multiple.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-multiple.graphql", "generate_typescript/fixtures/updatable-fragment-spread-multiple.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation.expected");
+    test_fixture(transform_fixture, "updatable-operation.graphql", "generate_typescript/fixtures/updatable-operation.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation_assignable_fragment() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation-assignable-fragment.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation-assignable-fragment.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragment.graphql", "generate_typescript/fixtures/updatable-operation-assignable-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation_assignable_fragment_plural() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation-assignable-fragment-plural.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation-assignable-fragment-plural.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragment-plural.graphql", "generate_typescript/fixtures/updatable-operation-assignable-fragment-plural.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation_assignable_fragments_within_narrowing() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation-assignable-fragments-within-narrowing.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation-assignable-fragments-within-narrowing.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragments-within-narrowing.graphql", "generate_typescript/fixtures/updatable-operation-assignable-fragments-within-narrowing.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation_multiple_assignable_fragments() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation-multiple-assignable-fragments.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation-multiple-assignable-fragments.expected");
+    test_fixture(transform_fixture, "updatable-operation-multiple-assignable-fragments.graphql", "generate_typescript/fixtures/updatable-operation-multiple-assignable-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation_plural_field_no_spreads() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation-plural-field-no-spreads.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation-plural-field-no-spreads.expected");
+    test_fixture(transform_fixture, "updatable-operation-plural-field-no-spreads.graphql", "generate_typescript/fixtures/updatable-operation-plural-field-no-spreads.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation_plural_field_with_spreads() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation-plural-field-with-spreads.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation-plural-field-with-spreads.expected");
+    test_fixture(transform_fixture, "updatable-operation-plural-field-with-spreads.graphql", "generate_typescript/fixtures/updatable-operation-plural-field-with-spreads.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation_special_fields() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation-special-fields.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation-special-fields.expected");
+    test_fixture(transform_fixture, "updatable-operation-special-fields.graphql", "generate_typescript/fixtures/updatable-operation-special-fields.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_operation_type_refinement() {
+    let input = include_str!("generate_typescript/fixtures/updatable-operation-type-refinement.graphql");
+    let expected = include_str!("generate_typescript/fixtures/updatable-operation-type-refinement.expected");
+    test_fixture(transform_fixture, "updatable-operation-type-refinement.graphql", "generate_typescript/fixtures/updatable-operation-type-refinement.expected", input, expected).await;
 }

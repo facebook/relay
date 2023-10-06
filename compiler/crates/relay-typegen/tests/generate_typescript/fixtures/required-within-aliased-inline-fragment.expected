@@ -8,14 +8,14 @@ query RelayReaderNamedFragmentsTest2Query {
   }
 }
 ==================================== OUTPUT ===================================
-export type RelayReaderNamedFragmentsTest2Query$variables = {};
+export type RelayReaderNamedFragmentsTest2Query$variables = Record<PropertyKey, never>;
 export type RelayReaderNamedFragmentsTest2Query$data = {
   readonly me: {
     readonly id: string;
     readonly named_fragment: {
       readonly name: string;
-    } | null;
-  } | null;
+    } | null | undefined;
+  } | null | undefined;
 };
 export type RelayReaderNamedFragmentsTest2Query = {
   response: RelayReaderNamedFragmentsTest2Query$data;

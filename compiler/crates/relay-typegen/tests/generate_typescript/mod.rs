@@ -97,7 +97,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let operation_strings = operations.into_iter().map(|typegen_operation| {
         // `normalization` ASTs are present unless we are processing an updatable query
         // In that case, `reader` ASTs are present.
-        let op = programs
+        let normalization_operation = programs
             .normalization
             .operation(OperationDefinitionName(typegen_operation.name.item.0))
             .unwrap_or_else(|| {
@@ -114,7 +114,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
         relay_typegen::generate_operation_type_exports_section(
             typegen_operation,
-            op,
+            normalization_operation,
             &schema,
             &project_config,
             &fragment_locations,

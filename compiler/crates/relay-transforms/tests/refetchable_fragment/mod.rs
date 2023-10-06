@@ -11,7 +11,7 @@ use relay_transforms::transform_connections;
 use relay_transforms::transform_refetchable_fragment;
 use relay_transforms::ConnectionInterface;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
         let program = transform_connections(program, &ConnectionInterface::default());
         let base_fragments = Default::default();

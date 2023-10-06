@@ -25,7 +25,7 @@ use relay_docblock::ParseOptions;
 use relay_test_schema::get_test_schema_with_extensions;
 use schema::SDLSchema;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let (base, mut schema) = match parts.as_slice() {
         [base, extensions] => (base, extract_schema_from_js(extensions)),

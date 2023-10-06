@@ -225,7 +225,6 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
             },
         },
         __fragmentOwner: ownerUser1.request,
-        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -278,7 +277,6 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
             },
         },
         __fragmentOwner: expectedOwner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 
@@ -305,7 +303,6 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
             },
         },
         __fragmentOwner: ownerUser1.request,
-        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -364,7 +361,6 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
             },
         },
         __fragmentOwner: expectedOwner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 

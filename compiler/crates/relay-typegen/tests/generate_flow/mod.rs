@@ -22,6 +22,7 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
+use relay_codegen::print_provided_variables;
 use relay_codegen::JsModuleFormat;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
@@ -36,7 +37,7 @@ use relay_typegen::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
@@ -112,7 +113,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let operation_strings = operations.into_iter().map(|typegen_operation| {
         // `normalization` ASTs are present unless we are processing an updatable query
         // In that case, `reader` ASTs are present.
-        let op = programs
+        let op: &Arc<graphql_ir::OperationDefinition> = programs
             .normalization
             .operation(OperationDefinitionName(typegen_operation.name.item.0))
             .unwrap_or_else(|| {
@@ -133,6 +134,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             &schema,
             &project_config,
             &fragment_locations,
+            print_provided_variables(&schema, op, &project_config),
         )
     });
 

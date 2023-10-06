@@ -93,11 +93,11 @@ fn main() {
             .map(|(_, test_case)| {
                 let test_case_name = &test_case.name;
                 format!(
-                    r#"#[test]
-fn {0}() {{
+                    r#"#[tokio::test]
+async fn {0}() {{
     let input = include_str!("{1}/fixtures/{2}");
     let expected = include_str!("{1}/fixtures/{3}");
-    test_fixture(transform_fixture, "{2}", "{1}/fixtures/{3}", input, expected);
+    test_fixture(transform_fixture, "{2}", "{1}/fixtures/{3}", input, expected).await;
 }}"#,
                     test_case.name,
                     &test_name,

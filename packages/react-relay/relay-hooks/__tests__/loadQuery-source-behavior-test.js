@@ -15,7 +15,8 @@ import type {
   LoadQueryOptions,
   PreloadableConcreteRequest,
 } from '../EntryPointTypes.flow';
-import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
+import type {loadQuerySourceBehaviorTestQuery} from './__generated__/loadQuerySourceBehaviorTestQuery.graphql';
+import type {OperationType, Query} from 'relay-runtime';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
@@ -43,10 +44,11 @@ const query = graphql`
   }
 `;
 
-const preloadableConcreteRequest = {
-  kind: 'PreloadableConcreteRequest',
-  params: query.params,
-};
+const preloadableConcreteRequest: PreloadableConcreteRequest<loadQuerySourceBehaviorTestQuery> =
+  {
+    kind: 'PreloadableConcreteRequest',
+    params: query.params,
+  };
 
 const response = {
   data: {
@@ -148,11 +150,7 @@ beforeEach(() => {
     });
 
   writeDataToStore = () => {
-    loadQuery<$FlowFixMe, _>(
-      environment,
-      preloadableConcreteRequest,
-      variables,
-    );
+    loadQuery(environment, preloadableConcreteRequest, variables);
     sink.next(response);
     sink.complete();
     PreloadableQueryRegistry.set(ID, query);
@@ -163,12 +161,14 @@ beforeEach(() => {
     PreloadableQueryRegistry.clear();
   };
 
-  callLoadQuery = <TQuery: OperationType>(
-    queryAstOrRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
+  callLoadQuery = <TOperation: OperationType>(
+    queryAstOrRequest:
+      | Query<TOperation['variables'], TOperation['response']>
+      | PreloadableConcreteRequest<TOperation>,
     options?: LoadQueryOptions,
     // $FlowFixMe[missing-local-annot]
   ) => {
-    const loadedQuery = loadQuery<$FlowFixMe, _>(
+    const loadedQuery = loadQuery(
       environment,
       queryAstOrRequest,
       variables,
@@ -425,7 +425,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         // calls to load will get disposed
 
         // Start initial load of query
-        const queryRef1 = loadQuery<$FlowFixMe, _>(
+        const queryRef1 = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -446,7 +446,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         expect(environment.executeWithSource).toBeCalledTimes(1);
 
         // Start second load of query
-        const queryRef2 = loadQuery<$FlowFixMe, _>(
+        const queryRef2 = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -487,7 +487,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
 describe('when passed a query AST', () => {
   it('should pass network responses onto source', () => {
-    callLoadQuery(query);
+    callLoadQuery<loadQuerySourceBehaviorTestQuery>(query);
 
     expect(next).not.toHaveBeenCalled();
     sink.next(response);
@@ -495,7 +495,7 @@ describe('when passed a query AST', () => {
   });
 
   it('should pass network errors onto source', () => {
-    callLoadQuery(query);
+    callLoadQuery<loadQuerySourceBehaviorTestQuery>(query);
 
     expect(error).not.toHaveBeenCalled();
     sink.error(networkError);
@@ -504,14 +504,14 @@ describe('when passed a query AST', () => {
 
   describe('when dispose is called before the network response is available', () => {
     it('should not pass network responses onto source', () => {
-      const {dispose} = callLoadQuery(query);
+      const {dispose} = callLoadQuery<loadQuerySourceBehaviorTestQuery>(query);
 
       dispose();
       sink.next(response);
       expect(next).not.toHaveBeenCalled();
     });
     it('should not pass network errors onto source', done => {
-      const {dispose} = callLoadQuery(query);
+      const {dispose} = callLoadQuery<loadQuerySourceBehaviorTestQuery>(query);
 
       dispose();
 

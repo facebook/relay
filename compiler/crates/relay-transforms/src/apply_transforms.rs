@@ -251,17 +251,23 @@ fn apply_reader_transforms(
     })?;
 
     program = log_event.time("required_directive", || required_directive(&program))?;
-    program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
-    })?;
 
-    program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            project_config.name,
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
-    })?;
+    if !project_config
+        .feature_flags
+        .enable_resolver_normalization_ast
+    {
+        program = log_event.time("client_edges", || {
+            client_edges(&program, project_config, &base_fragment_names)
+        })?;
+
+        program = log_event.time("relay_resolvers", || {
+            relay_resolvers(
+                project_config.name,
+                &program,
+                project_config.feature_flags.enable_relay_resolver_transform,
+            )
+        })?;
+    }
 
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
@@ -331,7 +337,7 @@ fn apply_operation_transforms(
     });
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
+        client_edges(&program, project_config, &base_fragment_names)
     })?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
@@ -631,19 +637,25 @@ fn apply_typegen_transforms(
             &project_config.schema_config,
         )
     });
-    program = log_event.time(
-        "generate_relay_resolvers_operations_for_nested_objects",
-        || {
-            generate_relay_resolvers_operations_for_nested_objects(
-                project_config.name,
-                &program,
-                &project_config.schema_config,
-            )
-        },
-    )?;
+
+    if !project_config
+        .feature_flags
+        .enable_resolver_normalization_ast
+    {
+        program = log_event.time(
+            "generate_relay_resolvers_operations_for_nested_objects",
+            || {
+                generate_relay_resolvers_operations_for_nested_objects(
+                    project_config.name,
+                    &program,
+                    &project_config.schema_config,
+                )
+            },
+        )?;
+    }
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
+        client_edges(&program, project_config, &base_fragment_names)
     })?;
 
     program = log_event.time(

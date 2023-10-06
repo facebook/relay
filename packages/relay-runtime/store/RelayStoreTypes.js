@@ -17,6 +17,7 @@ import type {
 } from '../multi-actor-environment';
 import type {
   GraphQLResponse,
+  GraphQLResponseWithData,
   INetwork,
   PayloadData,
   PayloadError,
@@ -56,6 +57,7 @@ import type {
 import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
 
 export opaque type FragmentType = empty;
 export type OperationTracker = RelayOperationTracker;
@@ -712,6 +714,11 @@ export type LiveResolverBatchEndLogEvent = {
   +name: 'liveresolver.batch.end',
 };
 
+export type UseFragmentSubscriptionMissedUpdates = {
+  +name: 'useFragment.subscription.missedUpdates',
+  +hasDataChanges: boolean,
+};
+
 export type LogEvent =
   | SuspenseFragmentLogEvent
   | SuspenseQueryLogEvent
@@ -739,7 +746,8 @@ export type LogEvent =
   | StoreNotifySubscriptionLogEvent
   | EntrypointRootConsumeLogEvent
   | LiveResolverBatchStartLogEvent
-  | LiveResolverBatchEndLogEvent;
+  | LiveResolverBatchEndLogEvent
+  | UseFragmentSubscriptionMissedUpdates;
 
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;
@@ -1070,6 +1078,13 @@ export type StreamPlaceholder = {
   +actorIdentifier: ?ActorIdentifier,
 };
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
+
+export type NormalizeResponseFunction = (
+  response: GraphQLResponseWithData,
+  selector: NormalizationSelector,
+  typeName: string,
+  options: NormalizationOptions,
+) => RelayResponsePayload;
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation or

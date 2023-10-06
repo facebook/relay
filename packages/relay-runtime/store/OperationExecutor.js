@@ -26,7 +26,6 @@ import type {
   LogFunction,
   ModuleImportPayload,
   MutationParameters,
-  NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
@@ -50,7 +49,7 @@ import type {
 } from '../util/NormalizationNode';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
-import type {NormalizationOptions} from './RelayResponseNormalizer';
+import type {NormalizeResponseFunction} from './RelayStoreTypes';
 
 const RelayObservable = require('../network/RelayObservable');
 const generateID = require('../util/generateID');
@@ -67,7 +66,6 @@ const {
   createReaderSelector,
 } = require('./RelayModernSelector');
 const RelayRecordSource = require('./RelayRecordSource');
-const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -77,6 +75,7 @@ export type ExecuteConfig<TMutation: MutationParameters> = {
   +getDataID: GetDataID,
   +getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
   +getStore: (actorIdentifier: ActorIdentifier) => Store,
+  +normalizeResponse: NormalizeResponseFunction,
   +isClientPayload?: boolean,
   +operation: OperationDescriptor,
   +operationExecutions: Map<string, ActiveState>,
@@ -157,6 +156,7 @@ class Executor<TMutation: MutationParameters> {
   +_isClientPayload: boolean;
   +_isSubscriptionOperation: boolean;
   +_seenActors: Set<ActorIdentifier>;
+  _normalizeResponse: NormalizeResponseFunction;
 
   constructor({
     actorIdentifier,
@@ -176,6 +176,7 @@ class Executor<TMutation: MutationParameters> {
     treatMissingFieldsAsNull,
     updater,
     log,
+    normalizeResponse,
   }: ExecuteConfig<TMutation>): void {
     this._actorIdentifier = actorIdentifier;
     this._getDataID = getDataID;
@@ -207,6 +208,7 @@ class Executor<TMutation: MutationParameters> {
     this._retainDisposables = new Map();
     this._seenActors = new Set();
     this._completeFns = [];
+    this._normalizeResponse = normalizeResponse;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -575,7 +577,7 @@ class Executor<TMutation: MutationParameters> {
     }
     const optimisticUpdates: Array<OptimisticUpdate<TMutation>> = [];
     if (response) {
-      const payload = normalizeResponse(
+      const payload = this._normalizeResponse(
         response,
         this._operation.root,
         ROOT_TYPE,
@@ -684,7 +686,7 @@ class Executor<TMutation: MutationParameters> {
       followupPayload.dataID,
       variables,
     );
-    return normalizeResponse(
+    return this._normalizeResponse(
       {data: followupPayload.data},
       selector,
       followupPayload.typeName,
@@ -762,7 +764,7 @@ class Executor<TMutation: MutationParameters> {
     this._incrementalResults.clear();
     this._source.clear();
     return responses.map(payloadPart => {
-      const relayPayload = normalizeResponse(
+      const relayPayload = this._normalizeResponse(
         payloadPart,
         this._operation.root,
         ROOT_TYPE,
@@ -1215,7 +1217,7 @@ class Executor<TMutation: MutationParameters> {
     const prevActorIdentifier = this._actorIdentifier;
     this._actorIdentifier =
       placeholder.actorIdentifier ?? this._actorIdentifier;
-    const relayPayload = normalizeResponse(
+    const relayPayload = this._normalizeResponse(
       response,
       placeholder.selector,
       placeholder.typeName,
@@ -1446,7 +1448,7 @@ class Executor<TMutation: MutationParameters> {
       record: nextParentRecord,
       fieldPayloads,
     });
-    const relayPayload = normalizeResponse(response, selector, typeName, {
+    const relayPayload = this._normalizeResponse(response, selector, typeName, {
       actorIdentifier: this._actorIdentifier,
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
@@ -1580,29 +1582,6 @@ function partitionGraphQLResponses(
     }
   });
   return [nonIncrementalResponses, incrementalResponses];
-}
-
-function normalizeResponse(
-  response: GraphQLResponseWithData,
-  selector: NormalizationSelector,
-  typeName: string,
-  options: NormalizationOptions,
-): RelayResponsePayload {
-  const {data, errors} = response;
-  const source = RelayRecordSource.create();
-  const record = RelayModernRecord.create(selector.dataID, typeName);
-  source.set(selector.dataID, record);
-  const relayPayload = RelayResponseNormalizer.normalize(
-    source,
-    selector,
-    data,
-    options,
-  );
-  return {
-    ...relayPayload,
-    errors,
-    isFinal: response.extensions?.is_final === true,
-  };
 }
 
 function stableStringify(value: mixed): string {

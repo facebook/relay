@@ -897,7 +897,7 @@ const {
 
 function TabSwitcher() {
   // We use startTransition to schedule the update
-  const [startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const [selectedTab, setSelectedTab] = useState('Home');
 
   return (
@@ -1846,7 +1846,7 @@ const {useState, useTransition} = require('React');
 const {graphql, useLazyLoadQuery} = require('react-relay/hooks');
 
 function App() {
-  const [startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const [variables, setVariables] = useState({id: '4'});
 
   const data = useLazyLoadQuery<AppQuery>(
@@ -1894,7 +1894,7 @@ const {useState, useTransition} = require('React');
 const {graphql, useLazyLoadQuery} = require('react-relay/hooks');
 
 function App() {
-  const [startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const [state, setState] = useState({
     fetchPolicy: 'store-or-network',
     variables: {id: '4'},
@@ -1954,7 +1954,7 @@ type Props = {|
 |};
 
 function CommentBody(props: Props) {
-  const [startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
     graphql`
       fragment CommentBody_comment on Comment
@@ -2113,7 +2113,7 @@ type Props = {|
 |};
 
 function FriendsListComponent(props: Props) {
-  const [startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const {data, loadNext} = usePaginationFragment<FriendsListPaginationQuery, _>(
     graphql`
       fragment FriendsListComponent_user on User
@@ -2185,7 +2185,7 @@ type Props = {|
 |};
 
 function FriendsListComponent(props: Props) {
-  const [startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const {
     data,
     loadNext,
@@ -2476,7 +2476,7 @@ type Props = {|
 
 function FriendsListComponent(props: Props) {
   const searchTerm = props.searchTerm;
-  const [startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const {data, loadNext, refetch} = usePaginationFragment(
     graphql`
       fragment FriendsListComponent_user on User {

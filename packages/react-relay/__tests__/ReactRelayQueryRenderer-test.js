@@ -257,7 +257,6 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
-                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -282,7 +281,6 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
-                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -345,7 +343,6 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
-                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -370,7 +367,6 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
-                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -424,7 +420,6 @@ describe('ReactRelayQueryRenderer', () => {
               },
 
               __fragmentOwner: firstOwner.request,
-              __isWithinUnmatchedTypeRefinement: false,
               __id: '4',
             },
           },
@@ -484,7 +479,6 @@ describe('ReactRelayQueryRenderer', () => {
               },
 
               __fragmentOwner: thirdOwner.request,
-              __isWithinUnmatchedTypeRefinement: false,
               __id: '6',
             },
           },
@@ -561,7 +555,6 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -597,7 +590,6 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -774,7 +766,6 @@ describe('ReactRelayQueryRenderer', () => {
               ReactRelayQueryRendererTestFragment: {},
             },
             __fragmentOwner: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
             __id: '<default>',
           },
         },
@@ -1130,7 +1121,6 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -1189,7 +1179,6 @@ describe('ReactRelayQueryRenderer', () => {
 
                   __fragmentOwner: owner.request,
                   __id: '4',
-                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
               retry: expect.any(Function),
@@ -1209,7 +1198,6 @@ describe('ReactRelayQueryRenderer', () => {
                   },
 
                   __fragmentOwner: owner.request,
-                  __isWithinUnmatchedTypeRefinement: false,
                   __id: '4',
                 },
               },
@@ -1264,7 +1252,6 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },

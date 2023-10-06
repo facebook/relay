@@ -45,12 +45,15 @@ export type LoadQueryOptions = {
   +__nameForWarning?: ?string,
 };
 
-// Note: the phantom type parameter here helps ensures that the
-// $Parameters.js value matches the type param provided to preloadQuery.
-// eslint-disable-next-line no-unused-vars
 export type PreloadableConcreteRequest<TQuery: OperationType> = {
   kind: 'PreloadableConcreteRequest',
   params: RequestParameters,
+  // Note: the phantom type parameter here helps ensures that the
+  // $Parameters.js value matches the type param provided to preloadQuery.
+  // We also need to add usage of this generic here,
+  // becuase not using the generic in the definition makes it
+  // unconstrained in the call to a function that accepts PreloadableConcreteRequest<T>
+  __phantom__?: ?TQuery,
 };
 
 export type EnvironmentProviderOptions = {+[string]: mixed, ...};
@@ -213,7 +216,9 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
 
 type _ComponentFromEntryPoint = <
   TPreloadParams,
+  // $FlowFixMe[unsupported-variance-annotation]
   +TComponent,
+  // $FlowFixMe[unsupported-variance-annotation]
   +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
 >(
   TEntryPoint,

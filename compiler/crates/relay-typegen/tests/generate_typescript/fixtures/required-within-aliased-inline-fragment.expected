@@ -14,8 +14,8 @@ export type RelayReaderNamedFragmentsTest2Query$data = {
     readonly id: string;
     readonly named_fragment: {
       readonly name: string;
-    } | null;
-  } | null;
+    } | null | undefined;
+  } | null | undefined;
 };
 export type RelayReaderNamedFragmentsTest2Query = {
   response: RelayReaderNamedFragmentsTest2Query$data;

@@ -1,0 +1,18 @@
+query UpdatableQuery @updatable {
+  me {
+    actor {
+      ...Assignable_page
+      ...Assignable_node
+      lastName
+      name
+    }
+  }
+}
+
+fragment Assignable_node on Node @assignable {
+  __typename
+}
+
+fragment Assignable_page on Page @assignable {
+  __typename
+}

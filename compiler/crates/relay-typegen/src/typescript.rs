@@ -287,10 +287,22 @@ impl TypeScriptPrinter {
                     self.write(&key_value_pair.value)?;
                     writeln!(&mut self.result, ";")?;
                 }
-                Prop::GetterSetterPair(_) => {
-                    panic!(
-                        "Getters and setters with different types are not implemented in typescript. See https://github.com/microsoft/TypeScript/issues/43662"
-                    );
+                Prop::GetterSetterPair(getter_setter_pair) => {
+                    // Write the getter
+                    self.write_indentation()?;
+                    write!(&mut self.result, "get ")?;
+                    self.write(&AST::Identifier(getter_setter_pair.key))?;
+                    write!(&mut self.result, "(): ")?;
+                    self.write(&getter_setter_pair.getter_return_value)?;
+                    writeln!(&mut self.result, ";")?;
+
+                    // Write the setter
+                    self.write_indentation()?;
+                    write!(&mut self.result, "set ")?;
+                    self.write(&AST::Identifier(getter_setter_pair.key))?;
+                    write!(&mut self.result, "(value: ")?;
+                    self.write(&getter_setter_pair.setter_parameter)?;
+                    writeln!(&mut self.result, ");")?;
                 }
             }
         }

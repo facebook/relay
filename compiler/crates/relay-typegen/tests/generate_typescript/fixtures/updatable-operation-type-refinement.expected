@@ -15,23 +15,23 @@ query UpdatableQuery @updatable {
   }
 }
 ==================================== OUTPUT ===================================
-export type UpdatableQuery$variables = {};
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
   get maybeNodeInterface(): {
     readonly __typename: "NonNodeNoID";
-    name: string | null;
+    name: string | null | undefined;
   } | {
     readonly __typename: "Story";
-    actorCount: number | null;
+    actorCount: number | null | undefined;
     get address(): {
-      city: string | null;
-    } | null;
+      city: string | null | undefined;
+    } | null | undefined;
     set address(value: null | undefined);
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
-  } | null;
+  } | null | undefined;
   set maybeNodeInterface(value: null | undefined);
 };
 export type UpdatableQuery = {

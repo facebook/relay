@@ -10,7 +10,7 @@ query UpdatableQuery @updatable {
   }
 }
 ==================================== OUTPUT ===================================
-export type UpdatableQuery$variables = {};
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
   get me(): {
     readonly __typename: "User";
@@ -19,7 +19,7 @@ export type UpdatableQuery$data = {
     readonly aliased_id: string;
     readonly aliased_typename: "User";
     readonly id: string;
-  } | null;
+  } | null | undefined;
   set me(value: null | undefined);
 };
 export type UpdatableQuery = {

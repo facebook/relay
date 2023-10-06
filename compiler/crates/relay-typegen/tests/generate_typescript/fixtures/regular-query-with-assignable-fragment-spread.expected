@@ -10,13 +10,13 @@ fragment Assignable_viewer on Viewer @assignable {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type Foo$variables = {};
+export type Foo$variables = Record<PropertyKey, never>;
 export type Foo$data = {
   readonly viewer: {
     readonly __typename: "Viewer";
     readonly __id: string;
     readonly " $fragmentSpreads": FragmentRefs<"Assignable_viewer">;
-  } | null;
+  } | null | undefined;
 };
 export type Foo = {
   response: Foo$data;

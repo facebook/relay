@@ -15,11 +15,11 @@ fragment Assignable_user on User @assignable {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type UpdatableQuery$variables = {};
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
   get node(): {
     readonly __typename: "User";
-    get parents(): ReadonlyArray<{}>;
+    get parents(): ReadonlyArray<Record<PropertyKey, never>>;
     set parents(value: ReadonlyArray<{
       readonly __typename: "User";
       readonly __id: string;
@@ -29,7 +29,7 @@ export type UpdatableQuery$data = {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
-  } | null;
+  } | null | undefined;
   set node(value: null | undefined);
 };
 export type UpdatableQuery = {

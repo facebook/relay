@@ -192,6 +192,12 @@ module.exports = {
         infoLink: 'https://www.atlassian.com/',
         pinned: false,
       },
+      {
+        caption: 'Réa',
+        image: '/img/logos/rea.png',
+        infoLink: 'https://www.rea-app.fr/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

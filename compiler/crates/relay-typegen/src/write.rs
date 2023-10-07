@@ -164,7 +164,7 @@ pub(crate) fn write_operation_type_exports_section(
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
-    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
+    write_relay_resolver_imports(imported_resolvers, writer)?;
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();
@@ -423,7 +423,7 @@ pub(crate) fn write_fragment_type_exports_section(
     write_custom_scalar_imports(custom_scalars, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
-    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
+    write_relay_resolver_imports(imported_resolvers, writer)?;
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
     let fragment_type_name = format!("{}$fragmentType", fragment_name);
@@ -548,19 +548,9 @@ fn write_import_actor_change_point(
 }
 
 fn write_relay_resolver_imports(
-    typegen_context: &'_ TypegenContext<'_>,
     mut imported_resolvers: ImportedResolvers,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    // We don't need to import resolver modules in the type-generation
-    // they should be imported in the codegen.
-    if matches!(
-        typegen_context.project_config.typegen_config.language,
-        TypegenLanguage::TypeScript
-    ) {
-        return Ok(());
-    }
-
     imported_resolvers.0.sort_keys();
     for resolver in imported_resolvers.0.values() {
         match resolver.resolver_name {
@@ -843,13 +833,23 @@ fn write_abstract_validator_function(
     writer.write(&return_type)?;
     write!(
         writer,
-        "{} {{\n  return value.{} != null ? (value{}: ",
+        "{} {{\n  return value.{} != null ? ",
         &close_comment,
         abstract_fragment_spread_marker.lookup(),
-        open_comment
     )?;
-    writer.write(&AST::Any)?;
-    write!(writer, "{}) : false;\n}}", &close_comment)?;
+
+    match language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            write!(writer, "(value{}: ", &open_comment)?;
+            writer.write(&AST::Any)?;
+            write!(writer, "{}) ", &close_comment)?;
+        }
+        TypegenLanguage::TypeScript => {
+            write!(writer, "value ")?;
+        }
+    }
+
+    write!(writer, ": false;\n}}")?;
 
     Ok(())
 }
@@ -916,8 +916,8 @@ fn write_concrete_validator_function(
         AST::RawType(intern!("false")),
     ]));
 
-    let (open_comment, close_comment) = match typegen_context.project_config.typegen_config.language
-    {
+    let typegen_language = typegen_context.project_config.typegen_config.language;
+    let (open_comment, close_comment) = match typegen_language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
         TypegenLanguage::TypeScript => ("", ""),
     };
@@ -932,14 +932,24 @@ fn write_concrete_validator_function(
     writer.write(&return_type)?;
     write!(
         writer,
-        "{} {{\n  return value.{} === '{}' ? (value{}: ",
+        "{} {{\n  return value.{} === '{}' ? ",
         &close_comment,
         KEY_TYPENAME.lookup(),
-        concrete_typename.lookup(),
-        open_comment
+        concrete_typename.lookup()
     )?;
-    writer.write(&AST::Any)?;
-    write!(writer, "{}) : false;\n}}", &close_comment)?;
+
+    match typegen_language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            write!(writer, "(value{}: ", &open_comment)?;
+            writer.write(&AST::Any)?;
+            write!(writer, "{}) ", &close_comment)?;
+        }
+        TypegenLanguage::TypeScript => {
+            write!(writer, "value ")?;
+        }
+    }
+
+    write!(writer, ": false;\n}}")?;
 
     Ok(())
 }

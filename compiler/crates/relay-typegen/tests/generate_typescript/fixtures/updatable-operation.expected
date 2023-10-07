@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  me {
+    actorCount
+    name
+  }
+}
+==================================== OUTPUT ===================================
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
+export type UpdatableQuery$data = {
+  get me(): {
+    actorCount: number | null | undefined;
+    name: string | null | undefined;
+  } | null | undefined;
+  set me(value: null | undefined);
+};
+export type UpdatableQuery = {
+  response: UpdatableQuery$data;
+  variables: UpdatableQuery$variables;
+};

@@ -13,22 +13,22 @@ fragment MyUserFragment on User {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type MyQuery$variables = {};
+export type MyQuery$variables = Record<PropertyKey, never>;
 export type MyQuery$data = {
   readonly me: {
     readonly my_inline_fragment: {
-      readonly name: string | null;
-    } | null;
+      readonly name: string | null | undefined;
+    } | null | undefined;
     readonly my_user: {
       readonly " $fragmentSpreads": FragmentRefs<"MyUserFragment">;
-    } | null;
-  } | null;
+    } | null | undefined;
+  } | null | undefined;
 };
 export type MyQuery$rawResponse = {
   readonly me: {
     readonly id: string;
-    readonly name: string | null;
-  } | null;
+    readonly name: string | null | undefined;
+  } | null | undefined;
 };
 export type MyQuery = {
   rawResponse: MyQuery$rawResponse;
@@ -38,7 +38,7 @@ export type MyQuery = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type MyUserFragment$data = {
-  readonly name: string | null;
+  readonly name: string | null | undefined;
   readonly " $fragmentType": "MyUserFragment";
 };
 export type MyUserFragment$key = {

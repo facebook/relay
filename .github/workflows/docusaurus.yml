@@ -11,7 +11,7 @@ on:
 jobs:
   build-compiler-explorer:
     name: Build Compiler Explorer
-    runs-on: macos-latest # wasm-pack not working on Ubuntu https://github.com/rustwasm/wasm-pack/issues/781
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -21,7 +21,7 @@ jobs:
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: "Build Compiler Playground Wasm NPM package"
-        run: wasm-pack build --target web
+        run: RUST_LOG=debug wasm-pack build --target web
         working-directory: ./compiler/crates/relay-compiler-playground
       - uses: actions/upload-artifact@v3
         with:

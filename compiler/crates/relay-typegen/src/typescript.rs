@@ -175,7 +175,7 @@ impl TypeScriptPrinter {
             use_import_type_syntax: config.use_import_type_syntax,
             include_undefined_in_nullable_union: !config
                 .typescript_exclude_undefined_from_nullable_union,
-            generate_jsdoc: feature_flags.generate_jsdoc.is_fully_enabled(),
+            generate_jsdoc: feature_flags.generate_jsdoc,
         }
     }
 
@@ -279,24 +279,26 @@ impl TypeScriptPrinter {
                             write!(&mut self.result, "/**\n")?;
                         }
                         if key_value_pair.doc_comment.is_some() {
-                            self.write_indentation()?;
-                            write!(
-                                &mut self.result,
-                                "* {}\n",
-                                key_value_pair.doc_comment.as_ref().unwrap()
-                            )?;
+                            for line in  key_value_pair.doc_comment.as_ref().unwrap().lines() {
+                                self.write_indentation()?;
+                                write!(
+                                    &mut self.result,
+                                    " * {}\n",
+                                    line
+                                )?;
+                            }
                         }
                         if key_value_pair.deprecation.is_some() {
                             self.write_indentation()?;
                             write!(
                                 &mut self.result,
-                                "* @deprecated {}\n",
+                                " * @deprecated {}\n",
                                 key_value_pair.deprecation.as_ref().unwrap()
                             )?;
                         }
                         if has_doc {
                             self.write_indentation()?;
-                            write!(&mut self.result, "**/\n")?;
+                            write!(&mut self.result, " */\n")?;
                             self.write_indentation()?;
                         }
                     }

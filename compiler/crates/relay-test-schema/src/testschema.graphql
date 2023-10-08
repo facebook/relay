@@ -1018,6 +1018,33 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
     unless: Boolean
     traits: [PersonalityTraits]
   ): FriendsConnection
+  """A full name of the user"""
+  fullName: String @deprecated(reason: "Use `firstName` instead")
+  """List the user's friends based on previous interactions.
+
+  This list is different for each viewer and might vary over time with the user's behavior and the behavior of their friends.
+
+  example usage:
+  ```graphql
+  query {
+    me {
+      friends(first: 10) {
+        edges {
+          node {
+            name
+          }
+        }
+      }
+    }
+  }
+  ```
+  """
+  dynamicFriends(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+  ): FriendsConnection
   hometown: Page
   id: ID!
   js(module: String!, id: String, branch: String): JSDependency

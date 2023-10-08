@@ -101,7 +101,7 @@ pub struct FeatureFlags {
 
     /// Annotate the generated files with jsdoc comments
     #[serde(default)]
-    pub generate_jsdoc: FeatureFlag,
+    pub generate_jsdoc: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

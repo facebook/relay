@@ -80,6 +80,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         feature_flags: Arc::new(FeatureFlags {
             enable_fragment_aliases: FeatureFlag::Enabled,
             enable_relay_resolver_transform: true,
+            generate_jsdoc: true,
             ..Default::default()
         }),
         ..Default::default()

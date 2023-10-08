@@ -125,6 +125,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         allow_required_in_mutation_response: FeatureFlag::Disabled,
         allow_resolvers_in_mutation_response: FeatureFlag::Disabled,
         generate_jsdoc: FeatureFlag::Enabled,
+        generate_jsdoc: true,
     };
 
     let default_project_config = ProjectConfig {

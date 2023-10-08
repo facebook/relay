@@ -1685,14 +1685,11 @@ fn make_prop(
                         type_,
                     )
                 });
-                let deprecated = linked_field
+                let deprecated_reason = linked_field
                     .deprecation
-                    .as_ref()
-                    .map(|s| s.reason.as_ref().map(|r| r.to_string()));
-                let mut deprecated_reason: Option<String> = None;
-                if deprecated.is_some() && deprecated.as_ref().unwrap().is_some() {
-                    deprecated_reason = deprecated.unwrap();
-                }
+                    .and_then(|s| s.reason)
+                    .map(|reason| reason.to_string());
+
                 Prop::KeyValuePair(KeyValuePairProp {
                     key,
                     value,
@@ -1727,14 +1724,11 @@ fn make_prop(
                     })
                 }
             } else {
-                let deprecated = scalar_field
+                let deprecated_reason = scalar_field
                     .deprecation
-                    .as_ref()
-                    .map(|s| s.reason.as_ref().map(|r| r.to_string()));
-                let mut deprecated_reason: Option<String> = None;
-                if deprecated.is_some() && deprecated.as_ref().unwrap().is_some() {
-                    deprecated_reason = deprecated.unwrap();
-                }
+                    .and_then(|s| s.reason)
+                    .map(|reason| reason.to_string());
+
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: scalar_field.field_name_or_alias,
                     value: scalar_field.value,

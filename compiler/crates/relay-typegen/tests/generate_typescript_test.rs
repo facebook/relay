@@ -97,6 +97,13 @@ async fn inline_fragment() {
 }
 
 #[tokio::test]
+async fn jsdoc_query() {
+    let input = include_str!("generate_typescript/fixtures/jsdoc-query.graphql");
+    let expected = include_str!("generate_typescript/fixtures/jsdoc-query.expected");
+    test_fixture(transform_fixture, "jsdoc-query.graphql", "generate_typescript/fixtures/jsdoc-query.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn linked_field() {
     let input = include_str!("generate_typescript/fixtures/linked-field.graphql");
     let expected = include_str!("generate_typescript/fixtures/linked-field.expected");

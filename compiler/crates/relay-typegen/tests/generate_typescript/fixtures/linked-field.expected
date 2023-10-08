@@ -51,12 +51,24 @@ export type LinkedField$data = {
   readonly hometown: {
     readonly id: string;
     readonly profilePicture: {
+      /**
+       * URI where the image can be found
+       */
       readonly uri: string | null | undefined;
     } | null | undefined;
   } | null | undefined;
   readonly profilePicture: {
+    /**
+     * Height in pixels
+     */
     readonly height: number | null | undefined;
+    /**
+     * URI where the image can be found
+     */
     readonly uri: string | null | undefined;
+    /**
+     * Width in pixels
+     */
     readonly width: number | null | undefined;
   } | null | undefined;
   readonly " $fragmentType": "LinkedField";

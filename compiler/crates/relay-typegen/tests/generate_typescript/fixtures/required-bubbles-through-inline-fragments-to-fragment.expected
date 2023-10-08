@@ -11,6 +11,9 @@ fragment Foo on Node {
 import { FragmentRefs } from "relay-runtime";
 export type Foo$data = {
   readonly __typename: "User";
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string;
   readonly " $fragmentType": "Foo";
 } | {

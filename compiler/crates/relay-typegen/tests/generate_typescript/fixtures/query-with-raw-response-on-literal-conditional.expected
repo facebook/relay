@@ -55,6 +55,9 @@ export type FriendFragment$data = {
     readonly name: string | null | undefined;
   } | null | undefined;
   readonly lastName?: string | null | undefined;
+  /**
+   * The user's name (first, last)
+   */
   readonly name?: string | null | undefined;
   readonly " $fragmentType": "FriendFragment";
 };

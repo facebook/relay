@@ -90,6 +90,9 @@ export type TestEnums = "mark" | "zuck" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment$data = {
   readonly lastName: string | null | undefined;
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly profilePicture2: {
     readonly test_enums: TestEnums | null | undefined;

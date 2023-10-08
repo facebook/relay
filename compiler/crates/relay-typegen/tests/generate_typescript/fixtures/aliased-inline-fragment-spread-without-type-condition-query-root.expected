@@ -13,6 +13,9 @@ export type RelayReaderNamedFragmentsTest2Query$data = {
   readonly named_fragment: {
     readonly me: {
       readonly id: string;
+      /**
+       * The user's name (first, last)
+       */
       readonly name: string | null | undefined;
     } | null | undefined;
   } | null | undefined;

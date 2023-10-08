@@ -17,6 +17,9 @@ export type MyQuery$variables = Record<PropertyKey, never>;
 export type MyQuery$data = {
   readonly me: {
     readonly my_inline_fragment: {
+      /**
+       * The user's name (first, last)
+       */
       readonly name: string | null | undefined;
     } | null | undefined;
     readonly my_user: {
@@ -38,6 +41,9 @@ export type MyQuery = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type MyUserFragment$data = {
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly " $fragmentType": "MyUserFragment";
 };

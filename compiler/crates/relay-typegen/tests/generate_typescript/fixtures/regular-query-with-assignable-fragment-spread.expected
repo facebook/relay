@@ -14,6 +14,9 @@ export type Foo$variables = Record<PropertyKey, never>;
 export type Foo$data = {
   readonly viewer: {
     readonly __typename: "Viewer";
+    /**
+     * Relay's cache key for this object.
+     */
     readonly __id: string;
     readonly " $fragmentSpreads": FragmentRefs<"Assignable_viewer">;
   } | null | undefined;

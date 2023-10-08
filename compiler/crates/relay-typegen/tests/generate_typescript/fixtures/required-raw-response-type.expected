@@ -10,6 +10,9 @@ export type MyQuery$variables = Record<PropertyKey, never>;
 export type MyQuery$data = {
   readonly me: {
     readonly id: string;
+    /**
+     * The user's name (first, last)
+     */
     readonly name: string;
   };
 } | null | undefined;

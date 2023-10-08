@@ -25,8 +25,14 @@ export type TypenameInsideWithOverlappingFields$data = {
   } | {
     readonly __typename: "User";
     readonly id: string;
+    /**
+     * The user's name (first, last)
+     */
     readonly name: string | null | undefined;
     readonly profile_picture: {
+      /**
+       * URI where the image can be found
+       */
       readonly uri: string | null | undefined;
     } | null | undefined;
   } | {

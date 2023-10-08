@@ -35,6 +35,9 @@ export type PopStarNameResolverFragment_name$data = {
   readonly address: {
     readonly street: string | null | undefined;
   } | null | undefined;
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly parents: ReadonlyArray<{
     readonly lastName: string | null | undefined;

@@ -10,6 +10,9 @@ export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
   get me(): {
     actorCount: number | null | undefined;
+    /**
+     * The user's name (first, last)
+     */
     name: string | null | undefined;
   } | null | undefined;
   set me(value: null | undefined);

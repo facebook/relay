@@ -24,6 +24,9 @@ export type FlowRefetchableFragmentQuery = {
 import { FragmentRefs } from "relay-runtime";
 export type FlowRefetchableFragment$data = {
   readonly id: string;
+  /**
+   * The user's name (first, last)
+   */
   readonly name?: string | null | undefined;
   readonly " $fragmentType": "FlowRefetchableFragment";
 };

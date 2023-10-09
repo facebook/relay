@@ -252,22 +252,17 @@ fn apply_reader_transforms(
 
     program = log_event.time("required_directive", || required_directive(&program))?;
 
-    if !project_config
-        .feature_flags
-        .enable_resolver_normalization_ast
-    {
-        program = log_event.time("client_edges", || {
-            client_edges(&program, project_config, &base_fragment_names)
-        })?;
+    program = log_event.time("client_edges", || {
+        client_edges(&program, project_config, &base_fragment_names)
+    })?;
 
-        program = log_event.time("relay_resolvers", || {
-            relay_resolvers(
-                project_config.name,
-                &program,
-                project_config.feature_flags.enable_relay_resolver_transform,
-            )
-        })?;
-    }
+    program = log_event.time("relay_resolvers", || {
+        relay_resolvers(
+            project_config.name,
+            &program,
+            project_config.feature_flags.enable_relay_resolver_transform,
+        )
+    })?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {

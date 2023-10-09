@@ -63,7 +63,18 @@ impl FromStr for DirectiveName {
 }
 
 impl_lookup!(DirectiveName);
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Deserialize,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Serialize
+)]
 pub struct ArgumentName(pub StringKey);
 
 impl fmt::Display for ArgumentName {

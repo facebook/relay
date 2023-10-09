@@ -54,7 +54,6 @@ use relay_transforms::RequiredMetadataDirective;
 use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::StreamDirective;
 use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
-use relay_transforms::DEFER_STREAM_CONSTANTS;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use relay_transforms::INLINE_DIRECTIVE_NAME;
 use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
@@ -482,7 +481,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 };
                 if metadata.is_stream_connection {
                     object.push(ObjectEntry {
-                        key: DEFER_STREAM_CONSTANTS.stream_name.0,
+                        key: self
+                            .project_config
+                            .schema_config
+                            .defer_stream_interface
+                            .stream_name
+                            .0,
                         value: Primitive::Bool(true),
                     })
                 }
@@ -528,9 +532,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 vec![self.build_fragment_spread(frag_spread)]
             }
             Selection::InlineFragment(inline_fragment) => {
-                let defer = inline_fragment
-                    .directives
-                    .named(DEFER_STREAM_CONSTANTS.defer_name);
+                let defer = inline_fragment.directives.named(
+                    self.project_config
+                        .schema_config
+                        .defer_stream_interface
+                        .defer_name,
+                );
                 if let Some(defer) = defer {
                     vec![self.build_defer(context, inline_fragment, defer)]
                 } else if let Some(inline_data_directive) =
@@ -577,7 +584,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }
             }
             Selection::LinkedField(field) => {
-                let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
+                let stream = field.directives.named(
+                    self.project_config
+                        .schema_config
+                        .defer_stream_interface
+                        .stream_name,
+                );
 
                 match stream {
                     Some(stream) => vec![self.build_stream(context, field, stream)],
@@ -1254,7 +1266,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         defer: &Directive,
     ) -> Primitive {
         let next_selections = self.build_selections(context, inline_fragment.selections.iter());
-        let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
+        let DeferDirective { if_arg, label_arg } = DeferDirective::from(
+            defer,
+            &self.project_config.schema_config.defer_stream_interface,
+        );
         let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
             // `true` is the default, remove as the AST is typed just as a variable name string
             // `false` constant values should've been transformed away in skip_unreachable_node
@@ -1283,7 +1298,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             &LinkedField {
                 directives: remove_directive(
                     &linked_field.directives,
-                    DEFER_STREAM_CONSTANTS.stream_name,
+                    self.project_config
+                        .schema_config
+                        .defer_stream_interface
+                        .stream_name,
                 ),
                 ..linked_field.to_owned()
             },
@@ -1300,7 +1318,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     label_arg,
                     use_customized_batch_arg: _,
                     initial_count_arg: _,
-                } = StreamDirective::from(stream);
+                } = StreamDirective::from(
+                    stream,
+                    &self.project_config.schema_config.defer_stream_interface,
+                );
                 let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
                     // `true` is the default, remove as the AST is typed just as a variable name string
                     // `false` constant values should've been transformed away in skip_unreachable_node

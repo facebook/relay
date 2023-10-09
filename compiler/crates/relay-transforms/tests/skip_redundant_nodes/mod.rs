@@ -14,6 +14,7 @@ use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
+use relay_config::DeferStreamInterface;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::inline_fragments;
@@ -26,12 +27,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         debug_directive_data: true,
         ..Default::default()
     };
+    let defer_stream_interface = DeferStreamInterface::default();
     let mut printed = if let [base, extensions] = parts.as_slice() {
         let ast = parse_executable(base, source_location).unwrap();
         let schema = get_test_schema_with_extensions(extensions);
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-        let next_program = skip_redundant_nodes(&inline_fragments(&program));
+        let next_program =
+            skip_redundant_nodes(&inline_fragments(&program), defer_stream_interface);
         next_program
             .operations()
             .map(|def| print_operation(&schema, def, printer_options.clone()))
@@ -41,7 +44,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         let ast = parse_executable(fixture.content, source_location).unwrap();
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-        let next_program = skip_redundant_nodes(&inline_fragments(&program));
+        let next_program =
+            skip_redundant_nodes(&inline_fragments(&program), defer_stream_interface);
         next_program
             .operations()
             .map(|def| print_operation(&schema, def, printer_options.clone()))

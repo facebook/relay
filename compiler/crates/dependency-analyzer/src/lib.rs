@@ -21,4 +21,4 @@ pub use ir::get_reachable_ir;
 pub use ir::ExecutableDefinitionNameMap;
 pub use ir::ExecutableDefinitionNameSet;
 pub use ir::ExecutableDefinitionNameVec;
-pub use minimized_executable::MinExecutableDefinition;
+pub use minimized_executable::MinProgram;

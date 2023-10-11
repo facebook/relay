@@ -8,6 +8,7 @@
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
+use std::path::MAIN_SEPARATOR;
 
 use fnv::FnvHashMap;
 use walkdir::WalkDir;
@@ -57,7 +58,7 @@ impl ProjectFixture {
         let mut output: String = Default::default();
 
         for (file_name, content) in sorted {
-            output.push_str(&format!("//- {}\n", file_name.to_string_lossy()));
+            output.push_str(&format!("//- {}\n", format_normalized_path(&file_name)));
             output.push_str(&content);
             output.push('\n');
         }
@@ -103,4 +104,11 @@ impl ProjectFixture {
             self.files.remove(other_file);
         }
     }
+}
+
+// Stringify a path such that it's stable across operating systems.
+fn format_normalized_path(path: &Path) -> String {
+    path.to_string_lossy()
+        .to_string()
+        .replace(MAIN_SEPARATOR, "/")
 }

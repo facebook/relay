@@ -47,6 +47,7 @@ md-5 = "0.10"
 relay-config = { path = "../relay-config" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
+path-slash = "0.2.1"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

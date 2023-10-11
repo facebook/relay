@@ -23,6 +23,7 @@ use intern::Lookup;
 use relay_config::DynamicModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
+use path_slash::PathExt as _;
 
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
@@ -665,7 +666,7 @@ fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'sta
                     let path_without_extension = path.with_extension("");
 
                     let path_without_extension = path_without_extension
-                        .to_str()
+                        .to_slash()
                         .expect("could not convert `path_without_extension` to a str");
 
                     return Cow::Owned(format!("./{}", path_without_extension));

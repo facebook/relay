@@ -16,6 +16,7 @@ use schema::SDLSchema;
 #[derive(serde::Serialize)]
 struct QueryForMock {
     signature: &'static str,
+    id: String,
     operation: String,
 }
 
@@ -32,12 +33,15 @@ pub fn generate_persisted_mocks(
             if let ArtifactContent::Operation {
                 text: Some(text),
                 id_and_text_hash: Some(QueryID::Persisted { id, .. }),
+                normalization_operation,
                 ..
             } = &artifact.content
             {
-                let full_path = folder.join(format!("{id}.json"));
+                let name = normalization_operation.name.item;
+                let full_path = folder.join(format!("{name}.json"));
                 let query = QueryForMock {
                     signature: signedsource::SIGNING_TOKEN,
+                    id: id.clone(),
                     operation: text.clone(),
                 };
                 let str = serde_json::to_string_pretty(&query).unwrap();

@@ -107,9 +107,11 @@ pub async fn test_fixture<T, U, V>(
     let expect_ok = !input.contains("expected-to-throw");
     let actual_result: Result<U, V>;
     {
-        let _guard = LOCK.lock().await;
-        env::set_var("NO_COLOR", "1");
+        let lock = LOCK.lock().await;
+        colored::control::set_override(false);
         actual_result = transform(&fixture).await;
+        colored::control::unset_override();
+        drop(lock);
     }
 
     let actual = match &actual_result {

@@ -108,9 +108,8 @@ pub async fn test_fixture<T, U, V>(
     let actual_result: Result<U, V>;
     {
         let _guard = LOCK.lock().await;
-        colored::control::set_override(false);
+        env::set_var("NO_COLOR", "1");
         actual_result = transform(&fixture).await;
-        colored::control::unset_override();
     }
 
     let actual = match &actual_result {

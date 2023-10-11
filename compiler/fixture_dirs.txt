@@ -31,6 +31,7 @@ crates/relay-codegen/tests/skip_printing_nulls
 crates/relay-codegen/tests/required_directive_codegen
 crates/relay-compiler/tests/compile_relay_artifacts
 crates/relay-compiler/tests/compile_relay_artifacts_with_custom_id
+crates/relay-compiler/tests/relay_compiler_integration
 crates/relay-docblock/tests/parse
 crates/relay-docblock/tests/to_schema
 crates/relay-lsp/tests/find_field_usages

@@ -331,11 +331,11 @@ function Newsfeed() {
   // change-line
   const storyEdges = data.viewer.newsfeedStories.edges;
   return (
-    <>
+    <div className="newsfeed">
       {storyEdges.map(storyEdge =>
         <Story key={storyEdge.node.id} story={storyEdge.node} />
       )}
-    </>
+    </div>
   );
 }
 ```
@@ -436,11 +436,11 @@ export default function Newsfeed({}) {
   const {data, loadNext} = usePaginationFragment<OperationType, NewsfeedContentsFragment$key>(NewsfeedContentsFragment, queryData);
   const storyEdges = data.viewer.newsfeedStories.edges;
   return (
-    <>
+    <div className="newsfeed">
       {storyEdges.map(storyEdge =>
         <Story key={storyEdge.node.id} story={storyEdge.node} />
       )}
-    </>
+    </div>
   );
 }
 ```
@@ -467,7 +467,7 @@ export default function Newsfeed({}) {
   // end-change
   const storyEdges = data.viewer.newsfeedStories.edges;
   return (
-    <>
+    <div className="newsfeed">
       {storyEdges.map(storyEdge =>
         <Story key={storyEdge.node.id} story={storyEdge.node} />
       )}
@@ -478,7 +478,7 @@ export default function Newsfeed({}) {
         isLoadingNext={isLoadingNext}
       />
       // end-change
-    </>
+    </div>
   );
 }
 ```

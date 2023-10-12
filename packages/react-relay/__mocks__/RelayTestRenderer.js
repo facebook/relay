@@ -58,6 +58,7 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
   };
 
   render(): React.Element<typeof ReactRelayContext.Provider> {
+    // $FlowFixMe(site=www)[prop-missing]
     const childProps = this.props.children.props;
     const newProps = {...childProps, ...this.state.data};
     return (

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3500dcb867d80cd51e9dc7cad71006c2>>
+ * @generated SignedSource<<3f72818aa4229846c82ada4a55f1b28c>>
  */
 
 mod compile_relay_artifacts;
@@ -248,6 +248,13 @@ async fn client_fields_overlapping_with_nulls() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.expected");
     test_fixture(transform_fixture, "client-fields-overlapping-with-nulls.graphql", "compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_fields_with_undefined_global_variables_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-fields-with-undefined-global-variables.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-fields-with-undefined-global-variables.invalid.expected");
+    test_fixture(transform_fixture, "client-fields-with-undefined-global-variables.invalid.graphql", "compile_relay_artifacts/fixtures/client-fields-with-undefined-global-variables.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -1242,6 +1249,13 @@ async fn relay_resolver_with_spread_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-spread.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-spread.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-with-spread.invalid.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-spread.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_with_undefined_global_variables_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-global-variables.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-global-variables.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-undefined-global-variables.invalid.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-undefined-global-variables.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

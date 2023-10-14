@@ -1,10 +1,6 @@
 ==================================== INPUT ====================================
-# typegen_config.use_import_type_syntax = true
-
 fragment Foo_user on User {
-  poppy: pop_star_name {
-    name
-  }
+  poppy: pop_star_name @required(action: THROW)
 }
 
 fragment PopStarNameResolverFragment_name on User {
@@ -19,29 +15,14 @@ fragment PopStarNameResolverFragment_name on User {
 
 # %extensions%
 
-type ClientUser {
-  name: String
-}
-
 extend type User {
-  pop_star_name: ClientUser @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+  pop_star_name: RelayResolverValue @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
-export type User__pop_star_name$normalization$variables = Record<PropertyKey, never>;
-export type User__pop_star_name$normalization$data = {
-  readonly name: string | null | undefined;
-};
-export type User__pop_star_name$normalization = {
-  response: User__pop_star_name$normalization$data;
-  variables: User__pop_star_name$normalization$variables;
-};
--------------------------------------------------------------------------------
-import type { FragmentRefs } from "relay-runtime";
+import { FragmentRefs } from "relay-runtime";
 import userPopStarNameResolverType from "PopStarNameResolver";
 export type Foo_user$data = {
-  readonly poppy: {
-    readonly name: string | null | undefined;
-  } | null | undefined;
+  readonly poppy: NonNullable<ReturnType<typeof userPopStarNameResolverType>>;
   readonly " $fragmentType": "Foo_user";
 };
 export type Foo_user$key = {
@@ -49,7 +30,7 @@ export type Foo_user$key = {
   readonly " $fragmentSpreads": FragmentRefs<"Foo_user">;
 };
 -------------------------------------------------------------------------------
-import type { FragmentRefs } from "relay-runtime";
+import { FragmentRefs } from "relay-runtime";
 export type PopStarNameResolverFragment_name$data = {
   readonly address: {
     readonly street: string | null | undefined;

@@ -64,7 +64,7 @@ impl<'config> WatchmanFileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<CompilerState> {
-        info!("querying files to compile...");
+        info!("Querying files to compile...");
         let query_time = perf_logger_event.start("file_source_query_time");
         // If the saved state flag is passed, load from it or fail.
         if let Some(saved_state_path) = &self.config.load_saved_state_file {

@@ -5,11 +5,11 @@ query UpdatableQuery @updatable {
   }
 }
 ==================================== OUTPUT ===================================
-export type UpdatableQuery$variables = {};
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
   get nodes(): ReadonlyArray<{
     readonly id: string;
-  } | null> | null;
+  } | null | undefined> | null | undefined;
   set nodes(value: []);
 };
 export type UpdatableQuery = {

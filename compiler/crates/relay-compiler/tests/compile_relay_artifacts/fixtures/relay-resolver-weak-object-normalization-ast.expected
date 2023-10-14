@@ -46,31 +46,46 @@ extend type Query {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "hasClientEdges": true
+    },
     "name": "relayResolverWeakObjectNormalizationAstQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
+        "kind": "ClientEdgeToClientObject",
+        "concreteType": "MyClientType",
+        "backingField": {
+          "alias": null,
+          "args": null,
+          "fragment": null,
+          "kind": "RelayResolver",
+          "name": "client_type",
+          "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('ClientTypeResolver'), '__relay_model_instance', false),
+          "path": "client_type",
+          "normalizationInfo": {
             "concreteType": "MyClientType",
-            "kind": "LinkedField",
-            "name": "client_type",
             "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__typename",
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
+            "normalizationNode": require('Query__client_type$normalization.graphql')
           }
-        ]
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "MyClientType",
+          "kind": "LinkedField",
+          "name": "client_type",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
       }
     ],
     "type": "Query",

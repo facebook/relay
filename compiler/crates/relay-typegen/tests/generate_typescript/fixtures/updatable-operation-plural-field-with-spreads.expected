@@ -10,9 +10,9 @@ fragment Updatable_user on User @assignable {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type UpdatableQuery$variables = {};
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
-  get nodes(): ReadonlyArray<{} | null> | null;
+  get nodes(): ReadonlyArray<Record<PropertyKey, never> | null | undefined> | null | undefined;
   set nodes(value: ReadonlyArray<{
     readonly __typename: "User";
     readonly __id: string;

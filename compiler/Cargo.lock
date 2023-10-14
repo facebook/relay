@@ -797,11 +797,13 @@ version = "0.0.0"
 dependencies = [
  "common",
  "fixture-tests",
+ "fnv",
  "graphql-cli",
  "graphql-ir",
  "graphql-syntax",
  "graphql-text-printer",
  "relay-test-schema",
+ "walkdir",
 ]
 
 [[package]]

@@ -18,9 +18,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 const {
-  disallowWarnings,
   disallowConsoleErrors,
-} = require(`relay-test-utils-internal`);
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
 disallowConsoleErrors();
 disallowWarnings();

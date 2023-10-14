@@ -15,12 +15,12 @@ fragment updatableFragmentSpreadAndRegularSpread_user on User {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type updatableFragmentSpreadAndRegularSpreadQuery$variables = {};
+export type updatableFragmentSpreadAndRegularSpreadQuery$variables = Record<PropertyKey, never>;
 export type updatableFragmentSpreadAndRegularSpreadQuery$data = {
   readonly me: {
     readonly $updatableFragmentSpreads: FragmentRefs<"updatableFragmentSpreadAndRegularSpread_updatable_user">;
     readonly " $fragmentSpreads": FragmentRefs<"updatableFragmentSpreadAndRegularSpread_user">;
-  } | null;
+  } | null | undefined;
 };
 export type updatableFragmentSpreadAndRegularSpreadQuery = {
   response: updatableFragmentSpreadAndRegularSpreadQuery$data;
@@ -29,7 +29,7 @@ export type updatableFragmentSpreadAndRegularSpreadQuery = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type updatableFragmentSpreadAndRegularSpread_updatable_user$data = {
-  firstName: string | null;
+  firstName: string | null | undefined;
   readonly " $fragmentType": "updatableFragmentSpreadAndRegularSpread_updatable_user";
 };
 export type updatableFragmentSpreadAndRegularSpread_updatable_user$key = {
@@ -39,7 +39,7 @@ export type updatableFragmentSpreadAndRegularSpread_updatable_user$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type updatableFragmentSpreadAndRegularSpread_user$data = {
-  readonly firstName: string | null;
+  readonly firstName: string | null | undefined;
   readonly " $fragmentType": "updatableFragmentSpreadAndRegularSpread_user";
 };
 export type updatableFragmentSpreadAndRegularSpread_user$key = {

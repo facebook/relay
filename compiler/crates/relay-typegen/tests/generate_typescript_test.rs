@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e4b294cf76b8dd333d53392e33d0f9f2>>
+ * @generated SignedSource<<f00e9900c61b79d6b562518619539169>>
  */
 
 mod generate_typescript;
@@ -262,6 +262,20 @@ async fn relay_resolver_with_output_type_client_object() {
     let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-client-object.graphql");
     let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-client-object.expected");
     test_fixture(transform_fixture, "relay-resolver-with-output-type-client-object.graphql", "generate_typescript/fixtures/relay-resolver-with-output-type-client-object.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_with_output_type_relay_resolver_value() {
+    let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-relay-resolver-value.graphql", "generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_with_output_type_relay_resolver_value_required() {
+    let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-relay-resolver-value-required.graphql", "generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.expected", input, expected).await;
 }
 
 #[tokio::test]

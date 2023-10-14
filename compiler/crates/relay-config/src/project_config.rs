@@ -8,6 +8,7 @@
 use std::fmt;
 use std::path::Path;
 use std::path::PathBuf;
+use std::path::MAIN_SEPARATOR;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::usize;
@@ -418,10 +419,7 @@ impl ProjectConfig {
                     )
                 });
 
-                resolver_module_location
-                    .join(module_file_name)
-                    .to_string_lossy()
-                    .intern()
+                format_normalized_path(&resolver_module_location.join(module_file_name)).intern()
             }
             JsModuleFormat::Haste => Path::new(&target_module.to_string())
                 .file_stem()
@@ -430,4 +428,11 @@ impl ProjectConfig {
                 .intern(),
         }
     }
+}
+
+// Stringify a path such that it is stable across operating systems.
+fn format_normalized_path(path: &Path) -> String {
+    path.to_string_lossy()
+        .to_string()
+        .replace(MAIN_SEPARATOR, "/")
 }

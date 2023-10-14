@@ -19,13 +19,13 @@ fragment Assignable_page on Page @assignable {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type UpdatableQuery$variables = {};
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
   get me(): {
     get actor(): {
-      lastName: string | null;
-      name: string | null;
-    } | null;
+      lastName: string | null | undefined;
+      name: string | null | undefined;
+    } | null | undefined;
     set actor(value: {
       readonly __typename: "Page";
       readonly __id: string;
@@ -34,8 +34,8 @@ export type UpdatableQuery$data = {
       readonly __id: string;
       readonly __isAssignable_node: string;
       readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
-    } | null);
-  } | null;
+    } | null | undefined);
+  } | null | undefined;
   set me(value: null | undefined);
 };
 export type UpdatableQuery = {

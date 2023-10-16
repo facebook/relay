@@ -41,6 +41,11 @@ export type FeatureFlags = {
   // more compatible.
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: boolean,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: boolean,
+
+  // Configure whether Relay should handle any field errors that it encounteres
+  // in a partial response.
+  // @see https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
+  ENABLE_FIELD_ERROR_HANDLING: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -63,6 +68,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
+  ENABLE_FIELD_ERROR_HANDLING: false,
 };
 
 module.exports = RelayFeatureFlags;

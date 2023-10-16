@@ -37,10 +37,10 @@ function normalizeResponse(
     selector,
     data,
     options,
+    errors,
   );
   return {
     ...relayPayload,
-    errors,
     isFinal: response.extensions?.is_final === true,
   };
 }

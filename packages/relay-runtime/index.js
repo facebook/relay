@@ -140,6 +140,7 @@ export type {
   OptimisticUpdateFunction,
   PluralReaderSelector,
   Props,
+  RecordSourceJSON,
   PublishQueue,
   ReaderSelector,
   ReadOnlyRecordProxy,

@@ -1459,12 +1459,13 @@ describe.each([
         const warningCalls = warning.mock.calls.filter(
           call => call[0] === false,
         );
-        expect(warningCalls.length).toEqual(2); // the other warnings are from FragmentResource.js
         expect(
-          warningCalls[1][1].includes(
-            'Relay: Call to `refetch` returned data with a different __typename:',
+          warningCalls.some(([_condition, format, ..._args]) =>
+            format.includes(
+              'Relay: Call to `refetch` returned data with a different __typename:',
+            ),
           ),
-        ).toEqual(true);
+        ).toBe(true);
       });
 
       it('warns if a different id is returned', () => {

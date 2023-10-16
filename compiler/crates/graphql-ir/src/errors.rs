@@ -220,7 +220,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "Expected field '{connection_field_name}' to have a '{first_arg}' or '{last_arg}' argument."
+        "Expected field '{connection_field_name}' to be passed a '{first_arg}' or '{last_arg}' argument."
     )]
     ExpectedConnectionToHaveCountArgs {
         connection_field_name: StringKey,
@@ -228,7 +228,9 @@ pub enum ValidationMessage {
         last_arg: ArgumentName,
     },
 
-    #[error("Expected '{connection_field_name}' to have a '{edges_selection_name}' selection.")]
+    #[error(
+        "Expected '{connection_field_name}' to be passed a '{edges_selection_name}' selection."
+    )]
     ExpectedConnectionToHaveEdgesSelection {
         connection_field_name: StringKey,
         edges_selection_name: StringKey,

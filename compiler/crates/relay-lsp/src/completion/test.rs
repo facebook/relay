@@ -244,7 +244,6 @@ fn whitespace_in_interface() {
             "source",
             "node",
             "__typename",
-            "... on CommentsEdgeInterface",
             "... on CommentsEdge",
             "...ImplementingFragment",
             "...InterfaceFragment",
@@ -280,11 +279,10 @@ fn whitespace_in_union() {
         items.unwrap(),
         vec![
             "__typename",
-            "... on CommentBody",
-            "... on PlainCommentBody",
             "... on MarkdownCommentBody",
-            "...UnionFragment",
+            "... on PlainCommentBody",
             "...UnionVariantFragment",
+            "...UnionFragment",
         ],
     )
 }
@@ -312,9 +310,28 @@ fn inline_fragment_on_interface() {
         "#,
         None,
     );
+    assert_labels(items.unwrap(), vec!["... on SimpleNamed", "... on User"]);
+}
+
+#[test]
+fn inline_fragment_on_interface_objects_implement_interface_implementing_base_interface() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on UserNameRenderable {
+                ... on |a
+            }
+        "#,
+        None,
+    );
+
     assert_labels(
         items.unwrap(),
-        vec!["... on Named", "... on User", "... on SimpleNamed"],
+        vec![
+            "... on PlainUserNameRenderer",
+            "... on ImplementsImplementsUserNameRenderableAndUserNameRenderable",
+            "... on MarkdownUserNameRenderer",
+            "... on ImplementsUserNameRenderable",
+        ],
     );
 }
 
@@ -328,7 +345,7 @@ fn inline_fragment_on_interface_with_existing_inline_fragment() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["Named", "User", "SimpleNamed"]);
+    assert_labels(items.unwrap(), vec!["User", "SimpleNamed"]);
 }
 
 #[test]
@@ -344,10 +361,12 @@ fn inline_fragment_on_union() {
     assert_labels(
         items.unwrap(),
         vec![
-            "... on MaybeNode",
-            "... on Story",
             "... on FakeNode",
+            "... on FeedUnit",
+            "... on Node",
             "... on NonNode",
+            "... on Story",
+            "... on MaybeNodeInterface",
         ],
     );
 }
@@ -364,7 +383,14 @@ fn inline_fragment_on_union_with_existing_inline_fragment() {
     );
     assert_labels(
         items.unwrap(),
-        vec!["MaybeNode", "Story", "FakeNode", "NonNode"],
+        vec![
+            "Node",
+            "Story",
+            "FakeNode",
+            "NonNode",
+            "MaybeNodeInterface",
+            "FeedUnit",
+        ],
     );
 }
 

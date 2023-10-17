@@ -24,6 +24,7 @@ use graphql_ir::TransformedValue;
 use schema::SDLSchema;
 
 use crate::util::is_relay_custom_inline_fragment_directive;
+use crate::ClientEdgeMetadataDirective;
 use crate::RelayLocationAgnosticBehavior;
 use crate::DEFER_STREAM_CONSTANTS;
 
@@ -277,7 +278,8 @@ impl<'s> SkipRedundantNodesTransform {
         field: &LinkedField,
         selection_map: &mut SelectionMap,
     ) -> Transformed<Arc<LinkedField>> {
-        let selections = self.transform_selections(&field.selections, selection_map);
+        let selections =
+            self.transform_selections(get_partitioned_selections(&field.selections), selection_map);
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => {
@@ -298,7 +300,10 @@ impl<'s> SkipRedundantNodesTransform {
         condition: &Condition,
         selection_map: &mut SelectionMap,
     ) -> Transformed<Arc<Condition>> {
-        let selections = self.transform_selections(&condition.selections, selection_map);
+        let selections = self.transform_selections(
+            get_partitioned_selections(&condition.selections),
+            selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => {
@@ -319,7 +324,19 @@ impl<'s> SkipRedundantNodesTransform {
         fragment: &InlineFragment,
         selection_map: &mut SelectionMap,
     ) -> Transformed<Arc<InlineFragment>> {
-        let selections = self.transform_selections(&fragment.selections, selection_map);
+        let selections = self.transform_selections(
+            // we must not change the order of selections within inline fragments with ClientEdgeMetadataDirective
+            if fragment
+                .directives
+                .named(ClientEdgeMetadataDirective::directive_name())
+                .is_some()
+            {
+                Vec::from_iter(&fragment.selections)
+            } else {
+                get_partitioned_selections(&fragment.selections)
+            },
+            selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => {
@@ -335,10 +352,10 @@ impl<'s> SkipRedundantNodesTransform {
         }
     }
 
-    // Mostly a copy from Transformer::transform_list, but does partition and pass down `selection_map`.
+    // Mostly a copy from Transformer::transform_list, but with `selection_map` passed down
     fn transform_selections(
         &self,
-        selections: &[Selection],
+        selections: Vec<&Selection>,
         selection_map: &mut SelectionMap,
     ) -> TransformedValue<Vec<Selection>> {
         if selections.is_empty() {
@@ -346,7 +363,6 @@ impl<'s> SkipRedundantNodesTransform {
         }
         let mut result: Vec<Selection> = Vec::new();
         let mut has_changes = false;
-        let selections = get_partitioned_selections(selections);
 
         for (index, prev_item) in selections.iter().enumerate() {
             let next_item = self.transform_selection(prev_item, selection_map);
@@ -389,7 +405,10 @@ impl<'s> SkipRedundantNodesTransform {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         let mut selection_map = Default::default();
-        let selections = self.transform_selections(&operation.selections, &mut selection_map);
+        let selections = self.transform_selections(
+            get_partitioned_selections(&operation.selections),
+            &mut selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => Transformed::Replace(OperationDefinition {
@@ -404,7 +423,10 @@ impl<'s> SkipRedundantNodesTransform {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         let mut selection_map = Default::default();
-        let selections = self.transform_selections(&fragment.selections, &mut selection_map);
+        let selections = self.transform_selections(
+            get_partitioned_selections(&fragment.selections),
+            &mut selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => Transformed::Replace(FragmentDefinition {

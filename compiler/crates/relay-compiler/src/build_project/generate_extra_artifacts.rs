@@ -8,8 +8,12 @@
 use schema::SDLSchema;
 
 use super::Artifact;
+use super::Config;
 use super::Programs;
 use super::ProjectConfig;
 
-pub type GenerateExtraArtifactsFn =
-    Box<dyn Fn(&ProjectConfig, &SDLSchema, &Programs, &[Artifact]) -> Vec<Artifact> + Send + Sync>;
+pub type GenerateExtraArtifactsFn = Box<
+    dyn Fn(&Config, &ProjectConfig, &SDLSchema, &Programs, &[Artifact]) -> Vec<Artifact>
+        + Send
+        + Sync,
+>;

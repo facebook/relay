@@ -118,6 +118,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         enable_resolver_normalization_ast: fixture
             .content
             .contains("# enable_resolver_normalization_ast"),
+        enable_schema_resolvers: false,
     };
 
     let default_project_config = ProjectConfig {

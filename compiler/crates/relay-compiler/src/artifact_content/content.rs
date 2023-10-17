@@ -821,7 +821,7 @@ fn write_import_type_from(
     }
 }
 
-fn write_export_generated_node(
+pub fn write_export_generated_node(
     typegen_config: &TypegenConfig,
     section: &mut dyn Write,
     variable_node: &str,
@@ -846,7 +846,7 @@ fn write_export_generated_node(
     }
 }
 
-fn generate_docblock_section(
+pub fn generate_docblock_section(
     config: &Config,
     project_config: &ProjectConfig,
     extra_annotations: Vec<String>,

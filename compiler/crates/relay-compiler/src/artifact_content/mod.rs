@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-mod content;
-mod content_section;
+pub mod content;
+pub mod content_section;
 
 use std::sync::Arc;
 

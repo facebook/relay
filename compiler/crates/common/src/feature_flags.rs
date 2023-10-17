@@ -68,6 +68,10 @@ pub struct FeatureFlags {
     /// Fully build the normalization AST for Resolvers
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
+
+    /// Fully build the schema resolvers artifact
+    #[serde(default)]
+    pub enable_schema_resolvers: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

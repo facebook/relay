@@ -96,6 +96,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
         relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
         enable_resolver_normalization_ast: false,
+        enable_schema_resolvers: false,
     };
 
     let default_schema_config = SchemaConfig::default();

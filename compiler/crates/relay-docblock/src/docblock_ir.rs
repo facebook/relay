@@ -19,6 +19,7 @@ use docblock_shared::ARGUMENT_DEFINITIONS;
 use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
+use docblock_shared::OUTPUT_TYPE_FIELD;
 use docblock_shared::PROVIDER_ARG_NAME;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
@@ -143,6 +144,8 @@ pub(crate) fn parse_docblock_ir(
             }
         }
     };
+
+    validate_strict_resolver_flavors(parse_options, &parsed_docblock_ir)?;
 
     assert_all_fields_removed(
         fields,
@@ -722,6 +725,103 @@ fn extract_fragment_arguments(
                 })
                 .collect::<Result<_, _>>()
         })
+}
+
+fn get_resolver_field_path(docblock_ir: &DocblockIr) -> Option<String> {
+    match docblock_ir {
+        DocblockIr::RelayResolver(resolver_ir) => {
+            let parent_type_name = match resolver_ir.on {
+                On::Type(field) => field.value.item,
+                On::Interface(field) => field.value.item,
+            };
+
+            Some(format!("{}.{}", parent_type_name, resolver_ir.field.name))
+        }
+        DocblockIr::TerseRelayResolver(terse_ir) => {
+            Some(format!("{}.{}", terse_ir.type_.item, terse_ir.field.name))
+        }
+        DocblockIr::StrongObjectResolver(_) => None,
+        DocblockIr::WeakObjectType(_) => None,
+    }
+}
+
+// Flavorings help the compiler understand what execution strategies are viable for the resolver.
+// We perform validation here (if enabled) to ensure that the resolver conforms to a specific flavor.
+fn validate_strict_resolver_flavors(
+    parse_options: &ParseOptions<'_>,
+    docblock_ir: &DocblockIr,
+) -> DiagnosticsResult<()> {
+    struct ResolverFlavorValidationInfo {
+        live: Option<Location>,
+        root_fragment: Option<Location>,
+        output_type: Option<Location>,
+    }
+    let validation_info: Option<ResolverFlavorValidationInfo> = match docblock_ir {
+        DocblockIr::RelayResolver(resolver_ir) => {
+            let output_type_location = resolver_ir.output_type.as_ref().map(|ot| {
+                let type_loc = ot.inner().location;
+                let (type_start, _) = type_loc.span().as_usize();
+                let output_type_end = type_start.saturating_sub(1); // -1 for space
+                let output_type_start =
+                    output_type_end.saturating_sub(OUTPUT_TYPE_FIELD.lookup().len());
+
+                type_loc.with_span(Span::from_usize(output_type_start, output_type_end))
+            });
+            Some(ResolverFlavorValidationInfo {
+                live: resolver_ir.live.map(|l| l.key_location),
+                root_fragment: resolver_ir.root_fragment.map(|rf| rf.location),
+                output_type: output_type_location,
+            })
+        }
+        DocblockIr::TerseRelayResolver(terse_ir) => Some(ResolverFlavorValidationInfo {
+            live: terse_ir.live.map(|l| l.key_location),
+            root_fragment: terse_ir.root_fragment.map(|rf| rf.location),
+            output_type: None,
+        }),
+        DocblockIr::StrongObjectResolver(_) => None,
+        DocblockIr::WeakObjectType(_) => None,
+    };
+
+    let validation_info = if let Some(validation_info) = validation_info {
+        validation_info
+    } else {
+        return Ok(());
+    };
+
+    // TODO(T161157239): also check if this is a model resolver, which is not compatible with root fragment
+
+    if validation_info.root_fragment.is_some()
+        && (validation_info.live.is_some() || validation_info.output_type.is_some())
+    {
+        let resolver_field_path = get_resolver_field_path(docblock_ir)
+            .expect("Should have a resolver path for RelayResolver or TerseRelayResolver");
+
+        if !parse_options
+            .enable_strict_resolver_flavors
+            .is_enabled_for(resolver_field_path.intern())
+        {
+            return Ok(());
+        }
+
+        let mut errs = vec![];
+        if let Some(live_loc) = validation_info.live {
+            errs.push(Diagnostic::error(
+                "@live is incompatible with @rootFragment",
+                live_loc,
+            ));
+        }
+
+        if let Some(output_type_loc) = validation_info.output_type {
+            errs.push(Diagnostic::error(
+                "@outputType is incompatible with @rootFragment",
+                output_type_loc,
+            ));
+        }
+
+        Err(errs)
+    } else {
+        Ok(())
+    }
 }
 
 fn validate_field_arguments(

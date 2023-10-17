@@ -72,6 +72,10 @@ pub struct FeatureFlags {
     /// Fully build the schema resolvers artifact
     #[serde(default)]
     pub enable_schema_resolvers: bool,
+
+    /// Enforce strict flavors for relay resolvers and disallow mixing flavors
+    #[serde(default)]
+    pub relay_resolvers_enable_strict_resolver_flavors: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

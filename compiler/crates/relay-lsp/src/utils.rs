@@ -178,6 +178,9 @@ pub fn extract_feature_from_text(
                             enable_output_type: &project_config
                                 .feature_flags
                                 .relay_resolver_enable_output_type,
+                            enable_strict_resolver_flavors: &project_config
+                                .feature_flags
+                                .relay_resolvers_enable_strict_resolver_flavors,
                         },
                     )
                 })

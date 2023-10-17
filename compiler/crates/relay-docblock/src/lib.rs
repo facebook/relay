@@ -39,6 +39,7 @@ use untyped_representation::parse_untyped_docblock_representation;
 
 pub struct ParseOptions<'a> {
     pub enable_output_type: &'a FeatureFlag,
+    pub enable_strict_resolver_flavors: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(

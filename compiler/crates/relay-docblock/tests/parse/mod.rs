@@ -71,6 +71,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             } else {
                                 &FeatureFlag::Disabled
                             },
+                            enable_strict_resolver_flavors: if fixture
+                                .content
+                                .contains("// relay:enable_strict_resolver_flavors")
+                            {
+                                &FeatureFlag::Enabled
+                            } else {
+                                &FeatureFlag::Disabled
+                            },
                         },
                     )
                 })

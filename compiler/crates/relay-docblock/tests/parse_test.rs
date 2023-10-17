@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<922ebcc07d4b777e361186abd5fec252>>
+ * @generated SignedSource<<f6e0aea74aa0b58c207839f7cf6010b7>>
  */
 
 mod parse;
@@ -241,6 +241,27 @@ async fn relay_resolver_with_output_type() {
     let input = include_str!("parse/fixtures/relay-resolver-with-output-type.js");
     let expected = include_str!("parse/fixtures/relay-resolver-with-output-type.expected");
     test_fixture(transform_fixture, "relay-resolver-with-output-type.js", "parse/fixtures/relay-resolver-with-output-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn strict_flavors_live_resolver_with_root_fragment_invalid() {
+    let input = include_str!("parse/fixtures/strict-flavors-live-resolver-with-root-fragment.invalid.js");
+    let expected = include_str!("parse/fixtures/strict-flavors-live-resolver-with-root-fragment.invalid.expected");
+    test_fixture(transform_fixture, "strict-flavors-live-resolver-with-root-fragment.invalid.js", "parse/fixtures/strict-flavors-live-resolver-with-root-fragment.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn strict_flavors_multiple_errors_invalid() {
+    let input = include_str!("parse/fixtures/strict-flavors-multiple-errors.invalid.js");
+    let expected = include_str!("parse/fixtures/strict-flavors-multiple-errors.invalid.expected");
+    test_fixture(transform_fixture, "strict-flavors-multiple-errors.invalid.js", "parse/fixtures/strict-flavors-multiple-errors.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn strict_flavors_output_type_with_root_fragment_invalid() {
+    let input = include_str!("parse/fixtures/strict-flavors-output-type-with-root-fragment.invalid.js");
+    let expected = include_str!("parse/fixtures/strict-flavors-output-type-with-root-fragment.invalid.expected");
+    test_fixture(transform_fixture, "strict-flavors-output-type-with-root-fragment.invalid.js", "parse/fixtures/strict-flavors-output-type-with-root-fragment.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

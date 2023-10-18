@@ -427,6 +427,7 @@ function merge(record1: Record, record2: Record): Record {
     for (const storageKey in errors2) {
       updatedErrors[storageKey] = errors2[storageKey];
     }
+    // eslint-disable-next-line no-unused-vars
     for (const _storageKey in updatedErrors) {
       // We only need to add updatedErrors to updated if there was one or more error
       updated[ERRORS_KEY] = updatedErrors;

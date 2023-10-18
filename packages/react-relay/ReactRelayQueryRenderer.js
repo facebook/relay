@@ -27,7 +27,6 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
 const areEqual = require('areEqual');
 const React = require('react');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {
   createOperationDescriptor,
   deepFreeze,

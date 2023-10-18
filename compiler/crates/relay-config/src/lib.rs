@@ -10,6 +10,7 @@
 #![deny(clippy::all)]
 
 mod connection_interface;
+mod defer_stream_interface;
 mod diagnostic_report_config;
 mod js_module_format;
 mod module_import_config;
@@ -19,6 +20,7 @@ mod project_name;
 mod typegen_config;
 
 pub use connection_interface::ConnectionInterface;
+pub use defer_stream_interface::DeferStreamInterface;
 pub use diagnostic_report_config::DiagnosticLevel;
 pub use diagnostic_report_config::DiagnosticReportConfig;
 pub use js_module_format::JsModuleFormat;

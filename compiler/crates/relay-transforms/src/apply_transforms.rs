@@ -155,17 +155,25 @@ fn apply_common_transforms(
     )?;
 
     program = log_event.time("transform_connections", || {
-        transform_connections(&program, &project_config.schema_config.connection_interface)
+        transform_connections(
+            &program,
+            &project_config.schema_config.connection_interface,
+            &project_config.schema_config.defer_stream_interface,
+        )
     });
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_defer_stream", || {
-        transform_defer_stream(&program)
+        transform_defer_stream(
+            &program,
+            &project_config.schema_config.defer_stream_interface,
+        )
     })?;
     program = log_event.time("transform_match", || {
         transform_match(
             &program,
             &project_config.feature_flags,
             project_config.module_import_config,
+            project_config.schema_config.defer_stream_interface,
         )
     })?;
     program = log_event.time("transform_subscriptions", || {
@@ -276,14 +284,22 @@ fn apply_reader_transforms(
 
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     program = log_event.time("skip_unreachable_node", || {
-        skip_unreachable_node_strict(&program)
+        skip_unreachable_node_strict(
+            &program,
+            project_config.schema_config.defer_stream_interface,
+        )
     })?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, &base_fragment_names)
     });
 
     log_event.time("flatten", || flatten(&mut program, true, false))?;
-    program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    program = log_event.time("skip_redundant_nodes", || {
+        skip_redundant_nodes(
+            &program,
+            project_config.schema_config.defer_stream_interface,
+        )
+    });
     program = log_event.time("generate_data_driven_dependency_metadata", || {
         generate_data_driven_dependency_metadata(&program)
     });
@@ -440,7 +456,10 @@ fn apply_normalization_transforms(
     }
 
     program = log_event.time("skip_unreachable_node", || {
-        skip_unreachable_node_strict(&program)
+        skip_unreachable_node_strict(
+            &program,
+            project_config.schema_config.defer_stream_interface,
+        )
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_unreachable_node", &program);
@@ -466,7 +485,12 @@ fn apply_normalization_transforms(
         print_stats("flatten", &program);
     }
 
-    program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    program = log_event.time("skip_redundant_nodes", || {
+        skip_redundant_nodes(
+            &program,
+            project_config.schema_config.defer_stream_interface,
+        )
+    });
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_redundant_nodes", &program);
     }
@@ -540,7 +564,10 @@ fn apply_operation_text_transforms(
 
     program = log_event.time("skip_split_operation", || skip_split_operation(&program));
     program = log_event.time("skip_unreachable_node_strict", || {
-        skip_unreachable_node_strict(&program)
+        skip_unreachable_node_strict(
+            &program,
+            project_config.schema_config.defer_stream_interface,
+        )
     })?;
     program = log_event.time("skip_null_arguments_transform", || {
         skip_null_arguments_transform(&program)
@@ -554,7 +581,10 @@ fn apply_operation_text_transforms(
         skip_client_extensions(&program)
     });
     program = log_event.time("skip_unreachable_node_loose", || {
-        skip_unreachable_node_loose(&program)
+        skip_unreachable_node_loose(
+            &program,
+            project_config.schema_config.defer_stream_interface,
+        )
     });
 
     program = log_event.time("generate_typename", || generate_typename(&program, false));
@@ -569,7 +599,10 @@ fn apply_operation_text_transforms(
         validate_required_arguments(&program)
     })?;
     program = log_event.time("unwrap_custom_directive_selection", || {
-        unwrap_custom_directive_selection(&program)
+        unwrap_custom_directive_selection(
+            &program,
+            project_config.schema_config.defer_stream_interface,
+        )
     });
 
     program = apply_after_custom_transforms(
@@ -619,6 +652,7 @@ fn apply_typegen_transforms(
             &program,
             &project_config.feature_flags,
             project_config.module_import_config,
+            project_config.schema_config.defer_stream_interface,
         )
     })?;
     program = log_event.time("transform_subscriptions", || {

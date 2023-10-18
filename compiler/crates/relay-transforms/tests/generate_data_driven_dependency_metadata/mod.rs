@@ -14,7 +14,7 @@ use relay_transforms::transform_match;
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
         let flags = FeatureFlags::default();
-        let program = transform_match(program, &flags, Default::default())?;
+        let program = transform_match(program, &flags, Default::default(), Default::default())?;
         let program = generate_data_driven_dependency_metadata(&program);
         Ok(program)
     })

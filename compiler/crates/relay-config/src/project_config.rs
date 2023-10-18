@@ -32,6 +32,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::connection_interface::ConnectionInterface;
+use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
@@ -171,6 +172,9 @@ pub struct SchemaConfig {
     #[serde(default = "default_node_interface_id_field")]
     pub node_interface_id_field: StringKey,
 
+    #[serde(default)]
+    pub defer_stream_interface: DeferStreamInterface,
+
     /// The name of the variable expected by the `node` query.
     #[serde(default = "default_node_interface_id_variable_name")]
     pub node_interface_id_variable_name: StringKey,
@@ -199,6 +203,7 @@ impl Default for SchemaConfig {
     fn default() -> Self {
         Self {
             connection_interface: ConnectionInterface::default(),
+            defer_stream_interface: DeferStreamInterface::default(),
             node_interface_id_field: default_node_interface_id_field(),
             node_interface_id_variable_name: default_node_interface_id_variable_name(),
             non_node_id_fields: None,

@@ -119,7 +119,6 @@ pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::transform_defer_stream;
 pub use defer_stream::DeferDirective;
 pub use defer_stream::StreamDirective;
-pub use defer_stream::DEFER_STREAM_CONSTANTS;
 pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
 pub use fragment_alias_directive::fragment_alias_directive;

@@ -13,7 +13,7 @@ mod ast;
 mod build_ast;
 mod constants;
 mod indentation;
-mod printer;
+pub mod printer;
 mod top_level_statements;
 mod utils;
 

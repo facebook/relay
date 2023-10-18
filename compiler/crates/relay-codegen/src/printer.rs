@@ -663,7 +663,7 @@ impl<'b> JSONPrinter<'b> {
     }
 }
 
-fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {
+pub fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {
     match js_module_format {
         JsModuleFormat::CommonJS => {
             let path = Path::new(key.lookup());

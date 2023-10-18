@@ -349,7 +349,6 @@ function useFragmentInternal_REACT_CACHE(
   fragmentRef: mixed,
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
-  fragmentKey?: string,
 ): ?SelectorData | Array<?SelectorData> {
   const fragmentSelector = useMemo(
     () => getSelector(fragmentNode, fragmentRef),
@@ -364,7 +363,6 @@ function useFragmentInternal_REACT_CACHE(
       'Relay: Expected fragment pointer%s for fragment `%s` to be ' +
         'an array, instead got `%s`. Remove `@relay(plural: true)` ' +
         'from fragment `%s` to allow the prop to be an object.',
-      fragmentKey != null ? ` for key \`${fragmentKey}\`` : '',
       fragmentNode.name,
       typeof fragmentRef,
       fragmentNode.name,
@@ -375,7 +373,6 @@ function useFragmentInternal_REACT_CACHE(
       'Relay: Expected fragment pointer%s for fragment `%s` not to be ' +
         'an array, instead got `%s`. Add `@relay(plural: true)` ' +
         'to fragment `%s` to allow the prop to be an array.',
-      fragmentKey != null ? ` for key \`${fragmentKey}\`` : '',
       fragmentNode.name,
       typeof fragmentRef,
       fragmentNode.name,
@@ -399,7 +396,6 @@ function useFragmentInternal_REACT_CACHE(
     fragmentNode.name,
     hookDisplayName,
     fragmentNode.name,
-    fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
     hookDisplayName,
   );
 

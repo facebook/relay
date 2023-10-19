@@ -3644,7 +3644,7 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.6.tgz#022e9218c637f9f3fc9c35ab9c9193f05add60b2"
   integrity sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==
 
-flow-bin@^0.219.2:
+flow-bin@^0.219.0:
   version "0.219.2"
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.219.2.tgz#46d32f51df0e855974ef97ebda12acce8ff5652a"
   integrity sha512-E0Dh5ZFIgjeW4VoCEr9KNPG3LS4PKqLMHOGQrzlJ/wOyFQvpNS4gXsxAPeqtxD+MHeV/tVeoD17WYJXkAXpgYw==

@@ -18,6 +18,7 @@ mod top_level_statements;
 mod utils;
 
 pub use ast::AstBuilder;
+pub use ast::JSModule;
 pub use ast::Primitive;
 pub use ast::QueryID;
 pub use ast::RequestParameters;

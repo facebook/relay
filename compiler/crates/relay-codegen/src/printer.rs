@@ -29,6 +29,7 @@ use crate::ast::AstBuilder;
 use crate::ast::AstKey;
 use crate::ast::GraphQLModuleDependency;
 use crate::ast::JSModuleDependency;
+use crate::ast::JSModuleReference;
 use crate::ast::ModuleImportName;
 use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
@@ -507,6 +508,12 @@ impl<'b> JSONPrinter<'b> {
                     import_name.clone(),
                     get_module_path(self.js_module_format, *path),
                 ),
+            Primitive::JSModuleReference(JSModuleReference {
+                parent_type: _,
+                import_name: _,
+            }) => {
+                todo!("Not implemented yet")
+            }
             Primitive::DynamicImport { provider, module } => match provider {
                 DynamicModuleProvider::JSResource => {
                     self.top_level_statements.insert(
@@ -827,6 +834,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::RawString(_) => panic!("Unexpected RawString"),
         Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
         Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
+        Primitive::JSModuleReference { .. } => panic!("Unexpected JSModuleReference"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
         Primitive::RelayResolverModel { .. } => panic!("Unexpected RelayResolver"),
         Primitive::RelayResolverWeakObjectWrapper { .. } => {

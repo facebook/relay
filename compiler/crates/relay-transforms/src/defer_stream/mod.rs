@@ -445,9 +445,9 @@ enum ValidationMessage {
         directive_name: DirectiveName,
     },
 
-    #[error("Unexpected argument to @defer: {arg_name}")]
+    #[error("Unexpected argument to @defer: '{arg_name}'.")]
     UnexpectedArgumentDefer { arg_name: ArgumentName },
 
-    #[error("Unexpected argument to @stream: {arg_name}")]
+    #[error("Unexpected argument to @stream: '{arg_name}'.")]
     UnexpectedArgumentStream { arg_name: ArgumentName },
 }

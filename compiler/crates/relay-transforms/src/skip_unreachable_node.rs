@@ -46,7 +46,8 @@ pub fn skip_unreachable_node_strict(
 ) -> DiagnosticsResult<Program> {
     let errors = vec![];
     let mut validation_mode = ValidationMode::Strict(errors);
-    let next_program = skip_unreachable_node(program, &mut validation_mode, defer_stream_interface);
+    let next_program =
+        skip_unreachable_node(program, &mut validation_mode, defer_stream_interface)?;
 
     if let ValidationMode::Strict(errors) = validation_mode {
         if !errors.is_empty() {
@@ -59,7 +60,7 @@ pub fn skip_unreachable_node_strict(
 pub fn skip_unreachable_node_loose(
     program: &Program,
     defer_stream_interface: DeferStreamInterface,
-) -> Program {
+) -> DiagnosticsResult<Program> {
     let mut validation_mode = ValidationMode::Loose;
     skip_unreachable_node(program, &mut validation_mode, defer_stream_interface)
 }
@@ -68,12 +69,16 @@ fn skip_unreachable_node(
     program: &Program,
     validation_mode: &mut ValidationMode,
     defer_stream_interface: DeferStreamInterface,
-) -> Program {
+) -> DiagnosticsResult<Program> {
     let mut skip_unreachable_node_transform =
         SkipUnreachableNodeTransform::new(program, validation_mode, defer_stream_interface);
     let transformed = skip_unreachable_node_transform.transform_program(program);
 
-    transformed.replace_or_else(|| program.clone())
+    if !skip_unreachable_node_transform.errors.is_empty() {
+        return Err(skip_unreachable_node_transform.errors);
+    }
+
+    Ok(transformed.replace_or_else(|| program.clone()))
 }
 
 type VisitedFragments =
@@ -84,6 +89,7 @@ pub struct SkipUnreachableNodeTransform<'s> {
     program: &'s Program,
     validation_mode: &'s mut ValidationMode,
     defer_stream_interface: DeferStreamInterface,
+    errors: Vec<Diagnostic>,
 }
 
 impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
@@ -229,7 +235,13 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
             .named(self.defer_stream_interface.stream_name)
         {
             if let Some(if_arg) =
-                StreamDirective::from(directive, &self.defer_stream_interface).if_arg
+                match StreamDirective::from(directive, &self.defer_stream_interface) {
+                    Ok(defer_directive) => defer_directive.if_arg,
+                    Err(err) => {
+                        self.errors.push(err);
+                        None
+                    }
+                }
             {
                 if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
                     let mut next_field = match transformed_field {
@@ -270,6 +282,7 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
             program,
             validation_mode,
             defer_stream_interface,
+            errors: Vec::new(),
         }
     }
 
@@ -317,7 +330,13 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
         {
             assert!(inline_fragment.directives.len() == 1);
             if let Some(if_arg) =
-                DeferDirective::from(directive, &self.defer_stream_interface).if_arg
+                match DeferDirective::from(directive, &self.defer_stream_interface) {
+                    Ok(defer_directive) => defer_directive.if_arg,
+                    Err(err) => {
+                        self.errors.push(err);
+                        None
+                    }
+                }
             {
                 if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
                     return TransformedMulti::ReplaceMultiple(

@@ -1269,7 +1269,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let DeferDirective { if_arg, label_arg } = DeferDirective::from(
             defer,
             &self.project_config.schema_config.defer_stream_interface,
-        );
+        )
+        .unwrap();
         let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
             // `true` is the default, remove as the AST is typed just as a variable name string
             // `false` constant values should've been transformed away in skip_unreachable_node
@@ -1321,7 +1322,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 } = StreamDirective::from(
                     stream,
                     &self.project_config.schema_config.defer_stream_interface,
-                );
+                )
+                .unwrap();
                 let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
                     // `true` is the default, remove as the AST is typed just as a variable name string
                     // `false` constant values should've been transformed away in skip_unreachable_node

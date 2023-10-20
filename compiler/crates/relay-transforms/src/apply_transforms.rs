@@ -585,7 +585,7 @@ fn apply_operation_text_transforms(
             &program,
             project_config.schema_config.defer_stream_interface,
         )
-    });
+    })?;
 
     program = log_event.time("generate_typename", || generate_typename(&program, false));
     log_event.time("flatten", || flatten(&mut program, false, true))?;

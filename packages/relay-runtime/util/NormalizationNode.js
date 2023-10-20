@@ -165,6 +165,11 @@ export type NormalizationScalarField = {
   +storageKey?: ?string,
 };
 
+export type ResolverModuleReference = {
+  +fieldType: string,
+  +resolverFunctionName: string,
+};
+
 export type NormalizationResolverField = {
   +kind: 'RelayResolver',
   +name: string,
@@ -172,7 +177,7 @@ export type NormalizationResolverField = {
   +fragment?: ?NormalizationInlineFragment,
   +storageKey: ?string,
   +isOutputType: boolean,
-  +resolverModule?: ResolverModule,
+  +resolverModule?: ResolverModule | ResolverModuleReference,
 };
 
 export type NormalizationLiveResolverField = {
@@ -182,7 +187,7 @@ export type NormalizationLiveResolverField = {
   +fragment?: ?NormalizationInlineFragment,
   +storageKey: ?string,
   +isOutputType: boolean,
-  +resolverModule?: ResolverModule,
+  +resolverModule?: ResolverModule | ResolverModuleReference,
 };
 
 export type NormalizationClientEdgeToClientObject = {

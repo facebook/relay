@@ -61,6 +61,7 @@ use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
@@ -72,6 +73,7 @@ use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
 use crate::ast::RequestParameters;
+use crate::ast::ResolverModuleReference;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
 
@@ -647,7 +649,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
-        if self
+        if self.project_config.feature_flags.enable_schema_resolvers {
+            self.build_normalization_relay_resolver_execution_time_for_worker(resolver_metadata)
+        } else if self
             .project_config
             .feature_flags
             .enable_resolver_normalization_ast
@@ -753,6 +757,61 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
             is_output_type: Primitive::Bool(is_output_type),
             resolver_module: Primitive::JSModuleDependency(resolver_js_module),
+        }))
+    }
+
+    fn build_normalization_relay_resolver_execution_time_for_worker(
+        &mut self,
+        resolver_metadata: &RelayResolverMetadata,
+    ) -> Primitive {
+        let field_name = resolver_metadata.field_name(self.schema);
+        let field_arguments = &resolver_metadata.field_arguments;
+        let args = self.build_arguments(field_arguments);
+        let is_output_type = resolver_metadata
+            .output_type_info
+            .normalization_ast_should_have_is_output_type_true();
+
+        let field_type = match resolver_metadata.field(self.schema).parent_type.unwrap() {
+            Type::Interface(interface_id) => self.schema.interface(interface_id).name.item.0,
+            Type::Object(object_id) => self.schema.object(object_id).name.item.0,
+            _ => panic!("Unexpected parent type for resolver."),
+        };
+
+        let variable_name = resolver_metadata.generate_local_resolver_name(self.schema);
+        let resolver_js_module = ResolverModuleReference {
+            field_type,
+            resolver_function_name: match resolver_metadata.import_name {
+                Some(name) => ModuleImportName::Named {
+                    name,
+                    import_as: Some(variable_name),
+                },
+                None => ModuleImportName::Default(variable_name),
+            },
+        };
+        let kind = if resolver_metadata.live {
+            CODEGEN_CONSTANTS.relay_live_resolver
+        } else {
+            CODEGEN_CONSTANTS.relay_resolver
+        };
+        Primitive::Key(self.object(object! {
+            name: Primitive::String(field_name),
+            args: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => Primitive::Key(key),
+            },
+            kind: Primitive::String(kind),
+            storage_key: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => {
+                    if is_static_storage_key_available(&resolver_metadata.field_arguments) {
+                        Primitive::StorageKey(field_name, key)
+                    } else {
+                        Primitive::SkippableNull
+                    }
+                }
+            },
+            is_output_type: Primitive::Bool(is_output_type),
+            resolver_module: Primitive::ResolverModuleReference(resolver_js_module),
         }))
     }
 

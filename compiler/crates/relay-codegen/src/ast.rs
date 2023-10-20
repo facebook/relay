@@ -78,14 +78,14 @@ pub struct JSModuleDependency {
 }
 
 #[derive(Eq, PartialEq, Hash, PartialOrd, Ord, Debug, Clone)]
-pub struct JSModuleReference {
-    pub parent_type: StringKey,
-    pub import_name: ModuleImportName,
+pub struct ResolverModuleReference {
+    pub field_type: StringKey,
+    pub resolver_function_name: ModuleImportName,
 }
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub enum JSModule {
-    Reference(JSModuleReference),
+    Reference(ResolverModuleReference),
     Dependency(JSModuleDependency),
 }
 
@@ -111,7 +111,7 @@ pub enum Primitive {
     RawString(String),
     GraphQLModuleDependency(GraphQLModuleDependency),
     JSModuleDependency(JSModuleDependency),
-    JSModuleReference(JSModuleReference),
+    ResolverModuleReference(ResolverModuleReference),
 
     // Don't include the value in the output when
     // skip_printing_nulls is enabled

@@ -409,11 +409,31 @@ function areEqualSingularSelectors(
   thatSelector: SingularReaderSelector,
 ): boolean {
   return (
-    thisSelector.owner === thatSelector.owner &&
     thisSelector.dataID === thatSelector.dataID &&
     thisSelector.node === thatSelector.node &&
-    areEqual(thisSelector.variables, thatSelector.variables)
+    areEqual(thisSelector.variables, thatSelector.variables) &&
+    areEqualOwners(thisSelector.owner, thatSelector.owner)
   );
+}
+
+function areEqualOwners(
+  thisOwner: ?RequestDescriptor,
+  thatOwner: ?RequestDescriptor,
+): boolean {
+  if (thisOwner == null) {
+    return thatOwner == null;
+  } else if (thatOwner == null) {
+    return thisOwner == null;
+  } else if (thisOwner === thatOwner) {
+    return true;
+  } else {
+    return (
+      thisOwner.identifier === thatOwner.identifier &&
+      thisOwner.node === thatOwner.node &&
+      areEqual(thisOwner.cacheConfig, thatOwner.cacheConfig) &&
+      areEqual(thisOwner.variables, thatOwner.variables)
+    );
+  }
 }
 
 /**

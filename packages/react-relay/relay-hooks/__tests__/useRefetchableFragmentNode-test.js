@@ -40,6 +40,7 @@ import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
 const useRefetchableFragmentInternal_REACT_CACHE = require('../react-cache/useRefetchableFragmentInternal_REACT_CACHE');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useRefetchableFragmentNode_LEGACY = require('../useRefetchableFragmentNode');
 const invariant = require('invariant');
 const React = require('react');
@@ -1393,7 +1394,7 @@ describe.each([
         ]);
       });
 
-      it('warns if data retured has different __typename', () => {
+      it('warns if data returned has different __typename', () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
@@ -1985,7 +1986,7 @@ describe.each([
             {force: true},
           );
 
-          // Assert we suspend on intial refetch request
+          // Assert we suspend on initial refetch request
           expectFragmentIsRefetching(renderer, {
             refetchQuery: refetchQuery1,
             refetchVariables: refetchVariables1,
@@ -2153,6 +2154,75 @@ describe.each([
           expect(renderer.toJSON()).toEqual('Fallback');
 
           expect(fetchSpy).toBeCalledTimes(4);
+        });
+
+        it('preserve the referential equality after refetch if the data/variables have not changed', async () => {
+          let refetchCount = 0;
+          const ComponentWithUseEffectRefetch = (props: {
+            fragmentKey: any,
+          }): null => {
+            const {fragmentData, refetch} = useRefetchableFragmentNode(
+              graphql`
+                fragment useRefetchableFragmentNodeTestIdentityTestFragment on User
+                @refetchable(
+                  queryName: "useRefetchableFragmentNodeTestIdentityTestFragmentRefetchQuery"
+                ) {
+                  id
+                  name
+                  profile_picture(scale: $scale) {
+                    uri
+                  }
+                }
+              `,
+              props.fragmentKey,
+            );
+            if (refetchCount > 2) {
+              throw new Error('Detected refetch loop.');
+            }
+            useEffect(() => {
+              refetchCount++;
+              refetch(fragmentData.id);
+            }, [fragmentData, refetch]);
+
+            return null;
+          };
+
+          const variables = {id: '1', scale: 16};
+          const query = createOperationDescriptor(
+            gqlRefetchQuery,
+            variables,
+            {},
+          );
+          environment.commitPayload(query, {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              profile_picture: null,
+            },
+          });
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
+                <React.Suspense fallback={'Loading'}>
+                  <RelayEnvironmentProvider environment={environment}>
+                    <ComponentWithUseEffectRefetch
+                      fragmentKey={createFragmentRef(
+                        '1',
+                        query,
+                        'useRefetchableFragmentNodeTestIdentityTestFragment',
+                      )}
+                    />
+                  </RelayEnvironmentProvider>
+                </React.Suspense>
+              </ErrorBoundary>,
+              // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+              {unstable_isConcurrent: true},
+            );
+            jest.runAllImmediates();
+          });
+          expect(renderer?.toJSON()).toBe(null);
         });
       });
 

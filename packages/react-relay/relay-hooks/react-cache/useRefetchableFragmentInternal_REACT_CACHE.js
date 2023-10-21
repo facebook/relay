@@ -481,11 +481,13 @@ function useRefetchFunction<TQuery: OperationType>(
       const refetchQuery = createOperationDescriptor(
         refetchableRequest,
         refetchVariables,
-        {force: true},
+        {
+          force: true,
+        },
       );
 
       // We call loadQuery which will start a network request if necessary
-      // and update the querRef from useQueryLoader.
+      // and update the queryRef from useQueryLoader.
       // Note the following:
       // - loadQuery will dispose of any previously refetched queries.
       // - We use the variables extracted off the OperationDescriptor

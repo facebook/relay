@@ -2186,7 +2186,6 @@ describe.each([
 
             return null;
           };
-
           const variables = {id: '1', scale: 16};
           const query = createOperationDescriptor(
             gqlRefetchQuery,
@@ -2222,6 +2221,7 @@ describe.each([
             );
             jest.runAllImmediates();
           });
+          expect(refetchCount).toBe(2);
           expect(renderer?.toJSON()).toBe(null);
         });
       });

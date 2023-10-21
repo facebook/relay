@@ -99,7 +99,9 @@ pub use crate::LSPExtraDataProvider;
 pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
     let server_capabilities = ServerCapabilities {
         // Enable text document syncing so we can know when files are opened/changed/saved/closed
-        text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
+        text_document_sync: Some(TextDocumentSyncCapability::Kind(
+            TextDocumentSyncKind::INCREMENTAL,
+        )),
 
         completion_provider: Some(CompletionOptions {
             resolve_provider: Some(true),

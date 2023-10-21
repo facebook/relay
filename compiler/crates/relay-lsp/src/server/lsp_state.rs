@@ -14,6 +14,7 @@ use common::Span;
 use crossbeam::channel::SendError;
 use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
+use dashmap::mapref::one::Ref;
 use dashmap::DashMap;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
@@ -31,7 +32,10 @@ use intern::string_key::StringKey;
 use log::debug;
 use lsp_server::Message;
 use lsp_types::Diagnostic;
+use lsp_types::Position;
 use lsp_types::Range;
+use lsp_types::TextDocumentContentChangeEvent;
+use lsp_types::TextDocumentItem;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
 use relay_compiler::config::Config;
@@ -126,9 +130,14 @@ pub trait GlobalState {
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String>;
 
-    fn document_opened(&self, url: &Url, text: &str) -> LSPRuntimeResult<()>;
+    fn document_opened(&self, url: &Url, text_document: &TextDocumentItem) -> LSPRuntimeResult<()>;
 
-    fn document_changed(&self, url: &Url, full_text: &str) -> LSPRuntimeResult<()>;
+    fn document_changed(
+        &self,
+        url: &Url,
+        changes: Vec<TextDocumentContentChangeEvent>,
+        version: i32,
+    ) -> LSPRuntimeResult<()>;
 
     fn document_closed(&self, url: &Url) -> LSPRuntimeResult<()>;
 
@@ -136,6 +145,8 @@ pub trait GlobalState {
     /// we may need to know who's our current consumer.
     /// This is mostly for hover handler (where we render markup)
     fn get_content_consumer_type(&self) -> ContentConsumerType;
+
+    fn get_content_of_open_text_document(&self, url: &Url) -> LSPRuntimeResult<&str>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -159,6 +170,7 @@ pub struct LSPState<
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
     pub(crate) project_status: ProjectStatusMap,
     js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
+    open_text_documents: DashMap<Url, FullTextDocument>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
@@ -200,6 +212,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_javascript_features: Default::default(),
             js_resource,
+            open_text_documents: DashMap::new(),
         };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -507,7 +520,18 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         get_query_text(self, query_text, (*project_name).into())
     }
 
-    fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
+    fn document_opened(&self, uri: &Url, text_document: &TextDocumentItem) -> LSPRuntimeResult<()> {
+        let open_text_document = FullTextDocument::new(
+            text_document.language_id.clone(),
+            text_document.version,
+            text_document.text.clone(),
+        );
+
+        self.open_text_documents
+            .insert(uri.clone(), open_text_document);
+
+        let text = open_text_document.get_content(None);
+
         if let Some(js_server) = self.get_js_language_sever() {
             js_server.process_js_source(uri, text);
         }
@@ -521,7 +545,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
     }
 
-    fn document_changed(&self, uri: &Url, full_text: &str) -> LSPRuntimeResult<()> {
+    fn document_changed(
+        &self,
+        uri: &Url,
+        changes: Vec<TextDocumentContentChangeEvent>,
+        version: i32,
+    ) -> LSPRuntimeResult<()> {
+        let mut open_text_document = self
+            .open_text_documents
+            .get_mut(uri)
+            .ok_or(LSPRuntimeError::ExpectedError)?;
+
+        open_text_document.update(&changes, version);
+
+        let full_text = open_text_document.get_content(None);
+
         if let Some(js_server) = self.get_js_language_sever() {
             js_server.process_js_source(uri, full_text);
         }
@@ -537,6 +575,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_closed(&self, uri: &Url) -> LSPRuntimeResult<()> {
+        self.open_text_documents.remove(uri);
+
         if let Some(js_server) = self.get_js_language_sever() {
             js_server.remove_js_source(uri);
         }
@@ -546,6 +586,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn get_content_consumer_type(&self) -> ContentConsumerType {
         ContentConsumerType::Relay
+    }
+
+    fn get_content_of_open_text_document(&self, url: &Url) -> LSPRuntimeResult<&str> {
+        let open_text_document = self
+            .open_text_documents
+            .get(url)
+            .ok_or(LSPRuntimeError::ExpectedError)?;
+
+        let text = open_text_document.get_content(None);
+
+        Ok(text)
     }
 }
 
@@ -569,6 +620,311 @@ pub(crate) fn handle_lsp_state_tasks<
         Task::ValidateSyncedSources => {
             for item in &state.synced_javascript_features {
                 state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
+            }
+        }
+    }
+}
+
+// TODO: The below was taken from lsp-textdocument and will be replaced
+//       once this package has published a new version with the removed unstable code.
+#[derive(Debug)]
+pub struct FullTextDocument {
+    language_id: String,
+    version: i32,
+    content: String,
+
+    /// The value at index `i` in `line_offsets` is the index into `content`
+    /// that is the start of line `i`. As such, the first element of
+    /// `line_offsets` is always 0.
+    line_offsets: Vec<u32>,
+}
+
+fn computed_line_offsets(text: &str, is_at_line_start: bool, text_offset: Option<u32>) -> Vec<u32> {
+    let text_offset = text_offset.unwrap_or(0);
+    let mut line_offsets = if is_at_line_start {
+        vec![text_offset]
+    } else {
+        vec![]
+    };
+
+    let mut chars = text.char_indices().peekable();
+    while let Some((idx, char)) = chars.next() {
+        let idx: u32 = idx
+            .try_into()
+            .expect("The length of the text involved in the calculation is too long");
+        if char == '\r' && chars.peek() == Some(&(idx as usize + 1, '\n')) {
+            chars.next();
+            line_offsets.push(text_offset + idx + 2);
+        } else if char == '\n' || char == '\r' {
+            line_offsets.push(text_offset + idx + 1);
+        }
+    }
+
+    line_offsets
+}
+
+/// given a string (in UTF-8) and a byte offset, returns the offset in UTF-16 code units
+///
+/// for example, consider a string containing a single 4-byte emoji. 4-byte characters
+/// in UTF-8 are supplementary plane characters that require two UTF-16 code units
+/// (surrogate pairs).
+///
+/// in this example:
+/// - offset 4 returns 2;
+/// - offsets 1, 2 or 3 return 0, because they are not on a character boundary and round down;
+/// - offset 5+ will return 2, the length of the string in UTF-16
+fn line_offset_utf16(line: &str, offset: u32) -> u32 {
+    let mut c = 0;
+    for (idx, char) in line.char_indices() {
+        if idx + char.len_utf8() > offset as usize || idx == offset as usize {
+            break;
+        }
+        c += char.len_utf16() as u32;
+    }
+    c
+}
+
+impl FullTextDocument {
+    pub fn new(language_id: String, version: i32, content: String) -> Self {
+        let line_offsets = computed_line_offsets(&content, true, None);
+        Self {
+            language_id,
+            version,
+            content,
+            line_offsets,
+        }
+    }
+
+    pub fn update(&mut self, changes: &[TextDocumentContentChangeEvent], version: i32) {
+        for change in changes {
+            let TextDocumentContentChangeEvent { range, text, .. } = change;
+            match range {
+                Some(range) => {
+                    // update content
+                    let Range { start, end } = range;
+                    let (start, start_offset) = self.find_canonical_position(start);
+                    let (end, end_offset) = self.find_canonical_position(end);
+                    assert!(
+                        start_offset <= end_offset,
+                        "Start offset must be less than end offset. {}:{} (offset {}) is not <= {}:{} (offset {})",
+                        start.line, start.character, start_offset,
+                        end.line, end.character, end_offset
+                    );
+                    self.content
+                        .replace_range((start_offset as usize)..(end_offset as usize), text);
+
+                    let (start_line, end_line) = (start.line, end.line);
+                    assert!(start_line <= end_line);
+                    let added_line_offsets = computed_line_offsets(text, false, Some(start_offset));
+                    let num_added_line_offsets = added_line_offsets.len();
+
+                    let splice_start = start_line as usize + 1;
+                    self.line_offsets
+                        .splice(splice_start..=end_line as usize, added_line_offsets);
+
+                    let diff =
+                        (text.len() as i32).saturating_sub_unsigned(end_offset - start_offset);
+                    if diff != 0 {
+                        for i in
+                            (splice_start + num_added_line_offsets)..(self.line_count() as usize)
+                        {
+                            self.line_offsets[i] = self.line_offsets[i].saturating_add_signed(diff);
+                        }
+                    }
+                }
+                None => {
+                    // Full Text
+                    // update line_offsets
+                    self.line_offsets = computed_line_offsets(text, true, None);
+
+                    // update content
+                    self.content = text.to_owned();
+                }
+            }
+        }
+
+        self.version = version;
+    }
+
+    /// As demonstrated by test_multiple_position_same_offset(), in some cases,
+    /// there are multiple ways to reference the same Position. We map to a
+    /// "canonical Position" so we can avoid worrying about edge cases all over
+    /// the place.
+    fn find_canonical_position(&self, position: &Position) -> (Position, u32) {
+        let offset = self.offset_at(*position);
+        if offset == 0 {
+            (
+                Position {
+                    line: 0,
+                    character: 0,
+                },
+                0,
+            )
+        } else if self.content.as_bytes().get(offset as usize - 1) == Some(&b'\n') {
+            if self.line_offsets[position.line as usize] == offset {
+                (*position, offset)
+            } else if self.line_offsets[position.line as usize + 1] == offset {
+                (
+                    Position {
+                        line: position.line + 1,
+                        character: 0,
+                    },
+                    offset,
+                )
+            } else {
+                panic!(
+                    "Could not determine canonical value for {position:?} in {:?}",
+                    self.content
+                )
+            }
+        } else {
+            (*position, offset)
+        }
+    }
+
+    /// Document's language id
+    pub fn language_id(&self) -> &str {
+        &self.language_id
+    }
+
+    /// Document's version
+    pub fn version(&self) -> i32 {
+        self.version
+    }
+
+    /// Get document content
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    /// ```
+    /// use lsp_textdocument::FullTextDocument;
+    /// use lsp_types::{Range, Position};
+    ///
+    /// let text_documents = FullTextDocument::new("plain_text".to_string(), 1, "hello rust!".to_string());
+    ///
+    /// // get document all content
+    /// let content = text_documents.get_content(None);
+    /// assert_eq!(content, "hello rust!");
+    ///
+    /// // get document specify content by range
+    /// let (start, end) = (Position::new(0, 1), Position::new(0, 9));
+    /// let range = Range::new(start, end);
+    /// let sub_content = text_documents.get_content(Some(range));
+    /// assert_eq!(sub_content, "ello rus");
+    /// ```
+    pub fn get_content(&self, range: Option<Range>) -> &str {
+        match range {
+            Some(Range { start, end }) => {
+                let start = self.offset_at(start);
+                let end = self.offset_at(end).min(self.content_len());
+                self.content.get(start as usize..end as usize).unwrap()
+            }
+            None => &self.content,
+        }
+    }
+
+    fn get_line_and_offset(&self, line: u32) -> Option<(&str, u32)> {
+        self.line_offsets.get(line as usize).map(|&line_offset| {
+            let len: u32 = self.content_len();
+            let eol_offset = self.line_offsets.get((line + 1) as usize).unwrap_or(&len);
+            let line = &self.content[line_offset as usize..*eol_offset as usize];
+            (line, line_offset)
+        })
+    }
+
+    fn get_line(&self, line: u32) -> Option<&str> {
+        self.get_line_and_offset(line).map(|(line, _)| line)
+    }
+
+    /// A amount of document content line
+    pub fn line_count(&self) -> u32 {
+        self.line_offsets
+            .len()
+            .try_into()
+            .expect("The number of lines of text passed in is too long")
+    }
+
+    /// The length of the document content in UTF-8 bytes
+    pub fn content_len(&self) -> u32 {
+        self.content
+            .len()
+            .try_into()
+            .expect("The length of the text passed in is too long")
+    }
+
+    /// Converts a zero-based byte offset in the UTF8-encoded content to a position
+    ///
+    /// the offset is in bytes, the position is in UTF16 code units. rounds down if
+    /// the offset is not on a code unit boundary, or is beyond the end of the
+    /// content.
+    pub fn position_at(&self, offset: u32) -> Position {
+        let offset = offset.min(self.content_len());
+        let line_count = self.line_count();
+        if line_count == 1 {
+            // only one line
+            return Position {
+                line: 0,
+                character: line_offset_utf16(self.get_line(0).unwrap(), offset),
+            };
+        }
+
+        let (mut low, mut high) = (0, line_count);
+        while low < high {
+            let mid = (low + high) / 2;
+            if offset
+                > *self
+                    .line_offsets
+                    .get(mid as usize)
+                    .expect("Unknown mid value")
+            {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+
+        if low == 0 {
+            // offset is on the first line
+            return Position {
+                line: 0,
+                character: line_offset_utf16(self.get_line(0).unwrap(), offset),
+            };
+        }
+
+        let line = low - 1;
+
+        Position {
+            line,
+            character: line_offset_utf16(
+                self.get_line(line).unwrap(),
+                offset - self.line_offsets[line as usize],
+            ),
+        }
+    }
+
+    /// Converts a position to a zero-based byte offset, suitable for slicing the
+    /// UTF-8 encoded content.
+    pub fn offset_at(&self, position: Position) -> u32 {
+        let Position { line, character } = position;
+        match self.get_line_and_offset(line) {
+            Some((line, offset)) => {
+                let mut c = 0;
+                let iter = line.char_indices();
+                for (idx, char) in iter {
+                    if c == character {
+                        return offset + idx as u32;
+                    }
+                    c += char.len_utf16() as u32;
+                }
+                offset + line.len() as u32
+            }
+            None => {
+                if line >= self.line_count() {
+                    self.content_len()
+                } else {
+                    0
+                }
             }
         }
     }

@@ -1,24 +1,24 @@
 ==================================== INPUT ====================================
-# TODO: expected to throw
+# TODO T160746170: expected to throw
 
-query relayResolverWithUndefinedGlobalVariablesQuery {
+query relayResolverWithUndefinedFieldArgsQuery {
   node(id: "SOME_ID") {
-    ...relayResolverWithUndefinedGlobalVariables_PopStarName
+    ...relayResolverWithUndefinedFieldArgs_PopStarName
   }
 }
 
-fragment relayResolverWithUndefinedGlobalVariables_PopStarName on User {
+fragment relayResolverWithUndefinedFieldArgs_PopStarName on User {
   pop_star_name(scale: $scale)
 }
 
-fragment relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_name on User {
+fragment relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name on User {
   name
 }
 
 # %extensions%
 
 extend type User {
-  pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+  pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
 }
 ==================================== OUTPUT ===================================
 {
@@ -26,7 +26,7 @@ extend type User {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "relayResolverWithUndefinedGlobalVariablesQuery",
+    "name": "relayResolverWithUndefinedFieldArgsQuery",
     "selections": [
       {
         "alias": null,
@@ -45,7 +45,7 @@ extend type User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "relayResolverWithUndefinedGlobalVariables_PopStarName"
+            "name": "relayResolverWithUndefinedFieldArgs_PopStarName"
           }
         ],
         "storageKey": "node(id:\"SOME_ID\")"
@@ -58,7 +58,7 @@ extend type User {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "relayResolverWithUndefinedGlobalVariablesQuery",
+    "name": "relayResolverWithUndefinedFieldArgsQuery",
     "selections": [
       {
         "alias": null,
@@ -128,10 +128,10 @@ extend type User {
     ]
   },
   "params": {
-    "cacheID": "8c99a70a7ba2df2195b28ab9b19b84eb",
+    "cacheID": "5f7b775e10479b8a175a9d7b7707ad05",
     "id": null,
     "metadata": {},
-    "name": "relayResolverWithUndefinedGlobalVariablesQuery",
+    "name": "relayResolverWithUndefinedFieldArgsQuery",
     "operationKind": "query",
     "text": null
   }
@@ -139,19 +139,19 @@ extend type User {
 
 QUERY:
 
-query relayResolverWithUndefinedGlobalVariablesQuery {
+query relayResolverWithUndefinedFieldArgsQuery {
   node(id: "SOME_ID") {
     __typename
-    ...relayResolverWithUndefinedGlobalVariables_PopStarName
+    ...relayResolverWithUndefinedFieldArgs_PopStarName
     id
   }
 }
 
-fragment relayResolverWithUndefinedGlobalVariables_PopStarName on User {
-  ...relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_name
+fragment relayResolverWithUndefinedFieldArgs_PopStarName on User {
+  ...relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name
 }
 
-fragment relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_name on User {
+fragment relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name on User {
   name
 }
 
@@ -165,7 +165,7 @@ fragment relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_n
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "relayResolverWithUndefinedGlobalVariables_PopStarName",
+  "name": "relayResolverWithUndefinedFieldArgs_PopStarName",
   "selections": [
     {
       "alias": null,
@@ -179,7 +179,7 @@ fragment relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_n
       "fragment": {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_name"
+        "name": "relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name"
       },
       "kind": "RelayResolver",
       "name": "pop_star_name",
@@ -195,7 +195,7 @@ fragment relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_n
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "relayResolverWithUndefinedGlobalVariables_PopStarNameResolverFragment_name",
+  "name": "relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name",
   "selections": [
     {
       "alias": null,

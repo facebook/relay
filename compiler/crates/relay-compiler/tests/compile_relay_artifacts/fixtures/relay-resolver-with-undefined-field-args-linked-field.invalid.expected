@@ -1,0 +1,334 @@
+==================================== INPUT ====================================
+# TODO T160746170 expected to throw
+
+query relayResolverWithUndefinedFieldArgsLinkedFieldQuery {
+  node(id: "SOME_ID") {
+    ...relayResolverWithUndefinedFieldArgsLinkedField_PopStar
+  }
+}
+
+fragment relayResolverWithUndefinedFieldArgsLinkedField_PopStar on User {
+  pop_star(name: $undefined) @waterfall {
+    id
+  }
+}
+# %extensions%
+
+extend type User {
+  pop_star(name: String): User @relay_resolver(import_path: "./path/to/PopStarResolver.js")
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "ClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "RefetchableClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "ClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "d5903316ee00d1bf3d4368d1c75c827e",
+    "id": null,
+    "metadata": {},
+    "name": "ClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query ClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...RefetchableClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star
+    id
+  }
+}
+
+fragment RefetchableClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star on User {
+  id
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayResolverWithUndefinedFieldArgsLinkedFieldQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "SOME_ID"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "relayResolverWithUndefinedFieldArgsLinkedField_PopStar"
+          }
+        ],
+        "storageKey": "node(id:\"SOME_ID\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverWithUndefinedFieldArgsLinkedFieldQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "SOME_ID"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "name": "pop_star",
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "name",
+                    "variableName": "undefined"
+                  }
+                ],
+                "fragment": null,
+                "kind": "RelayResolver",
+                "storageKey": null,
+                "isOutputType": false
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:\"SOME_ID\")"
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "e8583c1b54f5e17064d894b8094a5a68",
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverWithUndefinedFieldArgsLinkedFieldQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query relayResolverWithUndefinedFieldArgsLinkedFieldQuery {
+  node(id: "SOME_ID") {
+    __typename
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('ClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star.graphql'),
+      "identifierInfo": {
+        "identifierField": "id",
+        "identifierQueryVariableName": "id"
+      }
+    }
+  },
+  "name": "RefetchableClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "undefined"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "hasClientEdges": true
+  },
+  "name": "relayResolverWithUndefinedFieldArgsLinkedField_PopStar",
+  "selections": [
+    {
+      "kind": "ClientEdgeToServerObject",
+      "operation": require('ClientEdgeQuery_relayResolverWithUndefinedFieldArgsLinkedField_PopStar_pop_star.graphql'),
+      "backingField": {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "name",
+            "variableName": "undefined"
+          }
+        ],
+        "fragment": null,
+        "kind": "RelayResolver",
+        "name": "pop_star",
+        "resolverModule": require('PopStarResolver'),
+        "path": "pop_star"
+      },
+      "linkedField": {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "name",
+            "variableName": "undefined"
+          }
+        ],
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "pop_star",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ed9fffdf93ab1c751f4503a67d68092e>>
+ * @generated SignedSource<<4e5648946a883a29449d80cfd9d28a77>>
  */
 
 mod compile_relay_artifacts;
@@ -1263,6 +1263,20 @@ async fn relay_resolver_with_undefined_field_args_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-with-undefined-field-args.invalid.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_with_undefined_field_args_linked_field_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args-linked-field.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args-linked-field.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-undefined-field-args-linked-field.invalid.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args-linked-field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_with_undefined_field_args_scalar_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args-scalar.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args-scalar.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-undefined-field-args-scalar.invalid.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-args-scalar.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

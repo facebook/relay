@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7743e2abb746815cdc1a8d9cd0257972>>
+ * @generated SignedSource<<ed9fffdf93ab1c751f4503a67d68092e>>
  */
 
 mod compile_relay_artifacts;
@@ -1249,6 +1249,13 @@ async fn relay_resolver_with_spread_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-spread.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-spread.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-with-spread.invalid.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-spread.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_with_undefined_field_and_fragment_args_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-and-fragment-args.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-and-fragment-args.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-undefined-field-and-fragment-args.invalid.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-undefined-field-and-fragment-args.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

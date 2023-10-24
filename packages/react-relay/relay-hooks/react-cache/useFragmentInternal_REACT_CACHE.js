@@ -435,7 +435,7 @@ function useFragmentInternal_REACT_CACHE(
   // The purpose of this is to detect whether we have ever committed, because we
   // don't suspend on store updates, only when the component either is first trying
   // to mount or when the our selector changes. The selector change in particular is
-  // how we suspend for pagination and refetech. Also, fragment selector can be null
+  // how we suspend for pagination and refetch. Also, fragment selector can be null
   // or undefined, so we use false as a special value to distinguish from all fragment
   // selectors; false means that the component hasn't mounted yet.
   const committedFragmentSelectorRef = useRef<false | ?ReaderSelector>(false);
@@ -551,7 +551,7 @@ function useFragmentInternal_REACT_CACHE(
 
   let data: ?SelectorData | Array<?SelectorData>;
   if (isPlural) {
-    // Plural fragments require allocating an array of the snasphot data values,
+    // Plural fragments require allocating an array of the snapshot data values,
     // which has to be memoized to avoid triggering downstream re-renders.
     //
     // Note that isPlural is a constant property of the fragment and does not change

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fcaf5f3ed475c0aa56f387b6cd82691e>>
+ * @generated SignedSource<<c8739ad0b60736cf314b0c9beeecd93a>>
  */
 
 mod parse;
@@ -328,8 +328,8 @@ async fn terse_relay_resolver_non_nullable_list() {
 }
 
 #[tokio::test]
-async fn terse_relay_resolver_non_nullable_list_item_invalid() {
-    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list-item.invalid.js");
-    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list-item.invalid.expected");
-    test_fixture(transform_fixture, "terse-relay-resolver-non-nullable-list-item.invalid.js", "parse/fixtures/terse-relay-resolver-non-nullable-list-item.invalid.expected", input, expected).await;
+async fn terse_relay_resolver_non_nullable_list_item() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list-item.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list-item.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-non-nullable-list-item.js", "parse/fixtures/terse-relay-resolver-non-nullable-list-item.expected", input, expected).await;
 }

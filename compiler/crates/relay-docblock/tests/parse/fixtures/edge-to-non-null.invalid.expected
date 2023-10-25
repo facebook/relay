@@ -29,7 +29,7 @@ graphql`
  }
 `
 ==================================== ERROR ====================================
-✖︎ Unexpected Relay Resolver field with non-nullable type. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+✖︎ Unexpected non-nullable type given in `@edgeTo`.
 
   /path/to/test/fixture/edge-to-non-null.invalid.js:16:12
    15 │  * @fieldName favorite_page

@@ -6,9 +6,14 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
- * @RelayResolver User.favorite_page: [Page!]
+ * @RelayResolver
+ *
+ * @onType User
+ * @fieldName favorite_page
+ * @edgeTo [Page!]
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI

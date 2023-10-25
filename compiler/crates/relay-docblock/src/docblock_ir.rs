@@ -55,9 +55,9 @@ use crate::ir::WeakObjectIr;
 use crate::untyped_representation::AllowedFieldName;
 use crate::untyped_representation::UntypedDocblockRepresentation;
 use crate::DocblockIr;
+use crate::LegacyVerboseResolverIr;
 use crate::On;
 use crate::ParseOptions;
-use crate::RelayResolverIr;
 
 pub(crate) fn parse_docblock_ir(
     project_name: ProjectName,
@@ -97,7 +97,7 @@ pub(crate) fn parse_docblock_ir(
     };
     let parsed_docblock_ir = match resolver_field {
         IrField::UnpopulatedIrField(unpopulated_ir_field) => {
-            DocblockIr::RelayResolver(parse_relay_resolver_ir(
+            let legacy_verbose_resolver = parse_relay_resolver_ir(
                 &mut fields,
                 definitions_in_file,
                 description,
@@ -106,7 +106,35 @@ pub(crate) fn parse_docblock_ir(
                 unpopulated_ir_field,
                 parse_options,
                 source_hash,
-            )?)
+            )?;
+
+            let field_name = format!(
+                "{}.{}",
+                legacy_verbose_resolver.on.type_name(),
+                legacy_verbose_resolver.field.name.value
+            )
+            .intern();
+
+            if !parse_options
+                .allow_legacy_verbose_syntax
+                .is_enabled_for(field_name)
+            {
+                match legacy_verbose_resolver.on {
+                    On::Type(field) => {
+                        return Err(vec![Diagnostic::error(
+                            IrParsingErrorMessages::UnexpectedOnType { field_name },
+                            field.key_location,
+                        )]);
+                    }
+                    On::Interface(field) => {
+                        return Err(vec![Diagnostic::error(
+                            IrParsingErrorMessages::UnexpectedOnInterface { field_name },
+                            field.key_location,
+                        )]);
+                    }
+                }
+            }
+            DocblockIr::LegacyVerboseResolver(legacy_verbose_resolver)
         }
         IrField::PopulatedIrField(populated_ir_field) => {
             if populated_ir_field.value.item.lookup().contains('.') {
@@ -165,7 +193,7 @@ fn parse_relay_resolver_ir(
     _resolver_field: UnpopulatedIrField,
     parse_options: &ParseOptions<'_>,
     source_hash: ResolverSourceHash,
-) -> DiagnosticsResult<RelayResolverIr> {
+) -> DiagnosticsResult<LegacyVerboseResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
     let field_name =
@@ -215,7 +243,7 @@ fn parse_relay_resolver_ir(
 
     validate_field_arguments(&field_definition_stub.arguments, location.source_location())?;
 
-    Ok(RelayResolverIr {
+    Ok(LegacyVerboseResolverIr {
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
         on,
         root_fragment: root_fragment
@@ -729,7 +757,7 @@ fn extract_fragment_arguments(
 
 fn get_resolver_field_path(docblock_ir: &DocblockIr) -> Option<String> {
     match docblock_ir {
-        DocblockIr::RelayResolver(resolver_ir) => {
+        DocblockIr::LegacyVerboseResolver(resolver_ir) => {
             let parent_type_name = match resolver_ir.on {
                 On::Type(field) => field.value.item,
                 On::Interface(field) => field.value.item,
@@ -757,7 +785,7 @@ fn validate_strict_resolver_flavors(
         output_type: Option<Location>,
     }
     let validation_info: Option<ResolverFlavorValidationInfo> = match docblock_ir {
-        DocblockIr::RelayResolver(resolver_ir) => {
+        DocblockIr::LegacyVerboseResolver(resolver_ir) => {
             let output_type_location = resolver_ir.output_type.as_ref().map(|ot| {
                 let type_loc = ot.inner().location;
                 let (type_start, _) = type_loc.span().as_usize();
@@ -806,14 +834,14 @@ fn validate_strict_resolver_flavors(
         let mut errs = vec![];
         if let Some(live_loc) = validation_info.live {
             errs.push(Diagnostic::error(
-                "@live is incompatible with @rootFragment",
+                IrParsingErrorMessages::IncompatibleLiveAndRootFragment,
                 live_loc,
             ));
         }
 
         if let Some(output_type_loc) = validation_info.output_type {
             errs.push(Diagnostic::error(
-                "@outputType is incompatible with @rootFragment",
+                IrParsingErrorMessages::IncompatibleOutputTypeAndRootFragment,
                 output_type_loc,
             ));
         }

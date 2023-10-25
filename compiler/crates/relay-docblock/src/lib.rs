@@ -31,8 +31,8 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::TypeSystemDefinition;
 use intern::Lookup;
 pub use ir::DocblockIr;
+use ir::LegacyVerboseResolverIr;
 pub use ir::On;
-use ir::RelayResolverIr;
 use relay_config::ProjectName;
 use schema::SDLSchema;
 use untyped_representation::parse_untyped_docblock_representation;
@@ -40,6 +40,7 @@ use untyped_representation::parse_untyped_docblock_representation;
 pub struct ParseOptions<'a> {
     pub enable_output_type: &'a FeatureFlag,
     pub enable_strict_resolver_flavors: &'a FeatureFlag,
+    pub allow_legacy_verbose_syntax: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(

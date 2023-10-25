@@ -1,4 +1,3 @@
-==================================== INPUT ====================================
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -7,14 +6,12 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
  *
- * @onType User
+ * @onInterface Viewer
  * @fieldName favorite_page
- * @edgeTo Page!
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI
@@ -24,15 +21,7 @@
  */
 
 graphql`
- fragment myRootFragment on User {
-   name
- }
+  fragment myRootFragment on Viewer {
+    name
+  }
 `
-==================================== ERROR ====================================
-✖︎ Unexpected non-nullable type given in `@edgeTo`.
-
-  /path/to/test/fixture/edge-to-non-null.invalid.js:16:12
-   15 │  * @fieldName favorite_page
-   16 │  * @edgeTo Page!
-      │            ^^^^^
-   17 │  * @rootFragment myRootFragment

@@ -23,7 +23,7 @@ pub fn create_docblock_resolution_info(
     position_span: Span,
 ) -> Option<DocblockResolutionInfo> {
     match docblock_ir {
-        DocblockIr::RelayResolver(resolver_ir) => {
+        DocblockIr::LegacyVerboseResolver(resolver_ir) => {
             match resolver_ir.on {
                 On::Type(on_type) => {
                     if on_type.value.location.contains(position_span) {

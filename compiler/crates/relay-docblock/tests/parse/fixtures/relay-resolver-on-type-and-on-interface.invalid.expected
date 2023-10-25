@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_verbose_syntax
+
 // expected-to-throw
 
 /**
@@ -26,16 +28,16 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Unexpected `@onType` and `@onInterface`. Only one of these docblock fields should be defined on a given `@RelayResolver`.
 
-  /path/to/test/fixture/relay-resolver-on-type-and-on-interface.invalid.js:13:5
-   12 │  *
-   13 │  * @onType User
+  /path/to/test/fixture/relay-resolver-on-type-and-on-interface.invalid.js:15:5
+   14 │  *
+   15 │  * @onType User
       │     ^^^^^^
-   14 │  * @onInterface Node
+   16 │  * @onInterface Node
 
   ℹ︎ @onInterface
 
-  /path/to/test/fixture/relay-resolver-on-type-and-on-interface.invalid.js:14:5
-   13 │  * @onType User
-   14 │  * @onInterface Node
+  /path/to/test/fixture/relay-resolver-on-type-and-on-interface.invalid.js:16:5
+   15 │  * @onType User
+   16 │  * @onInterface Node
       │     ^^^^^^^^^^^
-   15 │  * @fieldName favorite_page
+   17 │  * @fieldName favorite_page

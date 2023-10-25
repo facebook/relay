@@ -89,7 +89,7 @@ lazy_static! {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DocblockIr {
-    RelayResolver(RelayResolverIr),
+    LegacyVerboseResolver(LegacyVerboseResolverIr),
     TerseRelayResolver(TerseRelayResolverIr),
     StrongObjectResolver(StrongObjectIr),
     WeakObjectType(WeakObjectIr),
@@ -98,7 +98,7 @@ pub enum DocblockIr {
 impl DocblockIr {
     pub(crate) fn get_variant_name(&self) -> &'static str {
         match self {
-            DocblockIr::RelayResolver(_) => "legacy resolver declaration",
+            DocblockIr::LegacyVerboseResolver(_) => "legacy resolver declaration",
             DocblockIr::TerseRelayResolver(_) => "terse resolver declaration",
             DocblockIr::StrongObjectResolver(_) => "strong object type declaration",
             DocblockIr::WeakObjectType(_) => "weak object type declaration",
@@ -143,7 +143,7 @@ impl DocblockIr {
         };
 
         match self {
-            DocblockIr::RelayResolver(relay_resolver) => {
+            DocblockIr::LegacyVerboseResolver(relay_resolver) => {
                 relay_resolver.to_graphql_schema_ast(project_config)
             }
             DocblockIr::TerseRelayResolver(relay_resolver) => {
@@ -227,6 +227,15 @@ impl TryFrom<IrField> for UnpopulatedIrField {
 pub enum On {
     Type(PopulatedIrField),
     Interface(PopulatedIrField),
+}
+
+impl On {
+    pub fn type_name(&self) -> StringKey {
+        match self {
+            On::Type(field) => field.value.item,
+            On::Interface(field) => field.value.item,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -745,7 +754,7 @@ impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct RelayResolverIr {
+pub struct LegacyVerboseResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
@@ -759,7 +768,7 @@ pub struct RelayResolverIr {
     pub source_hash: ResolverSourceHash,
 }
 
-impl ResolverIr for RelayResolverIr {
+impl ResolverIr for LegacyVerboseResolverIr {
     fn definitions(
         self,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -897,7 +906,7 @@ impl ResolverIr for RelayResolverIr {
     }
 }
 
-impl ResolverTypeDefinitionIr for RelayResolverIr {
+impl ResolverTypeDefinitionIr for LegacyVerboseResolverIr {
     fn field_name(&self) -> &Identifier {
         &self.field.name
     }

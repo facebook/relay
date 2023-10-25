@@ -8,6 +8,7 @@
 // expected-to-throw
 // relay:enable_strict_resolver_flavors
 // relay:enable_output_type
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver

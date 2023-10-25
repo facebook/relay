@@ -82,6 +82,9 @@ fn parse_source(
             enable_strict_resolver_flavors: &project_config
                 .feature_flags
                 .relay_resolvers_enable_strict_resolver_flavors,
+            allow_legacy_verbose_syntax: &project_config
+                .feature_flags
+                .relay_resolvers_allow_legacy_verbose_syntax,
         },
     )?;
     maybe_ir

@@ -9,6 +9,7 @@
 // expected-to-throw
 // relay:enable_strict_resolver_flavors
 // relay:enable_output_type
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -31,17 +32,17 @@
 ==================================== ERROR ====================================
 ✖︎ @live is incompatible with @rootFragment
 
-  /path/to/test/fixture/strict-flavors-multiple-errors.invalid.js:18:5
-   17 │  * @outputType SomeType
-   18 │  * @live
+  /path/to/test/fixture/strict-flavors-multiple-errors.invalid.js:19:5
+   18 │  * @outputType SomeType
+   19 │  * @live
       │     ^^^^
-   19 │  *
+   20 │  *
 
 
 ✖︎ @outputType is incompatible with @rootFragment
 
-  /path/to/test/fixture/strict-flavors-multiple-errors.invalid.js:17:5
-   16 │  * @rootFragment myRootFragment
-   17 │  * @outputType SomeType
+  /path/to/test/fixture/strict-flavors-multiple-errors.invalid.js:18:5
+   17 │  * @rootFragment myRootFragment
+   18 │  * @outputType SomeType
       │     ^^^^^^^^^^
-   18 │  * @live
+   19 │  * @live

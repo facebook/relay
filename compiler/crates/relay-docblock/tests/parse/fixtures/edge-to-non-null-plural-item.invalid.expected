@@ -7,14 +7,9 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName favorite_page
- * @edgeTo [Page!]
+ * @RelayResolver User.favorite_page: [Page!]
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI
@@ -29,10 +24,10 @@ graphql`
  }
 `
 ==================================== ERROR ====================================
-✖︎ Unexpected non-nullable item in list type given in `@edgeTo`.
+✖︎ Unexpected Relay Resolver field returning list with non-nullable items. Relay expects all plural Resolver fields to have nullable items since errors thrown by Resolvers are turned into `null` values.
 
-  /path/to/test/fixture/edge-to-non-null-plural-item.invalid.js:16:12
-   15 │  * @fieldName favorite_page
-   16 │  * @edgeTo [Page!]
-      │            ^^^^^^^
-   17 │  * @rootFragment myRootFragment
+  /path/to/test/fixture/edge-to-non-null-plural-item.invalid.js:11:39
+   10 │ *
+   11 │  * @RelayResolver User.favorite_page: [Page!]
+      │                                       ^^^^^^^
+   12 │  * @rootFragment myRootFragment

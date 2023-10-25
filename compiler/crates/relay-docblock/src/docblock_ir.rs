@@ -366,12 +366,9 @@ fn parse_terse_relay_resolver_ir(
         value: description.item,
     });
 
-    if let TypeAnnotation::NonNull(non_null) = field.type_ {
-        return Err(vec![Diagnostic::error(
-            IrParsingErrorMessages::FieldWithNonNullType,
-            Location::new(type_str.location.source_location(), non_null.span),
-        )]);
-    }
+    let type_name_location = type_str.location.with_span(field.type_.span());
+
+    validate_type_annotation(&field.type_, type_name_location)?;
 
     validate_field_arguments(&field.arguments, location.source_location())?;
 
@@ -534,25 +531,29 @@ fn parse_type_annotation(
         value.location.span().start,
     )?;
 
-    let valid_type_annotation = match &type_annotation {
-        TypeAnnotation::Named(_) => type_annotation,
+    validate_type_annotation(&type_annotation, value.location)?;
+
+    Ok(WithLocation::new(value.location, type_annotation))
+}
+
+fn validate_type_annotation(
+    type_annotation: &TypeAnnotation,
+    location: Location,
+) -> DiagnosticsResult<()> {
+    match type_annotation {
+        TypeAnnotation::Named(_) => Ok(()),
         TypeAnnotation::List(item_type) => match &item_type.type_ {
-            TypeAnnotation::NonNull(_) => {
-                return Err(vec![Diagnostic::error(
-                    IrParsingErrorMessages::UnexpectedNonNullableItemInListEdgeTo {},
-                    value.location,
-                )]);
-            }
-            _ => type_annotation,
+            TypeAnnotation::NonNull(_) => Err(vec![Diagnostic::error(
+                IrParsingErrorMessages::FieldWithNonNullableListItems {},
+                location,
+            )]),
+            _ => Ok(()),
         },
-        TypeAnnotation::NonNull(_) => {
-            return Err(vec![Diagnostic::error(
-                IrParsingErrorMessages::UnexpectedNonNullableEdgeTo {},
-                value.location,
-            )]);
-        }
-    };
-    Ok(WithLocation::new(value.location, valid_type_annotation))
+        TypeAnnotation::NonNull(_) => Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::FieldWithNonNullType {},
+            location,
+        )]),
+    }
 }
 
 fn get_optional_unpopulated_field_named(

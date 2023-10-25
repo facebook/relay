@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// expected-to-throw
+
 /**
  * @RelayResolver User.mandatory_greeting: [String!]
  * Non-nullable

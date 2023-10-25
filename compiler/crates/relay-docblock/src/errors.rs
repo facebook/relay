@@ -80,6 +80,11 @@ pub enum IrParsingErrorMessages {
     FieldWithNonNullType,
 
     #[error(
+        "Unexpected Relay Resolver field returning list with non-nullable items. Relay expects all plural Resolver fields to have nullable items since errors thrown by Resolvers are turned into `null` values."
+    )]
+    FieldWithNonNullableListItems,
+
+    #[error(
         "The compiler attempted to parse this `@RelayResolver` block as a {resolver_type}, but there were unexpected fields: {field_string}."
     )]
     LeftoverFields {
@@ -89,12 +94,6 @@ pub enum IrParsingErrorMessages {
 
     #[error("Defining arguments with default values for resolver fields is not supported, yet.")]
     ArgumentDefaultValuesNoSupported,
-
-    #[error("Unexpected non-nullable type given in `@edgeTo`.")]
-    UnexpectedNonNullableEdgeTo,
-
-    #[error("Unexpected non-nullable item in list type given in `@edgeTo`.")]
-    UnexpectedNonNullableItemInListEdgeTo,
 
     #[error(
         "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in `@{on_field_name}` (`{on_field_value}`) are different. Please make sure these are exactly the same."

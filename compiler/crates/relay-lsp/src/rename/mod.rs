@@ -21,8 +21,8 @@ use graphql_ir::Visitor;
 use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::OperationDefinition;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use log::info;
 use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::Rename;
 use lsp_types::request::Request;
@@ -36,6 +36,8 @@ use rayon::prelude::ParallelIterator;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 use relay_transforms::extract_module_name;
+use resolution_path::ArgumentParent;
+use resolution_path::ArgumentPath;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::ResolutionPath;
@@ -52,6 +54,12 @@ use crate::Feature;
 use crate::GlobalState;
 use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
+use lazy_static::lazy_static;
+
+lazy_static! {
+    static ref ARGUMENTS_DIRECTIVE: StringKey = "arguments".intern();
+    static ref ARGUMENTDEFINITIONS_DIRECTIVE: StringKey = "argumentDefinitions".intern();
+}
 
 /// Resolve a [`Rename`] request to workspace edits
 pub fn on_rename(
@@ -219,6 +227,9 @@ pub enum RenameKind {
     VariableName {
         variable_name: StringKey,
     },
+    ArgumentDefinitionName {
+        argument_name: StringKey,
+    },
 }
 
 #[derive(Debug)]
@@ -251,6 +262,27 @@ fn create_rename_request(
                     let location = IRLocation::new(location.source_location(), span_without_dollar);
                     let kind = RenameKind::VariableName {
                         variable_name: variable.name,
+                    };
+
+                    Ok(RenameRequest::new(kind, location))
+                }
+                ResolutionPath::Ident(IdentPath {
+                    inner: argument_name,
+                    parent:
+                        IdentParent::ArgumentName(ArgumentPath {
+                            parent: ArgumentParent::Directive(directive),
+                            ..
+                        }),
+                }) => {
+                    if directive.inner.name.value != *ARGUMENTS_DIRECTIVE
+                        && directive.inner.name.value != *ARGUMENTDEFINITIONS_DIRECTIVE
+                    {
+                        return Err(LSPRuntimeError::ExpectedError);
+                    }
+
+                    let location = IRLocation::new(location.source_location(), argument_name.span);
+                    let kind = RenameKind::ArgumentDefinitionName {
+                        argument_name: argument_name.value,
                     };
 
                     Ok(RenameRequest::new(kind, location))
@@ -305,6 +337,18 @@ fn process_rename_request(
 ) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
     match rename_request.kind {
         RenameKind::VariableName { variable_name } => {
+            let lsp_location =
+                transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
+
+            Ok(HashMap::from([(
+                lsp_location.uri,
+                vec![TextEdit {
+                    new_text: new_name,
+                    range: lsp_location.range,
+                }],
+            )]))
+        }
+        RenameKind::ArgumentDefinitionName { argument_name } => {
             let lsp_location =
                 transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
 

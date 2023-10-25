@@ -1767,6 +1767,7 @@ dependencies = [
  "graphql-watchman",
  "intern",
  "itertools",
+ "lazy_static",
  "log",
  "lsp-server",
  "lsp-types",

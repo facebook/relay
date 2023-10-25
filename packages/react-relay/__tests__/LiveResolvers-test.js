@@ -20,10 +20,9 @@ const {
   RelayEnvironmentProvider,
   useClientQuery,
   useFragment: useFragment_LEGACY,
-  useLazyLoadQuery: useLazyLoadQuery_LEGACY,
+  useLazyLoadQuery,
 } = require('react-relay');
 const useFragment_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useFragment_REACT_CACHE');
-const useLazyLoadQuery_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useLazyLoadQuery_REACT_CACHE');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -62,24 +61,9 @@ afterEach(() => {
 });
 
 describe.each([
-  ['React Cache', useLazyLoadQuery_REACT_CACHE, useFragment_REACT_CACHE],
-  ['Legacy', useLazyLoadQuery_LEGACY, useFragment_LEGACY],
-])('Hook implementation: %s', (_hookName, useLazyLoadQuery, useFragment) => {
-  const usingReactCache = useLazyLoadQuery === useLazyLoadQuery_REACT_CACHE;
-  // Our open-source build is still on React 17, so we need to skip these tests there:
-  if (usingReactCache) {
-    // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
-    if (React.unstable_getCacheForType === undefined) {
-      return;
-    }
-  }
-  beforeEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = usingReactCache;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = false;
-  });
-
+  ['React Cache', useFragment_REACT_CACHE],
+  ['Legacy', useFragment_LEGACY],
+])('Hook implementation: %s', (_hookName, useFragment) => {
   test('Can read an external state resolver directly', () => {
     const source = RelayRecordSource.create({
       'client:root': {

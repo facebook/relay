@@ -25,7 +25,7 @@ pub fn on_did_open_text_document(
     params: <DidOpenTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
-    let uri = text_document.uri.clone();
+    let uri = text_document.uri.to_owned();
 
     if !is_file_uri_in_dir(lsp_state.root_dir(), &uri) {
         return Ok(());

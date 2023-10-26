@@ -14,7 +14,6 @@ use common::Span;
 use crossbeam::channel::SendError;
 use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
-use dashmap::mapref::one::Ref;
 use dashmap::DashMap;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
@@ -33,7 +32,6 @@ use log::debug;
 use lsp_server::Message;
 use lsp_textdocument::FullTextDocument;
 use lsp_types::Diagnostic;
-use lsp_types::Position;
 use lsp_types::Range;
 use lsp_types::TextDocumentContentChangeEvent;
 use lsp_types::TextDocumentItem;
@@ -146,8 +144,6 @@ pub trait GlobalState {
     /// we may need to know who's our current consumer.
     /// This is mostly for hover handler (where we render markup)
     fn get_content_consumer_type(&self) -> ContentConsumerType;
-
-    fn get_content_of_open_text_document(&self, url: &Url) -> LSPRuntimeResult<&str>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -523,22 +519,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn document_opened(&self, uri: &Url, text_document: &TextDocumentItem) -> LSPRuntimeResult<()> {
         let open_text_document = FullTextDocument::new(
-            text_document.language_id.clone(),
+            text_document.language_id.to_owned(),
             text_document.version,
-            text_document.text.clone(),
+            text_document.text.to_owned(),
         );
 
         self.open_text_documents
-            .insert(uri.clone(), open_text_document);
-
-        let text = open_text_document.get_content(None);
+            .insert(uri.to_owned(), open_text_document);
 
         if let Some(js_server) = self.get_js_language_sever() {
-            js_server.process_js_source(uri, text);
+            js_server.process_js_source(uri, &text_document.text);
         }
 
         // First we check to see if this document has any GraphQL documents.
-        let embedded_sources = extract_graphql::extract(text);
+        let embedded_sources = extract_graphql::extract(&text_document.text);
         if embedded_sources.is_empty() {
             Ok(())
         } else {
@@ -587,17 +581,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn get_content_consumer_type(&self) -> ContentConsumerType {
         ContentConsumerType::Relay
-    }
-
-    fn get_content_of_open_text_document(&self, url: &Url) -> LSPRuntimeResult<&str> {
-        let open_text_document = self
-            .open_text_documents
-            .get(url)
-            .ok_or(LSPRuntimeError::ExpectedError)?;
-
-        let text = open_text_document.get_content(None);
-
-        Ok(text)
     }
 }
 

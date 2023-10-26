@@ -18,7 +18,7 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayStoreUtils = require('../RelayStoreUtils');
 const RelayModernTestUtils = require('relay-test-utils-internal');
 
-const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
+const {ERRORS_KEY, ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayModernRecord', () => {
   beforeEach(() => {
@@ -80,6 +80,13 @@ describe('RelayModernRecord', () => {
 
     beforeEach(() => {
       record = {
+        [ERRORS_KEY]: {
+          fieldWithError: [
+            {
+              message: 'Something bad happened!',
+            },
+          ],
+        },
         [ID_KEY]: 4,
         name: 'Mark',
         enemies: null,
@@ -89,6 +96,7 @@ describe('RelayModernRecord', () => {
         'friends{"first":10}': {
           [REFS_KEY]: ['beast', 'greg', null],
         },
+        fieldWithError: null,
       };
     });
 
@@ -102,6 +110,12 @@ describe('RelayModernRecord', () => {
       expect(RelayModernRecord.getLinkedRecordIDs(record, 'enemies')).toBe(
         null,
       );
+    });
+
+    it('returns null when the link has an error', () => {
+      expect(
+        RelayModernRecord.getLinkedRecordIDs(record, 'fieldWithError'),
+      ).toBeNull();
     });
 
     it('returns the linked record IDs when they exist', () => {
@@ -160,13 +174,28 @@ describe('RelayModernRecord', () => {
 
   describe('getFields()', () => {
     it('returns an array with all the keys', () => {
-      const record = RelayModernRecord.getFields({
+      const fields = RelayModernRecord.getFields({
+        [ERRORS_KEY]: {
+          fieldWithError: [
+            {
+              message: 'Something bad happened!',
+              path: ['fieldWithError'],
+            },
+          ],
+        },
         [ID_KEY]: '4',
         [TYPENAME_KEY]: 'User',
         name: 'Zuck',
         pets: {[REFS_KEY]: ['beast']},
+        fieldWithError: null,
       });
-      expect(record).toEqual([ID_KEY, TYPENAME_KEY, 'name', 'pets']);
+      expect(fields).toEqual([
+        ID_KEY,
+        TYPENAME_KEY,
+        'name',
+        'pets',
+        'fieldWithError',
+      ]);
     });
   });
 
@@ -175,6 +204,13 @@ describe('RelayModernRecord', () => {
 
     beforeEach(() => {
       record = {
+        [ERRORS_KEY]: {
+          fieldWithError: [
+            {
+              message: 'Something bad happened!',
+            },
+          ],
+        },
         [ID_KEY]: 4,
         name: 'Mark',
         blockbusterMembership: null,
@@ -188,11 +224,16 @@ describe('RelayModernRecord', () => {
         other: {
           customScalar: true,
         },
+        fieldWithError: null,
       };
     });
 
     it('returns a scalar value', () => {
       expect(RelayModernRecord.getValue(record, 'name')).toBe('Mark');
+    });
+
+    it('returns null when field has errors', () => {
+      expect(RelayModernRecord.getValue(record, 'fieldWithError')).toBeNull();
     });
 
     it('returns a (list) scalar value', () => {
@@ -252,16 +293,90 @@ describe('RelayModernRecord', () => {
     });
   });
 
+  describe('setErrors()', () => {
+    it('warns if the field is undefined', () => {
+      jest.mock('warning');
+      const record = RelayModernRecord.create('4', 'User');
+      expect(() =>
+        RelayModernRecord.setErrors(record, 'pet', [
+          {
+            message: 'There was an error on the pet field!',
+          },
+          {
+            message: 'There was another error on the pet field!',
+          },
+        ]),
+      ).toWarn([
+        'RelayModernRecord: Invalid error update, `%s` should not be undefined.',
+        'pet',
+      ]);
+    });
+
+    it('adds and removes errors', () => {
+      const record = RelayModernRecord.create('4', 'User');
+      expect(RelayModernRecord.getErrors(record, 'pet')).toBeUndefined();
+      const petErrors = [
+        {
+          message: 'There was an error on the pet field!',
+        },
+        {
+          message: 'There was another error on the pet field!',
+        },
+      ];
+      RelayModernRecord.setValue(record, 'pet', null);
+      RelayModernRecord.setErrors(record, 'pet', petErrors);
+      expect(RelayModernRecord.getErrors(record, 'pet')).toBe(petErrors);
+      const nameErrors = [
+        {
+          message: 'There was an error on the name field!',
+        },
+      ];
+      RelayModernRecord.setValue(record, 'name', null);
+      RelayModernRecord.setErrors(record, 'name', nameErrors);
+      expect(RelayModernRecord.getErrors(record, 'name')).toBe(nameErrors);
+      expect(RelayModernRecord.getErrors(record, 'pet')).toBe(petErrors);
+      const newPetErrors = [
+        {
+          message: 'There was a different error on the pet field!',
+        },
+      ];
+      RelayModernRecord.setErrors(record, 'pet', newPetErrors);
+      expect(RelayModernRecord.getErrors(record, 'pet')).toBe(newPetErrors);
+      expect(RelayModernRecord.getErrors(record, 'name')).toBe(nameErrors);
+      const noErrors = [];
+      RelayModernRecord.setErrors(record, 'pet', noErrors);
+      expect(RelayModernRecord.getErrors(record, 'pet')).toBeUndefined();
+      expect(RelayModernRecord.getErrors(record, 'name')).toBe(nameErrors);
+      RelayModernRecord.setErrors(record, 'name', noErrors);
+      expect(RelayModernRecord.getErrors(record, 'name')).toBeUndefined();
+      expect(record).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: null,
+        pet: null,
+      });
+    });
+  });
+
   describe('hasValue()', () => {
     let record;
 
     beforeEach(() => {
       record = {
+        [ERRORS_KEY]: {
+          fieldWithError: [
+            {
+              message: 'Something bad happened!',
+              path: ['fieldWithError'],
+            },
+          ],
+        },
         [ID_KEY]: '4',
         [TYPENAME_KEY]: 'User',
         fieldThatIsString: 'applesauce',
         fieldThatIsNull: null,
         fieldThatIsUndefined: undefined,
+        fieldWithError: null,
       };
     });
 
@@ -287,6 +402,10 @@ describe('RelayModernRecord', () => {
       expect(RelayModernRecord.hasValue(record, 'fieldThatIsUndefined')).toBe(
         true,
       );
+    });
+
+    it('returns true when the value is an error', () => {
+      expect(RelayModernRecord.hasValue(record, 'fieldWithError')).toBe(true);
     });
 
     it('returns false when the value is missing', () => {
@@ -323,6 +442,70 @@ describe('RelayModernRecord', () => {
         [TYPENAME_KEY]: 'User',
         name: 'Zuck',
       });
+    });
+
+    it('discards errors from first argument where applicable', () => {
+      const errors = [
+        {
+          message: 'There was an error!',
+          path: ['name'],
+        },
+        {
+          message: 'There was another error!',
+          path: ['name'],
+        },
+      ];
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'name', null);
+      RelayModernRecord.setErrors(prev, 'name', errors);
+      const next = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(next, 'name', 'Alice');
+      const updated = RelayModernRecord.update(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(RelayModernRecord.getErrors(updated, 'name')).toBeUndefined();
+    });
+
+    it('preserves errors from the first argument where applicable', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      const prevErrors = [
+        {
+          message: 'There was an error on the "name" field!',
+        },
+        {
+          message: 'There was another error on the "name" field!',
+        },
+      ];
+      RelayModernRecord.setValue(prev, 'name', null);
+      RelayModernRecord.setErrors(prev, 'name', prevErrors);
+      const next = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(next, 'age', 42);
+      const updated = RelayModernRecord.update(prev, next);
+      expect(RelayModernRecord.getValue(updated, 'name')).toBeNull();
+      expect(RelayModernRecord.getErrors(updated, 'name')).toBe(prevErrors);
+    });
+
+    it('copies the errors from second argument where applicable', () => {
+      const errors = [
+        {
+          message: 'There was an error!',
+          path: ['name'],
+        },
+        {
+          message: 'There was another error!',
+          path: ['name'],
+        },
+      ];
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'age', 42);
+      const next = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(next, 'name', null);
+      RelayModernRecord.setErrors(next, 'name', errors);
+      const updated = RelayModernRecord.update(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(RelayModernRecord.getValue(updated, 'name')).toBeNull();
+      expect(RelayModernRecord.getErrors(updated, 'name')).toBe(errors);
     });
 
     it('warns if __id does not match', () => {
@@ -388,6 +571,70 @@ describe('RelayModernRecord', () => {
         [TYPENAME_KEY]: 'User',
         name: 'Zuck',
       });
+    });
+
+    it('discards errors from first argument where applicable', () => {
+      const errors = [
+        {
+          message: 'There was an error!',
+          path: ['name'],
+        },
+        {
+          message: 'There was another error!',
+          path: ['name'],
+        },
+      ];
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'name', null);
+      RelayModernRecord.setErrors(prev, 'name', errors);
+      const next = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(next, 'name', 'Alice');
+      const updated = RelayModernRecord.merge(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(RelayModernRecord.getErrors(updated, 'name')).toBeUndefined();
+    });
+
+    it('preserves errors from the first argument where applicable', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      const prevErrors = [
+        {
+          message: 'There was an error on the "name" field!',
+        },
+        {
+          message: 'There was another error on the "name" field!',
+        },
+      ];
+      RelayModernRecord.setValue(prev, 'name', null);
+      RelayModernRecord.setErrors(prev, 'name', prevErrors);
+      const next = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(next, 'age', 42);
+      const updated = RelayModernRecord.merge(prev, next);
+      expect(RelayModernRecord.getValue(updated, 'name')).toBeNull();
+      expect(RelayModernRecord.getErrors(updated, 'name')).toBe(prevErrors);
+    });
+
+    it('copies the errors from second argument where applicable', () => {
+      const errors = [
+        {
+          message: 'There was an error!',
+          path: ['name'],
+        },
+        {
+          message: 'There was another error!',
+          path: ['name'],
+        },
+      ];
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'age', 42);
+      const next = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(next, 'name', null);
+      RelayModernRecord.setErrors(next, 'name', errors);
+      const updated = RelayModernRecord.merge(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(RelayModernRecord.getValue(updated, 'name')).toBeNull();
+      expect(RelayModernRecord.getErrors(updated, 'name')).toBe(errors);
     });
 
     it('warns if __id does not match', () => {

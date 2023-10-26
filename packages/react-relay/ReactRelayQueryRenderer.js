@@ -27,7 +27,6 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
 const areEqual = require('areEqual');
 const React = require('react');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {
   createOperationDescriptor,
   deepFreeze,
@@ -171,35 +170,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         const newState = resetQueryStateForUpdate(this.props, prevState);
         const {requestCacheKey, queryFetcher} = newState;
         if (requestCacheKey != null && requestCache[requestCacheKey] != null) {
-          if (RelayFeatureFlags.ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION) {
-            // $FlowFixMe[incompatible-use]
-            const fetchResult = queryFetcher.getFetchResult();
-            if (fetchResult != null) {
-              const snapshot = fetchResult.snapshot ?? null;
-              const error = fetchResult.error ?? null;
-
-              const {requestCacheKey: prevRequestCacheKey} = prevState;
-              if (prevRequestCacheKey != null) {
-                delete requestCache[prevRequestCacheKey];
-              }
-
-              newState.renderProps = getRenderProps(
-                error,
-                snapshot,
-                // $FlowFixMe[incompatible-call]
-                queryFetcher,
-                prevState.retryCallbacks,
-              );
-              newState.snapshot = snapshot;
-              newState.requestCacheKey = null;
-            } else {
-              // $FlowFixMe[incompatible-use]
-              queryFetcher.setOnDataChange(this._handleDataChange);
-            }
-          } else {
-            // $FlowFixMe[incompatible-use]
-            queryFetcher.setOnDataChange(this._handleDataChange);
-          }
+          // $FlowFixMe[incompatible-use]
+          queryFetcher.setOnDataChange(this._handleDataChange);
         }
         return newState;
       });

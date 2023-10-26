@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -26,8 +27,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ The `@RelayResolver` field `@live` does not accept data. Remove everything after `@live`.
 
-  /path/to/test/fixture/relay-resolver-live-with-text.invalid.js:17:5
-   16 │  * @rootFragment myRootFragment
-   17 │  * @live in the moment
+  /path/to/test/fixture/relay-resolver-live-with-text.invalid.js:18:5
+   17 │  * @rootFragment myRootFragment
+   18 │  * @live in the moment
       │     ^^^^
-   18 │
+   19 │

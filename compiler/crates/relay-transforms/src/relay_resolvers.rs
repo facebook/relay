@@ -617,16 +617,17 @@ impl Transformer for RelayResolverFieldTransform<'_> {
     }
 }
 
-struct ResolverInfo {
+#[derive(Debug)]
+pub struct ResolverInfo {
     fragment_name: Option<FragmentDefinitionName>,
     fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
-    import_path: StringKey,
-    import_name: Option<StringKey>,
+    pub import_path: StringKey,
+    pub import_name: Option<StringKey>,
     live: bool,
     has_output_type: bool,
 }
 
-fn get_resolver_info(
+pub fn get_resolver_info(
     schema: &SDLSchema,
     resolver_field: &Field,
     error_location: Location,

@@ -409,11 +409,29 @@ function areEqualSingularSelectors(
   thatSelector: SingularReaderSelector,
 ): boolean {
   return (
-    thisSelector.owner === thatSelector.owner &&
     thisSelector.dataID === thatSelector.dataID &&
     thisSelector.node === thatSelector.node &&
-    areEqual(thisSelector.variables, thatSelector.variables)
+    areEqual(thisSelector.variables, thatSelector.variables) &&
+    areEqualOwners(thisSelector.owner, thatSelector.owner)
   );
+}
+
+function areEqualOwners(
+  thisOwner: RequestDescriptor,
+  thatOwner: RequestDescriptor,
+): boolean {
+  if (thisOwner === thatOwner) {
+    return true;
+  } else {
+    return (
+      // The `identifier` should already include serilized variables, so we
+      // don't need to compare them here.
+      // And the RequestDescriptor `node` should have the same reference
+      // as it should come from the generated artifact.
+      thisOwner.identifier === thatOwner.identifier &&
+      areEqual(thisOwner.cacheConfig, thatOwner.cacheConfig)
+    );
+  }
 }
 
 /**

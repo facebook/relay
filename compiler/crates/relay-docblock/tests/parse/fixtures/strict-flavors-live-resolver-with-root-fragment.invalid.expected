@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+// relay:enable_strict_resolver_flavors
+
+/**
+ * @RelayResolver User.favorite_page: Page
+ * @rootFragment myRootFragment
+ * @live
+ *
+ * The user's favorite page! They probably clicked something in the UI
+ * to tell us that it was their favorite page and then we put that in a
+ * database or something. Then we got that info out again and put it out
+ * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
+ */
+ graphql`
+ fragment myRootFragment on User {
+   name
+ }
+`
+==================================== ERROR ====================================
+✖︎ @live is incompatible with @rootFragment
+
+  /path/to/test/fixture/strict-flavors-live-resolver-with-root-fragment.invalid.js:14:5
+   13 │  * @rootFragment myRootFragment
+   14 │  * @live
+      │     ^^^^
+   15 │  *

@@ -6,6 +6,7 @@
  */
 
 // relay:enable_output_type
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver

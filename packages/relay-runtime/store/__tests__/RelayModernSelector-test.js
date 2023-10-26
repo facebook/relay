@@ -681,6 +681,28 @@ describe('RelayModernSelector', () => {
     it('returns false for equivalent selectors but with different owners', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
+      const newOwner = createOperationDescriptor(queryNode, {
+        ...operationVariables,
+        size: '16',
+      });
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+      );
+      // When the owner is different, areEqualSelectors should return false
+      // even if the 2 selectors represent the same selection
+      const differentOwner = {
+        ...selector,
+        owner: newOwner.request,
+      };
+      expect(areEqualSelectors(selector, differentOwner)).toBe(false);
+    });
+
+    it('returns true for equivalent selectors and equivalent owners', () => {
+      const queryNode = UserQuery;
+      owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = createReaderSelector(
         UserFragment,
         '4',
@@ -693,7 +715,7 @@ describe('RelayModernSelector', () => {
         ...selector,
         owner: {...owner.request},
       };
-      expect(areEqualSelectors(selector, differentOwner)).toBe(false);
+      expect(areEqualSelectors(selector, differentOwner)).toBe(true);
     });
 
     it('returns true for equivalent selectors with same owners', () => {
@@ -744,6 +766,10 @@ describe('RelayModernSelector', () => {
     it('returns false for different selectors with owners', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
+      const newOwner = createOperationDescriptor(queryNode, {
+        ...operationVariables,
+        size: '16',
+      });
       const selector = createReaderSelector(
         UserFragment,
         '4',
@@ -764,7 +790,7 @@ describe('RelayModernSelector', () => {
       };
       const differentOwner = {
         ...selector,
-        owner: {...owner.request},
+        owner: newOwner.request,
       };
       expect(areEqualSelectors(selector, differentID)).toBe(false);
       expect(areEqualSelectors(selector, differentNode)).toBe(false);

@@ -247,8 +247,13 @@ export interface RecordSource {
   getStatus(dataID: DataID): RecordState;
   has(dataID: DataID): boolean;
   size(): number;
-  toJSON(): {[DataID]: ?RecordJSON};
+  toJSON(): RecordSourceJSON;
 }
+
+/**
+ * A collection of records keyed by id.
+ */
+export type RecordSourceJSON = {[DataID]: ?RecordJSON};
 
 /**
  * A read/write interface for accessing and updating graph data.

@@ -4,7 +4,7 @@ query selectionSetConflictInconsistentStreamUsage1Query {
     ... on User {
       friends {
         ... on FriendsConnection {
-          edges @stream(label: "hdijf", initial_count: 1) {
+          edges @stream(label: "hdijf", initialCount: 1) {
             node {
               name
             }

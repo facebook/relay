@@ -20,7 +20,6 @@ import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
-const usePreloadedQuery_REACT_CACHE = require('../react-cache/usePreloadedQuery_REACT_CACHE');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const usePreloadedQuery_LEGACY = require('../usePreloadedQuery');
@@ -33,7 +32,6 @@ const {
   Observable,
   PreloadableQueryRegistry,
   RecordSource,
-  RelayFeatureFlags,
   Store,
   graphql,
 } = require('relay-runtime');
@@ -103,30 +101,9 @@ const responsePV = {
   },
 };
 
-describe.each([
-  ['React Cache', usePreloadedQuery_REACT_CACHE],
-  ['Legacy', usePreloadedQuery_LEGACY],
-])(
+describe.each([['Legacy', usePreloadedQuery_LEGACY]])(
   'usePreloadedQuery provided variables (%s)',
   (_hookName, usePreloadedQuery) => {
-    const usingReactCache = usePreloadedQuery === usePreloadedQuery_REACT_CACHE;
-    // Our open-source build is still on React 17, so we need to skip these tests there:
-    if (usingReactCache) {
-      // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
-      if (React.unstable_getCacheForType === undefined) {
-        return;
-      }
-    }
-    let originalReactCacheFeatureFlag;
-    beforeEach(() => {
-      originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-      RelayFeatureFlags.USE_REACT_CACHE =
-        usePreloadedQuery === usePreloadedQuery_REACT_CACHE;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-    });
-
     let data;
     let dataSource: ?Sink<GraphQLResponse>;
     let environment;

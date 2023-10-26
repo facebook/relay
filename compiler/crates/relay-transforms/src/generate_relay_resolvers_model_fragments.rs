@@ -134,7 +134,7 @@ pub fn generate_relay_resolvers_model_fragments(
     next_program
 }
 
-fn get_resolver_source_hash(field: &schema::Field) -> Option<ResolverSourceHash> {
+pub fn get_resolver_source_hash(field: &schema::Field) -> Option<ResolverSourceHash> {
     field
         .directives
         .named(*RELAY_RESOLVER_SOURCE_HASH)

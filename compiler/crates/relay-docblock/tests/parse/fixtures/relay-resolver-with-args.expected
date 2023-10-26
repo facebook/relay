@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_verbose_syntax
+
 /**
  * @RelayResolver
  *
@@ -25,8 +27,8 @@ graphql`
   }
 `
 ==================================== OUTPUT ===================================
-RelayResolver(
-    RelayResolverIr {
+LegacyVerboseResolver(
+    LegacyVerboseResolverIr {
         field: FieldDefinitionStub {
             name: Identifier {
                 span: 53:66,

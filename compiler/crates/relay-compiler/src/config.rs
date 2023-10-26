@@ -734,6 +734,12 @@ pub struct SingleProjectConfigFile {
 
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
+
+    /// Keep the previous compiler behavior by outputting an union
+    /// of the raw type and null, and not the **correct** behavior
+    /// of an union with the raw type, null and undefined.
+    #[serde(default)]
+    pub typescript_exclude_undefined_from_nullable_union: bool,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -758,6 +764,7 @@ impl Default for SingleProjectConfigFile {
             js_module_format: JsModuleFormat::CommonJS,
             typegen_phase: None,
             feature_flags: None,
+            typescript_exclude_undefined_from_nullable_union: false,
             module_import_config: Default::default(),
         }
     }
@@ -879,6 +886,8 @@ impl SingleProjectConfigFile {
                     no_future_proof_enums: self.no_future_proof_enums,
                     ..Default::default()
                 },
+                typescript_exclude_undefined_from_nullable_union: self
+                    .typescript_exclude_undefined_from_nullable_union,
                 ..Default::default()
             },
             js_module_format: self.js_module_format,

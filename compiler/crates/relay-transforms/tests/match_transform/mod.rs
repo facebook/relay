@@ -13,6 +13,6 @@ use relay_transforms::transform_match;
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let flags = FeatureFlags::default();
     apply_transform_for_test(fixture, |program| {
-        transform_match(program, &flags, Default::default())
+        transform_match(program, &flags, Default::default(), Default::default())
     })
 }

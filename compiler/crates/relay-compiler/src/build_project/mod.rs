@@ -357,6 +357,7 @@ pub async fn commit_project(
     if let Some(generate_extra_artifacts_fn) = &config.generate_extra_artifacts {
         log_event.time("generate_extra_artifacts_time", || {
             artifacts.extend(generate_extra_artifacts_fn(
+                config,
                 project_config,
                 schema,
                 &programs,

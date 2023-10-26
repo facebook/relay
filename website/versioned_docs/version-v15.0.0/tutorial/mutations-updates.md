@@ -197,7 +197,7 @@ function StoryLikeButton({story}) {
     commitMutation({
       variables: {
         id: data.id,
-        doesViewerLike: !data.doesViewerLike,
+        doesLike: !data.doesViewerLike,
       },
     })
     // end-change
@@ -570,7 +570,7 @@ export default function StoryCommentsComposer({story}: Props) {
     // change
     const connectionID = ConnectionHandler.getConnectionID(
       data.id,
-      'StoryCommentsSectionFragment_comments',
+      'StoryCommentsSection_comments',
     );
     // end-change
     commitMutation({

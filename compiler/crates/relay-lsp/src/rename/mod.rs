@@ -370,7 +370,7 @@ fn map_locations_to_text_edits(
 
 fn extract_parent_type(docblock: DocblockIr) -> StringKey {
     match docblock {
-        DocblockIr::RelayResolver(resolver_ir) => match resolver_ir.on {
+        DocblockIr::LegacyVerboseResolver(resolver_ir) => match resolver_ir.on {
             On::Type(on_type) => on_type.value.item,
             On::Interface(on_interface) => on_interface.value.item,
         },

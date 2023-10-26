@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-# TODO T160746170: expected to throw
+# expected-to-throw
 
 query relayResolverWithUndefinedFieldArgsScalarQuery {
   node(id: "SOME_ID") {
@@ -16,157 +16,11 @@ fragment relayResolverWithUndefinedFieldArgsScalar_name on User {
 extend type User {
   pop_star_name(scale: Float!): String @relay_resolver(import_path: "./path/to/PopStarNameResolver.js")
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "relayResolverWithUndefinedFieldArgsScalarQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": [
-          {
-            "kind": "Literal",
-            "name": "id",
-            "value": "SOME_ID"
-          }
-        ],
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "relayResolverWithUndefinedFieldArgsScalar_name"
-          }
-        ],
-        "storageKey": "node(id:\"SOME_ID\")"
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "relayResolverWithUndefinedFieldArgsScalarQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": [
-          {
-            "kind": "Literal",
-            "name": "id",
-            "value": "SOME_ID"
-          }
-        ],
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
-            "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "kind": "ClientExtension",
-                "selections": [
-                  {
-                    "name": "pop_star_name",
-                    "args": [
-                      {
-                        "kind": "Variable",
-                        "name": "scale",
-                        "variableName": "scale"
-                      }
-                    ],
-                    "fragment": null,
-                    "kind": "RelayResolver",
-                    "storageKey": null,
-                    "isOutputType": false
-                  }
-                ]
-              }
-            ],
-            "type": "User",
-            "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
-        ],
-        "storageKey": "node(id:\"SOME_ID\")"
-      }
-    ]
-  },
-  "params": {
-    "cacheID": "467a5b7c794e4bac19de459b69701fc8",
-    "id": null,
-    "metadata": {},
-    "name": "relayResolverWithUndefinedFieldArgsScalarQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
+==================================== ERROR ====================================
+✖︎ Operation 'relayResolverWithUndefinedFieldArgsScalarQuery' references undefined variable: '$scale'.
 
-QUERY:
-
-query relayResolverWithUndefinedFieldArgsScalarQuery {
-  node(id: "SOME_ID") {
-    __typename
-    id
-  }
-}
-
-
-{
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "scale"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "relayResolverWithUndefinedFieldArgsScalar_name",
-  "selections": [
-    {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "alias": null,
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "scale",
-              "variableName": "scale"
-            }
-          ],
-          "fragment": null,
-          "kind": "RelayResolver",
-          "name": "pop_star_name",
-          "resolverModule": require('PopStarNameResolver'),
-          "path": "pop_star_name"
-        }
-      ]
-    }
-  ],
-  "type": "User",
-  "abstractKey": null
-}
+  relay-resolver-with-undefined-field-args-scalar.invalid.graphql:10:24
+    9 │ fragment relayResolverWithUndefinedFieldArgsScalar_name on User {
+   10 │   pop_star_name(scale: $scale)
+      │                        ^^^^^^
+   11 │ }

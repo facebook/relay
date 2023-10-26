@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3ea63a554f2b7b67c49487d1988ba0f3>>
+ * @generated SignedSource<<27fed47f1dbf0f9c53220ed5fd073cfe>>
  */
 
 mod relay_resolvers;
@@ -108,6 +108,13 @@ async fn relay_resolver_scalar_field_arguments() {
     let input = include_str!("relay_resolvers/fixtures/relay-resolver-scalar-field-arguments.graphql");
     let expected = include_str!("relay_resolvers/fixtures/relay-resolver-scalar-field-arguments.expected");
     test_fixture(transform_fixture, "relay-resolver-scalar-field-arguments.graphql", "relay_resolvers/fixtures/relay-resolver-scalar-field-arguments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_scalar_field_arguments_with_alias() {
+    let input = include_str!("relay_resolvers/fixtures/relay-resolver-scalar-field-arguments-with-alias.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/relay-resolver-scalar-field-arguments-with-alias.expected");
+    test_fixture(transform_fixture, "relay-resolver-scalar-field-arguments-with-alias.graphql", "relay_resolvers/fixtures/relay-resolver-scalar-field-arguments-with-alias.expected", input, expected).await;
 }
 
 #[tokio::test]

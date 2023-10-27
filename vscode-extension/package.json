@@ -124,7 +124,8 @@
     "typecheck": "tsc --noEmit",
     "prettier-check": "prettier -c ./",
     "prettier-write": "prettier -w ./",
-    "vscode:prepublish": "yarn run compile",
+    "build-local": "vsce package",
+    "vscode:prepublish": "rm -rf ./out && yarn run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint ./ --ext ts --max-warnings 0"

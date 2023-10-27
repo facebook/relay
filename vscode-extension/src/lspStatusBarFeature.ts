@@ -6,11 +6,7 @@
  */
 
 import {Disposable} from 'vscode';
-import {
-  StaticFeature,
-  InitializeParams,
-  RequestType,
-} from 'vscode-languageclient';
+import {StaticFeature, RequestType, FeatureState} from 'vscode-languageclient';
 import {RelayExtensionContext} from './context';
 
 // the following type definitions are one to one mappings of the types defined
@@ -133,8 +129,6 @@ export class LSPStatusBarFeature implements StaticFeature {
     this.context = context;
   }
 
-  fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
-
   // eslint-disable-next-line class-methods-use-this
   fillClientCapabilities(): void {}
 
@@ -147,7 +141,14 @@ export class LSPStatusBarFeature implements StaticFeature {
     );
   }
 
-  dispose(): void {
+  // eslint-disable-next-line class-methods-use-this
+  getState(): FeatureState {
+    return {
+      kind: 'static',
+    };
+  }
+
+  clear(): void {
     this.disposable?.dispose();
   }
 }

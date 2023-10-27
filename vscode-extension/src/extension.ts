@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import path = require('path');
+import * as path from 'path';
 import {ExtensionContext, window, workspace} from 'vscode';
 import {registerCommands} from './commands/register';
 import {createAndStartCompiler} from './compiler';

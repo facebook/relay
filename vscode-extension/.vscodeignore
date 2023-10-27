@@ -1,6 +1,7 @@
 .vscode/**
 src/**
 .gitignore
+.yarnrc
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map

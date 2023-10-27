@@ -49,7 +49,6 @@ const {
   Network,
   Observable,
   RecordSource,
-  RelayFeatureFlags,
   Store,
   createOperationDescriptor,
   graphql,
@@ -61,19 +60,6 @@ describe.each([
   ['React Cache', usePaginationFragmentInternal_REACT_CACHE],
   ['Legacy', usePaginationFragment_LEGACY],
 ])('usePaginationFragment (%s)', (_hookName, usePaginationFragmentOriginal) => {
-  let isUsingReactCacheImplementation;
-  let originalReactCacheFeatureFlag;
-  beforeEach(() => {
-    isUsingReactCacheImplementation =
-      usePaginationFragmentOriginal ===
-      usePaginationFragmentInternal_REACT_CACHE;
-    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-    RelayFeatureFlags.USE_REACT_CACHE = isUsingReactCacheImplementation;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-  });
-
   let environment;
   let initialUser;
   let gqlQuery:

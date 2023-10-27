@@ -30,7 +30,6 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -47,16 +46,6 @@ describe.each([
   ['React Cache', useFragmentOriginal_REACT_CACHE],
   ['Legacy', useFragmentOriginal_LEGACY],
 ])('useFragment (%s)', (_hookName, useFragmentOriginal) => {
-  let originalReactCacheFeatureFlag;
-  beforeEach(() => {
-    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-    RelayFeatureFlags.USE_REACT_CACHE =
-      useFragmentOriginal === useFragmentOriginal_REACT_CACHE;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-  });
-
   let environment;
   let gqlSingularQuery;
   let gqlSingularFragment;

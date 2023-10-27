@@ -52,7 +52,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   Observable,
-  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -70,19 +69,9 @@ describe.each([
 ])(
   'useRefetchableFragmentNode (%s)',
   (_hookName, useRefetchableFragmentNodeOriginal) => {
-    let isUsingReactCacheImplementation;
-    let originalReactCacheFeatureFlag;
-    beforeEach(() => {
-      isUsingReactCacheImplementation =
-        useRefetchableFragmentNodeOriginal ===
-        useRefetchableFragmentInternal_REACT_CACHE;
-      originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-      RelayFeatureFlags.USE_REACT_CACHE = isUsingReactCacheImplementation;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-    });
-
+    const isUsingReactCacheImplementation =
+      useRefetchableFragmentNodeOriginal ===
+      useRefetchableFragmentInternal_REACT_CACHE;
     let environment;
     let gqlQuery:
       | Query<

@@ -18,8 +18,9 @@ import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const useFragmentInternal_REACT_CACHE = require('../react-cache/useFragmentInternal_REACT_CACHE');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const usePreloadedQuery_LEGACY = require('../usePreloadedQuery');
+const usePreloadedQuery = require('../usePreloadedQuery');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {
@@ -114,10 +115,29 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-describe.each([['Legacy', usePreloadedQuery_LEGACY]])(
+describe.each([
+  ['With legacy useFragmentNode', usePreloadedQuery],
+  [
+    'With new `useFragmentInternal` implementation',
+    usePreloadedQuery,
+    useFragmentInternal_REACT_CACHE,
+  ],
+])(
   'usePreloadedQuery (%s)',
-  (_hookName, usePreloadedQuery) => {
+  (_hookName, usePreloadedQuery, useFragmentInternal) => {
     beforeEach(() => {
+      if (useFragmentInternal != null) {
+        jest.mock('../HooksImplementation', () => {
+          return {
+            get() {
+              return {
+                useFragment__internal: useFragmentInternal,
+              };
+            },
+          };
+        });
+      }
+
       dataSource = undefined;
       // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       fetch = jest.fn((_query, _variables, _cacheConfig) =>

@@ -7,8 +7,6 @@
 
 //! Utilities for providing the goto definition feature
 
-use std::path::Path;
-
 use common::Location as IRLocation;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
@@ -25,7 +23,6 @@ use schema::Schema;
 use crate::docblock_resolution_info::DocblockResolutionInfo;
 use crate::find_field_usages::find_field_locations;
 use crate::find_field_usages::get_usages;
-use crate::location::transform_relay_location_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::NodeKind;
@@ -35,7 +32,7 @@ use crate::FeatureResolutionInfo;
 fn get_references_response(
     feature_resolution_info: FeatureResolutionInfo,
     program: &Program,
-    root_dir: &Path,
+    state: &impl GlobalState,
 ) -> LSPRuntimeResult<Vec<LSPLocation>> {
     match feature_resolution_info {
         FeatureResolutionInfo::GraphqlNode(node_resolution_info) => {
@@ -44,9 +41,7 @@ fn get_references_response(
                     let references =
                         ReferenceFinder::get_references_to_fragment(program, fragment.name.value)
                             .into_iter()
-                            .map(|location| {
-                                transform_relay_location_to_lsp_location(root_dir, location)
-                            })
+                            .map(|location| state.get_lsp_location(location))
                             .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
                     Ok(references)
@@ -64,9 +59,7 @@ fn get_references_response(
                     let lsp_locations =
                         get_usages(program, &program.schema, type_name, field_name)?
                             .into_iter()
-                            .map(|(_, ir_location)| {
-                                transform_relay_location_to_lsp_location(root_dir, ir_location)
-                            })
+                            .map(|(_, ir_location)| state.get_lsp_location(ir_location))
                             .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
                     Ok(lsp_locations)
                 }
@@ -94,7 +87,7 @@ fn get_references_response(
                 let references = find_field_locations(program, field_name, type_name)
                     .ok_or(LSPRuntimeError::ExpectedError)?
                     .into_iter()
-                    .map(|location| transform_relay_location_to_lsp_location(root_dir, location))
+                    .map(|location| state.get_lsp_location(location))
                     .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
                 Ok(references)
@@ -135,6 +128,7 @@ impl Visitor for ReferenceFinder {
     }
 }
 
+/// Resolve a [`References`] request to a list of locations
 pub fn on_references(
     state: &impl GlobalState,
     params: <References as Request>::Params,
@@ -146,7 +140,7 @@ pub fn on_references(
             .get_program(&state.extract_project_name_from_url(
                 &params.text_document_position.text_document.uri,
             )?)?,
-        &state.root_dir(),
+        state,
     )?;
     Ok(Some(references_response))
 }

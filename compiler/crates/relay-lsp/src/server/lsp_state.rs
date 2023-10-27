@@ -8,6 +8,7 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use common::Location;
 use common::PerfLogger;
 use common::SourceLocationKey;
 use common::Span;
@@ -52,6 +53,7 @@ use super::task_queue::TaskScheduler;
 use crate::diagnostic_reporter::DiagnosticReporter;
 use crate::docblock_resolution_info::create_docblock_resolution_info;
 use crate::graphql_tools::get_query_text;
+use crate::location::transform_relay_location_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::create_node_resolution_info;
 use crate::utils::extract_executable_definitions_from_text_document;
@@ -135,6 +137,8 @@ pub trait GlobalState {
     /// we may need to know who's our current consumer.
     /// This is mostly for hover handler (where we render markup)
     fn get_content_consumer_type(&self) -> ContentConsumerType;
+
+    fn get_lsp_location(&self, location: Location) -> LSPRuntimeResult<lsp_types::Location>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -565,6 +569,16 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn get_content_consumer_type(&self) -> ContentConsumerType {
         ContentConsumerType::Relay
+    }
+
+    fn get_lsp_location(&self, location: Location) -> LSPRuntimeResult<lsp_types::Location> {
+        let root_dir = &self.root_dir();
+
+        transform_relay_location_to_lsp_location(
+            root_dir,
+            location,
+            &self.synced_javascript_features,
+        )
     }
 }
 

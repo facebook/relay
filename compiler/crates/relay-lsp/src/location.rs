@@ -11,6 +11,8 @@ use std::path::PathBuf;
 use common::Location;
 use common::SourceLocationKey;
 use common::TextSource;
+use dashmap::DashMap;
+use extract_graphql::JavaScriptSourceFeature;
 use intern::Lookup;
 use lsp_types::Url;
 
@@ -22,6 +24,7 @@ use crate::lsp_runtime_error::LSPRuntimeResult;
 pub fn transform_relay_location_to_lsp_location(
     root_dir: &Path,
     location: Location,
+    synced_javascript_features: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
 ) -> LSPRuntimeResult<lsp_types::Location> {
     match location.source_location() {
         SourceLocationKey::Standalone { path } => {
@@ -36,19 +39,28 @@ pub fn transform_relay_location_to_lsp_location(
             Ok(lsp_types::Location { uri, range })
         }
         SourceLocationKey::Embedded { path, index } => {
-            let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
-            let uri = get_uri(&path_to_fragment)?;
+            let file_path = root_dir.join(PathBuf::from(path.lookup()));
+            let uri = get_uri(&file_path)?;
 
-            let file_contents = get_file_contents(&path_to_fragment)?;
+            let features = match synced_javascript_features.get(&uri) {
+                Some(features) => Ok(features.clone()),
+                None => {
+                    let file_contents = get_file_contents(&file_path)?;
 
-            let response = extract_graphql::extract(&file_contents);
-            let response_length = response.len();
-            let embedded_source = response.into_iter().nth(index.into()).ok_or_else(|| {
-                LSPRuntimeError::UnexpectedError(format!(
-                    "File {:?} does not contain enough graphql literals: {} needed; {} found",
-                    path_to_fragment, index, response_length
-                ))
-            })?;
+                    Ok(extract_graphql::extract(&file_contents))
+                }
+            }?;
+
+            let features_length = features.len();
+            let embedded_source = features
+                .into_iter()
+                .nth(index.try_into().unwrap())
+                .ok_or_else(|| {
+                    LSPRuntimeError::UnexpectedError(format!(
+                        "File {:?} does not contain enough graphql literals: {} needed; {} found",
+                        file_path, index, features_length
+                    ))
+                })?;
 
             let text_source = embedded_source.text_source();
             let range = text_source.to_span_range(location.span());

@@ -31,7 +31,6 @@ use schema::Type;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::location::transform_relay_location_to_lsp_location;
 use crate::server::GlobalState;
 use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
@@ -80,13 +79,12 @@ pub fn on_find_field_usages(
 
     let schema = state.get_schema(&schema_name)?;
     let program = state.get_program(&schema_name)?;
-    let root_dir = &state.root_dir();
 
     let ir_locations = get_usages(&program, &schema, type_name, field_name)?;
     let lsp_locations = ir_locations
         .into_iter()
         .map(|(label, ir_location)| {
-            let lsp_location = transform_relay_location_to_lsp_location(root_dir, ir_location)?;
+            let lsp_location = state.get_lsp_location(ir_location)?;
             Ok(FindFieldUsageResultItem {
                 location_uri: lsp_location.uri.to_string(),
                 location_range: lsp_location.range,

@@ -31,7 +31,6 @@ use serde::Serialize;
 
 use self::goto_docblock_definition::get_docblock_definition_description;
 use self::goto_graphql_definition::get_graphql_definition_description;
-use crate::location::transform_relay_location_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
@@ -88,7 +87,6 @@ pub fn on_goto_definition(
     };
 
     let extra_data_provider = state.get_extra_data_provider();
-    let root_dir = state.root_dir();
 
     let goto_definition_response: GotoDefinitionResponse = match definition_description {
         DefinitionDescription::FieldArgument {
@@ -100,14 +98,12 @@ pub fn on_goto_definition(
             parent_type,
             field_name,
             argument_name,
-            &root_dir,
+            state,
         )?,
         DefinitionDescription::DirectiveArgument {
             directive_name,
             argument_name,
-        } => {
-            locate_directive_argument_definition(&schema, directive_name, argument_name, &root_dir)?
-        }
+        } => locate_directive_argument_definition(&schema, directive_name, argument_name, state)?,
         DefinitionDescription::Field {
             parent_type,
             field_name,
@@ -117,20 +113,16 @@ pub fn on_goto_definition(
             field_name,
             extra_data_provider,
             project_name,
-            &root_dir,
+            state,
         )?,
         DefinitionDescription::Fragment { fragment_name } => {
-            locate_fragment_definition(program, fragment_name, &root_dir)?
+            locate_fragment_definition(program, fragment_name, state)?
         }
-        DefinitionDescription::Type { type_name } => locate_type_definition(
-            extra_data_provider,
-            project_name,
-            type_name,
-            &schema,
-            &root_dir,
-        )?,
+        DefinitionDescription::Type { type_name } => {
+            locate_type_definition(extra_data_provider, project_name, type_name, &schema, state)?
+        }
         DefinitionDescription::Directive { directive_name } => {
-            locate_directive_definition(directive_name, &schema, &root_dir)?
+            locate_directive_definition(directive_name, &schema, state)?
         }
     };
 
@@ -148,7 +140,7 @@ pub fn on_goto_definition(
 fn locate_fragment_definition(
     program: graphql_ir::Program,
     fragment_name: FragmentDefinitionName,
-    root_dir: &std::path::Path,
+    state: &impl GlobalState,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let fragment = program.fragment(fragment_name).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!(
@@ -156,22 +148,24 @@ fn locate_fragment_definition(
             fragment_name
         ))
     })?;
-    Ok(GotoDefinitionResponse::Scalar(
-        transform_relay_location_to_lsp_location(root_dir, fragment.name.location)?,
-    ))
+
+    state
+        .get_lsp_location(fragment.name.location)
+        .map(GotoDefinitionResponse::Scalar)
 }
 
 fn locate_directive_definition(
     directive_name: DirectiveName,
     schema: &Arc<SDLSchema>,
-    root_dir: &std::path::Path,
+    state: &impl GlobalState,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let directive = schema.get_directive(directive_name);
 
     directive
         .map(|directive| directive.name.location)
         .map(|schema_location| {
-            transform_relay_location_to_lsp_location(root_dir, schema_location)
+            state
+                .get_lsp_location(schema_location)
                 .map(GotoDefinitionResponse::Scalar)
         })
         .ok_or(LSPRuntimeError::ExpectedError)?
@@ -182,7 +176,7 @@ fn locate_type_definition(
     project_name: StringKey,
     type_name: StringKey,
     schema: &Arc<SDLSchema>,
-    root_dir: &std::path::Path,
+    state: &impl GlobalState,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let provider_response = extra_data_provider.resolve_field_definition(
         project_name.to_string(),
@@ -222,7 +216,8 @@ fn locate_type_definition(
                     Type::Object(object_id) => schema.object(object_id).name.location,
                 })
                 .map(|schema_location| {
-                    transform_relay_location_to_lsp_location(root_dir, schema_location)
+                    state
+                        .get_lsp_location(schema_location)
                         .map(GotoDefinitionResponse::Scalar)
                 })
                 .ok_or(LSPRuntimeError::ExpectedError)?
@@ -235,7 +230,7 @@ fn locate_field_argument_definition(
     parent_type: Type,
     field_name: StringKey,
     argument_name: ArgumentName,
-    root_dir: &std::path::Path,
+    state: &impl GlobalState,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!("Could not find field with name {}", field_name))
@@ -252,15 +247,16 @@ fn locate_field_argument_definition(
             ))
         })?;
 
-    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
-        .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
+    state
+        .get_lsp_location(argument.name.location)
+        .map(GotoDefinitionResponse::Scalar)
 }
 
 fn locate_directive_argument_definition(
     schema: &SDLSchema,
     directive_name: DirectiveName,
     argument_name: ArgumentName,
-    root_dir: &std::path::Path,
+    state: &impl GlobalState,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     let directive =
         schema
@@ -281,8 +277,9 @@ fn locate_directive_argument_definition(
             ))
         })?;
 
-    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
-        .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
+    state
+        .get_lsp_location(argument.name.location)
+        .map(GotoDefinitionResponse::Scalar)
 }
 
 fn locate_field_definition(
@@ -291,7 +288,7 @@ fn locate_field_definition(
     field_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
     project_name: StringKey,
-    root_dir: &std::path::Path,
+    state: &impl GlobalState,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!("Could not find field with name {}", field_name,))
@@ -334,10 +331,9 @@ fn locate_field_definition(
         }
     }
 
-    transform_relay_location_to_lsp_location(root_dir, field.name.location)
+    state
+        .get_lsp_location(field.name.location)
         .map(GotoDefinitionResponse::Scalar)
-        // If the field does not exist in the schema, that's fine
-        .map_err(|_| LSPRuntimeError::ExpectedError)
 }
 
 fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntimeError> {

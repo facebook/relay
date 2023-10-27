@@ -28,11 +28,11 @@ import type {
 } from 'relay-runtime/store/RelayStoreTypes';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
+const useFragment_EXPERIMENTAL = require('../experimental/useFragment_EXPERIMENTAL');
+const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
+const usePaginationFragment_EXPERIMENTAL = require('../experimental/usePaginationFragment_EXPERIMENTAL');
+const useRefetchableFragment_EXPERIMENTAL = require('../experimental/useRefetchableFragment_EXPERIMENTAL');
 const HooksImplementation = require('../HooksImplementation');
-const useFragment_REACT_CACHE = require('../react-cache/useFragment_REACT_CACHE');
-const useFragmentInternal_REACT_CACHE = require('../react-cache/useFragmentInternal_REACT_CACHE');
-const usePaginationFragment_REACT_CACHE = require('../react-cache/usePaginationFragment_REACT_CACHE');
-const useRefetchableFragment_REACT_CACHE = require('../react-cache/useRefetchableFragment_REACT_CACHE');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
@@ -96,7 +96,7 @@ type Props = {
 };
 
 describe.each([
-  ['React Cache', true],
+  ['Experimental', true],
   ['Legacy', false],
 ])(
   'useLazyLoadQueryNode / shouldUseExperimentalImpl (%s)',
@@ -129,12 +129,12 @@ describe.each([
       disallowConsoleErrors();
 
       if (shouldUseExperimentalImpl) {
-        useFragmentImpl = useFragment_REACT_CACHE;
+        useFragmentImpl = useFragment_EXPERIMENTAL;
         HooksImplementation.inject({
-          useFragment: useFragment_REACT_CACHE,
-          usePaginationFragment: usePaginationFragment_REACT_CACHE,
-          useRefetchableFragment: useRefetchableFragment_REACT_CACHE,
-          useFragment__internal: useFragmentInternal_REACT_CACHE,
+          useFragment: useFragment_EXPERIMENTAL,
+          usePaginationFragment: usePaginationFragment_EXPERIMENTAL,
+          useRefetchableFragment: useRefetchableFragment_EXPERIMENTAL,
+          useFragment__internal: useFragmentInternal_EXPERIMENTAL,
         });
       } else {
         useFragmentImpl = useFragment;

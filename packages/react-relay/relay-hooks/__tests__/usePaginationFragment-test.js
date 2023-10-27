@@ -32,7 +32,7 @@ import type {
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const usePaginationFragmentInternal_REACT_CACHE = require('../react-cache/usePaginationFragment_REACT_CACHE');
+const usePaginationFragmentInternal_EXPERIMENTAL = require('../experimental/usePaginationFragment_EXPERIMENTAL');
 const usePaginationFragment_LEGACY = require('../usePaginationFragment');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
@@ -57,7 +57,7 @@ const {
 const {useMemo, useState} = React;
 
 describe.each([
-  ['React Cache', usePaginationFragmentInternal_REACT_CACHE],
+  ['Experimental', usePaginationFragmentInternal_EXPERIMENTAL],
   ['Legacy', usePaginationFragment_LEGACY],
 ])('usePaginationFragment (%s)', (_hookName, usePaginationFragmentOriginal) => {
   let environment;

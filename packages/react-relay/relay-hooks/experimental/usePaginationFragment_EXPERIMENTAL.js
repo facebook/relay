@@ -13,7 +13,7 @@
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
 import type {ReturnType} from '../usePaginationFragment';
-import type {Options} from './useRefetchableFragmentInternal_REACT_CACHE';
+import type {Options} from './useRefetchableFragmentInternal_EXPERIMENTAL';
 import type {
   FragmentType,
   GraphQLResponse,
@@ -25,7 +25,7 @@ import type {
 const useLoadMoreFunction = require('../useLoadMoreFunction');
 const useRelayEnvironment = require('../useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
-const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
+const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_EXPERIMENTAL');
 const {useCallback, useDebugValue, useState} = require('react');
 const {
   getFragment,

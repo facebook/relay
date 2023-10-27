@@ -24,7 +24,7 @@ import type {OperationDescriptor} from 'relay-runtime';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {act: internalAct} = require('../../jest-react');
-const useFragmentInternal_REACT_CACHE = require('../react-cache/useFragmentInternal_REACT_CACHE');
+const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
 const useFragmentNode_LEGACY = require('../useFragmentNode');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -86,13 +86,13 @@ function expectSchedulerToFlushAndYieldThrough(expectedYields: any) {
 
 // The current tests are against useFragmentNode which as a different Flow signature
 // than the external API useFragment. I want to keep the more accurate types
-// for useFragmentInternal_REACT_CACHE, though, so this wrapper adapts it.
+// for useFragmentInternal_EXPERIMENTAL, though, so this wrapper adapts it.
 type ReturnType<TFragmentData: mixed> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
-function useFragmentNode_REACT_CACHE<TFragmentData: mixed>(
+function useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -105,7 +105,7 @@ function useFragmentNode_REACT_CACHE<TFragmentData: mixed>(
   key: any,
   displayName: string,
 ): ReturnType<TFragmentData> {
-  const data = useFragmentInternal_REACT_CACHE(fragment, key, displayName);
+  const data = useFragmentInternal_EXPERIMENTAL(fragment, key, displayName);
   return {
     // $FlowFixMe[incompatible-return]
     data,
@@ -115,13 +115,13 @@ function useFragmentNode_REACT_CACHE<TFragmentData: mixed>(
 }
 
 describe.each([
-  ['React Cache', useFragmentNode_REACT_CACHE],
+  ['Experimental', useFragmentNode_EXPERIMENTAL],
   ['Legacy', useFragmentNode_LEGACY],
 ])(
   'useFragmentNode / useFragment (%s)',
   (_hookName, useFragmentNodeOriginal) => {
     const isUsingReactCacheImplementation =
-      useFragmentNodeOriginal === useFragmentNode_REACT_CACHE;
+      useFragmentNodeOriginal === useFragmentNode_EXPERIMENTAL;
     let environment;
     let disableStoreUpdates;
     let enableStoreUpdates;

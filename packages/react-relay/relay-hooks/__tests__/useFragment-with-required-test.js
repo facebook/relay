@@ -13,7 +13,7 @@
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 import type {RequiredFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 
-const useFragmentOriginal_REACT_CACHE = require('../react-cache/useFragment_REACT_CACHE');
+const useFragmentOriginal_EXPERIMENTAL = require('../experimental/useFragment_EXPERIMENTAL');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentOriginal_LEGACY = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
@@ -33,7 +33,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 describe.each([
-  ['React Cache', useFragmentOriginal_REACT_CACHE],
+  ['Experimental', useFragmentOriginal_EXPERIMENTAL],
   ['Legacy', useFragmentOriginal_LEGACY],
 ])('useFragment (%s)', (_hookName, useFragmentOriginal) => {
   test('@required(action: LOG) gets logged even if no data is "missing"', () => {

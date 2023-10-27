@@ -31,8 +31,8 @@ const {getQueryResourceForEnvironment} = require('../QueryResource');
 const useIsMountedRef = require('../useIsMountedRef');
 const useQueryLoader = require('../useQueryLoader');
 const useRelayEnvironment = require('../useRelayEnvironment');
-const readFragmentInternal = require('./readFragmentInternal_REACT_CACHE');
-const useFragmentInternal = require('./useFragmentInternal_REACT_CACHE');
+const readFragmentInternal = require('./readFragmentInternal_EXPERIMENTAL');
+const useFragmentInternal = require('./useFragmentInternal_EXPERIMENTAL');
 const invariant = require('invariant');
 const {useCallback, useContext, useReducer} = require('react');
 const {

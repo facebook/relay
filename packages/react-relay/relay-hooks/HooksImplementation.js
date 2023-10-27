@@ -11,7 +11,7 @@
 
 'use strict';
 
-import typeof useFragmentInternal from './react-cache/useFragmentInternal_REACT_CACHE';
+import typeof useFragmentInternal from './experimental/useFragmentInternal_EXPERIMENTAL';
 import typeof useFragment from './useFragment';
 import type {UsePaginationFragmentType} from './usePaginationFragment';
 import type {UseRefetchableFragmentType} from './useRefetchableFragment';

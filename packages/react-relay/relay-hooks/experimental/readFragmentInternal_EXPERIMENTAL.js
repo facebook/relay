@@ -157,7 +157,7 @@ function getFragmentState(
 }
 
 // fragmentNode cannot change during the lifetime of the component, though fragmentRef may change.
-function readFragmentInternal_REACT_CACHE(
+function readFragmentInternal_EXPERIMENTAL(
   environment: IEnvironment,
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
@@ -295,4 +295,4 @@ function readFragmentInternal_REACT_CACHE(
   return {data, clientEdgeQueries};
 }
 
-module.exports = readFragmentInternal_REACT_CACHE;
+module.exports = readFragmentInternal_EXPERIMENTAL;

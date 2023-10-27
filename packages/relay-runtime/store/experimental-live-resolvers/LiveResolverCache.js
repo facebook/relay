@@ -895,4 +895,5 @@ function getConcreteTypename(
 module.exports = {
   LiveResolverCache,
   getUpdatedDataIDs,
+  RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
 };

@@ -22,7 +22,7 @@ const {
   useFragment: useFragment_LEGACY,
   useLazyLoadQuery,
 } = require('react-relay');
-const useFragment_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useFragment_REACT_CACHE');
+const useFragment_EXPERIMENTAL = require('react-relay/relay-hooks/experimental/useFragment_EXPERIMENTAL');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -43,7 +43,6 @@ const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  expectToWarn,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -61,7 +60,7 @@ afterEach(() => {
 });
 
 describe.each([
-  ['React Cache', useFragment_REACT_CACHE],
+  ['Experimental', useFragment_EXPERIMENTAL],
   ['Legacy', useFragment_LEGACY],
 ])('Hook implementation: %s', (_hookName, useFragment) => {
   test('Can read an external state resolver directly', () => {
@@ -1539,10 +1538,19 @@ describe.each([
       ),
     );
 
+    const subscriptionsCountBeforeGCRun = GLOBAL_STORE.getSubscriptionsCount();
+
     // Go-go-go! Clean the store!
     store.scheduleGC();
     jest.runAllImmediates();
-    // This will clean the store, but won't unsubscribe from the external states
+    // This will clean the store, and unsubscribe from the external states
+
+    const subscriptionsCountAfterGCRun = GLOBAL_STORE.getSubscriptionsCount();
+
+    // this will verify that we unsubscribed from the external store
+    expect(subscriptionsCountAfterGCRun).toEqual(
+      subscriptionsCountBeforeGCRun - 1,
+    );
 
     // Re-reading resolvers will create new records for them (but) the
     // `live_counter_with_possible_missing_fragment_data` will have missing required data at this
@@ -1550,13 +1558,8 @@ describe.each([
     // from the external state.
     environment.lookup(operation.fragment);
 
-    // this will dispatch an action from the extenrnal store and the callback that was created before GC
-    expectToWarn(
-      'Unexpected callback for a incomplete live resolver record',
-      () => {
-        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-      },
-    );
+    // this will dispatch an action from the external store and the callback that was created before GC
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
 
     // The data for the live resolver is missing (it has missing dependecies)
     snapshot = environment.lookup(operation.fragment);

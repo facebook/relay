@@ -38,8 +38,8 @@ import type {
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
+const useRefetchableFragmentInternal_EXPERIMENTAL = require('../experimental/useRefetchableFragmentInternal_EXPERIMENTAL');
 const {useTrackLoadQueryInRender} = require('../loadQuery');
-const useRefetchableFragmentInternal_REACT_CACHE = require('../react-cache/useRefetchableFragmentInternal_REACT_CACHE');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useRefetchableFragmentNode_LEGACY = require('../useRefetchableFragmentNode');
 const invariant = require('invariant');
@@ -52,7 +52,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   Observable,
-  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -65,24 +64,14 @@ const Scheduler = require('scheduler');
 const {useMemo, useState, useEffect} = React;
 
 describe.each([
-  ['React Cache', useRefetchableFragmentInternal_REACT_CACHE],
+  ['Experimental', useRefetchableFragmentInternal_EXPERIMENTAL],
   ['Legacy', useRefetchableFragmentNode_LEGACY],
 ])(
   'useRefetchableFragmentNode (%s)',
   (_hookName, useRefetchableFragmentNodeOriginal) => {
-    let isUsingReactCacheImplementation;
-    let originalReactCacheFeatureFlag;
-    beforeEach(() => {
-      isUsingReactCacheImplementation =
-        useRefetchableFragmentNodeOriginal ===
-        useRefetchableFragmentInternal_REACT_CACHE;
-      originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-      RelayFeatureFlags.USE_REACT_CACHE = isUsingReactCacheImplementation;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-    });
-
+    const isUsingReactCacheImplementation =
+      useRefetchableFragmentNodeOriginal ===
+      useRefetchableFragmentInternal_EXPERIMENTAL;
     let environment;
     let gqlQuery:
       | Query<

@@ -344,7 +344,7 @@ function getFragmentState(
 }
 
 // fragmentNode cannot change during the lifetime of the component, though fragmentRef may change.
-function useFragmentInternal_REACT_CACHE(
+function useFragmentInternal_EXPERIMENTAL(
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
   hookDisplayName: string,
@@ -614,4 +614,4 @@ function useFragmentInternal_REACT_CACHE(
   return data;
 }
 
-module.exports = useFragmentInternal_REACT_CACHE;
+module.exports = useFragmentInternal_EXPERIMENTAL;

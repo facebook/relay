@@ -1,4 +1,4 @@
-# TODO T160746170: expected to throw
+# expected-to-throw
 
 query relayResolverWithUndefinedFieldArgsQuery {
   node(id: "SOME_ID") {

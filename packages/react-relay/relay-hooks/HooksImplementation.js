@@ -11,6 +11,7 @@
 
 'use strict';
 
+import typeof useFragmentInternal from './experimental/useFragmentInternal_EXPERIMENTAL';
 import typeof useFragment from './useFragment';
 import type {UsePaginationFragmentType} from './usePaginationFragment';
 import type {UseRefetchableFragmentType} from './useRefetchableFragment';
@@ -21,13 +22,14 @@ type HooksImplementation = {
   useFragment: useFragment,
   usePaginationFragment: UsePaginationFragmentType,
   useRefetchableFragment: UseRefetchableFragmentType,
+  useFragment__internal?: useFragmentInternal,
 };
 
 let implementation: HooksImplementation | null = null;
 
 function inject(impl: HooksImplementation): void {
   warning(
-    implementation !== null,
+    implementation === null,
     'Relay HooksImplementation was injected twice.',
   );
   implementation = impl;

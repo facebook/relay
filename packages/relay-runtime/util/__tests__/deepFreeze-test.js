@@ -36,6 +36,13 @@ describe('deepFreeze()', () => {
     expect(object.b).toBeFrozen();
   });
 
+  it('freezes nested arrays', () => {
+    const array = deepFreeze([[[1]]]);
+    expect(array).toBeFrozen();
+    expect(array[0]).toBeFrozen();
+    expect(array[0][0]).toBeFrozen();
+  });
+
   it('short-circuits given a circular reference', () => {
     const object = {a: 1, b: {c: 2}};
     object.b.d = object;
@@ -58,5 +65,13 @@ describe('deepFreeze()', () => {
     const x = new Uint16Array([21, 31]);
     expect(() => deepFreeze(x)).not.toThrow();
     expect(() => deepFreeze({x})).not.toThrow();
+  });
+
+  it('does not freeze class instances', () => {
+    class Foo {
+      val = 3;
+    }
+    const f = deepFreeze(new Foo());
+    expect(f).not.toBeFrozen();
   });
 });

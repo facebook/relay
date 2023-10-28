@@ -15,7 +15,7 @@ import type {ReturnType} from '../useRefetchableFragment';
 import type {FragmentType, RefetchableFragment, Variables} from 'relay-runtime';
 
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
-const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
+const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_EXPERIMENTAL');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 

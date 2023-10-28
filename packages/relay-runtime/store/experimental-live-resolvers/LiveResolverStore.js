@@ -48,7 +48,11 @@ const RelayReferenceMarker = require('../RelayReferenceMarker');
 const RelayStoreSubscriptions = require('../RelayStoreSubscriptions');
 const RelayStoreUtils = require('../RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
-const {LiveResolverCache, getUpdatedDataIDs} = require('./LiveResolverCache');
+const {
+  LiveResolverCache,
+  RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+  getUpdatedDataIDs,
+} = require('./LiveResolverCache');
 const invariant = require('invariant');
 
 export type LiveState<+T> = {
@@ -706,6 +710,17 @@ class LiveResolverStore implements Store {
         for (let ii = 0; ii < storeIDs.length; ii++) {
           const dataID = storeIDs[ii];
           if (!references.has(dataID)) {
+            const record = this._recordSource.get(dataID);
+            if (record != null) {
+              const maybeResolverSubscription = RelayModernRecord.getValue(
+                record,
+                RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+              );
+              if (maybeResolverSubscription != null) {
+                // $FlowFixMe - this value if it is not null, it is a function
+                maybeResolverSubscription();
+              }
+            }
             this._recordSource.remove(dataID);
           }
         }

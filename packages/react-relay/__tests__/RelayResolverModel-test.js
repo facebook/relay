@@ -23,7 +23,7 @@ const {
   useClientQuery,
   useFragment: useFragment_LEGACY,
 } = require('react-relay');
-const useFragment_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useFragment_REACT_CACHE');
+const useFragment_EXPERIMENTAL = require('react-relay/relay-hooks/experimental/useFragment_EXPERIMENTAL');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -87,7 +87,7 @@ function EnvironmentWrapper({
 }
 
 describe.each([
-  ['React Cache', useFragment_REACT_CACHE],
+  ['Experimental', useFragment_EXPERIMENTAL],
   ['Legacy', useFragment_LEGACY],
 ])('Hook implementation: %s', (_hookName, useFragment) => {
   let environment;

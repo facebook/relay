@@ -10,6 +10,7 @@ on:
     branches:
       - main
 
+permissions: {}
 jobs:
   build-compiler-explorer:
     name: Build Compiler Explorer
@@ -31,6 +32,9 @@ jobs:
           path: compiler/crates/relay-compiler-playground/pkg/
 
   build-and-deploy:
+    permissions:
+      contents: write # to push changes in repo (jamesives/github-pages-deploy-action)
+
     runs-on: ubuntu-latest
     needs: [build-compiler-explorer]
     steps:

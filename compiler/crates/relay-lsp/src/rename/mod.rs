@@ -23,6 +23,7 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::OperationDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use log::info;
 use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::Rename;
 use lsp_types::request::Request;
@@ -38,10 +39,13 @@ use relay_docblock::On;
 use relay_transforms::extract_module_name;
 use resolution_path::ArgumentParent;
 use resolution_path::ArgumentPath;
+use resolution_path::DirectiveParent;
+use resolution_path::DirectivePath;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::ResolutionPath;
 use resolution_path::ResolvePosition;
+use resolution_path::VariableIdentifierParent;
 use resolution_path::VariableIdentifierPath;
 
 use crate::docblock_resolution_info::create_docblock_resolution_info;
@@ -93,7 +97,7 @@ pub fn on_prepare_rename(
 
     // TODO: Remove the condition, once https://github.com/facebook/relay/issues/4447 is resolved
     match rename_request.kind {
-        RenameKind::ResolverName { .. } => Err(LSPRuntimeError::UnexpectedError(String::from(
+        RenameKind::ResolverField { .. } => Err(LSPRuntimeError::UnexpectedError(String::from(
             "Relay Resolvers can not yet be reliably renamed",
         ))),
         _ => {
@@ -173,7 +177,7 @@ pub fn on_will_rename_files(
                                 Some((
                                     old_frag_name.to_string(),
                                     RenameRequest::new(
-                                        RenameKind::FragmentName {
+                                        RenameKind::FragmentDefinitionOrSpread {
                                             fragment_name: old_frag_name,
                                         },
                                         IRLocation::new(old_source_location, fragment_name.span),
@@ -186,7 +190,7 @@ pub fn on_will_rename_files(
                             }) => Some((
                                 operation_name.value.to_string(),
                                 RenameRequest::new(
-                                    RenameKind::OperationName,
+                                    RenameKind::OperationDefinition,
                                     IRLocation::new(old_source_location, operation_name.span),
                                 ),
                             )),
@@ -216,19 +220,23 @@ pub fn on_will_rename_files(
 
 #[derive(Debug, Clone)]
 pub enum RenameKind {
-    OperationName,
-    FragmentName {
+    OperationDefinition,
+    FragmentDefinitionOrSpread {
         fragment_name: StringKey,
     },
-    ResolverName {
-        resolver_name: StringKey,
+    ResolverField {
+        field_name: StringKey,
         parent_type: StringKey,
     },
-    VariableName {
+    VariableDefinition {
         variable_name: StringKey,
     },
-    ArgumentDefinitionName {
+    FragmentArgumentDefinition {
+        fragment_name: StringKey,
         argument_name: StringKey,
+    },
+    VariableOrFragmentArgumentUsage {
+        variable_name: StringKey,
     },
 }
 
@@ -256,13 +264,26 @@ fn create_rename_request(
             match node_path {
                 ResolutionPath::VariableIdentifier(VariableIdentifierPath {
                     inner: variable,
+                    parent,
                     ..
                 }) => {
                     let span_without_dollar = Span::new(variable.span.start + 1, variable.span.end);
                     let location = IRLocation::new(location.source_location(), span_without_dollar);
-                    let kind = RenameKind::VariableName {
-                        variable_name: variable.name,
+
+                    let kind = match parent {
+                        VariableIdentifierParent::VariableDefinition(_) => {
+                            RenameKind::VariableDefinition {
+                                variable_name: variable.name,
+                            }
+                        }
+                        VariableIdentifierParent::Value(_) => {
+                            RenameKind::VariableOrFragmentArgumentUsage {
+                                variable_name: variable.name,
+                            }
+                        }
                     };
+
+                    info!("Rename request for variable: {:?}", kind);
 
                     Ok(RenameRequest::new(kind, location))
                 }
@@ -270,18 +291,24 @@ fn create_rename_request(
                     inner: argument_name,
                     parent:
                         IdentParent::ArgumentName(ArgumentPath {
-                            parent: ArgumentParent::Directive(directive),
+                            parent:
+                                ArgumentParent::Directive(DirectivePath {
+                                    inner: directive,
+                                    parent: DirectiveParent::FragmentDefinition(fragment),
+                                    ..
+                                }),
                             ..
                         }),
                 }) => {
-                    if directive.inner.name.value != *ARGUMENTS_DIRECTIVE
-                        && directive.inner.name.value != *ARGUMENTDEFINITIONS_DIRECTIVE
+                    if directive.name.value != *ARGUMENTS_DIRECTIVE
+                        && directive.name.value != *ARGUMENTDEFINITIONS_DIRECTIVE
                     {
                         return Err(LSPRuntimeError::ExpectedError);
                     }
 
                     let location = IRLocation::new(location.source_location(), argument_name.span);
-                    let kind = RenameKind::ArgumentDefinitionName {
+                    let kind = RenameKind::FragmentArgumentDefinition {
+                        fragment_name: fragment.inner.name.value,
                         argument_name: argument_name.value,
                     };
 
@@ -293,7 +320,7 @@ fn create_rename_request(
                         IdentParent::FragmentSpreadName(_) | IdentParent::FragmentDefinitionName(_),
                 }) => {
                     let location = IRLocation::new(location.source_location(), fragment_name.span);
-                    let kind = RenameKind::FragmentName {
+                    let kind = RenameKind::FragmentDefinitionOrSpread {
                         fragment_name: fragment_name.value,
                     };
 
@@ -305,7 +332,10 @@ fn create_rename_request(
                 }) => {
                     let location = IRLocation::new(location.source_location(), operation_name.span);
 
-                    Ok(RenameRequest::new(RenameKind::OperationName, location))
+                    Ok(RenameRequest::new(
+                        RenameKind::OperationDefinition,
+                        location,
+                    ))
                 }
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
@@ -316,8 +346,8 @@ fn create_rename_request(
             match resolution_info {
                 Some(DocblockResolutionInfo::FieldName(docblock_field)) => {
                     let location = IRLocation::new(location.source_location(), docblock_field.span);
-                    let kind = RenameKind::ResolverName {
-                        resolver_name: docblock_field.value,
+                    let kind = RenameKind::ResolverField {
+                        field_name: docblock_field.value,
                         parent_type: extract_parent_type(docblock),
                     };
 
@@ -336,7 +366,19 @@ fn process_rename_request(
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
     match rename_request.kind {
-        RenameKind::VariableName { variable_name } => {
+        RenameKind::VariableDefinition { variable_name } => Ok(rename_variable()),
+        RenameKind::FragmentArgumentDefinition {
+            fragment_name,
+            argument_name,
+        } => Ok(rename_fragment_argument(
+            fragment_name,
+            argument_name,
+            &new_name,
+            rename_request.location,
+            program,
+            root_dir,
+        )),
+        RenameKind::VariableOrFragmentArgumentUsage { variable_name } => {
             let lsp_location =
                 transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
 
@@ -348,38 +390,17 @@ fn process_rename_request(
                 }],
             )]))
         }
-        RenameKind::ArgumentDefinitionName { argument_name } => {
-            let lsp_location =
-                transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
-
-            Ok(HashMap::from([(
-                lsp_location.uri,
-                vec![TextEdit {
-                    new_text: new_name,
-                    range: lsp_location.range,
-                }],
-            )]))
+        RenameKind::OperationDefinition => {
+            rename_operation(new_name, rename_request.location, root_dir)
         }
-        RenameKind::OperationName => {
-            let lsp_location =
-                transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
-
-            Ok(HashMap::from([(
-                lsp_location.uri,
-                vec![TextEdit {
-                    new_text: new_name,
-                    range: lsp_location.range,
-                }],
-            )]))
-        }
-        RenameKind::FragmentName { fragment_name } => {
+        RenameKind::FragmentDefinitionOrSpread { fragment_name } => {
             Ok(rename_fragment(fragment_name, new_name, program, root_dir))
         }
-        RenameKind::ResolverName {
+        RenameKind::ResolverField {
             parent_type,
-            resolver_name,
+            field_name,
         } => Ok(rename_relay_resolver_field(
-            resolver_name,
+            field_name,
             parent_type,
             &new_name,
             rename_request.location,
@@ -387,6 +408,30 @@ fn process_rename_request(
             root_dir,
         )),
     }
+}
+
+fn rename_variable() -> HashMap<Url, Vec<TextEdit>> {
+    HashMap::new()
+}
+
+fn rename_fragment_argument(
+    fragment_name: StringKey,
+    argument_name: StringKey,
+    new_argument_name: &str,
+    argument_definition_location: IRLocation,
+    program: &Program,
+    root_dir: &PathBuf,
+) -> HashMap<Url, Vec<TextEdit>> {
+    let mut locations = FragmentArgumentFinder::get_argument_locations_on_fragment_spreads(
+        program,
+        fragment_name,
+        argument_name,
+    );
+    locations.push(argument_definition_location);
+
+    // TODO: Rename argument usages within document
+
+    map_locations_to_text_edits(locations, new_argument_name.to_owned(), root_dir)
 }
 
 fn rename_relay_resolver_field(
@@ -402,6 +447,22 @@ fn rename_relay_resolver_field(
     locations.push(field_definition_location);
 
     map_locations_to_text_edits(locations, new_field_name.to_owned(), root_dir)
+}
+
+fn rename_operation(
+    new_operation_name: String,
+    location: IRLocation,
+    root_dir: &PathBuf,
+) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
+    let lsp_location = transform_relay_location_to_lsp_location(root_dir, location)?;
+
+    Ok(HashMap::from([(
+        lsp_location.uri,
+        vec![TextEdit {
+            new_text: new_operation_name,
+            range: lsp_location.range,
+        }],
+    )]))
 }
 
 fn rename_fragment(
@@ -454,6 +515,7 @@ fn extract_parent_type(docblock: DocblockIr) -> StringKey {
     }
 }
 
+// TODO: Move all this to a vistors helper module
 #[derive(Debug, Clone)]
 struct FragmentFinder {
     fragment_locations: Vec<IRLocation>,
@@ -488,6 +550,47 @@ impl Visitor for FragmentFinder {
         }
 
         self.default_visit_fragment(fragment)
+    }
+}
+
+#[derive(Debug, Clone)]
+struct FragmentArgumentFinder {
+    argument_locations: Vec<IRLocation>,
+    fragment_name: StringKey,
+    argument_name: StringKey,
+}
+
+impl FragmentArgumentFinder {
+    pub fn get_argument_locations_on_fragment_spreads(
+        program: &Program,
+        fragment_name: StringKey,
+        argument_name: StringKey,
+    ) -> Vec<IRLocation> {
+        let mut finder = FragmentArgumentFinder {
+            argument_locations: vec![],
+            fragment_name,
+            argument_name,
+        };
+        finder.visit_program(program);
+        finder.argument_locations
+    }
+}
+
+impl Visitor for FragmentArgumentFinder {
+    const NAME: &'static str = "FragmentArgumentFinder";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn visit_fragment_spread(&mut self, spread: &FragmentSpread) {
+        if spread.fragment.item.0 == self.fragment_name {
+            spread
+                .arguments
+                .iter()
+                .filter(|a| a.name.item.0 == self.argument_name)
+                .for_each(|a| {
+                    self.argument_locations.push(a.name.location);
+                })
+        }
     }
 }
 

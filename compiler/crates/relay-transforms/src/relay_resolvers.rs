@@ -127,7 +127,7 @@ associated_data_impl!(RelayResolverFieldMetadata);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayResolverMetadata {
-    field_id: FieldID,
+    pub field_id: FieldID,
     pub import_path: StringKey,
     pub import_name: Option<StringKey>,
     pub field_alias: Option<StringKey>,

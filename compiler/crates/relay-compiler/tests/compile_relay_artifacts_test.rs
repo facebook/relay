@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0dc87fb7f406a49cc9b3c8ab491d6815>>
+ * @generated SignedSource<<4a85869bb6831356ca25ffc4ee7af4fb>>
  */
 
 mod compile_relay_artifacts;
@@ -486,6 +486,13 @@ async fn fragment_alias_on_inline_fragment_does_not_get_flattened() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.expected");
     test_fixture(transform_fixture, "fragment-alias-on-inline-fragment-does-not-get-flattened.graphql", "compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_arg_passed_to_resolver_rutime_arg() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-arg-passed-to-resolver-rutime-arg.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-arg-passed-to-resolver-rutime-arg.expected");
+    test_fixture(transform_fixture, "fragment-arg-passed-to-resolver-rutime-arg.graphql", "compile_relay_artifacts/fixtures/fragment-arg-passed-to-resolver-rutime-arg.expected", input, expected).await;
 }
 
 #[tokio::test]

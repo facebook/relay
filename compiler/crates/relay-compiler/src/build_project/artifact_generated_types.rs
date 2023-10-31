@@ -43,7 +43,13 @@ impl ArtifactGeneratedTypes {
                         ("Query", "ConcreteRequest, Query")
                     }
                 }
-                OperationKind::Mutation => ("Mutation", "ConcreteRequest, Mutation"),
+                OperationKind::Mutation => {
+                    if is_client_only {
+                        ("Mutation", "ClientRequest, Mutation")
+                    } else {
+                        ("Mutation", "ConcreteRequest, Mutation")
+                    }
+                }
                 OperationKind::Subscription => (
                     "GraphQLSubscription",
                     "ConcreteRequest, GraphQLSubscription",

@@ -500,6 +500,11 @@ describe.each([
     });
   });
 
+  const getMutableEntityQuery = graphql`
+    query RelayResolverModelTestGetMutableEntityQuery {
+      mutable_entity
+    }
+  `;
   test('should not mutate complex resolver values', () => {
     resetModels();
     // Do not deep freeze
@@ -508,21 +513,14 @@ describe.each([
     TestRenderer.act(() => {
       setIsHuman(true);
     });
+
     function GetMutableEntity() {
-      const data = useClientQuery(
-        graphql`
-          query RelayResolverModelTestGetMutableEntityQuery {
-            mutable_entity
-          }
-        `,
-        {},
-      );
+      const data = useClientQuery(getMutableEntityQuery, {});
       if (data.mutable_entity == null) {
         return null;
       }
       return `${data.mutable_entity.type}:${data.mutable_entity.props.battery}`;
     }
-
     const renderer = TestRenderer.create(
       <EnvironmentWrapper environment={environment}>
         <GetMutableEntity />
@@ -543,6 +541,37 @@ describe.each([
     });
     // TODO: Should be 0. Relay should not mutate the value here.
     expect(renderer.toJSON()).toEqual('human:100');
+
+    TestRenderer.act(() => {
+      renderer.unmount();
+    });
+    jest.unmock('relay-runtime/util/deepFreeze');
+  });
+
+  test('should not freeze complex resolver values', () => {
+    resetModels();
+    TestRenderer.act(() => {
+      setIsHuman(false);
+    });
+    function GetMutableEntity() {
+      const data = useClientQuery(getMutableEntityQuery, {});
+      if (data.mutable_entity == null) {
+        return null;
+      }
+      return `${data.mutable_entity.type}:${data.mutable_entity.props.battery}`;
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <GetMutableEntity />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('robot:0');
+
+    // TODO: should not throw on mutating the inner of the resolver value
+    expect(() => {
+      chargeBattery();
+    }).toThrow();
 
     TestRenderer.act(() => {
       renderer.unmount();

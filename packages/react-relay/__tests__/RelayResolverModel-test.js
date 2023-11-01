@@ -34,6 +34,11 @@ const {
   completeTodo,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
+const {
+  chargeBattery,
+  resetModels,
+  setIsHuman,
+} = require('relay-runtime/store/__tests__/resolvers/MutableModel');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
@@ -492,6 +497,55 @@ describe.each([
         __typename: 'ClientTypeImplementingClientInterface',
         description: 'It was a magical place',
       },
+    });
+  });
+
+  test('should not mutate complex resolver values', () => {
+    resetModels();
+    // Do not deep freeze
+    jest.mock('relay-runtime/util/deepFreeze');
+
+    TestRenderer.act(() => {
+      setIsHuman(true);
+    });
+    function GetMutableEntity() {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestGetMutableEntityQuery {
+            mutable_entity
+          }
+        `,
+        {},
+      );
+      if (data.mutable_entity == null) {
+        return null;
+      }
+      return `${data.mutable_entity.type}:${data.mutable_entity.props.battery}`;
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <GetMutableEntity />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('human:0');
+
+    TestRenderer.act(() => {
+      setIsHuman(false);
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual('robot:0');
+
+    TestRenderer.act(() => {
+      chargeBattery();
+      setIsHuman(true);
+      jest.runAllImmediates();
+    });
+    // TODO: Should be 0. Relay should not mutate the value here.
+    expect(renderer.toJSON()).toEqual('human:100');
+
+    TestRenderer.act(() => {
+      renderer.unmount();
     });
   });
 });

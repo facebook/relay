@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<481c25170d36300263b682de955ebe8c>>
+ * @generated SignedSource<<bdc4fee5e9a22feb867e3eed1dd8333e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -100,7 +100,7 @@ return {
               (v2/*: any*/),
               {
                 "alias": null,
-                "args": null,
+                "args": [],
                 "fragment": {
                   "args": (v3/*: any*/),
                   "kind": "FragmentSpread",

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a85869bb6831356ca25ffc4ee7af4fb>>
+ * @generated SignedSource<<3ed14fc48e8c146f608dbd13c65f89d7>>
  */
 
 mod compile_relay_artifacts;
@@ -1347,6 +1347,20 @@ async fn required_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/required-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required-directive.expected");
     test_fixture(transform_fixture, "required-directive.graphql", "compile_relay_artifacts/fixtures/required-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_field_with_all_fragment_args_omitted() {
+    let input = include_str!("compile_relay_artifacts/fixtures/resolver-field-with-all-fragment-args-omitted.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/resolver-field-with-all-fragment-args-omitted.expected");
+    test_fixture(transform_fixture, "resolver-field-with-all-fragment-args-omitted.graphql", "compile_relay_artifacts/fixtures/resolver-field-with-all-fragment-args-omitted.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_field_with_all_runtime_args_omitted() {
+    let input = include_str!("compile_relay_artifacts/fixtures/resolver-field-with-all-runtime-args-omitted.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/resolver-field-with-all-runtime-args-omitted.expected");
+    test_fixture(transform_fixture, "resolver-field-with-all-runtime-args-omitted.graphql", "compile_relay_artifacts/fixtures/resolver-field-with-all-runtime-args-omitted.expected", input, expected).await;
 }
 
 #[tokio::test]

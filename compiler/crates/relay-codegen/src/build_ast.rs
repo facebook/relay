@@ -1141,7 +1141,20 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .project_config
             .js_module_import_path(self.definition_source_location, module);
 
-        let args = self.build_arguments(field_arguments);
+        let args = if field.arguments.is_empty() {
+            Primitive::SkippableNull
+        } else {
+            self.build_arguments(field_arguments).map_or_else(
+                || {
+                    // Passing an empty array here, rather than `null`, allows the runtime
+                    // to know that it should still create an arguments object to pass to
+                    // the resolver, even though no arguments were provided at the callsite,
+                    // since all arguments are optional.
+                    Primitive::Key(self.array(vec![]))
+                },
+                Primitive::Key,
+            )
+        };
 
         let variable_name = relay_resolver_metadata.generate_local_resolver_name(self.schema);
         let resolver_js_module = JSModuleDependency {
@@ -1208,10 +1221,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         // module itself.
         let mut object_props = object! {
             :build_alias(field_alias, field_name),
-            args: match args {
-                None => Primitive::SkippableNull,
-                Some(key) => Primitive::Key(key),
-            },
+            args: args,
             fragment: match fragment_primitive {
                 None => Primitive::SkippableNull,
                 Some(fragment_primitive) => fragment_primitive,

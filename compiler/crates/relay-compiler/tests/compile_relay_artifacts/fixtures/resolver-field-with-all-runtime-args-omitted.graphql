@@ -1,0 +1,10 @@
+query resolverFieldWithAllRuntimeArgsOmitted_Query {
+  greeting
+}
+
+# %extensions%
+
+extend type Query {
+  greeting(salutation: String): String
+    @relay_resolver(import_path: "./path/to/Resolver.js")
+}

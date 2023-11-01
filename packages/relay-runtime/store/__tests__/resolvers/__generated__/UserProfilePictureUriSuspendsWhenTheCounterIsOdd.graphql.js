@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<470a26bde221de5d075143bd6e3b1840>>
+ * @generated SignedSource<<09ff2e1741fad89b98bf1d148bbd19ea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,7 +76,7 @@ var node/*: ReaderFragment*/ = {
     },
     {
       "alias": "uri",
-      "args": null,
+      "args": [],
       "fragment": {
         "args": [
           {

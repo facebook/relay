@@ -22,6 +22,7 @@ import type {
   MissingFieldHandler,
   MutableRecordSource,
   MutationParameters,
+  NormalizeResponseFunction,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -64,6 +65,7 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   isServer?: ?boolean,
   logFn?: ?LogFunction,
   missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
+  normalizeResponse?: NormalizeResponseFunction,
   operationLoader?: ?OperationLoader,
   requiredFieldLogger?: ?RequiredFieldLogger,
   scheduler?: ?TaskScheduler,
@@ -82,6 +84,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_isServer: boolean;
   +_logFn: LogFunction;
   +_missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  +_normalizeResponse: NormalizeResponseFunction;
   +_operationExecutions: Map<string, ActiveState>;
   +_operationLoader: ?OperationLoader;
   +_requiredFieldLogger: RequiredFieldLogger;
@@ -109,6 +112,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._createStoreForActor = config.createStoreForActor;
     this._createConfigNameForActor = config.createConfigNameForActor;
     this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';
+    this._normalizeResponse = config.normalizeResponse ?? normalizeResponse;
   }
 
   /**
@@ -470,7 +474,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
         log: this._logFn,
-        normalizeResponse: normalizeResponse,
+        normalizeResponse: this._normalizeResponse,
       });
       return () => executor.cancel();
     });

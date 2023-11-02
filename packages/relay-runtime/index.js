@@ -35,6 +35,7 @@ const {
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
+const normalizeResponse = require('./store/normalizeResponse');
 const readInlineData = require('./store/readInlineData');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
@@ -131,6 +132,7 @@ export type {
   MutableRecordSource,
   MutationParameters,
   NormalizationSelector,
+  NormalizeResponseFunction,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -367,6 +369,7 @@ module.exports = {
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getObservableForActiveRequest:
       fetchQueryInternal.getObservableForActiveRequest,
+    normalizeResponse: normalizeResponse,
     withProvidedVariables: withProvidedVariables,
   },
 };

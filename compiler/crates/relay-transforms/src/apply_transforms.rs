@@ -550,12 +550,12 @@ fn apply_operation_text_transforms(
         )
     })?;
 
-    program = log_event.time("remove_client_edge_selections", || {
-        remove_client_edge_selections(&program)
-    })?;
-
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)
+    })?;
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
     })?;
 
     program = log_event.time("replace_updatable_fragment_spreads", || {

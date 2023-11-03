@@ -1,0 +1,225 @@
+==================================== INPUT ====================================
+fragment relayResolverWithArgsFragmentSpread_PopStarNameResolverFragment_name on ClientType @argumentDefinitions(scale: {type: "Float!"}) {
+  name
+  profile_picture(scale: $scale)
+}
+
+query relayResolverWithArgsFragmentSpread_Query {
+  ...relayResolverWithArgsFragmentSpread_Fragment
+}
+
+fragment relayResolverWithArgsFragmentSpread_Fragment on Query {
+  pop_star {
+    pop_star_name(scale: $scale)
+  }
+}
+
+
+# %extensions%
+
+type ClientType {
+  name: String
+  profile_picture(scale: Float!): String
+  pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "relayResolverWithArgsFragmentSpread_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js", , import_name: "pop_star_name")
+}
+
+extend type Query {
+  pop_star: ClientType @relay_resolver(import_path: "./path/to/PopStarNameResolver.js", import_name: "pop_star")
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayResolverWithArgsFragmentSpread_Query",
+    "selections": [
+      {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "relayResolverWithArgsFragmentSpread_Fragment"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverWithArgsFragmentSpread_Query",
+    "selections": [
+      {
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "pop_star",
+          "args": null,
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null,
+          "isOutputType": false
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "pop_star",
+          "plural": false,
+          "selections": [
+            {
+              "name": "pop_star_name",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": [
+                      {
+                        "kind": "Variable",
+                        "name": "scale",
+                        "variableName": "scale"
+                      }
+                    ],
+                    "kind": "ScalarField",
+                    "name": "profile_picture",
+                    "storageKey": null
+                  }
+                ],
+                "type": "ClientType",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null,
+              "isOutputType": false
+            }
+          ],
+          "storageKey": null
+        }
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "94508dc2526a8b7563266e5349ed2265",
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverWithArgsFragmentSpread_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "scale"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "hasClientEdges": true
+  },
+  "name": "relayResolverWithArgsFragmentSpread_Fragment",
+  "selections": [
+    {
+      "kind": "ClientEdgeToClientObject",
+      "concreteType": "ClientType",
+      "backingField": {
+        "alias": null,
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "name": "pop_star",
+        "resolverModule": require('PopStarNameResolver').pop_star,
+        "path": "pop_star"
+      },
+      "linkedField": {
+        "alias": null,
+        "args": null,
+        "concreteType": "ClientType",
+        "kind": "LinkedField",
+        "name": "pop_star",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [],
+            "fragment": {
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "scale",
+                  "variableName": "scale"
+                }
+              ],
+              "kind": "FragmentSpread",
+              "name": "relayResolverWithArgsFragmentSpread_PopStarNameResolverFragment_name"
+            },
+            "kind": "RelayResolver",
+            "name": "pop_star_name",
+            "resolverModule": require('PopStarNameResolver').pop_star_name,
+            "path": "pop_star.pop_star_name"
+          }
+        ],
+        "storageKey": null
+      }
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "scale"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolverWithArgsFragmentSpread_PopStarNameResolverFragment_name",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": [
+            {
+              "kind": "Variable",
+              "name": "scale",
+              "variableName": "scale"
+            }
+          ],
+          "kind": "ScalarField",
+          "name": "profile_picture",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientType",
+  "abstractKey": null
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<543023a93cfd81f327040c9b43f96de3>>
+ * @generated SignedSource<<3f517c5c00f6381f26e97a3d40f44364>>
  */
 
 mod compile_relay_artifacts;
@@ -1224,10 +1224,10 @@ async fn relay_resolver_with_args_and_alias_no_fragment() {
 }
 
 #[tokio::test]
-async fn relay_resolver_with_args_fragment_spread() {
-    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.expected");
-    test_fixture(transform_fixture, "relay-resolver-with-args-fragment-spread.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.expected", input, expected).await;
+async fn relay_resolver_with_args_fragment_spread_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-args-fragment-spread.invalid.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -1844,6 +1844,13 @@ async fn validate_global_variables_shared_fragment_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/validate-global-variables-shared-fragment.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/validate-global-variables-shared-fragment.invalid.expected");
     test_fixture(transform_fixture, "validate-global-variables-shared-fragment.invalid.graphql", "compile_relay_artifacts/fixtures/validate-global-variables-shared-fragment.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn validate_global_variables_undefined_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/validate-global-variables-undefined.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/validate-global-variables-undefined.invalid.expected");
+    test_fixture(transform_fixture, "validate-global-variables-undefined.invalid.graphql", "compile_relay_artifacts/fixtures/validate-global-variables-undefined.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

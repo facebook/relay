@@ -636,6 +636,18 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         self.provided_variables = saved_provided_vars;
         self.scope.pop();
 
+        // validate that all used variables are actually defined on the query
+        // for used_var in fragment.used_global_variables.iter() {
+        //     if self.scope.get(used_var.name.item).is_none() {
+        //         self.errors.push(Diagnostic::error(
+        //             ValidationMessage::ExpectedOperationVariableToBeDefined {
+        //                 variable_name: used_var.name.item,
+        //             },
+        //             used_var.name.location,
+        //         ));
+        //     }
+        // }
+
         transformed_fragment
     }
 

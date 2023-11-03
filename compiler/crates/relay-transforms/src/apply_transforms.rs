@@ -25,6 +25,7 @@ use crate::client_extensions_abstract_types::client_extensions_abstract_types;
 use crate::disallow_non_node_id_fields;
 use crate::generate_relay_resolvers_model_fragments::generate_relay_resolvers_model_fragments;
 use crate::generate_relay_resolvers_operations_for_nested_objects::generate_relay_resolvers_operations_for_nested_objects;
+use crate::generate_relay_resolvers_root_fragment_split_operation::generate_relay_resolvers_root_fragment_split_operation;
 use crate::match_::hash_supported_argument;
 use crate::skip_updatable_queries::skip_updatable_queries;
 
@@ -357,6 +358,12 @@ fn apply_operation_transforms(
             project_config.feature_flags.enable_relay_resolver_transform,
         )
     })?;
+    if project_config.feature_flags.enable_schema_resolvers {
+        program = log_event.time(
+            "generate_relay_resolvers_root_fragment_split_operation",
+            || generate_relay_resolvers_root_fragment_split_operation(&program),
+        )?;
+    }
 
     program = log_event.time("split_module_import", || {
         split_module_import(&program, &base_fragment_names)

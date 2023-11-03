@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3ed14fc48e8c146f608dbd13c65f89d7>>
+ * @generated SignedSource<<543023a93cfd81f327040c9b43f96de3>>
  */
 
 mod compile_relay_artifacts;
@@ -1221,6 +1221,13 @@ async fn relay_resolver_with_args_and_alias_no_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-and-alias-no-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-and-alias-no-fragment.expected");
     test_fixture(transform_fixture, "relay-resolver-with-args-and-alias-no-fragment.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-args-and-alias-no-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_with_args_fragment_spread() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-args-fragment-spread.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-args-fragment-spread.expected", input, expected).await;
 }
 
 #[tokio::test]

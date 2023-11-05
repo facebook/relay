@@ -382,6 +382,21 @@ impl ProjectConfig {
         self.create_path_for_artifact(source_location, filename)
     }
 
+    pub fn path_for_language_specific_artifact(
+        &self,
+        source_file: SourceLocationKey,
+        artifact_file_name: String,
+    ) -> PathBuf {
+        let filename = match &self.typegen_config.language {
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                format!("{}.js", artifact_file_name)
+            }
+            TypegenLanguage::TypeScript => format!("{}.ts", artifact_file_name),
+        };
+
+        self.create_path_for_artifact(source_file, filename)
+    }
+
     /// Generates identifier for importing module at `target_module_path` from module at `importing_artifact_path`.
     /// Import Identifier is a relative path in CommonJS projects and a module name in Haste projects.
     pub fn js_module_import_identifier(

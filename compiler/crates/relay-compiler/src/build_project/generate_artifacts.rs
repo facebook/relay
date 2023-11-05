@@ -17,6 +17,7 @@ use graphql_text_printer::OperationPrinter;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use relay_codegen::QueryID;
 use relay_config::ResolversSchemaModuleConfig;
 use relay_transforms::ArtifactSourceKeyData;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
@@ -230,6 +231,28 @@ fn generate_normalization_artifact(
             id_and_text_hash: None,
         },
         source_file: normalization.name.location.source_location(),
+    }
+}
+
+pub fn generate_preloadable_query_parameters_artifact(
+    project_config: &ProjectConfig,
+    normalization: &Arc<OperationDefinition>,
+    text: &Option<String>,
+    id_and_text_hash: &Option<QueryID>,
+    source_keys: Vec<ArtifactSourceKey>,
+    source_file: SourceLocationKey,
+) -> Artifact {
+    let artifact_name = normalization.name.item.0.to_string() + "$parameters";
+
+    Artifact {
+        artifact_source_keys: source_keys,
+        path: project_config.path_for_language_specific_artifact(source_file, artifact_name),
+        content: ArtifactContent::PreloadableQueryParameters {
+            normalization_operation: Arc::clone(normalization),
+            text: text.clone(),
+            id_and_text_hash: id_and_text_hash.clone(),
+        },
+        source_file,
     }
 }
 

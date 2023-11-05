@@ -39,6 +39,88 @@ use super::content_section::GenericSection;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
+pub fn generate_preloadable_query_parameters(
+    config: &Config,
+    project_config: &ProjectConfig,
+    normalization_operation: &OperationDefinition,
+    text: &Option<String>,
+    id_and_text_hash: &Option<QueryID>,
+) -> Result<Vec<u8>, FmtError> {
+    let mut request_parameters = build_request_params(normalization_operation);
+
+    if id_and_text_hash.is_some() {
+        request_parameters.id = id_and_text_hash;
+        if project_config
+            .persist
+            .as_ref()
+            .map_or(false, |config| config.include_query_text())
+        {
+            request_parameters.text = text.clone();
+        }
+    } else {
+        request_parameters.text = text.clone();
+    }
+
+    let mut content_sections = ContentSections::default();
+
+    // -- Begin Docblock Section --
+    let v = match id_and_text_hash {
+        Some(QueryID::Persisted { text_hash, .. }) => vec![format!("@relayHash {}", text_hash)],
+        _ => vec![],
+    };
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        v,
+    )?));
+    // -- End Docblock Section --
+
+    // -- Begin Disable Lint Section --
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Use Strict Section --
+
+    // -- Begin Metadata Annotations Section --
+    let mut section = CommentAnnotationsSection::default();
+    if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
+        writeln!(section, "@relayRequestID {}", id)?;
+    }
+    content_sections.push(ContentSection::CommentAnnotations(section));
+    // -- End Metadata Annotations Section --
+
+    // -- Begin Types Section --
+    let mut section = GenericSection::default();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "/*::")?;
+    }
+
+    write_import_type_from(
+        project_config,
+        &mut section,
+        "PreloadableConcreteRequest",
+        "relay-runtime",
+    )?;
+
+    // TODO: Import from operation
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "*/")?;
+    }
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Types Section --
+
+    // TODO: Generate actual parameters
+
+    content_sections.into_signed_bytes()
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn generate_updatable_query(
     config: &Config,

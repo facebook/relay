@@ -22,6 +22,7 @@ use relay_codegen::QueryID;
 use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
 
+use self::content::generate_preloadable_query_parameters;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
@@ -39,6 +40,11 @@ pub enum ArtifactContent {
         reader_operation: Arc<OperationDefinition>,
         typegen_operation: Arc<OperationDefinition>,
         source_hash: String,
+    },
+    PreloadableQueryParameters {
+        normalization_operation: Arc<OperationDefinition>,
+        text: Option<String>,
+        id_and_text_hash: Option<QueryID>,
     },
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
@@ -109,6 +115,18 @@ impl ArtifactContent {
                 source_hash.into(),
                 skip_types,
                 fragment_locations,
+            )
+            .unwrap(),
+            ArtifactContent::PreloadableQueryParameters {
+                normalization_operation,
+                text,
+                id_and_text_hash,
+            } => generate_preloadable_query_parameters(
+                config,
+                project_config,
+                normalization_operation,
+                text,
+                id_and_text_hash,
             )
             .unwrap(),
             ArtifactContent::SplitOperation {

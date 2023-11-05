@@ -107,8 +107,7 @@ pub fn generate_preloadable_query_parameters(
         project_config,
         &mut section,
         "PreloadableConcreteRequest",
-        // TODO: This should be relay-runtime once the @types packages have been updated
-        "react-relay",
+        "relay-runtime",
     )?;
     write_import_type_from(
         project_config,

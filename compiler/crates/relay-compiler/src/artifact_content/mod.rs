@@ -124,6 +124,8 @@ impl ArtifactContent {
             } => generate_preloadable_query_parameters(
                 config,
                 project_config,
+                printer,
+                schema,
                 normalization_operation,
                 text,
                 id_and_text_hash,

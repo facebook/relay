@@ -42,6 +42,8 @@ use crate::config::ProjectConfig;
 pub fn generate_preloadable_query_parameters(
     config: &Config,
     project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     text: &Option<String>,
     id_and_text_hash: &Option<QueryID>,
@@ -105,10 +107,15 @@ pub fn generate_preloadable_query_parameters(
         project_config,
         &mut section,
         "PreloadableConcreteRequest",
-        "relay-runtime",
+        // TODO: This should be relay-runtime once the @types packages have been updated
+        "react-relay",
     )?;
-
-    // TODO: Import from operation
+    write_import_type_from(
+        project_config,
+        &mut section,
+        &normalization_operation.name.item.0.to_string(),
+        &format!("./{}.graphql", normalization_operation.name.item.0),
+    )?;
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "*/")?;
@@ -116,7 +123,43 @@ pub fn generate_preloadable_query_parameters(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
-    // TODO: Generate actual parameters
+    // -- Begin Query Node Section --
+    let mut section = GenericSection::default();
+
+    let params = printer.print_request_params(
+        schema,
+        request_parameters,
+        normalization_operation,
+        &mut Default::default(),
+    );
+
+    let node_type = format!(
+        "PreloadableConcreteRequest<{}>",
+        normalization_operation.name.item.0
+    );
+    // TODO: This should be formatted
+    let node_value = format!("{{ kind: \"PreloadableConcreteRequest\", params: {params} }}");
+
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "node",
+        &node_type,
+        &node_value,
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Query Node Section --
+
+    // -- Begin Export Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(
+        &project_config.typegen_config,
+        &mut section,
+        "node",
+        Some(node_type),
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Export Section --
 
     content_sections.into_signed_bytes()
 }

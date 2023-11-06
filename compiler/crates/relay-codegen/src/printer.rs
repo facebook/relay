@@ -37,6 +37,7 @@ use crate::ast::RequestParameters;
 use crate::ast::ResolverModuleReference;
 use crate::build_ast::build_fragment;
 use crate::build_ast::build_operation;
+use crate::build_ast::build_preloadable_request;
 use crate::build_ast::build_provided_variables;
 use crate::build_ast::build_request;
 use crate::build_ast::build_request_params;
@@ -214,6 +215,26 @@ impl<'p> Printer<'p> {
             fragment.name.map(|x| x.0),
             self.project_config,
         );
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        printer.print(key, self.dedupe)
+    }
+
+    pub fn print_preloadable_request(
+        &mut self,
+        schema: &SDLSchema,
+        request_parameters: RequestParameters<'_>,
+        operation: &OperationDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
+        let request_parameters = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            operation.name.map(|x| x.0),
+            self.project_config,
+        );
+        let key = build_preloadable_request(&mut self.builder, request_parameters);
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }

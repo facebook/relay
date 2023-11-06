@@ -149,6 +149,16 @@ pub fn build_request(
     }))
 }
 
+pub fn build_preloadable_request(
+    ast_builder: &mut AstBuilder,
+    request_parameters: AstKey,
+) -> AstKey {
+    ast_builder.intern(Ast::Object(object! {
+        kind: Primitive::String(CODEGEN_CONSTANTS.preloadable_concrete_request),
+        params: Primitive::Key(request_parameters),
+    }))
+}
+
 pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters<'_> {
     RequestParameters {
         name: operation.name.item.0,

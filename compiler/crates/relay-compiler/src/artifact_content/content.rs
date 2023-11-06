@@ -111,28 +111,25 @@ pub fn generate_preloadable_query_parameters(
     // -- End Types Section --
 
     // -- Begin Query Node Section --
-    let mut section = GenericSection::default();
-
-    let params = printer.print_request_params(
+    let preloadable_request = printer.print_preloadable_request(
         schema,
         request_parameters,
         normalization_operation,
         &mut Default::default(),
     );
+    let mut section = GenericSection::default();
 
     let node_type = format!(
         "PreloadableConcreteRequest<{}>",
         normalization_operation.name.item.0
     );
-    // TODO: This should be formatted
-    let node_value = format!("{{ kind: \"PreloadableConcreteRequest\", params: {params} }}");
 
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut section,
         "node",
         &node_type,
-        &node_value,
+        &preloadable_request,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Query Node Section --

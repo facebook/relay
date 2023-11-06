@@ -45,29 +45,17 @@ pub fn generate_preloadable_query_parameters(
     printer: &mut Printer<'_>,
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
-    text: &Option<String>,
-    id_and_text_hash: &Option<QueryID>,
+    query_id: &QueryID,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
-
-    if id_and_text_hash.is_some() {
-        request_parameters.id = id_and_text_hash;
-        if project_config
-            .persist
-            .as_ref()
-            .map_or(false, |config| config.include_query_text())
-        {
-            request_parameters.text = text.clone();
-        }
-    } else {
-        request_parameters.text = text.clone();
-    }
+    let cloned_query_id = Some(query_id.clone());
+    request_parameters.id = &cloned_query_id;
 
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let v = match id_and_text_hash {
-        Some(QueryID::Persisted { text_hash, .. }) => vec![format!("@relayHash {}", text_hash)],
+    let v = match query_id {
+        QueryID::Persisted { text_hash, .. } => vec![format!("@relayHash {}", text_hash)],
         _ => vec![],
     };
     content_sections.push(ContentSection::Docblock(generate_docblock_section(

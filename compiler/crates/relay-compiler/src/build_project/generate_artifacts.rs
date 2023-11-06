@@ -237,11 +237,14 @@ fn generate_normalization_artifact(
 pub fn generate_preloadable_query_parameters_artifact(
     project_config: &ProjectConfig,
     normalization: &Arc<OperationDefinition>,
-    text: &Option<String>,
     id_and_text_hash: &Option<QueryID>,
     source_keys: Vec<ArtifactSourceKey>,
     source_file: SourceLocationKey,
 ) -> Artifact {
+    let query_id = id_and_text_hash
+        .clone()
+        .expect("Expected operation artifact to have an `id`. Ensure a `persistConfig` is setup for the current project.");
+
     let artifact_name = normalization.name.item.0.to_string() + "$parameters";
 
     Artifact {
@@ -249,8 +252,7 @@ pub fn generate_preloadable_query_parameters_artifact(
         path: project_config.path_for_language_specific_artifact(source_file, artifact_name),
         content: ArtifactContent::PreloadableQueryParameters {
             normalization_operation: Arc::clone(normalization),
-            text: text.clone(),
-            id_and_text_hash: id_and_text_hash.clone(),
+            query_id,
         },
         source_file,
     }

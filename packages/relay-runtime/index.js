@@ -106,6 +106,8 @@ export type {
 export type {
   ObservableFromValue,
   Observer,
+  Sink,
+  Source,
   Subscribable,
   Subscription,
 } from './network/RelayObservable';

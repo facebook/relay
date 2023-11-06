@@ -5,8 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use relay_transforms::is_operation_preloadable;
 use schema::SDLSchema;
 
+use crate::ArtifactContent;
+
+use super::generate_preloadable_query_parameters_artifact;
 use super::Artifact;
 use super::Config;
 use super::Programs;
@@ -17,3 +21,38 @@ pub type GenerateExtraArtifactsFn = Box<
         + Send
         + Sync,
 >;
+
+pub fn default_generate_extra_artifacts_fn(
+    _config: &Config,
+    project_config: &ProjectConfig,
+    _schema: &SDLSchema,
+    _program: &Programs,
+    artifacts: &[Artifact],
+) -> Vec<Artifact> {
+    artifacts
+        .iter()
+        .map(|artifact| match &artifact.content {
+            ArtifactContent::Operation {
+                normalization_operation,
+                text,
+                id_and_text_hash,
+                ..
+            } => {
+                if !is_operation_preloadable(&normalization_operation) {
+                    return None;
+                }
+
+                Some(generate_preloadable_query_parameters_artifact(
+                    project_config,
+                    normalization_operation,
+                    text,
+                    id_and_text_hash,
+                    artifact.artifact_source_keys.clone(),
+                    artifact.source_file,
+                ))
+            }
+            _ => None,
+        })
+        .filter_map(|artifact| artifact)
+        .collect()
+}

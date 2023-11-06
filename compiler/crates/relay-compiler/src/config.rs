@@ -45,7 +45,6 @@ use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
-use relay_transforms::is_operation_preloadable;
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::Deserialize;
@@ -58,8 +57,8 @@ use watchman_client::pdu::ScmAwareClockData;
 
 use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
+use crate::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::generate_preloadable_query_parameters_artifact;
 use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 use crate::build_project::AdditionalValidations;
 use crate::compiler_state::CompilerState;
@@ -70,7 +69,6 @@ use crate::errors::Result;
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
-use crate::ArtifactContent;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -409,34 +407,7 @@ Example file:
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
-            generate_extra_artifacts: Some(Box::new(|_, project_config, _, _, artifacts| {
-                artifacts
-                    .iter()
-                    .map(|artifact| match &artifact.content {
-                        ArtifactContent::Operation {
-                            normalization_operation,
-                            text,
-                            id_and_text_hash,
-                            ..
-                        } => {
-                            if !is_operation_preloadable(&normalization_operation) {
-                                return None;
-                            }
-
-                            Some(generate_preloadable_query_parameters_artifact(
-                                project_config,
-                                normalization_operation,
-                                text,
-                                id_and_text_hash,
-                                artifact.artifact_source_keys.clone(),
-                                artifact.source_file,
-                            ))
-                        }
-                        _ => None,
-                    })
-                    .filter_map(|artifact| artifact)
-                    .collect()
-            })),
+            generate_extra_artifacts: Some(Box::new(default_generate_extra_artifacts_fn)),
             generate_virtual_id_file_name: None,
             get_artifacts_file_hash_map: None,
             saved_state_config: config_file.saved_state_config,
@@ -602,7 +573,11 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() { "Some(Fn)" } else { "None" }
+            if option.is_some() {
+                "Some(Fn)"
+            } else {
+                "None"
+            }
         }
 
         f.debug_struct("Config")

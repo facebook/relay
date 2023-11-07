@@ -142,6 +142,7 @@ const StoryLikeButtonLikeMutation = graphql`
 
 This is a lot, let’s break it down:
 
+* The mutation is named `StoryLikeButton` + `Like` + `Mutation` because it must begin with the module name, and end with the GraphQL operation.
 * The mutation declares <span className="color1">variables</span> which are passed from the client to the server when the mutation is dispatched. Each variable has a name (`$id`, `$doesLike`) and a type (`ID!`, `Boolean!`). The `!` after the type indicates that it is required, not optional.
 * The mutation selects a <span className="color2">mutation field</span> defined by the GraphQL schema. Each mutation field that the server defines corresponds to some action that the client can request of the server, such as liking a story.
     * The <span className="color3">mutation field takes arguments</span> (just like any field can do). Here we pass in the mutation variables that we declared as the argument values — for example, the `doesLike` field argument is set to be the `$doesLike` mutation variable.

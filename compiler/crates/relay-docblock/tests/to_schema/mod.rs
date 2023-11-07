@@ -96,9 +96,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         // In non-tests, this function (correctly) consumes TypeSystemDefinition when modifying the
         // schema.
         // In tests, we need to clone, because we **also** want to print the schema changes.
-        let schema_document =
-            ir.clone()
-                .to_graphql_schema_ast(project_name, &schema, &Default::default())?;
+        let schema_document = ir.clone().to_graphql_schema_ast(
+            project_name,
+            &schema,
+            &Default::default(),
+            &Default::default(),
+        )?;
         for definition in &schema_document.definitions {
             extend_schema_with_resolver_type_system_definition(
                 definition.clone(),
@@ -108,7 +111,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             )?;
         }
 
-        ir.to_sdl_string(project_name, &schema, &Default::default())
+        ir.to_sdl_string(
+            project_name,
+            &schema,
+            &Default::default(),
+            &Default::default(),
+        )
     };
 
     let schema_strings = js_features

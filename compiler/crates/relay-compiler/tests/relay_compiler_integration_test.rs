@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6a4360c4cb2d5b7641f3a41ae33f6a27>>
+ * @generated SignedSource<<a3d920f8146b172b19a4646eb47812b9>>
  */
 
 mod relay_compiler_integration;
@@ -24,6 +24,27 @@ async fn client_mutation_resolver() {
     let input = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver.input");
     let expected = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver.expected");
     test_fixture(transform_fixture, "client_mutation_resolver.input", "relay_compiler_integration/fixtures/client_mutation_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_mutation_resolver_different_mutation_ok() {
+    let input = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_different_mutation_ok.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_different_mutation_ok.expected");
+    test_fixture(transform_fixture, "client_mutation_resolver_different_mutation_ok.input", "relay_compiler_integration/fixtures/client_mutation_resolver_different_mutation_ok.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_mutation_resolver_invalid_disabled() {
+    let input = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_disabled.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_disabled.expected");
+    test_fixture(transform_fixture, "client_mutation_resolver_invalid_disabled.input", "relay_compiler_integration/fixtures/client_mutation_resolver_invalid_disabled.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_mutation_resolver_invalid_nonscalar() {
+    let input = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.expected");
+    test_fixture(transform_fixture, "client_mutation_resolver_invalid_nonscalar.input", "relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.expected", input, expected).await;
 }
 
 #[tokio::test]

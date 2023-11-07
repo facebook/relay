@@ -99,10 +99,10 @@ fn extend_schema_with_types(
 }
 
 /// Extend the schema with resolver fields
-fn extend_schema_with_fields<'a>(
+fn extend_schema_with_fields(
     schema: &mut SDLSchema,
     project_config: &ProjectConfig,
-    field_asts_and_definitions: FieldAstsAndDefinitions<'a>,
+    field_asts_and_definitions: FieldAstsAndDefinitions<'_>,
     is_base_project: bool,
 ) -> DiagnosticsResult<()> {
     let field_definitions = try_all(field_asts_and_definitions.0.into_iter().map(

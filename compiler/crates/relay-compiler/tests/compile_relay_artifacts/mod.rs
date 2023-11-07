@@ -121,6 +121,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         enable_schema_resolvers: false,
         relay_resolvers_enable_strict_resolver_flavors: FeatureFlag::Disabled,
         relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag::Disabled,
+        enable_relay_resolver_mutations: false,
     };
 
     let default_project_config = ProjectConfig {

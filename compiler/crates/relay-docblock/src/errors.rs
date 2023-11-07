@@ -181,6 +181,19 @@ pub enum SchemaValidationErrorMessages {
         interface_name: InterfaceName,
         invalid_type_string: String,
     },
+
+    #[error(
+        "Resolvers on the mutation type {mutation_type_name} are disallowed without the enable_relay_resolver_mutations feature flag"
+    )]
+    DisallowedMutationResolvers { mutation_type_name: String },
+
+    #[error(
+        "Mutation resolver {resolver_field_name} must return a scalar or enum type, got {actual_return_type}"
+    )]
+    MutationResolverNonScalarReturn {
+        resolver_field_name: String,
+        actual_return_type: String,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

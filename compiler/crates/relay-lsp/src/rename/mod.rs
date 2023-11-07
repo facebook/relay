@@ -23,7 +23,6 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::OperationDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use log::info;
 use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::Rename;
 use lsp_types::request::Request;
@@ -283,8 +282,6 @@ fn create_rename_request(
                         }
                     };
 
-                    info!("Rename request for variable: {:?}", kind);
-
                     Ok(RenameRequest::new(kind, location))
                 }
                 ResolutionPath::Ident(IdentPath {
@@ -294,21 +291,34 @@ fn create_rename_request(
                             parent:
                                 ArgumentParent::Directive(DirectivePath {
                                     inner: directive,
-                                    parent: DirectiveParent::FragmentDefinition(fragment),
+                                    parent,
                                     ..
                                 }),
                             ..
                         }),
                 }) => {
-                    if directive.name.value != *ARGUMENTS_DIRECTIVE
-                        && directive.name.value != *ARGUMENTDEFINITIONS_DIRECTIVE
-                    {
-                        return Err(LSPRuntimeError::ExpectedError);
+                    let fragment_name = match parent {
+                        DirectiveParent::FragmentDefinition(fragment) => {
+                            if directive.name.value != *ARGUMENTDEFINITIONS_DIRECTIVE {
+                                return Err(LSPRuntimeError::ExpectedError);
+                            }
+
+                            Some(fragment.inner.name.value)
+                        }
+                        DirectiveParent::FragmentSpread(fragment_spread) => {
+                            if directive.name.value != *ARGUMENTS_DIRECTIVE {
+                                return Err(LSPRuntimeError::ExpectedError);
+                            }
+
+                            Some(fragment_spread.inner.name.value)
+                        }
+                        _ => None,
                     }
+                    .ok_or(LSPRuntimeError::ExpectedError)?;
 
                     let location = IRLocation::new(location.source_location(), argument_name.span);
                     let kind = RenameKind::FragmentArgumentDefinition {
-                        fragment_name: fragment.inner.name.value,
+                        fragment_name,
                         argument_name: argument_name.value,
                     };
 
@@ -374,21 +384,33 @@ fn process_rename_request(
             fragment_name,
             argument_name,
             &new_name,
-            rename_request.location,
             program,
             root_dir,
         )),
         RenameKind::VariableOrFragmentArgumentUsage { variable_name } => {
-            let lsp_location =
-                transform_relay_location_to_lsp_location(root_dir, rename_request.location)?;
+            let definition_rename_request = get_rename_request_for_definition();
 
-            Ok(HashMap::from([(
-                lsp_location.uri,
-                vec![TextEdit {
-                    new_text: new_name,
-                    range: lsp_location.range,
-                }],
-            )]))
+            match definition_rename_request {
+                Ok(rename_request) => {
+                    process_rename_request(rename_request, new_name, program, root_dir)
+                }
+                Err(_) => {
+                    // We couldn't find a definition to rename,
+                    // so we'll simply rename the current usage.
+                    let lsp_location = transform_relay_location_to_lsp_location(
+                        root_dir,
+                        rename_request.location,
+                    )?;
+
+                    Ok(HashMap::from([(
+                        lsp_location.uri,
+                        vec![TextEdit {
+                            new_text: new_name,
+                            range: lsp_location.range,
+                        }],
+                    )]))
+                }
+            }
         }
         RenameKind::OperationDefinition => {
             rename_operation(new_name, rename_request.location, root_dir)
@@ -399,7 +421,7 @@ fn process_rename_request(
         RenameKind::ResolverField {
             parent_type,
             field_name,
-        } => Ok(rename_relay_resolver_field(
+        } => Ok(rename_resolver_field(
             field_name,
             parent_type,
             &new_name,
@@ -418,23 +440,16 @@ fn rename_fragment_argument(
     fragment_name: StringKey,
     argument_name: StringKey,
     new_argument_name: &str,
-    argument_definition_location: IRLocation,
     program: &Program,
     root_dir: &PathBuf,
 ) -> HashMap<Url, Vec<TextEdit>> {
-    let mut locations = FragmentArgumentFinder::get_argument_locations_on_fragment_spreads(
-        program,
-        fragment_name,
-        argument_name,
-    );
-    locations.push(argument_definition_location);
-
-    // TODO: Rename argument usages within document
+    let locations =
+        FragmentArgumentFinder::get_argument_locations(program, fragment_name, argument_name);
 
     map_locations_to_text_edits(locations, new_argument_name.to_owned(), root_dir)
 }
 
-fn rename_relay_resolver_field(
+fn rename_resolver_field(
     field_name: StringKey,
     type_name: StringKey,
     new_field_name: &str,
@@ -474,6 +489,12 @@ fn rename_fragment(
     let locations = FragmentFinder::get_fragment_usages(program, fragment_name);
 
     map_locations_to_text_edits(locations, new_fragment_name, root_dir)
+}
+
+fn get_rename_request_for_definition() -> LSPRuntimeResult<RenameRequest> {
+    // TODO: Implement
+
+    Err(LSPRuntimeError::ExpectedError)
 }
 
 fn map_locations_to_text_edits(
@@ -553,15 +574,20 @@ impl Visitor for FragmentFinder {
     }
 }
 
-#[derive(Debug, Clone)]
+struct FragmentArgumentFinderScope {
+    // name of the enclosing Fragment
+    fragment_name: Option<StringKey>,
+}
+
 struct FragmentArgumentFinder {
     argument_locations: Vec<IRLocation>,
     fragment_name: StringKey,
     argument_name: StringKey,
+    current_scope: FragmentArgumentFinderScope,
 }
 
 impl FragmentArgumentFinder {
-    pub fn get_argument_locations_on_fragment_spreads(
+    pub fn get_argument_locations(
         program: &Program,
         fragment_name: StringKey,
         argument_name: StringKey,
@@ -570,7 +596,11 @@ impl FragmentArgumentFinder {
             argument_locations: vec![],
             fragment_name,
             argument_name,
+            current_scope: FragmentArgumentFinderScope {
+                fragment_name: None,
+            },
         };
+
         finder.visit_program(program);
         finder.argument_locations
     }
@@ -578,8 +608,8 @@ impl FragmentArgumentFinder {
 
 impl Visitor for FragmentArgumentFinder {
     const NAME: &'static str = "FragmentArgumentFinder";
-    const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
+    const VISIT_ARGUMENTS: bool = true;
+    const VISIT_DIRECTIVES: bool = true;
 
     fn visit_fragment_spread(&mut self, spread: &FragmentSpread) {
         if spread.fragment.item.0 == self.fragment_name {
@@ -591,6 +621,46 @@ impl Visitor for FragmentArgumentFinder {
                     self.argument_locations.push(a.name.location);
                 })
         }
+    }
+
+    fn visit_argument(&mut self, argument: &graphql_ir::Argument) {
+        if let Some(fragment_name) = self.current_scope.fragment_name {
+            if fragment_name == self.fragment_name {
+                match &argument.value.item {
+                    graphql_ir::Value::Variable(variable) => {
+                        if variable.name.item.0 == self.argument_name {
+                            let name_location = variable.name.location;
+                            let location_without_dollar = name_location.with_span(Span {
+                                start: name_location.span().start + 1,
+                                end: name_location.span().end,
+                            });
+
+                            self.argument_locations.push(location_without_dollar);
+                        }
+                    }
+                    _ => (),
+                }
+            }
+        }
+    }
+
+    fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
+        assert!(self.current_scope.fragment_name.is_none());
+        self.current_scope.fragment_name = Some(fragment.name.item.0);
+
+        if fragment.name.item.0 == self.fragment_name {
+            fragment
+                .variable_definitions
+                .iter()
+                .filter(|v| v.name.item.0 == self.argument_name)
+                .for_each(|v| {
+                    self.argument_locations.push(v.name.location);
+                });
+        }
+
+        self.default_visit_fragment(fragment);
+
+        self.current_scope.fragment_name = None;
     }
 }
 

@@ -1645,6 +1645,7 @@ dependencies = [
  "fixture-tests",
  "fnv",
  "futures 0.3.28",
+ "futures-util",
  "glob",
  "graphql-cli",
  "graphql-ir",

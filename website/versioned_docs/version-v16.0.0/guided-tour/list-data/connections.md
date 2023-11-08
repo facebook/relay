@@ -19,5 +19,8 @@ Specifically in Relay, we do this via GraphQL fields known as [Connections](http
 
 More specifically, we perform *cursor-based pagination,* in which the input used to query for "slices" of the list is a `cursor` and a `count`. Cursors are essentially opaque tokens that serve as markers or pointers to a position in the list. If you're curious to learn more about the details of cursor-based pagination and connections, check out <a href={useBaseUrl('graphql/connections.htm')}>the spec</a>.
 
+More on this topic:
+- https://relay.dev/docs/guided-tour/list-data/connections/
+- https://relay.dev/docs/api-reference/use-pagination-fragment/
 
 <DocsRating />

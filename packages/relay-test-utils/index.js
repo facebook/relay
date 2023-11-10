@@ -17,6 +17,7 @@ const testResolver = require('./RelayResolverTestUtils');
 const unwrapContainer = require('./unwrapContainer');
 
 export type {MockResolvers} from './RelayMockPayloadGenerator';
+export type {RelayMockEnvironment} from './RelayModernMockEnvironment';
 
 /**
  * The public interface to Relay Test Utils.

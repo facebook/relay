@@ -570,7 +570,11 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() { "Some(Fn)" } else { "None" }
+            if option.is_some() {
+                "Some(Fn)"
+            } else {
+                "None"
+            }
         }
 
         f.debug_struct("Config")

@@ -124,11 +124,9 @@ mod escalate_tests {
 
         escalate(DiagnosticSeverity::WARNING, &mut diagnostics);
 
-        assert!(
-            diagnostics
-                .iter()
-                .all(|d| d.severity() == DiagnosticSeverity::HINT)
-        );
+        assert!(diagnostics
+            .iter()
+            .all(|d| d.severity() == DiagnosticSeverity::HINT));
     }
 
     #[test]
@@ -142,11 +140,9 @@ mod escalate_tests {
 
         escalate(DiagnosticSeverity::WARNING, &mut diagnostics);
 
-        assert!(
-            diagnostics
-                .iter()
-                .all(|d| d.severity() == DiagnosticSeverity::ERROR)
-        );
+        assert!(diagnostics
+            .iter()
+            .all(|d| d.severity() == DiagnosticSeverity::ERROR));
     }
 
     #[test]

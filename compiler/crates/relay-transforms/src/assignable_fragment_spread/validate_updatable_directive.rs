@@ -318,13 +318,11 @@ impl<'a> Validator for UpdatableDirective<'a> {
             .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
             .is_some()
         {
-            return Err(vec![
-                Diagnostic::error(
-                    ValidationMessage::UpdatableDisallowRelayResolvers,
-                    field.definition.location,
-                )
-                .annotate("The field is defined here:", field_def.name.location),
-            ]);
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::UpdatableDisallowRelayResolvers,
+                field.definition.location,
+            )
+            .annotate("The field is defined here:", field_def.name.location)]);
         }
         self.default_validate_scalar_field(field)
     }
@@ -339,13 +337,11 @@ impl<'a> Validator for UpdatableDirective<'a> {
             .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
             .is_some()
         {
-            return Err(vec![
-                Diagnostic::error(
-                    ValidationMessage::UpdatableDisallowRelayResolvers,
-                    linked_field.definition.location,
-                )
-                .annotate("The field is defined here:", field_def.name.location),
-            ]);
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::UpdatableDisallowRelayResolvers,
+                linked_field.definition.location,
+            )
+            .annotate("The field is defined here:", field_def.name.location)]);
         }
 
         validate!(

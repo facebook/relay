@@ -308,6 +308,7 @@ impl<Id: InternId> InternTable<Id, Id::Intern> {
     fn serdes_type_index_slow(&'static self) -> u32 {
         let i = NEXT_SERDES_TYPE_INDEX.fetch_add(1, Ordering::Relaxed);
         assert!(i != u32::MAX); // Or we've overflowed.
+
         // Now, we might be racing another thread to assign self.type_index.
         // So CAS it in, keeping any entry that was already there (since it's
         // already being used).

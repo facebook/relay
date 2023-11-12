@@ -31,12 +31,10 @@ In short, there are two steps that need to be performed **before rendering the c
 ## TL;DR
 
 ```javascript
-const {RelayEnvironmentProvider} = require('react-relay');
-const { MockPayloadGenerator, createMockEnvironment } = require('relay-test-utils');
-const {render} = require('testing-library-react');
-// at the time of writing, act is not re-exported by our internal testing-library-react
-// but is re-exported by the "external" version
-const {act} = require('ReactTestUtils');
+import { RelayEnvironmentProvider } from 'react-relay';
+import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
+import { render, screen, fireEvent } from '@testing-library/react';
+
 test("...", () => {
   // arrange
   const environment = createMockEnvironment();
@@ -53,16 +51,17 @@ test("...", () => {
   const variables = {
     // ACTUAL variables for the invocation goes here
   };
-  environment.mock.queuePendingOperation(YourComponentGraphQLQuery, variables);
+  environment.mock.queuePendingOperation(query, variables);
 
  // act
-  const {getByTestId, ..otherStuffYouMightNeed} = render(
+  render(
     <RelayEnvironmentProvider environment={environment}>
-        <YourComponent data-testid="1234" {...componentPropsIfAny}/>
+      <YourComponent data-testid="1234" {...componentPropsIfAny} />
     </RelayEnvironmentProvider>
   );
-  // trigger the loading - click a button, emit an event, etc. or ...
-  act(() => jest.runAllImmediates()); // ... if loadQuery is in the useEffect()
+  // trigger the loading - click a button, emit an event, etc.
+  fireEvent.click(screen.getByRole('button', { name: 'Load data' }));
+
   // assert
   // your assertions go here
 });
@@ -135,8 +134,7 @@ This is more straightforward - it is done via a call to `environment.mock.queueP
    * component: before and after `useQueryLoader, usePreloadedQuery, loadQuery`
    * test: in `queueOperationResolver` callback
    * library: in `RelayModernMockEnvironment.execute`, after the `const currentOperation = ...` call ([here](https://github.com/facebook/relay/blob/046f758c6b411608371d4cc2f0a594ced331864e/packages/relay-test-utils/RelayModernMockEnvironment.js#L230))
-* If `loadQuery` is not called - make sure to issue the triggering event. Depending on your component implementation it could be a user-action (like button click or key press), javascript event (via event emitter mechanisms) or a simple "delayed execution" with `useEffect`.
-   * The `useEffect` case is probably easiest to miss - make sure to call `act(() => jest.runAllImmediates())` **after** rendering the component
+* If `loadQuery` is not called - make sure to issue the triggering event. Depending on your component implementation it could be a user-action (like button click or key press), javascript event (via event emitter mechanisms) or an asynchronous operation within `useEffect`.
 * If "before" `usePreloadedQuery` is hit, but "after" is not - the query suspends. This entire guide is written to resolve it - you might want to re-read it. But most likely it is either:
    * Used a different query - the query resolver would not be called, `currentOperation` will be `null`
    * Query variables don't match - the query resolver would not be called, `currentOperation` will be `null` (make sure to inspect the `variables`).
@@ -152,7 +150,7 @@ Make sure the component and the test use the same environment (i.e. there's no `
 
 ## Epilogue
 
-Examples here use `testing-library-react`, but it works with the `react-test-renderer` as well.
+Examples here use `@testing-library/react`, but it works with the `react-test-renderer` as well.
 
 <FbInternalOnly>
 

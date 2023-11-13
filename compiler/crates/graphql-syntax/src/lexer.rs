@@ -23,6 +23,7 @@ pub struct TokenKindExtras {
 #[logos(extras = TokenKindExtras)]
 pub enum TokenKind {
     #[regex(r"[ \t\r\n\f,\ufeff]+|#[^\n\r]*", logos::skip)]
+    #[regex(r"\$\{[a-zA-Z_][a-zA-Z0-9_.]*\}", logos::skip)]
     #[error]
     Error,
 
@@ -305,12 +306,19 @@ mod tests {
     #[test]
     fn test_lexing() {
         let input = "
+        ${Foo.Bar}
+
           query EmptyQuery($id: ID!) {
             node(id: $id) {
               id @skip(if: false)
               ...E1
             }
           }
+
+        ${Foo.Bar.Baz}
+
+        ${Foo}
+           ${Foo.Bar}
         ";
         let mut lexer = TokenKind::lexer(input);
 

@@ -371,7 +371,7 @@ function StoryLikeButton({story}) {
 
 ### Step 4 — Modify the Updatable Data
 
-Now `upatableData` is an object representing our existing Story as it exists in the local store. We can read and write the fields listed in our fragment:
+Now `updatableData` is an object representing our existing Story as it exists in the local store. We can read and write the fields listed in our fragment:
 
 ```
 function StoryLikeButton({story}) {

@@ -34,6 +34,9 @@ const {
 } = require('./store/ClientID');
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
+const {
+  suspenseSentinel,
+} = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const normalizeResponse = require('./store/normalizeResponse');
 const readInlineData = require('./store/readInlineData');
@@ -162,6 +165,7 @@ export type {
   StoreUpdater,
   UpdatableData,
   TaskScheduler,
+  LiveState,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,
@@ -300,6 +304,7 @@ module.exports = {
   graphql: GraphQLTag.graphql,
   isFragment: GraphQLTag.isFragment,
   isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  suspenseSentinel,
   isRequest: GraphQLTag.isRequest,
   readInlineData,
 

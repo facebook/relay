@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 type Entity = {
   name: string,

@@ -55,10 +55,8 @@ const {
 } = require('./LiveResolverCache');
 const invariant = require('invariant');
 
-export type LiveState<+T> = {
-  read(): T,
-  subscribe(cb: () => void): () => void,
-};
+// Used by codegen.
+export type {LiveState} from '../RelayStoreTypes';
 
 // HACK
 // The type of Store is defined using an opaque type that only RelayModernStore

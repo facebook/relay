@@ -15,19 +15,16 @@ import type {TodoModelCapitalizedID$key} from './__generated__/TodoModelCapitali
 import type {TodoModelCapitalizedIDLegacy$key} from './__generated__/TodoModelCapitalizedIDLegacy.graphql';
 import type {TodoDescription} from './TodoDescription';
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
+import type {LiveState} from 'relay-runtime';
 import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {readFragment} = require('../../ResolverFragments');
 const {createTodoDescription} = require('./TodoDescription');
-const {graphql} = require('relay-runtime');
+const {graphql, suspenseSentinel} = require('relay-runtime');
 const {
   Selectors,
   TODO_STORE,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 
 type TodoModelType = ?TodoItem;
 

@@ -32,7 +32,7 @@ import type {
   ResolverCache,
 } from '../ResolverCache';
 import type LiveResolverStore from './LiveResolverStore';
-import type {LiveState} from './LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../../util/RelayConcreteNode');

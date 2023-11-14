@@ -649,7 +649,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
-        if self.project_config.feature_flags.enable_schema_resolvers {
+        if self
+            .project_config
+            .feature_flags
+            .generate_resolvers_schema_module
+        {
             self.build_normalization_relay_resolver_execution_time_for_worker(resolver_metadata)
         } else if self
             .project_config

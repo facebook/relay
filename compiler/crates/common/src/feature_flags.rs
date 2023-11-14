@@ -71,7 +71,7 @@ pub struct FeatureFlags {
 
     /// Fully build the schema resolvers artifact
     #[serde(default)]
-    pub enable_schema_resolvers: bool,
+    pub generate_resolvers_schema_module: bool,
 
     /// Enforce strict flavors for relay resolvers and disallow mixing flavors
     #[serde(default)]

@@ -358,7 +358,10 @@ fn apply_operation_transforms(
             project_config.feature_flags.enable_relay_resolver_transform,
         )
     })?;
-    if project_config.feature_flags.enable_schema_resolvers {
+    if project_config
+        .feature_flags
+        .generate_resolvers_schema_module
+    {
         program = log_event.time(
             "generate_relay_resolvers_root_fragment_split_operation",
             || generate_relay_resolvers_root_fragment_split_operation(&program),

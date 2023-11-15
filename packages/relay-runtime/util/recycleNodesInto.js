@@ -13,8 +13,17 @@
 
 /**
  * Recycles subtrees from `prevData` by replacing equal subtrees in `nextData`.
+ * Does not mutate a frozen subtree.
  */
 function recycleNodesInto<T>(prevData: T, nextData: T): T {
+  return recycleNodesIntoImpl(prevData, nextData, true);
+}
+
+function recycleNodesIntoImpl<T>(
+  prevData: T,
+  nextData: T,
+  canMutate: boolean,
+): T {
   if (
     prevData === nextData ||
     typeof prevData !== 'object' ||
@@ -32,11 +41,16 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
   const prevArray: ?Array<mixed> = Array.isArray(prevData) ? prevData : null;
   const nextArray: ?Array<mixed> = Array.isArray(nextData) ? nextData : null;
   if (prevArray && nextArray) {
+    const canMutateNext = canMutate && !Object.isFrozen(nextArray);
     canRecycle =
       nextArray.reduce((wasEqual, nextItem, ii) => {
         const prevValue = prevArray[ii];
-        const nextValue = recycleNodesInto(prevValue, nextItem);
-        if (nextValue !== nextArray[ii] && !Object.isFrozen(nextArray)) {
+        const nextValue = recycleNodesIntoImpl(
+          prevValue,
+          nextItem,
+          canMutateNext,
+        );
+        if (nextValue !== nextArray[ii] && canMutateNext) {
           nextArray[ii] = nextValue;
         }
         return wasEqual && nextValue === prevArray[ii];
@@ -47,11 +61,16 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
     const nextObject = nextData;
     const prevKeys = Object.keys(prevObject);
     const nextKeys = Object.keys(nextObject);
+    const canMutateNext = canMutate && !Object.isFrozen(nextObject);
     canRecycle =
       nextKeys.reduce((wasEqual, key) => {
         const prevValue = prevObject[key];
-        const nextValue = recycleNodesInto(prevValue, nextObject[key]);
-        if (nextValue !== nextObject[key] && !Object.isFrozen(nextObject)) {
+        const nextValue = recycleNodesIntoImpl(
+          prevValue,
+          nextObject[key],
+          canMutateNext,
+        );
+        if (nextValue !== nextObject[key] && canMutateNext) {
           // $FlowFixMe[cannot-write]
           nextObject[key] = nextValue;
         }

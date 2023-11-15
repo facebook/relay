@@ -348,7 +348,7 @@ describe('recycleNodesInto', () => {
     });
   });
 
-  describe('deepFreeze', () => {
+  describe('freeze', () => {
     it('does not mutate deeply frozen array in `nextData`', () => {
       const prevData = [[{x: 1}], 1];
       const nextData = [[{x: 1}], 2];
@@ -372,6 +372,25 @@ describe('recycleNodesInto', () => {
       const prevData = {a: {b: {c: 1}}, d: 1};
 
       deepFreeze(nextData);
+      const recycled = recycleNodesInto(prevData, nextData);
+      expect(recycled).toBe(nextData);
+      expect(recycled.a).toBe(nextObject);
+      expect(recycled.a.b).toBe(nextItem);
+    });
+
+    it('does not mutate into frozen object in `nextData`', () => {
+      const nextItem = {
+        c: 1,
+      };
+      const nextObject = {
+        b: nextItem,
+      };
+      const nextData = {
+        a: nextObject,
+      };
+      const prevData = {a: {b: {c: 1}}, d: 1};
+
+      Object.freeze(nextData);
       const recycled = recycleNodesInto(prevData, nextData);
       expect(recycled).toBe(nextData);
       expect(recycled.a).toBe(nextObject);
@@ -413,5 +432,29 @@ describe('recycleNodesInto', () => {
       expect(nextData.a).toBe(nextObject);
       expect(nextData.a.b).toBe(nextItem);
     });
+  });
+
+  it('reuse prevData and does not mutate frozen object in `nextData`', () => {
+    const nextItem = {
+      c: 1,
+    };
+    const nextObject = {
+      b: nextItem,
+    };
+    const nextData = {
+      a: nextObject,
+    };
+    const prevData = {
+      a: {
+        b: {
+          c: 1,
+        },
+      },
+    };
+    Object.freeze(nextData);
+    const recycled = recycleNodesInto(prevData, nextData);
+    expect(recycled).toBe(prevData);
+    expect(nextData.a).toBe(nextObject);
+    expect(nextData.a.b).toBe(nextItem);
   });
 });

@@ -58,6 +58,7 @@ function logFn(event: LogEvent): void {
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
+  RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES = true;
   logEvents = [];
   resetStore(logFn);
 });
@@ -65,6 +66,7 @@ beforeEach(() => {
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
+  RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES = false;
 });
 
 function createEnvironment() {
@@ -539,8 +541,7 @@ describe.each([
       setIsHuman(true);
       jest.runAllImmediates();
     });
-    // TODO: Should be 0. Relay should not mutate the value here.
-    expect(renderer.toJSON()).toEqual('human:100');
+    expect(renderer.toJSON()).toEqual('human:0');
 
     TestRenderer.act(() => {
       renderer.unmount();
@@ -568,10 +569,9 @@ describe.each([
     );
     expect(renderer.toJSON()).toEqual('robot:0');
 
-    // TODO: should not throw on mutating the inner of the resolver value
     expect(() => {
       chargeBattery();
-    }).toThrow();
+    }).not.toThrow();
 
     TestRenderer.act(() => {
       renderer.unmount();

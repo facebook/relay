@@ -1,1 +1,5 @@
 too-many-lines-threshold = 200
+await-holding-invalid-types = [
+    { path = "tracing::span::Entered", reason = "`Entered` is not aware when a function is suspended: https://docs.rs/tracing/latest/tracing/struct.Span.html#in-asynchronous-code" },
+    { path = "tracing::span::EnteredSpan", reason = "`EnteredSpan` is not aware when a function is suspended: https://docs.rs/tracing/latest/tracing/struct.Span.html#in-asynchronous-code" },
+]

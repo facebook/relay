@@ -30,6 +30,7 @@ use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
@@ -84,7 +85,6 @@ lazy_static! {
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
-    static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
 }
 
@@ -1518,13 +1518,13 @@ fn get_root_fragment_for_object(
                 project_name
                     .generate_name_for_object_and_field(
                         object.unwrap().name.item.0,
-                        *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+                        *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
                     )
                     .intern(),
             )),
             generated: true,
             inject_fragment_data: Some(FragmentDataInjectionMode::Field(
-                *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+                *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
             )),
         })
     } else {
@@ -1556,7 +1556,7 @@ fn generate_model_instance_field(
     });
 
     FieldDefinition {
-        name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
+        name: string_key_as_identifier(*RELAY_RESOLVER_MODEL_INSTANCE_FIELD),
         type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
             span,
             type_: TypeAnnotation::Named(NamedTypeAnnotation {

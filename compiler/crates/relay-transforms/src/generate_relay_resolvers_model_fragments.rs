@@ -11,6 +11,7 @@ use common::NamedItem;
 use common::WithLocation;
 use docblock_shared::ResolverSourceHash;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use graphql_ir::associated_data_impl;
@@ -21,18 +22,9 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::Schema;
-
-lazy_static! {
-    // Using a longer name version for this "special" field
-    // help us avoid potential collision with product code (__self, __instance can be used for something else)
-    static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey =
-        "__relay_model_instance".intern();
-}
 
 /// Currently, this is a wrapper of the hash of the resolver source code.
 /// But we can change this `ArtifactSourceKeyData` to be an
@@ -61,11 +53,11 @@ pub fn generate_relay_resolvers_model_fragments(
             let object_type = program.schema.get_type(object.name.item.0).unwrap();
             let model_instance_field_id = program
                 .schema
-                .named_field(object_type, *RESOLVER_MODEL_INSTANCE_FIELD_NAME)
+                .named_field(object_type, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD)
                 .unwrap_or_else(|| {
                     panic!(
                         "Objects with directive @{} expected to have field `{}`.",
-                        *RELAY_RESOLVER_MODEL_DIRECTIVE_NAME, *RESOLVER_MODEL_INSTANCE_FIELD_NAME
+                        *RELAY_RESOLVER_MODEL_DIRECTIVE_NAME, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD
                     )
                 });
 
@@ -73,7 +65,7 @@ pub fn generate_relay_resolvers_model_fragments(
                 project_name
                     .generate_name_for_object_and_field(
                         object.name.item.0,
-                        *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+                        *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
                     )
                     .intern(),
             );

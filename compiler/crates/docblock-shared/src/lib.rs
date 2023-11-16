@@ -42,6 +42,9 @@ lazy_static! {
     pub static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
     pub static ref DEPRECATED_FIELD: StringKey = "deprecated".intern();
     pub static ref LIVE_FIELD: StringKey = "live".intern();
+    // Using a longer name version for this "special" field
+    // help us avoid potential collision with product code (__self, __instance can be used for something else)
+    pub static ref RELAY_RESOLVER_MODEL_INSTANCE_FIELD: StringKey = "__relay_model_instance".intern();
     pub static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
     pub static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();
     pub static ref WEAK_FIELD: StringKey = "weak".intern();

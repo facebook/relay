@@ -1,6 +1,6 @@
 # GraphQL and Relay
 
-This section is an overview to situate Relay in relation to GraphQL, React, and the other parts of the stack. Don’t worry about understanding every detail, just try to get the gist and the proceed to the next section to start working with code. Much more specifics will be explained as we go through working examples throughout the tutorial.
+This section is an overview to situate Relay in relation to GraphQL, React, and the other parts of the stack. Don’t worry about understanding every detail, just try to get the gist and then proceed to the next section to start working with code. Much more specifics will be explained as we go through working examples throughout the tutorial.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -88,7 +88,7 @@ query {
   </TabItem>
 </Tabs>
 
-This means we can retrieve information about a whole panoply of objects all in one query — in others words, you can efficiently get all the data for a screen in a single request instead of sending many requests one after the other. But you achieve this without writing and maintaining a separate endpoint for each screen in your UI.
+This means we can retrieve information about a whole panoply of objects all in one query — in other words, you can efficiently get all the data for a screen in a single request instead of sending many requests one after the other. But you achieve this without writing and maintaining a separate endpoint for each screen in your UI.
 
 Instead, your GraphQL server provides a *schema*, which describes what kinds of nodes there are, how they’re connected, and what information each node contains. Then, you pick and choose from this schema to select the information you want.
 

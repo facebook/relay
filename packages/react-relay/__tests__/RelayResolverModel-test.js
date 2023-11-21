@@ -333,6 +333,7 @@ describe.each([
         ? 'NULL!'
         : 'NOT NULL!';
     }
+    addTodo('Test todo');
 
     const renderer = TestRenderer.create(
       <EnvironmentWrapper environment={environment}>

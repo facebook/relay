@@ -390,14 +390,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .source_programs
             .contains_key(&project_config.name.into())
             && compiler_state.has_processed_changes()
-            && !compiler_state
-                .has_breaking_schema_change(project_config.name, &project_config.schema_config)
+            && !compiler_state.has_breaking_schema_change(
+                log_event,
+                project_config.name,
+                &project_config.schema_config,
+            )
             && if let Some(base) = project_config.base {
-                !compiler_state.has_breaking_schema_change(base, &project_config.schema_config)
+                !compiler_state.has_breaking_schema_change(
+                    log_event,
+                    base,
+                    &project_config.schema_config,
+                )
             } else {
                 true
             };
-
+        log_event.bool("is_incremental_build", is_incremental_build);
         let (base_program, _) = build_raw_program(
             project_config,
             project_asts,

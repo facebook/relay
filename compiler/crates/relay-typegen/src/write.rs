@@ -507,16 +507,15 @@ fn write_fragment_imports(
                             )
                         });
 
-                    let path_for_artifact =
-                        typegen_context.project_config.create_path_for_artifact(
-                            fragment_location.source_location(),
-                            current_referenced_fragment.to_string(),
-                        );
-
                     let fragment_import_path =
-                        typegen_context.project_config.js_module_import_path(
-                            typegen_context.definition_source_location,
-                            path_for_artifact.to_str().unwrap().intern(),
+                        typegen_context.project_config.js_module_import_identifier(
+                            &typegen_context.project_config.artifact_path_for_definition(
+                                typegen_context.definition_source_location,
+                            ),
+                            &typegen_context.project_config.create_path_for_artifact(
+                                fragment_location.source_location(),
+                                current_referenced_fragment.to_string(),
+                            ),
                         );
 
                     writer.write_import_fragment_type(
@@ -593,16 +592,15 @@ fn write_split_raw_response_type_imports(
                 } else if let Some(imported_raw_response_document_location) =
                     imported_raw_response_document_location
                 {
-                    let path_for_artifact =
-                        typegen_context.project_config.create_path_for_artifact(
-                            imported_raw_response_document_location.source_location(),
-                            imported_raw_response_type.to_string(),
-                        );
-
                     let artifact_import_path =
-                        typegen_context.project_config.js_module_import_path(
-                            typegen_context.definition_source_location,
-                            path_for_artifact.to_str().unwrap().intern(),
+                        typegen_context.project_config.js_module_import_identifier(
+                            &typegen_context.project_config.artifact_path_for_definition(
+                                typegen_context.definition_source_location,
+                            ),
+                            &typegen_context.project_config.create_path_for_artifact(
+                                imported_raw_response_document_location.source_location(),
+                                imported_raw_response_type.to_string(),
+                            ),
                         );
 
                     writer.write_import_fragment_type(

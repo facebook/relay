@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
+
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -720,15 +722,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let is_output_type = resolver_metadata
             .output_type_info
             .normalization_ast_should_have_is_output_type_true();
-        let module = resolver_metadata.import_path;
-
-        let import_path = self
-            .project_config
-            .js_module_import_path(self.definition_source_location, module);
 
         let variable_name = resolver_metadata.generate_local_resolver_name(self.schema);
         let resolver_js_module = JSModuleDependency {
-            path: import_path,
+            path: self.project_config.js_module_import_identifier(
+                &self
+                    .project_config
+                    .artifact_path_for_definition(self.definition_source_location),
+                &PathBuf::from(resolver_metadata.import_path.lookup()),
+            ),
             import_name: match resolver_metadata.import_name {
                 Some(name) => ModuleImportName::Named {
                     name,
@@ -1058,14 +1060,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         {
             let fragment_source_location_key = no_inline_metadata.location;
 
-            let path_for_artifact = self.project_config.create_path_for_artifact(
-                fragment_source_location_key,
-                frag_spread.fragment.item.0.lookup().to_string(),
-            );
-
-            let normalization_import_path = self.project_config.js_module_import_path(
-                self.definition_source_location,
-                path_for_artifact.to_str().unwrap().intern(),
+            let normalization_import_path = self.project_config.js_module_import_identifier(
+                &self
+                    .project_config
+                    .artifact_path_for_definition(self.definition_source_location),
+                &self.project_config.create_path_for_artifact(
+                    fragment_source_location_key,
+                    frag_spread.fragment.item.0.lookup().to_string(),
+                ),
             );
 
             return self
@@ -1128,7 +1130,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         relay_resolver_metadata: &RelayResolverMetadata,
         fragment_primitive: Option<Primitive>,
     ) -> Primitive {
-        let module = relay_resolver_metadata.import_path;
         let field = relay_resolver_metadata.field(self.schema);
         let field_arguments = &relay_resolver_metadata.field_arguments;
         let field_alias = relay_resolver_metadata.field_alias;
@@ -1141,9 +1142,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             CODEGEN_CONSTANTS.relay_resolver
         };
 
-        let import_path = self
-            .project_config
-            .js_module_import_path(self.definition_source_location, module);
+        let import_path = self.project_config.js_module_import_identifier(
+            &self
+                .project_config
+                .artifact_path_for_definition(self.definition_source_location),
+            &PathBuf::from(relay_resolver_metadata.import_path.lookup()),
+        );
 
         let args = if field.arguments.is_empty() {
             Primitive::SkippableNull
@@ -1175,14 +1179,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let resolver_module = if let Some((fragment_name, injection_mode)) =
             relay_resolver_metadata.fragment_data_injection_mode
         {
-            let path_for_artifact = self.project_config.create_path_for_artifact(
-                fragment_name.location.source_location(),
-                fragment_name.item.to_string(),
-            );
-
-            let fragment_import_path = self.project_config.js_module_import_path(
-                self.definition_source_location,
-                path_for_artifact.to_str().unwrap().intern(),
+            let fragment_import_path = self.project_config.js_module_import_identifier(
+                &self
+                    .project_config
+                    .artifact_path_for_definition(self.definition_source_location),
+                &self.project_config.create_path_for_artifact(
+                    fragment_name.location.source_location(),
+                    fragment_name.item.to_string(),
+                ),
             );
 
             Primitive::RelayResolverModel {
@@ -1244,14 +1248,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 .location
                 .source_location();
 
-            let path_for_artifact = self.project_config.create_path_for_artifact(
-                normalization_artifact_source_location,
-                normalization_info.normalization_operation.item.to_string(),
-            );
-
-            let normalization_import_path = self.project_config.js_module_import_path(
-                self.definition_source_location,
-                path_for_artifact.to_str().unwrap().intern(),
+            let normalization_import_path = self.project_config.js_module_import_identifier(
+                &self
+                    .project_config
+                    .artifact_path_for_definition(self.definition_source_location),
+                &self.project_config.create_path_for_artifact(
+                    normalization_artifact_source_location,
+                    normalization_info.normalization_operation.item.to_string(),
+                ),
             );
             let concrete_type = if normalization_info.inner_type.is_abstract_type() {
                 Primitive::Null
@@ -2011,9 +2015,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         provider.module_name
                     } else {
                         // This will build a path from the operation artifact to the provider module
-                        self.project_config.js_module_import_path(
-                            operation.name.map(|name| name.0),
-                            provider.module_path().to_str().unwrap().intern(),
+                        self.project_config.js_module_import_identifier(
+                            &self
+                                .project_config
+                                .artifact_path_for_definition(operation.name),
+                            &provider.module_path(),
                         )
                     };
 

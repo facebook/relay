@@ -478,9 +478,11 @@ fn import_relay_resolver_function_type(
         ImportedResolverName::Default(local_resolver_name)
     };
 
-    let import_path = typegen_context.project_config.js_module_import_path(
-        typegen_context.definition_source_location,
-        resolver_metadata.import_path,
+    let import_path = typegen_context.project_config.js_module_import_identifier(
+        &typegen_context
+            .project_config
+            .artifact_path_for_definition(typegen_context.definition_source_location),
+        &PathBuf::from(resolver_metadata.import_path.lookup()),
     );
 
     let imported_resolver = ImportedResolver {
@@ -1803,9 +1805,12 @@ fn transform_graphql_scalar_type(
             ))
             .expect_string_literal();
 
-        let import_path = typegen_context
-            .project_config
-            .js_module_import_path(typegen_context.definition_source_location, path);
+        let import_path = typegen_context.project_config.js_module_import_identifier(
+            &typegen_context
+                .project_config
+                .artifact_path_for_definition(typegen_context.definition_source_location),
+            &PathBuf::from(path.lookup()),
+        );
 
         let export_name = directive
             .arguments

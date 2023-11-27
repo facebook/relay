@@ -202,6 +202,18 @@ impl From<ExecutableDefinitionName> for StringKey {
     }
 }
 
+impl From<OperationDefinitionName> for StringKey {
+    fn from(operation_definition_name: OperationDefinitionName) -> Self {
+        operation_definition_name.0
+    }
+}
+
+impl From<FragmentDefinitionName> for StringKey {
+    fn from(fragment_definition_name: FragmentDefinitionName) -> Self {
+        fragment_definition_name.0
+    }
+}
+
 impl Lookup for ExecutableDefinitionName {
     fn lookup(self) -> &'static str {
         match self {

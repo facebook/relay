@@ -9,7 +9,6 @@ use std::fmt;
 use std::path::Path;
 use std::path::PathBuf;
 use std::path::MAIN_SEPARATOR;
-use std::str::FromStr;
 use std::sync::Arc;
 use std::usize;
 
@@ -23,7 +22,6 @@ use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use regex::Regex;
 use serde::de::Error;
 use serde::Deserialize;
@@ -365,68 +363,59 @@ impl ProjectConfig {
         }
     }
 
-    pub fn path_for_artifact(
+    pub fn artifact_path_for_definition(
         &self,
-        source_file: SourceLocationKey,
-        definition_name: StringKey,
+        definition_name: WithLocation<impl Into<StringKey>>,
     ) -> PathBuf {
+        let source_location = definition_name.location.source_location();
+        let artifact_name = definition_name.item.into();
         let filename = if let Some(filename_for_artifact) = &self.filename_for_artifact {
-            filename_for_artifact(source_file, definition_name)
+            filename_for_artifact(source_location, artifact_name)
         } else {
             match &self.typegen_config.language {
                 TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-                    format!("{}.graphql.js", definition_name)
+                    format!("{}.graphql.js", artifact_name)
                 }
-                TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
+                TypegenLanguage::TypeScript => format!("{}.graphql.ts", artifact_name),
             }
         };
-        self.create_path_for_artifact(source_file, filename)
+        self.create_path_for_artifact(source_location, filename)
     }
 
-    /// Generates a relative import path in Common JS projects, and a module name in Haste projects.
-    pub fn js_module_import_path(
+    /// Generates identifier for importing module at `target_module_path` from module at `importing_artifact_path`.
+    /// Import Identifier is a relative path in CommonJS projects and a module name in Haste projects.
+    pub fn js_module_import_identifier(
         &self,
-        definition_source_location: WithLocation<StringKey>,
-        target_module: StringKey,
+        importing_artifact_path: &PathBuf,
+        target_module_path: &PathBuf,
     ) -> StringKey {
         match self.js_module_format {
             JsModuleFormat::CommonJS => {
-                let definition_artifact_location = self.path_for_artifact(
-                    definition_source_location.location.source_location(),
-                    definition_source_location.item,
-                );
-
-                let module_location =
-                    PathBuf::from_str(target_module.lookup()).unwrap_or_else(|_| {
-                        panic!(
-                            "expected to be able to build a path from target_module : {}",
-                            target_module.lookup()
-                        );
-                    });
-
-                let module_path = module_location.parent().unwrap_or_else(||{
+                let importing_artifact_directory = importing_artifact_path.parent().unwrap_or_else(||{
                     panic!(
-                        "expected module_location: {:?} to have a parent path, maybe it's not a file?",
-                        module_location
+                        "expected importing_artifact_path: {:?} to have a parent path, maybe it's not a file?",
+                        importing_artifact_path
                     );
                 });
-
-                let definition_artifact_location_path = definition_artifact_location.parent().unwrap_or_else(||{panic!("expected definition_artifact_location: {:?} to have a parent path, maybe it's not a file?", definition_artifact_location);
-            });
-
-                let resolver_module_location =
-                    pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
-
-                let module_file_name = module_location.file_name().unwrap_or_else(|| {
+                let target_module_directory = target_module_path.parent().unwrap_or_else(||{
                     panic!(
-                        "expected module_location: {:?} to have a file name",
-                        module_location
+                        "expected target_module_path: {:?} to have a parent path, maybe it's not a file?",
+                        target_module_path
+                    );
+                });
+                let target_module_file_name = target_module_path.file_name().unwrap_or_else(|| {
+                    panic!(
+                        "expected target_module_path: {:?} to have a file name",
+                        target_module_path
                     )
                 });
+                let relative_path =
+                    pathdiff::diff_paths(target_module_directory, importing_artifact_directory)
+                        .unwrap();
 
-                format_normalized_path(&resolver_module_location.join(module_file_name)).intern()
+                format_normalized_path(&relative_path.join(target_module_file_name)).intern()
             }
-            JsModuleFormat::Haste => Path::new(&target_module.to_string())
+            JsModuleFormat::Haste => target_module_path
                 .file_stem()
                 .unwrap()
                 .to_string_lossy()

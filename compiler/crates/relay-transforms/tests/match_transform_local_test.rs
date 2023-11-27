@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ee8f5eb7708960663dcf395974e3a9bd>>
+ * @generated SignedSource<<1a87e4dd8afcddaaad9bfe4324a07ce6>>
  */
 
 mod match_transform_local;
@@ -16,12 +16,12 @@ use fixture_tests::test_fixture;
 async fn module_on_field_without_js() {
     let input = include_str!("match_transform_local/fixtures/module-on-field-without-js.graphql");
     let expected = include_str!("match_transform_local/fixtures/module-on-field-without-js.expected");
-    test_fixture(transform_fixture, "module-on-field-without-js.graphql", "match_transform_local/fixtures/module-on-field-without-js.expected", input, expected).await;
+    test_fixture(transform_fixture, file!(), "module-on-field-without-js.graphql", "match_transform_local/fixtures/module-on-field-without-js.expected", input, expected).await;
 }
 
 #[tokio::test]
 async fn module_without_match() {
     let input = include_str!("match_transform_local/fixtures/module-without-match.graphql");
     let expected = include_str!("match_transform_local/fixtures/module-without-match.expected");
-    test_fixture(transform_fixture, "module-without-match.graphql", "match_transform_local/fixtures/module-without-match.expected", input, expected).await;
+    test_fixture(transform_fixture, file!(), "module-without-match.graphql", "match_transform_local/fixtures/module-without-match.expected", input, expected).await;
 }

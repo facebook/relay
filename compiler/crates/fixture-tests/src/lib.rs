@@ -54,6 +54,8 @@ use std::env;
 use std::fs::File;
 use std::future::Future;
 use std::io::prelude::*;
+use std::path::PathBuf;
+use std::process::Command;
 use std::sync::Arc;
 
 use lazy_static::lazy_static;
@@ -89,6 +91,7 @@ where
 /// containing one test per fixture.
 pub async fn test_fixture<T, U, V>(
     transform: T,
+    source_file_path: &str,
     input_file_name: &str,
     expected_file_name: &str,
     input: &str,
@@ -159,19 +162,30 @@ pub async fn test_fixture<T, U, V>(
         }
 
         if env::var_os("UPDATE_SNAPSHOTS").is_some() {
-            let file_name = format!("tests/{}", expected_file_name);
-            File::create(&file_name)
-                .unwrap_or_else(|_| {
-                    panic!(
-                        "Unable to create {}/{}",
-                        env::current_dir().unwrap().to_str().unwrap(),
-                        file_name
-                    )
-                })
+            let expected_file_path = workspace_root()
+                .join(source_file_path)
+                .with_file_name(expected_file_name);
+            File::create(&expected_file_path)
+                .unwrap_or_else(|_| panic!("Unable to create {}", expected_file_path.display(),))
                 .write_all(actual.as_bytes())
                 .unwrap();
         } else {
             panic!("Snapshot did not match. Run with UPDATE_SNAPSHOTS=1 to update.");
         }
+    }
+}
+
+fn workspace_root() -> PathBuf {
+    if let Ok(cargo) = std::env::var("CARGO") {
+        let stdout = Command::new(cargo)
+            .args(&["locate-project", "--workspace", "--message-format=plain"])
+            .output()
+            .unwrap()
+            .stdout;
+        let workspace_cargo_toml = PathBuf::from(&std::str::from_utf8(&stdout).unwrap().trim());
+        workspace_cargo_toml.parent().unwrap().to_path_buf()
+    } else {
+        // Assuming we're building via Meta-internal BUCK setup, which executes tests from workspace root
+        std::env::current_dir().unwrap()
     }
 }

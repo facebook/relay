@@ -34,6 +34,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
         relay_mode: Some(RelayMode),
         default_anonymous_operation_name: None,
+        allow_custom_scalar_literals: true, // for compatibility
     };
 
     build_ir_with_extra_features(&TEST_SCHEMA, &ast.definitions, &builder_options)

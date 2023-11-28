@@ -10,6 +10,7 @@ use std::fmt::Display;
 use common::ArgumentName;
 use common::DiagnosticDisplay;
 use common::DirectiveName;
+use common::ScalarName;
 use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
@@ -499,6 +500,22 @@ pub enum ValidationMessage {
 
     #[error("No fields can have an alias that start with two underscores.")]
     NoDoubleUnderscoreAlias,
+
+    #[error(
+        "Unexpected scalar literal `{literal_value}` provided in a position expecting custom scalar type `{scalar_type_name}`. This value should come from a variable."
+    )]
+    UnexpectedCustomScalarLiteral {
+        literal_value: String,
+        scalar_type_name: ScalarName,
+    },
+
+    #[error(
+        "Unexpected {literal_kind} literal provided in a position expecting custom scalar type `{scalar_type_name}`."
+    )]
+    UnexpectedNonScalarLiteralForCustomScalar {
+        literal_kind: String,
+        scalar_type_name: ScalarName,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

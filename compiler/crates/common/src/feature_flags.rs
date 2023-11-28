@@ -84,6 +84,10 @@ pub struct FeatureFlags {
     /// Allow relay resolvers to extend the Mutation type
     #[serde(default)]
     pub enable_relay_resolver_mutations: bool,
+
+    /// Perform strict validations when custom scalar types are used
+    #[serde(default)]
+    pub enable_strict_custom_scalars: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

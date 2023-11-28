@@ -59,9 +59,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         actor_change_support: FeatureFlag::Enabled,
         ..Default::default()
     };
-    let ir = build_ir_in_relay_mode(&schema, &ast.definitions).unwrap_or_else(|e| {
-        panic!("Encountered error building IR {:?}", e);
-    });
+    let ir =
+        build_ir_in_relay_mode(&schema, &ast.definitions, &feature_flags).unwrap_or_else(|e| {
+            panic!("Encountered error building IR {:?}", e);
+        });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let mut custom_scalar_types = FnvIndexMap::default();

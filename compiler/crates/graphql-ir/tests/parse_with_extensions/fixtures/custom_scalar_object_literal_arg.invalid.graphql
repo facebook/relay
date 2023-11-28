@@ -1,0 +1,35 @@
+# expected-to-throw
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery {
+    extension_field(input: {
+        a: "foo",
+        b: 123,
+    }) {
+        __typename
+    }
+    extension_scalar_field(input: {
+        a: {
+            foo: 123,
+            bar: 456,
+        },
+    })
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+type Obj {
+    some_key: Int!
+}
+
+input InputType {
+    a: CustomScalarType!
+    b: CustomScalarType
+}
+
+extend type Query {
+    extension_field(input: InputType!): Obj
+    extension_scalar_field(input: InputType!): Int
+}

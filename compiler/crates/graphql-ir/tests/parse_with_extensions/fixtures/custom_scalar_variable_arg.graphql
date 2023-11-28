@@ -1,0 +1,21 @@
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery($arg: CustomScalarType!) {
+    extension_field(custom_scalar_arg: $arg) {
+        __typename
+    }
+    extension_scalar_field(custom_scalar_arg: $arg)
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+type Obj {
+    some_key: Int!
+}
+
+extend type Query {
+    extension_field(custom_scalar_arg: CustomScalarType!): Obj
+    extension_scalar_field(custom_scalar_arg: CustomScalarType!): Int
+}

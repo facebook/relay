@@ -18,7 +18,7 @@ lazy_static! {
     static ref RE: Regex = Regex::new("\x40generated (?:SignedSource<<([a-f0-9]{32})>>)").unwrap();
 }
 
-pub fn hash(data: &str) -> String {
+fn hash(data: &str) -> String {
     let mut md5 = Md5::new();
     md5.update(data);
     hex::encode(md5.finalize())

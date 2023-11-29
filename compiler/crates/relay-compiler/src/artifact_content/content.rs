@@ -503,7 +503,6 @@ pub fn generate_fragment(
             schema,
             typegen_fragment,
             source_hash,
-            skip_types,
             fragment_locations,
         )
     } else {
@@ -588,7 +587,7 @@ fn generate_read_only_fragment(
                 typegen_fragment,
                 schema,
                 project_config,
-                fragment_locations
+                fragment_locations,
             )
         )?;
     }
@@ -653,7 +652,6 @@ fn generate_assignable_fragment(
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
     source_hash: Option<&String>,
-    skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
@@ -684,18 +682,16 @@ fn generate_assignable_fragment(
         writeln!(section, "/*::")?;
     }
 
-    if !skip_types {
-        write!(
-            section,
-            "{}",
-            generate_fragment_type_exports_section(
-                typegen_fragment,
-                schema,
-                project_config,
-                fragment_locations
-            )
-        )?;
-    }
+    write!(
+        section,
+        "{}",
+        generate_fragment_type_exports_section(
+            typegen_fragment,
+            schema,
+            project_config,
+            fragment_locations,
+        )
+    )?;
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "*/")?;

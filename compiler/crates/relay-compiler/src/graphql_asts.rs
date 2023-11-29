@@ -150,24 +150,40 @@ impl GraphQLAsts {
                         source_location,
                     ) {
                         for def in document.definitions {
-                            let name = def.name();
-                            if let Some(def_name) = name {
-                                if !definitions_for_file.iter().any(|def| def.name() == name) {
-                                    match def {
-                                        ExecutableDefinition::Operation(_) => {
-                                            removed_definition_names.push(
-                                                ArtifactSourceKey::ExecutableDefinition(
-                                                    OperationDefinitionName(def_name).into(),
-                                                ),
-                                            )
+                            match def {
+                                ExecutableDefinition::Operation(operation) => {
+                                    if !(definitions_for_file.iter().any(|def| {
+                                        if let ExecutableDefinition::Operation(op) = def {
+                                            op.name == operation.name
+                                        } else {
+                                            false
                                         }
-                                        ExecutableDefinition::Fragment(_) => {
-                                            removed_definition_names.push(
-                                                ArtifactSourceKey::ExecutableDefinition(
-                                                    FragmentDefinitionName(def_name).into(),
+                                    })) {
+                                        if let Some(operation_name) = operation.name {
+                                            removed_definition_names
+                                                .push(ArtifactSourceKey::ExecutableDefinition(
+                                                ExecutableDefinitionName::OperationDefinitionName(
+                                                    OperationDefinitionName(operation_name.value),
                                                 ),
-                                            )
+                                            ));
                                         }
+                                    }
+                                }
+                                ExecutableDefinition::Fragment(fragment) => {
+                                    if !(definitions_for_file.iter().any(|def| {
+                                        if let ExecutableDefinition::Fragment(frag) = def {
+                                            frag.name == fragment.name
+                                        } else {
+                                            false
+                                        }
+                                    })) {
+                                        removed_definition_names.push(
+                                            ArtifactSourceKey::ExecutableDefinition(
+                                                ExecutableDefinitionName::FragmentDefinitionName(
+                                                    FragmentDefinitionName(fragment.name.value),
+                                                ),
+                                            ),
+                                        );
                                     }
                                 }
                             }

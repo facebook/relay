@@ -19,6 +19,7 @@ pub mod get_artifacts_file_hash_map;
 mod log_program_stats;
 mod persist_operations;
 mod project_asts;
+mod resolvers_schema_module;
 mod source_control;
 mod validate;
 
@@ -291,6 +292,7 @@ pub fn build_project(
     let artifacts = generate_artifacts(
         config,
         project_config,
+        &schema,
         &programs,
         Arc::clone(&source_hashes),
     );

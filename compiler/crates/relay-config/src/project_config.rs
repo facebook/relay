@@ -34,6 +34,7 @@ use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
+use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
 use crate::JsModuleFormat;
 use crate::ProjectName;
 use crate::TypegenConfig;
@@ -234,6 +235,7 @@ pub struct ProjectConfig {
     pub js_module_format: JsModuleFormat,
     pub module_import_config: ModuleImportConfig,
     pub diagnostic_report_config: DiagnosticReportConfig,
+    pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
 }
 
 impl Default for ProjectConfig {
@@ -261,6 +263,7 @@ impl Default for ProjectConfig {
             js_module_format: Default::default(),
             module_import_config: Default::default(),
             diagnostic_report_config: Default::default(),
+            resolvers_schema_module: Default::default(),
         }
     }
 }
@@ -290,6 +293,7 @@ impl Debug for ProjectConfig {
             js_module_format,
             module_import_config,
             diagnostic_report_config,
+            resolvers_schema_module,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -328,6 +332,7 @@ impl Debug for ProjectConfig {
             .field("js_module_format", js_module_format)
             .field("module_import_config", module_import_config)
             .field("diagnostic_report_config", diagnostic_report_config)
+            .field("resolvers_schema_module", resolvers_schema_module)
             .finish()
     }
 }

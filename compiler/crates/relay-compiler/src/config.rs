@@ -39,6 +39,7 @@ pub use relay_config::PersistConfig;
 pub use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 pub use relay_config::RemotePersistConfig;
+use relay_config::ResolversSchemaModuleConfig;
 use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
@@ -377,6 +378,7 @@ Example file:
                     js_module_format: config_file_project.js_module_format,
                     module_import_config: config_file_project.module_import_config,
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
+                    resolvers_schema_module: config_file_project.resolvers_schema_module,
                 };
                 Ok((project_name, project_config))
             })
@@ -740,6 +742,9 @@ pub struct SingleProjectConfigFile {
     /// of an union with the raw type, null and undefined.
     #[serde(default)]
     pub typescript_exclude_undefined_from_nullable_union: bool,
+
+    #[serde(default)]
+    pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -766,6 +771,7 @@ impl Default for SingleProjectConfigFile {
             feature_flags: None,
             typescript_exclude_undefined_from_nullable_union: false,
             module_import_config: Default::default(),
+            resolvers_schema_module: Default::default(),
         }
     }
 }
@@ -893,6 +899,7 @@ impl SingleProjectConfigFile {
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
+            resolvers_schema_module: self.resolvers_schema_module,
             ..Default::default()
         };
 
@@ -1033,6 +1040,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub diagnostic_report_config: DiagnosticReportConfig,
+
+    #[serde(default)]
+    pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
 }
 
 pub type PersistId = String;

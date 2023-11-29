@@ -17,6 +17,7 @@ mod module_import_config;
 mod non_node_id_fields_config;
 mod project_config;
 mod project_name;
+mod resolvers_schema_module_config;
 mod typegen_config;
 
 pub use connection_interface::ConnectionInterface;
@@ -35,6 +36,7 @@ pub use project_config::RemotePersistConfig;
 pub use project_config::SchemaConfig;
 pub use project_config::SchemaLocation;
 pub use project_name::ProjectName;
+pub use resolvers_schema_module_config::ResolversSchemaModuleConfig;
 pub use typegen_config::CustomScalarType;
 pub use typegen_config::CustomScalarTypeImport;
 pub use typegen_config::FlowTypegenConfig;

@@ -17,6 +17,7 @@ use graphql_text_printer::OperationPrinter;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use relay_config::ResolversSchemaModuleConfig;
 use relay_transforms::ArtifactSourceKeyData;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::Programs;
@@ -24,9 +25,11 @@ use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::SplitOperationMetadata;
 use relay_transforms::UPDATABLE_DIRECTIVE;
+use schema::SDLSchema;
 
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
+use super::resolvers_schema_module::generate_resolvers_schema_module;
 use crate::artifact_map::ArtifactSourceKey;
 use crate::config::Config;
 use crate::config::ProjectConfig;
@@ -44,8 +47,9 @@ pub struct Artifact {
 }
 
 pub fn generate_artifacts(
-    _config: &Config,
+    config: &Config,
     project_config: &ProjectConfig,
+    schema: &SDLSchema,
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
 ) -> Vec<Artifact> {
@@ -187,6 +191,15 @@ pub fn generate_artifacts(
                 artifact_source_keys,
             )
         }))
+        .chain(
+            match project_config.resolvers_schema_module {
+                Some(ResolversSchemaModuleConfig { ref path }) =>
+                vec![
+                    generate_resolvers_schema_module(config, project_config, schema, path.clone()).unwrap()
+                ],
+                _ => vec![],
+            }
+        )
         .collect();
 }
 

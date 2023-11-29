@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<70d87b3888d42dba62f8215979d8fbad>>
+ * @generated SignedSource<<60f611a97f09b3caa35c440952f8059b>>
  */
 
 mod relay_compiler_integration;
@@ -59,6 +59,13 @@ async fn custom_scalar_variable_default_arg_non_strict() {
     let input = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.input");
     let expected = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected");
     test_fixture(transform_fixture, file!(), "custom_scalar_variable_default_arg_non_strict.input", "relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolvers_schema_module() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module.expected");
+    test_fixture(transform_fixture, file!(), "resolvers_schema_module.input", "relay_compiler_integration/fixtures/resolvers_schema_module.expected", input, expected).await;
 }
 
 #[tokio::test]

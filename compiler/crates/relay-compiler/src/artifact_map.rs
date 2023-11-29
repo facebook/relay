@@ -31,8 +31,12 @@ pub struct ArtifactMap(pub DashMap<ArtifactSourceKey, Vec<ArtifactRecord>>);
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq, Hash)]
 pub enum ArtifactSourceKey {
+    /// Derieved from a GraphQL Executable Definition
     ExecutableDefinition(ExecutableDefinitionName),
+    /// Derieved from a RelayResolver docblock
     ResolverHash(ResolverSourceHash),
+    /// Derived from GraphQL Schema
+    Schema(),
 }
 
 impl From<ArtifactSourceKeyData> for ArtifactSourceKey {

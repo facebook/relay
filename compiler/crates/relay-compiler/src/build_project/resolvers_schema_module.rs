@@ -15,7 +15,6 @@ use common::NamedItem;
 use common::SourceLocationKey;
 use intern::Lookup;
 use relay_codegen::printer::get_module_path;
-use relay_transforms::generate_relay_resolvers_model_fragments::get_resolver_source_hash;
 use relay_transforms::get_fragment_filename;
 use relay_transforms::get_resolver_fragment_dependency_name;
 use relay_transforms::relay_resolvers::get_resolver_info;
@@ -42,16 +41,10 @@ pub fn generate_resolvers_schema_module(
     schema: &SDLSchema,
     output_path: PathBuf,
 ) -> Result<Artifact, Error> {
-    let mut artifact_source_keys = vec![];
-    let content = generate_resolvers_schema_module_content(
-        config,
-        project_config,
-        schema,
-        &output_path,
-        &mut artifact_source_keys,
-    )?;
+    let content =
+        generate_resolvers_schema_module_content(config, project_config, schema, &output_path)?;
     Ok(Artifact {
-        artifact_source_keys,
+        artifact_source_keys: vec![ArtifactSourceKey::Schema()],
         path: output_path,
         content: ArtifactContent::Generic {
             content: sign_file(&content).into_bytes(),
@@ -65,7 +58,6 @@ fn generate_resolvers_schema_module_content(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
     artifact_path: &PathBuf,
-    artifact_source_keys: &mut Vec<ArtifactSourceKey>,
 ) -> Result<String, Error> {
     let mut content = String::new();
 
@@ -123,9 +115,6 @@ fn generate_resolvers_schema_module_content(
                         "\t{object_name}: {{",
                         object_name = object.name.item
                     )?;
-                }
-                if let Some(source_hash) = get_resolver_source_hash(field) {
-                    artifact_source_keys.push(ArtifactSourceKey::ResolverHash(source_hash));
                 }
 
                 let js_import_path = project_config.js_module_import_identifier(

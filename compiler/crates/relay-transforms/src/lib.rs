@@ -130,6 +130,7 @@ pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
 pub use generate_relay_resolvers_model_fragments::ArtifactSourceKeyData;
 pub use generate_relay_resolvers_operations_for_nested_objects::generate_relay_resolvers_operations_for_nested_objects;
+pub use generate_relay_resolvers_root_fragment_split_operation::annotate_resolver_root_fragments;
 pub use generate_relay_resolvers_root_fragment_split_operation::generate_relay_resolvers_root_fragment_split_operation;
 pub use generate_typename::generate_typename;
 pub use generate_typename::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;

@@ -65,9 +65,11 @@ impl GraphQLAsts {
                                     ArtifactSourceKey::ExecutableDefinition(def_name) => {
                                         Some(def_name)
                                     }
-                                    // Dirty resolvers artifacts are handled separately
-                                    // and should not affect the list of affected document defintions
-                                    ArtifactSourceKey::ResolverHash(_) => None,
+                                    ArtifactSourceKey::Schema()
+                                    | ArtifactSourceKey::ResolverHash(_) => {
+                                        // We're only concerned with collecting ExecutableDefinitionNames
+                                        None
+                                    }
                                 })
                                 .collect()
                         }),

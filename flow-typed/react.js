@@ -43,8 +43,6 @@ declare module react {
 
   declare export var Component: typeof React$Component;
   declare export var PureComponent: typeof React$PureComponent;
-  declare export type StatelessFunctionalComponent<P> =
-    React$StatelessFunctionalComponent<P>;
   declare export type ComponentType<-P> = React$ComponentType<P>;
   declare export type AbstractComponent<
     -Config,

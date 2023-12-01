@@ -31,6 +31,7 @@ use rayon::prelude::*;
 use regex::Regex;
 use relay_config::CustomScalarType;
 use relay_config::DiagnosticReportConfig;
+pub use relay_config::ExtraArtifactsConfig;
 use relay_config::FlowTypegenConfig;
 use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
@@ -356,6 +357,8 @@ Example file:
                     base: config_file_project.base,
                     enabled: true,
                     schema_extensions: config_file_project.schema_extensions,
+                    extra_artifacts_config: None,
+                    extra: config_file_project.extra,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
@@ -365,15 +368,12 @@ Example file:
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
-                    extra: config_file_project.extra,
                     test_path_regex,
                     feature_flags: Arc::new(
                         config_file_project
                             .feature_flags
                             .unwrap_or_else(|| config_file_feature_flags.clone()),
                     ),
-                    filename_for_artifact: None,
-                    skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
                     module_import_config: config_file_project.module_import_config,

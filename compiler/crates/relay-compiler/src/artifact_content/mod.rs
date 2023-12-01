@@ -66,10 +66,12 @@ impl ArtifactContent {
         source_file: SourceLocationKey,
         fragment_locations: &FragmentLocations,
     ) -> Vec<u8> {
-        let skip_types = project_config
-            .skip_types_for_artifact
-            .as_ref()
-            .map_or(false, |skip_types_fn| skip_types_fn(source_file));
+        let skip_types =
+            if let Some(extra_artifacts_config) = &project_config.extra_artifacts_config {
+                (extra_artifacts_config.skip_types_for_artifact)(source_file)
+            } else {
+                false
+            };
         match self {
             ArtifactContent::Operation {
                 normalization_operation,

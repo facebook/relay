@@ -161,6 +161,20 @@ pub enum SchemaLocation {
     Directory(PathBuf),
 }
 
+pub struct ExtraArtifactsConfig {
+    pub filename_for_artifact: Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>,
+    pub skip_types_for_artifact: Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>,
+}
+
+impl Debug for ExtraArtifactsConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ExtraArtifactsConfig")
+            .field("filename_for_artifact", &"Fn")
+            .field("skip_types_for_artifact", &"Fn")
+            .finish()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
@@ -214,8 +228,9 @@ impl Default for SchemaConfig {
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
-    pub output: Option<PathBuf>,
     pub extra_artifacts_output: Option<PathBuf>,
+    pub extra_artifacts_config: Option<ExtraArtifactsConfig>,
+    pub output: Option<PathBuf>,
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
     pub schema_extensions: Vec<PathBuf>,
@@ -228,9 +243,6 @@ pub struct ProjectConfig {
     pub extra: serde_json::Value,
     pub feature_flags: Arc<FeatureFlags>,
     pub test_path_regex: Option<Regex>,
-    pub filename_for_artifact:
-        Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
-    pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
     pub js_module_format: JsModuleFormat,
     pub module_import_config: ModuleImportConfig,
@@ -244,8 +256,9 @@ impl Default for ProjectConfig {
             name: ProjectName::default(),
             feature_flags: Default::default(),
             base: None,
-            output: None,
             extra_artifacts_output: None,
+            extra_artifacts_config: None,
+            output: None,
             shard_output: false,
             shard_strip_regex: None,
             schema_extensions: vec![],
@@ -257,8 +270,6 @@ impl Default for ProjectConfig {
             variable_names_comment: false,
             extra: Default::default(),
             test_path_regex: None,
-            filename_for_artifact: None,
-            skip_types_for_artifact: None,
             rollout: Default::default(),
             js_module_format: Default::default(),
             module_import_config: Default::default(),
@@ -273,8 +284,9 @@ impl Debug for ProjectConfig {
         let ProjectConfig {
             name,
             base,
-            output,
             extra_artifacts_output,
+            extra_artifacts_config,
+            output,
             shard_output,
             shard_strip_regex,
             schema_extensions,
@@ -287,8 +299,6 @@ impl Debug for ProjectConfig {
             extra,
             feature_flags,
             test_path_regex,
-            filename_for_artifact,
-            skip_types_for_artifact,
             rollout,
             js_module_format,
             module_import_config,
@@ -299,6 +309,7 @@ impl Debug for ProjectConfig {
             .field("name", name)
             .field("base", base)
             .field("output", output)
+            .field("extra_artifacts_config", extra_artifacts_config)
             .field("extra_artifacts_output", extra_artifacts_output)
             .field("shard_output", shard_output)
             .field("shard_strip_regex", shard_strip_regex)
@@ -312,22 +323,6 @@ impl Debug for ProjectConfig {
             .field("extra", extra)
             .field("feature_flags", feature_flags)
             .field("test_path_regex", test_path_regex)
-            .field(
-                "filename_for_artifact",
-                &if filename_for_artifact.is_some() {
-                    "Some<Fn>"
-                } else {
-                    "None"
-                },
-            )
-            .field(
-                "skip_types_for_artifact",
-                &if skip_types_for_artifact.is_some() {
-                    "Some<Fn>"
-                } else {
-                    "None"
-                },
-            )
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
             .field("module_import_config", module_import_config)
@@ -374,8 +369,8 @@ impl ProjectConfig {
     ) -> PathBuf {
         let source_location = definition_name.location.source_location();
         let artifact_name = definition_name.item.into();
-        let filename = if let Some(filename_for_artifact) = &self.filename_for_artifact {
-            filename_for_artifact(source_location, artifact_name)
+        let filename = if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
+            (extra_artifacts_config.filename_for_artifact)(source_location, artifact_name)
         } else {
             match &self.typegen_config.language {
                 TypegenLanguage::Flow | TypegenLanguage::JavaScript => {

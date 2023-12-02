@@ -16,7 +16,7 @@ common = { path = "../common" }
 docblock-shared = { path = "../docblock-shared" }
 intern = { path = "../intern" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-thiserror = "1.0.43"
+thiserror = "1.0.49"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

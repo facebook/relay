@@ -392,7 +392,9 @@ fn process_rename_request(
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
     match rename_request.kind {
-        RenameKind::VariableDefinition { variable_name } => Ok(rename_variable(variable_name)),
+        RenameKind::VariableDefinition { variable_name } => {
+            rename_variable(variable_name, new_name, rename_request.location, root_dir)
+        }
         RenameKind::FragmentArgumentDefinition {
             fragment_name,
             argument_name,
@@ -455,8 +457,21 @@ fn process_rename_request(
     }
 }
 
-fn rename_variable(variable_name: StringKey) -> HashMap<Url, Vec<TextEdit>> {
-    HashMap::new()
+fn rename_variable(
+    variable_name: StringKey,
+    new_variable_name: String,
+    variable_location: IRLocation,
+    root_dir: &PathBuf,
+) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
+    let lsp_location = transform_relay_location_to_lsp_location(root_dir, variable_location)?;
+
+    Ok(HashMap::from([(
+        lsp_location.uri,
+        vec![TextEdit {
+            new_text: new_variable_name.to_owned(),
+            range: lsp_location.range,
+        }],
+    )]))
 }
 
 fn rename_fragment_argument(
@@ -546,7 +561,21 @@ fn get_rename_request_for_definition(
             Ok(RenameRequest::new(kind, variable_location))
         }
         ExecutableDefinition::Operation(operation_definition) => {
-            Err(LSPRuntimeError::ExpectedError)
+            if !operation_definition
+                .variable_definitions
+                .as_ref()
+                .map_or(false, |defs| {
+                    defs.items.iter().any(|v| v.name.name == variable_name)
+                })
+            {
+                return Err(LSPRuntimeError::UnexpectedError(
+                    "Couldn't find variable definition for variable".into(),
+                ));
+            }
+
+            let kind = RenameKind::VariableDefinition { variable_name };
+
+            Ok(RenameRequest::new(kind, variable_location))
         }
     }
 }

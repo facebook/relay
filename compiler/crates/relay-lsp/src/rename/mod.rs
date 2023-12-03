@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use common::Location as IRLocation;
+use common::NamedItem;
 use common::SourceLocationKey;
 use common::Span;
 use extract_graphql::JavaScriptSourceFeature;
@@ -23,6 +24,7 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::OperationDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use log::info;
 use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::Rename;
 use lsp_types::request::Request;
@@ -236,13 +238,15 @@ pub enum RenameKind {
     },
     VariableOrFragmentArgumentUsage {
         variable_name: StringKey,
+        definition: ExecutableDefinition,
     },
 }
 
 #[derive(Debug)]
 pub struct RenameRequest {
-    /// The type of the rename request we're responding to
+    /// The type of rename request
     kind: RenameKind,
+    /// The location the rename request was made at
     location: IRLocation,
 }
 
@@ -258,6 +262,15 @@ fn create_rename_request(
 ) -> LSPRuntimeResult<RenameRequest> {
     match feature {
         Feature::GraphQLDocument(document) => {
+            let mut doc_definition: Option<&ExecutableDefinition> = None;
+
+            for definition in &document.definitions {
+                if definition.contains(location.span()) {
+                    doc_definition = Some(definition);
+                    break;
+                }
+            }
+
             let node_path = document.resolve((), location.span());
 
             match node_path {
@@ -278,6 +291,9 @@ fn create_rename_request(
                         VariableIdentifierParent::Value(_) => {
                             RenameKind::VariableOrFragmentArgumentUsage {
                                 variable_name: variable.name,
+                                definition: doc_definition
+                                    .ok_or(LSPRuntimeError::ExpectedError)?
+                                    .to_owned(),
                             }
                         }
                     };
@@ -376,7 +392,7 @@ fn process_rename_request(
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<HashMap<Url, Vec<TextEdit>>> {
     match rename_request.kind {
-        RenameKind::VariableDefinition { variable_name } => Ok(rename_variable()),
+        RenameKind::VariableDefinition { variable_name } => Ok(rename_variable(variable_name)),
         RenameKind::FragmentArgumentDefinition {
             fragment_name,
             argument_name,
@@ -387,8 +403,15 @@ fn process_rename_request(
             program,
             root_dir,
         )),
-        RenameKind::VariableOrFragmentArgumentUsage { variable_name } => {
-            let definition_rename_request = get_rename_request_for_definition();
+        RenameKind::VariableOrFragmentArgumentUsage {
+            variable_name,
+            definition,
+        } => {
+            let definition_rename_request = get_rename_request_for_definition(
+                variable_name,
+                rename_request.location,
+                &definition,
+            );
 
             match definition_rename_request {
                 Ok(rename_request) => {
@@ -432,7 +455,7 @@ fn process_rename_request(
     }
 }
 
-fn rename_variable() -> HashMap<Url, Vec<TextEdit>> {
+fn rename_variable(variable_name: StringKey) -> HashMap<Url, Vec<TextEdit>> {
     HashMap::new()
 }
 
@@ -491,10 +514,41 @@ fn rename_fragment(
     map_locations_to_text_edits(locations, new_fragment_name, root_dir)
 }
 
-fn get_rename_request_for_definition() -> LSPRuntimeResult<RenameRequest> {
-    // TODO: Implement
+fn get_rename_request_for_definition(
+    variable_name: StringKey,
+    variable_location: IRLocation,
+    definition: &ExecutableDefinition,
+) -> LSPRuntimeResult<RenameRequest> {
+    match definition {
+        ExecutableDefinition::Fragment(fragment_definition) => {
+            if !fragment_definition
+                .directives
+                .named(*ARGUMENTDEFINITIONS_DIRECTIVE)
+                .map_or(false, |directive| {
+                    directive.arguments.as_ref().map_or(false, |args| {
+                        args.items.iter().any(|v| v.name.value == variable_name)
+                    })
+                })
+            {
+                // The variable not being defined via @argumentDefinitions
+                // doesn't mean it's not defined at all. There's also the
+                // possibility of it being a global operation variable.
+                return Err(LSPRuntimeError::UnexpectedError(
+                    "Couldn't find argument definition for variable".into(),
+                ));
+            }
 
-    Err(LSPRuntimeError::ExpectedError)
+            let kind = RenameKind::FragmentArgumentDefinition {
+                fragment_name: fragment_definition.name.value,
+                argument_name: variable_name,
+            };
+
+            Ok(RenameRequest::new(kind, variable_location))
+        }
+        ExecutableDefinition::Operation(operation_definition) => {
+            Err(LSPRuntimeError::ExpectedError)
+        }
+    }
 }
 
 fn map_locations_to_text_edits(

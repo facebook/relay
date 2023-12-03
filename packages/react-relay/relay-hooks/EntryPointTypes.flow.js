@@ -214,24 +214,22 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
   rootModuleID: string,
 }>;
 
-type _ComponentFromEntryPoint = <
-  TPreloadParams,
-  // $FlowFixMe[unsupported-variance-annotation]
-  +TComponent,
-  // $FlowFixMe[unsupported-variance-annotation]
-  +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
->(
-  TEntryPoint,
-) => TComponent;
-
-type ComponentFromEntryPoint<+TEntryPoint> = $Call<
-  _ComponentFromEntryPoint,
-  TEntryPoint,
->;
-
-export type EntryPointElementConfig<+TEntryPoint> = ElementConfig<
-  ComponentFromEntryPoint<TEntryPoint>,
->['props'];
+export type EntryPointElementConfig<
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+  +TEntryPoint: InternalEntryPointRepresentation<any, any, any, any, any>,
+> = TEntryPoint extends InternalEntryPointRepresentation<
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+  any,
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+  any,
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+  any,
+  infer Props,
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+  any,
+>
+  ? Props
+  : empty;
 
 export type ThinQueryParams<
   TQuery: OperationType,

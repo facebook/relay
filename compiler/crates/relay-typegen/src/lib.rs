@@ -156,8 +156,10 @@ fn generate_fragment_type_exports_section_impl(
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
-        false,
-        is_extra_artifact_branch_module,
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type: false,
+            is_extra_artifact_branch_module,
+        },
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_fragment_type_exports_section(&typegen_context, fragment_definition, &mut writer)
@@ -180,8 +182,10 @@ pub fn generate_named_validator_export(
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
-        false,
-        false,
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type: false,
+            is_extra_artifact_branch_module: false,
+        },
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
@@ -217,8 +221,10 @@ pub fn generate_operation_type_exports_section(
             typegen_operation.name.item.0,
         ),
         fragment_locations,
-        false,
-        false,
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type: false,
+            is_extra_artifact_branch_module: false,
+        },
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_operation_type_exports_section(
@@ -252,8 +258,10 @@ pub fn generate_split_operation_type_exports_section(
             typegen_operation.name.item.0,
         ),
         fragment_locations,
-        no_optional_fields_in_raw_response_type,
-        false,
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type,
+            is_extra_artifact_branch_module: false,
+        },
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
 
@@ -276,10 +284,7 @@ struct TypegenContext<'a> {
     has_unified_output: bool,
     generating_updatable_types: bool,
     definition_source_location: WithLocation<StringKey>,
-    // All keys in raw response should be required
-    no_optional_fields_in_raw_response_type: bool,
-    // Some extra artifacts require special type generation
-    is_extra_artifact_branch_module: bool,
+    typegen_options: TypegenOptions,
 }
 
 impl<'a> TypegenContext<'a> {
@@ -289,8 +294,7 @@ impl<'a> TypegenContext<'a> {
         generating_updatable_types: bool,
         definition_source_location: WithLocation<StringKey>,
         fragment_locations: &'a FragmentLocations,
-        no_optional_fields_in_raw_response_type: bool,
-        is_extra_artifact_branch_module: bool,
+        typegen_options: TypegenOptions,
     ) -> Self {
         Self {
             schema,
@@ -299,8 +303,14 @@ impl<'a> TypegenContext<'a> {
             has_unified_output: project_config.output.is_some(),
             generating_updatable_types,
             definition_source_location,
-            no_optional_fields_in_raw_response_type,
-            is_extra_artifact_branch_module,
+            typegen_options,
         }
     }
+}
+
+struct TypegenOptions {
+    // All keys in raw response should be required
+    no_optional_fields_in_raw_response_type: bool,
+    // Some extra artifacts require special type generation
+    is_extra_artifact_branch_module: bool,
 }

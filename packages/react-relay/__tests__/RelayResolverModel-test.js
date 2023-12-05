@@ -58,7 +58,6 @@ function logFn(event: LogEvent): void {
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
-  RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES = true;
   logEvents = [];
   resetStore(logFn);
 });
@@ -66,7 +65,6 @@ beforeEach(() => {
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
-  RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES = false;
 });
 
 function createEnvironment() {

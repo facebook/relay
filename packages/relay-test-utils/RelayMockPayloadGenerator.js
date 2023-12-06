@@ -209,7 +209,7 @@ class RelayMockPayloadGenerator {
   generate(
     selections: $ReadOnlyArray<NormalizationSelection>,
     operationType: string,
-  ): GraphQLResponse {
+  ): Array<GraphQLSingularResponse> {
     const defaultValues = this._getDefaultValuesForObject(
       operationType,
       null,
@@ -922,7 +922,7 @@ function generateData(
   mockResolvers: MockResolvers | null,
   selectionMetadata: SelectionMetadata | null,
   options: ?{mockClientData?: boolean, generateDeferredPayload?: boolean},
-): GraphQLResponse {
+): Array<GraphQLSingularResponse> {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     mockResolvers,

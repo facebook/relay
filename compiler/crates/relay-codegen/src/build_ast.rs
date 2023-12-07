@@ -37,6 +37,11 @@ use relay_transforms::extract_handle_field_directives;
 use relay_transforms::extract_values_from_handle_field_directive;
 use relay_transforms::generate_abstract_type_refinement_key;
 use relay_transforms::get_fragment_filename;
+use relay_transforms::get_normalization_operation_name;
+use relay_transforms::get_resolver_fragment_dependency_name;
+use relay_transforms::relay_resolvers::get_resolver_info;
+use relay_transforms::relay_resolvers::resolver_import_alias;
+use relay_transforms::relay_resolvers::ResolverInfo;
 use relay_transforms::remove_directive;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
@@ -60,6 +65,7 @@ use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use relay_transforms::INLINE_DIRECTIVE_NAME;
 use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
 use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
+use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use schema::SDLSchema;
 use schema::Schema;
@@ -190,6 +196,78 @@ pub fn build_fragment(
         definition_source_location,
     );
     builder.build_fragment(fragment, false)
+}
+
+pub fn build_resolvers_schema(
+    ast_builder: &mut AstBuilder,
+    schema: &SDLSchema,
+    project_config: &ProjectConfig,
+) -> AstKey {
+    let artifact_path = &project_config
+        .resolvers_schema_module
+        .as_ref()
+        .unwrap()
+        .path;
+
+    let mut map = vec![];
+    for object in schema.get_objects() {
+        let mut fields = vec![];
+        for field in object.fields.iter().map(|field_id| schema.field(*field_id)) {
+            if let Some(Ok(ResolverInfo {
+                import_path,
+                import_name: Some(import_name),
+                ..
+            })) = get_resolver_info(schema, field, field.name.location)
+            {
+                if field
+                    .directives
+                    .named(*RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE)
+                    .is_some()
+                {
+                    continue;
+                }
+                fields.push(ObjectEntry {
+                    key: field.name.item,
+                    value: Primitive::Key(ast_builder.intern(Ast::Object(object! {
+                        resolver_function: Primitive::JSModuleDependency(JSModuleDependency {
+                            path: project_config.js_module_import_identifier(
+                                artifact_path,
+                                &PathBuf::from(import_path.lookup()),
+                            ),
+                            import_name: ModuleImportName::Named {
+                                name: import_name,
+                                import_as: Some(resolver_import_alias(object.name.item.0, field.name.item))
+                            },
+                        }),
+                        root_fragment: match get_resolver_fragment_dependency_name(field) {
+                            Some(name) => {
+                                let definition_name = WithLocation::new(
+                                    field.name.location,
+                                    get_normalization_operation_name(name.0).intern(),
+                                );
+                                Primitive::JSModuleDependency(JSModuleDependency {
+                                    path: project_config.js_module_import_identifier(
+                                        artifact_path,
+                                        &project_config.artifact_path_for_definition(definition_name),
+                                    ),
+                                    import_name: ModuleImportName::Default(definition_name.item),
+                                })
+                            },
+                            None => Primitive::SkippableNull,
+                        },
+                    }))),
+                });
+            }
+        }
+        if !fields.is_empty() {
+            map.push(ObjectEntry {
+                key: object.name.item.0,
+                value: Primitive::Key(ast_builder.intern(Ast::Object(fields))),
+            })
+        }
+    }
+
+    ast_builder.intern(Ast::Object(map))
 }
 
 pub struct CodegenBuilder<'schema, 'builder, 'config> {

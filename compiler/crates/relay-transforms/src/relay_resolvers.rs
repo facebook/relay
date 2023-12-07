@@ -166,20 +166,10 @@ impl RelayResolverMetadata {
     }
 
     pub fn generate_local_resolver_name(&self, schema: &SDLSchema) -> StringKey {
-        to_camel_case(format!(
-            "{}_{}_resolver",
-            self.field_parent_type_name(schema),
-            self.field_name(schema)
-        ))
-        .intern()
+        resolver_import_alias(self.field_parent_type_name(schema), self.field_name(schema))
     }
     pub fn generate_local_resolver_type_name(&self, schema: &SDLSchema) -> StringKey {
-        to_camel_case(format!(
-            "{}_{}_resolver_type",
-            self.field_parent_type_name(schema),
-            self.field_name(schema)
-        ))
-        .intern()
+        resolver_type_import_alias(self.field_parent_type_name(schema), self.field_name(schema))
     }
 }
 
@@ -777,4 +767,11 @@ fn to_camel_case(non_camelized_string: String) -> String {
         }
     }
     camelized_string
+}
+
+pub fn resolver_import_alias(parent_type_name: StringKey, field_name: StringKey) -> StringKey {
+    to_camel_case(format!("{}_{}_resolver", parent_type_name, field_name,)).intern()
+}
+pub fn resolver_type_import_alias(parent_type_name: StringKey, field_name: StringKey) -> StringKey {
+    to_camel_case(format!("{}_{}_resolver_type", parent_type_name, field_name,)).intern()
 }

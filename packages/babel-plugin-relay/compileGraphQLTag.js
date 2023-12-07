@@ -30,6 +30,14 @@ const {
 const GENERATED = './__generated__/';
 
 /**
+ * Converts backslashes in a path to forward slashes (POSIX style) for
+ * cross-platform compatibility.
+ */
+function posixifyPath(path: string): string {
+  return process.platform === 'win32' ? path.replace(/\\/g, '/') : path;
+}
+
+/**
  * Given a graphql`` tagged template literal, replace it with the appropriate
  * runtime artifact.
  */
@@ -107,11 +115,13 @@ function createNode(
     throw new Error('GraphQL operations and fragments must contain names');
   }
   const requiredFile = definitionName + '.graphql';
-  const requiredPath = options.isHasteMode
-    ? requiredFile
-    : options.artifactDirectory
-    ? getRelativeImportPath(state, options.artifactDirectory, requiredFile)
-    : GENERATED + requiredFile;
+  const requiredPath = posixifyPath(
+    options.isHasteMode
+      ? requiredFile
+      : options.artifactDirectory
+      ? getRelativeImportPath(state, options.artifactDirectory, requiredFile)
+      : GENERATED + requiredFile,
+  );
 
   const hash = crypto
     .createHash('md5')

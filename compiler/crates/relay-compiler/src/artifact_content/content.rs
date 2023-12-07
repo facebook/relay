@@ -1001,7 +1001,7 @@ pub fn generate_resolvers_schema_module_content(
         &project_config.typegen_config,
         &mut section,
         "schema_resolvers",
-        None
+        None,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Exports Section --

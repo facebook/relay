@@ -264,11 +264,11 @@ fn whitespace_in_union() {
                 fragment UnionFragment on CommentBody {
                   __typename
                 }
-    
+
                 fragment UnionVariantFragment on PlainCommentBody {
                   __typename
                 }
-    
+
                 fragment UnrelatedFragment on Task {
                   __typename
                 }
@@ -409,6 +409,7 @@ fn directive() {
     assert_labels(
         items.unwrap(),
         vec![
+            "credentials",
             "prependEdge",
             "deleteRecord",
             "appendNode",
@@ -446,6 +447,7 @@ fn directive_on_scalar_field() {
     assert_labels(
         items.unwrap(),
         vec![
+            "credentials",
             "prependEdge",
             "deleteRecord",
             "appendNode",
@@ -732,6 +734,7 @@ fn empty_directive() {
     assert_labels(
         items.unwrap(),
         vec![
+            "credentials",
             "prependEdge",
             "deleteRecord",
             "appendNode",

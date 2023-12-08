@@ -922,3 +922,89 @@ fn write_data_driven_dependency_annotation(
     }
     Ok(())
 }
+
+pub fn generate_resolvers_schema_module_content(
+    config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+) -> Result<Vec<u8>, FmtError> {
+    let mut content_sections = ContentSections::default();
+    // -- Begin Docblock Section --
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        vec![],
+    )?));
+    // -- End Docblock Section --
+
+    // -- Begin Disable Lint Section --
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Use Strict Section --
+
+    // -- Begin Types Section --
+    let mut section = GenericSection::default();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "/*::")?;
+    }
+    write_import_type_from(
+        project_config,
+        &mut section,
+        "SchemaResolvers",
+        "ReactiveQueryExecutor",
+    )?;
+    write_import_type_from(
+        project_config,
+        &mut section,
+        "ResolverFunction, NormalizationSplitOperation",
+        "relay-runtime",
+    )?;
+    writeln!(section)?;
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "*/")?;
+    }
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Types Section --
+
+    let mut top_level_statements = Default::default();
+    let resolvers_schema = printer.print_resolvers_schema(schema, &mut top_level_statements);
+
+    // -- Begin Top Level Statements Section --
+    let mut section: GenericSection = GenericSection::default();
+    write!(section, "{}", &top_level_statements)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Top Level Statements Section --
+
+    // -- Begin Resolvers Schema Section --
+    let mut section = GenericSection::default();
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "schema_resolvers",
+        "SchemaResolvers",
+        &resolvers_schema,
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Resolvers Schema Section --
+
+    // -- Begin Exports Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(
+        &project_config.typegen_config,
+        &mut section,
+        "schema_resolvers",
+        None,
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Exports Section --
+
+    content_sections.into_signed_bytes()
+}

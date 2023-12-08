@@ -151,7 +151,8 @@ pub struct Config {
     /// and after each major transformation step (common, operations, etc)
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
-
+    pub custom_override_schema_determinator:
+        Option<Box<dyn Fn(&OperationDefinition) -> Option<String> + Send + Sync>>,
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
 
     /// The async function is called before the compiler connects to the file
@@ -420,6 +421,7 @@ Example file:
             is_dev_variable_name: config_file.is_dev_variable_name,
             file_source_config: FileSourceKind::Watchman,
             custom_transforms: None,
+            custom_override_schema_determinator: None,
             export_persisted_query_ids_to_file: None,
             initialize_resources: None,
             update_compiler_state_from_saved_state: None,

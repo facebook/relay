@@ -13,6 +13,7 @@ use std::sync::Arc;
 use common::SourceLocationKey;
 use content::generate_fragment;
 use content::generate_operation;
+use content::generate_resolvers_schema_module_content;
 use content::generate_split_operation;
 use content::generate_updatable_query;
 use graphql_ir::FragmentDefinition;
@@ -51,6 +52,7 @@ pub enum ArtifactContent {
         source_hash: Option<String>,
         no_optional_fields_in_raw_response_type: bool,
     },
+    ResolversSchema,
     Generic {
         content: Vec<u8>,
     },
@@ -144,6 +146,10 @@ impl ArtifactContent {
                 fragment_locations,
             )
             .unwrap(),
+            ArtifactContent::ResolversSchema => {
+                generate_resolvers_schema_module_content(config, project_config, printer, schema)
+                    .unwrap()
+            }
             ArtifactContent::Generic { content } => content.clone(),
         }
     }

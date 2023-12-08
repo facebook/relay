@@ -19,7 +19,6 @@ pub mod get_artifacts_file_hash_map;
 mod log_program_stats;
 mod persist_operations;
 mod project_asts;
-mod resolvers_schema_module;
 mod source_control;
 mod validate;
 
@@ -289,13 +288,7 @@ pub fn build_project(
 
     // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let artifacts = generate_artifacts(
-        config,
-        project_config,
-        &schema,
-        &programs,
-        Arc::clone(&source_hashes),
-    );
+    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes));
     log_event.stop(artifacts_timer);
 
     log_event.number(

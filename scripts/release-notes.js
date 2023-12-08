@@ -14,6 +14,17 @@ const {execSync} = require('child_process');
 const {existsSync, readFileSync} = require('fs');
 const http = require('http');
 
+/**
+ * This function will create a simple HTTP server that will show the list
+ * of commits to the Relay repo since the last release.
+ *
+ * To run the app:
+ * ```
+ *  node ./scripts/release-notes.js
+ * ```
+ *
+ * And follow the link, printed in console: http://localhost:3123
+ */
 function main() {
   log('Generating release notes...');
 
@@ -69,8 +80,6 @@ function main() {
   log(`Release notes App started at http://localhost:${PORT}`);
 }
 
-main();
-
 function getData() {
   const lastRelease = execSync('git describe --tags --abbrev=0')
     .toString()
@@ -108,3 +117,5 @@ function log(message) {
   // eslint-disable-next-line no-console
   console.log(message);
 }
+
+main();

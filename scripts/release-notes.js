@@ -103,8 +103,7 @@ function getData() {
     return {
       hash,
       summary: summary[index],
-      body: body[index],
-      message: null,
+      message: body[index],
       author: name,
       date,
     };

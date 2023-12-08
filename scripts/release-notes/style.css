@@ -87,9 +87,15 @@ h2 {
   background-color:gold
 }
 
-
 .MISC {
-  background-color:darksalmon;
+  background-color: darkgray;
+  color: lightblue;
+}
+
+.SKIP {
+  background-color: lightgray;
+  color: darkgray;
+  opacity: 0.3;
 }
 
 .EXPERIMENTAL {

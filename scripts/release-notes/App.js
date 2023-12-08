@@ -22,7 +22,21 @@ const CATEGORIES = [
   ['BREAKING', 1],
   ['MISC', 6],
   ['EXPERIMENTAL', 7],
+  ['SKIP', 8],
 ];
+
+const CATEGORIES_NAMES = {
+  BUGFIX: 'Bug fixes',
+  IMPROVEMENTS: 'Improvements',
+  DOCS: 'Documentation Improvements',
+  NEW_API: 'Added',
+  BREAKING: 'Breaking Changes',
+  MISC: 'Miscellaneous',
+  EXPERIMENTAL: 'Experimental Changes',
+  SKIP: 'Skipped in Release Notes',
+};
+
+const REPO_URL = 'https://github.com/facebook/relay';
 
 const CommitCard = ({
   message,
@@ -51,7 +65,8 @@ const CommitCard = ({
     <button
       className={`commit ${selectedCategory}`}
       onClick={handleClick}
-      onContextMenu={handleClick}>
+      onContextMenu={handleClick}
+      title={message}>
       <p className="summary">{summary}</p>
       <p className="author">{author}</p>
     </button>
@@ -143,6 +158,8 @@ function GeneratedReleaseNotes({commits, selectedCategories, lastRelease}) {
   let hasBreakingChanges = false;
   let hasNewApi = false;
 
+  const nonCategorizedCommits = [];
+
   commits.forEach(commit => {
     const commitCategory = selectedCategories[commit.hash];
     if (commitCategory != null) {
@@ -156,6 +173,8 @@ function GeneratedReleaseNotes({commits, selectedCategories, lastRelease}) {
           hasNewApi = true;
         }
       }
+    } else {
+      nonCategorizedCommits.push(commit);
     }
   });
 
@@ -170,24 +189,36 @@ function GeneratedReleaseNotes({commits, selectedCategories, lastRelease}) {
           if (commits.length) {
             return (
               <div key={category}>
-                <h2>{category}</h2>
-                <ul>
-                  {commits.map(commit => {
-                    return (
-                      <li key={commit.hash}>
-                        [{commit.hash}]: {commit.summary} by {commit.author}
-                      </li>
-                    );
-                  })}
-                </ul>
+                <h2>{CATEGORIES_NAMES[category]}</h2>
+                <CommitList commits={commits} />
               </div>
             );
           } else {
             return null;
           }
         })}
+        <h3>Non-categorized commits</h3>
+        <CommitList commits={nonCategorizedCommits} />
       </div>
     </div>
+  );
+}
+
+function CommitList({commits}) {
+  return (
+    <ul>
+      {commits.map(commit => {
+        return (
+          <li key={commit.hash}>
+            [
+            <a href={`${REPO_URL}/commit/${commit.hash}`} target="_blank">
+              {commit.hash}
+            </a>
+            ]: {capitalize(commit.summary)} by {commit.author}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -204,4 +235,8 @@ function nextReleaseVersion(lastRelease, hasBreakingChanges, hasNewApi) {
 
 function next(versionStr) {
   return parseInt(versionStr, 10) + 1;
+}
+
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }

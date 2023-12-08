@@ -863,7 +863,12 @@ pub fn generate_docblock_section(
     }
     writeln!(section, "@lightSyntaxTransform")?;
     writeln!(section, "@nogrep")?;
-    if let Some(codegen_command) = &config.codegen_command {
+
+    if let Some(codegen_command) = &project_config
+        .codegen_command
+        .as_ref()
+        .or(config.codegen_command.as_ref())
+    {
         writeln!(section, "@codegen-command: {}", codegen_command)?;
     }
     Ok(section)

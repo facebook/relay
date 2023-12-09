@@ -12,6 +12,16 @@ keywords:
 
 Defining fields on a client type is as simple as defining a resolver function which accepts an instance of your model type [TODO link] as its first argument and returns the field value. Note that the exported function name must match the field name.
 
+## Syntax
+
+When defining a field string after `@RelayResolver` is a GraphQL `TypeName` followed by a dot followed by the field
+definition using GraphQL's schema definition language: https://spec.graphql.org/June2018/#FieldDefinition
+
+```js
+/**
+* @RelayResolver TypeName.fieldName(arg1: ArgTypeName): FieldTypeName
+*/
+```
 
 A simple field might look something like this:
 
@@ -25,12 +35,12 @@ export function name(user: UserModel): string {
 ```
 
 :::note
-Relay will take care of recomputing your resolver when the model changes, so you don’t need to worry about memoizing your resolver function.
+Relay will takes care of efficiently recomputing resolvers when any of their inputs (in this case the model instance) change, so you don’t need to worry about memoizing your resolver function.
 :::
 
-To lean more see:
+This is just a simple resolver that reads from the model type and returns a scalar value. To learn about the full menu of capabilities that resolver fields support see:
 
-* Resolver return types
-* Resolver arguments
-* Resolvers that change over time
-* Derived resolvers
+* [Resolver Return Types](./return-types.md)
+* [Field Arguments](./field-arguments.md)
+* [Live Data](./live-data.md)
+* [Derived Fields](./derived-fields.md)

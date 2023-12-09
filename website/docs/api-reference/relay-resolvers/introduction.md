@@ -10,12 +10,9 @@ keywords:
 - reactive
 ---
 
-Relay Resolvers are a feature that allow you to augment Relay’s GraphQL graph with two types of additional data:
+Relay Resolvers are a feature that allow you to augment Relay’s GraphQL graph with values that are known only on the client. This allows you to model client state in the same way that you model server state, and to use Relay’s data fetching APIs to access that state. Client state can include both data from client-side data stores as well as derived data that is computed from other values in the graph.
 
-- Derived data: fields which are a pure function of a node in the graph
-- Client state: dynamic client state like pre-existing state management solution (Redux) or client-side data stores such as IndexDB.
-
-By modeling derived and client state in the graph, Relay can present a data access API for product developers. All globally relevant data that a product engineer wants to access can discovered and efficiently obtained via GraphQL. Additionally we provide a number of runtime benefits:
+By modeling derived and client state in the graph, Relay can present a unified data access API for product developers. All globally relevant data that a product engineer wants to access can discovered and efficiently obtained via the same structured GraphQL schema. Additionally we provide a number of runtime benefits:
 
 - Global memoization with garbage collection
 - Efficient reactive recomputation of resolvers

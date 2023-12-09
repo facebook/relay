@@ -14,7 +14,7 @@ Relay Resolvers support a number of different return types, each of which has di
 
 ## Scalar Types
 
-The simplest type for a resolver to return is a built-in GraphQL scalar value. Scalar values are values that can be represented as a single value in GraphQL, such as a string, number, or boolean. To return a scalar simply define your resolver as returning the scalar type and then return the corresponding JavaScript value from your resolver function.
+The simplest type for a resolver to return is a built-in GraphQL scalar value. Scalar values are values that can be represented as a primitive value in GraphQL, such as a string, number, or boolean. To return a scalar simply define your resolver as returning the scalar type and then return the corresponding JavaScript value from your resolver function.
 
 ```tsx
 /**
@@ -38,13 +38,11 @@ export function favoriteColors(user: UserModel): string[] {
 }
 ```
 
-This pattern can be used for the other types outlined below with the exception of server types, which don't yet support lists.
+This pattern can be used for the other types, with the exception of server types, which don't yet support lists.
 
 ## Client-defined GraphQL Types
 
-Resolvers can also model edges to other GraphQL types in your client state schema [TODO wording?]. To define a resolver that is an edge to another type, you specify the type as the field type in your docblock tag.
-
-If the type was defined as a "strong" type, the resolver function must return an object `{ id: DataID }` where `DataID` is the ID of the object. Relay will take care of invoking the type's model resolver function.
+Resolvers can also model edges to other GraphQL types in your client state schema [TODO wording?]. If the type was defined as a "strong" type, the resolver function must return an object `{ id: DataID }` where `DataID` is the ID of the object. Relay will take care of invoking the type's model resolver function.
 
 ```tsx
 import {DataID} from 'relay-runtime';
@@ -70,6 +68,10 @@ export function profilePicture(user: UserModel): ProfilePicture {
   }
 }
 ```
+
+:::tip
+Relay will emit type assertions in its generated code to help catch errors where a resolver implementation does not match whats declared in its docblock.
+:::
 
 ## Server Types
 

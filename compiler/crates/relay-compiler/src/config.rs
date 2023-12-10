@@ -380,6 +380,7 @@ Example file:
                     module_import_config: config_file_project.module_import_config,
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
+                    codegen_command: config_file_project.codegen_command,
                 };
                 Ok((project_name, project_config))
             })
@@ -1045,6 +1046,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+
+    #[serde(default)]
+    pub codegen_command: Option<String>,
 }
 
 pub type PersistId = String;

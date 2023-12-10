@@ -3,11 +3,6 @@ id: derived-fields
 title: "Derived Fields"
 slug: /api-reference/relay-resolvers/derived-fields/
 description: Defining field which are a pure function of other fields
-keywords:
-- resolvers
-- derived
-- selectors
-- reactive
 ---
 
 In addition to modeling client state, Relay Resolvers also allow you to define fields which are a pure function of other fields. These fields are called derived fields and can be defined on any type no matter if it's defined on the server or client.

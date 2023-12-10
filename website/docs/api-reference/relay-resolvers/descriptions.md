@@ -3,11 +3,6 @@ id: descriptions
 title: "Descriptions"
 slug: /api-reference/relay-resolvers/descriptions/
 description: Adding human readable descriptions to your resolver schema [TODO name]
-keywords:
-- resolvers
-- derived
-- selectors
-- reactive
 ---
 
 One killer feature of GraphQL is that makes the data in your schema discoverable. Relay Resolvers bring this structure to your client data. By adding descriptions to your resolvers you can make your client state schema self-documenting as well.

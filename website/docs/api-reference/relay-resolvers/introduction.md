@@ -3,11 +3,6 @@ id: introduction
 title: "Introduction to Relay Resolvers"
 slug: /api-reference/relay-resolvers/introduction
 description: An introduction to Relay Resolvers
-keywords:
-- resolvers
-- derived
-- selectors
-- reactive
 ---
 
 Relay Resolvers are a feature that allow you to augment Relay’s GraphQL graph with values that are known only on the client. This allows you to model client state in the same way that you model server state, and to use Relay’s data fetching APIs to access that state. Client state can include both data from client-side data stores as well as derived data that is computed from other values in the graph.
@@ -17,9 +12,18 @@ By modeling derived and client state in the graph, Relay can present a unified d
 - Global memoization with garbage collection
 - Efficient reactive recomputation of resolvers
 - Efficient UI updates when data changes
-- Structured global observability of execution
 
 You can think of resolvers as additional schema types and fields which are defined in your client code and are stitched into your server’s schema. Just like you define resolver methods/functions which model your fields on the server, Relay Resolves are defined using resolver functions.
+
+## Use Cases for Relay Resolvers
+
+Relay Resolvers are useful for modeling a number of different kinds of data. Here are some examples of types of data that can be schematized using Relay Resolvers and made available to product code:
+
+* **Legacy Data Stores** - During the adoption of Relay, pre-existing data layers, like Redux, can be exposed in the graph to ensure migrated and un-migrated portions of your app always remain in sync
+* **User-created Data** - You can model complex form state, or other data that should outlive a specific component tree
+* **Client-Side Database** - Persistent data stores like IndexDB, localStorage, or SQLite
+* **Third-party APIs** - Data that is fetched from a third party API directly by the client, for example search results from an third-party search provider
+* **Encrypted Data** - End-to-end encrypted data that is opaque on the server and thus cannot be modeled in the server schema
 
 ## Defining a Resolver
 

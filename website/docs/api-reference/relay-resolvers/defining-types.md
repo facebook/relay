@@ -3,14 +3,9 @@ id: defining-types
 title: "Defining Types"
 slug: /api-reference/relay-resolvers/defining-types/
 description: How to define types for your client state schema
-keywords:
-- resolvers
-- derived
-- selectors
-- reactive
 ---
 
-You should think of client state resolvers as defining a GraphQL server that runs in the client. Just like a server-defined GraphQL server you will need to define the types that exist in your schema as well as the fields on those types. Just like a server GraphQL server, fields are defined as functions that compute the GraphQL value from the parent object. In Relay Resolvers we call this parent JavaScript object the "model" of the type.
+You can think of client state resolvers as defining a GraphQL server that runs in the client. Just like with a server-defined GraphQL server you will need to define the _types_ that exist in your schema as well as the _fields_ on those types. Just like a server GraphQL server, fields are defined as functions that compute the GraphQL value from the parent object. In Relay Resolvers we call this parent JavaScript object the "model" of the type.
 
 :::info
 Each client state GraphQL type is backed by a JavaScript object type which these docs will refer to as its "model type". Resolvers "on" this type will be passed an instance of this type as their first argument.

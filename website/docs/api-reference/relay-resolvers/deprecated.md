@@ -3,11 +3,6 @@ id: deprecated
 title: "Deprecated"
 slug: /api-reference/relay-resolvers/deprecated/
 description: Marking fields in your client state schema [TODO name] as @deprecated
-keywords:
-- resolvers
-- derived
-- selectors
-- reactive
 ---
 
 GraphQL allows you to mark fields as `@deprecated` and provide an optional human-readable reason. Relay Resolvers bring this same convention to your client data. By marking fields in your client state schema [TODO name] as deprecated they will receive the same treatment as deprecated fields in your server GraphQL schema.

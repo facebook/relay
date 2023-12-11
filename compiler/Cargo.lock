@@ -1590,7 +1590,7 @@ checksum = "e5ea92a5b6195c6ef2a0295ea818b312502c6fc94dde986c5553242e18fd4ce2"
 
 [[package]]
 name = "relay"
-version = "16.0.0"
+version = "16.1.0"
 dependencies = [
  "clap",
  "common",

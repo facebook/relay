@@ -6,6 +6,7 @@ version = "0.1.0"
 authors = ["Facebook"]
 edition = "2021"
 description = "Intern data into a 32-bit id"
+repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]

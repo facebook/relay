@@ -37,5 +37,5 @@ This is just a simple resolver that reads from the model type and returns a scal
 
 * [Resolver Return Types](./return-types.md)
 * [Field Arguments](./field-arguments.md)
-* [Live Data](./live-data.md)
+* [Live Data](./live-fields.md)
 * [Derived Fields](./derived-fields.md)

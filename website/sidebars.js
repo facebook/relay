@@ -191,6 +191,7 @@ module.exports = {
             'api-reference/relay-resolvers/errors',
             'api-reference/relay-resolvers/descriptions',
             'api-reference/relay-resolvers/deprecated',
+            'api-reference/relay-resolvers/limitations',
           ],
         },
         'api-reference/graphql/graphql-directives',

@@ -26,5 +26,5 @@ type ResolverErrorEvent = {
 ```
 
 :::note
-[Live Resolvers](./live-data.md) can potentially throw errors when they are first evaluated or when their `.read()` method is called. Both types of errors will be handled identically by Relay.
+[Live Resolvers](./live-fields.md) can potentially throw errors when they are first evaluated or when their `.read()` method is called. Both types of errors will be handled identically by Relay.
 :::

@@ -30,7 +30,7 @@ export function User(id: DataID): UserModel {
 Elsewhere in the docs this function is referred to as the “model resolver” for the type.
 :::
 
-Generally objects in your client data store will be able to change over time. To support this Relay Resolvers support resolvers that subscribe to the underlying data source. To learn about this, see the page on [Live Data](./live-data.md).
+Generally objects in your client data store will be able to change over time. To support this Relay Resolvers support resolvers that subscribe to the underlying data source. To learn about this, see the page on [Live Data](./live-fields.md).
 
 ### Defining a “weak” type
 

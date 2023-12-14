@@ -195,8 +195,10 @@ export type PreloadProps<
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{
+  // $FlowFixMe[deprecated-type]
   entryPoints?: $ObjMap<TPreloadedEntryPoints, ExtractEntryPointTypeHelper>,
   extraProps?: TExtraProps,
+  // $FlowFixMe[deprecated-type]
   queries?: $ObjMap<
     TPreloadedQueries,
     ExtractQueryTypeHelper<TEnvironmentProviderOptions>,
@@ -267,6 +269,7 @@ export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
 
 type ExtractFirstParam = <P, R>((P) => R) => P;
 type GetPreloadPropsType<T> = T['getPreloadProps'];
+// $FlowFixMe[deprecated-type]
 export type PreloadParamsOf<T> = $Call<
   ExtractFirstParam,
   GetPreloadPropsType<T>,

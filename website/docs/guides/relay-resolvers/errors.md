@@ -1,7 +1,7 @@
 ---
 id: errors
 title: "Error Handling"
-slug: /api-reference/relay-resolvers/errors/
+slug: /guides/relay-resolvers/errors/
 description: How Relay handles errors throw by resolvers
 ---
 

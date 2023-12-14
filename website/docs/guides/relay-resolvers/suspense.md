@@ -1,7 +1,7 @@
 ---
 id: suspense
 title: "Suspense"
-slug: /api-reference/relay-resolvers/suspense/
+slug: /guides/relay-resolvers/suspense/
 description: Handling loading states for live data
 ---
 
@@ -35,4 +35,5 @@ export function myIp(): LiveState<string> {
     },
   };
 }
+```
 

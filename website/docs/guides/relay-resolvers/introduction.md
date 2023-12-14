@@ -1,7 +1,7 @@
 ---
 id: introduction
 title: "Introduction to Relay Resolvers"
-slug: /api-reference/relay-resolvers/introduction
+slug: /guides/relay-resolvers/introduction
 description: An introduction to Relay Resolvers
 ---
 

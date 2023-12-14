@@ -1,7 +1,7 @@
 ---
 id: deprecated
 title: "Deprecated"
-slug: /api-reference/relay-resolvers/deprecated/
+slug: /guides/relay-resolvers/deprecated/
 description: Marking fields in your client state schema [TODO name] as @deprecated
 ---
 

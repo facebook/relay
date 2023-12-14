@@ -1,7 +1,7 @@
 ---
 id: defining-fields
 title: "Defining Fields"
-slug: /api-reference/relay-resolvers/defining-fields/
+slug: /guides/relay-resolvers/defining-fields/
 description: How to define fields for your client state schema using Relay Resolvers
 ---
 

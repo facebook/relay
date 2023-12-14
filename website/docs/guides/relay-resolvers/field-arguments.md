@@ -1,7 +1,7 @@
 ---
 id: field-arguments
 title: "Field Arguments"
-slug: /api-reference/relay-resolvers/field-arguments/
+slug: /guides/relay-resolvers/field-arguments/
 description: Defining field arguments for resolver fields
 ---
 
@@ -32,7 +32,7 @@ This, in turn will require passing the argument when you fetch the query.
 
 ## Passing Arguments to your @rootFragment
 
-If you are defining a derived resolver and one of the fields in its root fragment requires arguments, you must define an explicit fragment argument using [@argumentDefinitions](../graphql/graphql-directives.md#argumentdefinitions) in your fragment definition. Your resolver field will then expect this argument to be passed as a field argument.
+If you are defining a derived resolver and one of the fields in its root fragment requires arguments, you must define an explicit fragment argument using [@argumentDefinitions](../../api-reference/graphql/graphql-directives.md#argumentdefinitions) in your fragment definition. Your resolver field will then expect this argument to be passed as a field argument.
 
 ```tsx
 /**

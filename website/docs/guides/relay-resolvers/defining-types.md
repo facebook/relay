@@ -1,7 +1,7 @@
 ---
 id: defining-types
 title: "Defining Types"
-slug: /api-reference/relay-resolvers/defining-types/
+slug: /guides/relay-resolvers/defining-types/
 description: How to define types for your client state schema
 ---
 

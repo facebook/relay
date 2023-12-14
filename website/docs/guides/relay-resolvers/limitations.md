@@ -1,7 +1,7 @@
 ---
 id: limitations
 title: "Limitations"
-slug: /api-reference/relay-resolvers/limitations/
+slug: /guides/relay-resolvers/limitations/
 description: Limitations of Relay Resolvers
 ---
 

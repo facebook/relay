@@ -1,7 +1,7 @@
 ---
 id: live-fields
 title: "Live Fields"
-slug: /api-reference/relay-resolvers/live-fields/
+slug: /guides/relay-resolvers/live-fields/
 description: Modeling data that changes over time in Relay Resolvers
 ---
 

@@ -1,7 +1,7 @@
 ---
 id: derived-fields
 title: "Derived Fields"
-slug: /api-reference/relay-resolvers/derived-fields/
+slug: /guides/relay-resolvers/derived-fields/
 description: Defining field which are a pure function of other fields
 ---
 

@@ -1,7 +1,7 @@
 ---
 id: descriptions
 title: "Descriptions"
-slug: /api-reference/relay-resolvers/descriptions/
+slug: /guides/relay-resolvers/descriptions/
 description: Adding human readable descriptions to your resolver schema [TODO name]
 ---
 

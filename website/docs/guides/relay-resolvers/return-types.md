@@ -1,7 +1,7 @@
 ---
 id: return-types
 title: "Return Types"
-slug: /api-reference/relay-resolvers/return-types/
+slug: /guides/relay-resolvers/return-types/
 description: Showing the different types of return values for Relay Resolvers
 keywords:
 - resolvers

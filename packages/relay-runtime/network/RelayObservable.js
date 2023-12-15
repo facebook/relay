@@ -447,6 +447,7 @@ class RelayObservable<+T> implements Subscribable<T> {
 }
 
 // Use declarations to teach Flow how to check isObservable.
+// $FlowFixMe[deprecated-type]
 declare function isObservable(p: mixed): boolean %checks(p instanceof
   RelayObservable);
 

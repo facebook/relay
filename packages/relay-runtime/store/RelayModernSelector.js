@@ -23,6 +23,7 @@ import type {
   SingularReaderSelector,
 } from './RelayStoreTypes';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
   CLIENT_EDGE_TRAVERSAL_PATH,
@@ -412,7 +413,14 @@ function areEqualSingularSelectors(
     thisSelector.dataID === thatSelector.dataID &&
     thisSelector.node === thatSelector.node &&
     areEqual(thisSelector.variables, thatSelector.variables) &&
-    areEqualOwners(thisSelector.owner, thatSelector.owner)
+    areEqualOwners(thisSelector.owner, thatSelector.owner) &&
+    (!RelayFeatureFlags.ENABLE_STRICT_EQUAL_SELECTORS ||
+      (thisSelector.isWithinUnmatchedTypeRefinement ===
+        thatSelector.isWithinUnmatchedTypeRefinement &&
+        areEqualClientEdgeTraversalPaths(
+          thisSelector.clientEdgeTraversalPath,
+          thatSelector.clientEdgeTraversalPath,
+        )))
   );
 }
 
@@ -432,6 +440,39 @@ function areEqualOwners(
       areEqual(thisOwner.cacheConfig, thatOwner.cacheConfig)
     );
   }
+}
+
+function areEqualClientEdgeTraversalPaths(
+  thisPath: ClientEdgeTraversalPath | null,
+  thatPath: ClientEdgeTraversalPath | null,
+): boolean {
+  if (thisPath === thatPath) {
+    return true;
+  }
+  if (
+    thisPath == null ||
+    thatPath == null ||
+    thisPath.length !== thatPath.length
+  ) {
+    return false;
+  }
+  let idx = thisPath.length;
+  while (idx--) {
+    const a = thisPath[idx];
+    const b = thatPath[idx];
+    if (a === b) {
+      continue;
+    }
+    if (
+      a == null ||
+      b == null ||
+      a.clientEdgeDestinationID !== b.clientEdgeDestinationID ||
+      a.readerClientEdge !== b.readerClientEdge
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**

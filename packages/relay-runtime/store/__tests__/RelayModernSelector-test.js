@@ -15,6 +15,7 @@ import type {OperationDescriptor} from '../RelayStoreTypes';
 import type {Variables} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -120,6 +121,7 @@ describe('RelayModernSelector', () => {
       size: null,
       cond: false,
     };
+    RelayFeatureFlags.ENABLE_STRICT_EQUAL_SELECTORS = true;
   });
 
   describe('getSingularSelector()', () => {
@@ -698,6 +700,85 @@ describe('RelayModernSelector', () => {
         owner: newOwner.request,
       };
       expect(areEqualSelectors(selector, differentOwner)).toBe(false);
+    });
+
+    it('returns false for equivalent selectors but with different isWithinUnmatchedTypeRefinement', () => {
+      const queryNode = UserQuery;
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+      );
+      const differentOwner = {
+        ...selector,
+        isWithinUnmatchedTypeRefinement: true,
+      };
+      expect(areEqualSelectors(selector, differentOwner)).toBe(false);
+    });
+
+    it('returns false for equivalent selectors but with different clientEdgeTraversalPath', () => {
+      const queryNode = UserQuery;
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      /*$FlowFixMe[unclear-type]*/
+      const fakeAstNode: Object = {};
+      const clientEdgeTraversalInfoA = {
+        readerClientEdge: fakeAstNode,
+        clientEdgeDestinationID: 'a',
+      };
+      const clientEdgeTraversalInfoB = {
+        readerClientEdge: fakeAstNode,
+        clientEdgeDestinationID: 'b',
+      };
+      const clientEdgeTraversalInfoANewNode = {
+        /*$FlowFixMe[unclear-type]*/
+        readerClientEdge: ({}: Object),
+        clientEdgeDestinationID: 'a',
+      };
+      const baseSelector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+        false,
+        null,
+      );
+      const selectors = [
+        baseSelector,
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [clientEdgeTraversalInfoA],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [clientEdgeTraversalInfoB],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [
+            clientEdgeTraversalInfoANewNode,
+            clientEdgeTraversalInfoANewNode,
+          ],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [clientEdgeTraversalInfoANewNode],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [null],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [null, clientEdgeTraversalInfoA],
+        },
+      ];
+      for (let i = 0; i < selectors.length - 1; i++) {
+        for (let j = i + 1; j < selectors.length; j++) {
+          expect(areEqualSelectors(selectors[i], selectors[j])).toBe(false);
+        }
+      }
     });
 
     it('returns true for equivalent selectors and equivalent owners', () => {

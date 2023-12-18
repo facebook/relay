@@ -9,8 +9,7 @@ Defining fields on a client type is as simple as defining a resolver function wh
 
 ## Syntax
 
-When defining a field string after `@RelayResolver` is a GraphQL `TypeName` followed by a dot followed by the field
-definition using GraphQL's schema definition language: https://spec.graphql.org/June2018/#FieldDefinition
+Relay resolvers are marked via docblocks above a resolver function. `@RelayResolver` is the tag to indicate the start of any relay resolver definition. To define a field on a GraphQL model type `TypeName`, add `TypeName` followed by a dot followed by the field definition using GraphQL's schema definition language: https://spec.graphql.org/June2018/#FieldDefinition
 
 ```js
 /**

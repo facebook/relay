@@ -23,8 +23,8 @@ import type { LiveState } from 'relay-runtime';
 export function counter(): LiveState<number> {
   return {
     read: () => store.getState().counter,
-    subscribe: (cb) => {
-      return store.subscribe(cb);
+    subscribe: (callback) => {
+      return store.subscribe(callback);
     },
   };
   

@@ -53,6 +53,19 @@ export type UpdatableQuery = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+export type Assignable_page$data = {
+  readonly __typename: "Page";
+  readonly " $fragmentType": "Assignable_page";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "Assignable_page";
+};
+export type Assignable_page$key = {
+  readonly " $data"?: Assignable_page$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
+};
 module.exports.validate = function validate(value: {
   readonly __typename: string;
   readonly __id: string;
@@ -66,6 +79,19 @@ module.exports.validate = function validate(value: {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+export type Assignable_user$data = {
+  readonly __typename: "User";
+  readonly " $fragmentType": "Assignable_user";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "Assignable_user";
+};
+export type Assignable_user$key = {
+  readonly " $data"?: Assignable_user$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_user">;
+};
 module.exports.validate = function validate(value: {
   readonly __typename: string;
   readonly __id: string;

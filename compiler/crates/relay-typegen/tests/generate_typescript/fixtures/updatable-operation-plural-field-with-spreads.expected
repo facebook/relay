@@ -25,6 +25,19 @@ export type UpdatableQuery = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+export type Updatable_user$data = {
+  readonly __typename: "User";
+  readonly " $fragmentType": "Updatable_user";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "Updatable_user";
+};
+export type Updatable_user$key = {
+  readonly " $data"?: Updatable_user$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Updatable_user">;
+};
 module.exports.validate = function validate(value: {
   readonly __typename: string;
   readonly __id: string;

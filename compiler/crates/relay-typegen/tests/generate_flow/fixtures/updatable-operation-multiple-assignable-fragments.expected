@@ -48,6 +48,15 @@ export type UpdatableQuery = {|
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_node$fragmentType: FragmentType;
+export type Assignable_node$data = {|
+  +__typename: string,
+  +$fragmentType: Assignable_node$fragmentType,
+|};
+export type Assignable_node$key = {
+  +$data?: Assignable_node$data,
+  +$fragmentSpreads: Assignable_node$fragmentType,
+  ...
+};
 module.exports.validate = function validate(value/*: {
   +__id: string,
   +__isAssignable_node?: string,
@@ -64,6 +73,20 @@ module.exports.validate = function validate(value/*: {
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_page$fragmentType: FragmentType;
+export type Assignable_page$data = {|
+  +__typename: "Page",
+  +$fragmentType: Assignable_page$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: Assignable_page$fragmentType,
+|};
+export type Assignable_page$key = {
+  +$data?: Assignable_page$data,
+  +$fragmentSpreads: Assignable_page$fragmentType,
+  ...
+};
 module.exports.validate = function validate(value/*: {
   +__typename: string,
   +__id: string,

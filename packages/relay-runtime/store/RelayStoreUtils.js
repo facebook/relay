@@ -80,7 +80,7 @@ function getArgumentValues(
     FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
     [string]: mixed,
   } = {};
-  if (isWithinUnmatchedTypeRefinement == true) {
+  if (isWithinUnmatchedTypeRefinement) {
     values[
       RelayStoreUtils.FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
     ] = true;

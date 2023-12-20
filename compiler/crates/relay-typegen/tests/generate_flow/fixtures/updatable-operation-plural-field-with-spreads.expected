@@ -27,3 +27,16 @@ export type UpdatableQuery = {|
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Updatable_user$fragmentType: FragmentType;
+module.exports.validate = function validate(value/*: {
+  +__typename: string,
+  +__id: string,
+  +$fragmentSpreads: Updatable_user$fragmentType,
+  ...
+}*/)/*: false | {
+  +__typename: "User",
+  +__id: string,
+  +$fragmentSpreads: Updatable_user$fragmentType,
+  ...
+}*/ {
+  return value.__typename === 'User' ? (value/*: any*/) : false;
+};

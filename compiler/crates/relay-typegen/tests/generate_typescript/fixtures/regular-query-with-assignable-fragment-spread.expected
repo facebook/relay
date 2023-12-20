@@ -24,3 +24,14 @@ export type Foo = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+module.exports.validate = function validate(value: {
+  readonly __typename: string;
+  readonly __id: string;
+  readonly " $fragmentSpreads": Assignable_viewer$fragmentType;
+}): false | {
+  readonly __typename: "Viewer";
+  readonly __id: string;
+  readonly " $fragmentSpreads": Assignable_viewer$fragmentType;
+} {
+  return value.__typename === 'Viewer' ? value : false;
+};

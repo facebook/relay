@@ -57,6 +57,32 @@ export type UpdatableQuery = {|
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_page$fragmentType: FragmentType;
+module.exports.validate = function validate(value/*: {
+  +__typename: string,
+  +__id: string,
+  +$fragmentSpreads: Assignable_page$fragmentType,
+  ...
+}*/)/*: false | {
+  +__typename: "Page",
+  +__id: string,
+  +$fragmentSpreads: Assignable_page$fragmentType,
+  ...
+}*/ {
+  return value.__typename === 'Page' ? (value/*: any*/) : false;
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_user$fragmentType: FragmentType;
+module.exports.validate = function validate(value/*: {
+  +__typename: string,
+  +__id: string,
+  +$fragmentSpreads: Assignable_user$fragmentType,
+  ...
+}*/)/*: false | {
+  +__typename: "User",
+  +__id: string,
+  +$fragmentSpreads: Assignable_user$fragmentType,
+  ...
+}*/ {
+  return value.__typename === 'User' ? (value/*: any*/) : false;
+};

@@ -44,5 +44,27 @@ export type UpdatableQuery = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+module.exports.validate = function validate(value: {
+  readonly __id: string;
+  readonly __isAssignable_node?: string;
+  readonly " $fragmentSpreads": Assignable_node$fragmentType;
+}): false | {
+  readonly __id: string;
+  readonly __isAssignable_node: string;
+  readonly " $fragmentSpreads": Assignable_node$fragmentType;
+} {
+  return value.__isAssignable_node != null ? value : false;
+};
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+module.exports.validate = function validate(value: {
+  readonly __typename: string;
+  readonly __id: string;
+  readonly " $fragmentSpreads": Assignable_page$fragmentType;
+}): false | {
+  readonly __typename: "Page";
+  readonly __id: string;
+  readonly " $fragmentSpreads": Assignable_page$fragmentType;
+} {
+  return value.__typename === 'Page' ? value : false;
+};

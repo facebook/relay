@@ -53,5 +53,27 @@ export type UpdatableQuery = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+module.exports.validate = function validate(value: {
+  readonly __typename: string;
+  readonly __id: string;
+  readonly " $fragmentSpreads": Assignable_page$fragmentType;
+}): false | {
+  readonly __typename: "Page";
+  readonly __id: string;
+  readonly " $fragmentSpreads": Assignable_page$fragmentType;
+} {
+  return value.__typename === 'Page' ? value : false;
+};
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+module.exports.validate = function validate(value: {
+  readonly __typename: string;
+  readonly __id: string;
+  readonly " $fragmentSpreads": Assignable_user$fragmentType;
+}): false | {
+  readonly __typename: "User";
+  readonly __id: string;
+  readonly " $fragmentSpreads": Assignable_user$fragmentType;
+} {
+  return value.__typename === 'User' ? value : false;
+};

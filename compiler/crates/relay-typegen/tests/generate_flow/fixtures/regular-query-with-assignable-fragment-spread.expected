@@ -25,3 +25,16 @@ export type Foo = {|
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_viewer$fragmentType: FragmentType;
+module.exports.validate = function validate(value/*: {
+  +__typename: string,
+  +__id: string,
+  +$fragmentSpreads: Assignable_viewer$fragmentType,
+  ...
+}*/)/*: false | {
+  +__typename: "Viewer",
+  +__id: string,
+  +$fragmentSpreads: Assignable_viewer$fragmentType,
+  ...
+}*/ {
+  return value.__typename === 'Viewer' ? (value/*: any*/) : false;
+};

@@ -10,6 +10,7 @@ use std::sync::Arc;
 use common::ConsoleLogger;
 use common::FeatureFlag;
 use common::FeatureFlags;
+use common::NamedItem;
 use common::ScalarName;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
@@ -30,6 +31,7 @@ use relay_config::ProjectName;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
+use relay_transforms::ASSIGNABLE_DIRECTIVE;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
@@ -125,12 +127,27 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
     let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type_exports_section(
+        let mut parts = vec![relay_typegen::generate_fragment_type_exports_section(
             frag,
             &schema,
             &project_config,
             &fragment_locations,
-        )
+        )];
+
+        if frag.directives.named(*ASSIGNABLE_DIRECTIVE).is_some() {
+            parts.push(relay_typegen::generate_named_validator_export(
+                frag,
+                &schema,
+                &project_config,
+                &fragment_locations,
+            ));
+        }
+
+        if parts.len() > 1 {
+            parts.push("\n".into());
+        }
+
+        parts.join("")
     });
 
     let mut result: Vec<String> = operation_strings.collect();

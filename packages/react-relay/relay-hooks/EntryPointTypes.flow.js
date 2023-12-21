@@ -137,9 +137,9 @@ and they will be passed to the EntryPointComponent as `extraProps`
 export type InternalEntryPointRepresentation<
   TEntryPointParams,
   TPreloadedQueries,
-  TPreloadedEntryPoints,
-  TRuntimeProps,
-  TExtraProps,
+  TPreloadedEntryPoints = {...},
+  TRuntimeProps = {...},
+  TExtraProps = null,
 > = $ReadOnly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
@@ -195,8 +195,9 @@ export type PreloadProps<
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{
-  // $FlowFixMe[deprecated-type]
-  entryPoints?: $ObjMap<TPreloadedEntryPoints, ExtractEntryPointTypeHelper>,
+  entryPoints?: {
+    +[K in keyof TPreloadedEntryPoints]?: ?ThinNestedEntryPointParams,
+  },
   extraProps?: TExtraProps,
   // $FlowFixMe[deprecated-type]
   queries?: $ObjMap<
@@ -253,10 +254,6 @@ declare export opaque type ThinNestedEntryPointParams;
 export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
-
-export type ExtractEntryPointTypeHelper = <TEntryPointComponent>(
-  ?PreloadedEntryPoint<TEntryPointComponent>,
-) => ?ThinNestedEntryPointParams;
 
 export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<

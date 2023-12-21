@@ -267,13 +267,7 @@ export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
     ElementConfig<TEntryPointComponent>['extraProps'],
   >;
 
-type ExtractFirstParam = <P, R>((P) => R) => P;
-type GetPreloadPropsType<T> = T['getPreloadProps'];
-// $FlowFixMe[deprecated-type]
-export type PreloadParamsOf<T> = $Call<
-  ExtractFirstParam,
-  GetPreloadPropsType<T>,
->;
+export type PreloadParamsOf<T> = Parameters<T['getPreloadProps']>[0];
 
 export type IEnvironmentProvider<TOptions> = {
   getEnvironment: (options: ?TOptions) => IEnvironment,

@@ -2100,6 +2100,8 @@ fn transform_non_nullable_input_type(
                             .fields
                             .iter()
                             .map(|field| {
+                                let deprecated_reason =
+                                    field.deprecated().and_then(|deprecated| deprecated.reason);
                                 Prop::KeyValuePair(KeyValuePairProp {
                                     key: field.name.0,
                                     read_only: false,
@@ -2117,8 +2119,8 @@ fn transform_non_nullable_input_type(
                                         encountered_enums,
                                         custom_scalars,
                                     ),
-                                    doc_comment: None,
-                                    deprecation: None,
+                                    doc_comment: field.description.as_ref().map(|s| s.to_string()),
+                                    deprecation: deprecated_reason.as_ref().map(|s| s.to_string()),
                                 })
                             })
                             .collect(),

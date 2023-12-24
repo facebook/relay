@@ -8,8 +8,15 @@ mutation CommentCreateMutation($input: CommentCreateInput!) {
 }
 ==================================== OUTPUT ===================================
 export type CommentCreateInput = {
+  /**
+   * The ID of the feedback to comment on
+   * @deprecated not used anymore
+   */
   client_mutation_id: string;
   feedback?: CommentfeedbackFeedback | null | undefined;
+  /**
+   * The text of the comment
+   */
   feedbackId?: string | null | undefined;
 };
 export type CommentfeedbackFeedback = {
@@ -23,6 +30,9 @@ export type CommentCreateMutation$variables = {
 };
 export type CommentCreateMutation$data = {
   readonly commentCreate: {
+    /**
+     * A comment
+     */
     readonly comment: {
       readonly id: string;
     };

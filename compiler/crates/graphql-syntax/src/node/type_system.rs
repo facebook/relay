@@ -477,6 +477,7 @@ pub struct InputValueDefinition {
     pub type_: TypeAnnotation,
     pub default_value: Option<ConstantValue>,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
 }
 
 impl fmt::Display for InputValueDefinition {

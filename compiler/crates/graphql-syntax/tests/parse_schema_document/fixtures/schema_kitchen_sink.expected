@@ -341,6 +341,7 @@ SchemaDocument {
                                                 ),
                                                 default_value: None,
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -413,6 +414,7 @@ SchemaDocument {
                                                 ),
                                                 default_value: None,
                                                 directives: [],
+                                                description: None,
                                             },
                                             InputValueDefinition {
                                                 name: Identifier {
@@ -437,6 +439,7 @@ SchemaDocument {
                                                 ),
                                                 default_value: None,
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -519,6 +522,7 @@ SchemaDocument {
                                                     ),
                                                 ),
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -630,6 +634,7 @@ SchemaDocument {
                                                     ),
                                                 ),
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -734,6 +739,7 @@ SchemaDocument {
                                                     ),
                                                 ),
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -805,6 +811,7 @@ SchemaDocument {
                                                     ),
                                                 ),
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -980,6 +987,7 @@ SchemaDocument {
                                                         arguments: None,
                                                     },
                                                 ],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -1118,6 +1126,7 @@ SchemaDocument {
                                                 ),
                                                 default_value: None,
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -1279,6 +1288,7 @@ SchemaDocument {
                                                     ),
                                                 ),
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -1406,6 +1416,7 @@ SchemaDocument {
                                                         arguments: None,
                                                     },
                                                 ],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -1549,6 +1560,7 @@ SchemaDocument {
                                                 ),
                                                 default_value: None,
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -1726,6 +1738,7 @@ SchemaDocument {
                                                 ),
                                                 default_value: None,
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -1800,6 +1813,7 @@ SchemaDocument {
                                                     ),
                                                 ),
                                                 directives: [],
+                                                description: None,
                                             },
                                         ],
                                         end: Token {
@@ -2385,6 +2399,7 @@ SchemaDocument {
                                 ),
                                 default_value: None,
                                 directives: [],
+                                description: None,
                             },
                             InputValueDefinition {
                                 name: Identifier {
@@ -2419,6 +2434,7 @@ SchemaDocument {
                                     ),
                                 ),
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -2505,6 +2521,7 @@ SchemaDocument {
                                         arguments: None,
                                     },
                                 ],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -2599,6 +2616,7 @@ SchemaDocument {
                                         arguments: None,
                                     },
                                 ],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -2707,6 +2725,7 @@ SchemaDocument {
                                         arguments: None,
                                     },
                                 ],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -2783,6 +2802,7 @@ SchemaDocument {
                                 ),
                                 default_value: None,
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -2851,6 +2871,7 @@ SchemaDocument {
                                 ),
                                 default_value: None,
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -2919,6 +2940,7 @@ SchemaDocument {
                                 ),
                                 default_value: None,
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {

@@ -999,11 +999,13 @@ impl<'a> Parser<'a> {
             None
         };
         let directives = self.parse_constant_directives()?;
+        let description = self.parse_optional_description();
         Ok(InputValueDefinition {
             name,
             type_,
             default_value,
             directives,
+            description,
         })
     }
 

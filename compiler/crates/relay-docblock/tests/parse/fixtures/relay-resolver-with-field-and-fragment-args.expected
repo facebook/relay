@@ -74,6 +74,7 @@ LegacyVerboseResolver(
                             ),
                             default_value: None,
                             directives: [],
+                            description: None,
                         },
                     ],
                     end: Token {

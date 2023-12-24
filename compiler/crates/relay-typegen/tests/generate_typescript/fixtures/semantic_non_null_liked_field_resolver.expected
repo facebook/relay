@@ -32,6 +32,9 @@ import { FragmentRefs, DataID } from "relay-runtime";
 import clientUserBestFriendResolverType from "bar";
 export type MyFragment$data = {
   readonly best_friend: {
+    /**
+     * The user's name (first, last)
+     */
     readonly name: string | null | undefined;
   };
   readonly " $fragmentType": "MyFragment";
@@ -44,6 +47,9 @@ export type MyFragment$key = {
 import { FragmentRefs } from "relay-runtime";
 export type RefetchableClientEdgeQuery_MyFragment_best_friend$data = {
   readonly id: string;
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly " $fragmentType": "RefetchableClientEdgeQuery_MyFragment_best_friend";
 };

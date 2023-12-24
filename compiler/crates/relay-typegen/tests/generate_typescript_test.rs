@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8c5baf576b7e6626dbf9c608f530a4fd>>
+ * @generated SignedSource<<c561907ded8bf2efce51ae01bef4ed6c>>
  */
 
 mod generate_typescript;
@@ -94,6 +94,13 @@ async fn inline_fragment() {
     let input = include_str!("generate_typescript/fixtures/inline-fragment.graphql");
     let expected = include_str!("generate_typescript/fixtures/inline-fragment.expected");
     test_fixture(transform_fixture, file!(), "inline-fragment.graphql", "generate_typescript/fixtures/inline-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn jsdoc_input() {
+    let input = include_str!("generate_typescript/fixtures/jsdoc-input.graphql");
+    let expected = include_str!("generate_typescript/fixtures/jsdoc-input.expected");
+    test_fixture(transform_fixture, file!(), "jsdoc-input.graphql", "generate_typescript/fixtures/jsdoc-input.expected", input, expected).await;
 }
 
 #[tokio::test]

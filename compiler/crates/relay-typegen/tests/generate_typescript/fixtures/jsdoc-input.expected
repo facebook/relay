@@ -1,16 +1,8 @@
 ==================================== INPUT ====================================
-mutation CommentCreateMutation(
-  $input: CommentCreateInput!
-  $first: Int
-  $orderBy: [String!]
-) {
+mutation FooMutation($input: CommentCreateInput!) {
   commentCreate(input: $input) {
-    comment {
-      id
-      name
-      friends(first: $first, orderby: $orderBy) {
-        count
-      }
+    feedback {
+        id
     }
   }
 }
@@ -33,26 +25,20 @@ export type CommentfeedbackFeedback = {
 export type FeedbackcommentComment = {
   feedback?: CommentfeedbackFeedback | null | undefined;
 };
-export type CommentCreateMutation$variables = {
-  first?: number | null | undefined;
+export type FooMutation$variables = {
   input: CommentCreateInput;
-  orderBy?: ReadonlyArray<string> | null | undefined;
 };
-export type CommentCreateMutation$data = {
+export type FooMutation$data = {
   readonly commentCreate: {
     /**
-     * A comment
+     * A feedback
      */
-    readonly comment: {
-      readonly friends: {
-        readonly count: number | null | undefined;
-      } | null | undefined;
+    readonly feedback: {
       readonly id: string;
-      readonly name: string | null | undefined;
     } | null | undefined;
   } | null | undefined;
 };
-export type CommentCreateMutation = {
-  response: CommentCreateMutation$data;
-  variables: CommentCreateMutation$variables;
+export type FooMutation = {
+  response: FooMutation$data;
+  variables: FooMutation$variables;
 };

@@ -731,6 +731,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                         type_: arg.type_.clone(),
                         default_value: arg.default_value.clone(),
                         directives: vec![],
+                        description: None,
                     })
                     .collect::<Vec<_>>(),
             )

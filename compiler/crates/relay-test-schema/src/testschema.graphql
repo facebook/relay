@@ -153,9 +153,13 @@ input ApplicationRequestDeleteAllInput {
   deletedRequestIds: [ID]
 }
 
+"""Inpiut of the mutation"""
 input CommentCreateInput {
-  client_mutation_id: String!
+  """A unique identifier for the client performing the mutation."""
+  client_mutation_id: String! @deprecated(reason: "not used anymore")
+  """The ID of the feedback to comment on"""
   feedbackId: ID
+  """The text of the comment"""
   feedback: CommentfeedbackFeedback
 }
 
@@ -164,7 +168,9 @@ input CommentsCreateInput {
   feedback: [CommentfeedbackFeedback]
 }
 
+"""a feedback"""
 input CommentfeedbackFeedback {
+  """ a comment"""
   comment: FeedbackcommentComment
 }
 
@@ -314,7 +320,9 @@ type Comment implements Node {
 }
 
 type CommentCreateResponsePayload {
+  """A comment"""
   comment: Comment
+  """A feedback"""
   feedback: Feedback
   feedbackCommentEdge: CommentsEdge
   feedbackCommentEdgeUsingInterface: CommentsEdgeInterface

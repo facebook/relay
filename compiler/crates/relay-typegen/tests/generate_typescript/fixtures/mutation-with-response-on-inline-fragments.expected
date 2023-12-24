@@ -29,8 +29,15 @@ fragment InlineFragmentWithOverlappingFields on Actor {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type CommentCreateInput = {
+  /**
+   * The ID of the feedback to comment on
+   * @deprecated not used anymore
+   */
   client_mutation_id: string;
   feedback?: CommentfeedbackFeedback | null | undefined;
+  /**
+   * The text of the comment
+   */
   feedbackId?: string | null | undefined;
 };
 export type CommentfeedbackFeedback = {

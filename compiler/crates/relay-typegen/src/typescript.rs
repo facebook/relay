@@ -273,19 +273,15 @@ impl TypeScriptPrinter {
                         self.write_indentation()?;
                     }
                     if self.generate_jsdoc {
-                        let has_doc = key_value_pair.doc_comment.is_some()
+                        let has_doc: bool = key_value_pair.doc_comment.is_some()
                             || key_value_pair.deprecation.is_some();
                         if has_doc {
                             write!(&mut self.result, "/**\n")?;
                         }
                         if key_value_pair.doc_comment.is_some() {
-                            for line in  key_value_pair.doc_comment.as_ref().unwrap().lines() {
+                            for line in key_value_pair.doc_comment.as_ref().unwrap().lines() {
                                 self.write_indentation()?;
-                                write!(
-                                    &mut self.result,
-                                    " * {}\n",
-                                    line
-                                )?;
+                                write!(&mut self.result, " * {}\n", line)?;
                             }
                         }
                         if key_value_pair.deprecation.is_some() {

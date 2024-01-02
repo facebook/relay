@@ -16,7 +16,9 @@ use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
+use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
@@ -78,6 +80,9 @@ pub enum ClientEdgeMetadataDirective {
     },
     ClientObject {
         type_name: Option<ObjectName>,
+        location: Location,
+        has_model_instance_field: bool,
+        is_model_live: bool,
         unique_id: u32,
     },
 }
@@ -372,6 +377,9 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 }
                 Some(ClientEdgeMetadataDirective::ClientObject {
                     type_name: None,
+                    location: field.alias_or_name_location(),
+                    has_model_instance_field: false,
+                    is_model_live: false,
                     unique_id: self.get_key(),
                 })
             }
@@ -382,10 +390,37 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 ));
                 None
             }
-            Type::Object(object_id) => Some(ClientEdgeMetadataDirective::ClientObject {
-                type_name: Some(self.program.schema.object(object_id).name.item),
-                unique_id: self.get_key(),
-            }),
+            Type::Object(object_id) => {
+                let type_name = self.program.schema.object(object_id).name;
+                let parent_type = self.program.schema.get_type(type_name.item.0).unwrap();
+                let model_field_id = self
+                    .program
+                    .schema
+                    .named_field(parent_type, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
+                // Note: is_model_live is only true if the __relay_model_instance field exists on the model field
+                let is_model_live = if let Some(id) = model_field_id {
+                    let model_field = self.program.schema.field(id);
+                    let resolver_directive =
+                        model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
+                    if let Some(resolver_directive) = resolver_directive {
+                        resolver_directive
+                            .arguments
+                            .iter()
+                            .any(|arg| arg.name.0 == LIVE_ARGUMENT_NAME.0)
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                };
+                Some(ClientEdgeMetadataDirective::ClientObject {
+                    type_name: Some(type_name.item),
+                    has_model_instance_field: model_field_id.is_some(),
+                    is_model_live,
+                    location: type_name.location,
+                    unique_id: self.get_key(),
+                })
+            }
             _ => {
                 panic!("Expected a linked field to reference either an Object, Interface, or Union")
             }

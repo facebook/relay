@@ -740,10 +740,18 @@ class RelayReader {
           validClientEdgeResolverResponse.ids,
           this._resolverCache,
         );
+        let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
+        if (field.modelResolver != null) {
+          const modelResolver = field.modelResolver;
+          validStoreIDs = storeIDs.map(storeID => {
+            const model = this._readResolverFieldImpl(modelResolver, storeID);
+            return model != null ? storeID : null;
+          });
+        }
         this._clientEdgeTraversalPath.push(null);
         const edgeValues = this._readLinkedIds(
           field.linkedField,
-          storeIDs,
+          validStoreIDs,
           record,
           data,
         );

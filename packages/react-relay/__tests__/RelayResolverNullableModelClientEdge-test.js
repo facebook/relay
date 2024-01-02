@@ -29,8 +29,33 @@ const {
   RelayFeatureFlags,
   graphql,
 } = require('relay-runtime');
+const {
+  addTodo,
+} = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const {createMockEnvironment} = require('relay-test-utils');
+
+/**
+ * CLIENT EDGE TO PLURAL LIVE STRONG CLIENT OBJECT
+ */
+
+/**
+ * @RelayResolver Query.edge_to_plural_live_objects_some_exist: [TodoModel]
+ */
+export function edge_to_plural_live_objects_some_exist(): $ReadOnlyArray<{
+  id: DataID,
+}> {
+  return [{id: 'todo-1'}, {id: 'THERE_IS_NO_TODO_WITH_THIS_ID'}];
+}
+
+/**
+ * @RelayResolver Query.edge_to_plural_live_objects_none_exist: [TodoModel]
+ */
+export function edge_to_plural_live_objects_none_exist(): $ReadOnlyArray<{
+  id: DataID,
+}> {
+  return [{id: 'NO_TODO_1'}, {id: 'NO_TODO_2'}];
+}
 
 /**
  * CLIENT EDGE TO LIVE STRONG CLIENT OBJECT
@@ -158,6 +183,73 @@ describe.each([
   beforeEach(() => {
     environment = createEnvironment();
   });
+  test('client edge to plural IDs, none have corresponding live object', () => {
+    function TodoNullComponent() {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query {
+            edge_to_plural_live_objects_none_exist {
+              id
+              description
+            }
+          }
+        `,
+        {},
+      );
+
+      invariant(data != null, 'Query response should be nonnull');
+      expect(data.edge_to_plural_live_objects_none_exist).toHaveLength(2);
+      return data.edge_to_plural_live_objects_none_exist
+        ?.map(item =>
+          item
+            ? `${item.id ?? 'unknown'} - ${item.description ?? 'unknown'}`
+            : 'unknown',
+        )
+        .join(',');
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('unknown,unknown');
+  });
+
+  test('client edge to plural IDs, some with no corresponding live object', () => {
+    function TodoNullComponent() {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query {
+            edge_to_plural_live_objects_some_exist {
+              id
+              description
+            }
+          }
+        `,
+        {},
+      );
+
+      invariant(data != null, 'Query response should be nonnull');
+      expect(data.edge_to_plural_live_objects_some_exist).toHaveLength(2);
+      return data.edge_to_plural_live_objects_some_exist
+        ?.map(item =>
+          item
+            ? `${item.id ?? 'unknown'} - ${item.description ?? 'unknown'}`
+            : 'unknown',
+        )
+        .join(',');
+    }
+
+    addTodo('Test todo');
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('todo-1 - Test todo,unknown');
+  });
+
   test('client edge to ID with no corresponding live object', () => {
     function TodoNullComponent() {
       const data = useClientQuery(

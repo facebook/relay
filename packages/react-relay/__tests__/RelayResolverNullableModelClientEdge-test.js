@@ -190,8 +190,7 @@ describe.each([
         <TodoNullComponent />
       </EnvironmentWrapper>,
     );
-    // TODO: T162471299 this should be 'Todo was null'
-    expect(renderer.toJSON()).toEqual('Todo was not null or undefined');
+    expect(renderer.toJSON()).toEqual('Todo was null');
   });
 
   test('client edge to ID with no corresponding weak object', () => {
@@ -255,8 +254,7 @@ describe.each([
         <NullStrongModelComponent />
       </EnvironmentWrapper>,
     );
-    // TODO: T162471299 this should be 'strong model was null'
-    expect(renderer.toJSON()).toEqual('strong model was not null or undefined');
+    expect(renderer.toJSON()).toEqual('strong model was null');
   });
 
   test('client edge to server ID with no corresponding server object', () => {

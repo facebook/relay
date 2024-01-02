@@ -38,6 +38,7 @@ path = "tests/json_codegen_test.rs"
 
 [dependencies]
 common = { path = "../common" }
+docblock-shared = { path = "../docblock-shared" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }

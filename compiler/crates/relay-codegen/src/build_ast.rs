@@ -1199,13 +1199,38 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
     }
 
+    fn build_reader_relay_resolver_args(
+        &mut self,
+        relay_resolver_metadata: &RelayResolverMetadata,
+    ) -> Primitive {
+        let field = relay_resolver_metadata.field(self.schema);
+        // Check field.arguments here instead of relay_resolver_metadata.field_arguments. field.arguments is partitioned into
+        // field_arguments and fragment_arguments during the relay resolvers transform. If the resolver field is only passed a
+        // fragment argument, we should fall back to the else case where we will return an empty array primitive as the resolver
+        // field arguments instead of returning null.
+        if field.arguments.is_empty() {
+            Primitive::SkippableNull
+        } else {
+            self.build_arguments(&relay_resolver_metadata.field_arguments)
+                .map_or_else(
+                    || {
+                        // Passing an empty array here, rather than `null`, allows the runtime
+                        // to know that it should still create an arguments object to pass to
+                        // the resolver, even though no arguments were provided at the callsite,
+                        // since all arguments are optional.
+                        Primitive::Key(self.array(vec![]))
+                    },
+                    Primitive::Key,
+                )
+        }
+    }
+
     fn build_reader_relay_resolver(
         &mut self,
         relay_resolver_metadata: &RelayResolverMetadata,
         fragment_primitive: Option<Primitive>,
     ) -> Primitive {
         let field = relay_resolver_metadata.field(self.schema);
-        let field_arguments = &relay_resolver_metadata.field_arguments;
         let field_alias = relay_resolver_metadata.field_alias;
         let field_name = field.name.item;
         let path = relay_resolver_metadata.field_path;
@@ -1223,20 +1248,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             &PathBuf::from(relay_resolver_metadata.import_path.lookup()),
         );
 
-        let args = if field.arguments.is_empty() {
-            Primitive::SkippableNull
-        } else {
-            self.build_arguments(field_arguments).map_or_else(
-                || {
-                    // Passing an empty array here, rather than `null`, allows the runtime
-                    // to know that it should still create an arguments object to pass to
-                    // the resolver, even though no arguments were provided at the callsite,
-                    // since all arguments are optional.
-                    Primitive::Key(self.array(vec![]))
-                },
-                Primitive::Key,
-            )
-        };
+        let args = self.build_reader_relay_resolver_args(relay_resolver_metadata);
 
         let variable_name = relay_resolver_metadata.generate_local_resolver_name(self.schema);
         let resolver_js_module = JSModuleDependency {

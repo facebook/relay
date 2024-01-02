@@ -274,6 +274,7 @@ export type ReaderRelayLiveResolver = {
 export type ReaderClientEdgeToClientObject = {
   +kind: 'ClientEdgeToClientObject',
   +concreteType: string | null,
+  +modelResolver?: ReaderRelayResolver | ReaderRelayLiveResolver,
   +linkedField: ReaderLinkedField,
   +backingField:
     | ReaderRelayResolver

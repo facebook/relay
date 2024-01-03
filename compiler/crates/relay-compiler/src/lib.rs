@@ -17,7 +17,7 @@ pub mod compiler_state;
 pub mod config;
 mod docblocks;
 pub mod errors;
-mod file_source;
+pub mod file_source;
 mod graphql_asts;
 mod operation_persister;
 mod red_to_green;

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<60cab30ed3539ce77f7cf9ac0e7f20db>>
+ * @generated SignedSource<<4d2a3459c6d6351bbfb839854085c0e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -110,7 +110,7 @@ return {
         "concreteType": "TodoModel",
         "modelResolver": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": [],
           "fragment": {
             "args": null,
             "kind": "FragmentSpread",

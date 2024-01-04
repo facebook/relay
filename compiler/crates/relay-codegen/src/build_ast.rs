@@ -17,6 +17,7 @@ use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -1208,64 +1209,41 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         is_model_live: bool,
         relay_resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
-        // Generate the id fragment relative JS import path.
-        let importing_artifact_path = &self
-            .project_config
-            .artifact_path_for_definition(self.definition_source_location);
         let id_fragment_artifact_name = self
             .project_config
             .name
             .generate_name_for_object_and_field(type_name, CODEGEN_CONSTANTS.id);
-        let artifact_path = self.project_config.create_path_for_artifact(
-            location.source_location(),
-            id_fragment_artifact_name.clone(),
-        );
-        let backing_field_js_module_path = self
-            .project_config
-            .js_module_import_identifier(importing_artifact_path, &artifact_path);
-        // Generate the resolver module for the output type.
-        let resolver_module_path = self.project_config.js_module_import_identifier(
-            importing_artifact_path,
-            &PathBuf::from(location.source_location().path().intern().lookup()),
-        );
-        let resolver_js_module = JSModuleDependency {
-            path: resolver_module_path,
-            import_name: ModuleImportName::Named {
-                name: type_name,
-                import_as: Some(type_name),
-            },
-        };
-        let resolver_module = Primitive::RelayResolverModel {
-            graphql_module_path: backing_field_js_module_path,
-            graphql_module_name: id_fragment_artifact_name.clone().intern(),
-            js_module: resolver_js_module,
-            injected_field_name_details: Some((CODEGEN_CONSTANTS.id, true)),
-        };
         let path = format!(
             "{}.{}",
             relay_resolver_metadata.field_path, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD
         )
         .intern();
-        let kind = if is_model_live {
-            CODEGEN_CONSTANTS.relay_live_resolver
-        } else {
-            CODEGEN_CONSTANTS.relay_resolver
+        let model_resolver_metadata = RelayResolverMetadata {
+            field_id: relay_resolver_metadata.field_id,
+            import_path: location.source_location().path().intern(),
+            import_name: Some(type_name),
+            field_alias: None,
+            field_path: path,
+            field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
+            live: is_model_live,
+            output_type_info: relay_resolver_metadata.output_type_info.clone(),
+            fragment_data_injection_mode: Some((
+                WithLocation::new(
+                    location,
+                    FragmentDefinitionName(id_fragment_artifact_name.clone().intern()),
+                ),
+                FragmentDataInjectionMode::Field {
+                    name: CODEGEN_CONSTANTS.id,
+                    is_required: true,
+                },
+            )),
         };
-        let field = relay_resolver_metadata.field(self.schema);
-        let object_props = object! {
-            alias: Primitive::Null,
-            args: self.build_reader_relay_resolver_args(relay_resolver_metadata),
-            fragment: Primitive::Key(self.object(object! {
-                args: Primitive::SkippableNull,
-                kind: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
-                name: Primitive::String(id_fragment_artifact_name.intern()),
-            })),
-            kind: Primitive::String(kind),
-            name: Primitive::String(field.name.item),
-            resolver_module: resolver_module,
-            path: Primitive::String(path),
-        };
-        Primitive::Key(self.object(object_props))
+        let fragment_primitive = Primitive::Key(self.object(object! {
+            args: Primitive::SkippableNull,
+            kind: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
+            name: Primitive::String(id_fragment_artifact_name.clone().intern()),
+        }));
+        self.build_reader_relay_resolver(&model_resolver_metadata, Some(fragment_primitive))
     }
 
     fn build_reader_relay_resolver_args(

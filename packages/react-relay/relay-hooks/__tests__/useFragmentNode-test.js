@@ -1118,6 +1118,58 @@ describe.each([
       });
     });
 
+    it('should return the latest data when the hi-priority update happens at the same time as the low-priority store update', () => {
+      const startTransition = React.startTransition;
+      if (startTransition != null) {
+        internalAct(() => {
+          renderSingularFragment({
+            isConcurrent: true,
+          });
+        });
+        assertFragmentResults([
+          {
+            data: {
+              id: '1',
+              name: 'Alice',
+              profile_picture: null,
+              ...createFragmentRef('1', singularQuery),
+            },
+          },
+        ]);
+
+        internalAct(() => {
+          // Trigger store update with the lower priority
+          startTransition(() => {
+            environment.commitUpdate(store => {
+              store.get('1')?.setValue('Alice Updated Name', 'name');
+            });
+          });
+          // Trigger a hi-pri update with the higher priority, that should force component to re-render
+          forceSingularUpdate();
+        });
+
+        // Assert that the component re-renders twice, both times with the latest data
+        assertFragmentResults([
+          {
+            data: {
+              id: '1',
+              name: 'Alice Updated Name',
+              profile_picture: null,
+              ...createFragmentRef('1', singularQuery),
+            },
+          },
+          {
+            data: {
+              id: '1',
+              name: 'Alice Updated Name',
+              profile_picture: null,
+              ...createFragmentRef('1', singularQuery),
+            },
+          },
+        ]);
+      }
+    });
+
     it('should re-read and resubscribe to fragment when variables change', () => {
       renderSingularFragment();
       assertFragmentResults([

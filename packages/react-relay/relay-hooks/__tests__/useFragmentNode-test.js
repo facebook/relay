@@ -661,6 +661,33 @@ describe.each([
       ]);
     });
 
+    it('should supsend when the environment changes and there is query in flight', () => {
+      const renderer = renderSingularFragment();
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: null,
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
+
+      const newEnvironment = createMockEnvironment();
+
+      internalAct(() => {
+        // Let there be an operation in flight
+        fetchQuery(newEnvironment, singularQuery).subscribe({});
+
+        setEnvironment(newEnvironment);
+      });
+
+      // It should suspend when the environment changes and there is a query
+      // in flight.
+      expect(renderer.toJSON()).toEqual('Singular Fallback');
+    });
+
     it('should re-read and resubscribe to fragment when fragment pointers change', () => {
       renderSingularFragment();
       assertRenderBatch([

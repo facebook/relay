@@ -505,6 +505,7 @@ function useFragmentInternal_EXPERIMENTAL(
     // We only suspend when the component is first trying to mount or changing
     // selectors, not if data becomes missing later:
     if (
+      environment !== previousEnvironment ||
       !committedFragmentSelectorRef.current ||
       !areEqualSelectors(committedFragmentSelectorRef.current, fragmentSelector)
     ) {

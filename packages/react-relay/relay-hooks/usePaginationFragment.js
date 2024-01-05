@@ -157,15 +157,12 @@ function useLoadMore<TVariables: Variables>(
 }
 
 export type ReturnType<TVariables, TData, TKey> = {
-  // NOTE: This $Call ensures that the type of the returned data is either:
+  // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  // prettier-ignore
-  data: $Call<
-    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) =>  TData)
-    & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => ?TData),
-    TKey,
-  >,
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+    ? TData
+    : ?TData,
   loadNext: LoadMoreFn<TVariables>,
   loadPrevious: LoadMoreFn<TVariables>,
   hasNext: boolean,
@@ -186,6 +183,7 @@ function usePaginationFragment<
 ): ReturnType<TVariables, TData, TKey> {
   const impl = HooksImplementation.get();
   if (impl) {
+    // $FlowExpectedError[incompatible-return] Flow cannot prove that two conditional type satisfy each other
     return impl.usePaginationFragment<TFragmentType, TVariables, TData, TKey>(
       fragmentInput,
       parentFragmentRef,

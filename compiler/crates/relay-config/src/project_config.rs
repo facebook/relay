@@ -248,6 +248,7 @@ pub struct ProjectConfig {
     pub module_import_config: ModuleImportConfig,
     pub diagnostic_report_config: DiagnosticReportConfig,
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+    pub codegen_command: Option<String>,
 }
 
 impl Default for ProjectConfig {
@@ -275,6 +276,7 @@ impl Default for ProjectConfig {
             module_import_config: Default::default(),
             diagnostic_report_config: Default::default(),
             resolvers_schema_module: Default::default(),
+            codegen_command: Default::default(),
         }
     }
 }
@@ -304,6 +306,7 @@ impl Debug for ProjectConfig {
             module_import_config,
             diagnostic_report_config,
             resolvers_schema_module,
+            codegen_command,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -328,6 +331,7 @@ impl Debug for ProjectConfig {
             .field("module_import_config", module_import_config)
             .field("diagnostic_report_config", diagnostic_report_config)
             .field("resolvers_schema_module", resolvers_schema_module)
+            .field("codegen_command", codegen_command)
             .finish()
     }
 }

@@ -512,8 +512,19 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): mixed {
-    const {fragment} = field;
     const parentRecordID = RelayModernRecord.getDataID(record);
+    const result = this._readResolverFieldImpl(field, parentRecordID);
+
+    const applicationName = field.alias ?? field.name;
+    data[applicationName] = result;
+    return result;
+  }
+
+  _readResolverFieldImpl(
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
+    parentRecordID: DataID,
+  ): mixed {
+    const {fragment} = field;
 
     // Found when reading the resolver fragment, which can happen either when
     // evaluating the resolver and it calls readFragment, or when checking if the
@@ -613,8 +624,6 @@ class RelayReader {
       updatedDataIDs,
     );
 
-    const applicationName = field.alias ?? field.name;
-    data[applicationName] = result;
     return result;
   }
 
@@ -731,10 +740,18 @@ class RelayReader {
           validClientEdgeResolverResponse.ids,
           this._resolverCache,
         );
+        let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
+        if (field.modelResolver != null) {
+          const modelResolver = field.modelResolver;
+          validStoreIDs = storeIDs.map(storeID => {
+            const model = this._readResolverFieldImpl(modelResolver, storeID);
+            return model != null ? storeID : null;
+          });
+        }
         this._clientEdgeTraversalPath.push(null);
         const edgeValues = this._readLinkedIds(
           field.linkedField,
-          storeIDs,
+          validStoreIDs,
           record,
           data,
         );
@@ -749,6 +766,18 @@ class RelayReader {
             validClientEdgeResolverResponse.id,
             this._resolverCache,
           );
+        if (field.modelResolver != null) {
+          const model = this._readResolverFieldImpl(
+            field.modelResolver,
+            storeID,
+          );
+          if (model == null) {
+            // If the model resolver returns undefined, we should still return null
+            // to match GQL behavior.
+            data[applicationName] = null;
+            return null;
+          }
+        }
         this._clientEdgeTraversalPath.push(traversalPathSegment);
 
         const prevData = data[applicationName];

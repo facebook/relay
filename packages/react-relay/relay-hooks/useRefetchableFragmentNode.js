@@ -55,16 +55,13 @@ export type RefetchFn<
 //    /nullable/.
 //  - Or, expects /a subset/ of the query variables if the provided key type is
 //    /non-null/.
-// prettier-ignore
 export type RefetchFnDynamic<
   TQuery: OperationType,
-  TKey: ?{ +$data?: mixed, ... },
+  TKey: ?{+$data?: mixed, ...},
   TOptions = Options,
-> = $Call<
-  & (( { +$data?: mixed, ... }) => RefetchFnInexact<TQuery, TOptions>)
-  & ((?{ +$data?: mixed, ... }) => RefetchFnExact<TQuery, TOptions>),
-  TKey
->;
+> = [TKey] extends [{+$data?: mixed, ...}]
+  ? RefetchFnInexact<TQuery, TOptions>
+  : RefetchFnExact<TQuery, TOptions>;
 
 export type ReturnType<
   TQuery: OperationType,
@@ -363,6 +360,7 @@ function useRefetchableFragmentNode<
   return {
     fragmentData,
     fragmentRef,
+    // $FlowFixMe[incompatible-return] RefetchFn not compatible with RefetchFnDynamic
     refetch,
     disableStoreUpdates,
     enableStoreUpdates,

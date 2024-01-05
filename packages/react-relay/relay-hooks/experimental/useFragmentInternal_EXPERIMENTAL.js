@@ -244,6 +244,7 @@ function subscribeToSnapshot(
   environment: IEnvironment,
   state: FragmentState,
   setState: StateUpdaterFunction<FragmentState>,
+  hasPendingStateChanges: {current: boolean},
 ): () => void {
   if (state.kind === 'bailout') {
     return () => {};
@@ -264,11 +265,14 @@ function subscribeToSnapshot(
               name: 'useFragment.subscription.missedUpdates',
               hasDataChanges: dataChanged,
             });
+            hasPendingStateChanges.current = dataChanged;
             return dataChanged ? nextState : prevState;
           } else {
             return prevState;
           }
         }
+
+        hasPendingStateChanges.current = true;
         return {
           kind: 'singular',
           snapshot: latestSnapshot,
@@ -297,6 +301,8 @@ function subscribeToSnapshot(
                 name: 'useFragment.subscription.missedUpdates',
                 hasDataChanges: dataChanged,
               });
+              hasPendingStateChanges.current =
+                hasPendingStateChanges.current || dataChanged;
               return dataChanged ? nextState : prevState;
             } else {
               return prevState;
@@ -304,6 +310,7 @@ function subscribeToSnapshot(
           }
           const updated = [...prevState.snapshots];
           updated[index] = latestSnapshot;
+          hasPendingStateChanges.current = true;
           return {
             kind: 'plural',
             snapshots: updated,
@@ -505,6 +512,7 @@ function useFragmentInternal_EXPERIMENTAL(
     // We only suspend when the component is first trying to mount or changing
     // selectors, not if data becomes missing later:
     if (
+      environment !== previousEnvironment ||
       !committedFragmentSelectorRef.current ||
       !areEqualSelectors(committedFragmentSelectorRef.current, fragmentSelector)
     ) {
@@ -528,6 +536,8 @@ function useFragmentInternal_EXPERIMENTAL(
   // they're missing even though we are out of options for possibly fetching them:
   handlePotentialSnapshotErrorsForState(environment, state);
 
+  const hasPendingStateChanges = useRef<boolean>(false);
+
   useEffect(() => {
     // Check for updates since the state was rendered
     let currentState = subscribedState;
@@ -546,8 +556,25 @@ function useFragmentInternal_EXPERIMENTAL(
       }
       currentState = updatedState;
     }
-    return subscribeToSnapshot(environment, currentState, setState);
+    return subscribeToSnapshot(
+      environment,
+      currentState,
+      setState,
+      hasPendingStateChanges,
+    );
   }, [environment, subscribedState]);
+
+  if (hasPendingStateChanges.current) {
+    const updates = handleMissedUpdates(environment, state);
+    if (updates != null) {
+      const [hasStateUpdates, updatedState] = updates;
+      if (hasStateUpdates) {
+        setState(updatedState);
+        state = updatedState;
+      }
+    }
+    hasPendingStateChanges.current = false;
+  }
 
   let data: ?SelectorData | Array<?SelectorData>;
   if (isPlural) {

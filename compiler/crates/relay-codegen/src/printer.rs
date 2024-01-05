@@ -42,6 +42,7 @@ use crate::build_ast::build_provided_variables;
 use crate::build_ast::build_request;
 use crate::build_ast::build_request_params;
 use crate::build_ast::build_request_params_ast_key;
+use crate::build_ast::build_resolvers_schema;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::object;
@@ -115,6 +116,14 @@ pub fn print_provided_variables(
     project_config: &ProjectConfig,
 ) -> Option<String> {
     Printer::without_dedupe(project_config).print_provided_variables(schema, operation)
+}
+
+pub fn print_resolvers_schema(
+    schema: &SDLSchema,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
+) -> String {
+    Printer::without_dedupe(project_config).print_resolvers_schema(schema, top_level_statements)
 }
 
 pub struct Printer<'p> {
@@ -288,6 +297,16 @@ impl<'p> Printer<'p> {
             operation.name.map(|x| x.0),
             self.project_config,
         );
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        printer.print(key, self.dedupe)
+    }
+
+    pub fn print_resolvers_schema(
+        &mut self,
+        schema: &SDLSchema,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
+        let key = build_resolvers_schema(&mut self.builder, schema, self.project_config);
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }

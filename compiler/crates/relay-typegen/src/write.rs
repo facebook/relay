@@ -453,7 +453,10 @@ pub(crate) fn write_fragment_type_exports_section(
     if !is_assignable_fragment {
         writer.write_export_type(&data_type_name, &data_type)?;
         writer.write_export_type(&format!("{}$key", fragment_definition.name.item), &ref_type)?;
-    } else if typegen_context.is_extra_artifact_branch_module {
+    } else if typegen_context
+        .typegen_options
+        .is_extra_artifact_branch_module
+    {
         writer.write_export_type(&data_type_name, &data_type)?;
     }
 

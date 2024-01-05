@@ -661,6 +661,33 @@ describe.each([
       ]);
     });
 
+    it('should supsend when the environment changes and there is query in flight', () => {
+      const renderer = renderSingularFragment();
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: null,
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
+
+      const newEnvironment = createMockEnvironment();
+
+      internalAct(() => {
+        // Let there be an operation in flight
+        fetchQuery(newEnvironment, singularQuery).subscribe({});
+
+        setEnvironment(newEnvironment);
+      });
+
+      // It should suspend when the environment changes and there is a query
+      // in flight.
+      expect(renderer.toJSON()).toEqual('Singular Fallback');
+    });
+
     it('should re-read and resubscribe to fragment when fragment pointers change', () => {
       renderSingularFragment();
       assertRenderBatch([
@@ -1089,6 +1116,58 @@ describe.each([
           },
         ]);
       });
+    });
+
+    it('should return the latest data when the hi-priority update happens at the same time as the low-priority store update', () => {
+      const startTransition = React.startTransition;
+      if (startTransition != null) {
+        internalAct(() => {
+          renderSingularFragment({
+            isConcurrent: true,
+          });
+        });
+        assertFragmentResults([
+          {
+            data: {
+              id: '1',
+              name: 'Alice',
+              profile_picture: null,
+              ...createFragmentRef('1', singularQuery),
+            },
+          },
+        ]);
+
+        internalAct(() => {
+          // Trigger store update with the lower priority
+          startTransition(() => {
+            environment.commitUpdate(store => {
+              store.get('1')?.setValue('Alice Updated Name', 'name');
+            });
+          });
+          // Trigger a hi-pri update with the higher priority, that should force component to re-render
+          forceSingularUpdate();
+        });
+
+        // Assert that the component re-renders twice, both times with the latest data
+        assertFragmentResults([
+          {
+            data: {
+              id: '1',
+              name: 'Alice Updated Name',
+              profile_picture: null,
+              ...createFragmentRef('1', singularQuery),
+            },
+          },
+          {
+            data: {
+              id: '1',
+              name: 'Alice Updated Name',
+              profile_picture: null,
+              ...createFragmentRef('1', singularQuery),
+            },
+          },
+        ]);
+      }
     });
 
     it('should re-read and resubscribe to fragment when variables change', () => {

@@ -5,6 +5,7 @@ name = "graphql-ir-validations"
 version = "0.0.0"
 authors = ["Facebook"]
 edition = "2021"
+repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [[test]]
@@ -19,7 +20,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 intern = { path = "../intern" }
 schema = { path = "../schema" }
-thiserror = "1.0.43"
+thiserror = "1.0.49"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

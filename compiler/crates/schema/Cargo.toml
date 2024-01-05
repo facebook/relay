@@ -5,6 +5,7 @@ name = "schema"
 version = "0.0.0"
 authors = ["Facebook"]
 edition = "2021"
+repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [[test]]
@@ -19,10 +20,10 @@ fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
 lazy_static = "1.4"
-ouroboros = "0.8"
+ouroboros = "0.15.6"
 schema-flatbuffer = { path = "../schema-flatbuffer" }
 strsim = "0.10.0"
-thiserror = "1.0.43"
+thiserror = "1.0.49"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

@@ -7,14 +7,17 @@
 
 use std::path::PathBuf;
 
+use common::Location;
 use common::NamedItem;
 use common::WithLocation;
+use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use graphql_ir::Argument;
 use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -37,6 +40,11 @@ use relay_transforms::extract_handle_field_directives;
 use relay_transforms::extract_values_from_handle_field_directive;
 use relay_transforms::generate_abstract_type_refinement_key;
 use relay_transforms::get_fragment_filename;
+use relay_transforms::get_normalization_operation_name;
+use relay_transforms::get_resolver_fragment_dependency_name;
+use relay_transforms::relay_resolvers::get_resolver_info;
+use relay_transforms::relay_resolvers::resolver_import_alias;
+use relay_transforms::relay_resolvers::ResolverInfo;
 use relay_transforms::remove_directive;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
@@ -60,6 +68,7 @@ use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use relay_transforms::INLINE_DIRECTIVE_NAME;
 use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
 use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
+use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use schema::SDLSchema;
 use schema::Schema;
@@ -200,6 +209,78 @@ pub fn build_fragment(
         definition_source_location,
     );
     builder.build_fragment(fragment, false)
+}
+
+pub fn build_resolvers_schema(
+    ast_builder: &mut AstBuilder,
+    schema: &SDLSchema,
+    project_config: &ProjectConfig,
+) -> AstKey {
+    let artifact_path = &project_config
+        .resolvers_schema_module
+        .as_ref()
+        .unwrap()
+        .path;
+
+    let mut map = vec![];
+    for object in schema.get_objects() {
+        let mut fields = vec![];
+        for field in object.fields.iter().map(|field_id| schema.field(*field_id)) {
+            if let Some(Ok(ResolverInfo {
+                import_path,
+                import_name: Some(import_name),
+                ..
+            })) = get_resolver_info(schema, field, field.name.location)
+            {
+                if field
+                    .directives
+                    .named(*RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE)
+                    .is_some()
+                {
+                    continue;
+                }
+                fields.push(ObjectEntry {
+                    key: field.name.item,
+                    value: Primitive::Key(ast_builder.intern(Ast::Object(object! {
+                        resolver_function: Primitive::JSModuleDependency(JSModuleDependency {
+                            path: project_config.js_module_import_identifier(
+                                artifact_path,
+                                &PathBuf::from(import_path.lookup()),
+                            ),
+                            import_name: ModuleImportName::Named {
+                                name: import_name,
+                                import_as: Some(resolver_import_alias(object.name.item.0, field.name.item))
+                            },
+                        }),
+                        root_fragment: match get_resolver_fragment_dependency_name(field) {
+                            Some(name) => {
+                                let definition_name = WithLocation::new(
+                                    field.name.location,
+                                    get_normalization_operation_name(name.0).intern(),
+                                );
+                                Primitive::JSModuleDependency(JSModuleDependency {
+                                    path: project_config.js_module_import_identifier(
+                                        artifact_path,
+                                        &project_config.artifact_path_for_definition(definition_name),
+                                    ),
+                                    import_name: ModuleImportName::Default(definition_name.item),
+                                })
+                            },
+                            None => Primitive::SkippableNull,
+                        },
+                    }))),
+                });
+            }
+        }
+        if !fields.is_empty() {
+            map.push(ObjectEntry {
+                key: object.name.item.0,
+                value: Primitive::Key(ast_builder.intern(Ast::Object(fields))),
+            })
+        }
+    }
+
+    ast_builder.intern(Ast::Object(map))
 }
 
 pub struct CodegenBuilder<'schema, 'builder, 'config> {
@@ -1131,13 +1212,82 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
     }
 
+    fn build_client_edge_model_resolver(
+        &mut self,
+        location: Location,
+        type_name: StringKey,
+        is_model_live: bool,
+        relay_resolver_metadata: &RelayResolverMetadata,
+    ) -> Primitive {
+        let id_fragment_artifact_name = self
+            .project_config
+            .name
+            .generate_name_for_object_and_field(type_name, CODEGEN_CONSTANTS.id);
+        let path = format!(
+            "{}.{}",
+            relay_resolver_metadata.field_path, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD
+        )
+        .intern();
+        let model_resolver_metadata = RelayResolverMetadata {
+            field_id: relay_resolver_metadata.field_id,
+            import_path: location.source_location().path().intern(),
+            import_name: Some(type_name),
+            field_alias: None,
+            field_path: path,
+            field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
+            live: is_model_live,
+            output_type_info: relay_resolver_metadata.output_type_info.clone(),
+            fragment_data_injection_mode: Some((
+                WithLocation::new(
+                    location,
+                    FragmentDefinitionName(id_fragment_artifact_name.clone().intern()),
+                ),
+                FragmentDataInjectionMode::Field {
+                    name: CODEGEN_CONSTANTS.id,
+                    is_required: true,
+                },
+            )),
+        };
+        let fragment_primitive = Primitive::Key(self.object(object! {
+            args: Primitive::SkippableNull,
+            kind: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
+            name: Primitive::String(id_fragment_artifact_name.clone().intern()),
+        }));
+        self.build_reader_relay_resolver(&model_resolver_metadata, Some(fragment_primitive))
+    }
+
+    fn build_reader_relay_resolver_args(
+        &mut self,
+        relay_resolver_metadata: &RelayResolverMetadata,
+    ) -> Primitive {
+        let field = relay_resolver_metadata.field(self.schema);
+        // Check field.arguments here instead of relay_resolver_metadata.field_arguments. field.arguments is partitioned into
+        // field_arguments and fragment_arguments during the relay resolvers transform. If the resolver field is only passed a
+        // fragment argument, we should fall back to the else case where we will return an empty array primitive as the resolver
+        // field arguments instead of returning null.
+        if field.arguments.is_empty() {
+            Primitive::SkippableNull
+        } else {
+            self.build_arguments(&relay_resolver_metadata.field_arguments)
+                .map_or_else(
+                    || {
+                        // Passing an empty array here, rather than `null`, allows the runtime
+                        // to know that it should still create an arguments object to pass to
+                        // the resolver, even though no arguments were provided at the callsite,
+                        // since all arguments are optional.
+                        Primitive::Key(self.array(vec![]))
+                    },
+                    Primitive::Key,
+                )
+        }
+    }
+
     fn build_reader_relay_resolver(
         &mut self,
         relay_resolver_metadata: &RelayResolverMetadata,
         fragment_primitive: Option<Primitive>,
     ) -> Primitive {
         let field = relay_resolver_metadata.field(self.schema);
-        let field_arguments = &relay_resolver_metadata.field_arguments;
         let field_alias = relay_resolver_metadata.field_alias;
         let field_name = field.name.item;
         let path = relay_resolver_metadata.field_path;
@@ -1155,20 +1305,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             &PathBuf::from(relay_resolver_metadata.import_path.lookup()),
         );
 
-        let args = if field.arguments.is_empty() {
-            Primitive::SkippableNull
-        } else {
-            self.build_arguments(field_arguments).map_or_else(
-                || {
-                    // Passing an empty array here, rather than `null`, allows the runtime
-                    // to know that it should still create an arguments object to pass to
-                    // the resolver, even though no arguments were provided at the callsite,
-                    // since all arguments are optional.
-                    Primitive::Key(self.array(vec![]))
-                },
-                Primitive::Key,
-            )
-        };
+        let args = self.build_reader_relay_resolver_args(relay_resolver_metadata);
 
         let variable_name = relay_resolver_metadata.generate_local_resolver_name(self.schema);
         let resolver_js_module = JSModuleDependency {
@@ -1495,7 +1632,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     fn build_reader_client_edge(
         &mut self,
         context: &mut ContextualMetadata,
-        client_edge_metadata: ClientEdgeMetadata<'_>,
+        client_edge_metadata: &ClientEdgeMetadata<'_>,
         required_metadata: Option<RequiredMetadataDirective>,
     ) -> Primitive {
         context.has_client_edges = true;
@@ -1550,17 +1687,52 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     client_edge_selections_key: selections_item,
                 }))
             }
-            ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
+            ClientEdgeMetadataDirective::ClientObject { type_name, location, is_model_live, has_model_instance_field, .. } => {
                 let concrete_type = match type_name {
                     Some(type_name) => Primitive::String(type_name.0),
                     None => Primitive::Null,
                 };
-                Primitive::Key(self.object(object! {
-                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                    concrete_type: concrete_type,
-                    client_edge_backing_field_key: backing_field,
-                    client_edge_selections_key: selections_item,
-                }))
+                let field_directives = match &client_edge_metadata.backing_field {
+                    Selection::ScalarField(field) => Some(&field.directives),
+                    Selection::FragmentSpread(frag_spread) => Some(&frag_spread.directives),
+                    _ => panic!(
+                        "Expected Client Edge backing field to be a Relay Resolver. {:?}",
+                        client_edge_metadata.backing_field
+                    ),
+                };
+                let model_resolver_field = if let Some(field_directives) = field_directives {
+                    let resolver_metadata = RelayResolverMetadata::find(field_directives).unwrap();
+                    let is_weak_resolver = matches!(resolver_metadata.output_type_info, ResolverOutputTypeInfo::Composite(_));
+                    let should_add_model_resolver = !is_weak_resolver && has_model_instance_field;
+                    if should_add_model_resolver {
+                        Some(self.build_client_edge_model_resolver(
+                            location,
+                            type_name.unwrap().to_string().intern(),
+                            is_model_live,
+                            resolver_metadata,
+                        ))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+                if model_resolver_field.is_some() {
+                    Primitive::Key(self.object(object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                        concrete_type: concrete_type,
+                        client_edge_model_resolver: model_resolver_field.unwrap(),
+                        client_edge_backing_field_key: backing_field,
+                        client_edge_selections_key: selections_item,
+                    }))
+                } else {
+                    Primitive::Key(self.object(object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                        concrete_type: concrete_type,
+                        client_edge_backing_field_key: backing_field,
+                        client_edge_selections_key: selections_item,
+                    }))
+                }
             }
         };
 
@@ -1585,7 +1757,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 RequiredMetadataDirective::find(&inline_frag.directives).cloned();
                             self.build_reader_client_edge(
                                 context,
-                                client_edge_metadata,
+                                &client_edge_metadata,
                                 required_metadata,
                             )
                         }

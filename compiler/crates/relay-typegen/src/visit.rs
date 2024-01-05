@@ -1682,8 +1682,10 @@ fn raw_response_make_prop(
     runtime_imports: &mut RuntimeImports,
     custom_scalars: &mut CustomScalarsImports,
 ) -> Prop {
-    let optional =
-        !typegen_context.no_optional_fields_in_raw_response_type && type_selection.is_conditional();
+    let optional = !typegen_context
+        .typegen_options
+        .no_optional_fields_in_raw_response_type
+        && type_selection.is_conditional();
     match type_selection {
         TypeSelection::ModuleDirective(module_directive) => Prop::Spread(SpreadProp {
             value: module_directive.fragment_name.0,

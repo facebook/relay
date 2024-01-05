@@ -27,10 +27,36 @@ const {
   Network,
   RecordSource,
   RelayFeatureFlags,
+  createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
+const {
+  addTodo,
+} = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const {createMockEnvironment} = require('relay-test-utils');
+
+/**
+ * CLIENT EDGE TO PLURAL LIVE STRONG CLIENT OBJECT
+ */
+
+/**
+ * @RelayResolver Query.edge_to_plural_live_objects_some_exist: [TodoModel]
+ */
+export function edge_to_plural_live_objects_some_exist(): $ReadOnlyArray<{
+  id: DataID,
+}> {
+  return [{id: 'todo-1'}, {id: 'THERE_IS_NO_TODO_WITH_THIS_ID'}];
+}
+
+/**
+ * @RelayResolver Query.edge_to_plural_live_objects_none_exist: [TodoModel]
+ */
+export function edge_to_plural_live_objects_none_exist(): $ReadOnlyArray<{
+  id: DataID,
+}> {
+  return [{id: 'NO_TODO_1'}, {id: 'NO_TODO_2'}];
+}
 
 /**
  * CLIENT EDGE TO LIVE STRONG CLIENT OBJECT
@@ -111,6 +137,52 @@ export function edge_to_server_object_does_not_exist(): {id: DataID} {
   return {id: 'THERE_IS_NO_COMMENT_WITH_THIS_ID'};
 }
 
+/**
+ * ERROR CASES
+ */
+
+const ERROR_ID = 'error';
+const ERROR_MESSAGE = `IDs containing ${ERROR_ID} will cause an error to be thrown`;
+
+type ErrorModelType = ?{
+  id: string,
+};
+
+/**
+ * @RelayResolver ErrorModel
+ */
+export function ErrorModel(id: string): ErrorModelType {
+  if (!id.includes(ERROR_ID)) {
+    return {id};
+  }
+  throw new Error(ERROR_MESSAGE);
+}
+
+/**
+ * @RelayResolver Query.edge_to_model_that_throws: ErrorModel
+ */
+export function edge_to_model_that_throws(): {id: DataID} {
+  return {id: ERROR_ID};
+}
+
+/**
+ * @RelayResolver Query.edge_to_plural_models_that_throw: [ErrorModel]
+ */
+export function edge_to_plural_models_that_throw(): $ReadOnlyArray<{
+  id: DataID,
+}> {
+  return [{id: `${ERROR_ID}-1`}, {id: `${ERROR_ID}-2`}];
+}
+
+/**
+ * @RelayResolver Query.edge_to_plural_models_some_throw: [ErrorModel]
+ */
+export function edge_to_plural_models_some_throw(): $ReadOnlyArray<{
+  id: DataID,
+}> {
+  return [{id: ERROR_ID}, {id: 'a valid id!'}];
+}
+
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
@@ -158,6 +230,73 @@ describe.each([
   beforeEach(() => {
     environment = createEnvironment();
   });
+  test('client edge to plural IDs, none have corresponding live object', () => {
+    function TodoNullComponent() {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query {
+            edge_to_plural_live_objects_none_exist {
+              id
+              description
+            }
+          }
+        `,
+        {},
+      );
+
+      invariant(data != null, 'Query response should be nonnull');
+      expect(data.edge_to_plural_live_objects_none_exist).toHaveLength(2);
+      return data.edge_to_plural_live_objects_none_exist
+        ?.map(item =>
+          item
+            ? `${item.id ?? 'unknown'} - ${item.description ?? 'unknown'}`
+            : 'unknown',
+        )
+        .join(',');
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('unknown,unknown');
+  });
+
+  test('client edge to plural IDs, some with no corresponding live object', () => {
+    function TodoNullComponent() {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query {
+            edge_to_plural_live_objects_some_exist {
+              id
+              description
+            }
+          }
+        `,
+        {},
+      );
+
+      invariant(data != null, 'Query response should be nonnull');
+      expect(data.edge_to_plural_live_objects_some_exist).toHaveLength(2);
+      return data.edge_to_plural_live_objects_some_exist
+        ?.map(item =>
+          item
+            ? `${item.id ?? 'unknown'} - ${item.description ?? 'unknown'}`
+            : 'unknown',
+        )
+        .join(',');
+    }
+
+    addTodo('Test todo');
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('todo-1 - Test todo,unknown');
+  });
+
   test('client edge to ID with no corresponding live object', () => {
     function TodoNullComponent() {
       const data = useClientQuery(
@@ -190,8 +329,7 @@ describe.each([
         <TodoNullComponent />
       </EnvironmentWrapper>,
     );
-    // TODO: T162471299 this should be 'Todo was null'
-    expect(renderer.toJSON()).toEqual('Todo was not null or undefined');
+    expect(renderer.toJSON()).toEqual('Todo was null');
   });
 
   test('client edge to ID with no corresponding weak object', () => {
@@ -255,8 +393,7 @@ describe.each([
         <NullStrongModelComponent />
       </EnvironmentWrapper>,
     );
-    // TODO: T162471299 this should be 'strong model was null'
-    expect(renderer.toJSON()).toEqual('strong model was not null or undefined');
+    expect(renderer.toJSON()).toEqual('strong model was null');
   });
 
   test('client edge to server ID with no corresponding server object', () => {
@@ -335,5 +472,93 @@ describe.each([
     });
     // TODO T169274655 should this be 'server object was null'?
     expect(renderer.toJSON()).toEqual('server object was undefined');
+  });
+
+  test('Errors thrown when reading the model a client edge points to are caught as resolver errors', () => {
+    const operation = createOperationDescriptor(
+      graphql`
+        query RelayResolverNullableModelClientEdgeTest_ErrorModel_Query {
+          edge_to_model_that_throws {
+            __typename
+          }
+        }
+      `,
+      {},
+    );
+    const snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.relayResolverErrors).toEqual([
+      {
+        error: Error(ERROR_MESSAGE),
+        field: {
+          owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
+          path: 'edge_to_model_that_throws.__relay_model_instance',
+        },
+      },
+    ]);
+    const data: $FlowExpectedError = snapshot.data;
+    expect(data.edge_to_model_that_throws).toBe(null);
+  });
+
+  test('Errors thrown when reading plural client edge are caught as resolver errors', () => {
+    const operation = createOperationDescriptor(
+      graphql`
+        query RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query {
+          edge_to_plural_models_that_throw {
+            __typename
+          }
+        }
+      `,
+      {},
+    );
+    const snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.relayResolverErrors).toEqual([
+      {
+        error: Error(ERROR_MESSAGE),
+        field: {
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+          path: 'edge_to_plural_models_that_throw.__relay_model_instance',
+        },
+      },
+      {
+        error: Error(ERROR_MESSAGE),
+        field: {
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+          path: 'edge_to_plural_models_that_throw.__relay_model_instance',
+        },
+      },
+    ]);
+    const data: $FlowExpectedError = snapshot.data;
+    expect(data.edge_to_plural_models_that_throw).toStrictEqual([null, null]);
+  });
+
+  test('Errors thrown when reading plural client edge are caught as resolver errors and valid data is returned', () => {
+    const operation = createOperationDescriptor(
+      graphql`
+        query RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query {
+          edge_to_plural_models_some_throw {
+            id
+          }
+        }
+      `,
+      {},
+    );
+    const snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.relayResolverErrors).toEqual([
+      {
+        error: Error(ERROR_MESSAGE),
+        field: {
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
+          path: 'edge_to_plural_models_some_throw.__relay_model_instance',
+        },
+      },
+    ]);
+    const data: $FlowExpectedError = snapshot.data;
+    expect(data.edge_to_plural_models_some_throw).toStrictEqual([
+      null,
+      {id: 'a valid id!'},
+    ]);
   });
 });

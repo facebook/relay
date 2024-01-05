@@ -376,6 +376,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }
+            self.print_directive_values(&arg.directives)?;
         }
         write!(self.writer(), ")")
     }
@@ -406,6 +407,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }
+            self.print_directive_values(&arg.directives)?;
             self.print_new_line()?;
         }
         write!(self.writer(), "}}")

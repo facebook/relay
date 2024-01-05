@@ -44,6 +44,8 @@ export type FeatureFlags = {
   // in a partial response.
   // @see https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
   ENABLE_FIELD_ERROR_HANDLING: boolean,
+
+  ENABLE_STRICT_EQUAL_SELECTORS: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -64,7 +66,8 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
   ENABLE_FIELD_ERROR_HANDLING: false,
-  ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES: false,
+  ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES: true,
+  ENABLE_STRICT_EQUAL_SELECTORS: false,
 };
 
 module.exports = RelayFeatureFlags;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<55ad76eacf736c91aacc660f210cdcc2>>
+ * @generated SignedSource<<61ce8f4c3bb76b88887fbebc97e2aa8d>>
  */
 
 mod compile_relay_artifacts;
@@ -185,6 +185,34 @@ async fn client_edge_from_client_type_to_client_type() {
     let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.expected");
     test_fixture(transform_fixture, file!(), "client_edge_from_client_type_to_client_type.graphql", "compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_from_client_type_to_client_type_terse() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse.expected");
+    test_fixture(transform_fixture, file!(), "client_edge_from_client_type_to_client_type_terse.graphql", "compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_from_client_type_to_client_type_terse_live() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_live.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_live.expected");
+    test_fixture(transform_fixture, file!(), "client_edge_from_client_type_to_client_type_terse_live.graphql", "compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_live.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_from_client_type_to_client_type_terse_plural() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_plural.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_plural.expected");
+    test_fixture(transform_fixture, file!(), "client_edge_from_client_type_to_client_type_terse_plural.graphql", "compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_plural.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_from_client_type_to_client_type_terse_scalar() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_scalar.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_scalar.expected");
+    test_fixture(transform_fixture, file!(), "client_edge_from_client_type_to_client_type_terse_scalar.graphql", "compile_relay_artifacts/fixtures/client_edge_from_client_type_to_client_type_terse_scalar.expected", input, expected).await;
 }
 
 #[tokio::test]

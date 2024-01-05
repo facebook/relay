@@ -34,15 +34,12 @@ const {
 } = require('relay-runtime');
 
 type RefetchVariables<TVariables, TKey> =
-  // NOTE: This $Call ensures that the type of the variables is either:
+  // NOTE: This type ensures that the type of the variables is either:
   //   - nullable if the provided ref type is non-nullable
   //   - non-nullable if the provided ref type is nullable, and the caller need to provide the full set of variables
-  // prettier-ignore
-  $Call<
-    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) => Partial<TVariables>)
-    & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => TVariables),
-    TKey,
-  >;
+  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+    ? Partial<TVariables>
+    : TVariables;
 
 type RefetchFnBase<TVars, TOptions> = (
   vars: TVars,
@@ -55,15 +52,12 @@ type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
 >;
 
 type ReturnType<TVariables, TData, TKey> = {
-  // NOTE: This $Call ensures that the type of the returned data is either:
+  // NOTE: This rtpw ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  // prettier-ignore
-  data: $Call<
-    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) =>  TData)
-    & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => ?TData),
-    TKey,
-  >,
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+    ? TData
+    : ?TData,
   loadNext: LoadMoreFn<TVariables>,
   loadPrevious: LoadMoreFn<TVariables>,
   hasNext: boolean,
@@ -162,6 +156,7 @@ function useBlockingPaginationFragment<
 
   return {
     // $FlowFixMe[incompatible-cast]
+    // $FlowFixMe[incompatible-return]
     data: (fragmentData: TData),
     loadNext,
     loadPrevious,

@@ -478,7 +478,7 @@ impl Field for ScalarField {
     }
 }
 
-/// https://spec.graphql.org/June2018/#sec--skip
+/// <https://spec.graphql.org/June2018/#sec--skip>
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Condition {
     pub selections: Vec<Selection>,
@@ -578,7 +578,7 @@ pub struct Variable {
     pub type_: TypeReference<Type>,
 }
 
-/// Name : Value[Const]
+/// Name : Value\[Const\]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ConstantArgument {
     pub name: WithLocation<ArgumentName>,

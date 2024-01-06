@@ -22,7 +22,8 @@ use crate::syntax_error::SyntaxError;
 
 type ParseResult<T> = Result<T, ()>;
 
-#[derive(Default, PartialEq)]
+#[derive(Default, PartialEq, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub enum FragmentArgumentSyntaxKind {
     #[default]
     None,
@@ -30,7 +31,8 @@ pub enum FragmentArgumentSyntaxKind {
     SpreadArgumentsAndFragmentVariableDefinitions,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
 pub struct ParserFeatures {
     /// Whether and how to enable the experimental fragment variables definitions syntax
     pub fragment_argument_capability: FragmentArgumentSyntaxKind,

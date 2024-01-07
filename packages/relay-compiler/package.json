@@ -15,5 +15,6 @@
     "directory": "packages/relay-compiler"
   },
   "main": "index.js",
+  "types": "./index.d.ts",
   "bin": "cli.js"
 }

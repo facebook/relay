@@ -355,7 +355,7 @@ const relayCompiler = gulp.parallel(
   },
   function copyPackageFiles() {
     return gulp
-      .src(['README.md', 'package.json', 'cli.js', 'index.js'], {
+      .src(['README.md', 'package.json', 'cli.js', 'index.js', 'index.d.ts'], {
         cwd: path.join(PACKAGES, 'relay-compiler'),
       })
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));

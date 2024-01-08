@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+//- foo.js
+graphql`
+  query fooQuery @preloadable {
+   userName
+  }`;
+
+//- relay.config.json
+{
+  "language": "javascript",
+  "schema": "./schema.graphql",
+  "eagerEsModules": true,
+  "persistConfig": { 
+    "file": "./operations.json" 
+  }
+}
+
+//- operations.json
+{}
+
+//- schema.graphql
+type Query { userName: String }
+==================================== OUTPUT ===================================
+A thread that the Relay compiler spun up did not shut down gracefully: task 2 panicked

@@ -81,3 +81,10 @@ async fn typescript_resolver_type_import() {
     let expected = include_str!("relay_compiler_integration/fixtures/typescript_resolver_type_import.expected");
     test_fixture(transform_fixture, file!(), "typescript_resolver_type_import.input", "relay_compiler_integration/fixtures/typescript_resolver_type_import.expected", input, expected).await;
 }
+
+#[tokio::test]
+async fn javascript_preloadable_query() {
+    let input = include_str!("relay_compiler_integration/fixtures/javascript_preloadable_query.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/javascript_preloadable_query.expected");
+    test_fixture( transform_fixture, file!(), "javascript_preloadable_query.input", "relay_compiler_integration/fixtures/javascript_preloadable_query.expected", input, expected).await;
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<61ce8f4c3bb76b88887fbebc97e2aa8d>>
+ * @generated SignedSource<<39ca903f57ff6657e966a12b63f65b28>>
  */
 
 mod compile_relay_artifacts;
@@ -311,6 +311,27 @@ async fn client_inline_fragments_in_query() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-inline-fragments-in-query.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-inline-fragments-in-query.expected");
     test_fixture(transform_fixture, file!(), "client-inline-fragments-in-query.graphql", "compile_relay_artifacts/fixtures/client-inline-fragments-in-query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_interfaces() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-interfaces.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-interfaces.expected");
+    test_fixture(transform_fixture, file!(), "client-interfaces.graphql", "compile_relay_artifacts/fixtures/client-interfaces.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_interfaces_no_inline() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-interfaces-no-inline.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-interfaces-no-inline.expected");
+    test_fixture(transform_fixture, file!(), "client-interfaces-no-inline.graphql", "compile_relay_artifacts/fixtures/client-interfaces-no-inline.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_interfaces_no_inline_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-interfaces-no-inline.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-interfaces-no-inline.invalid.expected");
+    test_fixture(transform_fixture, file!(), "client-interfaces-no-inline.invalid.graphql", "compile_relay_artifacts/fixtures/client-interfaces-no-inline.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

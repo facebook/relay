@@ -54,14 +54,14 @@ pub fn generate_preloadable_query_parameters(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let v = match query_id {
+    let extra_annotations = match query_id {
         QueryID::Persisted { text_hash, .. } => vec![format!("@relayHash {}", text_hash)],
         _ => vec![],
     };
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
         config,
         project_config,
-        v,
+        extra_annotations,
     )?));
     // -- End Docblock Section --
 
@@ -309,14 +309,14 @@ pub fn generate_operation(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let v = match id_and_text_hash {
+    let extra_annotations = match id_and_text_hash {
         Some(QueryID::Persisted { text_hash, .. }) => vec![format!("@relayHash {}", text_hash)],
         _ => vec![],
     };
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
         config,
         project_config,
-        v,
+        extra_annotations,
     )?));
     // -- End Docblock Section --
 

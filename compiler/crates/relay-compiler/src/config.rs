@@ -678,11 +678,11 @@ pub struct SingleProjectConfigFile {
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
-    /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
+    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
     /// Adding to the config, to show the warning, and not a parse error.
     pub include: Vec<String>,
 
-    /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
+    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
     /// Adding to the config, to show the warning, and not a parse error.
     pub extensions: Vec<String>,
 

@@ -88,3 +88,17 @@ async fn javascript_preloadable_query() {
     let expected = include_str!("relay_compiler_integration/fixtures/javascript_preloadable_query.expected");
     test_fixture( transform_fixture, file!(), "javascript_preloadable_query.input", "relay_compiler_integration/fixtures/javascript_preloadable_query.expected", input, expected).await;
 }
+
+#[tokio::test]
+async fn flow_preloadable_query() {
+    let input = include_str!("relay_compiler_integration/fixtures/flow_preloadable_query.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/flow_preloadable_query.expected");
+    test_fixture( transform_fixture, file!(), "flow_preloadable_query.input", "relay_compiler_integration/fixtures/flow_preloadable_query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typescript_preloadable_query() {
+    let input = include_str!("relay_compiler_integration/fixtures/typescript_preloadable_query.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/typescript_preloadable_query.expected");
+    test_fixture( transform_fixture, file!(), "typescript_preloadable_query.input", "relay_compiler_integration/fixtures/typescript_preloadable_query.expected", input, expected).await;
+}

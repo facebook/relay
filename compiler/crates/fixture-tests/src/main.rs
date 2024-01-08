@@ -29,6 +29,9 @@ struct Options {
 
     #[clap(long)]
     customized_header: Option<String>,
+
+    #[clap(long)]
+    customized_snapshot_fixer: Option<String>,
 }
 #[derive(Debug)]
 struct TestCase {
@@ -76,13 +79,13 @@ fn main() {
                 if let Some(ref input) = test_case.input {
                     let mut expected = input.clone();
                     expected.set_extension(EXPECTED_EXTENSION);
-                    File::create(&expected)
-                        .unwrap()
-                        .write_all(
-                            "\x40nocommit\nRun snapshot tests with UPDATE_SNAPSHOTS=1 to update this new file.\n"
-                            .as_bytes(),
-                        )
-                        .unwrap();
+                    let fixer = match &opt.customized_snapshot_fixer {
+                        Some(customized) => customized.as_str().as_bytes(),
+                        None => {
+                            "\x40nocommit\nRun snapshot tests with UPDATE_SNAPSHOTS=1 to update this new file.\n".as_bytes()
+                        }
+                    };
+                    File::create(&expected).unwrap().write_all(fixer).unwrap();
                     test_case.expected = Some(expected);
                 }
             }

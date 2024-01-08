@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<39ca903f57ff6657e966a12b63f65b28>>
+ * @generated SignedSource<<67569a8907d69b96156dd8020479f37c>>
  */
 
 mod compile_relay_artifacts;
@@ -318,6 +318,13 @@ async fn client_interfaces() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-interfaces.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-interfaces.expected");
     test_fixture(transform_fixture, file!(), "client-interfaces.graphql", "compile_relay_artifacts/fixtures/client-interfaces.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_interfaces_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-interfaces.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-interfaces.invalid.expected");
+    test_fixture(transform_fixture, file!(), "client-interfaces.invalid.graphql", "compile_relay_artifacts/fixtures/client-interfaces.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -1,0 +1,18 @@
+query clientInterfacesInvalidQuery {
+  cat {
+    greeting
+  }
+}
+
+# %extensions%
+interface Cat {
+  greeting: String
+}
+
+type Tabby implements Cat {
+  description: String
+}
+
+extend type Query {
+  cat: Cat
+}

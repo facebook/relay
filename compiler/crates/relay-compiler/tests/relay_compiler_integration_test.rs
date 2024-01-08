@@ -83,22 +83,22 @@ async fn typescript_resolver_type_import() {
 }
 
 #[tokio::test]
-async fn javascript_preloadable_query() {
-    let input = include_str!("relay_compiler_integration/fixtures/javascript_preloadable_query.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/javascript_preloadable_query.expected");
-    test_fixture( transform_fixture, file!(), "javascript_preloadable_query.input", "relay_compiler_integration/fixtures/javascript_preloadable_query.expected", input, expected).await;
+async fn preloadable_query_javascript() {
+    let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_javascript.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_javascript.expected");
+    test_fixture( transform_fixture, file!(), "preloadable_query_javascript.input", "relay_compiler_integration/fixtures/preloadable_query_javascript.expected", input, expected).await;
 }
 
 #[tokio::test]
-async fn flow_preloadable_query() {
-    let input = include_str!("relay_compiler_integration/fixtures/flow_preloadable_query.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/flow_preloadable_query.expected");
-    test_fixture( transform_fixture, file!(), "flow_preloadable_query.input", "relay_compiler_integration/fixtures/flow_preloadable_query.expected", input, expected).await;
+async fn preloadable_query_flow() {
+    let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_flow.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_flow.expected");
+    test_fixture( transform_fixture, file!(), "preloadable_query_flow.input", "relay_compiler_integration/fixtures/preloadable_query_flow.expected", input, expected).await;
 }
 
 #[tokio::test]
-async fn typescript_preloadable_query() {
-    let input = include_str!("relay_compiler_integration/fixtures/typescript_preloadable_query.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/typescript_preloadable_query.expected");
-    test_fixture( transform_fixture, file!(), "typescript_preloadable_query.input", "relay_compiler_integration/fixtures/typescript_preloadable_query.expected", input, expected).await;
+async fn preloadable_query_typescript() {
+    let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
+    test_fixture( transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
 }

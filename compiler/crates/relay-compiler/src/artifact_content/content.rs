@@ -437,26 +437,38 @@ pub fn generate_operation(
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         match project_config.typegen_config.language {
             TypegenLanguage::Flow => {
-                writeln!(
-                    section,
-                    "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
-                )?;
+                if project_config.typegen_config.eager_es_modules {
+                    writeln!(
+                        section,
+                        "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
+                    )?;
+                    writeln!(
+                        section,
+                        "PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
+                    )?;
+                } else {
+                    writeln!(
+                        section,
+                        "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
+                    )?;
+                }
             }
-            TypegenLanguage::JavaScript => {
-                writeln!(
-                    section,
-                    "require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);",
-                )?;
-            }
-            TypegenLanguage::TypeScript => {
-                writeln!(
-                    section,
-                    "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
-                )?;
-                writeln!(
-                    section,
-                    "PreloadableQueryRegistry.set(node.params.id, node);",
-                )?;
+            TypegenLanguage::JavaScript | TypegenLanguage::TypeScript => {
+                if project_config.typegen_config.eager_es_modules {
+                    writeln!(
+                        section,
+                        "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
+                    )?;
+                    writeln!(
+                        section,
+                        "PreloadableQueryRegistry.set(node.params.id, node);",
+                    )?;
+                } else {
+                    writeln!(
+                        section,
+                        "require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);",
+                    )?;
+                }
             }
         }
     }

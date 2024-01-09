@@ -57,7 +57,6 @@ use watchman_client::pdu::ScmAwareClockData;
 
 use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
-use crate::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 use crate::build_project::AdditionalValidations;
@@ -409,7 +408,7 @@ Example file:
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
-            generate_extra_artifacts: Some(Box::new(default_generate_extra_artifacts_fn)),
+            generate_extra_artifacts: None,
             generate_virtual_id_file_name: None,
             get_artifacts_file_hash_map: None,
             saved_state_config: config_file.saved_state_config,

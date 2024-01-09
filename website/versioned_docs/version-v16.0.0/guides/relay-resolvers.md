@@ -86,7 +86,7 @@ The Relay compiler looks for the following fields in any docblocks that includes
 
 The docblock may also contain free text. This free text will be used as the field’s human-readable description, which will be surfaced in Relay’s editor support on hover and in autocomplete results.
 
-## Relay Resolver Convetions
+## Relay Resolver Conventions
 
 In order for Relay to be able to call a Relay Resolver, it must conform to a set of conventions:
 

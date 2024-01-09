@@ -225,7 +225,7 @@ impl Diagnostic {
         let mut result = String::new();
         writeln!(
             result,
-            "{message}:{location:?}",
+            "{message}: {location:?}",
             message = &self.0.message,
             location = self.0.location
         )

@@ -134,7 +134,12 @@ describe('ClientEdges', () => {
     expect(renderer?.toJSON()).toBe('Alice');
   });
 
-  it('should fetch and render `null` for client-edge query that returns `null`.', () => {
+  // The Relay store does not have a concept of _records_ being null. This means that when a Node
+  // query returns null, we can't actally write to the store "The record with this ID is null".
+  // Instead, we just write that `node(id: 4): null` into the root record in the store.
+  //
+  // This is a general limitiaton of node fetches in Relay today.
+  it('should fetch and render `undefined` for client-edge to server query that returns `null`.', () => {
     function TestComponent() {
       return (
         <RelayEnvironmentProvider environment={environment}>
@@ -161,6 +166,9 @@ describe('ClientEdges', () => {
         `,
         variables,
       );
+      if (data.me?.client_node === undefined) {
+        return 'client_node is undefined';
+      }
       return data.me?.client_node?.name ?? 'MISSING';
     }
 
@@ -192,7 +200,8 @@ describe('ClientEdges', () => {
       networkSink.complete();
       jest.runAllImmediates();
     });
-    expect(renderer?.toJSON()).toBe('MISSING');
+    expect(renderer?.toJSON()).toBe('client_node is undefined');
+    expect(fetchFn.mock.calls.length).toBe(1);
   });
 
   it('should throw for missing client-edge field data marked with @required', () => {

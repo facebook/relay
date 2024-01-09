@@ -373,17 +373,32 @@ impl ProjectConfig {
     ) -> PathBuf {
         let source_location = definition_name.location.source_location();
         let artifact_name = definition_name.item.into();
-        let filename = if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
-            (extra_artifacts_config.filename_for_artifact)(source_location, artifact_name)
+        if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
+            let filename =
+                (extra_artifacts_config.filename_for_artifact)(source_location, artifact_name);
+
+            self.create_path_for_artifact(source_location, filename)
         } else {
-            match &self.typegen_config.language {
-                TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-                    format!("{}.graphql.js", artifact_name)
-                }
-                TypegenLanguage::TypeScript => format!("{}.graphql.ts", artifact_name),
+            self.path_for_language_specific_artifact(
+                source_location,
+                format!("{}.graphql", artifact_name),
+            )
+        }
+    }
+
+    pub fn path_for_language_specific_artifact(
+        &self,
+        source_file: SourceLocationKey,
+        artifact_file_name: String,
+    ) -> PathBuf {
+        let filename = match &self.typegen_config.language {
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                format!("{}.js", artifact_file_name)
             }
+            TypegenLanguage::TypeScript => format!("{}.ts", artifact_file_name),
         };
-        self.create_path_for_artifact(source_location, filename)
+
+        self.create_path_for_artifact(source_file, filename)
     }
 
     /// Generates identifier for importing module at `target_module_path` from module at `importing_artifact_path`.

@@ -16,6 +16,7 @@ use futures_util::FutureExt;
 use graphql_cli::DiagnosticPrinter;
 use graphql_test_helpers::ProjectFixture;
 use graphql_test_helpers::TestDir;
+use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 use relay_compiler::errors::BuildProjectError;
@@ -23,7 +24,11 @@ use relay_compiler::errors::Error;
 use relay_compiler::source_for_location;
 use relay_compiler::FileSourceKind;
 use relay_compiler::FsSourceReader;
+use relay_compiler::LocalPersister;
+use relay_compiler::OperationPersister;
+use relay_compiler::RemotePersister;
 use relay_compiler::SourceReader;
+use relay_config::PersistConfig;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_fixture = ProjectFixture::deserialize(fixture.content);
@@ -41,6 +46,21 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             Config::search(&PathBuf::from(test_dir.path())).expect("Could not load config");
 
         config.file_source_config = FileSourceKind::WalkDir;
+        config.create_operation_persister = Some(Box::new(|project_config| {
+            project_config.persist.as_ref().map(
+                |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
+                    match persist_config {
+                        PersistConfig::Remote(remote_config) => {
+                            Box::new(RemotePersister::new(remote_config.clone()))
+                        }
+                        PersistConfig::Local(local_config) => {
+                            Box::new(LocalPersister::new(local_config.clone()))
+                        }
+                    }
+                },
+            )
+        }));
+        config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
 
         let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
         let compiler_result = compiler.compile().await;

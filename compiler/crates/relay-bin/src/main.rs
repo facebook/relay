@@ -18,6 +18,7 @@ use intern::string_key::Intern;
 use log::error;
 use log::info;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
+use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
@@ -295,6 +296,8 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
             "Cannot run relay in watch mode if `watchman` is not available (or explicitly disabled)."
         );
     }
+
+    config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 

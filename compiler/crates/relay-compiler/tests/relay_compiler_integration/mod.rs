@@ -16,6 +16,7 @@ use futures_util::FutureExt;
 use graphql_cli::DiagnosticPrinter;
 use graphql_test_helpers::ProjectFixture;
 use graphql_test_helpers::TestDir;
+use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 use relay_compiler::errors::BuildProjectError;
@@ -59,6 +60,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 },
             )
         }));
+        config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
 
         let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
         let compiler_result = compiler.compile().await;

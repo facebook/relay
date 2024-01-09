@@ -170,7 +170,9 @@ pub async fn test_fixture<T, U, V>(
                 .write_all(actual.as_bytes())
                 .unwrap();
         } else {
-            panic!("Snapshot did not match. Run with UPDATE_SNAPSHOTS=1 to update.");
+            panic!(
+                "Snapshot did not match. Run with UPDATE_SNAPSHOTS=1 to update.\nIf using Buck you can use `buck test <YOUR_TEST_TARGET> -- --env UPDATE_SNAPSHOTS=1"
+            );
         }
     }
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<67569a8907d69b96156dd8020479f37c>>
+ * @generated SignedSource<<8fd59e4b7bda332f7cd258dfa0d50257>>
  */
 
 mod compile_relay_artifacts;
@@ -304,6 +304,13 @@ async fn client_inline_fragments() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-inline-fragments.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-inline-fragments.expected");
     test_fixture(transform_fixture, file!(), "client-inline-fragments.graphql", "compile_relay_artifacts/fixtures/client-inline-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_inline_fragments_duplicate() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-inline-fragments-duplicate.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-inline-fragments-duplicate.expected");
+    test_fixture(transform_fixture, file!(), "client-inline-fragments-duplicate.graphql", "compile_relay_artifacts/fixtures/client-inline-fragments-duplicate.expected", input, expected).await;
 }
 
 #[tokio::test]

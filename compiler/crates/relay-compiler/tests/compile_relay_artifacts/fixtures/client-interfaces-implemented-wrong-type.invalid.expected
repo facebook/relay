@@ -1,19 +1,19 @@
 ==================================== INPUT ====================================
 # TODO T174533887 expected to throw
 
-query clientInterfacesInvalidQuery {
+query clientInterfacesImplementedWrongTypeInvalidQuery {
   cat {
-    greeting
+    description
   }
 }
 
 # %extensions%
 interface Cat {
-  greeting: String
+  description: String
 }
 
 type Tabby implements Cat {
-  description: String
+  description: Text
 }
 
 extend type Query {
@@ -25,7 +25,7 @@ extend type Query {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "clientInterfacesInvalidQuery",
+    "name": "clientInterfacesImplementedWrongTypeInvalidQuery",
     "selections": [
       {
         "kind": "ClientExtension",
@@ -42,7 +42,7 @@ extend type Query {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "greeting",
+                "name": "description",
                 "storageKey": null
               }
             ],
@@ -58,7 +58,7 @@ extend type Query {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "clientInterfacesInvalidQuery",
+    "name": "clientInterfacesImplementedWrongTypeInvalidQuery",
     "selections": [
       {
         "kind": "ClientExtension",
@@ -82,7 +82,7 @@ extend type Query {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "greeting",
+                "name": "description",
                 "storageKey": null
               }
             ],
@@ -93,10 +93,10 @@ extend type Query {
     ]
   },
   "params": {
-    "cacheID": "bff40d074712569f213acce4cc45cb3b",
+    "cacheID": "99252e455d9eb567db049b05603a8d92",
     "id": null,
     "metadata": {},
-    "name": "clientInterfacesInvalidQuery",
+    "name": "clientInterfacesImplementedWrongTypeInvalidQuery",
     "operationKind": "query",
     "text": null
   }

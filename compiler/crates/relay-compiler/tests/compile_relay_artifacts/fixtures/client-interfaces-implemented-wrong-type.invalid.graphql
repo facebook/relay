@@ -1,18 +1,18 @@
 # TODO T174533887 expected to throw
 
-query clientInterfacesInvalidQuery {
+query clientInterfacesImplementedWrongTypeInvalidQuery {
   cat {
-    greeting
+    description
   }
 }
 
 # %extensions%
 interface Cat {
-  greeting: String
+  description: String
 }
 
 type Tabby implements Cat {
-  description: String
+  description: Text
 }
 
 extend type Query {

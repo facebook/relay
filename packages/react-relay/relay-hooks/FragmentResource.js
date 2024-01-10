@@ -776,6 +776,7 @@ class FragmentResourceImpl {
       selector: currentSnapshot.selector,
       missingRequiredFields: currentSnapshot.missingRequiredFields,
       relayResolverErrors: currentSnapshot.relayResolverErrors,
+      errorResponseFields: currentSnapshot.errorResponseFields,
     };
     if (updatedData !== renderData) {
       const result = getFragmentResult(

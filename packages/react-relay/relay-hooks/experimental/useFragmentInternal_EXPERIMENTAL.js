@@ -162,6 +162,7 @@ function handleMissedUpdates(
       selector: currentSnapshot.selector,
       missingRequiredFields: currentSnapshot.missingRequiredFields,
       relayResolverErrors: currentSnapshot.relayResolverErrors,
+      errorResponseFields: currentSnapshot.errorResponseFields,
     };
     return [
       updatedData !== state.snapshot.data,
@@ -187,6 +188,7 @@ function handleMissedUpdates(
         selector: currentSnapshot.selector,
         missingRequiredFields: currentSnapshot.missingRequiredFields,
         relayResolverErrors: currentSnapshot.relayResolverErrors,
+        errorResponseFields: currentSnapshot.errorResponseFields,
       };
       if (updatedData !== snapshot.data) {
         didMissUpdates = true;

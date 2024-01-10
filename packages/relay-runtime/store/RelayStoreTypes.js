@@ -10,7 +10,6 @@
  */
 
 'use strict';
-
 import type {
   ActorIdentifier,
   IActorEnvironment,
@@ -50,6 +49,7 @@ import type {
   UpdatableQuery,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type {RelayFieldError} from './RelayErrorTrie';
 import type {
   Record as RelayModernRecord,
   RecordJSON,
@@ -116,10 +116,17 @@ type FieldLocation = {
   owner: string,
 };
 
+type ErrorFieldLocation = {
+  ...FieldLocation,
+  error: RelayFieldError,
+};
+
 export type MissingRequiredFields = $ReadOnly<
   | {action: 'THROW', field: FieldLocation}
   | {action: 'LOG', fields: Array<FieldLocation>},
 >;
+
+export type ErrorResponseFields = Array<ErrorFieldLocation>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,
@@ -158,6 +165,7 @@ export type Snapshot = {
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
   +relayResolverErrors: RelayResolverErrors,
+  +errorResponseFields: ?ErrorResponseFields,
 };
 
 /**
@@ -1200,6 +1208,7 @@ export type RequiredFieldLoggerEvent =
       +fieldPath: string,
       +error: Error,
     };
+
 /**
  * A handler for events related to @required fields. Currently reports missing
  * fields with either `action: LOG` or `action: THROW`.

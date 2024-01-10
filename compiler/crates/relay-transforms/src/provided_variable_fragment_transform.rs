@@ -36,7 +36,7 @@ use crate::util::format_provided_variable_name;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)
-///     [provided_variable_name] --> __pv__[module_name]
+///     \[provided_variable_name\] --> __pv__\[module_name\]
 ///  - Remove provided variables from (local) argument definitions
 ///  - Add provided variables to list of used global variables
 /// apply_fragment_arguments depends on provide_variable_fragment_transform

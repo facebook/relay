@@ -2016,7 +2016,8 @@ fn transform_non_nullable_input_type(
                                             .project_config
                                             .typegen_config
                                             .optional_input_fields
-                                            .contains(&field.name.0),
+                                            .contains(&field.name.0)
+                                        || field.default_value.is_some(),
                                     value: transform_input_type(
                                         typegen_context,
                                         &field.type_,

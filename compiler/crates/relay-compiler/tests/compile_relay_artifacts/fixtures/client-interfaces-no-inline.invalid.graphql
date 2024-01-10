@@ -1,0 +1,26 @@
+# expected-to-throw
+
+query clientInterfacesNoInlineInvalidQuery {
+  cat {
+    greeting
+  }
+}
+
+# %extensions%
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+    greeting: String
+}
+
+type Persian implements Cat {
+    description: String
+    adopted: Boolean
+}
+
+extend type Query {
+    cat: Cat
+}

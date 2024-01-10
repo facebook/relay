@@ -55,7 +55,7 @@ const {
 } = require('./LiveResolverCache');
 const invariant = require('invariant');
 
-// Used by codegen.
+// Provided for backward compatibility. Prefer using the version exported from 'relay-runtime'.
 export type {LiveState} from '../RelayStoreTypes';
 
 // HACK

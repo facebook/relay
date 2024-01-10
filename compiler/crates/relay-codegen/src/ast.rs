@@ -19,7 +19,7 @@ pub struct ObjectEntry {
     pub value: Primitive,
 }
 
-/// A helper for creating Vec<ObjectEntry>
+/// A helper for creating `Vec<ObjectEntry>`
 /// For now, field names are defined in `CODEGEN_CONSTANTS
 #[macro_export]
 macro_rules! object {

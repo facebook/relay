@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<60f611a97f09b3caa35c440952f8059b>>
+ * @generated SignedSource<<0d99ccbe5aade8069b9aa9abad3aba77>>
  */
 
 mod relay_compiler_integration;
@@ -59,6 +59,27 @@ async fn custom_scalar_variable_default_arg_non_strict() {
     let input = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.input");
     let expected = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected");
     test_fixture(transform_fixture, file!(), "custom_scalar_variable_default_arg_non_strict.input", "relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn preloadable_query_flow() {
+    let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_flow.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_flow.expected");
+    test_fixture(transform_fixture, file!(), "preloadable_query_flow.input", "relay_compiler_integration/fixtures/preloadable_query_flow.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn preloadable_query_javascript() {
+    let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_javascript.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_javascript.expected");
+    test_fixture(transform_fixture, file!(), "preloadable_query_javascript.input", "relay_compiler_integration/fixtures/preloadable_query_javascript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn preloadable_query_typescript() {
+    let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
+    test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
 }
 
 #[tokio::test]

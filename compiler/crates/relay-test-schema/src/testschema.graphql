@@ -120,6 +120,7 @@ type Mutation {
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
   commentsDelete(input: CommentsDeleteInput): CommentsDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+  feedbackUnLike(input: FeedbackUnLikeInput): FeedbackUnLikeResponsePayload
   feedbackLikeStrict(
     input: FeedbackLikeInputStrict!
   ): FeedbackLikeResponsePayload
@@ -186,6 +187,11 @@ input CommentsDeleteInput {
 
 input FeedbackLikeInput {
   feedbackId: ID
+}
+
+input FeedbackUnLikeInput {
+  feedbackId: ID
+  silent: Boolean! = false
 }
 
 input FeedbackLikeInputStrict {
@@ -449,6 +455,10 @@ type Feedback implements Node {
 }
 
 type FeedbackLikeResponsePayload {
+  feedback: Feedback
+}
+
+type FeedbackUnLikeResponsePayload {
   feedback: Feedback
 }
 

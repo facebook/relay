@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2c1dbb584a83d9b797c9286e6ce088cb>>
+ * @generated SignedSource<<7e6fc749e15ff3be636ff1f6b838a03b>>
  */
 
 mod generate_typescript;
@@ -73,6 +73,13 @@ async fn custom_scalar_type_import() {
     let input = include_str!("generate_typescript/fixtures/custom-scalar-type-import.graphql");
     let expected = include_str!("generate_typescript/fixtures/custom-scalar-type-import.expected");
     test_fixture(transform_fixture, file!(), "custom-scalar-type-import.graphql", "generate_typescript/fixtures/custom-scalar-type-import.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn default_input() {
+    let input = include_str!("generate_typescript/fixtures/default-input.graphql");
+    let expected = include_str!("generate_typescript/fixtures/default-input.expected");
+    test_fixture(transform_fixture, file!(), "default-input.graphql", "generate_typescript/fixtures/default-input.expected", input, expected).await;
 }
 
 #[tokio::test]

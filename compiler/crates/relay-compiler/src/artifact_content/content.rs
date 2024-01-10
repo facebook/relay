@@ -39,6 +39,115 @@ use super::content_section::GenericSection;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
+pub fn generate_preloadable_query_parameters(
+    config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+    normalization_operation: &OperationDefinition,
+    query_id: &QueryID,
+) -> Result<Vec<u8>, FmtError> {
+    let mut request_parameters = build_request_params(normalization_operation);
+    let cloned_query_id = Some(query_id.clone());
+    request_parameters.id = &cloned_query_id;
+
+    let mut content_sections = ContentSections::default();
+
+    // -- Begin Docblock Section --
+    let extra_annotations = match query_id {
+        QueryID::Persisted { text_hash, .. } => vec![format!("@relayHash {}", text_hash)],
+        _ => vec![],
+    };
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        extra_annotations,
+    )?));
+    // -- End Docblock Section --
+
+    // -- Begin Disable Lint Section --
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Use Strict Section --
+
+    // -- Begin Metadata Annotations Section --
+    let mut section = CommentAnnotationsSection::default();
+    if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
+        writeln!(section, "@relayRequestID {}", id)?;
+    }
+    content_sections.push(ContentSection::CommentAnnotations(section));
+    // -- End Metadata Annotations Section --
+
+    // -- Begin Types Section --
+    let mut section = GenericSection::default();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "/*::")?;
+    }
+
+    write_import_type_from(
+        project_config,
+        &mut section,
+        "PreloadableConcreteRequest",
+        "relay-runtime",
+    )?;
+    write_import_type_from(
+        project_config,
+        &mut section,
+        &normalization_operation.name.item.0.to_string(),
+        &format!("./{}.graphql", normalization_operation.name.item.0),
+    )?;
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "*/")?;
+    }
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Types Section --
+
+    // -- Begin Query Node Section --
+    let preloadable_request = printer.print_preloadable_request(
+        schema,
+        request_parameters,
+        normalization_operation,
+        &mut Default::default(),
+    );
+    let mut section = GenericSection::default();
+
+    let node_type = format!(
+        "PreloadableConcreteRequest<{}>",
+        normalization_operation.name.item.0
+    );
+
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "node",
+        &node_type,
+        &preloadable_request,
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Query Node Section --
+
+    // -- Begin Export Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(
+        &project_config.typegen_config,
+        &mut section,
+        "node",
+        Some(node_type),
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Export Section --
+
+    content_sections.into_signed_bytes()
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn generate_updatable_query(
     config: &Config,
@@ -200,14 +309,14 @@ pub fn generate_operation(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let v = match id_and_text_hash {
+    let extra_annotations = match id_and_text_hash {
         Some(QueryID::Persisted { text_hash, .. }) => vec![format!("@relayHash {}", text_hash)],
         _ => vec![],
     };
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
         config,
         project_config,
-        v,
+        extra_annotations,
     )?));
     // -- End Docblock Section --
 
@@ -328,26 +437,38 @@ pub fn generate_operation(
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         match project_config.typegen_config.language {
             TypegenLanguage::Flow => {
-                writeln!(
-                    section,
-                    "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
-                )?;
+                if project_config.typegen_config.eager_es_modules {
+                    writeln!(
+                        section,
+                        "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
+                    )?;
+                    writeln!(
+                        section,
+                        "PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
+                    )?;
+                } else {
+                    writeln!(
+                        section,
+                        "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
+                    )?;
+                }
             }
-            TypegenLanguage::JavaScript => {
-                writeln!(
-                    section,
-                    "require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);",
-                )?;
-            }
-            TypegenLanguage::TypeScript => {
-                writeln!(
-                    section,
-                    "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
-                )?;
-                writeln!(
-                    section,
-                    "PreloadableQueryRegistry.set(node.params.id, node);",
-                )?;
+            TypegenLanguage::JavaScript | TypegenLanguage::TypeScript => {
+                if project_config.typegen_config.eager_es_modules {
+                    writeln!(
+                        section,
+                        "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
+                    )?;
+                    writeln!(
+                        section,
+                        "PreloadableQueryRegistry.set(node.params.id, node);",
+                    )?;
+                } else {
+                    writeln!(
+                        section,
+                        "require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);",
+                    )?;
+                }
             }
         }
     }

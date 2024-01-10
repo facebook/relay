@@ -40,6 +40,7 @@ use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 pub use generate_artifacts::generate_artifacts;
+pub use generate_artifacts::generate_preloadable_query_parameters_artifact;
 pub use generate_artifacts::Artifact;
 pub use generate_artifacts::ArtifactContent;
 use graphql_ir::FragmentDefinitionNameSet;

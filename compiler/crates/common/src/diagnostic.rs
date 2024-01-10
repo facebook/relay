@@ -46,7 +46,7 @@ pub fn diagnostics_result<T>(result: T, diagnostics: Diagnostics) -> Diagnostics
 
 /// A diagnostic message as a result of validating some code. This struct is
 /// modeled after the LSP Diagnostic type:
-/// https://microsoft.github.io/language-server-protocol/specification#diagnostic
+/// <https://microsoft.github.io/language-server-protocol/specification#diagnostic>
 ///
 /// Changes from LSP:
 /// - `location` is different from LSP in that it's a file + span instead of
@@ -225,7 +225,7 @@ impl Diagnostic {
         let mut result = String::new();
         writeln!(
             result,
-            "{message}:{location:?}",
+            "{message}: {location:?}",
             message = &self.0.message,
             location = self.0.location
         )

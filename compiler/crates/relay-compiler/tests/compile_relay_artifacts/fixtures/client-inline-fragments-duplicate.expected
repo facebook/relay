@@ -1,0 +1,141 @@
+==================================== INPUT ====================================
+query clientInlineFragmentsDuplicateQuery {
+  cat {
+    description
+    description
+    ... on Tabby {
+      greeting
+    }
+    ... on Tabby {
+      greeting
+    }
+  }
+}
+
+# %extensions%
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+    greeting: String
+}
+
+extend type Query {
+    cat: Cat
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientInlineFragmentsDuplicateQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "cat",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "greeting",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Tabby",
+                "abstractKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientInlineFragmentsDuplicateQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "cat",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "greeting",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Tabby",
+                "abstractKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "a22161d66129f4ea54b4be1a1b16caa8",
+    "id": null,
+    "metadata": {},
+    "name": "clientInlineFragmentsDuplicateQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.

@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query clientInterfacesNoInlineInvalidQuery {
+  cat {
+    greeting
+  }
+}
+
+# %extensions%
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+    greeting: String
+}
+
+type Persian implements Cat {
+    description: String
+    adopted: Boolean
+}
+
+extend type Query {
+    cat: Cat
+}
+==================================== ERROR ====================================
+✖︎ The type `Cat` has no field `greeting`.
+See https://relay.dev/docs/error-reference/unknown-field/
+
+  client-interfaces-no-inline.invalid.graphql:5:5
+    4 │   cat {
+    5 │     greeting
+      │     ^^^^^^^^
+    6 │   }

@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {RequiredFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
+import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   getFragmentResourceForEnvironment,
@@ -59,12 +59,12 @@ describe('FragmentResource RelayResolver behavior', () => {
   let query;
   let fragmentNode;
   let fragmentRef;
-  let mockRequiredFieldLogger;
+  let mockRelayFieldLogger;
 
   beforeEach(() => {
-    mockRequiredFieldLogger = jest.fn<[RequiredFieldLoggerEvent], void>();
+    mockRelayFieldLogger = jest.fn<[RelayFieldLoggerEvent], void>();
     environment = createMockEnvironment({
-      requiredFieldLogger: mockRequiredFieldLogger,
+      relayFieldLogger: mockRelayFieldLogger,
     });
     FragmentResource = getFragmentResourceForEnvironment(environment);
     query = createOperationDescriptor(BASIC_QUERY, {id: '1'});
@@ -87,9 +87,9 @@ describe('FragmentResource RelayResolver behavior', () => {
 
   it('Reports an error to the logger when a resolver field throws an error.', async () => {
     FragmentResource.read(fragmentNode, fragmentRef, 'componentDisplayName');
-    expect(environment.requiredFieldLogger).toHaveBeenCalledTimes(1);
+    expect(environment.relayFieldLogger).toHaveBeenCalledTimes(1);
 
-    const event = mockRequiredFieldLogger.mock.calls[0][0];
+    const event = mockRelayFieldLogger.mock.calls[0][0];
     if (event.kind !== 'relay_resolver.error') {
       throw new Error(
         "Expected log event to be of kind 'relay_resolver.error'",

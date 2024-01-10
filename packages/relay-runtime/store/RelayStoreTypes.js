@@ -957,7 +957,7 @@ export interface IEnvironment {
    * Called by Relay when it encounters a missing field that has been annotated
    * with `@required(action: LOG)`.
    */
-  requiredFieldLogger: RequiredFieldLogger;
+  relayFieldLogger: RelayFieldLogger;
 }
 
 /**
@@ -1191,7 +1191,7 @@ export type MissingFieldHandler =
       ) => ?Array<?DataID>,
     };
 
-export type RequiredFieldLoggerEvent =
+export type RelayFieldLoggerEvent =
   | {
       +kind: 'missing_field.log',
       +owner: string,
@@ -1213,7 +1213,7 @@ export type RequiredFieldLoggerEvent =
  * A handler for events related to @required fields. Currently reports missing
  * fields with either `action: LOG` or `action: THROW`.
  */
-export type RequiredFieldLogger = (event: RequiredFieldLoggerEvent) => void;
+export type RelayFieldLogger = (event: RelayFieldLoggerEvent) => void;
 
 /**
  * The results of normalizing a query.

@@ -12,7 +12,7 @@
 'use strict';
 
 import type {IEnvironment} from 'relay-runtime';
-import type {RequiredFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
+import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 
 const React = require('react');
@@ -909,15 +909,15 @@ describe.each([
         </RelayEnvironmentProvider>
       );
     }
-    const requiredFieldLogger = jest.fn<
-      $FlowFixMe | [RequiredFieldLoggerEvent],
+    const relayFieldLogger = jest.fn<
+      $FlowFixMe | [RelayFieldLoggerEvent],
       void,
     >();
     function createEnvironment(source: MutableRecordSource) {
       return new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
         store: new LiveResolverStore(source),
-        requiredFieldLogger,
+        relayFieldLogger,
       });
     }
 
@@ -951,7 +951,7 @@ describe.each([
     }).toThrow(
       "Relay: Missing @required value at path 'username' in 'ResolverThatThrows'.",
     );
-    expect(requiredFieldLogger.mock.calls).toEqual([
+    expect(relayFieldLogger.mock.calls).toEqual([
       [
         {
           kind: 'missing_field.throw',
@@ -960,7 +960,7 @@ describe.each([
         },
       ],
     ]);
-    requiredFieldLogger.mockReset();
+    relayFieldLogger.mockReset();
 
     // Render with complete data
     let renderer;
@@ -974,7 +974,7 @@ describe.each([
       throw new Error('Renderer is expected to be defined.');
     }
 
-    expect(requiredFieldLogger.mock.calls).toEqual([
+    expect(relayFieldLogger.mock.calls).toEqual([
       [
         {
           error: new Error(

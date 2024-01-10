@@ -36,7 +36,7 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
   PublishQueue,
-  RequiredFieldLogger,
+  RelayFieldLogger,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -55,7 +55,7 @@ const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserve
 const RelayOperationTracker = require('../store/RelayOperationTracker');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 const defaultGetDataID = require('./defaultGetDataID');
-const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
+const defaultRelayFieldLogger = require('./defaultRelayFieldLogger');
 const normalizeResponse = require('./normalizeResponse');
 const OperationExecutor = require('./OperationExecutor');
 const RelayPublishQueue = require('./RelayPublishQueue');
@@ -78,7 +78,7 @@ export type EnvironmentConfig = {
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
-  +requiredFieldLogger?: ?RequiredFieldLogger,
+  +relayFieldLogger?: ?RelayFieldLogger,
   +shouldProcessClientComponents?: ?boolean,
 };
 
@@ -99,7 +99,7 @@ class RelayModernEnvironment implements IEnvironment {
   _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
   +_isServer: boolean;
-  requiredFieldLogger: RequiredFieldLogger;
+  relayFieldLogger: RelayFieldLogger;
   _normalizeResponse: NormalizeResponseFunction;
 
   constructor(config: EnvironmentConfig) {
@@ -119,8 +119,7 @@ class RelayModernEnvironment implements IEnvironment {
       }
     }
     this.__log = config.log ?? emptyFunction;
-    this.requiredFieldLogger =
-      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
+    this.relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
     this._defaultRenderPolicy =
       config.UNSTABLE_defaultRenderPolicy ?? 'partial';
     this._operationLoader = operationLoader;

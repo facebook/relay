@@ -23,7 +23,7 @@ function handlePotentialSnapshotErrors(
   relayResolverErrors: RelayResolverErrors,
 ) {
   for (const resolverError of relayResolverErrors) {
-    environment.requiredFieldLogger({
+    environment.relayFieldLogger({
       kind: 'relay_resolver.error',
       owner: resolverError.field.owner,
       fieldPath: resolverError.field.path,
@@ -35,7 +35,7 @@ function handlePotentialSnapshotErrors(
       case 'THROW': {
         const {path, owner} = missingRequiredFields.field;
         // This gives the consumer the chance to throw their own error if they so wish.
-        environment.requiredFieldLogger({
+        environment.relayFieldLogger({
           kind: 'missing_field.throw',
           owner,
           fieldPath: path,
@@ -46,7 +46,7 @@ function handlePotentialSnapshotErrors(
       }
       case 'LOG':
         missingRequiredFields.fields.forEach(({path, owner}) => {
-          environment.requiredFieldLogger({
+          environment.relayFieldLogger({
             kind: 'missing_field.log',
             owner,
             fieldPath: path,

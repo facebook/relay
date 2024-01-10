@@ -75,7 +75,7 @@ module.exports = {
 ```
 
 This configuration also can be specified in `"relay"` section of the `package.json` file.
-For more details, and configuration options see: [Relay Compiler Configuration](https://github.com/facebook/relay/tree/main/packages/relay-compiler)
+For more details, and configuration options see: [Relay Compiler Configuration](https://github.com/facebook/relay/tree/main/packages/relay-compiler/index.d.ts)
 
 
 ## Set up babel-plugin-relay

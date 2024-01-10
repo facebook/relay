@@ -63,6 +63,7 @@ Create the configuration file:
 
 ```javascript
 // relay.config.js
+/** @type {import('relay-compiler').RelayConfig} */
 module.exports = {
   // ...
   // Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.

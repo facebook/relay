@@ -111,7 +111,7 @@ When the field is first read by a component, Relay will evaluate the Relay Resol
 
 ## Error Handling
 
-In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolvers will be logged to your environment's configured `requiredFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolves you should be sure to configure your environment with a `requiredFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
+In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolvers will be logged to your environment's configured `relayFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolves you should be sure to configure your environment with a `relayFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
 
 If your component requires a non-null value in order to render, and can’t provide a reasonable fallback experience, you can annotate the field access with `@required`.
 

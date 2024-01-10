@@ -43,7 +43,7 @@ export type RelayConfigSingleProject = {
   eagerEsModules?: boolean;
   /** Relay supports two versions of the config. */
   persistConfig?: RelayConfigPersist;
-  /** Command name that for relay compiler. */
+  /** Name of the command that runs the relay compiler */
   codegenCommand?: string;
   /**
    * Name of the global variable for dev mode
@@ -60,6 +60,11 @@ export type RelayConfigSingleProject = {
   /** Options for configuring the output of compiler diagnostics. */
   diagnosticReportConfig: RelayConfigDiagnosticReport;
   featureFlags: RelayFeatureFlags;
+  /** 
+   * Keep the previous compiler behavior by outputting an union of the raw type and null, 
+   * and not the **correct** behavior of an union with the raw type, null and undefined. 
+   */
+  typescript_exclude_undefined_from_nullable_union: boolean;
 }
 
 /**
@@ -77,7 +82,7 @@ export type RelayConfigMultiProject = {
    * If a path is a subdirectory of another path, the more specific path wins.
    */
   sources: Record<string, string>;
-  /** Command name that for relay compiler. */
+  /** Name of the command that runs the relay compiler */
   codegenCommand?: string;
   /**
    * Directory to be excluded under each project.
@@ -200,7 +205,7 @@ export type RelayConfigMultiProjectItem =
   variableNamesComment?: boolean;
   featureFlags?: RelayConfigFeatureFlags;
   /** A placeholder for allowing extra information in the config file */
-  extra: unknown;
+  extra?: unknown;
   /** 
    * A generic rollout state for larger codegen changes. The default is to
    * pass, otherwise it should be a number between 0 and 100 as a percentage.
@@ -294,7 +299,7 @@ export type RelayConfigFeatureFlags = {
   /** Enable deprecated `@outputType` on Relay Resolvers. */
   relay_resolver_enable_output_type?: RelayConfigFeatureFlag;
   /** Enable returning interfaces from Relay Resolvers without `@outputType` */
-  relay_resolver_enable_interface_output_type: RelayConfigFeatureFlag;
+  relay_resolver_enable_interface_output_type?: RelayConfigFeatureFlag;
   /** 
    * For now, this also disallows fragments with variable definitions. 
    * This also makes `@module` to opt in using `@no_inline` internally
@@ -303,25 +308,25 @@ export type RelayConfigFeatureFlags = {
    * whether a fragment is *allowed* to use `@no_inline`: whether the fragment is 
    * inlined or not depends on whether it actually uses that directive.
    */
-  no_inline: RelayConfigFeatureFlag;
-  enable_3d_branch_arg_generation: bool;
-  actor_change_support: RelayConfigFeatureFlag;
-  text_artifacts: RelayConfigFeatureFlag;
-  skip_printing_nulls: RelayConfigFeatureFlag;
+  no_inline?: RelayConfigFeatureFlag;
+  enable_3d_branch_arg_generation?: bool;
+  actor_change_support?: RelayConfigFeatureFlag;
+  text_artifacts?: RelayConfigFeatureFlag;
+  skip_printing_nulls?: RelayConfigFeatureFlag;
   /** Enable support for the experimental `@alias` directive on fragment spreads. */
-  enable_fragment_aliases: RelayConfigFeatureFlag;
+  enable_fragment_aliases?: RelayConfigFeatureFlag;
   /** Print queries in compact form. */
-  compact_query_text: RelayConfigFeatureFlag;
+  compact_query_text?: RelayConfigFeatureFlag;
   /** Create normalization nodes for client edges to client objects. */
-  emit_normalization_nodes_for_client_edges: boolean;
+  emit_normalization_nodes_for_client_edges?: boolean;
   /** Fully build the normalization AST for Resolvers. */
-  enable_resolver_normalization_ast: bool;
+  enable_resolver_normalization_ast?: bool;
   /** Enforce strict flavors for relay resolvers and disallow mixing flavors. */
-  relay_resolvers_enable_strict_resolver_flavors: RelayConfigFeatureFlag;
+  relay_resolvers_enable_strict_resolver_flavors?: RelayConfigFeatureFlag;
   /** Allow legacy verbose resolver syntax */
-  relay_resolvers_allow_legacy_verbose_syntax: RelayConfigFeatureFlag;
+  relay_resolvers_allow_legacy_verbose_syntax?: RelayConfigFeatureFlag;
   /** Allow relay resolvers to extend the Mutation type. */
-  enable_relay_resolver_mutations: boolean;
+  enable_relay_resolver_mutations?: boolean;
   /** Perform strict validations when custom scalar types are used. */
-  enable_strict_custom_scalars: boolean;
+  enable_strict_custom_scalars?: boolean;
 }

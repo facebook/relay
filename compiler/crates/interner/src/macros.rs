@@ -44,7 +44,6 @@ macro_rules! intern {
 /// let user: User = User { name };
 /// let user_key: UserKey = user.intern();
 /// ```
-///
 #[macro_export]
 macro_rules! make_intern {
     ($name:ident as $alias:ident) => {

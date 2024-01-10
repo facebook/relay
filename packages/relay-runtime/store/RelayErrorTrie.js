@@ -17,9 +17,19 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 const SELF: Self = Symbol('$SELF');
 
+class RelayFieldError extends Error {
+  constructor(message: string, errors: Array<TRelayFieldError> = []) {
+    super(message);
+    this.name = 'RelayFieldError';
+    this.message = message;
+    this.errors = errors;
+  }
+  errors: Array<TRelayFieldError>;
+}
+
 export opaque type Self = typeof SELF;
 
-export type RelayFieldError = $ReadOnly<{
+export type TRelayFieldError = $ReadOnly<{
   message: string,
   path?: $ReadOnlyArray<string | number>,
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
@@ -41,7 +51,7 @@ export type RelayFieldError = $ReadOnly<{
  */
 export opaque type RelayErrorTrie = Map<
   string | number | Self,
-  RelayErrorTrie | Array<Omit<RelayFieldError, 'path'>>,
+  RelayErrorTrie | Array<Omit<TRelayFieldError, 'path'>>,
 >;
 
 function buildErrorTrie(
@@ -98,7 +108,7 @@ function buildErrorTrie(
 function getErrorsByKey(
   trie: RelayErrorTrie,
   key: string | number,
-): $ReadOnlyArray<RelayFieldError> | null {
+): $ReadOnlyArray<TRelayFieldError> | null {
   const value = trie.get(key);
   if (value == null) {
     return null;
@@ -168,9 +178,11 @@ module.exports = ({
   buildErrorTrie,
   getNestedErrorTrieByKey,
   getErrorsByKey,
+  RelayFieldError,
 }: {
   SELF: typeof SELF,
   buildErrorTrie: typeof buildErrorTrie,
   getNestedErrorTrieByKey: typeof getNestedErrorTrieByKey,
   getErrorsByKey: typeof getErrorsByKey,
+  RelayFieldError: Class<RelayFieldError>,
 });

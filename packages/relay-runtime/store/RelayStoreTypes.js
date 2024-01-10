@@ -49,7 +49,7 @@ import type {
   UpdatableQuery,
   Variables,
 } from '../util/RelayRuntimeTypes';
-import type {RelayFieldError} from './RelayErrorTrie';
+import type {TRelayFieldError} from './RelayErrorTrie';
 import type {
   Record as RelayModernRecord,
   RecordJSON,
@@ -118,7 +118,7 @@ type FieldLocation = {
 
 type ErrorFieldLocation = {
   ...FieldLocation,
-  error: RelayFieldError,
+  error: TRelayFieldError,
 };
 
 export type MissingRequiredFields = $ReadOnly<

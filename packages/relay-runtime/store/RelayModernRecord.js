@@ -13,7 +13,7 @@
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {RelayFieldError} from './RelayErrorTrie';
+import type {TRelayFieldError} from './RelayErrorTrie';
 
 const deepFreeze = require('../util/deepFreeze');
 const {generateClientObjectClientID, isClientID} = require('./ClientID');
@@ -37,7 +37,7 @@ const warning = require('warning');
 
 type StorageKey = Exclude<string, typeof ERRORS_KEY>;
 
-type RelayFieldErrors = {[StorageKey]: $ReadOnlyArray<RelayFieldError>};
+type RelayFieldErrors = {[StorageKey]: $ReadOnlyArray<TRelayFieldError>};
 
 export type RecordJSON = {
   /**
@@ -191,7 +191,7 @@ function getType(record: Record): string {
 function getErrors(
   record: Record,
   storageKey: StorageKey,
-): $ReadOnlyArray<RelayFieldError> | void {
+): $ReadOnlyArray<TRelayFieldError> | void {
   return record[ERRORS_KEY]?.[storageKey];
 }
 
@@ -457,7 +457,7 @@ function freeze(record: Record): void {
 function setErrors(
   record: Record,
   storageKey: StorageKey,
-  errors?: $ReadOnlyArray<RelayFieldError>,
+  errors?: $ReadOnlyArray<TRelayFieldError>,
 ): void {
   if (__DEV__) {
     warning(

@@ -46,8 +46,6 @@ static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
 static VALIDATOR_EXPORT_NAME: &str = "validate";
 static LIVE_RESOLVERS_LIVE_STATE: &str = "LiveState";
-static LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH: &str =
-    "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 
 lazy_static! {
     static ref KEY_CLIENTID: StringKey = "__id".intern();

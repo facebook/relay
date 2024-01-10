@@ -620,6 +620,8 @@ fn get_default_excludes() -> Vec<String> {
 }
 
 /// Schema of the compiler configuration JSON file.
+/// 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct MultiProjectConfigFile {
@@ -662,6 +664,7 @@ struct MultiProjectConfigFile {
     is_dev_variable_name: Option<String>,
 }
 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {

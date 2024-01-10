@@ -11,6 +11,8 @@ use serde::Deserialize;
 use serde::Serialize;
 
 /// Configuration for resolvers_schema_module generation
+/// 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Default, Serialize, Deserialize, Debug)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ResolversSchemaModuleConfig {

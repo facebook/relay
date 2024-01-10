@@ -9,6 +9,8 @@ use serde::Deserialize;
 use serde::Serialize;
 
 /// Formatting style for generated files.
+///
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum JsModuleFormat {

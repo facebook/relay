@@ -17,6 +17,7 @@ use strum::EnumIter;
 use strum::IntoEnumIterator;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(
     EnumIter,
     strum::Display,
@@ -50,6 +51,7 @@ impl TypegenLanguage {
     }
 }
 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum CustomScalarType {

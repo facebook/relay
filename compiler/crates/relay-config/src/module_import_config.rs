@@ -10,6 +10,8 @@ use serde::Deserialize;
 use serde::Serialize;
 
 /// Configuration for @module.
+/// 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Debug, Deserialize, Serialize, Default, Copy, Clone)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ModuleImportConfig {

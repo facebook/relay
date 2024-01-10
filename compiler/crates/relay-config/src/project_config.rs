@@ -106,6 +106,7 @@ pub struct LocalPersistConfig {
     pub include_query_text: bool,
 }
 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum PersistConfig {
@@ -175,6 +176,7 @@ impl Debug for ExtraArtifactsConfig {
     }
 }
 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {

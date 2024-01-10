@@ -17,6 +17,7 @@ use serde::Serialize;
 
 use crate::Rollout;
 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
@@ -86,6 +87,7 @@ pub struct FeatureFlags {
     pub enable_strict_custom_scalars: bool,
 }
 
+/// **NOTE**: Every change on this struct should be reflected into the `relay-compiler/index.d.ts` file.
 #[derive(Debug, Deserialize, Clone, Serialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {

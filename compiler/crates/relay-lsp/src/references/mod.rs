@@ -80,10 +80,7 @@ fn get_references_response(
                         On::Type(type_) => type_.value.item,
                         On::Interface(interface) => interface.value.item,
                     },
-                    DocblockIr::TerseRelayResolver(_) => {
-                        // TODO: Implement support for terse relay resolvers.
-                        return Err(LSPRuntimeError::ExpectedError);
-                    }
+                    DocblockIr::TerseRelayResolver(terse_resolver) => terse_resolver.type_.item,
                     DocblockIr::StrongObjectResolver(_) => {
                         // TODO: Implement support for strong object.
                         return Err(LSPRuntimeError::ExpectedError);
@@ -94,7 +91,7 @@ fn get_references_response(
                     }
                 };
 
-                let references = find_field_locations(program, field_name, type_name)
+                let references = find_field_locations(program, field_name.value, type_name)
                     .ok_or(LSPRuntimeError::ExpectedError)?
                     .into_iter()
                     .map(|location| transform_relay_location_to_lsp_location(root_dir, location))

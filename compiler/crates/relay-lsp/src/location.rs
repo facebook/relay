@@ -63,7 +63,7 @@ pub fn transform_relay_location_to_lsp_location(
     }
 }
 
-fn get_file_contents(path: &Path) -> LSPRuntimeResult<String> {
+pub fn get_file_contents(path: &Path) -> LSPRuntimeResult<String> {
     let file = std::fs::read(&path).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
     String::from_utf8(file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))
 }

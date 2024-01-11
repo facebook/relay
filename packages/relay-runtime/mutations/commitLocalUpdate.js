@@ -11,11 +11,11 @@
 
 'use strict';
 
-import type {IEnvironment, StoreUpdater} from '../store/RelayStoreTypes';
+import type {IEnvironment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
 
 function commitLocalUpdate(
   environment: IEnvironment,
-  updater: StoreUpdater,
+  updater: SelectorStoreUpdater,
 ): void {
   environment.commitUpdate(updater);
 }

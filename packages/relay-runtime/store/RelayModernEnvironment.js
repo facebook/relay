@@ -251,7 +251,7 @@ class RelayModernEnvironment implements IEnvironment {
     }).subscribe({});
   }
 
-  commitUpdate(updater: StoreUpdater): void {
+  commitUpdate(updater: SelectorStoreUpdater): void {
     this._scheduleUpdates(() => {
       this._publishQueue.commitUpdate(updater);
       this._publishQueue.run();

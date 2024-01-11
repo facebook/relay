@@ -839,7 +839,7 @@ export interface IEnvironment {
    * should therefore not be used for optimistic updates. This is mainly
    * intended for updating fields from client schema extensions.
    */
-  commitUpdate(updater: StoreUpdater): void;
+  commitUpdate(updater: SelectorStoreUpdater): void;
 
   /**
    * Commit a payload to the environment using the given operation selector.
@@ -1274,7 +1274,7 @@ export interface PublishQueue {
    * Schedule an updater to mutate the store on the next `run()` typically to
    * update client schema fields.
    */
-  commitUpdate(updater: StoreUpdater): void;
+  commitUpdate(updater: SelectorStoreUpdater): void;
 
   /**
    * Schedule a publish to the store from the provided source on the next

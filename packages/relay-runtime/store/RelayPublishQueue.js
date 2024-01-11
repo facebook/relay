@@ -185,7 +185,7 @@ class RelayPublishQueue implements PublishQueue {
    * Schedule an updater to mutate the store on the next `run()` typically to
    * update client schema fields.
    */
-  commitUpdate(updater: StoreUpdater): void {
+  commitUpdate(updater: SelectorStoreUpdater): void {
     this._pendingBackupRebase = true;
     this._pendingData.add({
       kind: 'updater',

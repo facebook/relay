@@ -229,12 +229,9 @@ pub enum ConfigValidationError {
 #[derive(Debug, Error)]
 pub enum BuildProjectError {
     #[error(
-        "Validation errors:{}",
+        "Validation errors: {} error(s) encountered above.",
         errors
-            .iter()
-            .map(|err| format!("\n - {}", err.print_without_source()))
-            .collect::<Vec<_>>()
-            .join("")
+            .len()
     )]
     ValidationErrors {
         errors: Vec<Diagnostic>,

@@ -101,9 +101,12 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub require_custom_scalar_types: bool,
 
-    /// Work in progress new Flow type definitions
+    /// This option controls whether or not a catch-all entry is added to enum type definitions
+    /// for values that may be added in the future. Enabling this means you will have to update
+    /// your application whenever the GraphQL server schema adds new enum values to prevent it
+    /// from breaking.
     #[serde(default)]
-    pub flow_typegen: FlowTypegenConfig,
+    pub no_future_proof_enums: bool,
 
     /// This option enables emitting es modules artifacts.
     #[serde(default)]
@@ -114,15 +117,4 @@ pub struct TypegenConfig {
     /// of an union with the raw type, null and undefined.
     #[serde(default)]
     pub typescript_exclude_undefined_from_nullable_union: bool,
-}
-
-#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]
-#[serde(deny_unknown_fields, tag = "phase")]
-pub struct FlowTypegenConfig {
-    /// This option controls whether or not a catch-all entry is added to enum type definitions
-    /// for values that may be added in the future. Enabling this means you will have to update
-    /// your application whenever the GraphQL server schema adds new enum values to prevent it
-    /// from breaking.
-    #[serde(default)]
-    pub no_future_proof_enums: bool,
 }

@@ -655,7 +655,6 @@ fn write_enum_definitions(
             if !typegen_context
                 .project_config
                 .typegen_config
-                .flow_typegen
                 .no_future_proof_enums
             {
                 members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));

@@ -16,7 +16,6 @@ use std::vec;
 use async_trait::async_trait;
 use common::FeatureFlags;
 use common::Rollout;
-use common::ScalarName;
 use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
@@ -29,10 +28,8 @@ use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
-use relay_config::CustomScalarType;
 use relay_config::DiagnosticReportConfig;
 pub use relay_config::ExtraArtifactsConfig;
-use relay_config::FlowTypegenConfig;
 use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
 use relay_config::ModuleImportConfig;
@@ -694,21 +691,8 @@ pub struct SingleProjectConfigFile {
     /// List of directories with schema extensions.
     pub schema_extensions: Vec<PathBuf>,
 
-    /// This option controls whether or not a catch-all entry is added to enum type definitions
-    /// for values that may be added in the future. Enabling this means you will have to update
-    /// your application whenever the GraphQL server schema adds new enum values to prevent it
-    /// from breaking.
-    pub no_future_proof_enums: bool,
-
-    /// The name of the language plugin (?) used for input files and artifacts
-    pub language: Option<TypegenLanguage>,
-
-    /// Mappings from custom scalars in your schema to built-in GraphQL
-    /// types, for type emission purposes.
-    pub custom_scalars: FnvIndexMap<ScalarName, CustomScalarType>,
-
-    /// This option enables emitting es modules artifacts.
-    pub eager_es_modules: bool,
+    #[serde(flatten)]
+    pub typegen_config: TypegenConfig,
 
     /// Query Persist Configuration
     /// It contains URL and addition parameters that will be included
@@ -740,12 +724,6 @@ pub struct SingleProjectConfigFile {
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
 
-    /// Keep the previous compiler behavior by outputting an union
-    /// of the raw type and null, and not the **correct** behavior
-    /// of an union with the raw type, null and undefined.
-    #[serde(default)]
-    pub typescript_exclude_undefined_from_nullable_union: bool,
-
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
 }
@@ -761,18 +739,14 @@ impl Default for SingleProjectConfigFile {
             extensions: vec![],
             excludes: get_default_excludes(),
             schema_extensions: vec![],
-            no_future_proof_enums: false,
-            language: None,
-            custom_scalars: Default::default(),
             schema_config: Default::default(),
-            eager_es_modules: false,
+            typegen_config: Default::default(),
             persist_config: None,
             is_dev_variable_name: None,
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
             typegen_phase: None,
             feature_flags: None,
-            typescript_exclude_undefined_from_nullable_union: false,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
         }
@@ -853,18 +827,6 @@ impl SingleProjectConfigFile {
             }
         })?;
 
-        let language = self.language.ok_or_else(|| {
-            let mut variants = vec![];
-            for lang in TypegenLanguage::get_variants_as_string() {
-                variants.push(format!(r#"  "language": "{}""#, lang));
-            }
-
-            Error::ConfigError {
-                    details: format!("The `language` option is missing in the Relay configuration file. Please, specify one of the following options:\n{}", variants.join("\n")),
-                }
-            }
-        )?;
-
         let project_config = ConfigFileProject {
             output: self.artifact_directory.map(|dir| {
                 normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir)
@@ -887,18 +849,7 @@ impl SingleProjectConfigFile {
                 })
                 .collect(),
             persist: self.persist_config,
-            typegen_config: TypegenConfig {
-                language,
-                custom_scalar_types: self.custom_scalars.clone(),
-                eager_es_modules: self.eager_es_modules,
-                flow_typegen: FlowTypegenConfig {
-                    no_future_proof_enums: self.no_future_proof_enums,
-                    ..Default::default()
-                },
-                typescript_exclude_undefined_from_nullable_union: self
-                    .typescript_exclude_undefined_from_nullable_union,
-                ..Default::default()
-            },
+            typegen_config: self.typegen_config,
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
@@ -948,12 +899,12 @@ impl<'de> Deserialize<'de> for ConfigFile {
                 Ok(single_project_config) => Ok(ConfigFile::SingleProject(single_project_config)),
                 Err(single_project_error) => {
                     let error_message = format!(
-                        r#"The config file cannot be parsed as a multi-project config file due to:
+                        r#"The config file cannot be parsed as a single-project config file due to:
 - {:?}.
 
-It also cannot be a single project config file due to:
+It also cannot be a multi-project config file due to:
 - {:?}."#,
-                        multi_project_error, single_project_error
+                        single_project_error, multi_project_error,
                     );
 
                     Err(DeError::custom(error_message))

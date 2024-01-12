@@ -81,7 +81,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         typegen_config: TypegenConfig {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
-            flow_typegen: Default::default(),
             ..Default::default()
         },
         ..Default::default()

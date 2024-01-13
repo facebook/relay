@@ -450,6 +450,9 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
                 args.kind = schema_flatbuffer::TypeReferenceKind::NonNull;
                 args.null = Some(self.serialize_type_reference(of));
             }
+            TypeReference::SemanticNonNull(_) => {
+                todo!("Implement this once we've regenerated graphqlschema_generated.rs")
+            }
         }
         schema_flatbuffer::TypeReference::create(&mut self.bldr, &args)
     }

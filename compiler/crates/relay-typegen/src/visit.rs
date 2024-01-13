@@ -355,7 +355,8 @@ fn generate_resolver_type(
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
     };
 
-    let ast = transform_type_reference_into_ast(&schema_field.type_, |_| inner_ast);
+    let ast =
+        transform_type_reference_into_ast(&typegen_context, &schema_field.type_, |_| inner_ast);
 
     let return_type = if matches!(
         typegen_context.project_config.typegen_config.language,
@@ -545,9 +546,10 @@ fn relay_resolver_field_type(
         };
 
     if let Some(field) = maybe_scalar_field {
-        let inner_value = transform_type_reference_into_ast(&field.type_, |type_| {
-            expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
-        });
+        let inner_value =
+            transform_type_reference_into_ast(&typegen_context, &field.type_, |type_| {
+                expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
+            });
         if required {
             if field.type_.is_non_null() {
                 inner_value
@@ -1030,7 +1032,7 @@ fn visit_scalar_field(
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
         special_field,
-        value: transform_type_reference_into_ast(&field_type, |type_| {
+        value: transform_type_reference_into_ast(&typegen_context, &field_type, |type_| {
             expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
         }),
         conditional: false,
@@ -1530,8 +1532,10 @@ fn make_prop(
                     encountered_fragments,
                     custom_scalars,
                 );
-                let getter_return_value =
-                    transform_type_reference_into_ast(&linked_field.node_type, |type_| {
+                let getter_return_value = transform_type_reference_into_ast(
+                    &typegen_context,
+                    &linked_field.node_type,
+                    |type_| {
                         return_ast_in_object_case(
                             typegen_context,
                             encountered_enums,
@@ -1539,7 +1543,8 @@ fn make_prop(
                             getter_object_props,
                             type_,
                         )
-                    });
+                    },
+                );
 
                 let setter_parameter = if just_fragments.is_empty() {
                     if linked_field.node_type.is_list() {
@@ -1618,15 +1623,19 @@ fn make_prop(
                     encountered_fragments,
                     custom_scalars,
                 );
-                let value = transform_type_reference_into_ast(&linked_field.node_type, |type_| {
-                    return_ast_in_object_case(
-                        typegen_context,
-                        encountered_enums,
-                        custom_scalars,
-                        object_props,
-                        type_,
-                    )
-                });
+                let value = transform_type_reference_into_ast(
+                    &typegen_context,
+                    &linked_field.node_type,
+                    |type_| {
+                        return_ast_in_object_case(
+                            typegen_context,
+                            encountered_enums,
+                            custom_scalars,
+                            object_props,
+                            type_,
+                        )
+                    },
+                );
 
                 Prop::KeyValuePair(KeyValuePairProp {
                     key,
@@ -1710,7 +1719,7 @@ fn raw_response_make_prop(
             );
             Prop::KeyValuePair(KeyValuePairProp {
                 key: linked_field.field_name_or_alias,
-                value: transform_type_reference_into_ast(&node_type, |type_| {
+                value: transform_type_reference_into_ast(&typegen_context, &node_type, |type_| {
                     return_ast_in_object_case(
                         typegen_context,
                         encountered_enums,
@@ -1760,14 +1769,33 @@ fn raw_response_make_prop(
 }
 
 fn transform_type_reference_into_ast(
+    typegen_context: &'_ TypegenContext<'_>,
     type_reference: &TypeReference<Type>,
     transform_inner_type: impl FnOnce(&Type) -> AST,
 ) -> AST {
     match type_reference {
-        TypeReference::NonNull(non_null_ref) => {
-            transform_non_nullable_type_reference_into_ast(non_null_ref, transform_inner_type)
+        TypeReference::SemanticNonNull(non_null_ref) => {
+            if typegen_context.typegen_options.semantic_nullability {
+                transform_non_nullable_type_reference_into_ast(
+                    typegen_context,
+                    non_null_ref,
+                    transform_inner_type,
+                )
+            } else {
+                AST::Nullable(Box::new(transform_non_nullable_type_reference_into_ast(
+                    typegen_context,
+                    non_null_ref,
+                    transform_inner_type,
+                )))
+            }
         }
+        TypeReference::NonNull(non_null_ref) => transform_non_nullable_type_reference_into_ast(
+            typegen_context,
+            non_null_ref,
+            transform_inner_type,
+        ),
         _ => AST::Nullable(Box::new(transform_non_nullable_type_reference_into_ast(
+            typegen_context,
             type_reference,
             transform_inner_type,
         ))),
@@ -1775,15 +1803,17 @@ fn transform_type_reference_into_ast(
 }
 
 fn transform_non_nullable_type_reference_into_ast(
+    typegen_context: &'_ TypegenContext<'_>,
     type_reference: &TypeReference<Type>,
     transform_inner_type: impl FnOnce(&Type) -> AST,
 ) -> AST {
     match type_reference {
         TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(
-            transform_type_reference_into_ast(of_type, transform_inner_type),
+            transform_type_reference_into_ast(&typegen_context, of_type, transform_inner_type),
         )),
         TypeReference::Named(named_type) => transform_inner_type(named_type),
         TypeReference::NonNull(_) => panic!("unexpected NonNull"),
+        TypeReference::SemanticNonNull(_) => panic!("unexpected NonNull"),
     }
 }
 
@@ -2041,6 +2071,7 @@ fn transform_non_nullable_input_type(
             }
         },
         TypeReference::NonNull(_) => panic!("Unexpected NonNull"),
+        TypeReference::SemanticNonNull(_) => panic!("Unexpected SemanticNonNull"),
     }
 }
 

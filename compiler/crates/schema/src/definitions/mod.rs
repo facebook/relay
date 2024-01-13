@@ -201,6 +201,7 @@ impl Type {
 pub enum TypeReference<T> {
     Named(T),
     NonNull(Box<TypeReference<T>>),
+    SemanticNonNull(Box<TypeReference<T>>),
     List(Box<TypeReference<T>>),
 }
 
@@ -210,6 +211,7 @@ impl<T: Copy> TypeReference<T> {
             TypeReference::Named(type_) => *type_,
             TypeReference::List(of) => of.inner(),
             TypeReference::NonNull(of) => of.inner(),
+            TypeReference::SemanticNonNull(of) => of.inner(),
         }
     }
 
@@ -217,6 +219,7 @@ impl<T: Copy> TypeReference<T> {
         match self {
             TypeReference::Named(_) => TypeReference::NonNull(Box::new(self.clone())),
             TypeReference::List(_) => TypeReference::NonNull(Box::new(self.clone())),
+            TypeReference::SemanticNonNull(_) => TypeReference::NonNull(Box::new(self.clone())),
             TypeReference::NonNull(_) => self.clone(),
         }
     }
@@ -234,7 +237,19 @@ impl<T: Copy> TypeReference<T> {
                         TypeReference::NonNull(Box::new(of.with_nullable_item_type()))
                     }
                     TypeReference::Named(_) => inner.clone(),
-                    TypeReference::NonNull(_) => {
+                    TypeReference::NonNull(_) | TypeReference::SemanticNonNull(_) => {
+                        unreachable!("Invalid nested TypeReference::NonNull")
+                    }
+                }
+            }
+            TypeReference::SemanticNonNull(of) => {
+                let inner: &TypeReference<T> = of;
+                match inner {
+                    TypeReference::List(_) => {
+                        TypeReference::SemanticNonNull(Box::new(of.with_nullable_item_type()))
+                    }
+                    TypeReference::Named(_) => inner.clone(),
+                    TypeReference::NonNull(_) | TypeReference::SemanticNonNull(_) => {
                         unreachable!("Invalid nested TypeReference::NonNull")
                     }
                 }
@@ -248,6 +263,7 @@ impl<T: Copy> TypeReference<T> {
             TypeReference::List(_) => None,
             TypeReference::Named(type_) => Some(*type_),
             TypeReference::NonNull(of) => of.non_list_type(),
+            TypeReference::SemanticNonNull(of) => of.non_list_type(),
         }
     }
 }
@@ -256,7 +272,9 @@ impl<T> TypeReference<T> {
     pub fn map<U>(self, transform: impl FnOnce(T) -> U) -> TypeReference<U> {
         match self {
             TypeReference::Named(inner) => TypeReference::Named(transform(inner)),
-            TypeReference::NonNull(inner) => TypeReference::NonNull(Box::new(inner.map(transform))),
+            TypeReference::NonNull(inner) | TypeReference::SemanticNonNull(inner) => {
+                TypeReference::NonNull(Box::new(inner.map(transform)))
+            }
             TypeReference::List(inner) => TypeReference::List(Box::new(inner.map(transform))),
         }
     }
@@ -266,6 +284,9 @@ impl<T> TypeReference<T> {
             TypeReference::Named(inner) => TypeReference::Named(inner),
             TypeReference::NonNull(inner) => {
                 TypeReference::NonNull(Box::new(Box::as_ref(inner).as_ref()))
+            }
+            TypeReference::SemanticNonNull(inner) => {
+                TypeReference::SemanticNonNull(Box::new(Box::as_ref(inner).as_ref()))
             }
             TypeReference::List(inner) => {
                 TypeReference::List(Box::new(Box::as_ref(inner).as_ref()))
@@ -277,7 +298,7 @@ impl<T> TypeReference<T> {
         match self {
             TypeReference::Named(_) => self,
             TypeReference::List(_) => self,
-            TypeReference::NonNull(of) => of,
+            TypeReference::NonNull(of) | TypeReference::SemanticNonNull(of) => of,
         }
     }
 

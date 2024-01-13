@@ -832,6 +832,9 @@ fn completion_items_for_request(
                     }
                     TypeReference::Named(_) => None,
                     TypeReference::NonNull(inner) => resolve_root_input_field(schema, inner),
+                    TypeReference::SemanticNonNull(inner) => {
+                        resolve_root_input_field(schema, inner)
+                    }
                     TypeReference::List(inner) => resolve_root_input_field(schema, inner),
                 }
             }

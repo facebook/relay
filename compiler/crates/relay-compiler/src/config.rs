@@ -710,6 +710,9 @@ pub struct SingleProjectConfigFile {
     /// This option enables emitting es modules artifacts.
     pub eager_es_modules: bool,
 
+    /// TODO
+    pub enable_experimental_semantic_nullability: bool,
+
     /// Query Persist Configuration
     /// It contains URL and addition parameters that will be included
     /// with the request (think API_KEY, APP_ID, etc...)
@@ -766,6 +769,7 @@ impl Default for SingleProjectConfigFile {
             custom_scalars: Default::default(),
             schema_config: Default::default(),
             eager_es_modules: false,
+            enable_experimental_semantic_nullability: false,
             persist_config: None,
             is_dev_variable_name: None,
             codegen_command: None,
@@ -897,6 +901,8 @@ impl SingleProjectConfigFile {
                 },
                 typescript_exclude_undefined_from_nullable_union: self
                     .typescript_exclude_undefined_from_nullable_union,
+                enable_experimental_semantic_nullability: self
+                    .enable_experimental_semantic_nullability,
                 ..Default::default()
             },
             js_module_format: self.js_module_format,

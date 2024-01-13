@@ -114,6 +114,10 @@ pub struct TypegenConfig {
     /// of an union with the raw type, null and undefined.
     #[serde(default)]
     pub typescript_exclude_undefined_from_nullable_union: bool,
+
+    /// Experimental: TODO
+    #[serde(default)]
+    pub enable_experimental_semantic_nullability: bool,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]

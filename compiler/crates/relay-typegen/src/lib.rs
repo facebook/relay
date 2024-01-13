@@ -157,6 +157,9 @@ fn generate_fragment_type_exports_section_impl(
         TypegenOptions {
             no_optional_fields_in_raw_response_type: false,
             is_extra_artifact_branch_module,
+            semantic_nullability: project_config
+                .typegen_config
+                .enable_experimental_semantic_nullability,
         },
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
@@ -183,6 +186,9 @@ pub fn generate_named_validator_export(
         TypegenOptions {
             no_optional_fields_in_raw_response_type: false,
             is_extra_artifact_branch_module: false,
+            semantic_nullability: project_config
+                .typegen_config
+                .enable_experimental_semantic_nullability,
         },
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
@@ -222,6 +228,9 @@ pub fn generate_operation_type_exports_section(
         TypegenOptions {
             no_optional_fields_in_raw_response_type: false,
             is_extra_artifact_branch_module: false,
+            semantic_nullability: project_config
+                .typegen_config
+                .enable_experimental_semantic_nullability,
         },
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
@@ -259,6 +268,9 @@ pub fn generate_split_operation_type_exports_section(
         TypegenOptions {
             no_optional_fields_in_raw_response_type,
             is_extra_artifact_branch_module: false,
+            semantic_nullability: project_config
+                .typegen_config
+                .enable_experimental_semantic_nullability,
         },
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
@@ -311,4 +323,6 @@ struct TypegenOptions {
     no_optional_fields_in_raw_response_type: bool,
     // Some extra artifacts require special type generation
     is_extra_artifact_branch_module: bool,
+    // Generate types reflecting semantic nullability
+    semantic_nullability: bool,
 }

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use core::panic;
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
@@ -103,6 +104,8 @@ pub trait Schema {
             (TypeReference::Named(named_subtype), TypeReference::Named(named_supertype)) => {
                 self.is_named_type_strict_subtype_of(*named_subtype, *named_supertype)
             }
+            // TODO!
+            _ => panic!("Unexpected type reference"),
         }
     }
 
@@ -129,6 +132,7 @@ pub trait Schema {
             (TypeReference::Named(named_subtype), TypeReference::Named(named_supertype)) => {
                 self.is_named_type_subtype_of(*named_subtype, *named_supertype)
             }
+            _ => panic!("Unexpected type reference"),
         }
     }
 
@@ -234,6 +238,10 @@ pub trait Schema {
             TypeReference::NonNull(of) => {
                 self.write_type_string(writer, of)?;
                 write!(writer, "!")
+            }
+            TypeReference::SemanticNonNull(of) => {
+                self.write_type_string(writer, of)?;
+                write!(writer, " @semanticNonNull")
             }
             TypeReference::List(of) => {
                 write!(writer, "[")?;

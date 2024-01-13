@@ -1576,7 +1576,7 @@ impl InMemorySchema {
                 .iter()
                 .map(|field_def| {
                     let arguments = self.build_arguments(&field_def.arguments)?;
-                    let type_ = self.build_type_reference(&field_def.type_, field_location_key)?;
+                    let type_ = self.build_field_type_reference(&field_def, field_location_key)?;
                     let directives = self.build_directive_values(&field_def.directives);
                     let description = field_def.description.as_ref().map(|desc| desc.value);
                     let hack_source = field_def
@@ -1623,7 +1623,7 @@ impl InMemorySchema {
                 }
                 let arguments = self.build_arguments(&field_def.arguments)?;
                 let directives = self.build_directive_values(&field_def.directives);
-                let type_ = self.build_type_reference(&field_def.type_, source_location_key)?;
+                let type_ = self.build_field_type_reference(&field_def, source_location_key)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
                 let hack_source = field_def
                     .hack_source
@@ -1698,6 +1698,25 @@ impl InMemorySchema {
                 TypeReference::List(Box::new(self.build_input_object_reference(&of_type.type_)?))
             }
         })
+    }
+
+    fn build_field_type_reference(
+        &mut self,
+        field: &FieldDefinition,
+        source_location: SourceLocationKey,
+    ) -> DiagnosticsResult<TypeReference<Type>> {
+        let is_semantic_non_null = field
+            .directives
+            .iter()
+            .any(|directive| directive.name.value == "semanticNonNull".intern());
+
+        if is_semantic_non_null {
+            Ok(TypeReference::SemanticNonNull(Box::new(
+                self.build_type_reference(&field.type_, source_location)?,
+            )))
+        } else {
+            self.build_type_reference(&field.type_, source_location)
+        }
     }
 
     fn build_type_reference(

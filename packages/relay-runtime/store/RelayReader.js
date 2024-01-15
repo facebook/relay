@@ -33,6 +33,7 @@ import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
+  ErrorResponseFields,
   MissingClientEdgeRequestInfo,
   MissingLiveResolverField,
   MissingRequiredFields,
@@ -116,6 +117,7 @@ class RelayReader {
   _missingLiveResolverFields: Array<MissingLiveResolverField>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
+  _errorResponseFields: ?ErrorResponseFields;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
   _seenRecords: DataIDSet;
@@ -141,6 +143,7 @@ class RelayReader {
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
+    this._errorResponseFields = null;
     this._owner = selector.owner;
     this._recordSource = recordSource;
     this._seenRecords = new Set();
@@ -226,7 +229,31 @@ class RelayReader {
       selector: this._selector,
       missingRequiredFields: this._missingRequiredFields,
       relayResolverErrors: this._resolverErrors,
+      errorResponseFields: this._errorResponseFields,
     };
+  }
+
+  _maybeAddErrorResponseFields(record: Record, storageKey: string): void {
+    if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
+      return;
+    }
+    const errors = RelayModernRecord.getErrors(record, storageKey);
+
+    if (errors == null) {
+      return;
+    }
+    const owner = this._fragmentName;
+
+    if (this._errorResponseFields == null) {
+      this._errorResponseFields = [];
+    }
+    for (const error of errors) {
+      this._errorResponseFields.push({
+        owner,
+        path: (error.path ?? []).join('.'),
+        error,
+      });
+    }
   }
 
   _markDataAsMissing(): void {
@@ -256,6 +283,7 @@ class RelayReader {
   ): ?SelectorData {
     const record = this._recordSource.get(dataID);
     this._seenRecords.add(dataID);
+
     if (record == null) {
       if (record === undefined) {
         this._markDataAsMissing();
@@ -811,7 +839,9 @@ class RelayReader {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
-    if (value === undefined) {
+    if (value === null) {
+      this._maybeAddErrorResponseFields(record, storageKey);
+    } else if (value === undefined) {
       this._markDataAsMissing();
     }
     data[applicationName] = value;
@@ -828,7 +858,9 @@ class RelayReader {
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
       data[applicationName] = linkedID;
-      if (linkedID === undefined) {
+      if (linkedID === null) {
+        this._maybeAddErrorResponseFields(record, storageKey);
+      } else if (linkedID === undefined) {
         this._markDataAsMissing();
       }
       return linkedID;
@@ -865,6 +897,8 @@ class RelayReader {
       data[applicationName] = externalRef;
       if (externalRef === undefined) {
         this._markDataAsMissing();
+      } else if (externalRef === null) {
+        this._maybeAddErrorResponseFields(record, storageKey);
       }
       return data[applicationName];
     }
@@ -892,6 +926,9 @@ class RelayReader {
   ): ?mixed {
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
+    if (linkedIDs === null) {
+      this._maybeAddErrorResponseFields(record, storageKey);
+    }
     return this._readLinkedIds(field, linkedIDs, record, data);
   }
 

@@ -141,7 +141,7 @@ describe('ActorChange with @stream', () => {
       createNetworkForActor: actorIdentifier =>
         Network.create((...args) => fetchFnForActor(...args)),
       logFn: jest.fn(),
-      requiredFieldLogger: jest.fn(),
+      relayFieldLogger: jest.fn(),
     });
     environment = multiActorEnvironment.forActor(
       getActorIdentifier('actor:1234'),

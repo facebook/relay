@@ -11,7 +11,7 @@
 
 'use strict';
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
-import type {RequiredFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
+import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const useFragmentOriginal_EXPERIMENTAL = require('../experimental/useFragment_EXPERIMENTAL');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -77,15 +77,15 @@ describe.each([
         </RelayEnvironmentProvider>
       );
     }
-    const requiredFieldLogger = jest.fn<
-      $FlowFixMe | [RequiredFieldLoggerEvent],
+    const relayFieldLogger = jest.fn<
+      $FlowFixMe | [RelayFieldLoggerEvent],
       void,
     >();
     function createEnvironment(source: MutableRecordSource) {
       return new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
         store: new LiveResolverStore(source),
-        requiredFieldLogger,
+        relayFieldLogger,
       });
     }
 
@@ -108,7 +108,7 @@ describe.each([
     );
 
     // Validate that the missing required field was logged.
-    expect(requiredFieldLogger.mock.calls).toEqual([
+    expect(relayFieldLogger.mock.calls).toEqual([
       [
         {
           fieldPath: 'name',

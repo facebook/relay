@@ -612,7 +612,7 @@ impl InMemorySchema {
         id: InputObjectID,
         input_object: InputObject,
     ) -> DiagnosticsResult<()> {
-        if id.as_usize() >= self.enums.len() {
+        if id.as_usize() >= self.input_objects.len() {
             return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Input Object"),
@@ -629,7 +629,7 @@ impl InMemorySchema {
     /// Replaces the definition of union type, but keeps the same id.
     /// Existing references to the old type now reference the replacement.
     pub fn replace_union(&mut self, id: UnionID, union: Union) -> DiagnosticsResult<()> {
-        if id.as_usize() >= self.enums.len() {
+        if id.as_usize() >= self.unions.len() {
             return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Union"),

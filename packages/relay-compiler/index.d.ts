@@ -57,12 +57,23 @@ export type RelayConfigSingleProject = {
    * @default "commonjs"
    */
   jsModuleFormat?: 'commonjs' | 'haste';
-  /** Options for configuring the output of compiler diagnostics. */
-  diagnosticReportConfig: RelayConfigDiagnosticReport;
+  /** 
+   * Options for configuring the output of compiler diagnostics. 
+   * 
+   * @default
+   * ```js
+   * { 
+   *   criticalLevel: "error",
+   * }
+   * ```
+   */
+  diagnosticReportConfig?: RelayConfigDiagnosticReportConfig;
   featureFlags: RelayFeatureFlags;
   /** 
    * Keep the previous compiler behavior by outputting an union of the raw type and null, 
-   * and not the **correct** behavior of an union with the raw type, null and undefined. 
+   * and not the **correct** behavior of an union with the raw type, null and undefined.
+   * 
+   * @default false
    */
   typescript_exclude_undefined_from_nullable_union: boolean;
 }
@@ -126,7 +137,11 @@ type RelayConfigMultiProjectItemDynamicModuleProvider =
   | { mode: "Custom", statement?: string; };
 
 type RelayConfigMultiProjectItemTypegenConfig = {
-  /** The name of the language used for input files and generated artifacts. */
+  /** 
+   * The name of the language used for input files and generated artifacts.
+   * 
+   * @default "javascript"
+   */
   language: RelayConfigLanguage;
   /**
    * (Flow only) When set, enum values are imported from a module with this suffix. For example, an enum Foo and this property set to `.test` would be imported from `Foo.test`
@@ -187,13 +202,19 @@ export type RelayConfigMultiProjectItem =
   extraArtifactsOutput?: string;
   /**
    * If `output` is provided and `shard_output` is `true`, shard the files by putting them under `{output_dir}/{source_relative_path}`
+   * 
+   * @default false
    */
   shardOutput?: boolean;
   /**
    * Regex to match and strip parts of the `source_relative_path`
    */
   shardStripRegex?: string;
-  /** Array of directories containing *.graphql files with schema extensions. */
+  /** 
+   * Array of directories containing *.graphql files with schema extensions.
+   * 
+   * @default []
+   */
   schemaExtensions?: string[];
   /** If this option is set, the compiler will persist queries using this config. */
   persist?: RelayConfigPersitConfigLocal;
@@ -228,8 +249,17 @@ export type RelayConfigMultiProjectItem =
      */
     dynamicModuleProvider: RelayConfigMultiProjectItemDynamicModuleProvider;
   };
-  /** Options for configuring the output of compiler diagnostics. */
-  diagnosticReportConfig?: DiagnosticReportConfig;
+  /** 
+   * Options for configuring the output of compiler diagnostics. 
+   * 
+   * @default
+   * ```js
+   * { 
+   *   criticalLevel: "error",
+   * }
+   * ```
+   */
+  diagnosticReportConfig?: RelayConfigDiagnosticReportConfig;
 }
 
 export type RelayConfigSchemaConfig = {
@@ -269,8 +299,12 @@ export type RelayConfigLanguage = 'javascript' | 'typescript' | 'flow';
 
 export type RelayConfigCustomScalars = Record<string, string | { name: string, path: string }>;
 
-export type RelayConfigDiagnosticReport = {
-  /** The severity level of diagnostics that will cause the compiler to error out on. */
+export type RelayConfigDiagnosticReportConfig = {
+  /**
+   * The severity level of diagnostics that will cause the compiler to error out on.
+   * 
+   * @default "error"
+   */
   criticalLevel: 'error' | 'warning' | 'info';
 };
 

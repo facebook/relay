@@ -113,6 +113,9 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   - `criticalLevel` The severity level of diagnostics that will cause the
     compiler to error out on. ["error" | "warning" | "info"]
 
+> [!TIP]
+> For more details, and configuration options see: [Relay Compiler Configuration](https://github.com/facebook/relay/tree/main/packages/relay-compiler/index.d.ts)
+
 ### CLI Arguments
 
 - `--repersist` Run the persister even if the query has not changed.

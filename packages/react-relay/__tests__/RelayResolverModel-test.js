@@ -32,6 +32,7 @@ const {
   addTodo,
   changeDescription,
   completeTodo,
+  removeTodo,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 const {
@@ -39,6 +40,9 @@ const {
   resetModels,
   setIsHuman,
 } = require('relay-runtime/store/__tests__/resolvers/MutableModel');
+const {
+  LiveColorSubscriptions,
+} = require('relay-runtime/store/__tests__/resolvers/TodoDescription');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
@@ -67,16 +71,6 @@ afterEach(() => {
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
-function createEnvironment() {
-  return new RelayModernEnvironment({
-    network: RelayNetwork.create(jest.fn()),
-    store: new LiveResolverStore(RelayRecordSource.create(), {
-      log: logFn,
-    }),
-    log: logFn,
-  });
-}
-
 function EnvironmentWrapper({
   children,
   environment,
@@ -96,8 +90,16 @@ describe.each([
   ['Legacy', useFragment_LEGACY],
 ])('Hook implementation: %s', (_hookName, useFragment) => {
   let environment;
+  let store;
   beforeEach(() => {
-    environment = createEnvironment();
+    store = new LiveResolverStore(RelayRecordSource.create(), {
+      log: logFn,
+    });
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+      log: logFn,
+    });
   });
 
   function TodoComponent(props: {
@@ -273,6 +275,63 @@ describe.each([
       jest.runAllImmediates();
     });
     expect(renderer.toJSON()).toEqual('Test todo - green');
+  });
+
+  test('should correctly invalidate subscriptions on live fields when updating @weak models', () => {
+    LiveColorSubscriptions.activeSubscriptions = [];
+    function TodoComponentWithPluralResolverComponent(props: {todoID: string}) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestWeakLiveColorFieldQuery($id: ID!) {
+            live_todo_description(todoID: $id) {
+              text
+              live_color
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      if (data?.live_todo_description == null) {
+        return null;
+      }
+
+      return `${data.live_todo_description?.text ?? 'unknown'} - ${
+        data.live_todo_description?.live_color ?? 'unknown'
+      }`;
+    }
+    addTodo('Test todo');
+    expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(0);
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithPluralResolverComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('Test todo - red');
+    expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
+
+    TestRenderer.act(() => {
+      completeTodo('todo-1');
+      jest.runAllImmediates();
+    });
+    // `completeTodo` should publish new update to the record with Todo item
+    // and it will create a new subscription for the `live_color` field
+    // without unsubscribing from the previous one. So now we have two active
+    // subscriptions for the `live_color` field.
+    expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(2);
+
+    expect(renderer.toJSON()).toEqual('Test todo - green');
+
+    TestRenderer.act(() => {
+      removeTodo('todo-1');
+      jest.runAllImmediates();
+    });
+
+    expect(renderer.toJSON()).toEqual(null);
+    // Run GC to will remove "orphan" records and unsubscribe if they have live resolver subscriptions
+    store.scheduleGC();
+    jest.runAllImmediates();
+
+    expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
   });
 
   test('read a field with arguments', () => {

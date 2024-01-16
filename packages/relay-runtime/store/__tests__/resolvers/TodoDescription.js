@@ -9,6 +9,7 @@
  * @oncall relay
  */
 
+import type {LiveState} from '../../RelayStoreTypes';
 import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
 import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
 
@@ -58,6 +59,33 @@ function color(instance: TodoDescription): string {
   return instance.color;
 }
 
+const LiveColorSubscriptions = {
+  activeSubscriptions: [],
+} as {
+  activeSubscriptions: Array<() => void>,
+};
+
+/**
+ * @RelayResolver TodoDescription.live_color: RelayResolverValue
+ * @live
+ */
+function live_color(instance: TodoDescription): LiveState<string> {
+  // This is a live field to test the subsription leaks cases
+  // When defining live fields on weak types
+  return {
+    read() {
+      return instance.color;
+    },
+    subscribe(cb: () => void): () => void {
+      LiveColorSubscriptions.activeSubscriptions.push(cb);
+      return () => {
+        LiveColorSubscriptions.activeSubscriptions =
+          LiveColorSubscriptions.activeSubscriptions.filter(sub => sub !== cb);
+      };
+    },
+  };
+}
+
 /**
  * @RelayResolver TodoDescription.some_interface: ClientInterface
  */
@@ -89,6 +117,8 @@ module.exports = {
   createTodoDescription,
   text,
   color,
+  live_color,
+  LiveColorSubscriptions,
   some_interface,
   some_client_type_with_interface,
 };

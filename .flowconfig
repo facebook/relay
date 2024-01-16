@@ -3,7 +3,6 @@
 <PROJECT_ROOT>/compiler/.*
 <PROJECT_ROOT>/.*/node_modules/.*
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
-<PROJECT_ROOT>/packages/relay-flight-experimental/.*
 
 [options]
 exact_by_default=true
@@ -21,6 +20,8 @@ module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 munge_underscores=true
 experimental.global_find_ref=true
+; https://fburl.com/code/h2jnts20 - to match internval value
+casting_syntax=both
 
 suppress_type=$FlowIssue
 suppress_type=$FlowFixMe

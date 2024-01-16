@@ -59,10 +59,10 @@ function color(instance: TodoDescription): string {
   return instance.color;
 }
 
-const LiveColorSubscriptions = {
-  activeSubscriptions: [],
-} as {
+const LiveColorSubscriptions: {
   activeSubscriptions: Array<() => void>,
+} = {
+  activeSubscriptions: [],
 };
 
 /**
@@ -70,7 +70,7 @@ const LiveColorSubscriptions = {
  * @live
  */
 function live_color(instance: TodoDescription): LiveState<string> {
-  // This is a live field to test the subsription leaks cases
+  // This is a live field to test the subscription leaks cases
   // When defining live fields on weak types
   return {
     read() {

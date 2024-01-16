@@ -1207,6 +1207,12 @@ export type RelayFieldLoggerEvent =
       +owner: string,
       +fieldPath: string,
       +error: Error,
+    }
+  | {
+      +kind: 'relay_field_payload.error',
+      +owner: string,
+      +fieldPath: string,
+      +error: TRelayFieldError,
     };
 
 /**

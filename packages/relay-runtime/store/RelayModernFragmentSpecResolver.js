@@ -333,6 +333,7 @@ class SelectorResolver {
       this._environment,
       this._missingRequiredFields,
       this._relayResolverErrors,
+      this._errorResponseFields,
     );
     return this._data;
   }

@@ -87,6 +87,7 @@ function handlePotentialSnapshotErrorsForState(
       environment,
       state.snapshot.missingRequiredFields,
       state.snapshot.relayResolverErrors,
+      state.snapshot.errorResponseFields,
     );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
@@ -94,6 +95,7 @@ function handlePotentialSnapshotErrorsForState(
         environment,
         snapshot.missingRequiredFields,
         snapshot.relayResolverErrors,
+        snapshot.errorResponseFields,
       );
     }
   }

@@ -566,6 +566,7 @@ class FragmentResourceImpl {
           this._environment,
           s.missingRequiredFields,
           s.relayResolverErrors,
+          s.errorResponseFields,
         );
       });
     } else {
@@ -573,6 +574,7 @@ class FragmentResourceImpl {
         this._environment,
         snapshot.missingRequiredFields,
         snapshot.relayResolverErrors,
+        snapshot.errorResponseFields,
       );
     }
   }

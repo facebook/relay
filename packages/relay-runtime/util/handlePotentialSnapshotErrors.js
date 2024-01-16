@@ -12,15 +12,19 @@
 'use strict';
 
 import type {
+  ErrorResponseFields,
   IEnvironment,
   MissingRequiredFields,
   RelayResolverErrors,
 } from '../store/RelayStoreTypes';
 
+import RelayFeatureFlags from './RelayFeatureFlags';
+
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
   missingRequiredFields: ?MissingRequiredFields,
   relayResolverErrors: RelayResolverErrors,
+  errorResponseFields: ?ErrorResponseFields,
 ) {
   for (const resolverError of relayResolverErrors) {
     environment.relayFieldLogger({
@@ -30,6 +34,21 @@ function handlePotentialSnapshotErrors(
       error: resolverError.error,
     });
   }
+  if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
+    if (errorResponseFields != null) {
+      for (const fieldError of errorResponseFields) {
+        const {path, owner, error} = fieldError;
+
+        environment.relayFieldLogger({
+          kind: 'relay_field_payload.error',
+          owner: owner,
+          fieldPath: path,
+          error,
+        });
+      }
+    }
+  }
+
   if (missingRequiredFields != null) {
     switch (missingRequiredFields.action) {
       case 'THROW': {

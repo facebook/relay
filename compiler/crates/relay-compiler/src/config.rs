@@ -381,8 +381,6 @@ Example file:
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
                     codegen_command: config_file_project.codegen_command,
-                    generated_artifacts_directory_name: config_file_project
-                        .generated_artifacts_directory_name,
                 };
                 Ok((project_name, project_config))
             })
@@ -577,11 +575,7 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() {
-                "Some(Fn)"
-            } else {
-                "None"
-            }
+            if option.is_some() { "Some(Fn)" } else { "None" }
         }
 
         f.debug_struct("Config")
@@ -1055,11 +1049,6 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub codegen_command: Option<String>,
-
-    // The name (not the path) of directory where the relay artifacts are generated
-    // Default value is `__generated__`.
-    #[serde(default)]
-    pub generated_artifacts_directory_name: Option<String>,
 }
 
 pub type PersistId = String;

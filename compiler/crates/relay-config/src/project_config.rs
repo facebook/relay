@@ -249,7 +249,6 @@ pub struct ProjectConfig {
     pub diagnostic_report_config: DiagnosticReportConfig,
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
     pub codegen_command: Option<String>,
-    pub generated_artifacts_directory_name: Option<String>,
 }
 
 impl Default for ProjectConfig {
@@ -278,7 +277,6 @@ impl Default for ProjectConfig {
             diagnostic_report_config: Default::default(),
             resolvers_schema_module: Default::default(),
             codegen_command: Default::default(),
-            generated_artifacts_directory_name: None,
         }
     }
 }
@@ -309,7 +307,6 @@ impl Debug for ProjectConfig {
             diagnostic_report_config,
             resolvers_schema_module,
             codegen_command,
-            generated_artifacts_directory_name,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -335,10 +332,6 @@ impl Debug for ProjectConfig {
             .field("diagnostic_report_config", diagnostic_report_config)
             .field("resolvers_schema_module", resolvers_schema_module)
             .field("codegen_command", codegen_command)
-            .field(
-                "generated_artifacts_directory_name",
-                generated_artifacts_directory_name,
-            )
             .finish()
     }
 }
@@ -369,16 +362,8 @@ impl ProjectConfig {
             // Otherwise, output into a file relative to the source.
             source_file
                 .get_dir()
-                .join(self.get_generated_artifacts_directory_name())
+                .join("__generated__")
                 .join(artifact_file_name)
-        }
-    }
-
-    fn get_generated_artifacts_directory_name(&self) -> String {
-        if let Some(name) = &self.generated_artifacts_directory_name {
-            name.to_string()
-        } else {
-            "__generated__".to_string()
         }
     }
 

@@ -59,10 +59,10 @@ function color(instance: TodoDescription): string {
   return instance.color;
 }
 
-const LiveColorSubscriptions: {
-  activeSubscriptions: Array<() => void>,
-} = {
+const LiveColorSubscriptions = {
   activeSubscriptions: [],
+} as {
+  activeSubscriptions: Array<() => void>,
 };
 
 /**

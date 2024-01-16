@@ -63,6 +63,7 @@ crates/relay-transforms/tests/provided_variable_fragment_transform
 crates/relay-transforms/tests/refetchable_fragment
 crates/relay-transforms/tests/relay_actor_change
 crates/relay-transforms/tests/relay_resolvers
+crates/relay-transforms/tests/relay_resolvers_abstract_types
 crates/relay-transforms/tests/relay_test_operation
 crates/relay-transforms/tests/required_directive
 crates/relay-transforms/tests/skip_client_extensions

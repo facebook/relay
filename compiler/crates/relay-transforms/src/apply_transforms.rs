@@ -27,6 +27,7 @@ use crate::generate_relay_resolvers_model_fragments::generate_relay_resolvers_mo
 use crate::generate_relay_resolvers_operations_for_nested_objects::generate_relay_resolvers_operations_for_nested_objects;
 use crate::generate_relay_resolvers_root_fragment_split_operation::generate_relay_resolvers_root_fragment_split_operation;
 use crate::match_::hash_supported_argument;
+use crate::relay_resolvers_abstract_types::relay_resolvers_abstract_types;
 use crate::skip_updatable_queries::skip_updatable_queries;
 
 #[derive(Debug)]
@@ -154,7 +155,9 @@ fn apply_common_transforms(
         &log_event,
         None,
     )?;
-
+    program = log_event.time("relay_resolvers_abstract_types", || {
+        relay_resolvers_abstract_types(&program, &project_config.feature_flags)
+    })?;
     program = log_event.time("transform_connections", || {
         transform_connections(
             &program,

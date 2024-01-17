@@ -189,7 +189,7 @@ pub fn generate_artifacts(
         }))
         .chain(
             match project_config.resolvers_schema_module {
-                Some(ResolversSchemaModuleConfig { ref path }) =>
+                Some(ResolversSchemaModuleConfig { ref path , .. }) =>
                 vec![
                     generate_resolvers_schema_module_artifact(path.clone())
                 ],

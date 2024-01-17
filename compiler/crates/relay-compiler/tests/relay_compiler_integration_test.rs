@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0d99ccbe5aade8069b9aa9abad3aba77>>
+ * @generated SignedSource<<81e6648f89d4ad26d959f72f1eaab040>>
  */
 
 mod relay_compiler_integration;
@@ -87,6 +87,13 @@ async fn resolvers_schema_module() {
     let input = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module.expected");
     test_fixture(transform_fixture, file!(), "resolvers_schema_module.input", "relay_compiler_integration/fixtures/resolvers_schema_module.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolvers_schema_module_apply_to_normalization_ast() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.expected");
+    test_fixture(transform_fixture, file!(), "resolvers_schema_module_apply_to_normalization_ast.input", "relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.expected", input, expected).await;
 }
 
 #[tokio::test]

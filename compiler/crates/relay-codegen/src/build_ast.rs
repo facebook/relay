@@ -70,6 +70,7 @@ use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
 use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
+use schema::Field;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -241,34 +242,20 @@ pub fn build_resolvers_schema(
                 }
                 fields.push(ObjectEntry {
                     key: field.name.item,
-                    value: Primitive::Key(ast_builder.intern(Ast::Object(object! {
-                        resolver_function: Primitive::JSModuleDependency(JSModuleDependency {
-                            path: project_config.js_module_import_identifier(
-                                artifact_path,
-                                &PathBuf::from(import_path.lookup()),
-                            ),
-                            import_name: ModuleImportName::Named {
-                                name: import_name,
-                                import_as: Some(resolver_import_alias(object.name.item.0, field.name.item))
-                            },
-                        }),
-                        root_fragment: match get_resolver_fragment_dependency_name(field) {
-                            Some(name) => {
-                                let definition_name = WithLocation::new(
-                                    field.name.location,
-                                    get_normalization_operation_name(name.0).intern(),
-                                );
-                                Primitive::JSModuleDependency(JSModuleDependency {
-                                    path: project_config.js_module_import_identifier(
-                                        artifact_path,
-                                        &project_config.artifact_path_for_definition(definition_name),
-                                    ),
-                                    import_name: ModuleImportName::Default(definition_name.item),
-                                })
-                            },
-                            None => Primitive::SkippableNull,
+                    value: Primitive::Key(build_resolver_info(
+                        ast_builder,
+                        project_config,
+                        artifact_path,
+                        field,
+                        import_path,
+                        ModuleImportName::Named {
+                            name: import_name,
+                            import_as: Some(resolver_import_alias(
+                                object.name.item.0,
+                                field.name.item,
+                            )),
                         },
-                    }))),
+                    )),
                 });
             }
         }
@@ -281,6 +268,41 @@ pub fn build_resolvers_schema(
     }
 
     ast_builder.intern(Ast::Object(map))
+}
+
+fn build_resolver_info(
+    ast_builder: &mut AstBuilder,
+    project_config: &ProjectConfig,
+    artifact_path: &PathBuf,
+    field: &Field,
+    import_path: StringKey,
+    import_name: ModuleImportName,
+) -> AstKey {
+    ast_builder.intern(Ast::Object(object! {
+        resolver_function: Primitive::JSModuleDependency(JSModuleDependency {
+            path: project_config.js_module_import_identifier(
+                artifact_path,
+                &PathBuf::from(import_path.lookup()),
+            ),
+            import_name,
+        }),
+        root_fragment: match get_resolver_fragment_dependency_name(field) {
+            Some(name) => {
+                let definition_name = WithLocation::new(
+                    field.name.location,
+                    get_normalization_operation_name(name.0).intern(),
+                );
+                Primitive::JSModuleDependency(JSModuleDependency {
+                    path: project_config.js_module_import_identifier(
+                        artifact_path,
+                        &project_config.artifact_path_for_definition(definition_name),
+                    ),
+                    import_name: ModuleImportName::Default(definition_name.item),
+                })
+            }
+            None => Primitive::SkippableNull,
+        },
+    }))
 }
 
 pub struct CodegenBuilder<'schema, 'builder, 'config> {
@@ -742,7 +764,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
-        if self.project_config.resolvers_schema_module.is_some() {
+        if self
+            .project_config
+            .resolvers_schema_module
+            .as_ref()
+            .is_some_and(|config| config.apply_to_normalization_ast)
+        {
             self.build_normalization_relay_resolver_execution_time_for_worker(resolver_metadata)
         } else if self
             .project_config
@@ -811,26 +838,29 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .normalization_ast_should_have_is_output_type_true();
 
         let variable_name = resolver_metadata.generate_local_resolver_name(self.schema);
-        let resolver_js_module = JSModuleDependency {
-            path: self.project_config.js_module_import_identifier(
-                &self
-                    .project_config
-                    .artifact_path_for_definition(self.definition_source_location),
-                &PathBuf::from(resolver_metadata.import_path.lookup()),
-            ),
-            import_name: match resolver_metadata.import_name {
+        let artifact_path = &self
+            .project_config
+            .artifact_path_for_definition(self.definition_source_location);
+        let kind = if resolver_metadata.live {
+            CODEGEN_CONSTANTS.relay_live_resolver
+        } else {
+            CODEGEN_CONSTANTS.relay_resolver
+        };
+        let resolver_info = build_resolver_info(
+            self.ast_builder,
+            self.project_config,
+            artifact_path,
+            self.schema.field(resolver_metadata.field_id),
+            resolver_metadata.import_path,
+            match resolver_metadata.import_name {
                 Some(name) => ModuleImportName::Named {
                     name,
                     import_as: Some(variable_name),
                 },
                 None => ModuleImportName::Default(variable_name),
             },
-        };
-        let kind = if resolver_metadata.live {
-            CODEGEN_CONSTANTS.relay_live_resolver
-        } else {
-            CODEGEN_CONSTANTS.relay_resolver
-        };
+        );
+
         Primitive::Key(self.object(object! {
             name: Primitive::String(field_name),
             args: match args {
@@ -849,7 +879,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }
             },
             is_output_type: Primitive::Bool(is_output_type),
-            resolver_module: Primitive::JSModuleDependency(resolver_js_module),
+            resolver_info: Primitive::Key(resolver_info),
         }))
     }
 
@@ -871,16 +901,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         let variable_name = resolver_metadata.generate_local_resolver_name(self.schema);
-        let resolver_js_module = ResolverModuleReference {
-            field_type,
-            resolver_function_name: match resolver_metadata.import_name {
-                Some(name) => ModuleImportName::Named {
-                    name,
-                    import_as: Some(variable_name),
-                },
-                None => ModuleImportName::Default(variable_name),
-            },
-        };
         let kind = if resolver_metadata.live {
             CODEGEN_CONSTANTS.relay_live_resolver
         } else {
@@ -904,7 +924,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }
             },
             is_output_type: Primitive::Bool(is_output_type),
-            resolver_module: Primitive::ResolverModuleReference(resolver_js_module),
+            resolver_reference: Primitive::ResolverModuleReference(ResolverModuleReference {
+                field_type,
+                resolver_function_name: match resolver_metadata.import_name {
+                    Some(name) => ModuleImportName::Named {
+                        name,
+                        import_as: Some(variable_name),
+                    },
+                    None => ModuleImportName::Default(variable_name),
+                },
+            }),
         }))
     }
 

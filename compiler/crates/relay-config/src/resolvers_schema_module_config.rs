@@ -15,5 +15,7 @@ use serde::Serialize;
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ResolversSchemaModuleConfig {
     #[serde(default)]
+    pub apply_to_normalization_ast: bool,
+    #[serde(default)]
     pub path: PathBuf,
 }

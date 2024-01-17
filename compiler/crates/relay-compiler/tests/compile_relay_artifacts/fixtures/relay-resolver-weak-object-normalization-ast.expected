@@ -105,7 +105,10 @@ extend type Query {
           "kind": "RelayResolver",
           "storageKey": null,
           "isOutputType": true,
-          "resolverModule": require('ClientTypeResolver')
+          "resolverInfo": {
+            "resolverFunction": require('ClientTypeResolver'),
+            "rootFragment": null
+          }
         },
         "linkedField": {
           "alias": null,

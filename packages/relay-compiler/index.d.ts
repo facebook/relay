@@ -68,14 +68,14 @@ export type RelayConfigSingleProject = {
    * ```
    */
   diagnosticReportConfig?: RelayConfigDiagnosticReportConfig;
-  featureFlags: RelayFeatureFlags;
+  featureFlags?: RelayFeatureFlags;
   /** 
    * Keep the previous compiler behavior by outputting an union of the raw type and null, 
    * and not the **correct** behavior of an union with the raw type, null and undefined.
    * 
    * @default false
    */
-  typescript_exclude_undefined_from_nullable_union: boolean;
+  typescript_exclude_undefined_from_nullable_union?: boolean;
 }
 
 /**

@@ -176,7 +176,7 @@ export type ResolverInfo = {
 };
 
 type ResolverData =
-  | {+resolverModule?: ResolverModule | ResolverReference}
+  | {+resolverModule?: ResolverModule}
   | {+resolverReference?: ResolverReference}
   | {+resolverInfo?: ResolverInfo};
 

@@ -145,7 +145,7 @@ class LiveResolverCache implements ResolverCache {
         // Clean up any existing subscriptions before creating the new subscription
         // to avoid being double subscribed, or having a dangling subscription in
         // the event of an error during subscription.
-        this._maybeUnsubscribeFromLiveState(linkedRecord);
+        maybeUnsubscribeFromLiveState(linkedRecord);
       }
       linkedID = linkedID ?? generateClientID(recordID, storageKey);
       linkedRecord = RelayModernRecord.create(
@@ -337,18 +337,6 @@ class LiveResolverCache implements ResolverCache {
         resolve();
       });
     });
-  }
-
-  _maybeUnsubscribeFromLiveState(linkedRecord: Record) {
-    // If there's an existing subscription, unsubscribe.
-    // $FlowFixMe[incompatible-type] - casting mixed
-    const previousUnsubscribe: () => void = RelayModernRecord.getValue(
-      linkedRecord,
-      RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
-    );
-    if (previousUnsubscribe != null) {
-      previousUnsubscribe();
-    }
   }
 
   // Register a new Live State object in the store, subscribing to future
@@ -674,7 +662,7 @@ class LiveResolverCache implements ResolverCache {
             continue;
           }
           for (const anotherRecordID of recordSet) {
-            this._markInvalidatedResolverRecord(anotherRecordID, recordSource);
+            markInvalidatedResolverRecord(anotherRecordID, recordSource);
             if (!visited.has(anotherRecordID)) {
               recordsToVisit.push(anotherRecordID);
             }
@@ -682,28 +670,6 @@ class LiveResolverCache implements ResolverCache {
         }
       }
     }
-  }
-
-  _markInvalidatedResolverRecord(
-    dataID: DataID,
-    recordSource: MutableRecordSource, // Written to
-  ) {
-    const record = recordSource.get(dataID);
-    if (!record) {
-      warning(
-        false,
-        'Expected a resolver record with ID %s, but it was missing.',
-        dataID,
-      );
-      return;
-    }
-    const nextRecord = RelayModernRecord.clone(record);
-    RelayModernRecord.setValue(
-      nextRecord,
-      RELAY_RESOLVER_INVALIDATION_KEY,
-      true,
-    );
-    recordSource.set(dataID, nextRecord);
   }
 
   _isInvalid(
@@ -752,19 +718,10 @@ class LiveResolverCache implements ResolverCache {
   }
 
   unsubscribeFromLiveResolverRecords(invalidatedDataIDs: Set<DataID>): void {
-    if (invalidatedDataIDs.size === 0) {
-      return;
-    }
-
-    for (const dataID of invalidatedDataIDs) {
-      const record = this._getRecordSource().get(dataID);
-      if (
-        record != null &&
-        RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME
-      ) {
-        this._maybeUnsubscribeFromLiveState(record);
-      }
-    }
+    return unsubscribeFromLiveResolverRecordsImpl(
+      this._getRecordSource(),
+      invalidatedDataIDs,
+    );
   }
 
   // Given the set of possible invalidated DataID
@@ -778,10 +735,7 @@ class LiveResolverCache implements ResolverCache {
 
     for (const dataID of invalidatedDataIDs) {
       const record = this._getRecordSource().get(dataID);
-      if (
-        record != null &&
-        RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME
-      ) {
+      if (record != null && isResolverRecord(record)) {
         this._getRecordSource().delete(dataID);
       }
     }
@@ -856,7 +810,11 @@ function updateCurrentSource(
       const updatedRecord = RelayModernRecord.update(currentRecord, nextRecord);
       if (updatedRecord !== currentRecord) {
         updatedDataIDs.add(recordID);
-        currentSource.set(recordID, nextRecord);
+        currentSource.set(recordID, updatedRecord);
+        // We also need to mark all linked records from the current record as invalidated,
+        // so that the next time these records are accessed in RelayReader,
+        // they will be re-read and re-evaluated by the LiveResolverCache and re-subscribed.
+        markInvalidatedLinkedResolverRecords(currentRecord, currentSource);
       }
     } else {
       currentSource.set(recordID, nextRecord);
@@ -864,6 +822,91 @@ function updateCurrentSource(
   }
 
   return updatedDataIDs;
+}
+
+function getAllLinkedRecordIds(record: Record): DataIDSet {
+  const linkedRecordIDs = new Set<DataID>();
+  RelayModernRecord.getFields(record).forEach(field => {
+    if (RelayModernRecord.hasLinkedRecordID(record, field)) {
+      const linkedRecordID = RelayModernRecord.getLinkedRecordID(record, field);
+      if (linkedRecordID != null) {
+        linkedRecordIDs.add(linkedRecordID);
+      }
+    } else if (RelayModernRecord.hasLinkedRecordIDs(record, field)) {
+      RelayModernRecord.getLinkedRecordIDs(record, field)?.forEach(
+        linkedRecordID => {
+          if (linkedRecordID != null) {
+            linkedRecordIDs.add(linkedRecordID);
+          }
+        },
+      );
+    }
+  });
+
+  return linkedRecordIDs;
+}
+
+function markInvalidatedResolverRecord(
+  dataID: DataID,
+  recordSource: MutableRecordSource, // Written to
+) {
+  const record = recordSource.get(dataID);
+  if (!record) {
+    warning(
+      false,
+      'Expected a resolver record with ID %s, but it was missing.',
+      dataID,
+    );
+    return;
+  }
+  const nextRecord = RelayModernRecord.clone(record);
+  RelayModernRecord.setValue(nextRecord, RELAY_RESOLVER_INVALIDATION_KEY, true);
+  recordSource.set(dataID, nextRecord);
+}
+
+function markInvalidatedLinkedResolverRecords(
+  record: Record,
+  recordSource: MutableRecordSource,
+): void {
+  const currentLinkedDataIDs = getAllLinkedRecordIds(record);
+  for (const recordID of currentLinkedDataIDs) {
+    const record = recordSource.get(recordID);
+    if (record != null && isResolverRecord(record)) {
+      markInvalidatedResolverRecord(recordID, recordSource);
+    }
+  }
+}
+
+function unsubscribeFromLiveResolverRecordsImpl(
+  recordSource: RecordSource,
+  invalidatedDataIDs: $ReadOnlySet<DataID>,
+): void {
+  if (invalidatedDataIDs.size === 0) {
+    return;
+  }
+
+  for (const dataID of invalidatedDataIDs) {
+    const record = recordSource.get(dataID);
+    if (record != null && isResolverRecord(record)) {
+      maybeUnsubscribeFromLiveState(record);
+    }
+  }
+}
+
+function isResolverRecord(record: Record): boolean {
+  return RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME;
+}
+
+function maybeUnsubscribeFromLiveState(linkedRecord: Record): void {
+  // If there's an existing subscription, unsubscribe.
+  // $FlowFixMe[incompatible-type] - casting mixed
+  const previousUnsubscribe: () => void = RelayModernRecord.getValue(
+    linkedRecord,
+    RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+  );
+  if (previousUnsubscribe != null) {
+    previousUnsubscribe();
+  }
 }
 
 function expectRecord(source: RecordSource, recordID: DataID): Record {

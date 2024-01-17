@@ -313,11 +313,7 @@ describe.each([
       completeTodo('todo-1');
       jest.runAllImmediates();
     });
-    // `completeTodo` should publish new update to the record with Todo item
-    // and it will create a new subscription for the `live_color` field
-    // without unsubscribing from the previous one. So now we have two active
-    // subscriptions for the `live_color` field.
-    expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(2);
+    expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
 
     expect(renderer.toJSON()).toEqual('Test todo - green');
 
@@ -331,7 +327,7 @@ describe.each([
     store.scheduleGC();
     jest.runAllImmediates();
 
-    expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
+    expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(0);
   });
 
   test('read a field with arguments', () => {

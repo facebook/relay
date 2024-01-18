@@ -68,7 +68,8 @@ export type RelayConfigSingleProject = {
    * ```
    */
   diagnosticReportConfig?: RelayConfigDiagnosticReportConfig;
-  featureFlags?: RelayFeatureFlags;
+  /** The experimental features related to Relay. */
+  featureFlags?: RelayConfigFeatureFlags;
   /** 
    * Keep the previous compiler behavior by outputting an union of the raw type and null, 
    * and not the **correct** behavior of an union with the raw type, null and undefined.
@@ -124,8 +125,8 @@ type RelayConfigMultiProjectItemSchemaConfig =
   | { 
       /** The path of your schema file. */
       schema: string 
-    };
-  | { 
+    }
+  | {
       /**
        * A directory containing a schema broken up in multiple `*.graphql` files.
        */
@@ -155,7 +156,7 @@ type RelayConfigMultiProjectItemTypegenConfig = {
    * (TypeScript only) Whether to use the `import type` syntax introduced in Typescript version 3.8. This will prevent warnings from `importsNotUsedAsValues`.
    */
   useImportTypeSyntax?: boolean;
-  customScalarTypes?: CustomScalarTypes;
+  customScalarTypes?: RelayConfigCustomScalars;
   /**
    * Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type.
    */
@@ -171,7 +172,7 @@ type RelayConfigMultiProjectItemTypegenConfig = {
      * 
      * @default false
      */
-    noFutureProofEnums?: NoFutureProofEnums;
+    noFutureProofEnums?: boolean;
   };
   /**
    * This option enables emitting ES modules artifacts.
@@ -343,7 +344,7 @@ export type RelayConfigFeatureFlags = {
    * inlined or not depends on whether it actually uses that directive.
    */
   no_inline?: RelayConfigFeatureFlag;
-  enable_3d_branch_arg_generation?: bool;
+  enable_3d_branch_arg_generation?: boolean;
   actor_change_support?: RelayConfigFeatureFlag;
   text_artifacts?: RelayConfigFeatureFlag;
   skip_printing_nulls?: RelayConfigFeatureFlag;
@@ -354,7 +355,7 @@ export type RelayConfigFeatureFlags = {
   /** Create normalization nodes for client edges to client objects. */
   emit_normalization_nodes_for_client_edges?: boolean;
   /** Fully build the normalization AST for Resolvers. */
-  enable_resolver_normalization_ast?: bool;
+  enable_resolver_normalization_ast?: boolean;
   /** Enforce strict flavors for relay resolvers and disallow mixing flavors. */
   relay_resolvers_enable_strict_resolver_flavors?: RelayConfigFeatureFlag;
   /** Allow legacy verbose resolver syntax */

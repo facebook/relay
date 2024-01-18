@@ -31,7 +31,7 @@ const useRelayEnvironment = require('../useRelayEnvironment');
 const invariant = require('invariant');
 const {useDebugValue, useEffect, useMemo, useRef, useState} = require('react');
 const {
-  __internal: {fetchQuery: fetchQueryInternal},
+  __internal: {fetchQuery: fetchQueryInternal, getPromiseForActiveRequest},
   RelayFeatureFlags,
   areEqualSelectors,
   createOperationDescriptor,
@@ -218,7 +218,7 @@ function handleMissingClientEdge(
   parentFragmentRef: mixed,
   missingClientEdgeRequestInfo: MissingClientEdgeRequestInfo,
   queryOptions?: FragmentQueryOptions,
-): QueryResult {
+): [QueryResult, ?Promise<mixed>] {
   const originalVariables = getVariablesFromFragment(
     parentFragmentNode,
     parentFragmentRef,
@@ -237,11 +237,16 @@ function handleMissingClientEdge(
   // according to the component mount/suspense cycle; QueryResource
   // already handles this by itself.
   const QueryResource = getQueryResourceForEnvironment(environment);
-  return QueryResource.prepare(
+  const queryResult = QueryResource.prepare(
     queryOperationDescriptor,
     fetchQueryInternal(environment, queryOperationDescriptor),
     queryOptions?.fetchPolicy,
   );
+
+  return [
+    queryResult,
+    getPromiseForActiveRequest(environment, queryOperationDescriptor.request),
+  ];
 }
 
 function subscribeToSnapshot(
@@ -461,26 +466,33 @@ function useFragmentInternal_EXPERIMENTAL(
     // a static (constant) property of the fragment. In practice, this effect will
     // always or never run for a given invocation of this hook.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const clientEdgeQueries = useMemo(() => {
+    const [clientEdgeQueries, activeRequestPromises] = useMemo(() => {
       const missingClientEdges = getMissingClientEdges(state);
       // eslint-disable-next-line no-shadow
       let clientEdgeQueries;
+      const activeRequestPromises = [];
       if (missingClientEdges?.length) {
         clientEdgeQueries = ([]: Array<QueryResult>);
         for (const edge of missingClientEdges) {
-          clientEdgeQueries.push(
-            handleMissingClientEdge(
-              environment,
-              fragmentNode,
-              fragmentRef,
-              edge,
-              queryOptions,
-            ),
+          const [queryResult, requestPromise] = handleMissingClientEdge(
+            environment,
+            fragmentNode,
+            fragmentRef,
+            edge,
+            queryOptions,
           );
+          clientEdgeQueries.push(queryResult);
+          if (requestPromise != null) {
+            activeRequestPromises.push(requestPromise);
+          }
         }
       }
-      return clientEdgeQueries;
+      return [clientEdgeQueries, activeRequestPromises];
     }, [state, environment, fragmentNode, fragmentRef, queryOptions]);
+
+    if (activeRequestPromises.length) {
+      throw Promise.all(activeRequestPromises);
+    }
 
     // See above note
     // eslint-disable-next-line react-hooks/rules-of-hooks

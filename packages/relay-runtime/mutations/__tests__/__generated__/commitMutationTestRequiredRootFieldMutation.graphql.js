@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f0d7002cb75ddc3b69892e009fdcb254>>
+ * @generated SignedSource<<017ca18e8f83a3e70285277746fbb0ba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ export type commitMutationTestRequiredRootFieldMutation$variables = {|
   input?: ?CommentDeleteInput,
 |};
 export type commitMutationTestRequiredRootFieldMutation$data = {|
-  +commentDelete: {|
+  +commentDelete: ?{|
     +deletedCommentId: ?string,
   |},
 |};
@@ -43,44 +43,39 @@ var v0 = [
     "name": "input"
   }
 ],
-v1 = {
-  "alias": null,
-  "args": [
-    {
-      "kind": "Variable",
-      "name": "input",
-      "variableName": "input"
-    }
-  ],
-  "concreteType": "CommentDeleteResponsePayload",
-  "kind": "LinkedField",
-  "name": "commentDelete",
-  "plural": false,
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "deletedCommentId",
-      "storageKey": null
-    }
-  ],
-  "storageKey": null
-};
+v1 = [
+  {
+    "alias": null,
+    "args": [
+      {
+        "kind": "Variable",
+        "name": "input",
+        "variableName": "input"
+      }
+    ],
+    "concreteType": "CommentDeleteResponsePayload",
+    "kind": "LinkedField",
+    "name": "commentDelete",
+    "plural": false,
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "deletedCommentId",
+        "storageKey": null
+      }
+    ],
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "commitMutationTestRequiredRootFieldMutation",
-    "selections": [
-      {
-        "kind": "RequiredField",
-        "field": (v1/*: any*/),
-        "action": "THROW",
-        "path": "commentDelete"
-      }
-    ],
+    "selections": (v1/*: any*/),
     "type": "Mutation",
     "abstractKey": null
   },
@@ -89,9 +84,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "commitMutationTestRequiredRootFieldMutation",
-    "selections": [
-      (v1/*: any*/)
-    ]
+    "selections": (v1/*: any*/)
   },
   "params": {
     "cacheID": "19f1e1c50328f89205857394403b5d9b",
@@ -105,7 +98,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c0ee6bcae636236c0564c8da132daeac";
+  (node/*: any*/).hash = "b75215ee7b976cd4f043bc5a88b05931";
 }
 
 module.exports = ((node/*: any*/)/*: Mutation<

@@ -84,12 +84,27 @@ pub struct FeatureFlags {
     /// Perform strict validations when custom scalar types are used
     #[serde(default)]
     pub enable_strict_custom_scalars: bool,
+
+    /// Relay Resolvers are a read-time feature that are not actually handled in
+    /// our mutation APIs. We are in the process of removing any existing
+    /// examples, but this flag is part of a process of removing any existing
+    /// examples.
+    #[serde(default)]
+    pub allow_resolvers_in_mutation_response: FeatureFlag,
+
+    /// @required with an action of THROW is read-time feature that is not
+    /// compatible with our mutation APIs. We are in the process of removing
+    /// any existing examples, but this flag is part of a process of removing
+    /// any existing examples.
+    #[serde(default)]
+    pub allow_required_in_mutation_response: FeatureFlag,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize, Default)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature
+    #[default]
     Disabled,
 
     /// Fully enabled: developers may use this feature
@@ -100,12 +115,6 @@ pub enum FeatureFlag {
 
     /// Partially enabled: used for gradual rollout of the feature
     Rollout { rollout: Rollout },
-}
-
-impl Default for FeatureFlag {
-    fn default() -> Self {
-        FeatureFlag::Disabled
-    }
 }
 
 impl FeatureFlag {

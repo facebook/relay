@@ -516,6 +516,16 @@ pub enum ValidationMessage {
         literal_kind: String,
         scalar_type_name: ScalarName,
     },
+
+    #[error(
+        "Unexpected `@required(action: THROW)` directive in mutation response. The use of `@required(action: THROW)` is not supported in mutations."
+    )]
+    RequiredInMutation,
+
+    #[error(
+        "Unexpected `@RelayResolver` field referenced in mutation response. Relay Resolver fields may not be read as part of a mutation response."
+    )]
+    ResolverInMutation,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -34,12 +34,6 @@ pub enum TypegenLanguage {
     Flow,
 }
 
-impl Default for TypegenLanguage {
-    fn default() -> Self {
-        Self::JavaScript
-    }
-}
-
 impl TypegenLanguage {
     pub fn get_variants_as_string() -> Vec<String> {
         let mut res = vec![];
@@ -64,7 +58,7 @@ pub struct CustomScalarTypeImport {
     pub path: PathBuf,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".
@@ -101,9 +95,12 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub require_custom_scalar_types: bool,
 
-    /// Work in progress new Flow type definitions
+    /// This option controls whether or not a catch-all entry is added to enum type definitions
+    /// for values that may be added in the future. Enabling this means you will have to update
+    /// your application whenever the GraphQL server schema adds new enum values to prevent it
+    /// from breaking.
     #[serde(default)]
-    pub flow_typegen: FlowTypegenConfig,
+    pub no_future_proof_enums: bool,
 
     /// This option enables emitting es modules artifacts.
     #[serde(default)]
@@ -116,13 +113,18 @@ pub struct TypegenConfig {
     pub typescript_exclude_undefined_from_nullable_union: bool,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]
-#[serde(deny_unknown_fields, tag = "phase")]
-pub struct FlowTypegenConfig {
-    /// This option controls whether or not a catch-all entry is added to enum type definitions
-    /// for values that may be added in the future. Enabling this means you will have to update
-    /// your application whenever the GraphQL server schema adds new enum values to prevent it
-    /// from breaking.
-    #[serde(default)]
-    pub no_future_proof_enums: bool,
+impl Default for TypegenConfig {
+    fn default() -> Self {
+        TypegenConfig {
+            language: TypegenLanguage::JavaScript,
+            enum_module_suffix: Default::default(),
+            optional_input_fields: Default::default(),
+            use_import_type_syntax: Default::default(),
+            custom_scalar_types: Default::default(),
+            require_custom_scalar_types: Default::default(),
+            no_future_proof_enums: Default::default(),
+            eager_es_modules: Default::default(),
+            typescript_exclude_undefined_from_nullable_union: Default::default(),
+        }
+    }
 }

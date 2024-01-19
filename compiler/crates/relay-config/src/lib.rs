@@ -40,6 +40,5 @@ pub use project_name::ProjectName;
 pub use resolvers_schema_module_config::ResolversSchemaModuleConfig;
 pub use typegen_config::CustomScalarType;
 pub use typegen_config::CustomScalarTypeImport;
-pub use typegen_config::FlowTypegenConfig;
 pub use typegen_config::TypegenConfig;
 pub use typegen_config::TypegenLanguage;

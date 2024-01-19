@@ -55,11 +55,11 @@ export type Assignable_node$key = {
 module.exports.validate = function validate(value: {
   readonly __id: string;
   readonly __isAssignable_node?: string;
-  readonly " $fragmentSpreads": Assignable_node$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
 }): false | {
   readonly __id: string;
   readonly __isAssignable_node: string;
-  readonly " $fragmentSpreads": Assignable_node$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
 } {
   return value.__isAssignable_node != null ? value : false;
 };
@@ -81,11 +81,11 @@ export type Assignable_page$key = {
 module.exports.validate = function validate(value: {
   readonly __typename: string;
   readonly __id: string;
-  readonly " $fragmentSpreads": Assignable_page$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
 }): false | {
   readonly __typename: "Page";
   readonly __id: string;
-  readonly " $fragmentSpreads": Assignable_page$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
 } {
   return value.__typename === 'Page' ? value : false;
 };

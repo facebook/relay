@@ -54,11 +54,11 @@ export type Assignable_user$key = {
 module.exports.validate = function validate(value: {
   readonly __typename: string;
   readonly __id: string;
-  readonly " $fragmentSpreads": Assignable_user$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_user">;
 }): false | {
   readonly __typename: "User";
   readonly __id: string;
-  readonly " $fragmentSpreads": Assignable_user$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_user">;
 } {
   return value.__typename === 'User' ? value : false;
 };

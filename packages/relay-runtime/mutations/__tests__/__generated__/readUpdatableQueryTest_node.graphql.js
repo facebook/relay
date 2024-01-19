@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3d2291db4ba78ef6b4b4c6638c9e5bef>>
+ * @generated SignedSource<<7e3f9987cb7bebba522b04632fe1f064>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,6 +19,15 @@
 /*::
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readUpdatableQueryTest_node$fragmentType: FragmentType;
+export type readUpdatableQueryTest_node$data = {|
+  +__typename: string,
+  +$fragmentType: readUpdatableQueryTest_node$fragmentType,
+|};
+export type readUpdatableQueryTest_node$key = {
+  +$data?: readUpdatableQueryTest_node$data,
+  +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+  ...
+};
 */
 
 var node/*: any*/ = {};

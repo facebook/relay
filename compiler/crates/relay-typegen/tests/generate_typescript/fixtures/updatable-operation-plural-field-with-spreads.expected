@@ -41,11 +41,11 @@ export type Updatable_user$key = {
 module.exports.validate = function validate(value: {
   readonly __typename: string;
   readonly __id: string;
-  readonly " $fragmentSpreads": Updatable_user$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Updatable_user">;
 }): false | {
   readonly __typename: "User";
   readonly __id: string;
-  readonly " $fragmentSpreads": Updatable_user$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Updatable_user">;
 } {
   return value.__typename === 'User' ? value : false;
 };

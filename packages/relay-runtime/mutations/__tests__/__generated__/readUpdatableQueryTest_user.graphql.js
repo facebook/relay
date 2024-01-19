@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<efcae8ad115150120e5c4d68976a4309>>
+ * @generated SignedSource<<fcda9ce00ae0255fd368391be2c2e3ed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,6 +19,20 @@
 /*::
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readUpdatableQueryTest_user$fragmentType: FragmentType;
+export type readUpdatableQueryTest_user$data = {|
+  +__typename: "User",
+  +$fragmentType: readUpdatableQueryTest_user$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: readUpdatableQueryTest_user$fragmentType,
+|};
+export type readUpdatableQueryTest_user$key = {
+  +$data?: readUpdatableQueryTest_user$data,
+  +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+  ...
+};
 */
 
 var node/*: any*/ = {};

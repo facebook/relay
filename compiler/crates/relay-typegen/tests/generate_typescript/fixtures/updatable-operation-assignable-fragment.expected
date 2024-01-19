@@ -41,11 +41,11 @@ export type Assignable_viewer$key = {
 module.exports.validate = function validate(value: {
   readonly __typename: string;
   readonly __id: string;
-  readonly " $fragmentSpreads": Assignable_viewer$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_viewer">;
 }): false | {
   readonly __typename: "Viewer";
   readonly __id: string;
-  readonly " $fragmentSpreads": Assignable_viewer$fragmentType;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_viewer">;
 } {
   return value.__typename === 'Viewer' ? value : false;
 };

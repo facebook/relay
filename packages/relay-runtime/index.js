@@ -35,6 +35,7 @@ const {
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
 const {
+  isSuspenseSentinel,
   suspenseSentinel,
 } = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
@@ -304,6 +305,7 @@ module.exports = {
   graphql: GraphQLTag.graphql,
   isFragment: GraphQLTag.isFragment,
   isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  isSuspenseSentinel,
   suspenseSentinel,
   isRequest: GraphQLTag.isRequest,
   readInlineData,

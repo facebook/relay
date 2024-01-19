@@ -11,6 +11,7 @@
 
 'use strict';
 
+const LiveResolverStore = require('./store/experimental-live-resolvers/LiveResolverStore');
 const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
 const {
   weakObjectWrapper,
@@ -21,4 +22,5 @@ module.exports = {
   resolverDataInjector,
   weakObjectWrapper,
   weakObjectWrapperLive,
+  LiveResolverStore,
 };

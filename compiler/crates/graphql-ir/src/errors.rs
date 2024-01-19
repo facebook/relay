@@ -33,7 +33,18 @@ impl Display for ErrorLink {
 }
 
 /// Fixed set of validation errors with custom display messages
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type", content = "args")]
 pub enum ValidationMessage {
     #[error("Duplicate definitions for '{0}'")]
     DuplicateDefinition(StringKey),
@@ -528,7 +539,18 @@ pub enum ValidationMessage {
     ResolverInMutation,
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 pub enum ValidationMessageWithData {
     #[error("Unknown type '{type_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
     UnknownType {

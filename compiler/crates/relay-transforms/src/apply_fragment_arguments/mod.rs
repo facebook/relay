@@ -714,7 +714,8 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
     scope
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
     CircularFragmentReference {

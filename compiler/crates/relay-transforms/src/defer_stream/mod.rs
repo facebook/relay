@@ -416,7 +416,8 @@ fn get_literal_string_argument(
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error(
         "Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string."

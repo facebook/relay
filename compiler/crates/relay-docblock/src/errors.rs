@@ -16,7 +16,18 @@ use crate::untyped_representation::AllowedFieldName;
 use crate::ON_INTERFACE_FIELD;
 use crate::ON_TYPE_FIELD;
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 pub enum UntypedRepresentationErrorMessages {
     #[error("Unexpected docblock field `@{field_name}`")]
     UnknownField { field_name: StringKey },
@@ -30,7 +41,18 @@ pub enum UntypedRepresentationErrorMessages {
     MultipleDescriptions,
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 pub enum IrParsingErrorMessages {
     #[error("Missing docblock field `@{field_name}`")]
     MissingField { field_name: AllowedFieldName },
@@ -140,7 +162,18 @@ pub enum IrParsingErrorMessages {
     IncompatibleOutputTypeAndRootFragment,
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 pub enum SchemaValidationErrorMessages {
     #[error(
         "Unexpected plural server type in `@edgeTo` field. Currently Relay Resolvers only support plural `@edgeTo` if the type is defined via Client Schema Extensions."
@@ -196,7 +229,18 @@ pub enum SchemaValidationErrorMessages {
     },
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 pub enum ErrorMessagesWithData {
     #[error(
         "Invalid interface given for `@onInterface`. `{interface_name}` is not an existing GraphQL interface.{suggestions}", suggestions = did_you_mean(suggestions))]

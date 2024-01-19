@@ -7,7 +7,7 @@
 
 use std::fmt;
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
 pub struct Span {
     pub start: u32,
     pub end: u32,

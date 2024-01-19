@@ -361,7 +361,18 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
     }
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error(
         "After applying transforms to the {document} `{name}` selections of \

@@ -12,6 +12,7 @@ use std::fmt::Write;
 
 use lsp_types::DiagnosticSeverity;
 use lsp_types::DiagnosticTag;
+use serde::ser::SerializeMap;
 use serde_json::Value;
 
 use crate::Location;
@@ -252,6 +253,18 @@ impl fmt::Display for Diagnostic {
     }
 }
 
+impl serde::Serialize for Diagnostic {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut diagnostic = serializer.serialize_map(Some(2))?;
+        diagnostic.serialize_entry("message", &self.0.message)?;
+        diagnostic.serialize_entry("location", &self.0.location)?;
+        diagnostic.end()
+    }
+}
+
 impl Error for Diagnostic {}
 
 // statically verify that the Diagnostic type is thread safe
@@ -302,11 +315,14 @@ pub trait WithDiagnosticData {
 
 /// Trait for diagnostic messages to allow structs that capture
 /// some data and can lazily convert it to a message.
+#[typetag::serialize(tag = "type")]
 pub trait DiagnosticDisplay: fmt::Debug + fmt::Display + Send + Sync {}
 
 /// Automatically implement the trait if constraints are met, so that
 /// implementors don't need to.
-impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync {}
+#[typetag::serialize]
+impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync + typetag::Serialize
+{}
 
 impl From<Diagnostic> for Diagnostics {
     fn from(diagnostic: Diagnostic) -> Self {

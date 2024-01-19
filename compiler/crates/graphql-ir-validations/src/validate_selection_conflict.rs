@@ -581,7 +581,18 @@ mod ignoring_type_and_location {
     }
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error(
         "Field '{response_key}' is ambiguous because it references two different fields: '{l_name}' and '{r_name}'"

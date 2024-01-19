@@ -32,7 +32,17 @@ use crate::ROOT_FRAGMENT_FIELD;
 use crate::WEAK_FIELD;
 
 /// All fields which are allowed in RelayResolver docblocks.
-#[derive(Clone, Copy, Eq, Debug, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(
+    Clone,
+    Copy,
+    Eq,
+    Debug,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    serde::Serialize
+)]
 pub enum AllowedFieldName {
     RelayResolverField,
     FieldNameField,

@@ -13,7 +13,8 @@ use crate::definitions::Type;
 
 pub type Result<T> = std::result::Result<T, SchemaError>;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type", content = "args")]
 pub enum SchemaError {
     #[error("Duplicate {0:?} type definition, got '{1}' and '{2}'.")]
     DuplicateOperationDefinition(OperationType, StringKey, StringKey),

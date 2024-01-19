@@ -58,7 +58,18 @@ impl Validator for ValidateGlobalVariableNames {
     }
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error(
         "Invalid name `${0}` for an operation variable. The `__relay_internal` prefix is reserved for relay internal usage."

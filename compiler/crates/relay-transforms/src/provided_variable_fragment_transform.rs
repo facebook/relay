@@ -239,7 +239,8 @@ impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error(
         "Modules '{module1}' and '{module2}' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)"

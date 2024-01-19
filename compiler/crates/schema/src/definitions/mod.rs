@@ -41,7 +41,7 @@ pub(crate) type TypeMap = HashMap<StringKey, Type>;
 
 macro_rules! type_id {
     ($name:ident, $type:ident) => {
-        #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+        #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
         pub struct $name(pub $type);
         impl $name {
             pub(crate) fn as_usize(&self) -> usize {
@@ -71,7 +71,7 @@ type_id!(ScalarID, u32);
 type_id!(UnionID, u32);
 type_id!(FieldID, u32);
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
 pub enum Type {
     Enum(EnumID),
     InputObject(InputObjectID),
@@ -197,7 +197,7 @@ impl Type {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
 pub enum TypeReference<T> {
     Named(T),
     NonNull(Box<TypeReference<T>>),

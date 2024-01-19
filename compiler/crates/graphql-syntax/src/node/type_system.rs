@@ -213,7 +213,7 @@ impl fmt::Display for OperationTypeDefinition {
     }
 }
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Copy, Clone)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Copy, Clone, serde::Serialize)]
 pub enum OperationType {
     Query,
     Mutation,

@@ -27,6 +27,7 @@ lazy_static = "1.4"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
 schema = { path = "../schema" }
+serde = { version = "1.0.185", features = ["derive", "rc"] }
 thiserror = "1.0.49"
 
 [dev-dependencies]

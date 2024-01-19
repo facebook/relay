@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<81e6648f89d4ad26d959f72f1eaab040>>
+ * @generated SignedSource<<a06755e39058e30909990af90e891e89>>
  */
 
 mod relay_compiler_integration;
@@ -80,6 +80,13 @@ async fn preloadable_query_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
     test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface.expected");
+    test_fixture(transform_fixture, file!(), "resolver_on_interface.input", "relay_compiler_integration/fixtures/resolver_on_interface.expected", input, expected).await;
 }
 
 #[tokio::test]

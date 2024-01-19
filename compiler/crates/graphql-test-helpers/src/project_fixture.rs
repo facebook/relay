@@ -73,7 +73,10 @@ impl ProjectFixture {
         fs::create_dir_all(dir).expect("Expected to create temp dir");
 
         for (file_name, content) in &self.files {
-            fs::write(dir.join(file_name), content).expect("Expected to write file");
+            let file_path = dir.join(file_name);
+            fs::create_dir_all(file_path.clone().parent().unwrap())
+                .expect("Expected to create dir");
+            fs::write(file_path, content).expect("Expected to write file");
         }
     }
 

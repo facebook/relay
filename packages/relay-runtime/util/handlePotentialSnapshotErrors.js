@@ -18,6 +18,7 @@ import type {
   RelayResolverErrors,
 } from '../store/RelayStoreTypes';
 
+import {RelayFieldError} from '../store/RelayErrorTrie';
 import RelayFeatureFlags from './RelayFeatureFlags';
 
 function handlePotentialSnapshotErrors(
@@ -34,7 +35,10 @@ function handlePotentialSnapshotErrors(
       error: resolverError.error,
     });
   }
-  if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
+  if (
+    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING &&
+    errorResponseFields != null
+  ) {
     if (errorResponseFields != null) {
       for (const fieldError of errorResponseFields) {
         const {path, owner, error} = fieldError;
@@ -46,6 +50,13 @@ function handlePotentialSnapshotErrors(
           error,
         });
       }
+    }
+
+    if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT) {
+      throw new RelayFieldError(
+        `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
+        errorResponseFields.map(({path, owner, error}) => error),
+      );
     }
   }
 

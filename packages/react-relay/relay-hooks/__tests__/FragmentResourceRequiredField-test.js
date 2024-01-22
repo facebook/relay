@@ -15,7 +15,9 @@ import type {
   RelayFieldLoggerEvent,
 } from 'relay-runtime/store/RelayStoreTypes';
 
-const {getFragmentResourceForEnvironment} = require('../FragmentResource');
+const {
+  getFragmentResourceForEnvironment,
+} = require('../legacy/FragmentResource');
 const {
   __internal: {fetchQuery},
   createOperationDescriptor,

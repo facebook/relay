@@ -25,7 +25,7 @@ import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {act: internalAct} = require('../../jest-react');
 const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
-const useFragmentNode_LEGACY = require('../useFragmentNode');
+const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');

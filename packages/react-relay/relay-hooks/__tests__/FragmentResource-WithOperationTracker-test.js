@@ -16,7 +16,7 @@ import type {
 } from '../../../relay-runtime/util/NormalizationNode';
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
-const {createFragmentResource} = require('../FragmentResource');
+const {createFragmentResource} = require('../legacy/FragmentResource');
 const invariant = require('invariant');
 const {
   createOperationDescriptor,

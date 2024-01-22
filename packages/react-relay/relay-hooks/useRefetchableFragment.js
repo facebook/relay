@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {Options} from './useRefetchableFragmentNode';
+import type {Options} from './legacy/useRefetchableFragmentNode';
 import type {
   Disposable,
   FragmentType,
@@ -20,7 +20,7 @@ import type {
 } from 'relay-runtime';
 
 const HooksImplementation = require('./HooksImplementation');
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
+const useRefetchableFragmentNode = require('./legacy/useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');

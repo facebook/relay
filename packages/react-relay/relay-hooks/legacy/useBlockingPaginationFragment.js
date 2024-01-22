@@ -11,9 +11,9 @@
 
 'use strict';
 
-import type {RefetchableFragment} from '../../relay-runtime/util/RelayRuntimeTypes';
-import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
+import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
 import type {Options} from './useRefetchableFragmentNode';
+import type {RefetchableFragment} from 'relay-runtime';
 import type {
   Disposable,
   FragmentType,
@@ -22,9 +22,9 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const useLoadMoreFunction = require('./useLoadMoreFunction');
+const useLoadMoreFunction = require('../useLoadMoreFunction');
+const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const invariant = require('invariant');
 const {useCallback, useEffect, useRef, useState} = require('react');
 const {

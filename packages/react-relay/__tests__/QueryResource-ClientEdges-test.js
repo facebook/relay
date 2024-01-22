@@ -12,7 +12,7 @@
 'use strict';
 const {
   getFragmentResourceForEnvironment,
-} = require('react-relay/relay-hooks/FragmentResource');
+} = require('react-relay/relay-hooks/legacy/FragmentResource');
 const {
   getQueryResourceForEnvironment,
 } = require('react-relay/relay-hooks/QueryResource');

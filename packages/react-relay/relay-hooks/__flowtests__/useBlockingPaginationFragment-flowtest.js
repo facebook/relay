@@ -19,7 +19,7 @@ import type {
 } from './utils';
 import type {IEnvironment, Variables} from 'relay-runtime';
 
-import useBlockingPaginationFragment from '../useBlockingPaginationFragment';
+import useBlockingPaginationFragment from '../legacy/useBlockingPaginationFragment';
 import {
   fragmentData,
   keyAnotherNonNullable,

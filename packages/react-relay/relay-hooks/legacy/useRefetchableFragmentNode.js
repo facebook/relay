@@ -11,8 +11,8 @@
 
 'use strict';
 
-import type {RefetchableIdentifierInfo} from '../../relay-runtime/util/ReaderNode';
-import type {LoaderFn} from './useQueryLoader';
+import type {LoaderFn} from '../useQueryLoader';
+import type {RefetchableIdentifierInfo} from 'relay-runtime';
 import type {
   ConcreteRequest,
   Disposable,
@@ -26,13 +26,13 @@ import type {
   VariablesOf,
 } from 'relay-runtime';
 
+const ProfilerContext = require('../ProfilerContext');
+const {getQueryResourceForEnvironment} = require('../QueryResource');
+const useIsMountedRef = require('../useIsMountedRef');
+const useQueryLoader = require('../useQueryLoader');
+const useRelayEnvironment = require('../useRelayEnvironment');
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
-const ProfilerContext = require('./ProfilerContext');
-const {getQueryResourceForEnvironment} = require('./QueryResource');
 const useFragmentNode = require('./useFragmentNode');
-const useIsMountedRef = require('./useIsMountedRef');
-const useQueryLoader = require('./useQueryLoader');
-const useRelayEnvironment = require('./useRelayEnvironment');
 const invariant = require('invariant');
 const {useCallback, useContext, useReducer} = require('react');
 const {

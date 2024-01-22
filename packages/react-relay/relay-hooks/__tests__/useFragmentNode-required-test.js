@@ -13,7 +13,7 @@
 import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
 import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
-const useFragmentNodeOriginal = require('../useFragmentNode');
+const useFragmentNodeOriginal = require('../legacy/useFragmentNode');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');

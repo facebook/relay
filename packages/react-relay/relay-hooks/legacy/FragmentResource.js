@@ -11,8 +11,8 @@
 
 'use strict';
 
-import type {Cache} from './LRUCache';
-import type {QueryResource, QueryResult} from './QueryResource';
+import type {Cache} from '../LRUCache';
+import type {QueryResource, QueryResult} from '../QueryResource';
 import type {
   ConcreteRequest,
   DataID,
@@ -24,9 +24,9 @@ import type {
 } from 'relay-runtime';
 import type {MissingLiveResolverField} from 'relay-runtime/store/RelayStoreTypes';
 
-const LRUCache = require('./LRUCache');
-const {getQueryResourceForEnvironment} = require('./QueryResource');
-const SuspenseResource = require('./SuspenseResource');
+const LRUCache = require('../LRUCache');
+const {getQueryResourceForEnvironment} = require('../QueryResource');
+const SuspenseResource = require('../SuspenseResource');
 const invariant = require('invariant');
 const {
   __internal: {fetchQuery, getPromiseForActiveRequest},

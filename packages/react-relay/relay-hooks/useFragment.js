@@ -14,8 +14,8 @@
 import type {Fragment, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
 const HooksImplementation = require('./HooksImplementation');
+const useFragmentNode = require('./legacy/useFragmentNode');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
-const useFragmentNode = require('./useFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');

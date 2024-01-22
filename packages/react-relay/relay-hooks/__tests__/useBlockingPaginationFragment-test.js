@@ -13,7 +13,7 @@
 
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 
-const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
+const useBlockingPaginationFragmentOriginal = require('../legacy/useBlockingPaginationFragment');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');

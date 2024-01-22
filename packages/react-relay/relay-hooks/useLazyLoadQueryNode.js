@@ -22,13 +22,13 @@ import type {
 import type {ReaderFragment} from 'relay-runtime/util/ReaderNode';
 
 const HooksImplementation = require('./HooksImplementation');
+const useFragmentNode = require('./legacy/useFragmentNode');
 const ProfilerContext = require('./ProfilerContext');
 const {
   getQueryCacheIdentifier,
   getQueryResourceForEnvironment,
 } = require('./QueryResource');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
-const useFragmentNode = require('./useFragmentNode');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const React = require('react');
 

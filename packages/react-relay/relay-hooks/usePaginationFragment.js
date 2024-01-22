@@ -11,9 +11,9 @@
 
 'use strict';
 
+import type {Options} from './legacy/useRefetchableFragmentNode';
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFn} from './useRefetchableFragment';
-import type {Options} from './useRefetchableFragmentNode';
 import type {
   FragmentType,
   GraphQLResponse,
@@ -23,8 +23,8 @@ import type {
 } from 'relay-runtime';
 
 const HooksImplementation = require('./HooksImplementation');
+const useRefetchableFragmentNode = require('./legacy/useRefetchableFragmentNode');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useCallback, useDebugValue, useState} = require('react');
 const {

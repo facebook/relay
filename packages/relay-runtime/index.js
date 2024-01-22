@@ -204,6 +204,7 @@ export type {
   ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RefetchableIdentifierInfo,
   RequiredFieldAction,
 } from './util/ReaderNode';
 export type {

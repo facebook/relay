@@ -15,7 +15,7 @@ import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   getFragmentResourceForEnvironment,
-} = require('react-relay/relay-hooks/FragmentResource');
+} = require('react-relay/relay-hooks/legacy/FragmentResource');
 const {RelayFeatureFlags, getFragment} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {

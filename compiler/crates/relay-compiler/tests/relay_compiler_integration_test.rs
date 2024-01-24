@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<412c548bd252a246cf8ad9ff261315a0>>
+ * @generated SignedSource<<c9647ba1b5eab2d76a14da97f4e5028b>>
  */
 
 mod relay_compiler_integration;
@@ -87,6 +87,13 @@ async fn resolver_on_interface() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface.expected");
     test_fixture(transform_fixture, file!(), "resolver_on_interface.input", "relay_compiler_integration/fixtures/resolver_on_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_of_all_strong_model_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type.expected");
+    test_fixture(transform_fixture, file!(), "resolver_on_interface_of_all_strong_model_type.input", "relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -1,0 +1,73 @@
+==================================== INPUT ====================================
+//- QueryComponent.js
+graphql`query QueryComponentQuery {
+  person {
+    name
+  }
+}`
+
+//- QueryResolvers.js
+/**
+ * @RelayResolver Query.person: IPerson
+ */
+
+//- UserTypeResolvers.js
+/**
+ * @RelayResolver User implements IPerson
+ * @weak
+ */
+
+ /**
+  * @RelayResolver User.name: String
+  */
+
+//- AdminTypeResolvers.js
+/**
+ * @RelayResolver Admin implements IPerson
+ * @weak
+ */
+
+ /**
+  * @RelayResolver Admin.name: String
+  */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "enable_relay_resolver_transform": true,
+    "enable_resolver_normalization_ast": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+interface IPerson {
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ The compiler attempted to parse "Admin implements IPerson" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after "Admin".
+
+  AdminTypeResolvers.js:2:19
+    1 │ *
+    2 │  * @RelayResolver Admin implements IPerson
+      │                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │  * @weak
+
+✖︎ The compiler attempted to parse "User implements IPerson" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after "User".
+
+  UserTypeResolvers.js:2:19
+    1 │ *
+    2 │  * @RelayResolver User implements IPerson
+      │                   ^^^^^^^^^^^^^^^^^^^^^^^
+    3 │  * @weak

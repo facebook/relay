@@ -93,11 +93,11 @@ impl Transformer for RelayResolverAbstractTypesTransform<'_> {
         if !matches!(edge_to_type, Type::Interface(_)) {
             return Transformed::Keep;
         }
-        let inline_fragment_selections = create_inline_fragment_selections_for_abstract_type(
-            &schema,
-            edge_to_type,
-            &field.selections,
-        );
+        let selections = self
+            .transform_selections(&field.selections)
+            .replace_or_else(|| field.selections.clone());
+        let inline_fragment_selections =
+            create_inline_fragment_selections_for_abstract_type(schema, edge_to_type, &selections);
         Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
             selections: inline_fragment_selections,
             ..field.clone()
@@ -123,7 +123,7 @@ fn create_inline_fragment_selections_for_abstract_type(
                 .map(|object_id| {
                     Selection::InlineFragment(Arc::new(InlineFragment {
                         type_condition: Some(Type::Object(*object_id)),
-                        directives: vec![], // TODO T174693027 do we need directives here?
+                        directives: vec![], // Directives not necessary here
                         selections: selections.to_vec(),
                         spread_location: Location::generated(),
                     }))

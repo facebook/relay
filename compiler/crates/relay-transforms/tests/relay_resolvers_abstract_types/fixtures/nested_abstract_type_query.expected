@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+query nestedAbstractTypeQuery {
+    cat {
+        ... on Tabby {
+            parent {
+                description
+            }
+        }
+    }
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+    parent: Cat
+}
+
+type Persian implements Cat {
+    description: String
+}
+
+extend type Query {
+    cat: Cat
+}
+==================================== OUTPUT ===================================
+query nestedAbstractTypeQuery {
+  cat {
+    ... on Tabby {
+      ... on Tabby {
+        parent {
+          ... on Tabby {
+            description
+          }
+          ... on Persian {
+            description
+          }
+        }
+      }
+    }
+    ... on Persian {
+      ... on Tabby {
+        parent {
+          ... on Tabby {
+            description
+          }
+          ... on Persian {
+            description
+          }
+        }
+      }
+    }
+  }
+}

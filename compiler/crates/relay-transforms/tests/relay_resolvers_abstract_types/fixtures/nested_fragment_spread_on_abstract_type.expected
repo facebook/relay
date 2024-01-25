@@ -1,0 +1,76 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+query nestedFragmentSpreadOnAbstractTypeQuery {
+    cat {
+        ... on Tabby {
+            parent {
+                ...nestedFragmentSpreadOnAbstractTypeFragment
+            }
+        }
+        description
+    }
+}
+
+fragment nestedFragmentSpreadOnAbstractTypeFragment on Cat {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+    parent: Cat
+}
+
+type Persian implements Cat {
+    description: String
+}
+
+extend type Query {
+    cat: Cat
+}
+==================================== OUTPUT ===================================
+fragment nestedFragmentSpreadOnAbstractTypeFragment on Cat {
+  ... on Tabby {
+    description
+  }
+  ... on Persian {
+    description
+  }
+}
+
+query nestedFragmentSpreadOnAbstractTypeQuery {
+  cat {
+    ... on Tabby {
+      ... on Tabby {
+        parent {
+          ... on Tabby {
+            ...nestedFragmentSpreadOnAbstractTypeFragment
+          }
+          ... on Persian {
+            ...nestedFragmentSpreadOnAbstractTypeFragment
+          }
+        }
+      }
+      description
+    }
+    ... on Persian {
+      ... on Tabby {
+        parent {
+          ... on Tabby {
+            ...nestedFragmentSpreadOnAbstractTypeFragment
+          }
+          ... on Persian {
+            ...nestedFragmentSpreadOnAbstractTypeFragment
+          }
+        }
+      }
+      description
+    }
+  }
+}

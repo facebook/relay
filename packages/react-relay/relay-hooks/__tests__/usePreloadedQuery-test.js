@@ -11,12 +11,12 @@
 
 'use strict';
 
-import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 import type {PreloadableConcreteRequest} from '../EntryPointTypes.flow';
 import type {usePreloadedQueryTestQuery} from './__generated__/usePreloadedQueryTestQuery.graphql';
+import type {Sink} from 'relay-runtime';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
-const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
+const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -116,19 +116,16 @@ afterAll(() => {
 });
 
 describe.each([
-  ['With legacy useFragmentNode', null],
-  [
-    'With new `useFragmentInternal` implementation',
-    useFragmentInternal_EXPERIMENTAL,
-  ],
-])('usePreloadedQuery (%s)', (_hookName, useFragmentInternal) => {
+  ['With legacy useFragmentNode', useFragmentNode_LEGACY],
+  ['With new `useFragmentInternal` implementation', null],
+])('usePreloadedQuery (%s)', (_hookName, useFragmentNode) => {
   beforeEach(() => {
-    if (useFragmentInternal != null) {
+    if (useFragmentNode != null) {
       jest.mock('../HooksImplementation', () => {
         return {
           get() {
             return {
-              useFragment__internal: useFragmentInternal,
+              useFragmentNode: useFragmentNode,
             };
           },
         };

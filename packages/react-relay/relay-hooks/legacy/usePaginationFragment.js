@@ -13,7 +13,8 @@
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
 import type {ReturnType} from '../usePaginationFragment';
-import type {Options} from './useRefetchableFragmentInternal_EXPERIMENTAL';
+import type {RefetchFn} from './useRefetchableFragment';
+import type {Options} from './useRefetchableFragmentNode';
 import type {
   FragmentType,
   GraphQLResponse,
@@ -23,9 +24,8 @@ import type {
 } from 'relay-runtime';
 
 const useLoadMoreFunction = require('../useLoadMoreFunction');
-const useRelayEnvironment = require('../useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
-const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_EXPERIMENTAL');
+const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const {useCallback, useDebugValue, useState} = require('react');
 const {
   getFragment,
@@ -52,9 +52,9 @@ function usePaginationFragment<
   const {connectionPathInFragmentData, paginationRequest, paginationMetadata} =
     getPaginationMetadata(fragmentNode, componentDisplayName);
 
-  const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentInternal<
-    {variables: TVariables, response: TData},
-    {data?: TData},
+  const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentNode<
+    $FlowFixMe,
+    $FlowFixMe,
   >(fragmentNode, parentFragmentRef, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
@@ -86,7 +86,7 @@ function usePaginationFragment<
       paginationRequest,
     });
 
-  const refetchPagination = useCallback(
+  const refetchPagination: RefetchFn<TVariables, TKey> = useCallback(
     (variables: TVariables, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
@@ -107,8 +107,7 @@ function usePaginationFragment<
     });
   }
   return {
-    // $FlowFixMe[incompatible-return]
-    data: fragmentData,
+    data: (fragmentData: $FlowFixMe),
     loadNext,
     loadPrevious,
     hasNext,
@@ -129,21 +128,7 @@ function useLoadMore<TVariables: Variables>(
     },
   >,
 ): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
-  const environment = useRelayEnvironment();
-  const [isLoadingMore, reallySetIsLoadingMore] = useState(false);
-  // Schedule this update since it must be observed by components at the same
-  // batch as when hasNext changes. hasNext is read from the store and store
-  // updates are scheduled, so this must be scheduled too.
-  const setIsLoadingMore = (value: boolean) => {
-    const schedule = environment.getScheduler()?.schedule;
-    if (schedule) {
-      schedule(() => {
-        reallySetIsLoadingMore(value);
-      });
-    } else {
-      reallySetIsLoadingMore(value);
-    }
-  };
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const observer = {
     start: () => setIsLoadingMore(true),
     complete: () => setIsLoadingMore(false),

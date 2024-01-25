@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
 import type {CacheConfig} from '../../../relay-runtime/util/RelayRuntimeTypes';
@@ -32,8 +33,8 @@ import type {
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const usePaginationFragmentInternal_EXPERIMENTAL = require('../experimental/usePaginationFragment_EXPERIMENTAL');
-const usePaginationFragment_LEGACY = require('../usePaginationFragment');
+const usePaginationFragment_LEGACY = require('../legacy/usePaginationFragment');
+const usePaginationFragment = require('../usePaginationFragment');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const React = require('react');
@@ -57,7 +58,7 @@ const {
 const {useMemo, useState} = React;
 
 describe.each([
-  ['Experimental', usePaginationFragmentInternal_EXPERIMENTAL],
+  ['New', usePaginationFragment],
   ['Legacy', usePaginationFragment_LEGACY],
 ])('usePaginationFragment (%s)', (_hookName, usePaginationFragmentOriginal) => {
   let environment;

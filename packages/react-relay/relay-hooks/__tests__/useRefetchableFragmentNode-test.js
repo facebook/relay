@@ -38,10 +38,10 @@ import type {
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useRefetchableFragmentInternal_EXPERIMENTAL = require('../experimental/useRefetchableFragmentInternal_EXPERIMENTAL');
 const useRefetchableFragmentNode_LEGACY = require('../legacy/useRefetchableFragmentNode');
 const {useTrackLoadQueryInRender} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useRefetchableFragmentInternal = require('../useRefetchableFragmentInternal');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -64,14 +64,13 @@ const Scheduler = require('scheduler');
 const {useMemo, useState, useEffect} = React;
 
 describe.each([
-  ['Experimental', useRefetchableFragmentInternal_EXPERIMENTAL],
+  ['New', useRefetchableFragmentInternal],
   ['Legacy', useRefetchableFragmentNode_LEGACY],
 ])(
   'useRefetchableFragmentNode (%s)',
   (_hookName, useRefetchableFragmentNodeOriginal) => {
-    const isUsingReactCacheImplementation =
-      useRefetchableFragmentNodeOriginal ===
-      useRefetchableFragmentInternal_EXPERIMENTAL;
+    const isUsingNewImplementation =
+      useRefetchableFragmentNodeOriginal === useRefetchableFragmentInternal;
     let environment;
     let gqlQuery:
       | Query<
@@ -1522,9 +1521,7 @@ describe.each([
         const warningCalls = warning.mock.calls.filter(
           call => call[0] === false,
         );
-        expect(warningCalls.length).toEqual(
-          isUsingReactCacheImplementation ? 2 : 1,
-        );
+        expect(warningCalls.length).toEqual(isUsingNewImplementation ? 2 : 1);
         expect(
           warningCalls[0][1].includes(
             'Relay: Call to `refetch` returned a different id, expected',

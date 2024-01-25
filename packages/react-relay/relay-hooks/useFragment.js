@@ -14,8 +14,8 @@
 import type {Fragment, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
 const HooksImplementation = require('./HooksImplementation');
-const useFragmentNode = require('./legacy/useFragmentNode');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
+const useFragmentInternal = require('./useFragmentInternal');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
@@ -49,14 +49,14 @@ declare function useFragment<TFragmentType: FragmentType, TData>(
   key: ?$ReadOnlyArray<HasSpread<TFragmentType>>,
 ): ?TData;
 
-function useFragment_LEGACY(fragment: GraphQLTaggedNode, key: mixed): mixed {
+function useFragmentImpl(fragment: GraphQLTaggedNode, key: mixed): mixed {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
   const fragmentNode = getFragment(fragment);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
-  const {data} = useFragmentNode<mixed>(fragmentNode, key, 'useFragment()');
+  const data = useFragmentInternal(fragmentNode, key, 'useFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useDebugValue({fragment: fragmentNode.name, data});
@@ -72,7 +72,7 @@ function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
     // (i.e. type declared above, but not the supertype used in this function definition)
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useFragment_LEGACY(fragment, key);
+    return useFragmentImpl(fragment, key);
   }
 }
 

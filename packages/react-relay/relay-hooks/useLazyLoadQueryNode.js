@@ -22,13 +22,13 @@ import type {
 import type {ReaderFragment} from 'relay-runtime/util/ReaderNode';
 
 const HooksImplementation = require('./HooksImplementation');
-const useFragmentNode = require('./legacy/useFragmentNode');
 const ProfilerContext = require('./ProfilerContext');
 const {
   getQueryCacheIdentifier,
   getQueryResourceForEnvironment,
 } = require('./QueryResource');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
+const useFragmentInternal = require('./useFragmentInternal');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const React = require('react');
 
@@ -141,11 +141,11 @@ function useFragmentNodeImpl(
   componentDisplayName: string,
 ): mixed {
   const impl = HooksImplementation.get();
-  if (impl && impl.useFragment__internal) {
-    return impl.useFragment__internal(fragment, key, componentDisplayName);
-  } else {
-    const {data} = useFragmentNode<mixed>(fragment, key, componentDisplayName);
+  if (impl && impl.useFragmentNode) {
+    const {data} = impl.useFragmentNode(fragment, key, componentDisplayName);
     return data;
+  } else {
+    return useFragmentInternal(fragment, key, componentDisplayName);
   }
 }
 

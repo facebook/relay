@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {QueryResult} from '../QueryResource';
+import type {QueryResult} from './QueryResource';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -26,8 +26,8 @@ import type {
   MissingLiveResolverField,
 } from 'relay-runtime/store/RelayStoreTypes';
 
-const {getQueryResourceForEnvironment} = require('../QueryResource');
-const useRelayEnvironment = require('../useRelayEnvironment');
+const {getQueryResourceForEnvironment} = require('./QueryResource');
+const useRelayEnvironment = require('./useRelayEnvironment');
 const invariant = require('invariant');
 const {useDebugValue, useEffect, useMemo, useRef, useState} = require('react');
 const {

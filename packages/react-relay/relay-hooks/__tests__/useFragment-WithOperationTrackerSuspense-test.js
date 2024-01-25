@@ -14,7 +14,7 @@
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const ReactRelayContext = require('../../ReactRelayContext');
-const useFragment = require('../experimental/useFragmentInternal_EXPERIMENTAL');
+const useFragment = require('../useFragment');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
@@ -163,12 +163,11 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
 
     const Container = (props: {userRef: $FlowFixMe, ...}) => {
       const isPlural = Array.isArray(props.userRef);
-      const userData: $FlowFixMe = useFragment(
+      const userData = useFragment(
         isPlural ? UsersFragment : UserFragment,
         props.userRef,
-        'useFragmentNode',
       );
-      return isPlural
+      return Array.isArray(userData)
         ? userData.map(user => (
             <React.Fragment key={user.id}>{user.name}</React.Fragment>
           ))

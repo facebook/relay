@@ -22,7 +22,7 @@ const {
   useFragment: useFragment_LEGACY,
   useLazyLoadQuery,
 } = require('react-relay');
-const useFragment_EXPERIMENTAL = require('react-relay/relay-hooks/experimental/useFragment_EXPERIMENTAL');
+const useFragment = require('react-relay/relay-hooks/useFragment');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -60,7 +60,7 @@ afterEach(() => {
 });
 
 describe.each([
-  ['Experimental', useFragment_EXPERIMENTAL],
+  ['New', useFragment],
   ['Legacy', useFragment_LEGACY],
 ])('Hook implementation: %s', (_hookName, useFragment) => {
   test('Can read an external state resolver directly', () => {

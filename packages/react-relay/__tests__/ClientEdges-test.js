@@ -11,7 +11,7 @@
 
 'use strict';
 
-const useFragmentInternal_EXPERIMENTAL = require('../relay-hooks/experimental/useFragmentInternal_EXPERIMENTAL');
+const useFragmentNode_LEGACY = require('../relay-hooks/legacy/useFragmentNode');
 const React = require('react');
 const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
@@ -42,19 +42,19 @@ afterEach(() => {
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
-describe.each(['Legacy', 'Experimental'])(
+describe.each(['New', 'Legacy'])(
   'Client Edges (Hook implementation: %s)',
-  (implementation: 'Legacy' | 'Experimental') => {
+  (implementation: 'Legacy' | 'New') => {
     let networkSink;
     let environment;
     let fetchFn;
     beforeEach(() => {
-      if (implementation === 'Experimental') {
+      if (implementation === 'Legacy') {
         jest.mock('../relay-hooks/HooksImplementation', () => {
           return {
             get() {
               return {
-                useFragment__internal: useFragmentInternal_EXPERIMENTAL,
+                useFragmetNode: useFragmentNode_LEGACY,
               };
             },
           };

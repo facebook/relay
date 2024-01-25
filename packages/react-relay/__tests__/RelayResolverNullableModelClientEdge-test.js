@@ -19,7 +19,7 @@ const {
   useClientQuery,
   useFragment: useFragment_LEGACY,
 } = require('react-relay');
-const useFragment_EXPERIMENTAL = require('react-relay/relay-hooks/experimental/useFragment_EXPERIMENTAL');
+const useFragment = require('react-relay/relay-hooks/useFragment');
 const TestRenderer = require('react-test-renderer');
 const {
   __internal,
@@ -223,7 +223,7 @@ function EnvironmentWrapper({
 }
 
 describe.each([
-  ['Experimental', useFragment_EXPERIMENTAL],
+  ['New', useFragment],
   ['Legacy', useFragment_LEGACY],
 ])('Hook implementation: %s', (_hookName, useFragment) => {
   let environment;

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {
   useFragmentTestUserFragment$data,
   useFragmentTestUserFragment$fragmentType,
@@ -21,8 +22,8 @@ import type {
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useFragmentOriginal_EXPERIMENTAL = require('../experimental/useFragment_EXPERIMENTAL');
-const useFragmentOriginal_LEGACY = require('../useFragment');
+const useFragmentOriginal_LEGACY = require('../legacy/useFragment');
+const useFragmentOriginal = require('../useFragment');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -43,9 +44,9 @@ disallowWarnings();
 disallowConsoleErrors();
 
 describe.each([
-  ['Experimental', useFragmentOriginal_EXPERIMENTAL],
+  ['New', useFragmentOriginal],
   ['Legacy', useFragmentOriginal_LEGACY],
-])('useFragment (%s)', (_hookName, useFragmentOriginal) => {
+])('useFragment (%s)', (_hookName, useFragmentImpl) => {
   let environment;
   let gqlSingularQuery;
   let gqlSingularFragment;
@@ -74,7 +75,7 @@ describe.each([
         >,
     fragmentRef: any,
   ) {
-    const data = useFragmentOriginal(fragmentNode, fragmentRef);
+    const data = useFragmentImpl(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;
   }

@@ -28,11 +28,11 @@ import type {
 } from 'relay-runtime/store/RelayStoreTypes';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useFragment_EXPERIMENTAL = require('../experimental/useFragment_EXPERIMENTAL');
-const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
-const usePaginationFragment_EXPERIMENTAL = require('../experimental/usePaginationFragment_EXPERIMENTAL');
-const useRefetchableFragment_EXPERIMENTAL = require('../experimental/useRefetchableFragment_EXPERIMENTAL');
 const HooksImplementation = require('../HooksImplementation');
+const useFragment_LEGACY = require('../legacy/useFragment');
+const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
+const usePaginationFragment_LEGACY = require('../legacy/usePaginationFragment');
+const useRefetchableFragment_LEGACY = require('../legacy/useRefetchableFragment');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
@@ -96,11 +96,11 @@ type Props = {
 };
 
 describe.each([
-  ['Experimental', true],
-  ['Legacy', false],
+  ['New', false],
+  ['Legacy', true],
 ])(
-  'useLazyLoadQueryNode / shouldUseExperimentalImpl (%s)',
-  (_hookName: string, shouldUseExperimentalImpl) => {
+  'useLazyLoadQueryNode / shouldUseLegacyImplementation (%s)',
+  (_hookName: string, shouldUseLegacyImplementation) => {
     let environment;
     let gqlQuery:
       | Query<
@@ -128,13 +128,13 @@ describe.each([
       disallowWarnings();
       disallowConsoleErrors();
 
-      if (shouldUseExperimentalImpl) {
-        useFragmentImpl = useFragment_EXPERIMENTAL;
+      if (shouldUseLegacyImplementation) {
+        useFragmentImpl = useFragment_LEGACY;
         HooksImplementation.inject({
-          useFragment: useFragment_EXPERIMENTAL,
-          usePaginationFragment: usePaginationFragment_EXPERIMENTAL,
-          useRefetchableFragment: useRefetchableFragment_EXPERIMENTAL,
-          useFragment__internal: useFragmentInternal_EXPERIMENTAL,
+          useFragment: useFragment_LEGACY,
+          usePaginationFragment: usePaginationFragment_LEGACY,
+          useRefetchableFragment: useRefetchableFragment_LEGACY,
+          useFragmentNode: useFragmentNode_LEGACY,
         });
       } else {
         useFragmentImpl = useFragment;

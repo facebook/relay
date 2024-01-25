@@ -11,10 +11,10 @@
 
 'use strict';
 
-import typeof useFragmentInternal from './experimental/useFragmentInternal_EXPERIMENTAL';
+import typeof useFragmentNode from './legacy/useFragmentNode';
+import type {UseRefetchableFragmentType} from './legacy/useRefetchableFragment';
 import typeof useFragment from './useFragment';
 import type {UsePaginationFragmentType} from './usePaginationFragment';
-import type {UseRefetchableFragmentType} from './useRefetchableFragment';
 
 const warning = require('warning');
 
@@ -22,7 +22,7 @@ type HooksImplementation = {
   useFragment: useFragment,
   usePaginationFragment: UsePaginationFragmentType,
   useRefetchableFragment: UseRefetchableFragmentType,
-  useFragment__internal?: useFragmentInternal,
+  useFragmentNode: useFragmentNode<mixed>,
 };
 
 let implementation: HooksImplementation | null = null;

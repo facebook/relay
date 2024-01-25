@@ -23,7 +23,6 @@ import type {
   SingularReaderSelector,
 } from './RelayStoreTypes';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
   CLIENT_EDGE_TRAVERSAL_PATH,
@@ -414,13 +413,12 @@ function areEqualSingularSelectors(
     thisSelector.node === thatSelector.node &&
     areEqual(thisSelector.variables, thatSelector.variables) &&
     areEqualOwners(thisSelector.owner, thatSelector.owner) &&
-    (!RelayFeatureFlags.ENABLE_STRICT_EQUAL_SELECTORS ||
-      (thisSelector.isWithinUnmatchedTypeRefinement ===
-        thatSelector.isWithinUnmatchedTypeRefinement &&
-        areEqualClientEdgeTraversalPaths(
-          thisSelector.clientEdgeTraversalPath,
-          thatSelector.clientEdgeTraversalPath,
-        )))
+    thisSelector.isWithinUnmatchedTypeRefinement ===
+      thatSelector.isWithinUnmatchedTypeRefinement &&
+    areEqualClientEdgeTraversalPaths(
+      thisSelector.clientEdgeTraversalPath,
+      thatSelector.clientEdgeTraversalPath,
+    )
   );
 }
 

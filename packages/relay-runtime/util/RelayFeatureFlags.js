@@ -45,7 +45,6 @@ export type FeatureFlags = {
   // @see https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
   ENABLE_FIELD_ERROR_HANDLING: boolean,
 
-  ENABLE_STRICT_EQUAL_SELECTORS: boolean,
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: boolean,
   ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: boolean,
 };
@@ -71,7 +70,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: false,
   ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: false,
   ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES: true,
-  ENABLE_STRICT_EQUAL_SELECTORS: false,
 };
 
 module.exports = RelayFeatureFlags;

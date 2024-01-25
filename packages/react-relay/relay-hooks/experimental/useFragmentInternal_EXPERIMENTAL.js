@@ -528,6 +528,7 @@ function useFragmentInternal_EXPERIMENTAL(
     // We only suspend when the component is first trying to mount or changing
     // selectors, not if data becomes missing later:
     if (
+      RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE ||
       environment !== previousEnvironment ||
       !committedFragmentSelectorRef.current ||
       !areEqualSelectors(committedFragmentSelectorRef.current, fragmentSelector)

@@ -28,7 +28,6 @@ export type FeatureFlags = {
   STRING_INTERN_LEVEL: number,
   LOG_MISSING_RECORDS_IN_PROD: boolean,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: boolean,
-  ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES: boolean,
 
   // Configure RelayStoreSubscriptions to mark a subscription as affected by an
   // update if there are any overlapping IDs other than ROOT_ID or VIWER_ID,
@@ -69,7 +68,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_FIELD_ERROR_HANDLING: false,
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: false,
   ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: false,
-  ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES: true,
 };
 
 module.exports = RelayFeatureFlags;

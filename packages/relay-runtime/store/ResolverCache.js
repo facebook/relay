@@ -26,7 +26,6 @@ import type {
 
 const recycleNodesInto = require('../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../util/RelayConcreteNode');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const shallowFreeze = require('../util/shallowFreeze');
 const {generateClientID} = require('./ClientID');
 const RelayModernRecord = require('./RelayModernRecord');
@@ -174,9 +173,7 @@ class RecordResolverCache implements ResolverCache {
       linkedRecord = RelayModernRecord.create(linkedID, '__RELAY_RESOLVER__');
 
       const evaluationResult = evaluate();
-      if (RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES) {
-        shallowFreeze(evaluationResult.resolverResult);
-      }
+      shallowFreeze(evaluationResult.resolverResult);
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,

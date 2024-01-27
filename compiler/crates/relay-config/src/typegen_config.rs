@@ -137,6 +137,7 @@ impl Default for TypegenConfig {
             no_future_proof_enums: Default::default(),
             eager_es_modules: Default::default(),
             typescript_exclude_undefined_from_nullable_union: Default::default(),
+            experimental_emit_semantic_nullability_types: Default::default(),
         }
     }
 }

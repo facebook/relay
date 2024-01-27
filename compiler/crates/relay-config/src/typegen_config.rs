@@ -111,6 +111,14 @@ pub struct TypegenConfig {
     /// of an union with the raw type, null and undefined.
     #[serde(default)]
     pub typescript_exclude_undefined_from_nullable_union: bool,
+
+    /// If your environment is configured to handles errors out of band, either via
+    /// a network layer which discards responses with errors, or via enabling strict
+    /// error handling in the runtime, you can enable this flag to have Relay generate
+    /// non-null types for fields which are marked as semantically non-null in
+    /// the schema.
+    #[serde(default)]
+    pub emit_semantic_nullability_types: bool,
 }
 
 impl Default for TypegenConfig {

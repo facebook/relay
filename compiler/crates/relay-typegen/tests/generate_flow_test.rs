@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cb37c049ca89756a597dc03ff7c628ea>>
+ * @generated SignedSource<<0785113b958651724c9f7105d4f66b9a>>
  */
 
 mod generate_flow;
@@ -689,6 +689,83 @@ async fn scalar_field() {
     let input = include_str!("generate_flow/fixtures/scalar-field.graphql");
     let expected = include_str!("generate_flow/fixtures/scalar-field.expected");
     test_fixture(transform_fixture, file!(), "scalar-field.graphql", "generate_flow/fixtures/scalar-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_in_raw_response() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_in_raw_response.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_in_raw_response.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_in_raw_response.graphql", "generate_flow/fixtures/semantic_non_null_in_raw_response.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_items_in_matrix() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_items_in_matrix.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_items_in_matrix.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_items_in_matrix.graphql", "generate_flow/fixtures/semantic_non_null_items_in_matrix.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_liked_field_resolver() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_liked_field_resolver.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_liked_field_resolver.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_liked_field_resolver.graphql", "generate_flow/fixtures/semantic_non_null_liked_field_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_liked_field_weak_resolver() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_liked_field_weak_resolver.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_liked_field_weak_resolver.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_liked_field_weak_resolver.graphql", "generate_flow/fixtures/semantic_non_null_liked_field_weak_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_linked_field() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_linked_field.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_linked_field.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_linked_field.graphql", "generate_flow/fixtures/semantic_non_null_linked_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_list_and_list_item() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_list_and_list_item.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_list_and_list_item.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_list_and_list_item.graphql", "generate_flow/fixtures/semantic_non_null_list_and_list_item.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_list_item() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_list_item.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_list_item.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_list_item.graphql", "generate_flow/fixtures/semantic_non_null_list_item.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar.graphql", "generate_flow/fixtures/semantic_non_null_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_feature_disabled() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_feature_disabled.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_feature_disabled.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_feature_disabled.graphql", "generate_flow/fixtures/semantic_non_null_scalar_feature_disabled.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_required() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_required.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_required.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_required.graphql", "generate_flow/fixtures/semantic_non_null_scalar_required.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_resolver() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_resolver.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_resolver.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_resolver.graphql", "generate_flow/fixtures/semantic_non_null_scalar_resolver.expected", input, expected).await;
 }
 
 #[tokio::test]

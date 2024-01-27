@@ -154,11 +154,11 @@ pub(crate) fn visit_selections(
                 enclosing_linked_field_concrete_type,
             ),
             Selection::LinkedField(linked_field) => {
-                let linked_field_type = typegen_context
-                    .schema
-                    .field(linked_field.definition.item)
-                    .type_
-                    .inner();
+                let linked_field_type = field_type(
+                    typegen_context.schema.field(linked_field.definition.item),
+                    typegen_context,
+                )
+                .inner();
                 let nested_enclosing_linked_field_concrete_type =
                     if linked_field_type.is_abstract_type() {
                         None
@@ -166,7 +166,7 @@ pub(crate) fn visit_selections(
                         Some(linked_field_type)
                     };
                 gen_visit_linked_field(
-                    typegen_context.schema,
+                    typegen_context,
                     &mut type_selections,
                     linked_field,
                     |selections| {
@@ -330,7 +330,7 @@ fn generate_resolver_type(
             if is_relay_resolver_type(typegen_context, schema_field) {
                 AST::Mixed
             } else {
-                let type_ = &schema_field.type_.inner();
+                let type_ = &field_type(schema_field, typegen_context).inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             }
         }
@@ -340,22 +340,25 @@ fn generate_resolver_type(
                 Some(normalization_info.normalization_operation.location),
             );
 
-            if let Some(field_type) = normalization_info.weak_object_instance_field {
-                let type_ = &typegen_context.schema.field(field_type).type_.inner();
+            if let Some(field_id) = normalization_info.weak_object_instance_field {
+                let type_ =
+                    &field_type(typegen_context.schema.field(field_id), typegen_context).inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             } else {
                 AST::RawType(normalization_info.normalization_operation.item.0)
             }
         }
         ResolverOutputTypeInfo::EdgeTo => create_edge_to_return_type_ast(
-            &schema_field.type_.inner(),
+            &field_type(schema_field, typegen_context).inner(),
             typegen_context.schema,
             runtime_imports,
         ),
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
     };
 
-    let ast = transform_type_reference_into_ast(&schema_field.type_, |_| inner_ast);
+    let ast = transform_type_reference_into_ast(&field_type(schema_field, typegen_context), |_| {
+        inner_ast
+    });
 
     let return_type = if matches!(
         typegen_context.project_config.typegen_config.language,
@@ -545,11 +548,12 @@ fn relay_resolver_field_type(
         };
 
     if let Some(field) = maybe_scalar_field {
-        let inner_value = transform_type_reference_into_ast(&field.type_, |type_| {
+        let type_ = field_type(field, typegen_context);
+        let inner_value = transform_type_reference_into_ast(&type_, |type_| {
             expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
         });
         if required {
-            if field.type_.is_non_null() {
+            if type_.is_non_null() {
                 inner_value
             } else {
                 AST::NonNullable(Box::new(inner_value))
@@ -956,12 +960,12 @@ fn raw_response_visit_inline_fragment(
 }
 
 fn gen_visit_linked_field(
-    schema: &SDLSchema,
+    typegen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
     linked_field: &LinkedField,
     mut visit_selections_fn: impl FnMut(&[Selection]) -> Vec<TypeSelection>,
 ) {
-    let field = schema.field(linked_field.definition.item);
+    let field = typegen_context.schema.field(linked_field.definition.item);
     let schema_name = field.name.item;
     let key = if let Some(alias) = linked_field.alias {
         alias.item
@@ -970,7 +974,10 @@ fn gen_visit_linked_field(
     };
     let selections = visit_selections_fn(&linked_field.selections);
 
-    let node_type = apply_required_directive_nullability(&field.type_, &linked_field.directives);
+    let node_type = apply_required_directive_nullability(
+        &field_type(field, typegen_context),
+        &linked_field.directives,
+    );
 
     type_selections.push(TypeSelection::LinkedField(TypeSelectionLinkedField {
         field_name_or_alias: key,
@@ -996,7 +1003,10 @@ fn visit_scalar_field(
     } else {
         schema_name
     };
-    let field_type = apply_required_directive_nullability(&field.type_, &scalar_field.directives);
+    let field_type = apply_required_directive_nullability(
+        &field_type(field, typegen_context),
+        &scalar_field.directives,
+    );
     let special_field = ScalarFieldSpecialSchemaField::from_schema_name(
         schema_name,
         &typegen_context.project_config.schema_config,
@@ -1919,11 +1929,20 @@ pub(crate) fn raw_response_visit_selections(
                 enclosing_linked_field_concrete_type,
             ),
             Selection::LinkedField(linked_field) => {
-                let linked_field_type = typegen_context
-                    .schema
-                    .field(linked_field.definition.item)
-                    .type_
-                    .inner();
+                // Note: We intentionally use the semantic field type here
+                // despite the fact that we are generating a raw response type,
+                // which should model the _server's_ return type.
+                //
+                // While it's true that the server may return null for a semantic non-null field,
+                // it should only do so if that field also has an error in the errors array. Since
+                // raw response type is generally used to construct payloads for apis which do not
+                // allow the user to provide additional field level error data, we must ensure that
+                // only semantically valid values are allowed in the raw response type.
+                let linked_field_type = field_type(
+                    typegen_context.schema.field(linked_field.definition.item),
+                    typegen_context,
+                )
+                .inner();
                 let nested_enclosing_linked_field_concrete_type =
                     if linked_field_type.is_abstract_type() {
                         None
@@ -1931,7 +1950,7 @@ pub(crate) fn raw_response_visit_selections(
                         Some(linked_field_type)
                     };
                 gen_visit_linked_field(
-                    typegen_context.schema,
+                    typegen_context,
                     &mut type_selections,
                     linked_field,
                     |selections| {
@@ -2406,5 +2425,19 @@ fn return_ast_in_object_case(
         }
         Type::InputObject(_) => panic!("Unexpected input type"),
         Type::Interface(_) | Type::Object(_) | Type::Union(_) => ast_in_object_case,
+    }
+}
+
+/// Returns the type of the field, potentially wrapping the field or list items in a non-null type
+/// to reflect the semantic nullability of the field if that feature is enabled.
+fn field_type(field: &Field, typegen_options: &'_ TypegenContext<'_>) -> TypeReference<Type> {
+    if typegen_options
+        .project_config
+        .typegen_config
+        .emit_semantic_nullability_types
+    {
+        field.semantic_type()
+    } else {
+        field.type_.clone()
     }
 }

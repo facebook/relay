@@ -2434,7 +2434,7 @@ fn field_type(field: &Field, typegen_options: &'_ TypegenContext<'_>) -> TypeRef
     if typegen_options
         .project_config
         .typegen_config
-        .emit_semantic_nullability_types
+        .experimental_emit_semantic_nullability_types
     {
         field.semantic_type()
     } else {

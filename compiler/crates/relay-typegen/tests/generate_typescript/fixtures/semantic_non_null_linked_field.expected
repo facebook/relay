@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-# relay:emit_semantic_nullability_types
+# relay:experimental_emit_semantic_nullability_types
 fragment MyFragment on ClientUser {
   best_friend {
     name

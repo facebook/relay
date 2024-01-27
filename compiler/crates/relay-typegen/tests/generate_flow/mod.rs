@@ -92,9 +92,9 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         typegen_config: TypegenConfig {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
-            emit_semantic_nullability_types: fixture
+            experimental_emit_semantic_nullability_types: fixture
                 .content
-                .contains("# relay:emit_semantic_nullability_types"),
+                .contains("# relay:experimental_emit_semantic_nullability_types"),
             ..Default::default()
         },
         ..Default::default()

@@ -112,13 +112,17 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub typescript_exclude_undefined_from_nullable_union: bool,
 
-    /// If your environment is configured to handles errors out of band, either via
+    /// EXPERIMENTAL: If your environment is configured to handles errors out of band, either via
     /// a network layer which discards responses with errors, or via enabling strict
     /// error handling in the runtime, you can enable this flag to have Relay generate
     /// non-null types for fields which are marked as semantically non-null in
     /// the schema.
+    ///
+    /// Currently semantically non-null fields must be specified in your schema
+    /// using the `@semanticNonNull` directive as specified in:
+    /// https://github.com/apollographql/specs/pull/42
     #[serde(default)]
-    pub emit_semantic_nullability_types: bool,
+    pub experimental_emit_semantic_nullability_types: bool,
 }
 
 impl Default for TypegenConfig {

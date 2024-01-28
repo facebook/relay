@@ -350,7 +350,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_argument(&self, argument: schema_flatbuffer::Argument<'fb>) -> Option<Argument> {
         Some(Argument {
-            name: ArgumentName(argument.name().unwrap().intern()),
+            name: WithLocation::generated(ArgumentName(argument.name().unwrap().intern())),
             default_value: match argument.value() {
                 Some(value) => Some(self.parse_const_value(value)?),
                 _ => None,
@@ -628,37 +628,25 @@ mod tests {
         assert!(fb_schema.read_type("Aaaa".intern()).is_none());
         assert!(fb_schema.read_type("Zzzz".intern()).is_none());
 
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("ref_type".intern()))
-                .is_some()
-        );
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("extern_type".intern()))
-                .is_some()
-        );
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("fetchable".intern()))
-                .is_some()
-        );
+        assert!(fb_schema
+            .read_directive(DirectiveName("ref_type".intern()))
+            .is_some());
+        assert!(fb_schema
+            .read_directive(DirectiveName("extern_type".intern()))
+            .is_some());
+        assert!(fb_schema
+            .read_directive(DirectiveName("fetchable".intern()))
+            .is_some());
 
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("goto".intern()))
-                .is_none()
-        );
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("aaaa".intern()))
-                .is_none()
-        );
-        assert!(
-            fb_schema
-                .read_directive(DirectiveName("zzzz".intern()))
-                .is_none()
-        );
+        assert!(fb_schema
+            .read_directive(DirectiveName("goto".intern()))
+            .is_none());
+        assert!(fb_schema
+            .read_directive(DirectiveName("aaaa".intern()))
+            .is_none());
+        assert!(fb_schema
+            .read_directive(DirectiveName("zzzz".intern()))
+            .is_none());
 
         Ok(())
     }

@@ -135,7 +135,7 @@ trait ArgumentLike {
 
 impl ArgumentLike for &SchemaArgument {
     fn name(&self) -> StringKey {
-        self.name.0
+        self.name.item.0
     }
     fn type_(&self) -> &TypeReference<Type> {
         &self.type_
@@ -844,7 +844,7 @@ fn completion_items_for_request(
                 input_object
                     .fields
                     .iter()
-                    .find(|field| field.name.0 == *field_name)
+                    .find(|field| field.name.item.0 == *field_name)
                     .and_then(|field| resolve_root_input_field(schema, &field.type_))
             }
 

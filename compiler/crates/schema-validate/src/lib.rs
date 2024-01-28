@@ -125,13 +125,13 @@ impl<'schema> ValidationContext<'schema> {
             self.validate_name(directive.name.item.0, context);
             let mut arg_names = FnvHashSet::default();
             for argument in directive.arguments.iter() {
-                self.validate_name(argument.name.0, context);
+                self.validate_name(argument.name.item.0, context);
 
                 // Ensure unique arguments per directive.
                 if arg_names.contains(&argument.name) {
                     self.report_error(
                         SchemaValidationError::DuplicateArgument(
-                            argument.name,
+                            argument.name.item,
                             directive.name.item.0,
                         ),
                         context,
@@ -224,13 +224,16 @@ impl<'schema> ValidationContext<'schema> {
             let mut arg_names = FnvHashSet::default();
             for argument in field.arguments.iter() {
                 // Ensure they are named correctly.
-                self.validate_name(argument.name.0, context);
+                self.validate_name(argument.name.item.0, context);
 
                 // Ensure they are unique per field.
                 // Ensure unique arguments per directive.
                 if arg_names.contains(&argument.name) {
                     self.report_error(
-                        SchemaValidationError::DuplicateArgument(argument.name, field.name.item),
+                        SchemaValidationError::DuplicateArgument(
+                            argument.name.item,
+                            field.name.item,
+                        ),
                         context,
                     );
                     continue;
@@ -243,7 +246,7 @@ impl<'schema> ValidationContext<'schema> {
                         SchemaValidationError::InvalidArgumentType(
                             type_name,
                             field.name.item,
-                            argument.name,
+                            argument.name.item,
                             argument.type_.clone(),
                         ),
                         context,
@@ -304,15 +307,15 @@ impl<'schema> ValidationContext<'schema> {
         // Ensure the arguments are valid
         for field in input_object.fields.iter() {
             // Ensure they are named correctly.
-            self.validate_name(field.name.0, context);
+            self.validate_name(field.name.item.0, context);
 
             // Ensure the type is an input type
             if !is_input_type(&field.type_) {
                 self.report_error(
                     SchemaValidationError::InvalidArgumentType(
                         input_object.name.item.0,
-                        field.name.0,
-                        field.name,
+                        field.name.item.0,
+                        field.name.item,
                         field.type_.clone(),
                     ),
                     context,
@@ -398,7 +401,7 @@ impl<'schema> ValidationContext<'schema> {
                         SchemaValidationError::InterfaceFieldArgumentNotProvided(
                             interface.name.item,
                             field_name,
-                            interface_argument.name,
+                            interface_argument.name.item,
                             typename,
                         ),
                         context,
@@ -415,7 +418,7 @@ impl<'schema> ValidationContext<'schema> {
                         SchemaValidationError::NotEqualType(
                             interface.name.item,
                             field_name,
-                            interface_argument.name,
+                            interface_argument.name.item,
                             self.schema.get_type_name(interface_argument.type_.inner()),
                             typename,
                             self.schema.get_type_name(object_argument.type_.inner()),
@@ -428,14 +431,16 @@ impl<'schema> ValidationContext<'schema> {
 
             // Assert additional arguments must not be required.
             for object_argument in object_field.arguments.iter() {
-                if !interface_field.arguments.contains(object_argument.name.0)
+                if !interface_field
+                    .arguments
+                    .contains(object_argument.name.item.0)
                     && object_argument.type_.is_non_null()
                 {
                     self.report_error(
                         SchemaValidationError::MissingRequiredArgument(
                             typename,
                             field_name,
-                            object_argument.name,
+                            object_argument.name.item,
                             interface.name.item,
                         ),
                         context,

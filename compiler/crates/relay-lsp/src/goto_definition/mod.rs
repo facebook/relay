@@ -44,6 +44,11 @@ pub enum DefinitionDescription {
         parent_type: Type,
         field_name: StringKey,
     },
+    FieldArgument {
+        parent_type: Type,
+        field_name: StringKey,
+        argument_name: StringKey,
+    },
     Fragment {
         fragment_name: FragmentDefinitionName,
     },
@@ -81,6 +86,17 @@ pub fn on_goto_definition(
     let root_dir = state.root_dir();
 
     let goto_definition_response: GotoDefinitionResponse = match definition_description {
+        DefinitionDescription::FieldArgument {
+            parent_type,
+            field_name,
+            argument_name,
+        } => locate_field_argument_definition(
+            &schema,
+            parent_type,
+            field_name,
+            argument_name,
+            &root_dir,
+        )?,
         DefinitionDescription::Field {
             parent_type,
             field_name,
@@ -201,6 +217,34 @@ fn locate_type_definition(
                 .ok_or(LSPRuntimeError::ExpectedError)?
         }
     }
+}
+
+fn locate_field_argument_definition(
+    schema: &Arc<SDLSchema>,
+    parent_type: Type,
+    field_name: StringKey,
+    argument_name: StringKey,
+    root_dir: &std::path::Path,
+) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
+    let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Could not find field with name {}", field_name))
+    })?);
+
+    let argument = field
+        .arguments
+        .iter()
+        .find(|argument| argument.name.item.0 == argument_name)
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find argument with name {} on field with name {}",
+                argument_name, field_name,
+            ))
+        })?;
+
+    let argument_lsp_location =
+        transform_relay_location_to_lsp_location(root_dir, argument.name.location)?;
+
+    Ok(GotoDefinitionResponse::Scalar(argument_lsp_location))
 }
 
 fn locate_field_definition(

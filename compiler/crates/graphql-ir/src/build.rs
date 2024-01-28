@@ -1236,7 +1236,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         None => {
                             let possible_argument_names = argument_definitions
                                 .iter()
-                                .map(|arg_def| arg_def.name.0)
+                                .map(|arg_def| arg_def.name.item.0)
                                 .collect::<Vec<_>>();
                             let suggestions = suggestion_list::suggestion_list(
                                 argument.name.value,
@@ -1268,9 +1268,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 arguments
                     .iter()
                     .flat_map(|args| &args.items)
-                    .all(|arg| arg.name.value != required_arg_def.name.0)
+                    .all(|arg| arg.name.value != required_arg_def.name.item.0)
             })
-            .map(|missing_arg| missing_arg.name.0)
+            .map(|missing_arg| missing_arg.name.item.0)
             .filter(is_non_nullable_field_required)
             .collect::<Vec<_>>();
         if !missing_arg_names.is_empty() {
@@ -1570,7 +1570,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
-            .map(|x| x.name.0)
+            .map(|x| x.name.item.0)
             .collect::<StringKeySet>();
 
         let fields = object
@@ -1721,7 +1721,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
-            .map(|x| x.name.0)
+            .map(|x| x.name.item.0)
             .collect::<StringKeySet>();
 
         let mut errors = vec![];

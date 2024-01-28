@@ -544,3 +544,9 @@ async fn assignable_conformant_interface_fragment() {
     test_fixture(transform_fixture, file!(), "assignable-conformant-interface-fragment.graphql", "generate_typescript/fixtures/assignable-conformant-interface-fragment.expected", input, expected).await;
 }
 
+#[tokio::test]
+async fn assignable_nonconforming_interface() {
+    let input = include_str!("generate_typescript/fixtures/assignable-nonconforming-interface.graphql");
+    let expected = include_str!("generate_typescript/fixtures/assignable-nonconforming-interface.expected");
+    test_fixture(transform_fixture, file!(), "assignable-nonconforming-interface.graphql", "generate_typescript/fixtures/assignable-nonconforming-interface.expected", input, expected).await;
+}

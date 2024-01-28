@@ -830,3 +830,10 @@ async fn assignable_conformant_interface_fragment() {
     let expected = include_str!("generate_flow/fixtures/assignable-conformant-interface-fragment.expected");
     test_fixture(transform_fixture, file!(), "assignable-conformant-interface-fragment.graphql", "generate_flow/fixtures/assignable-conformant-interface-fragment.expected", input, expected).await;
 }
+
+#[tokio::test]
+async fn assignable_nonconforming_interface() {
+    let input = include_str!("generate_flow/fixtures/assignable-nonconforming-interface.graphql");
+    let expected = include_str!("generate_flow/fixtures/assignable-nonconforming-interface.expected");
+    test_fixture(transform_fixture, file!(), "assignable-nonconforming-interface.graphql", "generate_flow/fixtures/assignable-nonconforming-interface.expected", input, expected).await;
+}

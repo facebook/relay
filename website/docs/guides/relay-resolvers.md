@@ -26,7 +26,7 @@ Concretely, Relay Resolvers are defined as functions annotated with a special do
 For Relay Resolvers we are using a special syntax to define a new field:
 
 The string after @RelayResolver is a GraphQL `TypeName` sperated by a dot the string with the field
-defintion: https://spec.graphql.org/June2018/#FieldDefinition (Description and directives of the field are not supported).
+definition: https://spec.graphql.org/June2018/#FieldDefinition (Description and directives of the field are not supported).
 
 ```js
 /**

@@ -368,7 +368,7 @@ return <ExampleFragmentComponent artist={data.artist} />;
 
 An important caveat to note is that by default strict fragment reference type-information will _not_ be emitted, instead they will be typed as `any` and would allow you to pass in any data to the child component.
 
-To enable this feature, you will have to tell the compiler to store all the artifacts in a single directory, by specifing the `artifactDirectory` in the
+To enable this feature, you will have to tell the compiler to store all the artifacts in a single directory, by specifying the `artifactDirectory` in the
 compiler configuration:
 
 ```

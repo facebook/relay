@@ -139,7 +139,7 @@ At this point, you should see a story fetched from the server:
 ![Screenshot](/img/docs/tutorial/queries-basic-screenshot.png)
 
 :::note
-The server's responses are artifically slowed down to make loading states perceptible, which will come in handy when we add more interactivity to the app. If you want to remove the delay, open `server/index.js` and remove the call to `sleep()`.
+The server's responses are artificially slowed down to make loading states perceptible, which will come in handy when we add more interactivity to the app. If you want to remove the delay, open `server/index.js` and remove the call to `sleep()`.
 :::
 
 The `useLazyLoadQuery` hook fetches the data when the component is first rendered. Relay also has APIs for pre-fetching the data before your app has even loaded — these are covered later. In any case, Relay uses Suspense to show a loading indicator until the data is available.

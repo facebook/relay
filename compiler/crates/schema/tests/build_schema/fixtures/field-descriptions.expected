@@ -51,9 +51,12 @@ Text Schema:Schema {
         },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:263:265,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -83,9 +86,12 @@ Text Schema:Schema {
         },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:339:341,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -327,9 +333,12 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -468,9 +477,12 @@ directives: [
         },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -500,9 +512,12 @@ directives: [
         },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(0),

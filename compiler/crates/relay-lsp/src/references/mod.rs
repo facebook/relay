@@ -32,6 +32,22 @@ use crate::node_resolution_info::NodeKind;
 use crate::server::GlobalState;
 use crate::FeatureResolutionInfo;
 
+pub fn on_references(
+    state: &impl GlobalState,
+    params: <References as Request>::Params,
+) -> LSPRuntimeResult<<References as Request>::Result> {
+    let node_resolution_info = state.resolve_node(&params.text_document_position)?;
+    let references_response = get_references_response(
+        node_resolution_info,
+        &state
+            .get_program(&state.extract_project_name_from_url(
+                &params.text_document_position.text_document.uri,
+            )?)?,
+        &state.root_dir(),
+    )?;
+    Ok(Some(references_response))
+}
+
 fn get_references_response(
     feature_resolution_info: FeatureResolutionInfo,
     program: &Program,
@@ -70,40 +86,64 @@ fn get_references_response(
                             .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
                     Ok(lsp_locations)
                 }
+                NodeKind::FieldArgument(_field_name, _argument_name) => {
+                    // TODO: Implement
+
+                    Err(LSPRuntimeError::ExpectedError)
+                }
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
         FeatureResolutionInfo::DocblockNode(docblock_node) => {
-            if let DocblockResolutionInfo::FieldName(field_name) = docblock_node.resolution_info {
-                let type_name = match docblock_node.ir {
-                    DocblockIr::LegacyVerboseResolver(relay_resolver) => match relay_resolver.on {
-                        On::Type(type_) => type_.value.item,
-                        On::Interface(interface) => interface.value.item,
-                    },
-                    DocblockIr::TerseRelayResolver(terse_resolver) => terse_resolver.type_.item,
-                    DocblockIr::StrongObjectResolver(_) => {
-                        // TODO: Implement support for strong object.
-                        return Err(LSPRuntimeError::ExpectedError);
-                    }
-                    DocblockIr::WeakObjectType(_) => {
-                        // TODO: Implement support for weak object.
-                        return Err(LSPRuntimeError::ExpectedError);
-                    }
-                };
+            match docblock_node.resolution_info {
+                DocblockResolutionInfo::FieldName(field_name) => {
+                    let type_name = get_parent_type_name(docblock_node.ir)?;
 
-                let references = find_field_locations(program, field_name, type_name)
-                    .ok_or(LSPRuntimeError::ExpectedError)?
-                    .into_iter()
-                    .map(|location| transform_relay_location_to_lsp_location(root_dir, location))
-                    .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
+                    let references = find_field_locations(program, field_name, type_name)
+                        .ok_or(LSPRuntimeError::ExpectedError)?
+                        .into_iter()
+                        .map(|location| {
+                            transform_relay_location_to_lsp_location(root_dir, location)
+                        })
+                        .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
-                Ok(references)
-            } else {
-                // Go to reference not implemented for other parts of the docblocks yet.
-                Err(LSPRuntimeError::ExpectedError)
+                    Ok(references)
+                }
+                DocblockResolutionInfo::FieldArgumentName {
+                    field_name: _,
+                    argument_name: _,
+                } => {
+                    let _type_name = get_parent_type_name(docblock_node.ir)?;
+
+                    // TODO: Implement
+
+                    Err(LSPRuntimeError::ExpectedError)
+                }
+                _ => {
+                    // Go to reference not implemented for other parts of the docblocks yet.
+                    Err(LSPRuntimeError::ExpectedError)
+                }
             }
         }
     }
+}
+
+fn get_parent_type_name(docblock_ir: DocblockIr) -> LSPRuntimeResult<StringKey> {
+    Ok(match docblock_ir {
+        DocblockIr::LegacyVerboseResolver(relay_resolver) => match relay_resolver.on {
+            On::Type(type_) => type_.value.item,
+            On::Interface(interface) => interface.value.item,
+        },
+        DocblockIr::TerseRelayResolver(terse_resolver) => terse_resolver.type_.item,
+        DocblockIr::StrongObjectResolver(_) => {
+            // TODO: Implement support for strong object.
+            return Err(LSPRuntimeError::ExpectedError);
+        }
+        DocblockIr::WeakObjectType(_) => {
+            // TODO: Implement support for weak object.
+            return Err(LSPRuntimeError::ExpectedError);
+        }
+    })
 }
 
 #[derive(Debug, Clone)]
@@ -133,20 +173,4 @@ impl Visitor for ReferenceFinder {
             self.references.push(spread.fragment.location);
         }
     }
-}
-
-pub fn on_references(
-    state: &impl GlobalState,
-    params: <References as Request>::Params,
-) -> LSPRuntimeResult<<References as Request>::Result> {
-    let node_resolution_info = state.resolve_node(&params.text_document_position)?;
-    let references_response = get_references_response(
-        node_resolution_info,
-        &state
-            .get_program(&state.extract_project_name_from_url(
-                &params.text_document_position.text_document.uri,
-            )?)?,
-        &state.root_dir(),
-    )?;
-    Ok(Some(references_response))
 }

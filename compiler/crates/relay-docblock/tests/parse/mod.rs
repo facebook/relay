@@ -87,6 +87,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             } else {
                                 &FeatureFlag::Disabled
                             },
+                            enable_interface_output_type: if fixture
+                                .content
+                                .contains("// relay:enable_interface_output_type")
+                            {
+                                &FeatureFlag::Enabled
+                            } else {
+                                &FeatureFlag::Disabled
+                            },
                         },
                     )
                 })

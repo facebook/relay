@@ -306,6 +306,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         allow_legacy_verbose_syntax: &project_config
                             .feature_flags
                             .relay_resolvers_allow_legacy_verbose_syntax,
+                        enable_interface_output_type: &project_config
+                            .feature_flags
+                            .relay_resolver_enable_interface_output_type,
                     },
                 )
             });

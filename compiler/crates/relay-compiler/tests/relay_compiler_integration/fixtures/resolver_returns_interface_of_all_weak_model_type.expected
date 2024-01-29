@@ -56,18 +56,9 @@ interface IPerson {
   name: String
 }
 ==================================== OUTPUT ===================================
-✖︎ The compiler attempted to parse "Admin implements IPerson" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after "Admin".
+✖︎ No types implement the client interface IPerson. Interfaces returned by a @RelayResolver must have at least one concrete implementation.
 
-  AdminTypeResolvers.js:2:19
-    1 │ *
-    2 │  * @RelayResolver Admin implements IPerson
-      │                   ^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │  * @weak
-
-✖︎ The compiler attempted to parse "User implements IPerson" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after "User".
-
-  UserTypeResolvers.js:2:19
-    1 │ *
-    2 │  * @RelayResolver User implements IPerson
-      │                   ^^^^^^^^^^^^^^^^^^^^^^^
-    3 │  * @weak
+  schema-extensions/extension.graphql:1:11
+    1 │ interface IPerson {
+      │           ^^^^^^^
+    2 │   name: String

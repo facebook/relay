@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c9768c7dbf870b21e26aa508af34c942>>
+ * @generated SignedSource<<0d097e7d292511eaacec9df447a793d7>>
  */
 
 mod parse;
@@ -192,6 +192,13 @@ async fn relay_resolver_weak_object_with_gibberish_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-weak-object-with-gibberish.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-weak-object-with-gibberish.invalid.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-weak-object-with-gibberish.invalid.js", "parse/fixtures/relay-resolver-weak-object-with-gibberish.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_weak_object_with_implements() {
+    let input = include_str!("parse/fixtures/relay-resolver-weak-object-with-implements.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-weak-object-with-implements.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-weak-object-with-implements.js", "parse/fixtures/relay-resolver-weak-object-with-implements.expected", input, expected).await;
 }
 
 #[tokio::test]

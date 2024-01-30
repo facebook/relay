@@ -16,8 +16,6 @@ import type {UseRefetchableFragmentType} from './legacy/useRefetchableFragment';
 import typeof useFragment from './useFragment';
 import type {UsePaginationFragmentType} from './usePaginationFragment';
 
-const warning = require('warning');
-
 type HooksImplementation = {
   useFragment: useFragment,
   usePaginationFragment: UsePaginationFragmentType,
@@ -28,10 +26,6 @@ type HooksImplementation = {
 let implementation: HooksImplementation | null = null;
 
 function inject(impl: HooksImplementation): void {
-  warning(
-    implementation === null,
-    'Relay HooksImplementation was injected twice.',
-  );
   implementation = impl;
 }
 

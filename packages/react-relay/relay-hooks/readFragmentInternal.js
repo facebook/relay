@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {QueryResult} from '../QueryResource';
+import type {QueryResult} from './QueryResource';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -23,7 +23,7 @@ import type {
 } from 'relay-runtime';
 import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreTypes';
 
-const {getQueryResourceForEnvironment} = require('../QueryResource');
+const {getQueryResourceForEnvironment} = require('./QueryResource');
 const invariant = require('invariant');
 const {
   __internal: {fetchQuery: fetchQueryInternal},
@@ -159,7 +159,7 @@ function getFragmentState(
 }
 
 // fragmentNode cannot change during the lifetime of the component, though fragmentRef may change.
-function readFragmentInternal_EXPERIMENTAL(
+function readFragmentInternal(
   environment: IEnvironment,
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
@@ -297,4 +297,4 @@ function readFragmentInternal_EXPERIMENTAL(
   return {data, clientEdgeQueries};
 }
 
-module.exports = readFragmentInternal_EXPERIMENTAL;
+module.exports = readFragmentInternal;

@@ -26,9 +26,9 @@ import type {
   VariablesOf,
 } from 'relay-runtime';
 
-const readFragmentInternal = require('./experimental/readFragmentInternal_EXPERIMENTAL');
 const ProfilerContext = require('./ProfilerContext');
 const {getQueryResourceForEnvironment} = require('./QueryResource');
+const readFragmentInternal = require('./readFragmentInternal');
 const useFragmentInternal = require('./useFragmentInternal');
 const useIsMountedRef = require('./useIsMountedRef');
 const useQueryLoader = require('./useQueryLoader');

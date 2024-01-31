@@ -159,6 +159,7 @@ pub(crate) fn parse_docblock_ir(
                         populated_ir_field,
                         weak_field,
                         source_hash,
+                        parse_options,
                     )?),
                     None => DocblockIr::StrongObjectResolver(parse_strong_object_ir(
                         project_name,
@@ -300,9 +301,22 @@ fn parse_weak_object_ir(
     relay_resolver_field: PopulatedIrField,
     _weak_field: UnpopulatedIrField,
     source_hash: ResolverSourceHash,
+    parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<WeakObjectIr> {
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
-    let identifier = assert_only_identifier(relay_resolver_field)?;
+    let (identifier, implements_interfaces) = if parse_options
+        .enable_interface_output_type
+        .is_fully_enabled()
+    {
+        let type_str = relay_resolver_field.value;
+        parse_identifier_and_implements_interfaces(
+            type_str.item.lookup(),
+            type_str.location.source_location(),
+            type_str.location.span().start,
+        )?
+    } else {
+        (assert_only_identifier(relay_resolver_field)?, vec![])
+    };
 
     Ok(WeakObjectIr {
         type_name: identifier,
@@ -311,6 +325,7 @@ fn parse_weak_object_ir(
         hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         location,
+        implements_interfaces,
         source_hash,
     })
 }

@@ -1282,13 +1282,15 @@ pub struct WeakObjectIr {
     pub hack_source: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub location: Location,
+    /// The interfaces which the newly-created object implements
+    pub implements_interfaces: Vec<Identifier>,
     pub source_hash: ResolverSourceHash,
 }
 
 impl WeakObjectIr {
     // Generate the named GraphQL type (with an __relay_model_instance field).
     fn type_definition(
-        &self,
+        self,
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> TypeSystemDefinition {
         let span = self.rhs_location.span();
@@ -1326,17 +1328,20 @@ impl WeakObjectIr {
                 }),
             })
         }
+        let type_name = self.model_type_name();
+        let source_hash = self.source_hash();
+        let location = self.location();
         TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
             name: self.type_name,
-            interfaces: vec![],
+            interfaces: self.implements_interfaces,
             directives,
             fields: Some(List::generated(vec![generate_model_instance_field(
                 project_config,
-                self.model_type_name(),
+                type_name,
                 self.description.map(as_string_node),
                 self.hack_source.map(as_string_node),
-                vec![resolver_source_hash_directive(self.source_hash())],
-                self.location(),
+                vec![resolver_source_hash_directive(source_hash)],
+                location,
             )])),
         })
     }

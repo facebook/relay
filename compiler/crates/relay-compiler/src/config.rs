@@ -149,7 +149,7 @@ pub struct Config {
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
     pub custom_override_schema_determinator:
-        Option<Box<dyn Fn(&OperationDefinition) -> Option<String> + Send + Sync>>,
+        Option<Box<dyn Fn(&OperationDefinition, &ProjectConfig) -> Option<String> + Send + Sync>>,
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
 
     /// The async function is called before the compiler connects to the file
@@ -1010,6 +1010,7 @@ pub type PersistResult<T> = std::result::Result<T, PersistError>;
 pub struct ArtifactForPersister {
     pub text: String,
     pub relative_path: PathBuf,
+    pub override_schema: Option<String>,
 }
 
 #[async_trait]

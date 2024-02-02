@@ -90,24 +90,29 @@ where
             );
         });
 
-        if let Ok(handle) = spawn_result {
-            if is_serial_task {
-                // If the task is serial, we need to wait for its thread
-                // to complete, before moving onto the next task.
-                let _ = handle.join();
-            } else {
-                self.active_thread_handles.push(handle);
+        match spawn_result {
+            Ok(handle) => {
+                if is_serial_task {
+                    // If the task is serial, we need to wait for its thread
+                    // to complete, before moving onto the next task.
+                    if let Err(error) = handle.join() {
+                        debug!("Thread panicked while joining serial task: {:?}", error);
+                    }
+                } else {
+                    self.active_thread_handles.push(handle);
+                }
             }
-        } else {
-            debug!("Failed to spawn a thread to process the task");
+            Err(error) => {
+                debug!("Failed to spawn thread to process task: {:?}", error);
+            }
         }
     }
 
     fn ensure_previous_tasks_completed(&mut self) {
         for handle in self.active_thread_handles.drain(..) {
-            // We don't actually care whether the thread has panicked or not,
-            // we just want to make sure it's finished.
-            let _ = handle.join();
+            if let Err(error) = handle.join() {
+                debug!("Thread panicked while joining previous task: {:?}", error);
+            }
         }
     }
 }

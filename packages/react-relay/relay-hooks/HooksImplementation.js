@@ -16,6 +16,8 @@ import type {UseRefetchableFragmentType} from './legacy/useRefetchableFragment';
 import typeof useFragment from './useFragment';
 import type {UsePaginationFragmentType} from './usePaginationFragment';
 
+import warning from 'warning';
+
 type HooksImplementation = {
   useFragment: useFragment,
   usePaginationFragment: UsePaginationFragmentType,
@@ -24,12 +26,21 @@ type HooksImplementation = {
 };
 
 let implementation: HooksImplementation | null = null;
+let alreadyRequested = false;
 
 function inject(impl: HooksImplementation): void {
+  if (alreadyRequested) {
+    warning(
+      false,
+      'HooksImplementation were requested before they were injected.',
+    );
+    return;
+  }
   implementation = impl;
 }
 
 function get(): HooksImplementation | null {
+  alreadyRequested = true;
   return implementation;
 }
 

@@ -15,6 +15,8 @@ use std::sync::Arc;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use log::error;
+use log::info;
 use lsp_types::request::GotoDefinition;
 use lsp_types::request::Request;
 use lsp_types::GotoDefinitionResponse;
@@ -151,7 +153,11 @@ fn locate_type_definition(
         }),
         // If we couldn't resolve through the extra data provider, we'll fallback to
         // try to find a location in the server sdl.
-        Err(_) => {
+        Err(err) => {
+            error!(
+                "Failed to resolve type definition through extra data provider. Falling back to schema file. Got error: {:?}",
+                err
+            );
             let type_ = schema.get_type(type_name);
 
             type_
@@ -194,25 +200,39 @@ fn locate_field_definition(
             is_extension: field.is_extension,
         }),
     );
-    Ok(if let Ok(Some(source_info)) = provider_response {
-        // Step 1: does extra_data_provider know anything about this field?
-        if source_info.is_local {
-            GotoDefinitionResponse::Scalar(get_location(
-                &source_info.file_path,
-                source_info.line_number,
-            )?)
-        } else {
-            return Err(LSPRuntimeError::ExpectedError);
+
+    match provider_response {
+        Ok(Some(source_info)) => {
+            // Step 1: does extra_data_provider know anything about this field?
+            if source_info.is_local {
+                return Ok(GotoDefinitionResponse::Scalar(get_location(
+                    &source_info.file_path,
+                    source_info.line_number,
+                )?));
+            } else {
+                error!(
+                    "Expected local source info from extra data provider, but got non-local. Falling back to schema file.",
+                );
+            }
         }
-    } else if let Ok(location) =
-        transform_relay_location_to_lsp_location(root_dir, field.name.location)
-    {
+        Ok(None) => {
+            info!(
+                "Extra data provider did not have any information about this field. Falling back to schema file."
+            );
+        }
         // Step 2: is field a standalone graphql file?
-        GotoDefinitionResponse::Scalar(location)
-    } else {
-        // Give up
-        return Err(LSPRuntimeError::ExpectedError);
-    })
+        Err(err) => {
+            error!(
+                "Failed to resolve field definition through extra data provider. Falling back to schema file. Got error: {:?}",
+                err
+            );
+        }
+    }
+
+    transform_relay_location_to_lsp_location(root_dir, field.name.location)
+        .map(GotoDefinitionResponse::Scalar)
+        // If the field does not exist in the schema, that's fine
+        .map_err(|_| LSPRuntimeError::ExpectedError)
 }
 
 fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntimeError> {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<400f1ebe4cb8a6eb66854479669fefdf>>
+ * @generated SignedSource<<0ae5db59ccd730e887c0c2643dc666e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,9 +34,9 @@ export type LiveResolversTestWithProvidedVariablesQuery = {|
   variables: LiveResolversTestWithProvidedVariablesQuery$variables,
 |};
 ({
-  "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
+  "__relay_internal__pv__HelloWorldProviderrelayprovider": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
 }: {|
-  +__relay_internal__pv__HelloWorldProviderjs: {|
+  +__relay_internal__pv__HelloWorldProviderrelayprovider: {|
     +get: () => string,
   |},
 |});
@@ -72,7 +72,7 @@ var node/*: ClientRequest*/ = {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__HelloWorldProviderjs"
+        "name": "__relay_internal__pv__HelloWorldProviderrelayprovider"
       }
     ],
     "kind": "Operation",
@@ -93,7 +93,7 @@ var node/*: ClientRequest*/ = {
                     {
                       "kind": "Variable",
                       "name": "world",
-                      "variableName": "__relay_internal__pv__HelloWorldProviderjs"
+                      "variableName": "__relay_internal__pv__HelloWorldProviderrelayprovider"
                     }
                   ],
                   "fragment": null,
@@ -121,7 +121,7 @@ var node/*: ClientRequest*/ = {
     "operationKind": "query",
     "text": null,
     "providedVariables": {
-      "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
+      "__relay_internal__pv__HelloWorldProviderrelayprovider": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
     }
   }
 };

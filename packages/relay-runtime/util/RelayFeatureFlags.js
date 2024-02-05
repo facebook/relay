@@ -46,6 +46,8 @@ export type FeatureFlags = {
 
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: boolean,
   ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: boolean,
+
+  PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -68,6 +70,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_FIELD_ERROR_HANDLING: false,
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: false,
   ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: false,
+  PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
 };
 
 module.exports = RelayFeatureFlags;

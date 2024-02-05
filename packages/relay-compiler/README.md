@@ -96,11 +96,14 @@ file sources, and "listen" to the file changes in the "watch" mode. If
     contain additional parameters to send. [object]
   - `concurrency` The maximum number concurrent requests that will be made to
     `url`. Use a value greater than 0. [number]
-
+  - `include_query_text` Boolean, whether to include the query text in the
+    generated files. [boolean] [default: false]
 - - **Local Persisting:**
   - `file` Path for the JSON file that will contain operations map. Compiler
     will write queries in the format: { "md5(queryText) => "queryText", ...}.
     [string]
+  - `include_query_text` Boolean, whether to include the query text in the
+    generated files. [boolean] [default: false]
 
 - `codegenCommand` Command name that for relay compiler. [string]
 

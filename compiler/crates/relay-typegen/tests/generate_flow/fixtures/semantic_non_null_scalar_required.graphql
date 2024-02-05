@@ -1,0 +1,10 @@
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on ClientUser {
+  name @required(action: LOG)
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}

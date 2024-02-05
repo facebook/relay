@@ -221,6 +221,34 @@ impl<T: Copy> TypeReference<T> {
         }
     }
 
+    // Given a multi-dimensional list type, return a new type where the level'th nested
+    // list is non-null.
+    pub fn with_non_null_level(&self, level: i64) -> TypeReference<T> {
+        match self {
+            TypeReference::Named(_) => {
+                if level == 0 {
+                    self.non_null()
+                } else {
+                    panic!("Invalid level {} for Named type", level)
+                }
+            }
+            TypeReference::List(of) => {
+                if level == 0 {
+                    self.non_null()
+                } else {
+                    TypeReference::List(Box::new(of.with_non_null_level(level - 1)))
+                }
+            }
+            TypeReference::NonNull(of) => {
+                if level == 0 {
+                    panic!("Invalid level {} for NonNull type", level)
+                } else {
+                    TypeReference::NonNull(Box::new(of.with_non_null_level(level)))
+                }
+            }
+        }
+    }
+
     // If the type is Named or NonNull<Named> return the inner named.
     // If the type is a List or NonNull<List> returns a matching list with nullable items.
     pub fn with_nullable_item_type(&self) -> TypeReference<T> {
@@ -250,6 +278,40 @@ impl<T: Copy> TypeReference<T> {
             TypeReference::NonNull(of) => of.non_list_type(),
         }
     }
+}
+
+// Tests for TypeReference::with_non_null_level
+#[test]
+fn test_with_non_null_level() {
+    let matrix = TypeReference::List(Box::new(TypeReference::List(Box::new(
+        TypeReference::Named(Type::Scalar(ScalarID(0))),
+    ))));
+
+    assert_eq!(
+        matrix.with_non_null_level(0),
+        TypeReference::NonNull(Box::new(TypeReference::List(Box::new(
+            TypeReference::List(Box::new(TypeReference::Named(Type::Scalar(ScalarID(0)))))
+        ))))
+    );
+
+    assert_eq!(
+        matrix.with_non_null_level(1),
+        TypeReference::List(Box::new(TypeReference::NonNull(Box::new(
+            TypeReference::List(Box::new(TypeReference::Named(Type::Scalar(ScalarID(0)))))
+        ))))
+    );
+
+    assert_eq!(
+        matrix.with_non_null_level(0),
+        TypeReference::NonNull(Box::new(TypeReference::List(Box::new(
+            TypeReference::List(Box::new(TypeReference::Named(Type::Scalar(ScalarID(0)))))
+        ))))
+    );
+
+    assert_eq!(
+        TypeReference::Named(Type::Scalar(ScalarID(0))).with_non_null_level(0),
+        TypeReference::NonNull(Box::new(TypeReference::Named(Type::Scalar(ScalarID(0))))),
+    );
 }
 
 impl<T> TypeReference<T> {
@@ -395,6 +457,30 @@ impl Field {
                     .and_then(|reason| reason.value.get_string_literal()),
             })
     }
+    pub fn semantic_type(&self) -> TypeReference<Type> {
+        match self
+            .directives
+            .named(DirectiveName("semanticNonNull".intern()))
+        {
+            Some(directive) => {
+                match directive
+                    .arguments
+                    .named(ArgumentName("levels".intern()))
+                    .map(|levels| levels.expect_int_list())
+                {
+                    Some(levels) => {
+                        let mut type_ = self.type_.clone();
+                        for level in levels {
+                            type_ = type_.with_non_null_level(level);
+                        }
+                        type_
+                    }
+                    None => self.type_.non_null(),
+                }
+            }
+            None => self.type_.clone(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -447,6 +533,24 @@ impl ArgumentValue {
         self.get_string_literal().unwrap_or_else(|| {
             panic!("expected a string literal, got {:?}", self);
         })
+    }
+    /// Return the constant string literal of this value.
+    /// Panics if the value is not a constant string literal.
+    pub fn expect_int_list(&self) -> Vec<i64> {
+        if let ConstantValue::List(list) = &self.value {
+            list.items
+                .iter()
+                .map(|item| {
+                    if let ConstantValue::Int(int) = item {
+                        int.value
+                    } else {
+                        panic!("expected a int literal, got {:?}", item);
+                    }
+                })
+                .collect()
+        } else {
+            panic!("expected a list, got {:?}", self);
+        }
     }
 }
 

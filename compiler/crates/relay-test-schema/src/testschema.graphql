@@ -1191,3 +1191,17 @@ type Settings {
 type WithWrongViewer {
   actor_key: Viewer
 }
+
+extend type Query {
+  opera: Opera
+}
+
+type Opera {
+  composer: User @semanticNonNull
+  cast: [Portrayal] @semanticNonNull(levels: [0, 1])
+}
+
+type Portrayal {
+  singer: User @semanticNonNull
+  character: String @semanticNonNull
+}

@@ -93,7 +93,7 @@ test('Can read a deep portion of the schema that is backed by client edges to cl
   });
 
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  const {me} = (environment.lookup(operation.fragment).data: any);
+  const {me}: any = environment.lookup(operation.fragment).data;
 
   expect(me).toMatchInlineSnapshot(`
     Object {

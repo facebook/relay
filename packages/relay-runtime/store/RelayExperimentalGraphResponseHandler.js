@@ -93,12 +93,12 @@ class GraphModeHandler {
           } else {
             if (value.hasOwnProperty('__id')) {
               // Singular
-              const streamID = ((value.__id: any): number);
+              const streamID: number = (value.__id: any);
               const id = this._lookupCacheKey(streamID);
               RelayModernRecord.setLinkedRecordID(parentRecord, key, id);
             } else if (value.hasOwnProperty('__ids')) {
               // Plural
-              const streamIDs = ((value.__ids: any): Array<number | null>);
+              const streamIDs: Array<number | null> = (value.__ids: any);
               const ids = streamIDs.map((sID): ?DataID => {
                 return sID == null ? null : this._lookupCacheKey(sID);
               });

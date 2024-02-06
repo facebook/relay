@@ -135,11 +135,11 @@ function updateProxyFromSelections<TData>(
             );
             // Flow incorrect assumes that the return value for the get method must match
             // the set parameter.
-            let value = (updatableProxyRootRecord.getValue(
+            // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
+            let value: any = updatableProxyRootRecord.getValue(
               selection.name,
               newVariables,
-              // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
-            ): any);
+            );
             if (value == null) {
               value = getScalarUsingMissingFieldHandlers(
                 selection,

@@ -47,29 +47,14 @@ fragment nestedFragmentSpreadOnAbstractTypeFragment on Cat {
 query nestedFragmentSpreadOnAbstractTypeQuery {
   cat {
     ... on Tabby {
-      ... on Tabby {
-        parent {
-          ... on Tabby {
-            ...nestedFragmentSpreadOnAbstractTypeFragment
-          }
-          ... on Persian {
-            ...nestedFragmentSpreadOnAbstractTypeFragment
-          }
-        }
+      parent {
+        ...nestedFragmentSpreadOnAbstractTypeFragment
       }
+    }
+    ... on Tabby {
       description
     }
     ... on Persian {
-      ... on Tabby {
-        parent {
-          ... on Tabby {
-            ...nestedFragmentSpreadOnAbstractTypeFragment
-          }
-          ... on Persian {
-            ...nestedFragmentSpreadOnAbstractTypeFragment
-          }
-        }
-      }
       description
     }
   }

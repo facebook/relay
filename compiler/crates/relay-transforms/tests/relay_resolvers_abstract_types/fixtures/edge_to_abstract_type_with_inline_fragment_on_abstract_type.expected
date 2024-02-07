@@ -1,12 +1,11 @@
 ==================================== INPUT ====================================
 # relay-resolver-enable-interface-output-type
 
-query nestedAbstractTypeQuery {
+query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
     cat {
-        ... on Tabby {
-            parent {
-                description
-            }
+        name
+        ... on Cat {
+            description
         }
     }
 }
@@ -15,32 +14,38 @@ query nestedAbstractTypeQuery {
 
 interface Cat {
     description: String
+    name: String
 }
 
 type Tabby implements Cat {
     description: String
-    parent: Cat
+    name: String
 }
 
 type Persian implements Cat {
     description: String
+    name: String
 }
 
 extend type Query {
     cat: Cat
 }
 ==================================== OUTPUT ===================================
-query nestedAbstractTypeQuery {
+query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
   cat {
-    ... on Tabby {
-      parent {
-        ... on Tabby {
-          description
-        }
-        ... on Persian {
-          description
-        }
+    ... on Cat {
+      ... on Tabby {
+        description
       }
+      ... on Persian {
+        description
+      }
+    }
+    ... on Tabby {
+      name
+    }
+    ... on Persian {
+      name
     }
   }
 }

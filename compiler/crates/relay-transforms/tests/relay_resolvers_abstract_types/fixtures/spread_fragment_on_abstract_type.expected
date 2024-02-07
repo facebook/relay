@@ -40,11 +40,6 @@ fragment spreadFragmentOnAbstractTypeFragment on Cat {
 
 query spreadFragmentOnAbstractTypeQuery {
   cat {
-    ... on Tabby {
-      ...spreadFragmentOnAbstractTypeFragment
-    }
-    ... on Persian {
-      ...spreadFragmentOnAbstractTypeFragment
-    }
+    ...spreadFragmentOnAbstractTypeFragment
   }
 }

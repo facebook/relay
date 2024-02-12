@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<16ce1da93fd7dc6bf30e27b83f2491ae>>
+ * @generated SignedSource<<e6d8b286211a343f2c6ee423c31df22f>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -80,4 +80,11 @@ async fn spread_fragment_on_abstract_type() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/spread_fragment_on_abstract_type.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/spread_fragment_on_abstract_type.expected");
     test_fixture(transform_fixture, file!(), "spread_fragment_on_abstract_type.graphql", "relay_resolvers_abstract_types/fixtures/spread_fragment_on_abstract_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn union_types_are_skipped() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/union_types_are_skipped.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/union_types_are_skipped.expected");
+    test_fixture(transform_fixture, file!(), "union_types_are_skipped.graphql", "relay_resolvers_abstract_types/fixtures/union_types_are_skipped.expected", input, expected).await;
 }

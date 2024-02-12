@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment spreadFragmentOnAbstractTypeFragment on Cat {
+    ... on Tabby {
+        description
+    }
+    ... on Persian {
+        description
+    }
+}
+
+# %extensions%
+
+union Cat = Tabby | Persian
+
+type Tabby {
+    description: String
+}
+
+type Persian {
+    description: String
+}
+==================================== OUTPUT ===================================
+fragment spreadFragmentOnAbstractTypeFragment on Cat {
+  ... on Tabby {
+    description
+  }
+  ... on Persian {
+    description
+  }
+}

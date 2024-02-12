@@ -23,9 +23,9 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
-/// Transform selections on abstract types.
+/// Transform selections on interface types.
 ///
-/// First we locate fields which are abstract types. Then we convert all of its
+/// First we locate fields which are interface types. Then we convert all of its
 /// selections into inline fragments per concrete type with the same
 /// selections.
 pub fn relay_resolvers_abstract_types(
@@ -173,30 +173,27 @@ impl Transformer for RelayResolverAbstractTypesTransform<'_> {
     }
 }
 
-// Transform selections on an abstract type.
+// Transform selections on an interface type.
 fn transform_selections_given_parent_type(
     entry_type: Option<Type>,
     schema: &Arc<SDLSchema>,
     selections: &Vec<Selection>,
 ) -> TransformedValue<Vec<Selection>> {
     if let Some(entry_type) = entry_type {
-        if entry_type.is_abstract_type() {
+        if should_transform_selections_for_type(entry_type) {
             let (selections_to_copy, mut selections_to_keep) =
                 partition_selections_to_copy_and_keep(selections, entry_type);
             if selections_to_copy.is_empty() {
                 TransformedValue::Keep
             } else {
-                selections_to_keep.append(
-                    &mut create_inline_fragment_selections_for_abstract_type(
-                        schema,
-                        entry_type,
-                        &selections_to_copy,
-                    ),
-                );
+                selections_to_keep.append(&mut create_inline_fragment_selections_for_interface(
+                    schema,
+                    entry_type,
+                    &selections_to_copy,
+                ));
                 TransformedValue::Replace(selections_to_keep)
             }
         } else {
-            // If the type is not an abstract type, skip transform
             TransformedValue::Keep
         }
     } else {
@@ -205,23 +202,25 @@ fn transform_selections_given_parent_type(
     }
 }
 
-// Partition selections on an abstract type to copy to inline fragments
+// Transform selections on an interface type only.
+fn should_transform_selections_for_type(t: Type) -> bool {
+    matches!(t, Type::Interface(_))
+}
+
+// Partition selections on an interface type to copy to inline fragments
 // on concrete types and to keep as is.
 // Selections that should be copied are those that have different implementations
-// across concrete types on the abstract type (e.g. resolver field defined differently
+// across concrete types on the interface type (e.g. resolver field defined differently
 // per concrete type.)
 // Selections that should be kept are those that have the same implementations
 // across concrete types (e.g. fields defined directly on the abstract type, or on server)
 // or inline fragments that are on a concrete type.
 fn partition_selections_to_copy_and_keep(
     selections: &[Selection],
-    abstract_type: Type,
+    interface: Type,
 ) -> (Vec<Selection>, Vec<Selection>) {
     // TODO T174693027 don't copy resolver fields on abstract type or defined on server
-    assert!(
-        abstract_type.is_abstract_type(),
-        "Type should be known as abstract type"
-    );
+    assert!(should_transform_selections_for_type(interface));
     // True means selection should be copied
     selections
         .iter()
@@ -233,16 +232,16 @@ fn partition_selections_to_copy_and_keep(
         })
 }
 
-fn create_inline_fragment_selections_for_abstract_type(
+fn create_inline_fragment_selections_for_interface(
     schema: &Arc<SDLSchema>,
-    abstract_type: Type,
+    interface: Type,
     selections: &Vec<Selection>,
 ) -> Vec<Selection> {
     assert!(
         !selections.is_empty(),
         "Expected selections to be non-empty when copying to inline fragments on concrete type"
     );
-    match abstract_type {
+    match interface {
         Type::Interface(interface_id) => {
             let interface = schema.interface(interface_id);
             let implementing_objects =
@@ -262,7 +261,6 @@ fn create_inline_fragment_selections_for_abstract_type(
                 })
                 .collect()
         }
-        Type::Union(_union_id) => selections.clone(), // TODO T174693027 implement unions
-        _ => panic!("Expected abstract type"),
+        _ => panic!("Expected interface"),
     }
 }

@@ -76,16 +76,6 @@ const HomeSplash = () => {
               <small>{siteConfig.tagline}</small>
               <small>{siteConfig.subtagline}</small>
             </h2>
-            <div className="try-it">
-              <h3>
-                <a
-                  className="button"
-                  href="https://codesandbox.io/s/relay-sandbox-nxl7i?file=/src/TodoApp.tsx"
-                  target="_blank">
-                  Explore an example
-                </a>
-              </h3>
-            </div>
           </div>
         </div>
       </div>
@@ -589,25 +579,6 @@ export default function ArtistCard(props) {
               },
             ]}
           />
-        </Container>
-        <Container className="textSection graphqlSection" background="dark">
-          <h2>Explore CodeSandbox Example</h2>
-          <div
-            id="iframe-wrapper"
-            style={{height: 500, width: '100%', marginTop: 40}}>
-            <iframe
-              src={`https://codesandbox.io/embed/relay-sandbox-nxl7i?&module=%2Fsrc%2FTodoApp.tsx&fontsize=14&hidenavigation=1&hidedevtools=1&theme=${
-                isDarkTheme ? 'dark' : 'light'
-              }`}
-              style={{
-                width: '100%',
-                height: 500,
-                border: 0,
-                borderRadius: 4,
-              }}
-              title="relay-sandbox"
-              sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"></iframe>
-          </div>
         </Container>
         <Container className="textSection" background="light">
           <h2>Proudly Used Elsewhere</h2>

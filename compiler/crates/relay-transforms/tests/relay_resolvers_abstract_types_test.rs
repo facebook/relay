@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b24bf34d3605f0d20d6362365a086c74>>
+ * @generated SignedSource<<24132cdd0a55124c0706898ea62d48a7>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -101,6 +101,13 @@ async fn server_field_on_abstract_type() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/server_field_on_abstract_type.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/server_field_on_abstract_type.expected");
     test_fixture(transform_fixture, file!(), "server_field_on_abstract_type.graphql", "relay_resolvers_abstract_types/fixtures/server_field_on_abstract_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_fragment_into_interface_on_concrete_type() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/spread_fragment_into_interface_on_concrete_type.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/spread_fragment_into_interface_on_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "spread_fragment_into_interface_on_concrete_type.graphql", "relay_resolvers_abstract_types/fixtures/spread_fragment_into_interface_on_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

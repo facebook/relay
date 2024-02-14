@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c9647ba1b5eab2d76a14da97f4e5028b>>
+ * @generated SignedSource<<ed48f4268d08f4756f45e1977f5661c8>>
  */
 
 mod relay_compiler_integration;
@@ -62,6 +62,13 @@ async fn custom_scalar_variable_default_arg_non_strict() {
 }
 
 #[tokio::test]
+async fn live_resolver_implements_interface_field() {
+    let input = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected");
+    test_fixture(transform_fixture, file!(), "live_resolver_implements_interface_field.input", "relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn preloadable_query_flow() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_flow.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_flow.expected");
@@ -97,6 +104,13 @@ async fn resolver_on_interface_of_all_strong_model_type() {
 }
 
 #[tokio::test]
+async fn resolver_returns_interface_of_all_live_model_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_live_model_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_live_model_type.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_interface_of_all_live_model_type.input", "relay_compiler_integration/fixtures/resolver_returns_interface_of_all_live_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn resolver_returns_interface_of_all_strong_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_strong_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_strong_model_type.expected");
@@ -108,6 +122,13 @@ async fn resolver_returns_interface_of_all_weak_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_weak_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_weak_model_type.expected");
     test_fixture(transform_fixture, file!(), "resolver_returns_interface_of_all_weak_model_type.input", "relay_compiler_integration/fixtures/resolver_returns_interface_of_all_weak_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_interface_of_live_and_non_live_strong_model_type.input", "relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -14,12 +14,14 @@ use common::DiagnosticsResult;
 use common::FeatureFlags;
 use common::Location;
 use common::NamedItem;
+use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::Program;
+use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
@@ -307,6 +309,52 @@ fn concrete_types_have_different_implementations(
     }
 }
 
+/**
+ * Converts selections on an abstract type to selections on inline fragments on a concrete
+ * type by changing the field IDs to those defined on the concrete types in the schema.
+ */
+fn convert_interface_selections_to_concrete_field_selections(
+    concrete_type: Type,
+    selections: &[Selection],
+    schema: &Arc<SDLSchema>,
+) -> Vec<Selection> {
+    selections
+        .iter()
+        .map(|selection| match selection {
+            Selection::LinkedField(node) => {
+                let field_name = schema.field(node.definition.item).name.item;
+                let concrete_field_id = schema
+                    .named_field(concrete_type, field_name)
+                    .expect("Expected field to be defined on concrete type");
+                let definition = WithLocation::new(node.definition.location, concrete_field_id);
+                Selection::LinkedField(Arc::new(LinkedField {
+                    definition,
+                    alias: node.alias,
+                    arguments: node.arguments.clone(),
+                    directives: node.directives.clone(),
+                    selections: node.selections.clone(),
+                }))
+            }
+            Selection::ScalarField(node) => {
+                let field_name = schema.field(node.definition.item).name.item;
+                let concrete_field_id = schema
+                    .named_field(concrete_type, field_name)
+                    .expect("Expected field to be defined on concrete type");
+                let definition = WithLocation::new(node.definition.location, concrete_field_id);
+                Selection::ScalarField(Arc::new(ScalarField {
+                    definition,
+                    alias: node.alias,
+                    arguments: node.arguments.clone(),
+                    directives: node.directives.clone(),
+                }))
+            }
+            Selection::FragmentSpread(_) => selection.clone(),
+            Selection::InlineFragment(_) => selection.clone(),
+            Selection::Condition(_) => selection.clone(),
+        })
+        .collect()
+}
+
 fn create_inline_fragment_selections_for_interface(
     schema: &Arc<SDLSchema>,
     interface: Type,
@@ -327,10 +375,15 @@ fn create_inline_fragment_selections_for_interface(
             sorted_implementing_objects
                 .iter()
                 .map(|object_id| {
+                    let concrete_type = Type::Object(*object_id);
                     Selection::InlineFragment(Arc::new(InlineFragment {
-                        type_condition: Some(Type::Object(*object_id)),
+                        type_condition: Some(concrete_type),
                         directives: vec![], // Directives not necessary here
-                        selections: selections.to_vec(),
+                        selections: convert_interface_selections_to_concrete_field_selections(
+                            concrete_type,
+                            selections,
+                            schema,
+                        ),
                         spread_location: Location::generated(),
                     }))
                 })

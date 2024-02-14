@@ -29,7 +29,6 @@ use graphql_ir::Transformer;
 use schema::FieldID;
 use schema::InterfaceID;
 use schema::ObjectID;
-use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
@@ -74,6 +73,203 @@ impl<'program> RelayResolverAbstractTypesTransform<'program> {
     }
 }
 
+impl RelayResolverAbstractTypesTransform<'_> {
+    // Partition selections on an interface type to copy to inline fragments
+    // on concrete types and to keep as is.
+    // Selections that should be copied are those that have different implementations
+    // across concrete types on the interface type (e.g. resolver field defined differently
+    // per concrete type.)
+    // Selections that should be kept are those that have the same implementations
+    // across concrete types (e.g. fields defined directly on the abstract type, or on server)
+    // or inline fragments that are on a concrete type.
+    fn partition_selections_to_copy_and_keep(
+        &self,
+        selections: &[Selection],
+        interface_id: InterfaceID,
+    ) -> (Vec<Selection>, Vec<Selection>) {
+        // True means selection should be copied
+        selections
+            .iter()
+            .cloned()
+            .partition(|selection| match selection {
+                Selection::InlineFragment(inline_fragment) => {
+                    inline_fragment.type_condition.is_none()
+                }
+                Selection::FragmentSpread(_) => false,
+                Selection::Condition(_) => true,
+                Selection::LinkedField(field) => self
+                    .concrete_types_have_different_implementations(
+                        interface_id,
+                        field.definition.item,
+                    ),
+                Selection::ScalarField(field) => self
+                    .concrete_types_have_different_implementations(
+                        interface_id,
+                        field.definition.item,
+                    ),
+            })
+    }
+
+    fn concrete_types_all_defined_on_server(&self, concrete_types: &HashSet<ObjectID>) -> bool {
+        !concrete_types.iter().any(|object_id| {
+            let object = self.program.schema.object(*object_id);
+            object.is_extension
+        })
+    }
+
+    // Return true if concrete types have different implementations for the interface field
+    // with field_id.
+    fn concrete_types_have_different_implementations(
+        &self,
+        interface_id: InterfaceID,
+        field_id: FieldID,
+    ) -> bool {
+        let interface = self.program.schema.interface(interface_id);
+        let interface_field = self.program.schema.field(field_id);
+        // Interface field is a model resolver field defined with @rootFragment
+        if let Some(resolver_directive) = interface_field
+            .directives
+            .iter()
+            .find(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
+        {
+            if resolver_directive
+                .arguments
+                .named(ArgumentName(*ROOT_FRAGMENT_FIELD))
+                .is_some()
+            {
+                return true;
+            }
+        }
+        // TODO do we need to memoize this?
+        let implementing_objects =
+            interface.recursively_implementing_objects(Arc::as_ref(&self.program.schema));
+        if self.concrete_types_all_defined_on_server(&implementing_objects) {
+            return false;
+        }
+        // Any of the implementing objects' corresponding field is a resolver field
+        let selection_name = interface_field.name.item;
+        implementing_objects.iter().any(|object_id| {
+            let concrete_field_id = self
+                .program
+                .schema
+                .named_field(Type::Object(*object_id), selection_name)
+                .expect("Expected field to be defined on concrete type");
+            let concrete_field = self.program.schema.field(concrete_field_id);
+            concrete_field
+                .directives
+                .iter()
+                .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
+        })
+    }
+
+    /**
+     * Converts selections on an abstract type to selections on inline fragments on a concrete
+     * type by changing the field IDs to those defined on the concrete types in the schema.
+     */
+    fn convert_interface_selections_to_concrete_field_selections(
+        &self,
+        concrete_type: Type,
+        selections: &[Selection],
+    ) -> Vec<Selection> {
+        selections
+            .iter()
+            .map(|selection| match selection {
+                Selection::LinkedField(node) => {
+                    let field_name = self.program.schema.field(node.definition.item).name.item;
+                    let concrete_field_id = self
+                        .program
+                        .schema
+                        .named_field(concrete_type, field_name)
+                        .expect("Expected field to be defined on concrete type");
+                    let definition = WithLocation::new(node.definition.location, concrete_field_id);
+                    Selection::LinkedField(Arc::new(LinkedField {
+                        definition,
+                        alias: node.alias,
+                        arguments: node.arguments.clone(),
+                        directives: node.directives.clone(),
+                        selections: node.selections.clone(),
+                    }))
+                }
+                Selection::ScalarField(node) => {
+                    let field_name = self.program.schema.field(node.definition.item).name.item;
+                    let concrete_field_id = self
+                        .program
+                        .schema
+                        .named_field(concrete_type, field_name)
+                        .expect("Expected field to be defined on concrete type");
+                    let definition = WithLocation::new(node.definition.location, concrete_field_id);
+                    Selection::ScalarField(Arc::new(ScalarField {
+                        definition,
+                        alias: node.alias,
+                        arguments: node.arguments.clone(),
+                        directives: node.directives.clone(),
+                    }))
+                }
+                Selection::FragmentSpread(_) => selection.clone(),
+                Selection::InlineFragment(_) => selection.clone(),
+                Selection::Condition(_) => selection.clone(),
+            })
+            .collect()
+    }
+
+    fn create_inline_fragment_selections_for_interface(
+        &self,
+        interface_id: InterfaceID,
+        selections: &[Selection],
+    ) -> Vec<Selection> {
+        assert!(
+            !selections.is_empty(),
+            "Expected selections to be non-empty when copying to inline fragments on concrete type"
+        );
+        let interface = self.program.schema.interface(interface_id);
+        let implementing_objects =
+            interface.recursively_implementing_objects(Arc::as_ref(&self.program.schema));
+        let mut sorted_implementing_objects = implementing_objects.into_iter().collect::<Vec<_>>();
+        sorted_implementing_objects.sort();
+        sorted_implementing_objects
+            .iter()
+            .map(|object_id| {
+                let concrete_type = Type::Object(*object_id);
+                Selection::InlineFragment(Arc::new(InlineFragment {
+                    type_condition: Some(concrete_type),
+                    directives: vec![], // Directives not necessary here
+                    selections: self.convert_interface_selections_to_concrete_field_selections(
+                        concrete_type,
+                        selections,
+                    ),
+                    spread_location: Location::generated(),
+                }))
+            })
+            .collect()
+    }
+
+    // Transform selections on an interface type.
+    fn transform_selections_given_parent_type(
+        &self,
+        entry_type: Option<Type>,
+        selections: &[Selection],
+    ) -> TransformedValue<Vec<Selection>> {
+        if let Some(Type::Interface(interface_id)) = entry_type {
+            let (selections_to_copy, mut selections_to_keep) =
+                self.partition_selections_to_copy_and_keep(selections, interface_id);
+            if selections_to_copy.is_empty() {
+                TransformedValue::Keep
+            } else {
+                selections_to_keep.append(
+                    &mut self.create_inline_fragment_selections_for_interface(
+                        interface_id,
+                        &selections_to_copy,
+                    ),
+                );
+                TransformedValue::Replace(selections_to_keep)
+            }
+        } else {
+            // If no parent type is provided, skip transform
+            TransformedValue::Keep
+        }
+    }
+}
+
 impl Transformer for RelayResolverAbstractTypesTransform<'_> {
     const NAME: &'static str = "RelayResolverAbstractTypesTransform";
     const VISIT_ARGUMENTS: bool = false;
@@ -89,9 +285,8 @@ impl Transformer for RelayResolverAbstractTypesTransform<'_> {
             TransformedValue::Keep => &inline_fragment.selections,
             TransformedValue::Replace(replaced_selections) => replaced_selections,
         };
-        let transformed_selections = transform_selections_given_parent_type(
+        let transformed_selections = self.transform_selections_given_parent_type(
             inline_fragment.type_condition,
-            &self.program.schema,
             selections_to_transform,
         );
         match transformed_selections {
@@ -123,9 +318,8 @@ impl Transformer for RelayResolverAbstractTypesTransform<'_> {
             TransformedValue::Keep => &fragment.selections,
             TransformedValue::Replace(replaced_selections) => replaced_selections,
         };
-        let transformed_selections = transform_selections_given_parent_type(
+        let transformed_selections = self.transform_selections_given_parent_type(
             Some(fragment.type_condition),
-            &self.program.schema,
             selections_to_transform,
         );
         match transformed_selections {
@@ -154,14 +348,10 @@ impl Transformer for RelayResolverAbstractTypesTransform<'_> {
             TransformedValue::Keep => &field.selections,
             TransformedValue::Replace(replaced_selections) => replaced_selections,
         };
-        let schema = &self.program.schema;
-        let field_type = schema.field(field.definition.item);
+        let field_type = self.program.schema.field(field.definition.item);
         let edge_to_type = field_type.type_.inner();
-        let transformed_selections = transform_selections_given_parent_type(
-            Some(edge_to_type),
-            &self.program.schema,
-            selections_to_transform,
-        );
+        let transformed_selections = self
+            .transform_selections_given_parent_type(Some(edge_to_type), selections_to_transform);
         match transformed_selections {
             TransformedValue::Keep => {
                 if !selections.should_keep() {
@@ -181,192 +371,4 @@ impl Transformer for RelayResolverAbstractTypesTransform<'_> {
             }
         }
     }
-}
-
-// Transform selections on an interface type.
-fn transform_selections_given_parent_type(
-    entry_type: Option<Type>,
-    schema: &Arc<SDLSchema>,
-    selections: &Vec<Selection>,
-) -> TransformedValue<Vec<Selection>> {
-    if let Some(Type::Interface(interface_id)) = entry_type {
-        let (selections_to_copy, mut selections_to_keep) =
-            partition_selections_to_copy_and_keep(selections, interface_id, schema);
-        if selections_to_copy.is_empty() {
-            TransformedValue::Keep
-        } else {
-            selections_to_keep.append(&mut create_inline_fragment_selections_for_interface(
-                schema,
-                interface_id,
-                &selections_to_copy,
-            ));
-            TransformedValue::Replace(selections_to_keep)
-        }
-    } else {
-        // If no parent type is provided, skip transform
-        TransformedValue::Keep
-    }
-}
-
-// Partition selections on an interface type to copy to inline fragments
-// on concrete types and to keep as is.
-// Selections that should be copied are those that have different implementations
-// across concrete types on the interface type (e.g. resolver field defined differently
-// per concrete type.)
-// Selections that should be kept are those that have the same implementations
-// across concrete types (e.g. fields defined directly on the abstract type, or on server)
-// or inline fragments that are on a concrete type.
-fn partition_selections_to_copy_and_keep(
-    selections: &[Selection],
-    interface_id: InterfaceID,
-    schema: &Arc<SDLSchema>,
-) -> (Vec<Selection>, Vec<Selection>) {
-    // True means selection should be copied
-    selections
-        .iter()
-        .cloned()
-        .partition(|selection| match selection {
-            Selection::InlineFragment(inline_fragment) => inline_fragment.type_condition.is_none(),
-            Selection::FragmentSpread(_) => false,
-            Selection::Condition(_) => true,
-            Selection::LinkedField(field) => concrete_types_have_different_implementations(
-                interface_id,
-                field.definition.item,
-                schema,
-            ),
-            Selection::ScalarField(field) => concrete_types_have_different_implementations(
-                interface_id,
-                field.definition.item,
-                schema,
-            ),
-        })
-}
-
-fn concrete_types_all_defined_on_server(
-    schema: &Arc<SDLSchema>,
-    concrete_types: &HashSet<ObjectID>,
-) -> bool {
-    !concrete_types.iter().any(|object_id| {
-        let object = schema.object(*object_id);
-        object.is_extension
-    })
-}
-
-// Return true if concrete types have different implementations for the interface field
-// with field_id.
-fn concrete_types_have_different_implementations(
-    interface_id: InterfaceID,
-    field_id: FieldID,
-    schema: &Arc<SDLSchema>,
-) -> bool {
-    let interface = schema.interface(interface_id);
-    let interface_field = schema.field(field_id);
-    // Interface field is a model resolver field defined with @rootFragment
-    if let Some(resolver_directive) = interface_field
-        .directives
-        .iter()
-        .find(|directive| directive.name == *RELAY_RESOLVER_DIRECTIVE_NAME)
-    {
-        if resolver_directive
-            .arguments
-            .named(ArgumentName(*ROOT_FRAGMENT_FIELD))
-            .is_some()
-        {
-            return true;
-        }
-    }
-    // TODO do we need to memoize this?
-    let implementing_objects = interface.recursively_implementing_objects(Arc::as_ref(schema));
-    if concrete_types_all_defined_on_server(schema, &implementing_objects) {
-        return false;
-    }
-    // Any of the implementing objects' corresponding field is a resolver field
-    let selection_name = interface_field.name.item;
-    implementing_objects.iter().any(|object_id| {
-        let concrete_field_id = schema
-            .named_field(Type::Object(*object_id), selection_name)
-            .expect("Expected field to be defined on concrete type");
-        let concrete_field = schema.field(concrete_field_id);
-        concrete_field
-            .directives
-            .iter()
-            .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
-    })
-}
-
-/**
- * Converts selections on an abstract type to selections on inline fragments on a concrete
- * type by changing the field IDs to those defined on the concrete types in the schema.
- */
-fn convert_interface_selections_to_concrete_field_selections(
-    concrete_type: Type,
-    selections: &[Selection],
-    schema: &Arc<SDLSchema>,
-) -> Vec<Selection> {
-    selections
-        .iter()
-        .map(|selection| match selection {
-            Selection::LinkedField(node) => {
-                let field_name = schema.field(node.definition.item).name.item;
-                let concrete_field_id = schema
-                    .named_field(concrete_type, field_name)
-                    .expect("Expected field to be defined on concrete type");
-                let definition = WithLocation::new(node.definition.location, concrete_field_id);
-                Selection::LinkedField(Arc::new(LinkedField {
-                    definition,
-                    alias: node.alias,
-                    arguments: node.arguments.clone(),
-                    directives: node.directives.clone(),
-                    selections: node.selections.clone(),
-                }))
-            }
-            Selection::ScalarField(node) => {
-                let field_name = schema.field(node.definition.item).name.item;
-                let concrete_field_id = schema
-                    .named_field(concrete_type, field_name)
-                    .expect("Expected field to be defined on concrete type");
-                let definition = WithLocation::new(node.definition.location, concrete_field_id);
-                Selection::ScalarField(Arc::new(ScalarField {
-                    definition,
-                    alias: node.alias,
-                    arguments: node.arguments.clone(),
-                    directives: node.directives.clone(),
-                }))
-            }
-            Selection::FragmentSpread(_) => selection.clone(),
-            Selection::InlineFragment(_) => selection.clone(),
-            Selection::Condition(_) => selection.clone(),
-        })
-        .collect()
-}
-
-fn create_inline_fragment_selections_for_interface(
-    schema: &Arc<SDLSchema>,
-    interface_id: InterfaceID,
-    selections: &Vec<Selection>,
-) -> Vec<Selection> {
-    assert!(
-        !selections.is_empty(),
-        "Expected selections to be non-empty when copying to inline fragments on concrete type"
-    );
-    let interface = schema.interface(interface_id);
-    let implementing_objects = interface.recursively_implementing_objects(Arc::as_ref(schema));
-    let mut sorted_implementing_objects = implementing_objects.into_iter().collect::<Vec<_>>();
-    sorted_implementing_objects.sort();
-    sorted_implementing_objects
-        .iter()
-        .map(|object_id| {
-            let concrete_type = Type::Object(*object_id);
-            Selection::InlineFragment(Arc::new(InlineFragment {
-                type_condition: Some(concrete_type),
-                directives: vec![], // Directives not necessary here
-                selections: convert_interface_selections_to_concrete_field_selections(
-                    concrete_type,
-                    selections,
-                    schema,
-                ),
-                spread_location: Location::generated(),
-            }))
-        })
-        .collect()
 }

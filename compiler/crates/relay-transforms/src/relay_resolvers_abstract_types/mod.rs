@@ -5,12 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlags;
 use common::Location;
+use common::NamedItem;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::ROOT_FRAGMENT_FIELD;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -19,6 +24,8 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
+use schema::FieldID;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -182,7 +189,7 @@ fn transform_selections_given_parent_type(
     if let Some(entry_type) = entry_type {
         if should_transform_selections_for_type(entry_type) {
             let (selections_to_copy, mut selections_to_keep) =
-                partition_selections_to_copy_and_keep(selections, entry_type);
+                partition_selections_to_copy_and_keep(selections, entry_type, schema);
             if selections_to_copy.is_empty() {
                 TransformedValue::Keep
             } else {
@@ -218,8 +225,8 @@ fn should_transform_selections_for_type(t: Type) -> bool {
 fn partition_selections_to_copy_and_keep(
     selections: &[Selection],
     interface: Type,
+    schema: &Arc<SDLSchema>,
 ) -> (Vec<Selection>, Vec<Selection>) {
-    // TODO T174693027 don't copy resolver fields on abstract type or defined on server
     assert!(should_transform_selections_for_type(interface));
     // True means selection should be copied
     selections
@@ -228,8 +235,76 @@ fn partition_selections_to_copy_and_keep(
         .partition(|selection| match selection {
             Selection::InlineFragment(inline_fragment) => inline_fragment.type_condition.is_none(),
             Selection::FragmentSpread(_) => false,
-            _ => true,
+            Selection::Condition(_) => true,
+            Selection::LinkedField(field) => concrete_types_have_different_implementations(
+                interface,
+                field.definition.item,
+                schema,
+            ),
+            Selection::ScalarField(field) => concrete_types_have_different_implementations(
+                interface,
+                field.definition.item,
+                schema,
+            ),
         })
+}
+
+fn concrete_types_all_defined_on_server(
+    schema: &Arc<SDLSchema>,
+    concrete_types: &HashSet<ObjectID>,
+) -> bool {
+    !concrete_types.iter().any(|object_id| {
+        let object = schema.object(*object_id);
+        object.is_extension
+    })
+}
+
+// Return true if concrete types have different implementations for the interface field
+// with field_id.
+fn concrete_types_have_different_implementations(
+    interface: Type,
+    field_id: FieldID,
+    schema: &Arc<SDLSchema>,
+) -> bool {
+    match interface {
+        Type::Interface(interface_id) => {
+            let interface = schema.interface(interface_id);
+            let interface_field = schema.field(field_id);
+            // Interface field is a model resolver field defined with @rootFragment
+            if let Some(resolver_directive) = interface_field
+                .directives
+                .iter()
+                .find(|directive| directive.name == *RELAY_RESOLVER_DIRECTIVE_NAME)
+            {
+                if resolver_directive
+                    .arguments
+                    .named(ArgumentName(*ROOT_FRAGMENT_FIELD))
+                    .is_some()
+                {
+                    return true;
+                }
+            }
+            // TODO do we need to memoize this?
+            let implementing_objects =
+                interface.recursively_implementing_objects(Arc::as_ref(schema));
+            if concrete_types_all_defined_on_server(schema, &implementing_objects) {
+                return false;
+            }
+            // Any of the implementing objects' corresponding field is a resolver field
+            let selection_name = interface_field.name.item;
+            implementing_objects.iter().any(|object_id| {
+                let concrete_field_id = schema
+                    .named_field(Type::Object(*object_id), selection_name)
+                    .expect("Expected field to be defined on concrete type");
+                let concrete_field = schema.field(concrete_field_id);
+                concrete_field
+                    .directives
+                    .iter()
+                    .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
+            })
+        }
+        _ => panic!("Expected interface"),
+    }
 }
 
 fn create_inline_fragment_selections_for_interface(

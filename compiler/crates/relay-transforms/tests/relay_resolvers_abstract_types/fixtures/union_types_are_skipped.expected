@@ -15,7 +15,7 @@ fragment spreadFragmentOnAbstractTypeFragment on Cat {
 union Cat = Tabby | Persian
 
 type Tabby {
-    description: String
+    description: String @relay_resolver(import_path: "TabbyResolver")
 }
 
 type Persian {

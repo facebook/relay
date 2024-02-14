@@ -1,13 +1,11 @@
 # relay-resolver-enable-interface-output-type
 
-query edgeToAbstractTypeWithInlineFragmentQuery {
+query clientFieldOnAbstractTypeWithoutResolver {
     cat {
-        ... {
-            name
-            description
-        }
         ... on Tabby {
-            name
+            parent {
+                description
+            }
         }
     }
 }
@@ -16,18 +14,15 @@ query edgeToAbstractTypeWithInlineFragmentQuery {
 
 interface Cat {
     description: String
-    name: String
 }
 
 type Tabby implements Cat {
-    description: String @relay_resolver(import_path: "TabbyResolver")
-    name: String
+    description: String
     parent: Cat
 }
 
 type Persian implements Cat {
     description: String
-    name: String
 }
 
 extend type Query {

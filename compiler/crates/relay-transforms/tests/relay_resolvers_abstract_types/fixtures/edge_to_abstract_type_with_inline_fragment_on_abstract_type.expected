@@ -18,7 +18,7 @@ interface Cat {
 }
 
 type Tabby implements Cat {
-    description: String
+    description: String @relay_resolver(import_path: "TabbyResolver")
     name: String
 }
 
@@ -33,6 +33,7 @@ extend type Query {
 ==================================== OUTPUT ===================================
 query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
   cat {
+    name
     ... on Cat {
       ... on Tabby {
         description
@@ -40,12 +41,6 @@ query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
       ... on Persian {
         description
       }
-    }
-    ... on Tabby {
-      name
-    }
-    ... on Persian {
-      name
     }
   }
 }

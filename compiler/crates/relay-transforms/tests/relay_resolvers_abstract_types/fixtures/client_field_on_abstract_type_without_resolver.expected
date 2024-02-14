@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 # relay-resolver-enable-interface-output-type
 
-query nestedAbstractTypeQuery {
+query clientFieldOnAbstractTypeWithoutResolver {
     cat {
         ... on Tabby {
             parent {
@@ -18,7 +18,7 @@ interface Cat {
 }
 
 type Tabby implements Cat {
-    description: String @relay_resolver(import_path: "TabbyResolver")
+    description: String
     parent: Cat
 }
 
@@ -30,16 +30,11 @@ extend type Query {
     cat: Cat
 }
 ==================================== OUTPUT ===================================
-query nestedAbstractTypeQuery {
+query clientFieldOnAbstractTypeWithoutResolver {
   cat {
     ... on Tabby {
       parent {
-        ... on Tabby {
-          description
-        }
-        ... on Persian {
-          description
-        }
+        description
       }
     }
   }

@@ -30,7 +30,19 @@ extend type Query {
 fragment conditionsOnSelectionsOnInterfaceFragment on Cat {
   ... on Tabby {
     description @include(if: $has_owner)
-    name
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(526),
+    #     import_path: "TabbyResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "name",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    # }
+    
   }
   ... on Persian {
     description @include(if: $has_owner)

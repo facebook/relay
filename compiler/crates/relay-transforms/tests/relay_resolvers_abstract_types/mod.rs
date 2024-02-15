@@ -18,7 +18,9 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
+use relay_config::ProjectName;
 use relay_test_schema::get_test_schema_with_extensions;
+use relay_transforms::relay_resolvers;
 use relay_transforms::relay_resolvers_abstract_types;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -41,17 +43,19 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             relay_resolver_enable_interface_output_type,
             ..Default::default()
         };
-        let next_program = relay_resolvers_abstract_types(&program, &feature_flags)
+        let program_pass_one = relay_resolvers_abstract_types(&program, &feature_flags)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
-
+        let program_pass_two = relay_resolvers(ProjectName::default(), &program_pass_one, true)
+            .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
         let printer_options = PrinterOptions {
+            debug_directive_data: true,
             ..Default::default()
         };
-        let mut printed = next_program
+        let mut printed = program_pass_two
             .operations()
             .map(|def| print_operation(&schema, def, printer_options.clone()))
             .chain(
-                next_program
+                program_pass_two
                     .fragments()
                     .map(|def| print_fragment(&schema, def, printer_options.clone())),
             )

@@ -36,7 +36,19 @@ query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
     name
     ... on Cat {
       ... on Tabby {
-        description
+        __id @__RelayResolverMetadata
+        # RelayResolverMetadata {
+        #     field_id: FieldID(525),
+        #     import_path: "TabbyResolver",
+        #     import_name: None,
+        #     field_alias: None,
+        #     field_path: "cat.description",
+        #     field_arguments: [],
+        #     live: false,
+        #     output_type_info: Legacy,
+        #     fragment_data_injection_mode: None,
+        # }
+        
       }
       ... on Persian {
         description

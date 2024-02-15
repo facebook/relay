@@ -29,6 +29,18 @@ fragment resolverFieldOnClientTypeImplementingServerInterfaceFragment on FeedUni
     tracking
   }
   ... on NewsStory {
-    tracking
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(528),
+    #     import_path: "TrackingResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "tracking",
+    #     field_arguments: [],
+    #     live: true,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    # }
+    
   }
 }

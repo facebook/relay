@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<24132cdd0a55124c0706898ea62d48a7>>
+ * @generated SignedSource<<c247169e96c5ee57550079f47fb1d095>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -17,6 +17,27 @@ async fn client_field_on_abstract_type_without_resolver() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/client_field_on_abstract_type_without_resolver.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/client_field_on_abstract_type_without_resolver.expected");
     test_fixture(transform_fixture, file!(), "client_field_on_abstract_type_without_resolver.graphql", "relay_resolvers_abstract_types/fixtures/client_field_on_abstract_type_without_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn condition_on_selection_on_interface_without_resolver() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/condition_on_selection_on_interface_without_resolver.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/condition_on_selection_on_interface_without_resolver.expected");
+    test_fixture(transform_fixture, file!(), "condition_on_selection_on_interface_without_resolver.graphql", "relay_resolvers_abstract_types/fixtures/condition_on_selection_on_interface_without_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn conditions_on_nested_selections_on_interface() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/conditions_on_nested_selections_on_interface.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/conditions_on_nested_selections_on_interface.expected");
+    test_fixture(transform_fixture, file!(), "conditions_on_nested_selections_on_interface.graphql", "relay_resolvers_abstract_types/fixtures/conditions_on_nested_selections_on_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn conditions_on_selections_on_interface() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/conditions_on_selections_on_interface.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/conditions_on_selections_on_interface.expected");
+    test_fixture(transform_fixture, file!(), "conditions_on_selections_on_interface.graphql", "relay_resolvers_abstract_types/fixtures/conditions_on_selections_on_interface.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -76,6 +97,13 @@ async fn nested_abstract_type_query() {
 }
 
 #[tokio::test]
+async fn nested_condition_on_inline_fragment_on_interface() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/nested_condition_on_inline_fragment_on_interface.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/nested_condition_on_inline_fragment_on_interface.expected");
+    test_fixture(transform_fixture, file!(), "nested_condition_on_inline_fragment_on_interface.graphql", "relay_resolvers_abstract_types/fixtures/nested_condition_on_inline_fragment_on_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn nested_fragment_spread_on_abstract_type() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/nested_fragment_spread_on_abstract_type.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/nested_fragment_spread_on_abstract_type.expected");
@@ -94,6 +122,20 @@ async fn resolver_field_on_client_type_implementing_server_interface() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/resolver_field_on_client_type_implementing_server_interface.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/resolver_field_on_client_type_implementing_server_interface.expected");
     test_fixture(transform_fixture, file!(), "resolver_field_on_client_type_implementing_server_interface.graphql", "relay_resolvers_abstract_types/fixtures/resolver_field_on_client_type_implementing_server_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn selections_on_node() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/selections_on_node.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/selections_on_node.expected");
+    test_fixture(transform_fixture, file!(), "selections_on_node.graphql", "relay_resolvers_abstract_types/fixtures/selections_on_node.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn selections_on_node_with_client_concrete_type() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/selections_on_node_with_client_concrete_type.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/selections_on_node_with_client_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "selections_on_node_with_client_concrete_type.graphql", "relay_resolvers_abstract_types/fixtures/selections_on_node_with_client_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

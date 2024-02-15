@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment conditionsOnNestedSelectionsOnInterfaceFragment on Cat {
+    description @include(if: $has_owner)
+    favorite_toy {
+        brand @include(if: $happy_cat)
+    }
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+    favorite_toy: Toy
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    favorite_toy: Toy
+}
+
+type Persian implements Cat {
+    description: String
+    favorite_toy: Toy
+}
+
+extend type Query {
+    cat: Cat
+}
+
+interface Toy {
+    brand: String
+}
+
+type Yarn implements Toy {
+    brand: String @relay_resolver(import_path: "YarnResolver")
+}
+
+type Ball implements Toy {
+    brand: String
+}
+==================================== OUTPUT ===================================
+fragment conditionsOnNestedSelectionsOnInterfaceFragment on Cat {
+  favorite_toy {
+    ... on Yarn {
+      brand @include(if: $happy_cat)
+    }
+    ... on Ball {
+      brand @include(if: $happy_cat)
+    }
+  }
+  ... on Tabby {
+    description @include(if: $has_owner)
+  }
+  ... on Persian {
+    description @include(if: $has_owner)
+  }
+}

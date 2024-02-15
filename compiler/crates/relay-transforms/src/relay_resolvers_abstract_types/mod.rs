@@ -87,27 +87,34 @@ impl RelayResolverAbstractTypesTransform<'_> {
         selections: &[Selection],
         interface_id: InterfaceID,
     ) -> (Vec<Selection>, Vec<Selection>) {
-        // True means selection should be copied
         selections
             .iter()
             .cloned()
-            .partition(|selection| match selection {
-                Selection::InlineFragment(inline_fragment) => {
-                    inline_fragment.type_condition.is_none()
+            .partition(|selection| self.should_copy_selection(selection, interface_id))
+    }
+
+    fn should_copy_selection(&self, selection: &Selection, interface_id: InterfaceID) -> bool {
+        match selection {
+            Selection::InlineFragment(inline_fragment) => {
+                if inline_fragment.type_condition.is_none() {
+                    inline_fragment
+                        .selections
+                        .iter()
+                        .any(|selection| self.should_copy_selection(selection, interface_id))
+                } else {
+                    false
                 }
-                Selection::FragmentSpread(_) => false,
-                Selection::Condition(_) => true,
-                Selection::LinkedField(field) => self
-                    .concrete_types_have_different_implementations(
-                        interface_id,
-                        field.definition.item,
-                    ),
-                Selection::ScalarField(field) => self
-                    .concrete_types_have_different_implementations(
-                        interface_id,
-                        field.definition.item,
-                    ),
-            })
+            }
+            Selection::FragmentSpread(_) => false,
+            Selection::Condition(condition) => condition
+                .selections
+                .iter()
+                .any(|selection| self.should_copy_selection(selection, interface_id)),
+            Selection::LinkedField(field) => self
+                .concrete_types_have_different_implementations(interface_id, field.definition.item),
+            Selection::ScalarField(field) => self
+                .concrete_types_have_different_implementations(interface_id, field.definition.item),
+        }
     }
 
     fn concrete_types_all_defined_on_server(&self, concrete_types: &HashSet<ObjectID>) -> bool {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c247169e96c5ee57550079f47fb1d095>>
+ * @generated SignedSource<<491b01be9ff694b0287f93c543eb3260>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -80,6 +80,20 @@ async fn fragment_on_abstract_type_enabled() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/fragment_on_abstract_type_enabled.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/fragment_on_abstract_type_enabled.expected");
     test_fixture(transform_fixture, file!(), "fragment_on_abstract_type_enabled.graphql", "relay_resolvers_abstract_types/fixtures/fragment_on_abstract_type_enabled.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn inline_fragment_no_type_without_resolver_selections_on_interface() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/inline_fragment_no_type_without_resolver_selections_on_interface.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/inline_fragment_no_type_without_resolver_selections_on_interface.expected");
+    test_fixture(transform_fixture, file!(), "inline_fragment_no_type_without_resolver_selections_on_interface.graphql", "relay_resolvers_abstract_types/fixtures/inline_fragment_no_type_without_resolver_selections_on_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn inline_fragment_without_type_condition_on_interface() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/inline_fragment_without_type_condition_on_interface.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/inline_fragment_without_type_condition_on_interface.expected");
+    test_fixture(transform_fixture, file!(), "inline_fragment_without_type_condition_on_interface.graphql", "relay_resolvers_abstract_types/fixtures/inline_fragment_without_type_condition_on_interface.expected", input, expected).await;
 }
 
 #[tokio::test]

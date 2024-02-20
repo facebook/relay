@@ -422,7 +422,9 @@ enum ValidationMessage {
         field_name: StringKey,
         current_type: String,
     },
-    #[error("Expected the 'edgeTypeName' argument value on @{directive_name} to be the name of an object type. '{edge_typename}' does not refer to an object type within the schema.")]
+    #[error(
+        "Expected the 'edgeTypeName' argument value on @{directive_name} to be the name of an object type. '{edge_typename}' does not refer to an object type within the schema."
+    )]
     InvalidEdgeTypeName {
         directive_name: DirectiveName,
         field_name: StringKey,

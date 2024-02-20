@@ -1,0 +1,13 @@
+# expected-to-throw
+
+mutation appendNodeLiteralEdgeTypeNameInvalidCommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @appendNode(connections: $connections, edgeTypeName: "NonExistentEdgeType") {
+      id
+    }
+  }
+}

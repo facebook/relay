@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<742eb57a3eb061bcf247ff05572ac49d>>
+ * @generated SignedSource<<baabe93535dccf880b3a7a35bf13244a>>
  */
 
 mod compile_relay_artifacts;
@@ -143,6 +143,13 @@ async fn append_node_literal_edge_type_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.expected");
     test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn append_node_literal_edge_type_name_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.expected");
+    test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name-invalid.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

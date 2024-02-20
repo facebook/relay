@@ -273,6 +273,28 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                     Some(connections_arg) => {
                         let edge_typename_arg = node_directive.arguments.named(*EDGE_TYPENAME_ARG);
                         if let Some(edge_typename_arg) = edge_typename_arg {
+                            if let Some(edge_typename_value) = edge_typename_arg
+                                .value
+                                .item
+                                .get_constant()
+                                .and_then(|c| c.get_string_literal())
+                            {
+                                let edge_type = self.schema.get_type(edge_typename_value);
+
+                                if edge_type.is_none() {
+                                    self.errors.push(Diagnostic::error(
+                                        ValidationMessage::InvalidEdgeTypeName {
+                                            directive_name: node_directive.name.item,
+                                            field_name: field.alias_or_name(self.schema),
+                                            edge_typename: edge_typename_value,
+                                        },
+                                        edge_typename_arg.value.location,
+                                    ));
+
+                                    return Transformed::Keep;
+                                }
+                            }
+
                             let field_definition = self.schema.field(field.definition.item);
                             match field_definition.type_.inner() {
                                 Type::Object(_) | Type::Interface(_) | Type::Union(_) => {
@@ -399,5 +421,11 @@ enum ValidationMessage {
         directive_name: DirectiveName,
         field_name: StringKey,
         current_type: String,
+    },
+    #[error("Expected the 'edgeTypeName' argument value on @{directive_name} to be the name of an object type. '{edge_typename}' does not refer to an object type within the schema.")]
+    InvalidEdgeTypeName {
+        directive_name: DirectiveName,
+        field_name: StringKey,
+        edge_typename: StringKey,
     },
 }

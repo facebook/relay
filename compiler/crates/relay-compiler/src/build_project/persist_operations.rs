@@ -69,8 +69,8 @@ pub async fn persist_operations(
                         config.custom_override_schema_determinator.as_ref()
                     {
                         override_schema = custom_override_schema_determinator(
-                            normalization_operation,
                             project_config,
+                            normalization_operation,
                         );
                     }
                     let artifact_path = root_dir.join(&artifact.path);

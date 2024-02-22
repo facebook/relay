@@ -149,7 +149,7 @@ pub struct Config {
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
     pub custom_override_schema_determinator:
-        Option<Box<dyn Fn(&OperationDefinition, &ProjectConfig) -> Option<String> + Send + Sync>>,
+        Option<Box<dyn Fn(&ProjectConfig, &OperationDefinition) -> Option<String> + Send + Sync>>,
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
 
     /// The async function is called before the compiler connects to the file
@@ -237,19 +237,19 @@ impl Config {
             Ok(None) => Err(Error::ConfigError {
                 details: format!(
                     r#"
-Configuration for Relay compiler not found.
+ Configuration for Relay compiler not found.
 
-Please make sure that the configuration file is created in {}.
+ Please make sure that the configuration file is created in {}.
 
-You can also pass the path to the configuration file as `relay-compiler ./path-to-config/relay.json`.
+ You can also pass the path to the configuration file as `relay-compiler ./path-to-config/relay.json`.
 
-Example file:
-{{
-  "src": "./src",
-  "schema": "./path-to/schema.graphql",
-  "language": "javascript"
-}}
-"#,
+ Example file:
+ {{
+   "src": "./src",
+   "schema": "./path-to/schema.graphql",
+   "language": "javascript"
+ }}
+ "#,
                     match loaders_sources.len() {
                         1 => loaders_sources[0].to_string(),
                         2 => format!("{} or {}", loaders_sources[0], loaders_sources[1]),
@@ -900,10 +900,10 @@ impl<'de> Deserialize<'de> for ConfigFile {
                 Err(single_project_error) => {
                     let error_message = format!(
                         r#"The config file cannot be parsed as a single-project config file due to:
-- {:?}.
+ - {:?}.
 
-It also cannot be a multi-project config file due to:
-- {:?}."#,
+ It also cannot be a multi-project config file due to:
+ - {:?}."#,
                         single_project_error, multi_project_error,
                     );
 

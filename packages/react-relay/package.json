@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
+    "@testing-library/react": "^14.2.1",
     "fbjs": "^3.0.2",
     "invariant": "^2.2.4",
     "nullthrows": "^1.1.1",

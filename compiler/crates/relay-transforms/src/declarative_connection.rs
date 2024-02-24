@@ -279,13 +279,15 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                 .get_constant()
                                 .and_then(|c| c.get_string_literal())
                             {
-                                let edge_type = self.schema.get_type(edge_typename_value);
+                                let is_not_object_type = self
+                                    .schema
+                                    .get_type(edge_typename_value)
+                                    .map_or(true, |edge_type| !edge_type.is_object());
 
-                                if edge_type.is_none() {
+                                if is_not_object_type {
                                     self.errors.push(Diagnostic::error(
                                         ValidationMessage::InvalidEdgeTypeName {
                                             directive_name: node_directive.name.item,
-                                            field_name: field.alias_or_name(self.schema),
                                             edge_typename: edge_typename_value,
                                         },
                                         edge_typename_arg.value.location,
@@ -427,7 +429,6 @@ enum ValidationMessage {
     )]
     InvalidEdgeTypeName {
         directive_name: DirectiveName,
-        field_name: StringKey,
         edge_typename: StringKey,
     },
 }

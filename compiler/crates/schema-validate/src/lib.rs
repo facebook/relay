@@ -128,7 +128,7 @@ impl<'schema> ValidationContext<'schema> {
                 self.validate_name(argument.name.item.0, context);
 
                 // Ensure unique arguments per directive.
-                if arg_names.contains(&argument.name) {
+                if arg_names.contains(&argument.name.item) {
                     self.report_error(
                         SchemaValidationError::DuplicateArgument(
                             argument.name.item,
@@ -138,7 +138,7 @@ impl<'schema> ValidationContext<'schema> {
                     );
                     continue;
                 }
-                arg_names.insert(argument.name);
+                arg_names.insert(argument.name.item);
             }
         }
     }
@@ -228,7 +228,7 @@ impl<'schema> ValidationContext<'schema> {
 
                 // Ensure they are unique per field.
                 // Ensure unique arguments per directive.
-                if arg_names.contains(&argument.name) {
+                if arg_names.contains(&argument.name.item) {
                     self.report_error(
                         SchemaValidationError::DuplicateArgument(
                             argument.name.item,
@@ -238,7 +238,7 @@ impl<'schema> ValidationContext<'schema> {
                     );
                     continue;
                 }
-                arg_names.insert(argument.name);
+                arg_names.insert(argument.name.item);
 
                 // Ensure the type is an input type
                 if !is_input_type(&argument.type_) {
@@ -393,7 +393,7 @@ impl<'schema> ValidationContext<'schema> {
                 let object_argument = object_field
                     .arguments
                     .iter()
-                    .find(|arg| arg.name == interface_argument.name);
+                    .find(|arg| arg.name.item == interface_argument.name.item);
 
                 // Assert interface field arg exists on object field.
                 if object_argument.is_none() {

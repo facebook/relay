@@ -1634,11 +1634,10 @@ impl InMemorySchema {
                 let field_name = field_def.name.value;
                 let field_location = Location::new(source_location_key, field_def.name.span);
                 if let Some(prev_location) = existing_fields.insert(field_name, field_location) {
-                    return Err(vec![Diagnostic::error(
-                        SchemaError::DuplicateField(field_name),
-                        field_location,
-                    )
-                    .annotate("previously defined here", prev_location)]);
+                    return Err(vec![
+                        Diagnostic::error(SchemaError::DuplicateField(field_name), field_location)
+                            .annotate("previously defined here", prev_location),
+                    ]);
                 }
                 let arguments = self.build_arguments(&field_def.arguments, source_location_key)?;
                 let directives = self.build_directive_values(&field_def.directives);

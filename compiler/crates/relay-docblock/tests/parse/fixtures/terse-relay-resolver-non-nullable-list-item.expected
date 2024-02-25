@@ -68,6 +68,7 @@ TerseRelayResolver(
                 },
             ),
             hack_source: None,
+            span: 25:54,
         },
         type_: WithLocation {
             location: /path/to/test/fixture/terse-relay-resolver-non-nullable-list-item.js:20:24,

@@ -399,19 +399,17 @@ fn parse_terse_relay_resolver_ir(
 
     if let Some(fragment_type_condition) = fragment_type_condition {
         if fragment_type_condition.item != type_name.value {
-            return Err(vec![
-                Diagnostic::error(
-                    IrParsingErrorMessages::MismatchRootFragmentTypeConditionTerseSyntax {
-                        fragment_type_condition: fragment_type_condition.item,
-                        type_name: type_name.value,
-                    },
-                    type_str.location.with_span(type_name.span),
-                )
-                .annotate(
-                    "with fragment type condition",
-                    fragment_type_condition.location,
-                ),
-            ]);
+            return Err(vec![Diagnostic::error(
+                IrParsingErrorMessages::MismatchRootFragmentTypeConditionTerseSyntax {
+                    fragment_type_condition: fragment_type_condition.item,
+                    type_name: type_name.value,
+                },
+                type_str.location.with_span(type_name.span),
+            )
+            .annotate(
+                "with fragment type condition",
+                fragment_type_condition.location,
+            )]);
         }
     }
 
@@ -527,16 +525,14 @@ fn combine_edge_to_and_output_type(
         (None, Some(output_type)) => {
             parse_type_annotation(output_type.value).map(|val| Some(OutputType::Output(val)))
         }
-        (Some(edge_to), Some(output_type)) => Err(vec![
-            Diagnostic::error(
-                IrParsingErrorMessages::IncompatibleFields {
-                    field_1: AllowedFieldName::EdgeToField,
-                    field_2: AllowedFieldName::OutputTypeField,
-                },
-                edge_to.key_location,
-            )
-            .annotate("@outputType", output_type.key_location),
-        ]),
+        (Some(edge_to), Some(output_type)) => Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::IncompatibleFields {
+                field_1: AllowedFieldName::EdgeToField,
+                field_2: AllowedFieldName::OutputTypeField,
+            },
+            edge_to.key_location,
+        )
+        .annotate("@outputType", output_type.key_location)]),
     }
 }
 
@@ -650,18 +646,16 @@ fn parse_fragment_definition(
     {
         for field_arg in &field_arguments.items {
             if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
-                return Err(vec![
-                    Diagnostic::error(
-                        IrParsingErrorMessages::ConflictingArguments,
-                        Location::new(source_location, field_arg.name.span),
-                    )
-                    .annotate(
-                        "conflicts with this fragment argument",
-                        fragment_definition
-                            .location
-                            .with_span(fragment_arg.name.span),
-                    ),
-                ]);
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::ConflictingArguments,
+                    Location::new(source_location, field_arg.name.span),
+                )
+                .annotate(
+                    "conflicts with this fragment argument",
+                    fragment_definition
+                        .location
+                        .with_span(fragment_arg.name.span),
+                )]);
             }
         }
     }
@@ -877,7 +871,7 @@ fn validate_field_arguments(
             if let Some(default_value) = &argument.default_value {
                 errors.push(Diagnostic::error(
                     IrParsingErrorMessages::ArgumentDefaultValuesNoSupported,
-                    Location::new(source_location, default_value.span()),
+                    Location::new(source_location, default_value.span),
                 ));
             }
         }

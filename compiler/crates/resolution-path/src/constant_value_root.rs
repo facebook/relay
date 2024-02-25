@@ -10,9 +10,22 @@ use super::*;
 impl<'a> ConstantValueParent<'a> {
     pub fn find_constant_value_root(&'a self) -> ConstantValueRoot<'a> {
         match self {
+            ConstantValueParent::ConstantArgumentValue(ConstantArgumentPath {
+                inner: _,
+                parent:
+                    ConstantArgumentParent::ConstantDirective(ConstantDirectivePath {
+                        inner: _,
+                        parent: _,
+                    }),
+                // TODO: This is likely wrong
+            }) => todo!("fix"),
             ConstantValueParent::DefaultValue(DefaultValuePath {
                 inner: _,
-                parent: variable_definition_path,
+                parent: DefaultValueParent::InputValueDefinition(input_value_definition_path),
+            }) => ConstantValueRoot::InputValueDefinition(input_value_definition_path),
+            ConstantValueParent::DefaultValue(DefaultValuePath {
+                inner: _,
+                parent: DefaultValueParent::VariableDefinition(variable_definition_path),
             }) => ConstantValueRoot::VariableDefinition(variable_definition_path),
             ConstantValueParent::Value(ValuePath {
                 inner: _,
@@ -25,13 +38,13 @@ impl<'a> ConstantValueParent<'a> {
             ConstantValueParent::ConstantObj(constant_obj) => {
                 constant_obj.parent.parent.find_constant_value_root()
             }
-            ConstantValueParent::ConstantArgValue(ConstantArgPath {
+            ConstantValueParent::ConstantArgumentValue(ConstantArgumentPath {
                 inner: _,
                 parent:
-                    ConstantObjPath {
+                    ConstantArgumentParent::ConstantObj(ConstantObjPath {
                         inner: _,
                         parent: constant_value_path,
-                    },
+                    }),
             }) => constant_value_path.parent.find_constant_value_root(),
         }
     }
@@ -65,6 +78,8 @@ impl<'a> ValueParent<'a> {
 #[derive(Debug)]
 pub enum ConstantValueRoot<'a> {
     VariableDefinition(&'a VariableDefinitionPath<'a>),
+    InputValueDefinition(&'a InputValueDefinitionPath<'a>),
+    ConstantArgument(&'a ConstantArgumentPath<'a>),
     Argument(&'a ArgumentPath<'a>),
 }
 

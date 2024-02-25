@@ -17,8 +17,8 @@
 ==================================== ERROR ====================================
 ✖︎ Defining arguments with default values for resolver fields is not supported, yet.
 
-  /path/to/test/fixture/relay-resolver-with-args-default-value.invalid.js:14:37
+  /path/to/test/fixture/relay-resolver-with-args-default-value.invalid.js:14:35
    13 │  * @onType User
    14 │  * @fieldName hello(world: String = "World")
-      │                                     ^^^^^^^
+      │                                   ^^^^^^^^^
    15 │

@@ -589,6 +589,8 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 interfaces: Vec::new(),
                 directives: vec![],
                 fields: Some(fields),
+                // TODO: Fix
+                span: Span::empty(),
             },
         )];
 
@@ -678,6 +680,8 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 interfaces: vec![],
                 directives: vec![],
                 fields: Some(self.fields(Some(object), project_config)),
+                // TODO: Fix
+                span: Span::empty(),
             },
         )]
     }
@@ -719,6 +723,8 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             directives: self.directives(object, project_config),
             description: self.description(),
             hack_source: self.hack_source(),
+            // TODO: Fix
+            span: Span::empty(),
         }])
     }
 
@@ -729,8 +735,11 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                     .map(|arg| InputValueDefinition {
                         name: arg.name.clone(),
                         type_: arg.type_.clone(),
-                        default_value: arg.default_value.clone(),
+                        // TODO: Fix
+                        default_value: None,
                         directives: vec![],
+                        // TODO: Fix
+                        span: Span::empty(),
                     })
                     .collect::<Vec<_>>(),
             )
@@ -1205,6 +1214,8 @@ impl ResolverIr for StrongObjectIr {
                 directives: vec![],
                 description: None,
                 hack_source: None,
+                // TODO: Fix
+                span: Span::empty(),
             },
             generate_model_instance_field(
                 project_config,
@@ -1225,6 +1236,8 @@ impl ResolverIr for StrongObjectIr {
                 arguments: None,
             }],
             fields: Some(List::generated(fields)),
+            // TODO: Fix
+            span: Span::empty(),
         });
 
         Ok(vec![type_])
@@ -1343,6 +1356,8 @@ impl WeakObjectIr {
                 vec![resolver_source_hash_directive(source_hash)],
                 location,
             )])),
+            // TODO: Fix
+            span: Span::empty(),
         })
     }
 
@@ -1384,6 +1399,8 @@ impl WeakObjectIr {
                     },
                 ])),
             }],
+            // TODO: Fix
+            span: Span::empty(),
         })
     }
 
@@ -1573,6 +1590,8 @@ fn generate_model_instance_field(
         directives,
         description,
         hack_source,
+        // TODO: Fix
+        span: Span::empty(),
     }
 }
 

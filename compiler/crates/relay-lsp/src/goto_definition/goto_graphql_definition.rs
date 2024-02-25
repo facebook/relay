@@ -13,6 +13,7 @@ use graphql_syntax::ExecutableDocument;
 use intern::string_key::StringKey;
 use resolution_path::ArgumentParent;
 use resolution_path::ArgumentPath;
+use resolution_path::DirectivePath;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::LinkedFieldPath;
@@ -40,6 +41,20 @@ pub fn get_graphql_definition_description(
             parent: IdentParent::FragmentSpreadName(_),
         }) => Ok(DefinitionDescription::Fragment {
             fragment_name: FragmentDefinitionName(fragment_name.value),
+        }),
+        ResolutionPath::Ident(IdentPath {
+            inner: argument_name,
+            parent:
+                IdentParent::ArgumentName(ArgumentPath {
+                    inner: _,
+                    parent:
+                        ArgumentParent::Directive(DirectivePath {
+                            inner: directive, ..
+                        }),
+                }),
+        }) => Ok(DefinitionDescription::DirectiveArgument {
+            directive_name: directive.name.value,
+            argument_name: argument_name.value,
         }),
         ResolutionPath::Ident(IdentPath {
             inner: argument_name,
@@ -132,7 +147,6 @@ fn resolve_field(
     })
 }
 
-// TODO: Support for directive arguments
 fn resolve_field_argument(
     field_name: StringKey,
     argument_name: StringKey,

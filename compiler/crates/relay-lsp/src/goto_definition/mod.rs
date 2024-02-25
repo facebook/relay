@@ -49,6 +49,10 @@ pub enum DefinitionDescription {
         field_name: StringKey,
         argument_name: StringKey,
     },
+    DirectiveArgument {
+        directive_name: StringKey,
+        argument_name: StringKey,
+    },
     Fragment {
         fragment_name: FragmentDefinitionName,
     },
@@ -97,6 +101,12 @@ pub fn on_goto_definition(
             argument_name,
             &root_dir,
         )?,
+        DefinitionDescription::DirectiveArgument {
+            directive_name,
+            argument_name,
+        } => {
+            locate_directive_argument_definition(&schema, directive_name, argument_name, &root_dir)?
+        }
         DefinitionDescription::Field {
             parent_type,
             field_name,
@@ -241,10 +251,36 @@ fn locate_field_argument_definition(
             ))
         })?;
 
-    let argument_lsp_location =
-        transform_relay_location_to_lsp_location(root_dir, argument.name.location)?;
+    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
+        .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
+}
 
-    Ok(GotoDefinitionResponse::Scalar(argument_lsp_location))
+fn locate_directive_argument_definition(
+    schema: &SDLSchema,
+    directive_name: StringKey,
+    argument_name: StringKey,
+    root_dir: &std::path::PathBuf,
+) -> LSPRuntimeResult<GotoDefinitionResponse> {
+    let directive = schema.get_directive(DirectiveName(directive_name)).ok_or(
+        LSPRuntimeError::UnexpectedError(format!(
+            "Could not find directive with name {}",
+            directive_name
+        )),
+    )?;
+
+    let argument = directive
+        .arguments
+        .iter()
+        .find(|argument| argument.name.item.0 == argument_name)
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find argument with name {} on directive with name {}",
+                argument_name, directive_name,
+            ))
+        })?;
+
+    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
+        .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
 }
 
 fn locate_field_definition(

@@ -170,7 +170,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             .map(get_mapped_location)
             .collect::<Vec<_>>();
         let parsed_directive = Directive {
-            name: DirectiveName(directive.name()?.intern()),
+            name: WithLocation::generated(DirectiveName(directive.name()?.intern())),
             is_extension: directive.is_extension(),
             arguments: self.parse_arguments(directive.arguments()?)?,
             locations,

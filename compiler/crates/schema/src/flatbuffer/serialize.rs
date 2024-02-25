@@ -141,7 +141,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     }
 
     fn serialize_directive(&mut self, directive: &Directive) {
-        let name = directive.name.0.lookup();
+        let name = directive.name.item.0.lookup();
         if self.directives.contains_key(name) {
             return;
         }

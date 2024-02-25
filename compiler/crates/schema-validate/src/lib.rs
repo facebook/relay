@@ -121,8 +121,8 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_directives(&mut self) {
         for directive in self.schema.get_directives() {
-            let context = ValidationContextType::DirectiveNode(directive.name.0);
-            self.validate_name(directive.name.0, context);
+            let context = ValidationContextType::DirectiveNode(directive.name.item.0);
+            self.validate_name(directive.name.item.0, context);
             let mut arg_names = FnvHashSet::default();
             for argument in directive.arguments.iter() {
                 self.validate_name(argument.name.0, context);
@@ -130,7 +130,10 @@ impl<'schema> ValidationContext<'schema> {
                 // Ensure unique arguments per directive.
                 if arg_names.contains(&argument.name) {
                     self.report_error(
-                        SchemaValidationError::DuplicateArgument(argument.name, directive.name.0),
+                        SchemaValidationError::DuplicateArgument(
+                            argument.name,
+                            directive.name.item.0,
+                        ),
                         context,
                     );
                     continue;

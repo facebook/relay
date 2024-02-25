@@ -91,7 +91,7 @@ fn print_schema_and_flat_buffer_schema(schema: SDLSchema) -> String {
     let mut ordered_directives = schema.get_directives().collect::<Vec<_>>();
     ordered_directives.sort_by_key(|directive| directive.name);
     for directive in ordered_directives {
-        directives.push(fb_schema.get_directive(directive.name).unwrap());
+        directives.push(fb_schema.get_directive(directive.name.item).unwrap());
     }
     let fb_schema_snapshot = format!(
         r#"FB Schema {{

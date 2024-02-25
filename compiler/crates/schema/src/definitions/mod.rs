@@ -361,7 +361,7 @@ impl<T> TypeReference<T> {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Directive {
-    pub name: DirectiveName,
+    pub name: WithLocation<DirectiveName>,
     pub arguments: ArgumentDefinitions,
     pub locations: Vec<DirectiveLocation>,
     pub repeatable: bool,
@@ -373,7 +373,7 @@ pub struct Directive {
 impl Named for Directive {
     type Name = DirectiveName;
     fn name(&self) -> DirectiveName {
-        self.name
+        self.name.item
     }
 }
 

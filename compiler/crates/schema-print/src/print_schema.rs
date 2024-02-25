@@ -242,7 +242,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
     }
 
     fn print_directive(&mut self, directive: &Directive) -> FmtResult {
-        write!(self.writer(), "directive @{}", directive.name)?;
+        write!(self.writer(), "directive @{}", directive.name.item)?;
         self.print_args(&directive.arguments)?;
         write!(
             self.writer(),

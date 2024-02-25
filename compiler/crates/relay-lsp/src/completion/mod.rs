@@ -1239,7 +1239,7 @@ fn completion_item_from_directive(
     } = directive;
 
     // Always use the name of the directive as the label
-    let label = name.to_string();
+    let label = name.item.to_string();
 
     // We can return a snippet with the expected arguments of the directive
     let (insert_text, insert_text_format) = if arguments.is_empty() {

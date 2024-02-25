@@ -261,7 +261,7 @@ impl Schema for InMemorySchema {
         let ordered_type_map: BTreeMap<_, _> = type_map.iter().collect();
 
         let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
-        ordered_directives.sort_by_key(|dir| dir.name.0.lookup());
+        ordered_directives.sort_by_key(|dir| dir.name.item.0.lookup());
 
         format!(
             r#"Schema {{
@@ -372,10 +372,12 @@ impl InMemorySchema {
     }
 
     pub fn add_directive(&mut self, directive: Directive) -> DiagnosticsResult<()> {
-        if self.directives.contains_key(&directive.name) {
-            return todo_add_location(SchemaError::DuplicateDirectiveDefinition(directive.name.0));
+        if self.directives.contains_key(&directive.name.item) {
+            return todo_add_location(SchemaError::DuplicateDirectiveDefinition(
+                directive.name.item.0,
+            ));
         }
-        self.directives.insert(directive.name, directive);
+        self.directives.insert(directive.name.item, directive);
         Ok(())
     }
 
@@ -1202,7 +1204,10 @@ impl InMemorySchema {
                 self.directives.insert(
                     DirectiveName(name.value),
                     Directive {
-                        name: DirectiveName(name.value),
+                        name: WithLocation::new(
+                            Location::new(*location_key, name.span),
+                            DirectiveName(name.value),
+                        ),
                         arguments,
                         locations: locations.clone(),
                         repeatable: *repeatable,

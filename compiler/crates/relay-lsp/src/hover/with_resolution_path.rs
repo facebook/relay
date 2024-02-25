@@ -132,7 +132,6 @@ enum HoverBehavior<'a> {
     FragmentSpread(&'a FragmentSpreadPath<'a>),
     Directive(&'a DirectivePath<'a>),
     FragmentDefinition(&'a FragmentDefinition),
-    ExecutableDocument,
     None,
 }
 
@@ -288,6 +287,14 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                         }),
                 }),
         }) => HoverBehavior::ConstantValue(&constant_value_path.parent),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::ConstantArgumentKey(ConstantArgumentPath {
+                    inner: _,
+                    parent: ConstantArgumentParent::ConstantDirective(_),
+                }),
+        }) => HoverBehavior::None,
         ResolutionPath::ConstantObj(ConstantObjPath {
             inner: _,
             parent: constant_value_path,
@@ -296,6 +303,10 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
             inner: _,
             parent: ConstantArgumentParent::ConstantObj(constant_obj_path),
         }) => HoverBehavior::ConstantValue(&constant_obj_path.parent.parent),
+        ResolutionPath::ConstantArgument(ConstantArgumentPath {
+            inner: _,
+            parent: ConstantArgumentParent::ConstantDirective(_),
+        }) => HoverBehavior::None,
 
         // Scalar and linked fields
         ResolutionPath::ScalarField(ScalarFieldPath {
@@ -432,9 +443,112 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
         }) => HoverBehavior::FragmentDefinition(fragment_definition),
 
         // Explicitly show no hover content of operation/fragment definitions
-        ResolutionPath::ExecutableDocument(_) => HoverBehavior::ExecutableDocument,
-
-        _ => panic!("Not yet implemented"),
+        ResolutionPath::ExecutableDocument(_) => HoverBehavior::None,
+        ResolutionPath::SchemaDocument(_) => HoverBehavior::None,
+        ResolutionPath::SchemaDefinition(_) => HoverBehavior::None,
+        ResolutionPath::SchemaExtension(_) => HoverBehavior::None,
+        ResolutionPath::OperationTypeDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::OperationTypeDefinitionType(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::DirectiveDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::DirectiveDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::InputValueDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::InputValueDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::DefaultValue(DefaultValuePath {
+            inner: _,
+            parent: DefaultValueParent::InputValueDefinition(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::UnionTypeDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::UnionTypeDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::UnionTypeExtension(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::UnionTypeExtensionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::UnionTypeMemberType(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::InterfaceTypeDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::InterfaceTypeDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::InterfaceTypeExtension(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::InterfaceTypeExtensionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::ImplementedInterfaceName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::ObjectTypeDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::ObjectTypeDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::ObjectTypeExtension(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::ObjectTypeExtensionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::InputObjectTypeDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::InputObjectTypeDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::InputObjectTypeExtension(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::InputObjectTypeExtensionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::EnumTypeDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::EnumTypeDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::EnumTypeExtension(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::EnumTypeExtensionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::EnumValueDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::EnumValueDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::ScalarTypeDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::ScalarTypeDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::ScalarTypeExtension(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::ScalarTypeExtensionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::FieldDefinition(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::FieldDefinitionName(_),
+        }) => HoverBehavior::None,
+        ResolutionPath::ConstantDirective(_) => HoverBehavior::None,
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::ConstantDirectiveName(_),
+        }) => HoverBehavior::None,
     }
 }
 
@@ -504,7 +618,6 @@ fn get_hover_contents<'a>(
             content_consumer_type,
         ),
 
-        HoverBehavior::ExecutableDocument => None,
         HoverBehavior::None => None,
     }
 }
@@ -578,7 +691,6 @@ fn on_hover_constant_value<'a>(
             schema_documentation,
             content_consumer_type,
         ),
-        // TODO: Fix
         ConstantValueRoot::InputValueDefinition(_) => None,
         ConstantValueRoot::ConstantArgument(_) => None,
     }

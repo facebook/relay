@@ -40,6 +40,7 @@ use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
+use graphql_syntax::DefaultValue;
 use graphql_syntax::FieldDefinition;
 use graphql_syntax::FieldDefinitionStub;
 use graphql_syntax::Identifier;
@@ -589,7 +590,6 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 interfaces: Vec::new(),
                 directives: vec![],
                 fields: Some(fields),
-                // TODO: Fix
                 span: Span::empty(),
             },
         )];
@@ -680,7 +680,6 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 interfaces: vec![],
                 directives: vec![],
                 fields: Some(self.fields(Some(object), project_config)),
-                // TODO: Fix
                 span: Span::empty(),
             },
         )]
@@ -723,23 +722,29 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             directives: self.directives(object, project_config),
             description: self.description(),
             hack_source: self.hack_source(),
-            // TODO: Fix
             span: Span::empty(),
         }])
     }
 
     fn fragment_argument_definitions(&self) -> Option<List<InputValueDefinition>> {
+        let span = Span::empty();
         self.fragment_arguments().as_ref().map(|args| {
             List::generated(
                 args.iter()
                     .map(|arg| InputValueDefinition {
                         name: arg.name.clone(),
                         type_: arg.type_.clone(),
-                        // TODO: Fix
-                        default_value: None,
+                        default_value: if let Some(default_value) = &arg.default_value {
+                            Some(DefaultValue {
+                                value: default_value.clone(),
+                                equals: dummy_token(span),
+                                span,
+                            })
+                        } else {
+                            None
+                        },
                         directives: vec![],
-                        // TODO: Fix
-                        span: Span::empty(),
+                        span,
                     })
                     .collect::<Vec<_>>(),
             )
@@ -1214,8 +1219,7 @@ impl ResolverIr for StrongObjectIr {
                 directives: vec![],
                 description: None,
                 hack_source: None,
-                // TODO: Fix
-                span: Span::empty(),
+                span,
             },
             generate_model_instance_field(
                 project_config,
@@ -1236,8 +1240,7 @@ impl ResolverIr for StrongObjectIr {
                 arguments: None,
             }],
             fields: Some(List::generated(fields)),
-            // TODO: Fix
-            span: Span::empty(),
+            span,
         });
 
         Ok(vec![type_])
@@ -1356,8 +1359,7 @@ impl WeakObjectIr {
                 vec![resolver_source_hash_directive(source_hash)],
                 location,
             )])),
-            // TODO: Fix
-            span: Span::empty(),
+            span,
         })
     }
 
@@ -1399,8 +1401,7 @@ impl WeakObjectIr {
                     },
                 ])),
             }],
-            // TODO: Fix
-            span: Span::empty(),
+            span,
         })
     }
 
@@ -1590,8 +1591,7 @@ fn generate_model_instance_field(
         directives,
         description,
         hack_source,
-        // TODO: Fix
-        span: Span::empty(),
+        span,
     }
 }
 

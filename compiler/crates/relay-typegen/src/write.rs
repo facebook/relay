@@ -649,7 +649,7 @@ fn write_enum_definitions(
             let mut members: Vec<AST> = enum_type
                 .values
                 .iter()
-                .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
+                .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value.item)))
                 .collect();
 
             if !typegen_context

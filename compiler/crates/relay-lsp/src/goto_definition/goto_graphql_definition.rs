@@ -11,6 +11,10 @@ use common::Span;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDocument;
 use intern::string_key::StringKey;
+use resolution_path::ArgumentParent;
+use resolution_path::ConstantEnumPath;
+use resolution_path::ConstantValuePath;
+use resolution_path::ConstantValueRoot;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::LinkedFieldPath;
@@ -20,6 +24,7 @@ use resolution_path::ScalarFieldPath;
 use resolution_path::SelectionParent;
 use resolution_path::TypeConditionPath;
 use schema::SDLSchema;
+use schema::Schema;
 
 use super::DefinitionDescription;
 use crate::lsp_runtime_error::LSPRuntimeError;
@@ -64,6 +69,64 @@ pub fn get_graphql_definition_description(
         }) => Ok(DefinitionDescription::Type {
             type_name: type_condition.type_.value,
         }),
+        ResolutionPath::ConstantEnum(ConstantEnumPath {
+            inner: enum_value,
+            parent: ConstantValuePath { inner: _, parent },
+        }) => {
+            let constant_value_root = parent.find_constant_value_root();
+
+            match constant_value_root {
+                ConstantValueRoot::VariableDefinition(variable_definition_path) => {
+                    let enum_name = variable_definition_path.inner.type_.inner().name.value;
+
+                    Ok(DefinitionDescription::EnumValue {
+                        enum_name,
+                        enum_value: enum_value.value,
+                    })
+                }
+                ConstantValueRoot::Argument(argument_path) => {
+                    let argument_name = argument_path.inner.name.value;
+
+                    match &argument_path.parent {
+                        ArgumentParent::LinkedField(LinkedFieldPath {
+                            inner: field,
+                            parent: selection_path,
+                        }) => {
+                            let enum_name = resolve_enum_name_from_field_argument(
+                                field.name.value,
+                                argument_name,
+                                &selection_path.parent,
+                                schema,
+                            )?;
+
+                            Ok(DefinitionDescription::EnumValue {
+                                enum_name,
+                                enum_value: enum_value.value,
+                            })
+                        }
+                        ArgumentParent::ScalarField(ScalarFieldPath {
+                            inner: field,
+                            parent: selection_path,
+                        }) => {
+                            let enum_name = resolve_enum_name_from_field_argument(
+                                field.name.value,
+                                argument_name,
+                                &selection_path.parent,
+                                schema,
+                            )?;
+
+                            Ok(DefinitionDescription::EnumValue {
+                                enum_name,
+                                enum_value: enum_value.value,
+                            })
+                        }
+                        // TODO: Implement
+                        ArgumentParent::Directive(_) => todo!(),
+                        ArgumentParent::ConstantObject(_) => todo!(),
+                    }
+                }
+            }
+        }
         _ => Err(LSPRuntimeError::ExpectedError),
     }
 }
@@ -81,4 +144,38 @@ fn resolve_field(
         parent_type,
         field_name,
     })
+}
+
+fn resolve_enum_name_from_field_argument(
+    field_name: StringKey,
+    argument_name: StringKey,
+    selection_parent: &SelectionParent<'_>,
+    schema: &Arc<SDLSchema>,
+) -> LSPRuntimeResult<StringKey> {
+    let parent_type = selection_parent
+        .find_parent_type(schema)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Could not find field with name {}", field_name))
+    })?);
+
+    let argument = field
+        .arguments
+        .iter()
+        .find(|argument| argument.name.0 == argument_name)
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find argument with name {} on field with name {}",
+                argument_name, field_name,
+            ))
+        })?;
+
+    argument
+        .type_
+        .inner()
+        .get_enum_id()
+        .map(|enum_id| schema.enum_(enum_id))
+        .map(|enum_| enum_.name.item.0)
+        .ok_or(LSPRuntimeError::ExpectedError)
 }

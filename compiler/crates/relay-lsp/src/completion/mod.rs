@@ -1056,10 +1056,9 @@ fn resolve_completion_items_for_argument_value(
         if let Type::Enum(id) = type_.inner() {
             let enum_ = schema.enum_(id);
             completion_items.extend(
-                enum_
-                    .values
-                    .iter()
-                    .map(|value| CompletionItem::new_simple(value.value.to_string(), "".into())),
+                enum_.values.iter().map(|value| {
+                    CompletionItem::new_simple(value.value.item.to_string(), "".into())
+                }),
             )
         }
     }

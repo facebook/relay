@@ -64,6 +64,12 @@ pub fn get_graphql_definition_description(
         }) => Ok(DefinitionDescription::Type {
             type_name: type_condition.type_.value,
         }),
+        ResolutionPath::Ident(IdentPath {
+            inner: type_name,
+            parent: IdentParent::NamedTypeAnnotation(_),
+        }) => Ok(DefinitionDescription::Type {
+            type_name: type_name.value,
+        }),
         _ => Err(LSPRuntimeError::ExpectedError),
     }
 }

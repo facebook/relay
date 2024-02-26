@@ -38,6 +38,7 @@ use common::PerfLogger;
 use docblock_resolution_info::DocblockResolutionInfo;
 pub use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::ExecutableDocument;
+use graphql_syntax::SchemaDocument;
 pub use hover::ContentConsumerType;
 pub use js_language_server::JSLanguageServer;
 use log::debug;
@@ -63,6 +64,7 @@ pub use utils::position_to_offset;
 
 pub enum Feature {
     GraphQLDocument(ExecutableDocument),
+    Schema(SchemaDocument),
     DocblockIr(DocblockIr),
 }
 

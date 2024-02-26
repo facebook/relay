@@ -29,6 +29,7 @@ use serde::Serialize;
 
 use self::goto_docblock_definition::get_docblock_definition_description;
 use self::goto_graphql_definition::get_graphql_definition_description;
+use crate::goto_definition::goto_graphql_definition::get_schema_definition_description;
 use crate::location::transform_relay_location_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -70,6 +71,9 @@ pub fn on_goto_definition(
         }
         crate::Feature::DocblockIr(docblock_ir) => {
             get_docblock_definition_description(&docblock_ir, position_span)?
+        }
+        crate::Feature::Schema(schema_document) => {
+            get_schema_definition_description(&schema_document, position_span, &schema)?
         }
     };
 

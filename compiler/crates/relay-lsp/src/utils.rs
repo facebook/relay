@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::Path;
 use std::path::PathBuf;
 
 use common::SourceLocationKey;
@@ -15,6 +16,7 @@ use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::SchemaDocument;
 use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::Position;
@@ -86,26 +88,34 @@ pub fn extract_project_name_from_url(
         ))
     })?;
 
-    let project_name = if let FileGroup::Source { project_set } =
-        file_categorizer.categorize(file_path).map_err(|_| {
-            LSPRuntimeError::UnexpectedError(format!(
-                "Unable to categorize the file correctly: {:?}",
-                file_path
-            ))
-        })? {
-        *project_set.first().ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!(
-                "Expected to find at least one project for {:?}",
-                file_path
-            ))
-        })?
-    } else {
-        return Err(LSPRuntimeError::UnexpectedError(format!(
+    let category = file_categorizer.categorize(file_path).map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Unable to categorize the file correctly: {:?}",
+            file_path
+        ))
+    })?;
+    let project_set = match category {
+        FileGroup::Source { project_set } => Ok(project_set),
+        FileGroup::Schema { project_set } => Ok(project_set),
+        FileGroup::Extension { project_set } => Ok(project_set),
+        _ => Err(LSPRuntimeError::UnexpectedError(format!(
             "File path {:?} is not a source set",
             file_path
-        )));
-    };
+        ))),
+    }?;
+    let project_name = *project_set.first().ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Expected to find at least one project for {:?}",
+            file_path
+        ))
+    })?;
+
     Ok(project_name.into())
+}
+
+fn get_file_contents(path: &Path) -> LSPRuntimeResult<String> {
+    let file = std::fs::read(&path).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
+    String::from_utf8(file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))
 }
 
 /// Return a parsed executable document, or parsed Docblock IR for this LSP
@@ -113,11 +123,27 @@ pub fn extract_project_name_from_url(
 pub fn extract_feature_from_text(
     project_config: &ProjectConfig,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
+    schema_cache: &DashMap<Url, SchemaDocument>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
 ) -> LSPRuntimeResult<(Feature, Span)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
+
+    if let Some(schema_document) = schema_cache.get(uri) {
+        let owned_schema_document = schema_document.value().clone();
+        let file_path = uri
+            .to_file_path()
+            .map_err(|_| LSPRuntimeError::ExpectedError)?;
+        let text = get_file_contents(file_path.as_path())?;
+        let position_span = position_to_offset(&position, index_offset, 0, &text)
+            .map(|offset| Span::new(offset, offset))
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
+            })?;
+
+        return Ok((Feature::Schema(owned_schema_document), position_span));
+    }
 
     let source_features = source_feature_cache
         .get(uri)

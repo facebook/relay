@@ -38,7 +38,7 @@ pub struct ExecutableDocument {
 
 /// A document only consisting of type system definitions.
 /// This excludes executable operations or fragment definitions.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SchemaDocument {
     pub location: Location,
     pub definitions: Vec<TypeSystemDefinition>,

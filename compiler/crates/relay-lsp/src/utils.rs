@@ -73,11 +73,11 @@ pub fn extract_executable_definitions_from_text_document(
     Ok(definitions)
 }
 
-pub fn extract_project_name_from_url(
+pub fn get_file_group_from_uri(
     file_categorizer: &FileCategorizer,
     url: &Url,
     root_dir: &PathBuf,
-) -> LSPRuntimeResult<StringKey> {
+) -> LSPRuntimeResult<FileGroup> {
     let absolute_file_path = url.to_file_path().map_err(|_| {
         LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
     })?;
@@ -89,25 +89,26 @@ pub fn extract_project_name_from_url(
         ))
     })?;
 
-    let project_name = if let FileGroup::Source { project_set } =
-        file_categorizer.categorize(file_path).map_err(|_| {
-            LSPRuntimeError::UnexpectedError(format!(
-                "Unable to categorize the file correctly: {:?}",
-                file_path
-            ))
-        })? {
-        *project_set.first().ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!(
-                "Expected to find at least one project for {:?}",
-                file_path
-            ))
-        })?
-    } else {
-        return Err(LSPRuntimeError::UnexpectedError(format!(
-            "File path {:?} is not a source set",
+    file_categorizer.categorize(file_path).map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Unable to categorize the file correctly: {:?}",
             file_path
-        )));
-    };
+        ))
+    })
+}
+
+pub fn get_project_name_from_file_group(file_group: &FileGroup) -> Result<StringKey, String> {
+    let project_set = match file_group {
+        FileGroup::Source { project_set } => Ok(project_set),
+        FileGroup::Schema { project_set } => Ok(project_set),
+        FileGroup::Extension { project_set } => Ok(project_set),
+        _ => Err("Not part of a source set"),
+    }?;
+
+    let project_name = *project_set
+        .first()
+        .ok_or_else(|| "Expected to find at least one project")?;
+
     Ok(project_name.into())
 }
 

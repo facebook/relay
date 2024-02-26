@@ -37,6 +37,7 @@ use lsp_types::Url;
 use relay_compiler::config::Config;
 use relay_compiler::get_parser_features;
 use relay_compiler::FileCategorizer;
+use relay_compiler::FileGroup;
 use relay_compiler::ProjectName;
 use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
@@ -56,7 +57,8 @@ use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::create_node_resolution_info;
 use crate::utils::extract_executable_definitions_from_text_document;
 use crate::utils::extract_feature_from_text;
-use crate::utils::extract_project_name_from_url;
+use crate::utils::get_file_group_from_uri;
+use crate::utils::get_project_name_from_file_group;
 use crate::ContentConsumerType;
 use crate::DocblockNode;
 use crate::Feature;
@@ -344,13 +346,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         uri: &Url,
         sources: Vec<JavaScriptSourceFeature>,
     ) -> LSPRuntimeResult<()> {
-        let project_name = self.extract_project_name_from_url(uri)?;
-
-        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
-            self.notify_lsp_state_resources.notify_one();
-        }
-
         self.insert_synced_sources(uri, sources);
         self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
 
@@ -361,6 +356,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.synced_javascript_features.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
+    }
+
+    fn initialize_lsp_state_resources(&self, project_name: StringKey) {
+        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
+            e.insert(ProjectStatus::Activated);
+            self.notify_lsp_state_resources.notify_one();
+        }
     }
 }
 
@@ -476,7 +478,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
-        extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
+        let file_group = get_file_group_from_uri(&self.file_categorizer, url, &self.root_dir)?;
+
+        get_project_name_from_file_group(&file_group).map_err(|msg| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not determine project name for \"{}\": {}",
+                url, msg
+            ))
+        })
     }
 
     fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider {
@@ -521,12 +530,34 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             js_server.process_js_source(uri, text);
         }
 
-        // First we check to see if this document has any GraphQL documents.
-        let embedded_sources = extract_graphql::extract(text);
-        if embedded_sources.is_empty() {
-            Ok(())
-        } else {
-            self.process_synced_sources(uri, embedded_sources)
+        let file_group = get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir)?;
+        let project_name = get_project_name_from_file_group(&file_group).map_err(|msg| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not determine project name for \"{}\": {}",
+                uri, msg
+            ))
+        })?;
+
+        match file_group {
+            FileGroup::Schema { project_set: _ } => {
+                self.initialize_lsp_state_resources(project_name);
+                Ok(())
+            }
+            FileGroup::Extension { project_set: _ } => {
+                self.initialize_lsp_state_resources(project_name);
+                Ok(())
+            }
+            FileGroup::Source { project_set: _ } => {
+                let embedded_sources = extract_graphql::extract(text);
+
+                if embedded_sources.is_empty() {
+                    Ok(())
+                } else {
+                    self.initialize_lsp_state_resources(project_name);
+                    self.process_synced_sources(uri, embedded_sources)
+                }
+            }
+            _ => Err(LSPRuntimeError::ExpectedError),
         }
     }
 

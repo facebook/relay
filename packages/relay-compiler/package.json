@@ -14,6 +14,9 @@
     "url": "https://github.com/facebook/relay.git",
     "directory": "packages/relay-compiler"
   },
+  "dependencies": {
+    "chalk": "^4.0.0"
+  },
   "main": "index.js",
   "bin": "cli.js"
 }

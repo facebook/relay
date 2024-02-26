@@ -146,15 +146,24 @@ Text Schema:Schema {
         is_extension: false,
         values: [
             EnumValue {
-                value: "NONE",
+                value: WithLocation {
+                    location: <generated>:29:33,
+                    item: "NONE",
+                },
                 directives: [],
             },
             EnumValue {
-                value: "LOG",
+                value: WithLocation {
+                    location: <generated>:36:39,
+                    item: "LOG",
+                },
                 directives: [],
             },
             EnumValue {
-                value: "THROW",
+                value: WithLocation {
+                    location: <generated>:42:47,
+                    item: "THROW",
+                },
                 directives: [],
             },
         ],
@@ -480,15 +489,24 @@ enums: [
         is_extension: false,
         values: [
             EnumValue {
-                value: "NONE",
+                value: WithLocation {
+                    location: <generated>:0:0,
+                    item: "NONE",
+                },
                 directives: [],
             },
             EnumValue {
-                value: "LOG",
+                value: WithLocation {
+                    location: <generated>:0:0,
+                    item: "LOG",
+                },
                 directives: [],
             },
             EnumValue {
-                value: "THROW",
+                value: WithLocation {
+                    location: <generated>:0:0,
+                    item: "THROW",
+                },
                 directives: [],
             },
         ],

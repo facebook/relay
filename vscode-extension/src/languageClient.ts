@@ -55,6 +55,7 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
       {scheme: 'file', language: 'typescript'},
       {scheme: 'file', language: 'typescriptreact'},
       {scheme: 'file', language: 'javascriptreact'},
+      {scheme: 'file', language: 'graphql'},
     ],
 
     outputChannel: context.lspOutputChannel,

@@ -116,7 +116,7 @@ Remember, the first `search` here is the name of the argument to `contacts`, whi
 
 ### Step 3 — Add the @refetchable directive
 
-Next we'll add a `@refetchable` directive. This tells Relay to generate the extra query for refetching it. You have to specify the name of the generated query — it's a good idea to base it on the name of the fragment.
+Next we'll add a `@refetchable` directive. This tells Relay to generate the extra query for refetching it. You either have to specify the name of the generated query through the `queryName` argument (it's a good idea to base it on the name of the fragment) or you can omit the argument and a query name will automatically be generated in the format of `<FRAGMENT_NAME>RefetchQuery`.
 
 ```
 const ContactsListFragment = graphql`

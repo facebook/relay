@@ -164,7 +164,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         directive: &Directive,
     ) -> DiagnosticsResult<(RefetchableDirective, RefetchRoot)> {
         let refetchable_directive =
-            RefetchableDirective::from_directive(&self.program.schema, directive)?;
+            RefetchableDirective::from_directive(&self.program.schema, &fragment, directive)?;
         self.validate_sibling_directives(fragment)?;
         self.validate_refetch_name(fragment, &refetchable_directive)?;
         let variables_map =

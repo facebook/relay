@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f88987026e2f5d28171c524fb14f859f>>
+ * @generated SignedSource<<bcfb5a372cd8231ea0556341d55608f9>>
  */
 
 mod refetchable_fragment;
@@ -87,13 +87,6 @@ async fn fragment_on_query_with_cycle() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-on-query-with-cycle.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-on-query-with-cycle.expected");
     test_fixture(transform_fixture, file!(), "fragment-on-query-with-cycle.graphql", "refetchable_fragment/fixtures/fragment-on-query-with-cycle.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn fragment_on_query_without_query_name_invalid() {
-    let input = include_str!("refetchable_fragment/fixtures/fragment-on-query-without-query-name.invalid.graphql");
-    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-query-without-query-name.invalid.expected");
-    test_fixture(transform_fixture, file!(), "fragment-on-query-without-query-name.invalid.graphql", "refetchable_fragment/fixtures/fragment-on-query-without-query-name.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

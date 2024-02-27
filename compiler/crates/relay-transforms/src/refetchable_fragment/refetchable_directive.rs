@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -14,6 +16,7 @@ use common::SourceLocationKey;
 use common::WithLocation;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Value;
 use graphql_text_printer::print_value;
@@ -45,7 +48,11 @@ pub struct RefetchableDirective {
 }
 
 impl RefetchableDirective {
-    pub fn from_directive(schema: &SDLSchema, directive: &Directive) -> DiagnosticsResult<Self> {
+    pub fn from_directive(
+        schema: &SDLSchema,
+        fragment: &Arc<FragmentDefinition>,
+        directive: &Directive,
+    ) -> DiagnosticsResult<Self> {
         let mut name = None;
         let mut directives = Vec::new();
 
@@ -128,6 +135,15 @@ impl RefetchableDirective {
                 )
             }
         }
+
+        name = name.or_else(|| {
+            Some(WithLocation::new(
+                // We use the location of the directive, since we don't have an argument to point to
+                directive.name.location,
+                OperationDefinitionName(format!("{}RefetchQuery", fragment.name.item.0).intern()),
+            ))
+        });
+
         Ok(Self {
             query_name: name.unwrap(),
             directives,

@@ -1,0 +1,5 @@
+fragment refetchableWithoutName on Node 
+  @refetchable 
+{
+  __typename
+}

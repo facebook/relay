@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f7c4dc54dc731835b1cb648cc89ad592>>
+ * @generated SignedSource<<3e7ea2011d81309db3e55ecd025b20d4>>
  */
 
 mod compile_relay_artifacts;
@@ -1151,6 +1151,27 @@ async fn refetchable_with_arguments_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.expected");
     test_fixture(transform_fixture, file!(), "refetchable-with-arguments.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_without_name() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable_without_name.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_without_name.expected");
+    test_fixture(transform_fixture, file!(), "refetchable_without_name.graphql", "compile_relay_artifacts/fixtures/refetchable_without_name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_without_name_conflict_with_operation_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable_without_name_conflict_with_operation.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_without_name_conflict_with_operation.invalid.expected");
+    test_fixture(transform_fixture, file!(), "refetchable_without_name_conflict_with_operation.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable_without_name_conflict_with_operation.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_without_name_conflict_with_refetchable_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable_without_name_conflict_with_refetchable.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_without_name_conflict_with_refetchable.invalid.expected");
+    test_fixture(transform_fixture, file!(), "refetchable_without_name_conflict_with_refetchable.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable_without_name_conflict_with_refetchable.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

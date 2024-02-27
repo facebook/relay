@@ -1,0 +1,13 @@
+# expected-to-throw
+
+fragment refetchableWithoutNameConflictWithRefetchableF1 on Node
+  @refetchable
+{
+  __typename
+}
+
+fragment refetchableWithoutNameConflictWithRefetchableF2 on Node
+  @refetchable(queryName: "refetchableWithoutNameConflictWithRefetchableF1RefetchQuery")
+{
+  id
+}

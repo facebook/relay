@@ -17,6 +17,7 @@ use common::NamedItem;
 use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
+use graphql_ir::transform_list;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -252,15 +253,36 @@ impl RelayResolverAbstractTypesTransform<'_> {
 
     // Transform selections on an interface type.
     fn transform_selections_given_parent_type(
-        &self,
+        &mut self,
         entry_type: Option<Type>,
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
         if let Some(Type::Interface(interface_id)) = entry_type {
+            let transformed_selections = transform_list(selections, |selection| match selection {
+                Selection::LinkedField(_)
+                | Selection::ScalarField(_)
+                | Selection::FragmentSpread(_) => Transformed::Keep,
+                Selection::InlineFragment(inline_fragment) => {
+                    if inline_fragment.type_condition.is_none() {
+                        self.transform_inline_fragment_with_parent_type(inline_fragment, entry_type)
+                    } else {
+                        Transformed::Keep
+                    }
+                }
+                Selection::Condition(_) => Transformed::Keep,
+            });
+            let selections_to_transform = match &transformed_selections {
+                TransformedValue::Keep => selections,
+                TransformedValue::Replace(replaced_selections) => replaced_selections,
+            };
             let (selections_to_copy, mut selections_to_keep) =
-                self.partition_selections_to_copy_and_keep(selections, interface_id);
+                self.partition_selections_to_copy_and_keep(selections_to_transform, interface_id);
             if selections_to_copy.is_empty() {
-                TransformedValue::Keep
+                if transformed_selections.should_keep() {
+                    TransformedValue::Keep
+                } else {
+                    TransformedValue::Replace(selections_to_keep)
+                }
             } else {
                 selections_to_keep.append(
                     &mut self.create_inline_fragment_selections_for_interface(
@@ -275,6 +297,24 @@ impl RelayResolverAbstractTypesTransform<'_> {
             TransformedValue::Keep
         }
     }
+
+    fn transform_inline_fragment_with_parent_type(
+        &mut self,
+        inline_fragment: &InlineFragment,
+        parent_type: Option<Type>,
+    ) -> Transformed<Selection> {
+        let transformed_selections =
+            self.transform_selections_given_parent_type(parent_type, &inline_fragment.selections);
+        match transformed_selections {
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(transformed_selections) => {
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    selections: transformed_selections,
+                    ..inline_fragment.clone()
+                })))
+            }
+        }
+    }
 }
 
 impl Transformer for RelayResolverAbstractTypesTransform<'_> {
@@ -286,32 +326,36 @@ impl Transformer for RelayResolverAbstractTypesTransform<'_> {
         &mut self,
         inline_fragment: &InlineFragment,
     ) -> Transformed<Selection> {
-        let selections = self.transform_selections(&inline_fragment.selections);
-        // If our child selections had no changes, do not copy them until we have to replace them
-        let selections_to_transform = match &selections {
-            TransformedValue::Keep => &inline_fragment.selections,
-            TransformedValue::Replace(replaced_selections) => replaced_selections,
-        };
-        let transformed_selections = self.transform_selections_given_parent_type(
-            inline_fragment.type_condition,
-            selections_to_transform,
-        );
-        match transformed_selections {
-            TransformedValue::Keep => {
-                if !selections.should_keep() {
+        if inline_fragment.type_condition.is_none() {
+            self.default_transform_inline_fragment(inline_fragment)
+        } else {
+            let selections = self.transform_selections(&inline_fragment.selections);
+            // If our child selections had no changes, do not copy them until we have to replace them
+            let selections_to_transform = match &selections {
+                TransformedValue::Keep => &inline_fragment.selections,
+                TransformedValue::Replace(replaced_selections) => replaced_selections,
+            };
+            let transformed_selections = self.transform_selections_given_parent_type(
+                inline_fragment.type_condition,
+                selections_to_transform,
+            );
+            match transformed_selections {
+                TransformedValue::Keep => {
+                    if !selections.should_keep() {
+                        Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                            selections: selections_to_transform.to_vec(),
+                            ..inline_fragment.clone()
+                        })))
+                    } else {
+                        Transformed::Keep
+                    }
+                }
+                TransformedValue::Replace(transformed_selections) => {
                     Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
-                        selections: selections_to_transform.to_vec(),
+                        selections: transformed_selections,
                         ..inline_fragment.clone()
                     })))
-                } else {
-                    Transformed::Keep
                 }
-            }
-            TransformedValue::Replace(transformed_selections) => {
-                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
-                    selections: transformed_selections,
-                    ..inline_fragment.clone()
-                })))
             }
         }
     }

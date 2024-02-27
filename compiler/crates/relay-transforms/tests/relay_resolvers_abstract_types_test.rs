@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<491b01be9ff694b0287f93c543eb3260>>
+ * @generated SignedSource<<a764a3c14d13a5c89b68fc540f2b084e>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -108,6 +108,13 @@ async fn nested_abstract_type_query() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/nested_abstract_type_query.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/nested_abstract_type_query.expected");
     test_fixture(transform_fixture, file!(), "nested_abstract_type_query.graphql", "relay_resolvers_abstract_types/fixtures/nested_abstract_type_query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn nested_abstract_type_selection_on_inline_fragment_without_type() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/nested_abstract_type_selection_on_inline_fragment_without_type.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/nested_abstract_type_selection_on_inline_fragment_without_type.expected");
+    test_fixture(transform_fixture, file!(), "nested_abstract_type_selection_on_inline_fragment_without_type.graphql", "relay_resolvers_abstract_types/fixtures/nested_abstract_type_selection_on_inline_fragment_without_type.expected", input, expected).await;
 }
 
 #[tokio::test]

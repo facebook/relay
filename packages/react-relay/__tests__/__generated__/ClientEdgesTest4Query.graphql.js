@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8b4d0c7a6aa69c38d1679dea5b1b1582>>
+ * @generated SignedSource<<8d3a728564aeb571c32e48775e1ac47e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -100,6 +100,7 @@ return {
             "field": {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "ClientObject",
+              "modelResolver": null,
               "backingField": {
                 "alias": null,
                 "args": (v1/*: any*/),

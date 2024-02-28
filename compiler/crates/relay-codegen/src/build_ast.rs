@@ -1746,22 +1746,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 } else {
                     None
                 };
-                if model_resolver_field.is_some() {
-                    Primitive::Key(self.object(object! {
-                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                        concrete_type: concrete_type,
-                        client_edge_model_resolver: model_resolver_field.unwrap(),
-                        client_edge_backing_field_key: backing_field,
-                        client_edge_selections_key: selections_item,
-                    }))
-                } else {
-                    Primitive::Key(self.object(object! {
-                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                        concrete_type: concrete_type,
-                        client_edge_backing_field_key: backing_field,
-                        client_edge_selections_key: selections_item,
-                    }))
-                }
+                Primitive::Key(self.object(object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                    concrete_type: concrete_type,
+                    client_edge_model_resolver: model_resolver_field.unwrap_or(Primitive::Null),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                }))
             }
         };
 

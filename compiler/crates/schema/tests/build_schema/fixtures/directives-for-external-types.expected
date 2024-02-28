@@ -53,9 +53,12 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: DirectiveName(
-            "extern_type",
-        ),
+        name: WithLocation {
+            location: <generated>:179:190,
+            item: DirectiveName(
+                "extern_type",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -89,9 +92,12 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "fetchable",
-        ),
+        name: WithLocation {
+            location: <generated>:245:254,
+            item: DirectiveName(
+                "fetchable",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -114,9 +120,12 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:255:262,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -143,9 +152,12 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "ref_type",
-        ),
+        name: WithLocation {
+            location: <generated>:109:117,
+            item: DirectiveName(
+                "ref_type",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -179,9 +191,12 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:334:338,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -208,9 +223,12 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "source",
-        ),
+        name: WithLocation {
+            location: <generated>:11:17,
+            item: DirectiveName(
+                "source",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -1061,9 +1079,12 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: DirectiveName(
-            "extern_type",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "extern_type",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -1097,9 +1118,12 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "fetchable",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "fetchable",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -1122,9 +1146,12 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -1151,9 +1178,12 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "ref_type",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "ref_type",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -1187,9 +1217,12 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(
@@ -1216,9 +1249,12 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "source",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "source",
+            ),
+        },
         arguments: [
             Argument {
                 name: ArgumentName(

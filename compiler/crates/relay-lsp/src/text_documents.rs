@@ -15,7 +15,6 @@ use lsp_types::notification::DidSaveTextDocument;
 use lsp_types::notification::Notification;
 use lsp_types::DidChangeTextDocumentParams;
 use lsp_types::DidOpenTextDocumentParams;
-use lsp_types::TextDocumentItem;
 
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
@@ -26,13 +25,13 @@ pub fn on_did_open_text_document(
     params: <DidOpenTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
-    let TextDocumentItem { text, uri, .. } = text_document;
+    let uri = text_document.uri.to_owned();
 
     if !is_file_uri_in_dir(lsp_state.root_dir(), &uri) {
         return Ok(());
     }
 
-    lsp_state.document_opened(&uri, &text)
+    lsp_state.document_opened(&uri, &text_document)
 }
 
 #[allow(clippy::unnecessary_wraps)]
@@ -63,12 +62,7 @@ pub fn on_did_change_text_document(
         return Ok(());
     }
 
-    // We do full text document syncing, so the new text will be in the first content change event.
-    let content_change = content_changes
-        .first()
-        .expect("content_changes should always be non-empty");
-
-    lsp_state.document_changed(&uri, &content_change.text)
+    lsp_state.document_changed(&uri, content_changes, text_document.version)
 }
 
 #[allow(clippy::unnecessary_wraps)]

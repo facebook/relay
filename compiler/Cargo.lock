@@ -1199,6 +1199,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "lsp-textdocument"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62dcaf776a57a63c3baafa3ab0ae25943049865c862980522a5112b1fd849503"
+dependencies = [
+ "lsp-types",
+ "serde_json",
+]
+
+[[package]]
 name = "lsp-types"
 version = "0.94.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1785,6 +1795,7 @@ dependencies = [
  "itertools",
  "log",
  "lsp-server",
+ "lsp-textdocument",
  "lsp-types",
  "percent-encoding",
  "rand",

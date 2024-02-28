@@ -30,8 +30,11 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use log::debug;
 use lsp_server::Message;
+use lsp_textdocument::FullTextDocument;
 use lsp_types::Diagnostic;
 use lsp_types::Range;
+use lsp_types::TextDocumentContentChangeEvent;
+use lsp_types::TextDocumentItem;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
 use relay_compiler::config::Config;
@@ -126,9 +129,14 @@ pub trait GlobalState {
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String>;
 
-    fn document_opened(&self, url: &Url, text: &str) -> LSPRuntimeResult<()>;
+    fn document_opened(&self, url: &Url, text_document: &TextDocumentItem) -> LSPRuntimeResult<()>;
 
-    fn document_changed(&self, url: &Url, full_text: &str) -> LSPRuntimeResult<()>;
+    fn document_changed(
+        &self,
+        url: &Url,
+        changes: Vec<TextDocumentContentChangeEvent>,
+        version: i32,
+    ) -> LSPRuntimeResult<()>;
 
     fn document_closed(&self, url: &Url) -> LSPRuntimeResult<()>;
 
@@ -159,6 +167,7 @@ pub struct LSPState<
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
     pub(crate) project_status: ProjectStatusMap,
     js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
+    open_text_documents: DashMap<Url, FullTextDocument>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
@@ -200,6 +209,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_javascript_features: Default::default(),
             js_resource,
+            open_text_documents: DashMap::new(),
         };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -511,13 +521,22 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         get_query_text(self, query_text, (*project_name).into())
     }
 
-    fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
+    fn document_opened(&self, uri: &Url, text_document: &TextDocumentItem) -> LSPRuntimeResult<()> {
+        let open_text_document = FullTextDocument::new(
+            text_document.language_id.to_owned(),
+            text_document.version,
+            text_document.text.to_owned(),
+        );
+
+        self.open_text_documents
+            .insert(uri.to_owned(), open_text_document);
+
         if let Some(js_server) = self.get_js_language_sever() {
-            js_server.process_js_source(uri, text);
+            js_server.process_js_source(uri, &text_document.text);
         }
 
         // First we check to see if this document has any GraphQL documents.
-        let embedded_sources = extract_graphql::extract(text);
+        let embedded_sources = extract_graphql::extract(&text_document.text);
         if embedded_sources.is_empty() {
             Ok(())
         } else {
@@ -525,7 +544,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
     }
 
-    fn document_changed(&self, uri: &Url, full_text: &str) -> LSPRuntimeResult<()> {
+    fn document_changed(
+        &self,
+        uri: &Url,
+        changes: Vec<TextDocumentContentChangeEvent>,
+        version: i32,
+    ) -> LSPRuntimeResult<()> {
+        let mut open_text_document = self
+            .open_text_documents
+            .get_mut(uri)
+            .ok_or(LSPRuntimeError::ExpectedError)?;
+
+        open_text_document.update(&changes, version);
+
+        let full_text = open_text_document.get_content(None);
+
         if let Some(js_server) = self.get_js_language_sever() {
             js_server.process_js_source(uri, full_text);
         }
@@ -541,6 +574,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_closed(&self, uri: &Url) -> LSPRuntimeResult<()> {
+        self.open_text_documents.remove(uri);
+
         if let Some(js_server) = self.get_js_language_sever() {
             js_server.remove_js_source(uri);
         }

@@ -11,7 +11,6 @@
 
 'use strict';
 
-const useFragmentNode_LEGACY = require('../relay-hooks/legacy/useFragmentNode');
 const React = require('react');
 const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
@@ -42,25 +41,13 @@ afterEach(() => {
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
-describe.each(['New', 'Legacy'])(
+describe.each(['New'])(
   'Client Edges (Hook implementation: %s)',
-  (implementation: 'Legacy' | 'New') => {
+  (implementation: 'New') => {
     let networkSink;
     let environment;
     let fetchFn;
     beforeEach(() => {
-      if (implementation === 'Legacy') {
-        jest.mock('../relay-hooks/HooksImplementation', () => {
-          return {
-            get() {
-              return {
-                useFragmetNode: useFragmentNode_LEGACY,
-              };
-            },
-          };
-        });
-      }
-
       fetchFn = jest.fn(() =>
         // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
         RelayObservable.create(sink => {

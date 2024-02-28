@@ -38,7 +38,6 @@ import type {
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useRefetchableFragmentNode_LEGACY = require('../legacy/useRefetchableFragmentNode');
 const {useTrackLoadQueryInRender} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useRefetchableFragmentInternal = require('../useRefetchableFragmentInternal');
@@ -63,10 +62,7 @@ const Scheduler = require('scheduler');
 
 const {useMemo, useState, useEffect} = React;
 
-describe.each([
-  ['New', useRefetchableFragmentInternal],
-  ['Legacy', useRefetchableFragmentNode_LEGACY],
-])(
+describe.each([['New', useRefetchableFragmentInternal]])(
   'useRefetchableFragmentNode (%s)',
   (_hookName, useRefetchableFragmentNodeOriginal) => {
     const isUsingNewImplementation =

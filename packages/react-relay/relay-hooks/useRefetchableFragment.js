@@ -19,7 +19,6 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const HooksImplementation = require('./HooksImplementation');
 const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
@@ -65,7 +64,7 @@ export type UseRefetchableFragmentType = <
   key: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
-function useRefetchableFragmentImpl<
+function useRefetchableFragment<
   TFragmentType: FragmentType,
   TVariables: Variables,
   TData,
@@ -90,28 +89,6 @@ function useRefetchableFragmentImpl<
   // $FlowFixMe[incompatible-return]
   // $FlowFixMe[prop-missing]
   return [fragmentData, refetch];
-}
-
-function useRefetchableFragment<
-  TFragmentType: FragmentType,
-  TVariables: Variables,
-  TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
->(
-  fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
-  parentFragmentRef: TKey,
-): ReturnType<TVariables, TData, TKey> {
-  const impl = HooksImplementation.get();
-  if (impl) {
-    // $FlowExpectedError[incompatible-return] Flow cannot prove that two conditional type satisfy each other
-    return impl.useRefetchableFragment<TFragmentType, TVariables, TData, TKey>(
-      fragmentInput,
-      parentFragmentRef,
-    );
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useRefetchableFragmentImpl(fragmentInput, parentFragmentRef);
-  }
 }
 
 module.exports = useRefetchableFragment;

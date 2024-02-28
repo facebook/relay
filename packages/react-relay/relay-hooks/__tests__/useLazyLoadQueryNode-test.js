@@ -28,11 +28,6 @@ import type {
 } from 'relay-runtime/store/RelayStoreTypes';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const HooksImplementation = require('../HooksImplementation');
-const useFragment_LEGACY = require('../legacy/useFragment');
-const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
-const usePaginationFragment_LEGACY = require('../legacy/usePaginationFragment');
-const useRefetchableFragment_LEGACY = require('../legacy/useRefetchableFragment');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
@@ -95,10 +90,7 @@ type Props = {
   extraData?: number,
 };
 
-describe.each([
-  ['New', false],
-  ['Legacy', true],
-])(
+describe.each([['New', false]])(
   'useLazyLoadQueryNode / shouldUseLegacyImplementation (%s)',
   (_hookName: string, shouldUseLegacyImplementation) => {
     let environment;
@@ -128,17 +120,7 @@ describe.each([
       disallowWarnings();
       disallowConsoleErrors();
 
-      if (shouldUseLegacyImplementation) {
-        useFragmentImpl = useFragment_LEGACY;
-        HooksImplementation.inject({
-          useFragment: useFragment_LEGACY,
-          usePaginationFragment: usePaginationFragment_LEGACY,
-          useRefetchableFragment: useRefetchableFragment_LEGACY,
-          useFragmentNode: useFragmentNode_LEGACY,
-        });
-      } else {
-        useFragmentImpl = useFragment;
-      }
+      useFragmentImpl = useFragment;
 
       errorBoundaryDidCatchFn = jest.fn<[Error], mixed>();
 

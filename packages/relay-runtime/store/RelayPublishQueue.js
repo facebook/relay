@@ -61,8 +61,8 @@ const _global: typeof global | $FlowFixMe =
   typeof global !== 'undefined'
     ? global
     : typeof window !== 'undefined'
-    ? window
-    : undefined;
+      ? window
+      : undefined;
 
 const applyWithGuard =
   _global?.ErrorUtils?.applyWithGuard ??

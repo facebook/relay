@@ -18,6 +18,7 @@ use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
 use graphql_ir::transform_list;
+use graphql_ir::Condition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -269,7 +270,9 @@ impl RelayResolverAbstractTypesTransform<'_> {
                         Transformed::Keep
                     }
                 }
-                Selection::Condition(_) => Transformed::Keep,
+                Selection::Condition(condition) => {
+                    self.transform_condition_with_parent_type(condition, entry_type)
+                }
             });
             let selections_to_transform = match &transformed_selections {
                 TransformedValue::Keep => selections,
@@ -295,6 +298,24 @@ impl RelayResolverAbstractTypesTransform<'_> {
         } else {
             // If no parent type is provided, skip transform
             TransformedValue::Keep
+        }
+    }
+
+    fn transform_condition_with_parent_type(
+        &mut self,
+        condition: &Condition,
+        parent_type: Option<Type>,
+    ) -> Transformed<Selection> {
+        let transformed_selections =
+            self.transform_selections_given_parent_type(parent_type, &condition.selections);
+        match transformed_selections {
+            TransformedValue::Keep => Transformed::Keep,
+            TransformedValue::Replace(transformed_selections) => {
+                Transformed::Replace(Selection::Condition(Arc::new(Condition {
+                    selections: transformed_selections,
+                    ..condition.clone()
+                })))
+            }
         }
     }
 

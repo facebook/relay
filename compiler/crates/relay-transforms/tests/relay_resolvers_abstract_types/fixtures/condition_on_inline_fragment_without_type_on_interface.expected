@@ -1,10 +1,10 @@
 ==================================== INPUT ====================================
 # relay-resolver-enable-interface-output-type
 
-fragment nestedConditionOnInlineFragmentOnInterfaceFragment on Cat {
+fragment conditionOnInlineFragmentWithoutTypeOnInterfaceFragment on Cat {
     ... @include(if: $has_owner) {
+        name
         description
-        name @include(if: $has_name)
     }
 }
 
@@ -17,22 +17,30 @@ interface Cat {
 
 type Tabby implements Cat {
     description: String @relay_resolver(import_path: "TabbyResolver")
-    name: String
+    name: String @relay_resolver(import_path: "TabbyResolver")
 }
 
 type Persian implements Cat {
     description: String
     name: String
 }
-
-extend type Query {
-    cat: Cat
-}
 ==================================== OUTPUT ===================================
-fragment nestedConditionOnInlineFragmentOnInterfaceFragment on Cat {
+fragment conditionOnInlineFragmentWithoutTypeOnInterfaceFragment on Cat {
   ... @include(if: $has_owner) {
-    name @include(if: $has_name)
     ... on Tabby {
+      __id @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(526),
+      #     import_path: "TabbyResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "name",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: Legacy,
+      #     fragment_data_injection_mode: None,
+      # }
+      
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
       #     field_id: FieldID(525),
@@ -48,6 +56,7 @@ fragment nestedConditionOnInlineFragmentOnInterfaceFragment on Cat {
       
     }
     ... on Persian {
+      name
       description
     }
   }

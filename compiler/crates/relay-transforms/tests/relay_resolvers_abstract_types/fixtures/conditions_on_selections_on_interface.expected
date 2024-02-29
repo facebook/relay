@@ -28,8 +28,25 @@ extend type Query {
 }
 ==================================== OUTPUT ===================================
 fragment conditionsOnSelectionsOnInterfaceFragment on Cat {
+  ... on Tabby @include(if: $has_owner) {
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(525),
+    #     import_path: "TabbyResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "description",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    # }
+    
+  }
+  ... on Persian @include(if: $has_owner) {
+    description
+  }
   ... on Tabby {
-    description @include(if: $has_owner)
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
     #     field_id: FieldID(526),
@@ -45,7 +62,6 @@ fragment conditionsOnSelectionsOnInterfaceFragment on Cat {
     
   }
   ... on Persian {
-    description @include(if: $has_owner)
     name
   }
 }

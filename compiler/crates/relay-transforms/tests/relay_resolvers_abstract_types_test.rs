@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a764a3c14d13a5c89b68fc540f2b084e>>
+ * @generated SignedSource<<8f0e14d2c02a6ed5646d38d2f1bc8bea>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -17,6 +17,13 @@ async fn client_field_on_abstract_type_without_resolver() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/client_field_on_abstract_type_without_resolver.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/client_field_on_abstract_type_without_resolver.expected");
     test_fixture(transform_fixture, file!(), "client_field_on_abstract_type_without_resolver.graphql", "relay_resolvers_abstract_types/fixtures/client_field_on_abstract_type_without_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn condition_on_inline_fragment_without_type_on_interface() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/condition_on_inline_fragment_without_type_on_interface.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/condition_on_inline_fragment_without_type_on_interface.expected");
+    test_fixture(transform_fixture, file!(), "condition_on_inline_fragment_without_type_on_interface.graphql", "relay_resolvers_abstract_types/fixtures/condition_on_inline_fragment_without_type_on_interface.expected", input, expected).await;
 }
 
 #[tokio::test]

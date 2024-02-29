@@ -589,6 +589,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 interfaces: Vec::new(),
                 directives: vec![],
                 fields: Some(fields),
+                span: Span::empty(),
             },
         )];
 
@@ -678,6 +679,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 interfaces: vec![],
                 directives: vec![],
                 fields: Some(self.fields(Some(object), project_config)),
+                span: Span::empty(),
             },
         )]
     }
@@ -719,10 +721,12 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             directives: self.directives(object, project_config),
             description: self.description(),
             hack_source: self.hack_source(),
+            span: Span::empty(),
         }])
     }
 
     fn fragment_argument_definitions(&self) -> Option<List<InputValueDefinition>> {
+        let span = Span::empty();
         self.fragment_arguments().as_ref().map(|args| {
             List::generated(
                 args.iter()
@@ -731,6 +735,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                         type_: arg.type_.clone(),
                         default_value: arg.default_value.clone(),
                         directives: vec![],
+                        span,
                     })
                     .collect::<Vec<_>>(),
             )
@@ -1205,6 +1210,7 @@ impl ResolverIr for StrongObjectIr {
                 directives: vec![],
                 description: None,
                 hack_source: None,
+                span,
             },
             generate_model_instance_field(
                 project_config,
@@ -1225,6 +1231,7 @@ impl ResolverIr for StrongObjectIr {
                 arguments: None,
             }],
             fields: Some(List::generated(fields)),
+            span,
         });
 
         Ok(vec![type_])
@@ -1343,6 +1350,7 @@ impl WeakObjectIr {
                 vec![resolver_source_hash_directive(source_hash)],
                 location,
             )])),
+            span,
         })
     }
 
@@ -1384,6 +1392,7 @@ impl WeakObjectIr {
                     },
                 ])),
             }],
+            span,
         })
     }
 
@@ -1573,6 +1582,7 @@ fn generate_model_instance_field(
         directives,
         description,
         hack_source,
+        span,
     }
 }
 

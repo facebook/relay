@@ -20,10 +20,16 @@ export type MyQuery$data = {
     readonly cast: ReadonlyArray<{
       readonly character: string;
       readonly singer: {
+        /**
+         * The user's name (first, last)
+         */
         readonly name: string | null | undefined;
       };
     }>;
     readonly composer: {
+      /**
+       * The user's name (first, last)
+       */
       readonly name: string | null | undefined;
     };
   } | null | undefined;

@@ -8,6 +8,9 @@ fragment Foo on User {
 import { FragmentRefs } from "relay-runtime";
 export type Foo$data = {
   readonly named_fragment: {
+    /**
+     * The user's name (first, last)
+     */
     readonly name: string | null | undefined;
   } | null | undefined;
   readonly " $fragmentType": "Foo";

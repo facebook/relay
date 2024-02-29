@@ -50,6 +50,9 @@ export type ScalarHandleField$variables = {
 };
 export type ScalarHandleField$data = {
   readonly node: {
+    /**
+     * The user's name (first, last)
+     */
     readonly name?: string | null | undefined;
   } | null | undefined;
 };

@@ -161,7 +161,7 @@ fragment ChildFragment2 on User
                     alias: None,
                     definition: WithLocation {
                         location: use_fragment_spread_with_provider.graphql:286:300,
-                        item: FieldID(475),
+                        item: FieldID(477),
                     },
                     arguments: [
                         Argument {
@@ -295,7 +295,7 @@ fragment ChildFragment2 on User
                             alias: None,
                             definition: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:526:532,
-                                item: FieldID(484),
+                                item: FieldID(486),
                             },
                             arguments: [],
                             directives: [],

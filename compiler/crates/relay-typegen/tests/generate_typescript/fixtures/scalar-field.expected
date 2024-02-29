@@ -20,6 +20,9 @@ export type ScalarField$data = {
     readonly aliasedField: number | null | undefined;
   } | null | undefined;
   readonly id: string;
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly screennames: ReadonlyArray<{
     readonly name: string | null | undefined;

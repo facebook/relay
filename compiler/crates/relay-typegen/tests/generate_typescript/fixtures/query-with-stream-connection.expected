@@ -29,6 +29,9 @@ export type TestDefer$data = {
         } | null | undefined;
       } | null | undefined> | null | undefined;
     } | null | undefined;
+    /**
+     * The user's name (first, last)
+     */
     readonly name?: string | null | undefined;
   } | null | undefined;
 };

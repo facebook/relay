@@ -56,6 +56,9 @@ export type ConcreateTypes$data = {
     readonly " $fragmentSpreads": FragmentRefs<"PageFragment">;
   } | {
     readonly __typename: "User";
+    /**
+     * The user's name (first, last)
+     */
     readonly name: string | null | undefined;
   } | {
     // This will never be '%other', but we need some
@@ -72,6 +75,9 @@ export type ConcreateTypes$key = {
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread$data = {
   readonly fragAndField: {
+    /**
+     * URI where the image can be found
+     */
     readonly uri: string | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
   } | null | undefined;

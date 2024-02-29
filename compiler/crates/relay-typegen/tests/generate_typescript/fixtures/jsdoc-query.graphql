@@ -1,0 +1,12 @@
+query FooQuery {
+  me {
+    fullName
+    dynamicFriends(first: 10) {
+      edges {
+        node {
+          firstName
+        }
+      }
+    }
+  }
+}

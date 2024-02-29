@@ -442,6 +442,7 @@ pub struct Field {
     pub hack_source: Option<StringKey>,
 }
 
+#[derive(Clone, Debug)]
 pub struct Deprecation {
     pub reason: Option<StringKey>,
 }

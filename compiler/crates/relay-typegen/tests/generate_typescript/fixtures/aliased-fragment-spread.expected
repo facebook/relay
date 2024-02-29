@@ -25,6 +25,9 @@ export type RelayReaderNamedFragmentsTest2Query = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type RelayReaderNamedFragmentsTest_user$data = {
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly " $fragmentType": "RelayReaderNamedFragmentsTest_user";
 };

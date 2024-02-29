@@ -24,6 +24,9 @@ export type RefetchableFragmentQuery = {
 import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragment$data = {
   readonly fragAndField: {
+    /**
+     * URI where the image can be found
+     */
     readonly uri: string | null | undefined;
   } | null | undefined;
   readonly id: string;

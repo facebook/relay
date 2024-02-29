@@ -57,6 +57,9 @@ export type Test$data = {
   } | null | undefined;
   readonly viewer: {
     readonly actor: {
+      /**
+       * The user's name (first, last)
+       */
       readonly name?: string | null | undefined;
       readonly " $fragmentSpreads": FragmentRefs<"AnotherNameRendererFragment">;
     } | null | undefined;
@@ -134,6 +137,9 @@ export type Test = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type AnotherNameRendererFragment$data = {
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly nameRenderer: {
     readonly __fragmentPropName?: string | null | undefined;

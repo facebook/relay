@@ -103,6 +103,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         enable_strict_custom_scalars: false,
         allow_required_in_mutation_response: FeatureFlag::Disabled,
         allow_resolvers_in_mutation_response: FeatureFlag::Disabled,
+        generate_jsdoc: true,
     };
 
     let default_schema_config = SchemaConfig::default();

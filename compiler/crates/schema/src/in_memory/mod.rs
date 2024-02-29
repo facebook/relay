@@ -1664,7 +1664,7 @@ impl InMemorySchema {
                         name: ArgumentName(arg_def.name.value),
                         type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def.default_value.clone(),
-                        description: None,
+                        description: arg_def.description.as_ref().map(|desc| desc.value), // YESSSS
                         directives: self.build_directive_values(&arg_def.directives),
                     })
                 })

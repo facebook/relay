@@ -14,7 +14,13 @@ export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
   get me(): {
     readonly __typename: "User";
+    /**
+     * Relay's cache key for this object.
+     */
     readonly __id: string;
+    /**
+     * Relay's cache key for this object.
+     */
     readonly aliased_double_under_id: string;
     readonly aliased_id: string;
     readonly aliased_typename: "User";

@@ -33,8 +33,15 @@ fragment FeedbackFragment on Feedback {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type CommentCreateInput = {
+  /**
+   * The ID of the feedback to comment on
+   * @deprecated not used anymore
+   */
   client_mutation_id: string;
   feedback?: CommentfeedbackFeedback | null | undefined;
+  /**
+   * The text of the comment
+   */
   feedbackId?: string | null | undefined;
 };
 export type CommentfeedbackFeedback = {
@@ -50,6 +57,9 @@ export type CommentCreateMutation$variables = {
 };
 export type CommentCreateMutation$data = {
   readonly commentCreate: {
+    /**
+     * A comment
+     */
     readonly comment: {
       readonly friends: {
         readonly edges: ReadonlyArray<{
@@ -105,6 +115,9 @@ export type FriendFragment$data = {
     readonly " $fragmentSpreads": FragmentRefs<"FeedbackFragment">;
   } | null | undefined;
   readonly lastName: string | null | undefined;
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly " $fragmentType": "FriendFragment";
 };

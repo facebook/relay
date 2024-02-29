@@ -33,6 +33,9 @@ export type Bar$data = {
   readonly body?: {
     readonly text: string | null | undefined;
   } | null | undefined;
+  /**
+   * The user's name (first, last)
+   */
   readonly name?: string;
   readonly " $fragmentType": "Bar";
 } | null | undefined;
@@ -50,6 +53,9 @@ export type Foo$data = {
   readonly " $fragmentType": "Foo";
 } | {
   readonly __typename: "User";
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string;
   readonly " $fragmentType": "Foo";
 } | {

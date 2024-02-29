@@ -30,8 +30,15 @@ fragment FriendFragment on User {
 import { FragmentRefs } from "relay-runtime";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {
+  /**
+   * The ID of the feedback to comment on
+   * @deprecated not used anymore
+   */
   client_mutation_id: string;
   feedback?: CommentfeedbackFeedback | null | undefined;
+  /**
+   * The text of the comment
+   */
   feedbackId?: string | null | undefined;
 };
 export type CommentfeedbackFeedback = {
@@ -47,6 +54,9 @@ export type CommentCreateMutation$variables = {
 };
 export type CommentCreateMutation$data = {
   readonly commentCreate: {
+    /**
+     * A comment
+     */
     readonly comment: {
       readonly friends: {
         readonly edges: ReadonlyArray<{
@@ -90,6 +100,9 @@ export type TestEnums = "mark" | "zuck" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment$data = {
   readonly lastName: string | null | undefined;
+  /**
+   * The user's name (first, last)
+   */
   readonly name: string | null | undefined;
   readonly profilePicture2: {
     readonly test_enums: TestEnums | null | undefined;

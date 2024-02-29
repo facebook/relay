@@ -39,8 +39,15 @@ export type ExampleQuery = {
 };
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {
+  /**
+   * The ID of the feedback to comment on
+   * @deprecated not used anymore
+   */
   client_mutation_id: string;
   feedback?: CommentfeedbackFeedback | null | undefined;
+  /**
+   * The text of the comment
+   */
   feedbackId?: string | null | undefined;
 };
 export type CommentfeedbackFeedback = {
@@ -54,6 +61,9 @@ export type TestMutation$variables = {
 };
 export type TestMutation$data = {
   readonly commentCreate: {
+    /**
+     * A comment
+     */
     readonly comment: {
       readonly id: string;
     } | null | undefined;

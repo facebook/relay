@@ -11,6 +11,7 @@ use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
 use relay_config::SchemaConfig;
 use relay_transforms::TypeConditionInfo;
+use schema::definitions::Deprecation;
 use schema::Type;
 use schema::TypeReference;
 
@@ -137,6 +138,8 @@ pub(crate) struct TypeSelectionLinkedField {
     pub(crate) node_selections: TypeSelectionMap,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) description: Option<String>,
+    pub(crate) deprecation: Option<Deprecation>,
 }
 
 #[derive(Debug, Clone)]
@@ -146,6 +149,8 @@ pub(crate) struct TypeSelectionScalarField {
     pub(crate) value: AST,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) description: Option<String>,
+    pub(crate) deprecation: Option<Deprecation>,
 }
 
 #[derive(Debug, Clone)]

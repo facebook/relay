@@ -450,6 +450,8 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::String,
+                    doc_comment: None,
+                    deprecation: None,
                 }),
             ],))),
             r"{|
@@ -464,12 +466,16 @@ mod tests {
                     optional: true,
                     read_only: false,
                     value: AST::String,
+                    doc_comment: None,
+                    deprecation: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
+                    doc_comment: None,
+                    deprecation: None,
                 }),
             ],))),
             r"{|
@@ -494,20 +500,28 @@ mod tests {
                             optional: true,
                             read_only: false,
                             value: AST::String,
+                            doc_comment: None,
+                            deprecation: None,
                         }),
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: "nested_foo2".intern(),
                             optional: false,
                             read_only: true,
                             value: AST::Number,
+                            doc_comment: None,
+                            deprecation: None,
                         }),
                     ],)),
+                    doc_comment: None,
+                    deprecation: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
+                    doc_comment: None,
+                    deprecation: None,
                 }),
             ],))),
             r"{|
@@ -538,6 +552,8 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::String,
+                    doc_comment: None,
+                    deprecation: None,
                 }),
             ]))),
             r"{
@@ -554,12 +570,16 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::String,
+                    doc_comment: None,
+                    deprecation: None,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: true,
                     read_only: true,
                     value: AST::Number,
+                    doc_comment: None,
+                    deprecation: None,
                 })
             ]))),
             r"{
@@ -580,6 +600,8 @@ mod tests {
                     optional: false,
                     read_only: false,
                     value: AST::OtherTypename,
+                    doc_comment: None,
+                    deprecation: None,
                 })
             ],))),
             r#"{|

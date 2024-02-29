@@ -1,0 +1,55 @@
+==================================== INPUT ====================================
+query FooQuery {
+  me {
+    fullName
+    dynamicFriends(first: 10) {
+      edges {
+        node {
+          firstName
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type FooQuery$variables = Record<PropertyKey, never>;
+export type FooQuery$data = {
+  readonly me: {
+    /**
+     * List the user's friends based on previous interactions.
+     * 
+     * This list is different for each viewer and might vary over time with the user's behavior and the behavior of their friends.
+     * 
+     * example usage:
+     * ```graphql
+     * query {
+     *   me {
+     *     friends(first: 10) {
+     *       edges {
+     *         node {
+     *           name
+     *         }
+     *       }
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    readonly dynamicFriends: {
+      readonly edges: ReadonlyArray<{
+        readonly node: {
+          readonly firstName: string | null | undefined;
+        } | null | undefined;
+      } | null | undefined> | null | undefined;
+    } | null | undefined;
+    /**
+     * A full name of the user
+     * @deprecated Use `firstName` instead
+     */
+    readonly fullName: string | null | undefined;
+  } | null | undefined;
+};
+export type FooQuery = {
+  response: FooQuery$data;
+  variables: FooQuery$variables;
+};

@@ -1,0 +1,7 @@
+mutation FooMutation($input: CommentCreateInput!) {
+  commentCreate(input: $input) {
+    feedback {
+        id
+    }
+  }
+}

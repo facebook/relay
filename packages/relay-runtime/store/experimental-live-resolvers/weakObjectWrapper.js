@@ -11,6 +11,8 @@
 
 'use strict';
 
+import type {LiveState} from '../RelayStoreTypes';
+
 const isLiveStateValue = require('./isLiveStateValue');
 const {isSuspenseSentinel} = require('./LiveResolverSuspenseSentinel');
 const invariant = require('invariant');
@@ -19,11 +21,11 @@ const invariant = require('invariant');
  * Wrap the return `value` of the @live resolver that return @weak
  * object into {`key`: `value`} object.
  */
-function weakObjectWrapperLive<TKey, TArgs>(
-  resolverFn: (key: TKey, args?: TArgs) => mixed,
+function weakObjectWrapperLive<TKey, TArgs = void>(
+  resolverFn: (key: TKey, args: TArgs) => mixed,
   key: string,
   isPlural: boolean,
-): (key: TKey, args?: TArgs) => mixed {
+): (key: TKey, args: TArgs) => LiveState<mixed> {
   return (...args) => {
     const liveState = resolverFn.apply(null, args);
     invariant(
@@ -32,13 +34,13 @@ function weakObjectWrapperLive<TKey, TArgs>(
     );
     return {
       ...liveState,
-      read: weakObjectWrapper<TKey, TArgs>(
-        () => {
-          return (liveState: $FlowFixMe).read();
-        },
-        key,
-        isPlural,
-      ),
+      read() {
+        return weakObjectWrapper<TKey, TArgs>(
+          () => liveState.read(),
+          key,
+          isPlural,
+        )(...args);
+      },
     };
   };
 }
@@ -47,11 +49,11 @@ function weakObjectWrapperLive<TKey, TArgs>(
  * Wrap the return `value` of the resolver that return @weak
  * object into {`key`: `value`} object.
  */
-function weakObjectWrapper<TKey, TArgs>(
-  resolverFn: (key: TKey, args?: TArgs) => mixed,
+function weakObjectWrapper<TKey, TArgs = void>(
+  resolverFn: (key: TKey, args: TArgs) => mixed,
   key: string,
   isPlural: boolean,
-): (key: TKey, args?: TArgs) => mixed {
+): (key: TKey, args: TArgs) => mixed {
   return (...args) => {
     const data = resolverFn.apply(null, args);
     if (data == null || isSuspenseSentinel(data)) {
@@ -62,7 +64,6 @@ function weakObjectWrapper<TKey, TArgs>(
         Array.isArray(data),
         'Resolver is expected to return a plural value.',
       );
-
       return data.map(item => ({
         [key]: item,
       }));

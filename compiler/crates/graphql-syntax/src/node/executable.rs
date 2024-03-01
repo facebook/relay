@@ -174,19 +174,6 @@ impl fmt::Display for TypeCondition {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct DefaultValue {
-    pub span: Span,
-    pub equals: Token,
-    pub value: ConstantValue,
-}
-
-impl fmt::Display for DefaultValue {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("{}", self.value))
-    }
-}
-
 // Selections
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]

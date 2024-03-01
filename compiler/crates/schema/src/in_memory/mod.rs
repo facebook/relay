@@ -1675,11 +1675,10 @@ impl InMemorySchema {
                     Ok(Argument {
                         name: ArgumentName(arg_def.name.value),
                         type_: self.build_input_object_reference(&arg_def.type_)?,
-                        default_value: if let Some(default_value) = &arg_def.default_value {
-                            Some(default_value.value.clone())
-                        } else {
-                            None
-                        },
+                        default_value: arg_def
+                            .default_value
+                            .as_ref()
+                            .map(|default_value| default_value.value.clone()),
                         description: None,
                         directives: self.build_directive_values(&arg_def.directives),
                     })

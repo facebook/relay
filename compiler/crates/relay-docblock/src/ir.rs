@@ -734,15 +734,13 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                     .map(|arg| InputValueDefinition {
                         name: arg.name.clone(),
                         type_: arg.type_.clone(),
-                        default_value: if let Some(default_value) = &arg.default_value {
-                            Some(DefaultValue {
+                        default_value: arg.default_value.as_ref().map(|default_value| {
+                            DefaultValue {
                                 value: default_value.clone(),
                                 equals: dummy_token(span),
                                 span,
-                            })
-                        } else {
-                            None
-                        },
+                            }
+                        }),
                         directives: vec![],
                         span,
                     })

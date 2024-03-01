@@ -12,6 +12,7 @@ mod goto_graphql_definition;
 use std::str;
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::DirectiveName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::Intern;
@@ -47,11 +48,11 @@ pub enum DefinitionDescription {
     FieldArgument {
         parent_type: Type,
         field_name: StringKey,
-        argument_name: StringKey,
+        argument_name: ArgumentName,
     },
     DirectiveArgument {
-        directive_name: StringKey,
-        argument_name: StringKey,
+        directive_name: DirectiveName,
+        argument_name: ArgumentName,
     },
     Fragment {
         fragment_name: FragmentDefinitionName,
@@ -60,7 +61,7 @@ pub enum DefinitionDescription {
         type_name: StringKey,
     },
     Directive {
-        directive_name: StringKey,
+        directive_name: DirectiveName,
     },
 }
 
@@ -161,11 +162,11 @@ fn locate_fragment_definition(
 }
 
 fn locate_directive_definition(
-    directive_name: StringKey,
+    directive_name: DirectiveName,
     schema: &Arc<SDLSchema>,
     root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
-    let directive = schema.get_directive(DirectiveName(directive_name));
+    let directive = schema.get_directive(directive_name);
 
     directive
         .map(|directive| directive.name.location)
@@ -233,7 +234,7 @@ fn locate_field_argument_definition(
     schema: &Arc<SDLSchema>,
     parent_type: Type,
     field_name: StringKey,
-    argument_name: StringKey,
+    argument_name: ArgumentName,
     root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
@@ -243,7 +244,7 @@ fn locate_field_argument_definition(
     let argument = field
         .arguments
         .iter()
-        .find(|argument| argument.name.item.0 == argument_name)
+        .find(|argument| argument.name.item == argument_name)
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!(
                 "Could not find argument with name {} on field with name {}",
@@ -257,21 +258,22 @@ fn locate_field_argument_definition(
 
 fn locate_directive_argument_definition(
     schema: &SDLSchema,
-    directive_name: StringKey,
-    argument_name: StringKey,
+    directive_name: DirectiveName,
+    argument_name: ArgumentName,
     root_dir: &std::path::PathBuf,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
-    let directive = schema.get_directive(DirectiveName(directive_name)).ok_or(
-        LSPRuntimeError::UnexpectedError(format!(
-            "Could not find directive with name {}",
-            directive_name
-        )),
-    )?;
+    let directive =
+        schema
+            .get_directive(directive_name)
+            .ok_or(LSPRuntimeError::UnexpectedError(format!(
+                "Could not find directive with name {}",
+                directive_name
+            )))?;
 
     let argument = directive
         .arguments
         .iter()
-        .find(|argument| argument.name.item.0 == argument_name)
+        .find(|argument| argument.name.item == argument_name)
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!(
                 "Could not find argument with name {} on directive with name {}",

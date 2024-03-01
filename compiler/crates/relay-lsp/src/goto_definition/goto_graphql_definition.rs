@@ -7,6 +7,8 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
+use common::DirectiveName;
 use common::Span;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDocument;
@@ -53,8 +55,8 @@ pub fn get_graphql_definition_description(
                         }),
                 }),
         }) => Ok(DefinitionDescription::DirectiveArgument {
-            directive_name: directive.name.value,
-            argument_name: argument_name.value,
+            directive_name: DirectiveName(directive.name.value),
+            argument_name: ArgumentName(argument_name.value),
         }),
         ResolutionPath::Ident(IdentPath {
             inner: argument_name,
@@ -69,7 +71,7 @@ pub fn get_graphql_definition_description(
                 }),
         }) => resolve_field_argument(
             field.name.value,
-            argument_name.value,
+            ArgumentName(argument_name.value),
             selection_path.parent,
             schema,
         ),
@@ -86,7 +88,7 @@ pub fn get_graphql_definition_description(
                 }),
         }) => resolve_field_argument(
             field.name.value,
-            argument_name.value,
+            ArgumentName(argument_name.value),
             selection_path.parent,
             schema,
         ),
@@ -120,7 +122,7 @@ pub fn get_graphql_definition_description(
             inner: directive_name,
             parent: IdentParent::DirectiveName(_),
         }) => Ok(DefinitionDescription::Directive {
-            directive_name: directive_name.value,
+            directive_name: DirectiveName(directive_name.value),
         }),
         ResolutionPath::Ident(IdentPath {
             inner: type_name,
@@ -149,7 +151,7 @@ fn resolve_field(
 
 fn resolve_field_argument(
     field_name: StringKey,
-    argument_name: StringKey,
+    argument_name: ArgumentName,
     selection_parent: SelectionParent<'_>,
     schema: &Arc<SDLSchema>,
 ) -> LSPRuntimeResult<DefinitionDescription> {

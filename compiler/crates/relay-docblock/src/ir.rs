@@ -40,6 +40,7 @@ use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
+use graphql_syntax::DefaultValue;
 use graphql_syntax::FieldDefinition;
 use graphql_syntax::FieldDefinitionStub;
 use graphql_syntax::Identifier;
@@ -733,7 +734,15 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                     .map(|arg| InputValueDefinition {
                         name: arg.name.clone(),
                         type_: arg.type_.clone(),
-                        default_value: arg.default_value.clone(),
+                        default_value: if let Some(default_value) = &arg.default_value {
+                            Some(DefaultValue {
+                                value: default_value.clone(),
+                                equals: dummy_token(span),
+                                span,
+                            })
+                        } else {
+                            None
+                        },
                         directives: vec![],
                         span,
                     })

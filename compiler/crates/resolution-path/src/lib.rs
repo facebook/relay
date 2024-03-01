@@ -946,7 +946,8 @@ impl<'a> ResolvePosition<'a> for List<ConstantArgument> {
     }
 }
 
-pub type ConstantArgPath<'a> = Path<&'a ConstantArgument, ConstantObjPath<'a>>;
+pub type ConstantArgPath<'a> = Path<&'a ConstantArgument, ConstantArgParent<'a>>;
+pub type ConstantArgParent<'a> = ConstantObjPath<'a>;
 
 impl<'a> ResolvePosition<'a> for ConstantArgument {
     type Parent = ConstantObjPath<'a>;

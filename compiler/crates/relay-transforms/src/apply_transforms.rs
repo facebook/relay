@@ -677,21 +677,16 @@ fn apply_typegen_transforms(
         )
     });
 
-    if !project_config
-        .feature_flags
-        .enable_resolver_normalization_ast
-    {
-        program = log_event.time(
-            "generate_relay_resolvers_operations_for_nested_objects",
-            || {
-                generate_relay_resolvers_operations_for_nested_objects(
-                    project_config.name,
-                    &program,
-                    &project_config.schema_config,
-                )
-            },
-        )?;
-    }
+    program = log_event.time(
+        "generate_relay_resolvers_operations_for_nested_objects",
+        || {
+            generate_relay_resolvers_operations_for_nested_objects(
+                project_config.name,
+                &program,
+                &project_config.schema_config,
+            )
+        },
+    )?;
 
     program = log_event.time("client_edges", || {
         client_edges(&program, project_config, &base_fragment_names)

@@ -68,7 +68,7 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   enabling this the babel plugin needs `artifactDirectory` to be set as well.
   [string]
 - `excludes` Directories to ignore under `src`. [array] [default:
-  ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"]]
+  ["\*\*/node_modules/\*\*", "\*\*/__mocks__/\*\*", "\*\*/__generated__/\*\*"]]
 - `schemaExtensions` List of directories with schema extensions. [array]
 - `schemaConfig`
   - `nodeInterfaceIdField` Configure the name of the globally unique ID field on

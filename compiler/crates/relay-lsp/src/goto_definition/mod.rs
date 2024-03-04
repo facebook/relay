@@ -12,6 +12,7 @@ mod goto_graphql_definition;
 use std::str;
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::DirectiveName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::Intern;
@@ -44,6 +45,15 @@ pub enum DefinitionDescription {
         parent_type: Type,
         field_name: StringKey,
     },
+    FieldArgument {
+        parent_type: Type,
+        field_name: StringKey,
+        argument_name: ArgumentName,
+    },
+    DirectiveArgument {
+        directive_name: DirectiveName,
+        argument_name: ArgumentName,
+    },
     Fragment {
         fragment_name: FragmentDefinitionName,
     },
@@ -51,7 +61,7 @@ pub enum DefinitionDescription {
         type_name: StringKey,
     },
     Directive {
-        directive_name: StringKey,
+        directive_name: DirectiveName,
     },
 }
 
@@ -81,6 +91,23 @@ pub fn on_goto_definition(
     let root_dir = state.root_dir();
 
     let goto_definition_response: GotoDefinitionResponse = match definition_description {
+        DefinitionDescription::FieldArgument {
+            parent_type,
+            field_name,
+            argument_name,
+        } => locate_field_argument_definition(
+            &schema,
+            parent_type,
+            field_name,
+            argument_name,
+            &root_dir,
+        )?,
+        DefinitionDescription::DirectiveArgument {
+            directive_name,
+            argument_name,
+        } => {
+            locate_directive_argument_definition(&schema, directive_name, argument_name, &root_dir)?
+        }
         DefinitionDescription::Field {
             parent_type,
             field_name,
@@ -135,11 +162,11 @@ fn locate_fragment_definition(
 }
 
 fn locate_directive_definition(
-    directive_name: StringKey,
+    directive_name: DirectiveName,
     schema: &Arc<SDLSchema>,
     root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
-    let directive = schema.get_directive(DirectiveName(directive_name));
+    let directive = schema.get_directive(directive_name);
 
     directive
         .map(|directive| directive.name.location)
@@ -201,6 +228,61 @@ fn locate_type_definition(
                 .ok_or(LSPRuntimeError::ExpectedError)?
         }
     }
+}
+
+fn locate_field_argument_definition(
+    schema: &Arc<SDLSchema>,
+    parent_type: Type,
+    field_name: StringKey,
+    argument_name: ArgumentName,
+    root_dir: &std::path::Path,
+) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
+    let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Could not find field with name {}", field_name))
+    })?);
+
+    let argument = field
+        .arguments
+        .iter()
+        .find(|argument| argument.name.item == argument_name)
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find argument with name {} on field with name {}",
+                argument_name, field_name,
+            ))
+        })?;
+
+    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
+        .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
+}
+
+fn locate_directive_argument_definition(
+    schema: &SDLSchema,
+    directive_name: DirectiveName,
+    argument_name: ArgumentName,
+    root_dir: &std::path::PathBuf,
+) -> LSPRuntimeResult<GotoDefinitionResponse> {
+    let directive =
+        schema
+            .get_directive(directive_name)
+            .ok_or(LSPRuntimeError::UnexpectedError(format!(
+                "Could not find directive with name {}",
+                directive_name
+            )))?;
+
+    let argument = directive
+        .arguments
+        .iter()
+        .find(|argument| argument.name.item == argument_name)
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find argument with name {} on directive with name {}",
+                argument_name, directive_name,
+            ))
+        })?;
+
+    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
+        .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
 }
 
 fn locate_field_definition(

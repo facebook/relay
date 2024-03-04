@@ -434,7 +434,7 @@ fn get_resolver_arguments(
     let mut args = vec![];
     for field_argument in schema_field.arguments.iter() {
         args.push(Prop::KeyValuePair(KeyValuePairProp {
-            key: field_argument.name.0,
+            key: field_argument.name.item.0,
             optional: false,
             read_only: false,
             value: transform_input_type(
@@ -2028,14 +2028,14 @@ fn transform_non_nullable_input_type(
                             .iter()
                             .map(|field| {
                                 Prop::KeyValuePair(KeyValuePairProp {
-                                    key: field.name.0,
+                                    key: field.name.item.0,
                                     read_only: false,
                                     optional: !field.type_.is_non_null()
                                         || typegen_context
                                             .project_config
                                             .typegen_config
                                             .optional_input_fields
-                                            .contains(&field.name.0)
+                                            .contains(&field.name.item.0)
                                         || field.default_value.is_some(),
                                     value: transform_input_type(
                                         typegen_context,

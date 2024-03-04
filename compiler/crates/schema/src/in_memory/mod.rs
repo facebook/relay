@@ -1002,7 +1002,7 @@ impl InMemorySchema {
             name: WithLocation::generated(self.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
-                name: ArgumentName("name".intern()),
+                name: WithLocation::generated(ArgumentName("name".intern())),
                 type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
                 default_value: None,
                 description: None,
@@ -1203,7 +1203,7 @@ impl InMemorySchema {
                         )]);
                     }
                 }
-                let arguments = self.build_arguments(arguments)?;
+                let arguments = self.build_arguments(arguments, *location_key)?;
                 self.directives.insert(
                     DirectiveName(name.value),
                     Directive {
@@ -1323,7 +1323,7 @@ impl InMemorySchema {
                 directives,
                 ..
             }) => {
-                let fields = self.build_arguments(fields)?;
+                let fields = self.build_arguments(fields, *location_key)?;
                 let directives = self.build_directive_values(directives);
                 self.input_objects.push(InputObject {
                     name: WithLocation::new(
@@ -1592,7 +1592,8 @@ impl InMemorySchema {
                 .items
                 .iter()
                 .map(|field_def| {
-                    let arguments = self.build_arguments(&field_def.arguments)?;
+                    let arguments =
+                        self.build_arguments(&field_def.arguments, field_location_key)?;
                     let type_ = self.build_type_reference(&field_def.type_, field_location_key)?;
                     let directives = self.build_directive_values(&field_def.directives);
                     let description = field_def.description.as_ref().map(|desc| desc.value);
@@ -1638,7 +1639,7 @@ impl InMemorySchema {
                             .annotate("previously defined here", prev_location),
                     ]);
                 }
-                let arguments = self.build_arguments(&field_def.arguments)?;
+                let arguments = self.build_arguments(&field_def.arguments, source_location_key)?;
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_, source_location_key)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
@@ -1666,14 +1667,20 @@ impl InMemorySchema {
     fn build_arguments(
         &mut self,
         arg_defs: &Option<List<InputValueDefinition>>,
+        source_location_key: SourceLocationKey,
     ) -> DiagnosticsResult<ArgumentDefinitions> {
         if let Some(arg_defs) = arg_defs {
             let arg_defs: DiagnosticsResult<Vec<Argument>> = arg_defs
                 .items
                 .iter()
                 .map(|arg_def| {
+                    let argument_location = Location::new(source_location_key, arg_def.name.span);
+
                     Ok(Argument {
-                        name: ArgumentName(arg_def.name.value),
+                        name: WithLocation::new(
+                            argument_location,
+                            ArgumentName(arg_def.name.value),
+                        ),
                         type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def
                             .default_value

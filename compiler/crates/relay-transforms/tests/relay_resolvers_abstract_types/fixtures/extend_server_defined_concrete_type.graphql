@@ -1,0 +1,14 @@
+# relay-resolver-enable-interface-output-type
+
+fragment extendServerDefinedConcreteTypeFragment on FeedUnit {
+    tracking
+    ... on PhotoStory {
+        description
+    }
+}
+
+# %extensions%
+
+extend type PhotoStory {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8f0e14d2c02a6ed5646d38d2f1bc8bea>>
+ * @generated SignedSource<<bf7736d77f94b49eb89f5edea1ba5188>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -73,6 +73,13 @@ async fn edge_to_abstract_type_with_inline_fragment_on_abstract_type() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/edge_to_abstract_type_with_inline_fragment_on_abstract_type.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/edge_to_abstract_type_with_inline_fragment_on_abstract_type.expected");
     test_fixture(transform_fixture, file!(), "edge_to_abstract_type_with_inline_fragment_on_abstract_type.graphql", "relay_resolvers_abstract_types/fixtures/edge_to_abstract_type_with_inline_fragment_on_abstract_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn extend_server_defined_concrete_type() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/extend_server_defined_concrete_type.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/extend_server_defined_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "extend_server_defined_concrete_type.graphql", "relay_resolvers_abstract_types/fixtures/extend_server_defined_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

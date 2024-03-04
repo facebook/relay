@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::HashSet;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use common::ArgumentName;
@@ -30,7 +30,6 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use schema::FieldID;
 use schema::InterfaceID;
-use schema::ObjectID;
 use schema::Schema;
 use schema::Type;
 
@@ -64,6 +63,7 @@ pub fn relay_resolvers_abstract_types(
 struct RelayResolverAbstractTypesTransform<'program> {
     program: &'program Program,
     errors: Vec<Diagnostic>,
+    interface_to_are_implementers_server_defined: HashMap<InterfaceID, bool>,
 }
 
 impl<'program> RelayResolverAbstractTypesTransform<'program> {
@@ -71,6 +71,7 @@ impl<'program> RelayResolverAbstractTypesTransform<'program> {
         Self {
             program,
             errors: Default::default(),
+            interface_to_are_implementers_server_defined: HashMap::new(),
         }
     }
 }
@@ -119,13 +120,6 @@ impl RelayResolverAbstractTypesTransform<'_> {
         }
     }
 
-    fn concrete_types_all_defined_on_server(&self, concrete_types: &HashSet<ObjectID>) -> bool {
-        !concrete_types.iter().any(|object_id| {
-            let object = self.program.schema.object(*object_id);
-            object.is_extension
-        })
-    }
-
     // Return true if concrete types have different implementations for the interface field
     // with field_id.
     fn concrete_types_have_different_implementations(
@@ -149,14 +143,10 @@ impl RelayResolverAbstractTypesTransform<'_> {
                 return true;
             }
         }
-        // TODO do we need to memoize this?
-        let implementing_objects =
-            interface.recursively_implementing_objects(Arc::as_ref(&self.program.schema));
-        if self.concrete_types_all_defined_on_server(&implementing_objects) {
-            return false;
-        }
         // Any of the implementing objects' corresponding field is a resolver field
         let selection_name = interface_field.name.item;
+        let implementing_objects =
+            interface.recursively_implementing_objects(Arc::as_ref(&self.program.schema));
         implementing_objects.iter().any(|object_id| {
             let concrete_field_id = self
                 .program
@@ -252,6 +242,24 @@ impl RelayResolverAbstractTypesTransform<'_> {
             .collect()
     }
 
+    fn is_interface_implemented_by_all_server_defined_types(
+        &mut self,
+        interface_id: InterfaceID,
+    ) -> bool {
+        *self
+            .interface_to_are_implementers_server_defined
+            .entry(interface_id)
+            .or_insert_with_key(|interface_id| {
+                let interface = self.program.schema.interface(*interface_id);
+                let implementing_objects =
+                    interface.recursively_implementing_objects(Arc::as_ref(&self.program.schema));
+                !implementing_objects.iter().any(|object_id| {
+                    let object = self.program.schema.object(*object_id);
+                    object.is_extension
+                })
+            })
+    }
+
     // Transform selections on an interface type.
     fn transform_selections_given_parent_type(
         &mut self,
@@ -259,6 +267,9 @@ impl RelayResolverAbstractTypesTransform<'_> {
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
         if let Some(Type::Interface(interface_id)) = entry_type {
+            if self.is_interface_implemented_by_all_server_defined_types(interface_id) {
+                return TransformedValue::Keep;
+            }
             let transformed_selections = transform_list(selections, |selection| match selection {
                 Selection::LinkedField(_)
                 | Selection::ScalarField(_)

@@ -69,10 +69,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
 
-    /// Enforce strict flavors for relay resolvers and disallow mixing flavors
-    #[serde(default)]
-    pub relay_resolvers_enable_strict_resolver_flavors: FeatureFlag,
-
     /// Allow legacy verbose resolver syntax
     #[serde(default)]
     pub relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag,

@@ -939,6 +939,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
         if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
+            if self.variant == CodegenVariant::Reader
+                && self
+                    .project_config
+                    .feature_flags
+                    .disable_resolver_reader_ast
+            {
+                return vec![self.build_scalar_field(field)];
+            }
             return vec![self.build_scalar_backed_resolver_field(field, resolver_metadata)];
         }
         match self.variant {
@@ -1221,7 +1229,29 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         {
             let resolver_primitive = match self.variant {
                 CodegenVariant::Reader => {
-                    self.build_reader_relay_resolver(resolver_metadata, Some(primitive))
+                    if self
+                        .project_config
+                        .feature_flags
+                        .disable_resolver_reader_ast
+                    {
+                        let scalar_field = ScalarField {
+                            alias: resolver_metadata.field_alias.map(WithLocation::generated),
+                            definition: WithLocation::generated(resolver_metadata.field_id),
+                            arguments: resolver_metadata.field_arguments.clone(),
+                            directives: frag_spread
+                                .directives
+                                .iter()
+                                .filter(|directive| {
+                                    directive.name.item
+                                        != RequiredMetadataDirective::directive_name()
+                                })
+                                .cloned()
+                                .collect(),
+                        };
+                        self.build_scalar_field(&scalar_field)
+                    } else {
+                        self.build_reader_relay_resolver(resolver_metadata, Some(primitive))
+                    }
                 }
                 // We expect all RelayResolver fragment spreads to be inlined into inline fragment spreads when generating Normalization ASTs.
                 CodegenVariant::Normalization => panic!(
@@ -1717,6 +1747,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }))
             }
             ClientEdgeMetadataDirective::ClientObject { type_name, location, is_model_live, has_model_instance_field, .. } => {
+                if self.project_config.feature_flags.disable_resolver_reader_ast {
+                    return selections_item;
+                }
                 let concrete_type = match type_name {
                     Some(type_name) => Primitive::String(type_name.0),
                     None => Primitive::Null,

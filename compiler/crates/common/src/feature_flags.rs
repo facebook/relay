@@ -98,6 +98,11 @@ pub struct FeatureFlags {
     /// any existing examples.
     #[serde(default)]
     pub allow_required_in_mutation_response: FeatureFlag,
+
+    /// Mirror of `enable_resolver_normalization_ast`
+    /// excludes resolver metadata from reader ast
+    #[serde(default)]
+    pub disable_resolver_reader_ast: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

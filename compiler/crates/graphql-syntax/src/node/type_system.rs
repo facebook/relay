@@ -11,11 +11,11 @@ use common::Span;
 use intern::string_key::StringKey;
 
 use super::constant_directive::ConstantDirective;
-use super::constant_value::ConstantValue;
 use super::constant_value::StringNode;
 use super::executable::OperationKind;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
+use crate::DefaultValue;
 use crate::TokenKind;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -515,7 +515,7 @@ impl fmt::Display for DirectiveLocation {
 pub struct InputValueDefinition {
     pub name: Identifier,
     pub type_: TypeAnnotation,
-    pub default_value: Option<ConstantValue>,
+    pub default_value: Option<DefaultValue>,
     pub directives: Vec<ConstantDirective>,
     pub span: Span,
 }

@@ -517,15 +517,22 @@ SchemaDocument {
                                                     },
                                                 ),
                                                 default_value: Some(
-                                                    String(
-                                                        StringNode {
-                                                            token: Token {
-                                                                span: 680:688,
-                                                                kind: StringLiteral,
-                                                            },
-                                                            value: "string",
+                                                    DefaultValue {
+                                                        span: 678:688,
+                                                        equals: Token {
+                                                            span: 678:679,
+                                                            kind: Equals,
                                                         },
-                                                    ),
+                                                        value: String(
+                                                            StringNode {
+                                                                token: Token {
+                                                                    span: 680:688,
+                                                                    kind: StringLiteral,
+                                                                },
+                                                                value: "string",
+                                                            },
+                                                        ),
+                                                    },
                                                 ),
                                                 directives: [],
                                                 span: 661:688,
@@ -606,39 +613,46 @@ SchemaDocument {
                                                     },
                                                 ),
                                                 default_value: Some(
-                                                    List(
-                                                        List {
-                                                            span: 726:746,
-                                                            start: Token {
-                                                                span: 726:727,
-                                                                kind: OpenBracket,
-                                                            },
-                                                            items: [
-                                                                String(
-                                                                    StringNode {
-                                                                        token: Token {
-                                                                            span: 727:735,
-                                                                            kind: StringLiteral,
-                                                                        },
-                                                                        value: "string",
-                                                                    },
-                                                                ),
-                                                                String(
-                                                                    StringNode {
-                                                                        token: Token {
-                                                                            span: 737:745,
-                                                                            kind: StringLiteral,
-                                                                        },
-                                                                        value: "string",
-                                                                    },
-                                                                ),
-                                                            ],
-                                                            end: Token {
-                                                                span: 745:746,
-                                                                kind: CloseBracket,
-                                                            },
+                                                    DefaultValue {
+                                                        span: 724:746,
+                                                        equals: Token {
+                                                            span: 724:725,
+                                                            kind: Equals,
                                                         },
-                                                    ),
+                                                        value: List(
+                                                            List {
+                                                                span: 726:746,
+                                                                start: Token {
+                                                                    span: 726:727,
+                                                                    kind: OpenBracket,
+                                                                },
+                                                                items: [
+                                                                    String(
+                                                                        StringNode {
+                                                                            token: Token {
+                                                                                span: 727:735,
+                                                                                kind: StringLiteral,
+                                                                            },
+                                                                            value: "string",
+                                                                        },
+                                                                    ),
+                                                                    String(
+                                                                        StringNode {
+                                                                            token: Token {
+                                                                                span: 737:745,
+                                                                                kind: StringLiteral,
+                                                                            },
+                                                                            value: "string",
+                                                                        },
+                                                                    ),
+                                                                ],
+                                                                end: Token {
+                                                                    span: 745:746,
+                                                                    kind: CloseBracket,
+                                                                },
+                                                            },
+                                                        ),
+                                                    },
                                                 ),
                                                 directives: [],
                                                 span: 705:746,
@@ -706,45 +720,52 @@ SchemaDocument {
                                                     },
                                                 ),
                                                 default_value: Some(
-                                                    Object(
-                                                        List {
-                                                            span: 784:798,
-                                                            start: Token {
-                                                                span: 784:785,
-                                                                kind: OpenBrace,
-                                                            },
-                                                            items: [
-                                                                ConstantArgument {
-                                                                    span: 785:797,
-                                                                    name: Identifier {
-                                                                        span: 785:788,
-                                                                        token: Token {
-                                                                            span: 785:788,
-                                                                            kind: Identifier,
-                                                                        },
-                                                                        value: "key",
-                                                                    },
-                                                                    colon: Token {
-                                                                        span: 788:789,
-                                                                        kind: Colon,
-                                                                    },
-                                                                    value: String(
-                                                                        StringNode {
-                                                                            token: Token {
-                                                                                span: 790:797,
-                                                                                kind: StringLiteral,
-                                                                            },
-                                                                            value: "value",
-                                                                        },
-                                                                    ),
-                                                                },
-                                                            ],
-                                                            end: Token {
-                                                                span: 797:798,
-                                                                kind: CloseBrace,
-                                                            },
+                                                    DefaultValue {
+                                                        span: 782:798,
+                                                        equals: Token {
+                                                            span: 782:783,
+                                                            kind: Equals,
                                                         },
-                                                    ),
+                                                        value: Object(
+                                                            List {
+                                                                span: 784:798,
+                                                                start: Token {
+                                                                    span: 784:785,
+                                                                    kind: OpenBrace,
+                                                                },
+                                                                items: [
+                                                                    ConstantArgument {
+                                                                        span: 785:797,
+                                                                        name: Identifier {
+                                                                            span: 785:788,
+                                                                            token: Token {
+                                                                                span: 785:788,
+                                                                                kind: Identifier,
+                                                                            },
+                                                                            value: "key",
+                                                                        },
+                                                                        colon: Token {
+                                                                            span: 788:789,
+                                                                            kind: Colon,
+                                                                        },
+                                                                        value: String(
+                                                                            StringNode {
+                                                                                token: Token {
+                                                                                    span: 790:797,
+                                                                                    kind: StringLiteral,
+                                                                                },
+                                                                                value: "value",
+                                                                            },
+                                                                        ),
+                                                                    },
+                                                                ],
+                                                                end: Token {
+                                                                    span: 797:798,
+                                                                    kind: CloseBrace,
+                                                                },
+                                                            },
+                                                        ),
+                                                    },
                                                 ),
                                                 directives: [],
                                                 span: 762:798,
@@ -812,12 +833,19 @@ SchemaDocument {
                                                     },
                                                 ),
                                                 default_value: Some(
-                                                    Null(
-                                                        Token {
-                                                            span: 830:834,
-                                                            kind: Identifier,
+                                                    DefaultValue {
+                                                        span: 828:834,
+                                                        equals: Token {
+                                                            span: 828:829,
+                                                            kind: Equals,
                                                         },
-                                                    ),
+                                                        value: Null(
+                                                            Token {
+                                                                span: 830:834,
+                                                                kind: Identifier,
+                                                            },
+                                                        ),
+                                                    },
                                                 ),
                                                 directives: [],
                                                 span: 814:834,
@@ -970,15 +998,22 @@ SchemaDocument {
                                                     },
                                                 ),
                                                 default_value: Some(
-                                                    String(
-                                                        StringNode {
-                                                            token: Token {
-                                                                span: 921:930,
-                                                                kind: StringLiteral,
-                                                            },
-                                                            value: "default",
+                                                    DefaultValue {
+                                                        span: 919:930,
+                                                        equals: Token {
+                                                            span: 919:920,
+                                                            kind: Equals,
                                                         },
-                                                    ),
+                                                        value: String(
+                                                            StringNode {
+                                                                token: Token {
+                                                                    span: 921:930,
+                                                                    kind: StringLiteral,
+                                                                },
+                                                                value: "default",
+                                                            },
+                                                        ),
+                                                    },
                                                 ),
                                                 directives: [
                                                     ConstantDirective {
@@ -1295,15 +1330,22 @@ SchemaDocument {
                                                     },
                                                 ),
                                                 default_value: Some(
-                                                    String(
-                                                        StringNode {
-                                                            token: Token {
-                                                                span: 1126:1134,
-                                                                kind: StringLiteral,
-                                                            },
-                                                            value: "string",
+                                                    DefaultValue {
+                                                        span: 1124:1134,
+                                                        equals: Token {
+                                                            span: 1124:1125,
+                                                            kind: Equals,
                                                         },
-                                                    ),
+                                                        value: String(
+                                                            StringNode {
+                                                                token: Token {
+                                                                    span: 1126:1134,
+                                                                    kind: StringLiteral,
+                                                                },
+                                                                value: "string",
+                                                            },
+                                                        ),
+                                                    },
                                                 ),
                                                 directives: [],
                                                 span: 1107:1134,
@@ -1830,15 +1872,22 @@ SchemaDocument {
                                                     },
                                                 ),
                                                 default_value: Some(
-                                                    String(
-                                                        StringNode {
-                                                            token: Token {
-                                                                span: 1508:1516,
-                                                                kind: StringLiteral,
-                                                            },
-                                                            value: "string",
+                                                    DefaultValue {
+                                                        span: 1506:1516,
+                                                        equals: Token {
+                                                            span: 1506:1507,
+                                                            kind: Equals,
                                                         },
-                                                    ),
+                                                        value: String(
+                                                            StringNode {
+                                                                token: Token {
+                                                                    span: 1508:1516,
+                                                                    kind: StringLiteral,
+                                                                },
+                                                                value: "string",
+                                                            },
+                                                        ),
+                                                    },
                                                 ),
                                                 directives: [],
                                                 span: 1489:1516,
@@ -2473,15 +2522,22 @@ SchemaDocument {
                                     },
                                 ),
                                 default_value: Some(
-                                    Int(
-                                        IntNode {
-                                            token: Token {
-                                                span: 2234:2236,
-                                                kind: IntegerLiteral,
-                                            },
-                                            value: 42,
+                                    DefaultValue {
+                                        span: 2232:2236,
+                                        equals: Token {
+                                            span: 2232:2233,
+                                            kind: Equals,
                                         },
-                                    ),
+                                        value: Int(
+                                            IntNode {
+                                                token: Token {
+                                                    span: 2234:2236,
+                                                    kind: IntegerLiteral,
+                                                },
+                                                value: 42,
+                                            },
+                                        ),
+                                    },
                                 ),
                                 directives: [],
                                 span: 2220:2237,
@@ -2640,16 +2696,23 @@ SchemaDocument {
                                     },
                                 ),
                                 default_value: Some(
-                                    Float(
-                                        FloatNode {
-                                            token: Token {
-                                                span: 2392:2398,
-                                                kind: FloatLiteral,
-                                            },
-                                            value: 12300,
-                                            source_value: "1.23e4",
+                                    DefaultValue {
+                                        span: 2390:2398,
+                                        equals: Token {
+                                            span: 2390:2391,
+                                            kind: Equals,
                                         },
-                                    ),
+                                        value: Float(
+                                            FloatNode {
+                                                token: Token {
+                                                    span: 2392:2398,
+                                                    kind: FloatLiteral,
+                                                },
+                                                value: 12300,
+                                                source_value: "1.23e4",
+                                            },
+                                        ),
+                                    },
                                 ),
                                 directives: [
                                     ConstantDirective {

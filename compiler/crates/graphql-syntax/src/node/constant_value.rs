@@ -202,3 +202,16 @@ impl std::convert::From<i64> for FloatValue {
         FloatValue::new(value as f64)
     }
 }
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct DefaultValue {
+    pub span: Span,
+    pub equals: Token,
+    pub value: ConstantValue,
+}
+
+impl fmt::Display for DefaultValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
+    }
+}

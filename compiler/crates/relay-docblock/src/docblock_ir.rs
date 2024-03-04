@@ -877,7 +877,7 @@ fn validate_field_arguments(
             if let Some(default_value) = &argument.default_value {
                 errors.push(Diagnostic::error(
                     IrParsingErrorMessages::ArgumentDefaultValuesNoSupported,
-                    Location::new(source_location, default_value.span()),
+                    Location::new(source_location, default_value.value.span()),
                 ));
             }
         }

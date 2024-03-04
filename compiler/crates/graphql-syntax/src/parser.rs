@@ -1078,8 +1078,8 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         self.parse_kind(TokenKind::Colon)?;
         let type_ = self.parse_type_annotation()?;
-        let default_value = if self.parse_optional_kind(TokenKind::Equals).is_some() {
-            Some(self.parse_constant_value()?)
+        let default_value = if self.peek_token_kind() == TokenKind::Equals {
+            Some(self.parse_default_value()?)
         } else {
             None
         };

@@ -216,13 +216,15 @@ class Executor<TMutation: MutationParameters> {
       RelayFeatureFlags.PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION &&
       optimisticConfig != null
     ) {
-      this._processOptimisticResponse(
-        optimisticConfig.response != null
-          ? {data: optimisticConfig.response}
-          : null,
-        optimisticConfig.updater,
-        false,
-      );
+      this._schedule(() => {
+        this._processOptimisticResponse(
+          optimisticConfig.response != null
+            ? {data: optimisticConfig.response}
+            : null,
+          optimisticConfig.updater,
+          false,
+        );
+      });
     }
     source.subscribe({
       complete: () => this._complete(id),
@@ -250,13 +252,15 @@ class Executor<TMutation: MutationParameters> {
       !RelayFeatureFlags.PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION &&
       optimisticConfig != null
     ) {
-      this._processOptimisticResponse(
-        optimisticConfig.response != null
-          ? {data: optimisticConfig.response}
-          : null,
-        optimisticConfig.updater,
-        false,
-      );
+      this._schedule(() => {
+        this._processOptimisticResponse(
+          optimisticConfig.response != null
+            ? {data: optimisticConfig.response}
+            : null,
+          optimisticConfig.updater,
+          false,
+        );
+      });
     }
   }
 
@@ -358,12 +362,14 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _error(error: Error): void {
-    this.cancel();
-    this._sink.error(error);
-    this._log({
-      name: 'execute.error',
-      executeId: this._executeId,
-      error,
+    this._schedule(() => {
+      this.cancel();
+      this._sink.error(error);
+      this._log({
+        name: 'execute.error',
+        executeId: this._executeId,
+        error,
+      });
     });
   }
 

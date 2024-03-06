@@ -15,9 +15,6 @@ graphql`
   }
 }
 
-//- operations.json
-{}
-
 //- schema.graphql
 type Query { userName: String }
 ==================================== OUTPUT ===================================
@@ -118,3 +115,8 @@ import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
 
 export default node;
+
+//- operations.json
+{
+  "ae6874c86ce5db2df8d6b253a6a0ec13": "query fooQuery {\n  userName\n}\n"
+}

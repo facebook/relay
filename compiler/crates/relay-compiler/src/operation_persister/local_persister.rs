@@ -12,6 +12,7 @@ use std::io::Write;
 
 use async_trait::async_trait;
 use dashmap::DashMap;
+use log::warn;
 use md5::Md5;
 use persist_query::PersistError;
 use relay_config::LocalPersistAlgorithm;
@@ -29,15 +30,20 @@ pub struct LocalPersister {
 }
 
 impl LocalPersister {
-    pub fn new(config: LocalPersistConfig) -> Self {
-        let query_map: DashMap<String, String> = match std::fs::read_to_string(&config.file) {
-            Ok(content) => serde_json::from_str(&content).unwrap_or_default(),
-            Err(_e) => {
-                panic!(
-                    "LocalPersister: Expected the {} file to exist.",
-                    &config.file.display(),
-                )
-            }
+    pub fn new(config: LocalPersistConfig, should_initialize: bool) -> Self {
+        let query_map: DashMap<String, String> = match should_initialize {
+            true => match std::fs::read_to_string(&config.file) {
+                Ok(content) => serde_json::from_str(&content).unwrap_or_default(),
+                Err(_e) => {
+                    warn!(
+                        "LocalPersister: File \"{}\" does not yet exist or does not contain valid JSON.",
+                        &config.file.display(),
+                    );
+
+                    DashMap::new()
+                }
+            },
+            false => DashMap::new(),
         };
 
         Self { config, query_map }

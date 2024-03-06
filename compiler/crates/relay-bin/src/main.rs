@@ -269,16 +269,17 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         config.artifact_writer = Box::new(ArtifactValidationWriter::default());
     }
 
-    config.create_operation_persister = Some(Box::new(|project_config| {
+    config.create_operation_persister = Some(Box::new(move |project_config| {
         project_config.persist.as_ref().map(
             |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
                 match persist_config {
                     PersistConfig::Remote(remote_config) => {
                         Box::new(RemotePersister::new(remote_config.clone()))
                     }
-                    PersistConfig::Local(local_config) => {
-                        Box::new(LocalPersister::new(local_config.clone()))
-                    }
+                    PersistConfig::Local(local_config) => Box::new(LocalPersister::new(
+                        local_config.clone(),
+                        !command.repersist,
+                    )),
                 }
             },
         )

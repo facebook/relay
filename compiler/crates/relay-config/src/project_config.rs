@@ -128,16 +128,7 @@ impl<'de> Deserialize<'de> for PersistConfig {
         match RemotePersistConfig::deserialize(value.clone()) {
             Ok(remote_config) => Ok(PersistConfig::Remote(remote_config)),
             Err(remote_error) => match LocalPersistConfig::deserialize(value) {
-                Ok(local_config) => {
-                    if !local_config.file.exists() {
-                        Err(Error::custom(format!(
-                            "The file `{}` for the local query persisting does not exist. Please, make sure the file path is correct.",
-                            local_config.file.display()
-                        )))
-                    } else {
-                        Ok(PersistConfig::Local(local_config))
-                    }
-                }
+                Ok(local_config) => Ok(PersistConfig::Local(local_config)),
                 Err(local_error) => {
                     let error_message = format!(
                         r#"Persist configuration cannot be parsed as a remote configuration due to:

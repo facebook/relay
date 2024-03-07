@@ -81,12 +81,18 @@ pub enum ClientEdgeMetadataDirective {
     ClientObject {
         type_name: Option<ObjectName>,
         location: Location,
-        has_model_instance_field: bool,
-        is_model_live: bool,
         unique_id: u32,
+        model_resolvers: Vec<ClientEdgeModelResolver>,
     },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ClientEdgeModelResolver {
+    pub type_name: ObjectName,
+    pub has_model_instance_field: bool,
+    pub is_live: bool,
+}
 
 /// Metadata directive attached to generated queries
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -378,8 +384,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 Some(ClientEdgeMetadataDirective::ClientObject {
                     type_name: None,
                     location: field.alias_or_name_location(),
-                    has_model_instance_field: false,
-                    is_model_live: false,
+                    model_resolvers: vec![],
                     unique_id: self.get_key(),
                 })
             }
@@ -397,8 +402,8 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     .program
                     .schema
                     .named_field(parent_type, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
-                // Note: is_model_live is only true if the __relay_model_instance field exists on the model field
-                let is_model_live = if let Some(id) = model_field_id {
+                // Note: is_live is only true if the __relay_model_instance field exists on the model field
+                let is_live = if let Some(id) = model_field_id {
                     let model_field = self.program.schema.field(id);
                     let resolver_directive =
                         model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
@@ -415,8 +420,11 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 };
                 Some(ClientEdgeMetadataDirective::ClientObject {
                     type_name: Some(type_name.item),
-                    has_model_instance_field: model_field_id.is_some(),
-                    is_model_live,
+                    model_resolvers: vec![ClientEdgeModelResolver {
+                        type_name: type_name.item,
+                        has_model_instance_field: model_field_id.is_some(),
+                        is_live,
+                    }],
                     location: type_name.location,
                     unique_id: self.get_key(),
                 })

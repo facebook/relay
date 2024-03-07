@@ -107,6 +107,7 @@ pub use client_edges::remove_client_edge_selections;
 pub use client_edges::ClientEdgeGeneratedQueryMetadataDirective;
 pub use client_edges::ClientEdgeMetadata;
 pub use client_edges::ClientEdgeMetadataDirective;
+pub use client_edges::ClientEdgeModelResolver;
 pub use client_edges::CLIENT_EDGE_SOURCE_NAME;
 pub use client_edges::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
 pub use client_extensions::client_extensions;

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5bcb8278b8097efcef3fd32cc53f8158>>
+ * @generated SignedSource<<eb1e2bfcf291de3455f9683815c19b3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,18 +76,20 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoModel",
-        "modelResolver": {
-          "alias": null,
-          "args": null,
-          "fragment": {
+        "modelResolvers": {
+          "TodoModel": {
+            "alias": null,
             "args": null,
-            "kind": "FragmentSpread",
-            "name": "TodoModel__id"
-          },
-          "kind": "RelayLiveResolver",
-          "name": "edge_to_live_object_does_not_exist",
-          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
-          "path": "edge_to_live_object_does_not_exist.__relay_model_instance"
+            "fragment": {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "TodoModel__id"
+            },
+            "kind": "RelayLiveResolver",
+            "name": "edge_to_live_object_does_not_exist",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "path": "edge_to_live_object_does_not_exist.__relay_model_instance"
+          }
         },
         "backingField": {
           "alias": null,
@@ -110,7 +112,7 @@ return {
             {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "TodoDescription",
-              "modelResolver": null,
+              "modelResolvers": null,
               "backingField": {
                 "alias": null,
                 "args": null,

@@ -16,12 +16,14 @@ use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -48,6 +50,7 @@ use relay_transforms::relay_resolvers::ResolverInfo;
 use relay_transforms::remove_directive;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
+use relay_transforms::ClientEdgeModelResolver;
 use relay_transforms::ClientExtensionAbstractTypeMetadataDirective;
 use relay_transforms::ConnectionConstants;
 use relay_transforms::ConnectionMetadata;
@@ -1271,11 +1274,38 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
     }
 
+    fn build_client_edge_model_resolvers(
+        &mut self,
+        location: &Location,
+        model_resolvers: &[ClientEdgeModelResolver],
+        relay_resolver_metadata: &RelayResolverMetadata,
+    ) -> Vec<ObjectEntry> {
+        model_resolvers
+            .iter()
+            .filter_map(|model_resolver| {
+                if model_resolver.has_model_instance_field {
+                    let type_name = model_resolver.type_name.0;
+                    Some(ObjectEntry {
+                        key: type_name,
+                        value: self.build_client_edge_model_resolver(
+                            location,
+                            type_name,
+                            model_resolver.is_live,
+                            relay_resolver_metadata,
+                        ),
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
     fn build_client_edge_model_resolver(
         &mut self,
-        location: Location,
+        location: &Location,
         type_name: StringKey,
-        is_model_live: bool,
+        is_live: bool,
         relay_resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
         let id_fragment_artifact_name = self
@@ -1294,11 +1324,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             field_alias: None,
             field_path: path,
             field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
-            live: is_model_live,
+            live: is_live,
             output_type_info: relay_resolver_metadata.output_type_info.clone(),
             fragment_data_injection_mode: Some((
                 WithLocation::new(
-                    location,
+                    *location,
                     FragmentDefinitionName(id_fragment_artifact_name.clone().intern()),
                 ),
                 FragmentDataInjectionMode::Field {
@@ -1737,19 +1767,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             )
         };
 
-        let field = match client_edge_metadata.metadata_directive {
+        let field = match &client_edge_metadata.metadata_directive {
             ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
-                    operation: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(query_name.into())),
+                    operation: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(ExecutableDefinitionName::OperationDefinitionName(OperationDefinitionName(query_name.0)))),
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
                 }))
             }
-            ClientEdgeMetadataDirective::ClientObject { type_name, location, is_model_live, has_model_instance_field, .. } => {
-                if self.project_config.feature_flags.disable_resolver_reader_ast {
-                    return selections_item;
-                }
+            ClientEdgeMetadataDirective::ClientObject { type_name, location, model_resolvers, .. } => {
                 let concrete_type = match type_name {
                     Some(type_name) => Primitive::String(type_name.0),
                     None => Primitive::Null,
@@ -1765,24 +1792,32 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let model_resolver_field = if let Some(field_directives) = field_directives {
                     let resolver_metadata = RelayResolverMetadata::find(field_directives).unwrap();
                     let is_weak_resolver = matches!(resolver_metadata.output_type_info, ResolverOutputTypeInfo::Composite(_));
-                    let should_add_model_resolver = !is_weak_resolver && has_model_instance_field;
-                    if should_add_model_resolver {
-                        Some(self.build_client_edge_model_resolver(
+                    if !is_weak_resolver {
+                        let model_resolver_primitives = self.build_client_edge_model_resolvers(
                             location,
-                            type_name.unwrap().to_string().intern(),
-                            is_model_live,
+                            model_resolvers,
                             resolver_metadata,
-                        ))
+                        );
+                        if model_resolver_primitives.is_empty() {
+                            None
+                        } else {
+                            Some(self.object(model_resolver_primitives))
+                        }
                     } else {
                         None
                     }
                 } else {
                     None
                 };
+                let client_edge_model_resolvers = if let Some(model_resolver_field) = model_resolver_field {
+                    Primitive::Key(model_resolver_field)
+                } else {
+                    Primitive::Null
+                };
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
                     concrete_type: concrete_type,
-                    client_edge_model_resolver: model_resolver_field.unwrap_or(Primitive::Null),
+                    client_edge_model_resolvers: client_edge_model_resolvers,
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
                 }))

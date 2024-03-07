@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<068bc2521f50334bee6b072b269cdb55>>
+ * @generated SignedSource<<e5a366a7339d3587999200c872b22928>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -65,18 +65,20 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoModel",
-        "modelResolver": {
-          "alias": null,
-          "args": null,
-          "fragment": {
+        "modelResolvers": {
+          "TodoModel": {
+            "alias": null,
             "args": null,
-            "kind": "FragmentSpread",
-            "name": "TodoModel__id"
-          },
-          "kind": "RelayLiveResolver",
-          "name": "edge_to_plural_live_objects_some_exist",
-          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
-          "path": "edge_to_plural_live_objects_some_exist.__relay_model_instance"
+            "fragment": {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "TodoModel__id"
+            },
+            "kind": "RelayLiveResolver",
+            "name": "edge_to_plural_live_objects_some_exist",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "path": "edge_to_plural_live_objects_some_exist.__relay_model_instance"
+          }
         },
         "backingField": {
           "alias": null,

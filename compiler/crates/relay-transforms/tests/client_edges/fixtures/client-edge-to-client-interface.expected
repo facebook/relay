@@ -35,9 +35,8 @@ fragment Foo_user on User {
   # ClientObject {
   #     type_name: None,
   #     location: client-edge-to-client-interface.graphql:77:88,
-  #     has_model_instance_field: false,
-  #     is_model_live: false,
   #     unique_id: 0,
+  #     model_resolvers: [],
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata

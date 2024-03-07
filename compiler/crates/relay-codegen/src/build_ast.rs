@@ -1776,51 +1776,56 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     client_edge_selections_key: selections_item,
                 }))
             }
+
             ClientEdgeMetadataDirective::ClientObject { type_name, location, model_resolvers, .. } => {
-                let concrete_type = match type_name {
-                    Some(type_name) => Primitive::String(type_name.0),
-                    None => Primitive::Null,
-                };
-                let field_directives = match &client_edge_metadata.backing_field {
-                    Selection::ScalarField(field) => Some(&field.directives),
-                    Selection::FragmentSpread(frag_spread) => Some(&frag_spread.directives),
-                    _ => panic!(
-                        "Expected Client Edge backing field to be a Relay Resolver. {:?}",
-                        client_edge_metadata.backing_field
-                    ),
-                };
-                let model_resolver_field = if let Some(field_directives) = field_directives {
-                    let resolver_metadata = RelayResolverMetadata::find(field_directives).unwrap();
-                    let is_weak_resolver = matches!(resolver_metadata.output_type_info, ResolverOutputTypeInfo::Composite(_));
-                    if !is_weak_resolver {
-                        let model_resolver_primitives = self.build_client_edge_model_resolvers(
-                            location,
-                            model_resolvers,
-                            resolver_metadata,
-                        );
-                        if model_resolver_primitives.is_empty() {
-                            None
+                if self.project_config.feature_flags.disable_resolver_reader_ast {
+                    selections_item
+                } else {
+                    let concrete_type = match type_name {
+                        Some(type_name) => Primitive::String(type_name.0),
+                        None => Primitive::Null,
+                    };
+                    let field_directives = match &client_edge_metadata.backing_field {
+                        Selection::ScalarField(field) => Some(&field.directives),
+                        Selection::FragmentSpread(frag_spread) => Some(&frag_spread.directives),
+                        _ => panic!(
+                            "Expected Client Edge backing field to be a Relay Resolver. {:?}",
+                            client_edge_metadata.backing_field
+                        ),
+                    };
+                    let model_resolver_field = if let Some(field_directives) = field_directives {
+                        let resolver_metadata = RelayResolverMetadata::find(field_directives).unwrap();
+                        let is_weak_resolver = matches!(resolver_metadata.output_type_info, ResolverOutputTypeInfo::Composite(_));
+                        if !is_weak_resolver {
+                            let model_resolver_primitives = self.build_client_edge_model_resolvers(
+                                location,
+                                model_resolvers,
+                                resolver_metadata,
+                            );
+                            if model_resolver_primitives.is_empty() {
+                                None
+                            } else {
+                                Some(self.object(model_resolver_primitives))
+                            }
                         } else {
-                            Some(self.object(model_resolver_primitives))
+                            None
                         }
                     } else {
                         None
-                    }
-                } else {
-                    None
-                };
-                let client_edge_model_resolvers = if let Some(model_resolver_field) = model_resolver_field {
-                    Primitive::Key(model_resolver_field)
-                } else {
-                    Primitive::Null
-                };
-                Primitive::Key(self.object(object! {
-                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                    concrete_type: concrete_type,
-                    client_edge_model_resolvers: client_edge_model_resolvers,
-                    client_edge_backing_field_key: backing_field,
-                    client_edge_selections_key: selections_item,
-                }))
+                    };
+                    let client_edge_model_resolvers = if let Some(model_resolver_field) = model_resolver_field {
+                        Primitive::Key(model_resolver_field)
+                    } else {
+                        Primitive::Null
+                    };
+                    Primitive::Key(self.object(object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                        concrete_type: concrete_type,
+                        client_edge_model_resolvers: client_edge_model_resolvers,
+                        client_edge_backing_field_key: backing_field,
+                        client_edge_selections_key: selections_item,
+                    }))
+                }
             }
         };
 

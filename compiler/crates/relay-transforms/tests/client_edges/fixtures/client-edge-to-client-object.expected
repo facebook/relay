@@ -31,13 +31,15 @@ fragment Foo_user on User {
   #             "ClientOnlyType",
   #         ),
   #     ),
-  #     location: <generated>:7:21,
   #     unique_id: 0,
   #     model_resolvers: [
   #         ClientEdgeModelResolver {
-  #             type_name: ObjectName(
-  #                 "ClientOnlyType",
-  #             ),
+  #             type_name: WithLocation {
+  #                 location: <generated>:7:21,
+  #                 item: ObjectName(
+  #                     "ClientOnlyType",
+  #                 ),
+  #             },
   #             has_model_instance_field: false,
   #             is_live: false,
   #         },

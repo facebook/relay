@@ -37,13 +37,15 @@ fragment Foo_user on ClientUser {
   #             "ClientUser",
   #         ),
   #     ),
-  #     location: <generated>:7:17,
   #     unique_id: 1,
   #     model_resolvers: [
   #         ClientEdgeModelResolver {
-  #             type_name: ObjectName(
-  #                 "ClientUser",
-  #             ),
+  #             type_name: WithLocation {
+  #                 location: <generated>:7:17,
+  #                 item: ObjectName(
+  #                     "ClientUser",
+  #                 ),
+  #             },
   #             has_model_instance_field: false,
   #             is_live: false,
   #         },
@@ -73,13 +75,15 @@ fragment Foo_user on ClientUser {
       #             "ClientUser",
       #         ),
       #     ),
-      #     location: <generated>:7:17,
       #     unique_id: 0,
       #     model_resolvers: [
       #         ClientEdgeModelResolver {
-      #             type_name: ObjectName(
-      #                 "ClientUser",
-      #             ),
+      #             type_name: WithLocation {
+      #                 location: <generated>:7:17,
+      #                 item: ObjectName(
+      #                     "ClientUser",
+      #                 ),
+      #             },
       #             has_model_instance_field: false,
       #             is_live: false,
       #         },

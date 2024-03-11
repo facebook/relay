@@ -7,8 +7,8 @@
 
 use std::path::PathBuf;
 
-use common::Location;
 use common::NamedItem;
+use common::ObjectName;
 use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use graphql_ir::Argument;
@@ -1276,7 +1276,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_client_edge_model_resolvers(
         &mut self,
-        location: &Location,
         model_resolvers: &[ClientEdgeModelResolver],
         relay_resolver_metadata: &RelayResolverMetadata,
     ) -> Vec<ObjectEntry> {
@@ -1284,12 +1283,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .iter()
             .filter_map(|model_resolver| {
                 if model_resolver.has_model_instance_field {
-                    let type_name = model_resolver.type_name.0;
+                    let type_name = model_resolver.type_name.item.0;
                     Some(ObjectEntry {
                         key: type_name,
                         value: self.build_client_edge_model_resolver(
-                            location,
-                            type_name,
+                            model_resolver.type_name,
                             model_resolver.is_live,
                             relay_resolver_metadata,
                         ),
@@ -1303,15 +1301,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_client_edge_model_resolver(
         &mut self,
-        location: &Location,
-        type_name: StringKey,
+        type_name: WithLocation<ObjectName>,
         is_live: bool,
         relay_resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
         let id_fragment_artifact_name = self
             .project_config
             .name
-            .generate_name_for_object_and_field(type_name, CODEGEN_CONSTANTS.id);
+            .generate_name_for_object_and_field(type_name.item.0, CODEGEN_CONSTANTS.id);
         let path = format!(
             "{}.{}",
             relay_resolver_metadata.field_path, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD
@@ -1319,8 +1316,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         .intern();
         let model_resolver_metadata = RelayResolverMetadata {
             field_id: relay_resolver_metadata.field_id,
-            import_path: location.source_location().path().intern(),
-            import_name: Some(type_name),
+            import_path: type_name.location.source_location().path().intern(),
+            import_name: Some(type_name.item.0),
             field_alias: None,
             field_path: path,
             field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
@@ -1328,7 +1325,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             output_type_info: relay_resolver_metadata.output_type_info.clone(),
             fragment_data_injection_mode: Some((
                 WithLocation::new(
-                    *location,
+                    type_name.location,
                     FragmentDefinitionName(id_fragment_artifact_name.clone().intern()),
                 ),
                 FragmentDataInjectionMode::Field {
@@ -1777,14 +1774,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }))
             }
 
-            ClientEdgeMetadataDirective::ClientObject { type_name, location, model_resolvers, .. } => {
+            ClientEdgeMetadataDirective::ClientObject { type_name, model_resolvers, .. } => {
                 if self.project_config.feature_flags.disable_resolver_reader_ast {
                     selections_item
                 } else {
-                    let concrete_type = match type_name {
-                        Some(type_name) => Primitive::String(type_name.0),
-                        None => Primitive::Null,
-                    };
+                    let concrete_type = type_name.map_or(Primitive::Null, |type_name| Primitive::String(type_name.0));
                     let field_directives = match &client_edge_metadata.backing_field {
                         Selection::ScalarField(field) => Some(&field.directives),
                         Selection::FragmentSpread(frag_spread) => Some(&frag_spread.directives),
@@ -1793,12 +1787,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             client_edge_metadata.backing_field
                         ),
                     };
-                    let model_resolver_field = if let Some(field_directives) = field_directives {
+                    let model_resolver_field = field_directives.and_then(|field_directives| {
                         let resolver_metadata = RelayResolverMetadata::find(field_directives).unwrap();
                         let is_weak_resolver = matches!(resolver_metadata.output_type_info, ResolverOutputTypeInfo::Composite(_));
                         if !is_weak_resolver {
                             let model_resolver_primitives = self.build_client_edge_model_resolvers(
-                                location,
                                 model_resolvers,
                                 resolver_metadata,
                             );
@@ -1810,9 +1803,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         } else {
                             None
                         }
-                    } else {
-                        None
-                    };
+                    });
                     let client_edge_model_resolvers = if let Some(model_resolver_field) = model_resolver_field {
                         Primitive::Key(model_resolver_field)
                     } else {

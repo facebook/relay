@@ -193,7 +193,7 @@ pub fn build_programs(
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<BuildProgramsOutput, BuildProjectFailure> {
     let project_name = project_config.name;
-    let build_mode = if !compiler_state.has_processed_changes() {
+    let mut build_mode = if !compiler_state.has_processed_changes() {
         BuildMode::Full
     } else {
         let project_schema_change = compiler_state.schema_change_safety(
@@ -233,6 +233,14 @@ pub fn build_programs(
             }
         }
     };
+    if !config.has_schema_change_incremental_build {
+        // Killswitch here to bail out of schema based incremental builds
+        build_mode = if let BuildMode::IncrementalWithSchemaChanges(_) = build_mode {
+            BuildMode::Full
+        } else {
+            build_mode
+        }
+    }
     log_event.bool(
         "is_incremental_build",
         match build_mode {

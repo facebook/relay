@@ -15,6 +15,9 @@ use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
 use schema::SDLSchema;
 use schema::Schema;
+use schema_diff::check;
+
+use crate::schema_change_analyzer;
 
 pub type ExecutableDefinitionNameSet = FxHashSet<ExecutableDefinitionName>;
 pub type ExecutableDefinitionNameMap<V> = FxHashMap<ExecutableDefinitionName, V>;
@@ -48,10 +51,15 @@ pub fn get_reachable_ir(
     base_definition_names: ExecutableDefinitionNameSet,
     changed_names: ExecutableDefinitionNameSet,
     schema: &SDLSchema,
+    schema_changes: FxHashSet<check::IncrementalBuildSchemaChange>,
 ) -> Vec<ExecutableDefinition> {
-    if changed_names.is_empty() {
+    if changed_names.is_empty() && schema_changes.is_empty() {
         return vec![];
     }
+
+    let mut all_changed_names: ExecutableDefinitionNameSet =
+        schema_change_analyzer::get_affected_definitions(schema, &definitions, schema_changes);
+    all_changed_names.extend(changed_names);
 
     // For each executable definition, define a `Node` indicating its parents and children
     // Note: There are situations where a name in `changed_names` may not appear
@@ -64,7 +72,7 @@ pub fn get_reachable_ir(
     let mut visited = Default::default();
     let mut filtered_definitions = Default::default();
 
-    for key in changed_names.into_iter() {
+    for key in all_changed_names.into_iter() {
         if dependency_graph.contains_key(&key) {
             add_related_nodes(
                 &mut visited,

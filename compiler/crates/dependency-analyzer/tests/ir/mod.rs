@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::sync::Arc;
 
 use common::SourceLocationKey;
@@ -15,7 +16,9 @@ use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
+use rustc_hash::FxHashSet;
 use schema::SDLSchema;
+use schema_diff::check::IncrementalBuildSchemaChange;
 
 fn format_definition(def: ExecutableDefinition) -> String {
     match def {
@@ -26,16 +29,57 @@ fn format_definition(def: ExecutableDefinition) -> String {
     }
 }
 
+// Parses the schema extension changes.
+// The schema extension section should begin with:
+//   # <Type1>: changed1, changed2
+//   # <Type2>: changed3
+fn parse_schema_changes(extension_content: &str) -> FxHashSet<IncrementalBuildSchemaChange> {
+    let mut changes: FxHashSet<IncrementalBuildSchemaChange> = HashSet::default();
+    let lines: Vec<&str> = extension_content.lines().collect();
+    for line in lines.iter() {
+        if line.trim() == "" {
+            continue;
+        }
+        if !line.trim().starts_with('#') {
+            break;
+        }
+        let line_parts: Vec<&str> = line.split(':').collect();
+        let type_ = line_parts[0];
+        let changed_names = line_parts[1].split(',').map(|name| name.trim().intern());
+        // slice to skip the "#"
+        match type_[1..].trim() {
+            "Enum" => {
+                for key in changed_names {
+                    changes.insert(IncrementalBuildSchemaChange::Enum(key));
+                }
+            }
+            _ => panic!(
+                "Included an incremental change for a schema type that does not have incremental builds"
+            ),
+        }
+    }
+    changes
+}
+
 // TODO: Test without using snapshot tests
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
 
-    let (content, schema): (&str, Arc<SDLSchema>) = match parts.as_slice() {
-        [content] => (content, get_test_schema()),
+    let (content, schema, schema_changes): (
+        &str,
+        Arc<SDLSchema>,
+        FxHashSet<IncrementalBuildSchemaChange>,
+    ) = match parts.as_slice() {
+        [content] => (content, get_test_schema(), HashSet::default()),
         [content, extension_content] => {
-            (content, get_test_schema_with_extensions(extension_content))
+            let schema_changes = parse_schema_changes(extension_content);
+            (
+                content,
+                get_test_schema_with_extensions(extension_content),
+                schema_changes,
+            )
         }
-        _ => panic!("Expected one optional \"%extensions%\" section in the fxiture."),
+        _ => panic!("Expected one optional \"%extensions%\" section in the fixture."),
     };
 
     let parts: Vec<&str> = content.split("%definitions%").collect();
@@ -78,7 +122,13 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     }
 
     let definitions = build(&schema, &asts).unwrap();
-    let result = get_reachable_ir(definitions, base_names, changed_names, &schema);
+    let result = get_reachable_ir(
+        definitions,
+        base_names,
+        changed_names,
+        &schema,
+        schema_changes,
+    );
 
     let mut texts = result
         .into_iter()

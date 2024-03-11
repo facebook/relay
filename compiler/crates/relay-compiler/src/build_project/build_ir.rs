@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
+
 use common::Diagnostic;
 use dependency_analyzer::get_reachable_ir;
 use fnv::FnvHashMap;
@@ -68,8 +70,16 @@ pub fn build_ir(
             project_asts.base_definition_names,
             project_asts.changed_names,
             schema,
+            HashSet::default(),
         ),
-        BuildMode::IncrementalWithSchemaChanges(_) | BuildMode::Full => ir,
+        BuildMode::IncrementalWithSchemaChanges(changes) => get_reachable_ir(
+            ir,
+            project_asts.base_definition_names,
+            project_asts.changed_names,
+            schema,
+            changes,
+        ),
+        BuildMode::Full => ir,
     };
     Ok(BuildIRResult {
         ir: affected_ir,

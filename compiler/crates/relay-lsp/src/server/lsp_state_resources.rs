@@ -387,7 +387,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), BuildProjectFailure> {
-        let build_mode = if !self
+        let mut build_mode = if !self
             .lsp_state
             .source_programs
             .contains_key(&project_config.name.into())
@@ -436,6 +436,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 }
             }
         };
+        if !self.lsp_state.config.has_schema_change_incremental_build {
+            // Killswitch here to bail out of schema based incremental builds
+            build_mode = if let BuildMode::IncrementalWithSchemaChanges(_) = build_mode {
+                BuildMode::Full
+            } else {
+                build_mode
+            }
+        }
         log_event.bool(
             "is_incremental_build",
             match build_mode {

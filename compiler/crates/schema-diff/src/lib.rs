@@ -9,8 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod check;
-
+pub mod check;
 pub mod definitions;
 use common::SourceLocationKey;
 use fnv::FnvHashMap;

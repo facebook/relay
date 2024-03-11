@@ -5,11 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
+use std::fmt;
+
 use common::InterfaceName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
+use rustc_hash::FxHashSet;
 use schema::SDLSchema;
 use schema::Schema;
 
@@ -19,13 +23,52 @@ use crate::definitions::SchemaChange;
 use crate::definitions::Type;
 use crate::definitions::TypeChange;
 
-/// Return if the changes are safe to skip full rebuild.
-impl SchemaChange {
-    pub fn is_safe(self: &SchemaChange, schema: &SDLSchema, schema_config: &SchemaConfig) -> bool {
+// This enum is very similar to the schema Type enum but uses StringKey instead of id
+#[derive(Eq, PartialEq, Hash)]
+pub enum IncrementalBuildSchemaChange {
+    Enum(StringKey),
+}
+
+impl fmt::Debug for IncrementalBuildSchemaChange {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            SchemaChange::None => true,
-            SchemaChange::GenericChange => false,
-            SchemaChange::InvalidSchema => false,
+            IncrementalBuildSchemaChange::Enum(name) => write!(f, "enum({})", name),
+        }
+    }
+}
+
+#[derive(PartialEq)]
+pub enum SchemaChangeSafety {
+    Unsafe,
+    SafeWithIncrementalBuild(FxHashSet<IncrementalBuildSchemaChange>),
+    Safe,
+}
+
+impl fmt::Debug for SchemaChangeSafety {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SchemaChangeSafety::Unsafe => write!(f, "Unsafe"),
+            SchemaChangeSafety::SafeWithIncrementalBuild(changes) => {
+                write!(f, "SafeWithIncrementalBuild({:?})", changes)
+            }
+            SchemaChangeSafety::Safe => write!(f, "Safe"),
+        }
+    }
+}
+
+// Return if the changes are safe to skip full rebuild or need an incremental build.
+impl SchemaChange {
+    pub fn get_safety(
+        self: SchemaChange,
+        schema: &SDLSchema,
+        schema_config: &SchemaConfig,
+    ) -> SchemaChangeSafety {
+        let mut needs_incremental_build: FxHashSet<IncrementalBuildSchemaChange> =
+            HashSet::default();
+        match self {
+            SchemaChange::None => SchemaChangeSafety::Unsafe,
+            SchemaChange::GenericChange => SchemaChangeSafety::Unsafe,
+            SchemaChange::InvalidSchema => SchemaChangeSafety::Unsafe,
             SchemaChange::DefinitionChanges(changes) => {
                 for change in changes {
                     match change {
@@ -40,13 +83,13 @@ impl SchemaChange {
                             if !interfaces_added.is_empty()
                                 || !interfaces_removed.is_empty()
                                 || !is_field_changes_safe(
-                                    added,
-                                    removed,
-                                    changed,
+                                    &added,
+                                    &removed,
+                                    &changed,
                                     schema_config.node_interface_id_field,
                                 )
                             {
-                                return false;
+                                return SchemaChangeSafety::Unsafe;
                             }
                         }
                         DefinitionChange::InterfaceChanged {
@@ -56,17 +99,17 @@ impl SchemaChange {
                             ..
                         } => {
                             if !is_field_changes_safe(
-                                added,
-                                removed,
-                                changed,
+                                &added,
+                                &removed,
+                                &changed,
                                 schema_config.node_interface_id_field,
                             ) {
-                                return false;
+                                return SchemaChangeSafety::Unsafe;
                             }
                         }
                         DefinitionChange::ObjectAdded(name) => {
-                            if !is_object_add_safe(*name, schema, schema_config) {
-                                return false;
+                            if !is_object_add_safe(name, schema, schema_config) {
+                                return SchemaChangeSafety::Unsafe;
                             }
                         }
                         // safe changes
@@ -76,19 +119,28 @@ impl SchemaChange {
                         | DefinitionChange::UnionAdded(_)
                         | DefinitionChange::InputObjectAdded(_) => {}
 
+                        // safe with incremental build changes
+                        DefinitionChange::EnumChanged { name }
+                        | DefinitionChange::EnumRemoved(name) => {
+                            needs_incremental_build
+                                .insert(IncrementalBuildSchemaChange::Enum(name));
+                        }
+
                         // unsafe changes
-                        DefinitionChange::EnumChanged { .. }
-                        | DefinitionChange::EnumRemoved(_)
-                        | DefinitionChange::UnionChanged { .. }
+                        DefinitionChange::UnionChanged { .. }
                         | DefinitionChange::UnionRemoved(_)
                         | DefinitionChange::ScalarRemoved(_)
                         | DefinitionChange::InputObjectChanged { .. }
                         | DefinitionChange::InputObjectRemoved(_)
                         | DefinitionChange::InterfaceRemoved(_)
-                        | DefinitionChange::ObjectRemoved(_) => return false,
+                        | DefinitionChange::ObjectRemoved(_) => return SchemaChangeSafety::Unsafe,
                     }
                 }
-                true
+                if needs_incremental_build.is_empty() {
+                    SchemaChangeSafety::Safe
+                } else {
+                    SchemaChangeSafety::SafeWithIncrementalBuild(needs_incremental_build)
+                }
             }
         }
     }

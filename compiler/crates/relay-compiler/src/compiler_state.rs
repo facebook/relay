@@ -30,6 +30,7 @@ use rayon::prelude::*;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
+use schema_diff::check::SchemaChangeSafety;
 use schema_diff::definitions::SchemaChange;
 use schema_diff::detect_changes;
 use serde::Deserialize;
@@ -400,14 +401,14 @@ impl CompilerState {
         detect_changes(&current, &previous)
     }
 
-    fn is_change_safe(
+    fn get_schema_change_safety(
         &self,
         sources: &SchemaSources,
-        schema_change: &SchemaChange,
+        schema_change: SchemaChange,
         schema_config: &SchemaConfig,
-    ) -> bool {
-        if schema_change == &SchemaChange::None {
-            true
+    ) -> SchemaChangeSafety {
+        if schema_change == SchemaChange::None {
+            SchemaChangeSafety::Safe
         } else {
             let current_sources_with_location = sources
                 .get_sources_with_location()
@@ -419,8 +420,8 @@ impl CompilerState {
                 &current_sources_with_location,
                 &Vec::<(&str, SourceLocationKey)>::new(),
             ) {
-                Ok(schema) => schema_change.is_safe(&schema, schema_config),
-                Err(_) => false,
+                Ok(schema) => schema_change.get_safety(&schema, schema_config),
+                Err(_) => SchemaChangeSafety::Unsafe,
             }
         }
     }
@@ -441,35 +442,41 @@ impl CompilerState {
     }
 
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
-    pub fn has_breaking_schema_change(
+    pub fn schema_change_safety(
         &self,
         log_event: &impl PerfLogEvent,
         project_name: ProjectName,
         schema_config: &SchemaConfig,
-    ) -> bool {
+    ) -> SchemaChangeSafety {
         if let Some(extension) = self.extensions.get(&project_name) {
             if !extension.pending.is_empty() {
                 log_event.string("has_breaking_schema_change", "extension".to_owned());
-                return true;
+                return SchemaChangeSafety::Unsafe;
             }
         }
         if let Some(docblocks) = self.docblocks.get(&project_name) {
             if !docblocks.pending.is_empty() {
                 log_event.string("has_breaking_schema_change", "docblock".to_owned());
-                return true;
+                return SchemaChangeSafety::Unsafe;
             }
         }
         if let Some(schema) = self.schemas.get(&project_name) {
             if !schema.pending.is_empty() {
                 let schema_change = self.get_schema_change(schema);
-                if !self.is_change_safe(schema, &schema_change, schema_config) {
-                    log_event.string("schema_change", schema_change.to_string());
-                    log_event.string("has_breaking_schema_change", "schema_change".to_owned());
-                    return true;
+                let schema_change_string = schema_change.to_string();
+                let schema_change_safety =
+                    self.get_schema_change_safety(schema, schema_change, schema_config);
+                match schema_change_safety {
+                    SchemaChangeSafety::Unsafe => {
+                        log_event.string("schema_change", schema_change_string);
+                        log_event.string("has_breaking_schema_change", "schema_change".to_owned());
+                    }
+                    SchemaChangeSafety::SafeWithIncrementalBuild(_) | SchemaChangeSafety::Safe => {}
                 }
+                return schema_change_safety;
             }
         }
-        false
+        SchemaChangeSafety::Safe
     }
 
     /// Merges pending changes from the file source into the compiler state.

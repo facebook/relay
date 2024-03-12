@@ -1569,7 +1569,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let mut required_fields = type_definition
             .fields
             .iter()
-            .filter(|x| x.type_.is_non_null())
+            .filter(|x| x.type_.is_non_null() && x.default_value.is_none())
             .map(|x| x.name.item.0)
             .collect::<StringKeySet>();
 
@@ -1720,7 +1720,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let mut required_fields = type_definition
             .fields
             .iter()
-            .filter(|x| x.type_.is_non_null())
+            .filter(|x| x.type_.is_non_null() && x.default_value.is_none())
             .map(|x| x.name.item.0)
             .collect::<StringKeySet>();
 

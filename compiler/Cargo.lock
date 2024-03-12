@@ -438,6 +438,7 @@ dependencies = [
  "relay-transforms",
  "rustc-hash",
  "schema",
+ "schema-diff",
  "serde",
  "tokio",
 ]
@@ -1795,6 +1796,7 @@ dependencies = [
  "relay-transforms",
  "resolution-path",
  "schema",
+ "schema-diff",
  "schema-documentation",
  "schema-print",
  "serde",
@@ -1990,6 +1992,7 @@ dependencies = [
  "intern",
  "lazy_static",
  "relay-config",
+ "rustc-hash",
  "schema",
 ]
 

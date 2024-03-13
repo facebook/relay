@@ -20,13 +20,14 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
-use graphql_syntax::parse_executable_with_error_recovery;
+use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_text_printer::print_full_operation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lsp_types::request::Request;
 use lsp_types::Url;
 use relay_compiler::config::ProjectConfig;
+use relay_compiler::get_parser_features;
 use relay_compiler::ProjectName;
 use relay_transforms::apply_transforms;
 use relay_transforms::CustomTransformsConfig;
@@ -229,7 +230,11 @@ pub(crate) fn get_query_text<
             ))
         })?;
 
-    let result = parse_executable_with_error_recovery(&original_text, SourceLocationKey::Generated);
+    let result = parse_executable_with_error_recovery_and_parser_features(
+        &original_text,
+        SourceLocationKey::Generated,
+        get_parser_features(project_config),
+    );
 
     if !&result.diagnostics.is_empty() {
         return Err(LSPRuntimeError::UnexpectedError(

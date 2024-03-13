@@ -23,7 +23,7 @@ use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::Program;
 use graphql_ir::RelayMode;
-use graphql_syntax::parse_executable_with_error_recovery;
+use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::ExecutableDocument;
 use intern::string_key::Intern;
@@ -35,6 +35,7 @@ use lsp_types::Range;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
 use relay_compiler::config::Config;
+use relay_compiler::get_parser_features;
 use relay_compiler::FileCategorizer;
 use relay_compiler::ProjectName;
 use relay_docblock::parse_docblock_ast;
@@ -220,6 +221,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
+        let project_config = self
+            .config
+            .projects
+            .get(&ProjectName::from(project_name))
+            .unwrap();
         let schema = self
             .schemas
             .get(&project_name)
@@ -233,9 +239,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
-                    let result = parse_executable_with_error_recovery(
+                    let result = parse_executable_with_error_recovery_and_parser_features(
                         &graphql_source.text_source().text,
                         source_location_key,
+                        get_parser_features(project_config),
                     );
                     diagnostics.extend(result.diagnostics.iter().map(|diagnostic| {
                         self.diagnostic_reporter
@@ -282,11 +289,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
-        let project_config = self
-            .config
-            .projects
-            .get(&ProjectName::from(project_name))
-            .unwrap();
         for (index, docblock_source) in docblock_sources.iter().enumerate() {
             let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
             let text_source = docblock_source.text_source();
@@ -485,9 +487,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         text_document_uri: &Url,
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
+        let project_name: ProjectName = self
+            .extract_project_name_from_url(&text_document_uri)?
+            .into();
+        let project_config = self.config.projects.get(&project_name).unwrap();
+
         extract_executable_definitions_from_text_document(
             text_document_uri,
             &self.synced_javascript_features,
+            get_parser_features(project_config),
         )
     }
 

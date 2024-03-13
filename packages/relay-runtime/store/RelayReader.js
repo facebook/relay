@@ -769,14 +769,6 @@ class RelayReader {
           this._resolverCache,
         );
         let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
-        // TODO Remove this check when modelResolvers field is fully supported
-        if (field.modelResolver != null) {
-          const modelResolver = field.modelResolver;
-          validStoreIDs = storeIDs.map(storeID => {
-            const model = this._readResolverFieldImpl(modelResolver, storeID);
-            return model != null ? storeID : null;
-          });
-        }
         if (field.modelResolvers != null) {
           invariant(
             field.concreteType != null,
@@ -813,19 +805,6 @@ class RelayReader {
             validClientEdgeResolverResponse.id,
             this._resolverCache,
           );
-        // TODO Remove this check when modelResolvers field is fully supported
-        if (field.modelResolver != null) {
-          const model = this._readResolverFieldImpl(
-            field.modelResolver,
-            storeID,
-          );
-          if (model == null) {
-            // If the model resolver returns undefined, we should still return null
-            // to match GQL behavior.
-            data[applicationName] = null;
-            return null;
-          }
-        }
         if (field.modelResolvers != null) {
           invariant(
             field.concreteType != null,

@@ -303,6 +303,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
             &dirty_artifact_sources,
+            &config,
         )
     })?;
 

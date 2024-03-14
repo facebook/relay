@@ -9,6 +9,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use common::Diagnostic;
 use common::SourceLocationKey;
@@ -18,13 +19,16 @@ use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
+use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 
 use crate::artifact_map::ArtifactSourceKey;
 use crate::compiler_state::GraphQLSources;
+use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::file_source::LocatedGraphQLSource;
+use crate::utils::get_parser_features;
 
 #[derive(Debug)]
 pub struct GraphQLAsts {
@@ -50,10 +54,13 @@ impl GraphQLAsts {
     pub fn from_graphql_sources_map(
         graphql_sources_map: &FnvHashMap<ProjectName, GraphQLSources>,
         dirty_artifact_sources: &FnvHashMap<ProjectName, Vec<ArtifactSourceKey>>,
+        config: &Arc<Config>,
     ) -> Result<FnvHashMap<ProjectName, GraphQLAsts>> {
         graphql_sources_map
             .iter()
             .map(|(&project_name, sources)| {
+                let project_config = &config.projects[&project_name];
+
                 let asts = GraphQLAsts::from_graphql_sources(
                     sources,
                     dirty_artifact_sources
@@ -73,6 +80,7 @@ impl GraphQLAsts {
                                 })
                                 .collect()
                         }),
+                    project_config,
                 )?;
                 Ok((project_name, asts))
             })
@@ -85,7 +93,10 @@ impl GraphQLAsts {
     pub fn from_graphql_sources(
         graphql_sources: &GraphQLSources,
         dirty_definitions: Option<Vec<&ExecutableDefinitionName>>,
+        project_config: &ProjectConfig,
     ) -> Result<Self> {
+        let parser_features = get_parser_features(project_config);
+
         let mut syntax_errors = Vec::new();
 
         let mut asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>> = Default::default();
@@ -108,9 +119,10 @@ impl GraphQLAsts {
             {
                 let source_location =
                     SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                match graphql_syntax::parse_executable(
+                match graphql_syntax::parse_executable_with_features(
                     &graphql_source.text_source().text,
                     source_location,
+                    parser_features,
                 ) {
                     Ok(document) => {
                         for def in &document.definitions {
@@ -145,9 +157,10 @@ impl GraphQLAsts {
                     // TODO: parse name instead of the whole graphql text
                     let source_location =
                         SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                    if let Ok(document) = graphql_syntax::parse_executable(
+                    if let Ok(document) = graphql_syntax::parse_executable_with_features(
                         &graphql_source.text_source().text,
                         source_location,
+                        parser_features,
                     ) {
                         for def in document.definitions {
                             match def {
@@ -210,9 +223,10 @@ impl GraphQLAsts {
             {
                 let source_location =
                     SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                match graphql_syntax::parse_executable(
+                match graphql_syntax::parse_executable_with_features(
                     &graphql_source.text_source().text,
                     source_location,
+                    parser_features,
                 ) {
                     Ok(document) => {
                         definitions_for_file.extend(document.definitions);

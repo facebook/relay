@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ed48f4268d08f4756f45e1977f5661c8>>
+ * @generated SignedSource<<bdc63bb42a9050607cf80744f245dddd>>
  */
 
 mod relay_compiler_integration;
@@ -59,6 +59,13 @@ async fn custom_scalar_variable_default_arg_non_strict() {
     let input = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.input");
     let expected = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected");
     test_fixture(transform_fixture, file!(), "custom_scalar_variable_default_arg_non_strict.input", "relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_arguments() {
+    let input = include_str!("relay_compiler_integration/fixtures/fragment_arguments.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/fragment_arguments.expected");
+    test_fixture(transform_fixture, file!(), "fragment_arguments.input", "relay_compiler_integration/fixtures/fragment_arguments.expected", input, expected).await;
 }
 
 #[tokio::test]

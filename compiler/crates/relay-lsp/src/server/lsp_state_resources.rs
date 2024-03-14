@@ -242,6 +242,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
                 &compiler_state.get_dirty_artifact_sources(&self.lsp_state.config),
+                &self.lsp_state.config,
             )
         })?;
 

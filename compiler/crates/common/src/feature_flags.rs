@@ -99,6 +99,11 @@ pub struct FeatureFlags {
     /// excludes resolver metadata from reader ast
     #[serde(default)]
     pub disable_resolver_reader_ast: bool,
+
+    /// Add support for parsing and transforming variable definitions on fragment
+    /// definitions and arguments on fragment spreads.
+    #[serde(default)]
+    pub enable_fragment_argument_transform: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

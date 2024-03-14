@@ -17,3 +17,8 @@ function MyComponent() {
     return <div>Test</div>;
   }
 ==================================== OUTPUT ===================================
+graphql - line: 10, column: 24, text: <
+      fragment Test on User {
+        __typename
+      }
+    >

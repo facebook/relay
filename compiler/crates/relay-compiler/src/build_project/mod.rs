@@ -22,6 +22,7 @@ mod project_asts;
 mod source_control;
 mod validate;
 
+use std::fmt;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -99,6 +100,17 @@ pub enum BuildMode {
     Full,
     Incremental,
     IncrementalWithSchemaChanges(FxHashSet<IncrementalBuildSchemaChange>),
+}
+impl fmt::Debug for BuildMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            BuildMode::Full => write!(f, "Full"),
+            BuildMode::Incremental => write!(f, "Incremental"),
+            BuildMode::IncrementalWithSchemaChanges(changes) => {
+                write!(f, "IncrementalWithSchemaChanges({:?})", changes)
+            }
+        }
+    }
 }
 
 /// This program doesn't have IR transforms applied to it, so it's not optimized.

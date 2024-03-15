@@ -587,6 +587,14 @@ impl<'a> ResolvePosition<'a> for FragmentSpread {
                 .name
                 .resolve(IdentParent::FragmentSpreadName(self.path(parent)), position);
         }
+        if let Some(arguments) = &self.arguments {
+            for argument in &arguments.items {
+                if argument.contains(position) {
+                    return argument
+                        .resolve(ArgumentParent::FragmentSpread(self.path(parent)), position);
+                }
+            }
+        }
         for directive in self.directives.iter() {
             if directive.contains(position) {
                 return directive
@@ -797,6 +805,7 @@ pub enum ArgumentParent<'a> {
     ScalarField(ScalarFieldPath<'a>),
     ConstantObject(ConstantObjectPath<'a>),
     Directive(DirectivePath<'a>),
+    FragmentSpread(FragmentSpreadPath<'a>),
 }
 
 impl<'a> ResolvePosition<'a> for Argument {

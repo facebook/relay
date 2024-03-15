@@ -454,6 +454,7 @@ fn get_hover_contents<'a>(
             schema,
             schema_name,
             schema_documentation,
+            program,
             content_consumer_type,
         ),
         HoverBehavior::ScalarOrLinkedField(field_name, selection_path) => {
@@ -471,6 +472,7 @@ fn get_hover_contents<'a>(
             schema,
             schema_name,
             schema_documentation,
+            program,
             content_consumer_type,
         ),
         HoverBehavior::InlineFragment(inline_fragment_path) => on_hover_inline_fragment(
@@ -553,6 +555,7 @@ fn on_hover_constant_value<'a>(
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
+    program: &Program,
     content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     match constant_value_parent.find_constant_value_root() {
@@ -568,6 +571,7 @@ fn on_hover_constant_value<'a>(
             schema,
             schema_name,
             schema_documentation,
+            program,
             content_consumer_type,
         ),
     }
@@ -578,6 +582,7 @@ fn on_hover_argument_path<'a>(
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
+    program: &Program,
     content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     let ArgumentPath {
@@ -608,6 +613,14 @@ fn on_hover_argument_path<'a>(
             schema,
             schema_name,
             schema_documentation,
+            content_consumer_type,
+        ),
+        ArgumentRoot::FragmentSpread(fragment_spread_path) => get_fragment_spread_hover_content(
+            fragment_spread_path,
+            schema,
+            schema_name,
+            schema_documentation,
+            program,
             content_consumer_type,
         ),
     }?;
@@ -844,6 +857,26 @@ fn on_hover_fragment_spread<'a>(
     program: &Program,
     content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
+    let hover_contents = get_fragment_spread_hover_content(
+        fragment_spread_path,
+        schema,
+        schema_name,
+        schema_documentation,
+        program,
+        content_consumer_type,
+    )?;
+
+    Some(HoverContents::Array(hover_contents))
+}
+
+fn get_fragment_spread_hover_content<'a>(
+    fragment_spread_path: &'a FragmentSpreadPath<'a>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+    schema_documentation: &impl SchemaDocumentation,
+    program: &Program,
+    content_consumer_type: ContentConsumerType,
+) -> Option<Vec<MarkedString>> {
     // TODO eventually show information about whether the fragment spread is
     // infallible, fallible, interface-on-interface, etc.
 
@@ -948,7 +981,7 @@ For example:
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }
 
-    Some(HoverContents::Array(hover_contents))
+    Some(hover_contents)
 }
 
 fn on_hover_directive<'a>(

@@ -526,10 +526,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
-        if let Some(js_server) = self.get_js_language_sever() {
-            js_server.process_js_source(uri, text);
-        }
-
         let file_group = get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir)?;
         let project_name = get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
@@ -548,6 +544,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(())
             }
             FileGroup::Source { project_set: _ } => {
+                if let Some(js_server) = self.get_js_language_sever() {
+                    js_server.process_js_source(uri, text);
+                }
+
                 let embedded_sources = extract_graphql::extract(text);
 
                 if embedded_sources.is_empty() {

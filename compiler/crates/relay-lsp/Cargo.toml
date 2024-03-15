@@ -38,6 +38,7 @@ relay-docblock = { path = "../relay-docblock" }
 relay-transforms = { path = "../relay-transforms" }
 resolution-path = { path = "../resolution-path" }
 schema = { path = "../schema" }
+schema-diff = { path = "../schema-diff" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }

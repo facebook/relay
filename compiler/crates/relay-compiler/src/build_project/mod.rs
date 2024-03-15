@@ -57,7 +57,10 @@ use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
 use relay_typegen::FragmentLocations;
 use rustc_hash::FxHashMap;
+use rustc_hash::FxHashSet;
 use schema::SDLSchema;
+use schema_diff::check::IncrementalBuildSchemaChange;
+use schema_diff::check::SchemaChangeSafety;
 pub use source_control::add_to_mercurial;
 pub use validate::validate;
 pub use validate::AdditionalValidations;
@@ -92,6 +95,12 @@ impl From<BuildProjectError> for BuildProjectFailure {
     }
 }
 
+pub enum BuildMode {
+    Full,
+    Incremental,
+    IncrementalWithSchemaChanges(FxHashSet<IncrementalBuildSchemaChange>),
+}
+
 /// This program doesn't have IR transforms applied to it, so it's not optimized.
 /// It's perfect for the LSP server: we have all the documents with
 /// their locations to provide information to go_to_definition, hover, etc.
@@ -100,16 +109,16 @@ pub fn build_raw_program(
     project_asts: ProjectAsts,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
-    is_incremental_build: bool,
+    build_mode: BuildMode,
 ) -> Result<(Program, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
     let BuildIRResult { ir, source_hashes } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, project_asts, &schema, is_incremental_build).map_err(
-            |errors| BuildProjectError::ValidationErrors {
+        build_ir::build_ir(project_config, project_asts, &schema, build_mode).map_err(|errors| {
+            BuildProjectError::ValidationErrors {
                 errors,
                 project_name: project_config.name,
-            },
-        )
+            }
+        })
     })?;
 
     // Turn the IR into a base Program.
@@ -184,29 +193,73 @@ pub fn build_programs(
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<BuildProgramsOutput, BuildProjectFailure> {
     let project_name = project_config.name;
-    let is_incremental_build = compiler_state.has_processed_changes()
-        && !compiler_state.has_breaking_schema_change(
+    let mut build_mode = if !compiler_state.has_processed_changes() {
+        BuildMode::Full
+    } else {
+        let project_schema_change = compiler_state.schema_change_safety(
             log_event,
             project_name,
             &project_config.schema_config,
-        )
-        && if let Some(base) = project_config.base {
-            !compiler_state.has_breaking_schema_change(
-                log_event,
-                base,
-                &project_config.schema_config,
-            )
+        );
+        match project_schema_change {
+            SchemaChangeSafety::Unsafe => BuildMode::Full,
+            SchemaChangeSafety::Safe | SchemaChangeSafety::SafeWithIncrementalBuild(_) => {
+                let base_schema_change = if let Some(base) = project_config.base {
+                    compiler_state.schema_change_safety(
+                        log_event,
+                        base,
+                        &project_config.schema_config,
+                    )
+                } else {
+                    SchemaChangeSafety::Safe
+                };
+                match (project_schema_change, base_schema_change) {
+                    (SchemaChangeSafety::Unsafe, _) => BuildMode::Full,
+                    (_, SchemaChangeSafety::Unsafe) => BuildMode::Full,
+                    (SchemaChangeSafety::Safe, SchemaChangeSafety::Safe) => BuildMode::Incremental,
+                    (SchemaChangeSafety::SafeWithIncrementalBuild(c), SchemaChangeSafety::Safe) => {
+                        BuildMode::IncrementalWithSchemaChanges(c)
+                    }
+                    (SchemaChangeSafety::Safe, SchemaChangeSafety::SafeWithIncrementalBuild(c)) => {
+                        BuildMode::IncrementalWithSchemaChanges(c)
+                    }
+                    (
+                        SchemaChangeSafety::SafeWithIncrementalBuild(c1),
+                        SchemaChangeSafety::SafeWithIncrementalBuild(c2),
+                    ) => {
+                        BuildMode::IncrementalWithSchemaChanges(c1.into_iter().chain(c2).collect())
+                    }
+                }
+            }
+        }
+    };
+    if !config.has_schema_change_incremental_build {
+        // Killswitch here to bail out of schema based incremental builds
+        build_mode = if let BuildMode::IncrementalWithSchemaChanges(_) = build_mode {
+            BuildMode::Full
         } else {
-            true
-        };
-    log_event.bool("is_incremental_build", is_incremental_build);
-    let (program, source_hashes) = build_raw_program(
-        project_config,
-        project_asts,
-        schema,
-        log_event,
-        is_incremental_build,
-    )?;
+            build_mode
+        }
+    }
+    log_event.bool(
+        "is_incremental_build",
+        match build_mode {
+            BuildMode::Incremental | BuildMode::IncrementalWithSchemaChanges(_) => true,
+            BuildMode::Full => false,
+        },
+    );
+    log_event.string(
+        "build_mode",
+        match build_mode {
+            BuildMode::Full => String::from("Full"),
+            BuildMode::Incremental => String::from("Incremental"),
+            BuildMode::IncrementalWithSchemaChanges(_) => {
+                String::from("IncrementalWithSchemaChanges")
+            }
+        },
+    );
+    let (program, source_hashes) =
+        build_raw_program(project_config, project_asts, schema, log_event, build_mode)?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");

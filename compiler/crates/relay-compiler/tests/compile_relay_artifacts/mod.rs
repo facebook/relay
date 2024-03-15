@@ -118,13 +118,13 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         enable_resolver_normalization_ast: fixture
             .content
             .contains("# enable_resolver_normalization_ast"),
-        relay_resolvers_enable_strict_resolver_flavors: FeatureFlag::Disabled,
         relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag::Disabled,
         enable_relay_resolver_mutations: false,
         enable_strict_custom_scalars: false,
         allow_required_in_mutation_response: FeatureFlag::Disabled,
         allow_resolvers_in_mutation_response: FeatureFlag::Disabled,
         disable_resolver_reader_ast: false,
+        enable_fragment_argument_transform: false,
     };
 
     let default_project_config = ProjectConfig {

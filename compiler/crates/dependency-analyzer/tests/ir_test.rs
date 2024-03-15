@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<63358e3f870073e5e172f08289e48e48>>
+ * @generated SignedSource<<19e6fed1ff232b451735a6a1d7ba0628>>
  */
 
 mod ir;
@@ -94,6 +94,20 @@ async fn recursive_fragments() {
     let input = include_str!("ir/fixtures/recursive-fragments.graphql");
     let expected = include_str!("ir/fixtures/recursive-fragments.expected");
     test_fixture(transform_fixture, file!(), "recursive-fragments.graphql", "ir/fixtures/recursive-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_and_definitions_change() {
+    let input = include_str!("ir/fixtures/schema-and-definitions-change.graphql");
+    let expected = include_str!("ir/fixtures/schema-and-definitions-change.expected");
+    test_fixture(transform_fixture, file!(), "schema-and-definitions-change.graphql", "ir/fixtures/schema-and-definitions-change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_enum_change() {
+    let input = include_str!("ir/fixtures/schema-enum-change.graphql");
+    let expected = include_str!("ir/fixtures/schema-enum-change.expected");
+    test_fixture(transform_fixture, file!(), "schema-enum-change.graphql", "ir/fixtures/schema-enum-change.expected", input, expected).await;
 }
 
 #[tokio::test]

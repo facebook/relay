@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e26b9c4286436f72d26cc669a7fbd005>>
+ * @generated SignedSource<<6eae9d1778cf65a30d7df406da009a3a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -61,18 +61,20 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Cat",
-        "modelResolver": {
-          "alias": null,
-          "args": null,
-          "fragment": {
+        "modelResolvers": {
+          "Cat": {
+            "alias": null,
             "args": null,
-            "kind": "FragmentSpread",
-            "name": "Cat__id"
-          },
-          "kind": "RelayResolver",
-          "name": "cat",
-          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
-          "path": "cat.__relay_model_instance"
+            "fragment": {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "Cat__id"
+            },
+            "kind": "RelayResolver",
+            "name": "cat",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
+            "path": "cat.__relay_model_instance"
+          }
         },
         "backingField": {
           "alias": null,

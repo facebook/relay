@@ -158,6 +158,9 @@ pub struct Config {
 
     /// Runs in `try_saved_state` when the compiler state is initialized from saved state.
     pub update_compiler_state_from_saved_state: UpdateCompilerStateFromSavedState,
+
+    // Allow incremental build for some schema changes
+    pub has_schema_change_incremental_build: bool,
 }
 
 pub enum FileSourceKind {
@@ -423,6 +426,7 @@ impl Config {
             export_persisted_query_ids_to_file: None,
             initialize_resources: None,
             update_compiler_state_from_saved_state: None,
+            has_schema_change_incremental_build: false,
         };
 
         let mut validation_errors = Vec::new();

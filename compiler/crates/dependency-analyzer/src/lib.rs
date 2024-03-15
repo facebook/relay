@@ -13,6 +13,7 @@
 mod ast;
 mod ir;
 mod minimized_executable;
+mod schema_change_analyzer;
 
 pub use ast::get_definition_references;
 pub use ast::get_reachable_ast;

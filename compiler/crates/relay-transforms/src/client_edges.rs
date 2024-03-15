@@ -45,6 +45,7 @@ use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
 use schema::DirectiveValue;
+use schema::ObjectID;
 use schema::Schema;
 use schema::Type;
 
@@ -80,13 +81,18 @@ pub enum ClientEdgeMetadataDirective {
     },
     ClientObject {
         type_name: Option<ObjectName>,
-        location: Location,
-        has_model_instance_field: bool,
-        is_model_live: bool,
         unique_id: u32,
+        model_resolvers: Vec<ClientEdgeModelResolver>,
     },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ClientEdgeModelResolver {
+    pub type_name: WithLocation<ObjectName>,
+    pub has_model_instance_field: bool,
+    pub is_live: bool,
+}
 
 /// Metadata directive attached to generated queries
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -375,11 +381,14 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                         field.alias_or_name_location(),
                     ));
                 }
+                let mut model_resolvers: Vec<ClientEdgeModelResolver> = implementing_objects
+                    .iter()
+                    .map(|object_id| self.get_client_edge_model_resolver_for_object(*object_id))
+                    .collect();
+                model_resolvers.sort();
                 Some(ClientEdgeMetadataDirective::ClientObject {
                     type_name: None,
-                    location: field.alias_or_name_location(),
-                    has_model_instance_field: false,
-                    is_model_live: false,
+                    model_resolvers,
                     unique_id: self.get_key(),
                 })
             }
@@ -388,42 +397,53 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     ValidationMessage::ClientEdgeToClientUnion,
                     field.alias_or_name_location(),
                 ));
+                // TODO model resolvers for ClientEdgeToClientUnion
                 None
             }
             Type::Object(object_id) => {
-                let type_name = self.program.schema.object(object_id).name;
-                let parent_type = self.program.schema.get_type(type_name.item.0).unwrap();
-                let model_field_id = self
-                    .program
-                    .schema
-                    .named_field(parent_type, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
-                // Note: is_model_live is only true if the __relay_model_instance field exists on the model field
-                let is_model_live = if let Some(id) = model_field_id {
-                    let model_field = self.program.schema.field(id);
-                    let resolver_directive =
-                        model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
-                    if let Some(resolver_directive) = resolver_directive {
-                        resolver_directive
-                            .arguments
-                            .iter()
-                            .any(|arg| arg.name.0 == LIVE_ARGUMENT_NAME.0)
-                    } else {
-                        false
-                    }
-                } else {
-                    false
-                };
+                let type_name = self.program.schema.object(object_id).name.item;
+                let model_resolver = self.get_client_edge_model_resolver_for_object(object_id);
                 Some(ClientEdgeMetadataDirective::ClientObject {
-                    type_name: Some(type_name.item),
-                    has_model_instance_field: model_field_id.is_some(),
-                    is_model_live,
-                    location: type_name.location,
+                    type_name: Some(type_name),
+                    model_resolvers: vec![model_resolver],
                     unique_id: self.get_key(),
                 })
             }
             _ => {
                 panic!("Expected a linked field to reference either an Object, Interface, or Union")
             }
+        }
+    }
+
+    fn get_client_edge_model_resolver_for_object(
+        &mut self,
+        object_id: ObjectID,
+    ) -> ClientEdgeModelResolver {
+        let type_name = self.program.schema.object(object_id).name;
+        let parent_type = self.program.schema.get_type(type_name.item.0).unwrap();
+        let model_field_id = self
+            .program
+            .schema
+            .named_field(parent_type, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
+        // Note: is_live is only true if the __relay_model_instance field exists on the model field
+        let is_live = if let Some(id) = model_field_id {
+            let model_field = self.program.schema.field(id);
+            let resolver_directive = model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
+            if let Some(resolver_directive) = resolver_directive {
+                resolver_directive
+                    .arguments
+                    .iter()
+                    .any(|arg| arg.name.0 == LIVE_ARGUMENT_NAME.0)
+            } else {
+                false
+            }
+        } else {
+            false
+        };
+        ClientEdgeModelResolver {
+            type_name,
+            has_model_instance_field: model_field_id.is_some(),
+            is_live,
         }
     }
 

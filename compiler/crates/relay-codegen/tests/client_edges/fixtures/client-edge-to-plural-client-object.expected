@@ -52,7 +52,7 @@ extend type User {
     {
       "kind": "ClientEdgeToClientObject",
       "concreteType": "ClientOnlyType",
-      "modelResolver": null,
+      "modelResolvers": null,
       "backingField": {
         "alias": null,
         "args": null,

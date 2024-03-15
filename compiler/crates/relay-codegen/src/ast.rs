@@ -24,7 +24,6 @@ pub struct ObjectEntry {
 #[macro_export]
 macro_rules! object {
     { $ ( $(:$func: expr,)* $key:ident: $value:expr,)* } => ({
-        use crate::constants::CODEGEN_CONSTANTS;
         vec![
             $(
                 $(

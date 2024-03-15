@@ -56,7 +56,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
         if let Some(directive) = schema.get_directive_mut(*directive_name) {
             let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
             for arg in next_args.iter_mut() {
-                if arg.name == *LABEL {
+                if arg.name.item == *LABEL {
                     if let TypeReference::NonNull(of) = &arg.type_ {
                         arg.type_ = *of.clone()
                     };

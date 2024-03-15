@@ -372,7 +372,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
                 write!(self.writer(), ", ")?;
             }
             let type_string = self.schema.get_type_string(&arg.type_);
-            write!(self.writer(), "{}: {}", arg.name, type_string,)?;
+            write!(self.writer(), "{}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }
@@ -403,7 +403,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_new_line()?;
         for arg in args.iter() {
             let type_string = self.schema.get_type_string(&arg.type_);
-            write!(self.writer(), "  {}: {}", arg.name, type_string,)?;
+            write!(self.writer(), "  {}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }

@@ -6,7 +6,10 @@
  */
 
 use intern::string_key::Intern;
+use rustc_hash::FxHashSet;
 use schema::build_schema;
+use schema_diff::check::IncrementalBuildSchemaChange;
+use schema_diff::check::SchemaChangeSafety;
 use schema_diff::definitions::*;
 use schema_diff::*;
 
@@ -16,10 +19,10 @@ fn diff(current: &str, previous: &str) -> SchemaChange {
     change
 }
 
-fn is_safe(current: &str, previous: &str) -> bool {
+fn get_safety(current: &str, previous: &str) -> SchemaChangeSafety {
     let schema = build_schema(current).unwrap();
     let change = detect_changes(&[current], &[previous]);
-    change.is_safe(&schema, &Default::default())
+    change.get_safety(&schema, &Default::default())
 }
 
 #[test]
@@ -727,8 +730,9 @@ fn test_change_type_enum_union() {
 
 #[test]
 fn test_add_object_without_id() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -736,18 +740,21 @@ fn test_add_object_without_id() {
                 key: String
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Safe
+    )
 }
 
 #[test]
 fn test_change_object_interface() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A implements B {
                 key: String
             }
@@ -755,7 +762,7 @@ fn test_change_object_interface() {
                 id: ID!
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
@@ -763,13 +770,16 @@ fn test_change_object_interface() {
                 id: ID!
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Unsafe
+    )
 }
 
 #[test]
 fn test_add_object_with_id_node_interface() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -781,7 +791,7 @@ fn test_add_object_with_id_node_interface() {
                 id: ID!
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
@@ -789,56 +799,68 @@ fn test_add_object_with_id_node_interface() {
                 id: ID!
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Safe
+    )
 }
 
 #[test]
 fn test_object_special_field_added() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
                 foo: String # regular field is okay
             }
         #",
-        r"
+            r"
             type A {
                 key: String
             }
         #",
-    ));
-    assert!(!is_safe(
-        r"
+        ),
+        SchemaChangeSafety::Safe
+    );
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
                 id: String # id field is breaking
             }
         #",
-        r"
+            r"
             type A {
                 key: String
             }
         #",
-    ));
-    assert!(!is_safe(
-        r"
+        ),
+        SchemaChangeSafety::Unsafe
+    );
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
                 js: String # js field is breaking
             }
         #",
-        r"
+            r"
             type A {
                 key: String
             }
         #",
-    ));
+        ),
+        SchemaChangeSafety::Unsafe
+    );
 }
 
 #[test]
 fn test_add_type_with_id_actor_interface() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -850,7 +872,7 @@ fn test_add_type_with_id_actor_interface() {
                 name: String
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
@@ -858,64 +880,76 @@ fn test_add_type_with_id_actor_interface() {
                 name: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Unsafe
+    )
 }
 
 #[test]
 fn test_add_optional_field_arg() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key(a: ID): String
             }
 
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Safe
+    )
 }
 
 #[test]
 fn test_add_required_field_arg() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key(a: ID!): String
             }
 
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Unsafe
+    )
 }
 
 #[test]
 fn test_remove_field_arg() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
 
             #",
-        r"
+            r"
             type A {
                 key(a: ID): String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Unsafe
+    )
 }
 
 #[test]
 fn test_add_safe_types() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -935,18 +969,21 @@ fn test_add_safe_types() {
             }
             scalar Mark
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Safe
+    )
 }
 
 #[test]
 fn test_unimplemented_changes() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -954,12 +991,112 @@ fn test_unimplemented_changes() {
                 name: String
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Unsafe
+    )
+}
+
+#[test]
+fn test_add_enum() {
+    assert_eq!(
+        get_safety(
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+         }
+         enum B {
+            OTHER
+         }
+         #",
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+         }
+         #",
+        ),
+        SchemaChangeSafety::Safe
+    );
+}
+
+#[test]
+fn test_safe_with_incremental_build_changes() {
+    // Change enum
+    assert_eq!(
+        get_safety(
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+         }
+         #",
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Enum("A".intern())
+        ]))
+    );
+
+    // Add enum value
+    assert_eq!(
+        get_safety(
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+         }
+         #",
+            r"
+         enum A {
+             OK
+             NOT_OK
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Enum("A".intern())
+        ]))
+    );
+
+    // Delete enum
+    assert_eq!(
+        get_safety(
+            r"
+         enum B {
+             OTHER
+         }
+         #",
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+         }
+         enum B {
+             OTHER
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Enum("A".intern())
+        ]))
+    );
 }
 
 fn sort_change(change: &mut SchemaChange) {

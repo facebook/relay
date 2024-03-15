@@ -835,7 +835,7 @@ fn get_scalar_or_linked_field_hover_content(
             let arg_type_name = schema.get_type_name(arg.type_.inner()).lookup();
             hover_contents.push(MarkedString::from_markdown(format!(
                 "{}: **{}**{}\n\n{}",
-                arg.name,
+                arg.name.item,
                 content_consumer_type.render_text_with_params(
                     &schema.get_type_string(&arg.type_),
                     &GraphQLSchemaExplorerParams {
@@ -852,7 +852,7 @@ fn get_scalar_or_linked_field_hover_content(
                 if let Some(description) = schema_documentation.get_field_argument_description(
                     parent_type_name,
                     field.name.item.lookup(),
-                    arg.name.0.lookup(),
+                    arg.name.item.0.lookup(),
                 ) {
                     description.to_string()
                 } else {

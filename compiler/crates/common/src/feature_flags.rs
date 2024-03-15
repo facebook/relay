@@ -69,10 +69,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
 
-    /// Enforce strict flavors for relay resolvers and disallow mixing flavors
-    #[serde(default)]
-    pub relay_resolvers_enable_strict_resolver_flavors: FeatureFlag,
-
     /// Allow legacy verbose resolver syntax
     #[serde(default)]
     pub relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag,
@@ -103,6 +99,11 @@ pub struct FeatureFlags {
     /// excludes resolver metadata from reader ast
     #[serde(default)]
     pub disable_resolver_reader_ast: bool,
+
+    /// Add support for parsing and transforming variable definitions on fragment
+    /// definitions and arguments on fragment spreads.
+    #[serde(default)]
+    pub enable_fragment_argument_transform: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

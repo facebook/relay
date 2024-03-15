@@ -22,7 +22,7 @@ use crate::syntax_error::SyntaxError;
 
 type ParseResult<T> = Result<T, ()>;
 
-#[derive(Default, PartialEq)]
+#[derive(Default, Clone, Copy, PartialEq)]
 pub enum FragmentArgumentSyntaxKind {
     #[default]
     None,
@@ -30,7 +30,7 @@ pub enum FragmentArgumentSyntaxKind {
     SpreadArgumentsAndFragmentVariableDefinitions,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 pub struct ParserFeatures {
     /// Whether and how to enable the experimental fragment variables definitions syntax
     pub fragment_argument_capability: FragmentArgumentSyntaxKind,

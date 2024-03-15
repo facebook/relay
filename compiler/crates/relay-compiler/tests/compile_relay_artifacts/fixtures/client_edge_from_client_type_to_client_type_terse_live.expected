@@ -56,18 +56,20 @@ extend type ClientViewer {
               {
                 "kind": "ClientEdgeToClientObject",
                 "concreteType": "ClientType",
-                "modelResolver": {
-                  "alias": null,
-                  "args": null,
-                  "fragment": {
+                "modelResolvers": {
+                  "ClientType": {
+                    "alias": null,
                     "args": null,
-                    "kind": "FragmentSpread",
-                    "name": "ClientType__id"
-                  },
-                  "kind": "RelayLiveResolver",
-                  "name": "client_edge",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('ClientType__id.graphql'), require('<generated>').ClientType, 'id', true),
-                  "path": "client_viewer.client_edge.__relay_model_instance"
+                    "fragment": {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "ClientType__id"
+                    },
+                    "kind": "RelayLiveResolver",
+                    "name": "client_edge",
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('ClientType__id.graphql'), require('<generated>').ClientType, 'id', true),
+                    "path": "client_viewer.client_edge.__relay_model_instance"
+                  }
                 },
                 "backingField": {
                   "alias": null,

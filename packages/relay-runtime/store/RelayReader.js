@@ -769,10 +769,21 @@ class RelayReader {
           this._resolverCache,
         );
         let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
-        if (field.modelResolver != null) {
-          const modelResolver = field.modelResolver;
+        if (field.modelResolvers != null) {
+          invariant(
+            field.concreteType != null,
+            'concreteType should not be null',
+          );
+          const modelResolver = field.modelResolvers[field.concreteType];
+          invariant(
+            modelResolver !== undefined,
+            'modelResolver should not be undefined',
+          );
           validStoreIDs = storeIDs.map(storeID => {
-            const model = this._readResolverFieldImpl(modelResolver, storeID);
+            const model = this._readResolverFieldImpl(
+              modelResolver, // TODO: Pick correct model resolver for this edge
+              storeID,
+            );
             return model != null ? storeID : null;
           });
         }
@@ -794,11 +805,18 @@ class RelayReader {
             validClientEdgeResolverResponse.id,
             this._resolverCache,
           );
-        if (field.modelResolver != null) {
-          const model = this._readResolverFieldImpl(
-            field.modelResolver,
-            storeID,
+        if (field.modelResolvers != null) {
+          invariant(
+            field.concreteType != null,
+            'concreteType should not be null',
           );
+          const modelResolver = field.modelResolvers[field.concreteType];
+          invariant(
+            modelResolver !== undefined,
+            'modelResolver should not be undefined',
+          );
+          // TODO: Pick correct model resolver for this edge
+          const model = this._readResolverFieldImpl(modelResolver, storeID);
           if (model == null) {
             // If the model resolver returns undefined, we should still return null
             // to match GQL behavior.

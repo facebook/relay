@@ -485,7 +485,7 @@ impl Field {
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Argument {
-    pub name: ArgumentName,
+    pub name: WithLocation<ArgumentName>,
     pub type_: TypeReference<Type>,
     pub default_value: Option<ConstantValue>,
     pub description: Option<StringKey>,
@@ -508,7 +508,7 @@ impl Argument {
 impl Named for Argument {
     type Name = ArgumentName;
     fn name(&self) -> ArgumentName {
-        self.name
+        self.name.item
     }
 }
 
@@ -579,7 +579,7 @@ impl ArgumentDefinitions {
     }
 
     pub fn contains(&self, name: StringKey) -> bool {
-        self.0.iter().any(|x| x.name == ArgumentName(name))
+        self.0.iter().any(|x| x.name.item == ArgumentName(name))
     }
 
     pub fn iter(&self) -> Iter<'_, Argument> {

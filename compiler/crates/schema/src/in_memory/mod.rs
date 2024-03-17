@@ -261,7 +261,7 @@ impl Schema for InMemorySchema {
         let ordered_type_map: BTreeMap<_, _> = type_map.iter().collect();
 
         let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
-        ordered_directives.sort_by_key(|dir| dir.name.0.lookup());
+        ordered_directives.sort_by_key(|dir| dir.name.item.0.lookup());
 
         format!(
             r#"Schema {{
@@ -372,10 +372,12 @@ impl InMemorySchema {
     }
 
     pub fn add_directive(&mut self, directive: Directive) -> DiagnosticsResult<()> {
-        if self.directives.contains_key(&directive.name) {
-            return todo_add_location(SchemaError::DuplicateDirectiveDefinition(directive.name.0));
+        if self.directives.contains_key(&directive.name.item) {
+            return todo_add_location(SchemaError::DuplicateDirectiveDefinition(
+                directive.name.item.0,
+            ));
         }
-        self.directives.insert(directive.name, directive);
+        self.directives.insert(directive.name.item, directive);
         Ok(())
     }
 
@@ -612,7 +614,7 @@ impl InMemorySchema {
         id: InputObjectID,
         input_object: InputObject,
     ) -> DiagnosticsResult<()> {
-        if id.as_usize() >= self.enums.len() {
+        if id.as_usize() >= self.input_objects.len() {
             return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Input Object"),
@@ -629,7 +631,7 @@ impl InMemorySchema {
     /// Replaces the definition of union type, but keeps the same id.
     /// Existing references to the old type now reference the replacement.
     pub fn replace_union(&mut self, id: UnionID, union: Union) -> DiagnosticsResult<()> {
-        if id.as_usize() >= self.enums.len() {
+        if id.as_usize() >= self.unions.len() {
             return todo_add_location(SchemaError::UnknownTypeID(
                 id.as_usize(),
                 String::from("Union"),
@@ -1000,7 +1002,7 @@ impl InMemorySchema {
             name: WithLocation::generated(self.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
-                name: ArgumentName("name".intern()),
+                name: WithLocation::generated(ArgumentName("name".intern())),
                 type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
                 default_value: None,
                 description: None,
@@ -1126,10 +1128,12 @@ impl InMemorySchema {
     ) -> DiagnosticsResult<()> {
         match definition {
             TypeSystemDefinition::SchemaDefinition(SchemaDefinition {
-                operation_types,
-                directives: _directives,
+                operation_types, ..
             }) => {
-                for OperationTypeDefinition { operation, type_ } in &operation_types.items {
+                for OperationTypeDefinition {
+                    operation, type_, ..
+                } in &operation_types.items
+                {
                     let operation_id = self.build_object_id(type_.value)?;
                     match operation {
                         OperationType::Query => {
@@ -1187,6 +1191,7 @@ impl InMemorySchema {
                 locations,
                 description,
                 hack_source,
+                ..
             }) => {
                 if self.directives.contains_key(&DirectiveName(name.value)) {
                     let str_name = name.value.lookup();
@@ -1198,11 +1203,14 @@ impl InMemorySchema {
                         )]);
                     }
                 }
-                let arguments = self.build_arguments(arguments)?;
+                let arguments = self.build_arguments(arguments, *location_key)?;
                 self.directives.insert(
                     DirectiveName(name.value),
                     Directive {
-                        name: DirectiveName(name.value),
+                        name: WithLocation::new(
+                            Location::new(*location_key, name.span),
+                            DirectiveName(name.value),
+                        ),
                         arguments,
                         locations: locations.clone(),
                         repeatable: *repeatable,
@@ -1217,6 +1225,7 @@ impl InMemorySchema {
                 interfaces,
                 fields,
                 directives,
+                ..
             }) => {
                 let parent_id = Type::Object(ObjectID(self.objects.len() as u32));
                 let fields = if is_extension {
@@ -1252,6 +1261,7 @@ impl InMemorySchema {
                 interfaces,
                 directives,
                 fields,
+                ..
             }) => {
                 let parent_id = Type::Interface(InterfaceID(self.interfaces.len() as u32));
                 let fields = if is_extension {
@@ -1288,6 +1298,7 @@ impl InMemorySchema {
                 name,
                 directives,
                 members,
+                ..
             }) => {
                 let members = members
                     .iter()
@@ -1310,8 +1321,9 @@ impl InMemorySchema {
                 name,
                 fields,
                 directives,
+                ..
             }) => {
-                let fields = self.build_arguments(fields)?;
+                let fields = self.build_arguments(fields, *location_key)?;
                 let directives = self.build_directive_values(directives);
                 self.input_objects.push(InputObject {
                     name: WithLocation::new(
@@ -1329,6 +1341,7 @@ impl InMemorySchema {
                 name,
                 directives,
                 values,
+                ..
             }) => {
                 let directives = self.build_directive_values(directives);
                 let values = if let Some(values) = values {
@@ -1358,6 +1371,7 @@ impl InMemorySchema {
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                 name,
                 directives,
+                ..
             }) => {
                 let directives = self.build_directive_values(directives);
                 self.scalars.push(Scalar {
@@ -1376,6 +1390,7 @@ impl InMemorySchema {
                 interfaces,
                 fields,
                 directives,
+                ..
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Object(id)) => {
                     let index = id.as_usize();
@@ -1429,6 +1444,7 @@ impl InMemorySchema {
                 interfaces,
                 fields,
                 directives,
+                ..
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Interface(id)) => {
                     let index = id.as_usize();
@@ -1479,6 +1495,7 @@ impl InMemorySchema {
                 name,
                 directives,
                 values,
+                ..
             }) => {
                 let enum_id = self.type_map.get(&name.value).cloned();
                 match enum_id {
@@ -1575,7 +1592,8 @@ impl InMemorySchema {
                 .items
                 .iter()
                 .map(|field_def| {
-                    let arguments = self.build_arguments(&field_def.arguments)?;
+                    let arguments =
+                        self.build_arguments(&field_def.arguments, field_location_key)?;
                     let type_ = self.build_type_reference(&field_def.type_, field_location_key)?;
                     let directives = self.build_directive_values(&field_def.directives);
                     let description = field_def.description.as_ref().map(|desc| desc.value);
@@ -1621,7 +1639,7 @@ impl InMemorySchema {
                             .annotate("previously defined here", prev_location),
                     ]);
                 }
-                let arguments = self.build_arguments(&field_def.arguments)?;
+                let arguments = self.build_arguments(&field_def.arguments, source_location_key)?;
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_, source_location_key)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
@@ -1649,16 +1667,25 @@ impl InMemorySchema {
     fn build_arguments(
         &mut self,
         arg_defs: &Option<List<InputValueDefinition>>,
+        source_location_key: SourceLocationKey,
     ) -> DiagnosticsResult<ArgumentDefinitions> {
         if let Some(arg_defs) = arg_defs {
             let arg_defs: DiagnosticsResult<Vec<Argument>> = arg_defs
                 .items
                 .iter()
                 .map(|arg_def| {
+                    let argument_location = Location::new(source_location_key, arg_def.name.span);
+
                     Ok(Argument {
-                        name: ArgumentName(arg_def.name.value),
+                        name: WithLocation::new(
+                            argument_location,
+                            ArgumentName(arg_def.name.value),
+                        ),
                         type_: self.build_input_object_reference(&arg_def.type_)?,
-                        default_value: arg_def.default_value.clone(),
+                        default_value: arg_def
+                            .default_value
+                            .as_ref()
+                            .map(|default_value| default_value.value.clone()),
                         description: None,
                         directives: self.build_directive_values(&arg_def.directives),
                     })
@@ -1825,6 +1852,7 @@ mod tests {
                     interfaces: vec![identifier_from_value("ITunes".intern())],
                     directives: vec![],
                     fields: None,
+                    span: Span::empty(),
                 },
                 SourceLocationKey::Generated,
             )

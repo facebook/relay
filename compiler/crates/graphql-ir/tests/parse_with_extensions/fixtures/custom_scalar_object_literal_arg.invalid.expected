@@ -1,0 +1,68 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery {
+    extension_field(input: {
+        a: "foo",
+        b: 123,
+    }) {
+        __typename
+    }
+    extension_scalar_field(input: {
+        a: {
+            foo: 123,
+            bar: 456,
+        },
+    })
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+type Obj {
+    some_key: Int!
+}
+
+input InputType {
+    a: CustomScalarType!
+    b: CustomScalarType
+}
+
+extend type Query {
+    extension_field(input: InputType!): Obj
+    extension_scalar_field(input: InputType!): Int
+}
+==================================== ERROR ====================================
+✖︎ Unexpected scalar literal `"foo"` provided in a position expecting custom scalar type `CustomScalarType`. This value should come from a variable.
+
+  custom_scalar_object_literal_arg.invalid.graphql:6:12
+    5 │     extension_field(input: {
+    6 │         a: "foo",
+      │            ^^^^^
+    7 │         b: 123,
+
+
+✖︎ Unexpected scalar literal `123` provided in a position expecting custom scalar type `CustomScalarType`. This value should come from a variable.
+
+  custom_scalar_object_literal_arg.invalid.graphql:7:12
+    6 │         a: "foo",
+    7 │         b: 123,
+      │            ^^^
+    8 │     }) {
+
+
+✖︎ Unexpected object literal provided in a position expecting custom scalar type `CustomScalarType`.
+
+  custom_scalar_object_literal_arg.invalid.graphql:12:12
+   11 │     extension_scalar_field(input: {
+   12 │         a: {
+      │            ^
+   13 │             foo: 123,
+      │ ^^^^^^^^^^^^^^^^^^^^^
+   14 │             bar: 456,
+      │ ^^^^^^^^^^^^^^^^^^^^^
+   15 │         },
+      │ ^^^^^^^^^
+   16 │     })

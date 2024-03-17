@@ -32,7 +32,7 @@ test('send a network request with actor specific params', () => {
     // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
-    requiredFieldLogger: jest.fn(),
+    relayFieldLogger: jest.fn(),
   });
   const actorEnvironment = multiActorEnvironment.forActor(actorIdentifier);
 

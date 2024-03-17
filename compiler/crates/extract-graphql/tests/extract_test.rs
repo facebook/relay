@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7414a7d21db69b967b49c36af99ace12>>
+ * @generated SignedSource<<a6880296f247ee9d9d2e312d6c26b4a2>>
  */
 
 mod extract;
@@ -12,79 +12,107 @@ mod extract;
 use extract::transform_fixture;
 use fixture_tests::test_fixture;
 
-#[test]
-fn comments() {
+#[tokio::test]
+async fn comments() {
     let input = include_str!("extract/fixtures/comments.js");
     let expected = include_str!("extract/fixtures/comments.expected");
-    test_fixture(transform_fixture, "comments.js", "extract/fixtures/comments.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "comments.js", "extract/fixtures/comments.expected", input, expected).await;
 }
 
-#[test]
-fn inline() {
+#[tokio::test]
+async fn complex_regex() {
+    let input = include_str!("extract/fixtures/complex_regex.js");
+    let expected = include_str!("extract/fixtures/complex_regex.expected");
+    test_fixture(transform_fixture, file!(), "complex_regex.js", "extract/fixtures/complex_regex.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn division() {
+    let input = include_str!("extract/fixtures/division.js");
+    let expected = include_str!("extract/fixtures/division.expected");
+    test_fixture(transform_fixture, file!(), "division.js", "extract/fixtures/division.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn inline() {
     let input = include_str!("extract/fixtures/inline.js");
     let expected = include_str!("extract/fixtures/inline.expected");
-    test_fixture(transform_fixture, "inline.js", "extract/fixtures/inline.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "inline.js", "extract/fixtures/inline.expected", input, expected).await;
 }
 
-#[test]
-fn nested_template_literals() {
+#[tokio::test]
+async fn nested_template_literals() {
     let input = include_str!("extract/fixtures/nested_template_literals.js");
     let expected = include_str!("extract/fixtures/nested_template_literals.expected");
-    test_fixture(transform_fixture, "nested_template_literals.js", "extract/fixtures/nested_template_literals.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "nested_template_literals.js", "extract/fixtures/nested_template_literals.expected", input, expected).await;
 }
 
-#[test]
-fn no_graphql() {
+#[tokio::test]
+async fn no_graphql() {
     let input = include_str!("extract/fixtures/no_graphql.js");
     let expected = include_str!("extract/fixtures/no_graphql.expected");
-    test_fixture(transform_fixture, "no_graphql.js", "extract/fixtures/no_graphql.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "no_graphql.js", "extract/fixtures/no_graphql.expected", input, expected).await;
 }
 
-#[test]
-fn quote_in_jsx() {
+#[tokio::test]
+async fn quote_in_jsx() {
     let input = include_str!("extract/fixtures/quote_in_jsx.js");
     let expected = include_str!("extract/fixtures/quote_in_jsx.expected");
-    test_fixture(transform_fixture, "quote_in_jsx.js", "extract/fixtures/quote_in_jsx.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "quote_in_jsx.js", "extract/fixtures/quote_in_jsx.expected", input, expected).await;
 }
 
-#[test]
-fn relay_resolver() {
+#[tokio::test]
+async fn regex() {
+    let input = include_str!("extract/fixtures/regex.js");
+    let expected = include_str!("extract/fixtures/regex.expected");
+    test_fixture(transform_fixture, file!(), "regex.js", "extract/fixtures/regex.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver() {
     let input = include_str!("extract/fixtures/relay_resolver.js");
     let expected = include_str!("extract/fixtures/relay_resolver.expected");
-    test_fixture(transform_fixture, "relay_resolver.js", "extract/fixtures/relay_resolver.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "relay_resolver.js", "extract/fixtures/relay_resolver.expected", input, expected).await;
 }
 
-#[test]
-fn relay_resolver_and_graphql() {
+#[tokio::test]
+async fn relay_resolver_and_graphql() {
     let input = include_str!("extract/fixtures/relay_resolver_and_graphql.js");
     let expected = include_str!("extract/fixtures/relay_resolver_and_graphql.expected");
-    test_fixture(transform_fixture, "relay_resolver_and_graphql.js", "extract/fixtures/relay_resolver_and_graphql.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "relay_resolver_and_graphql.js", "extract/fixtures/relay_resolver_and_graphql.expected", input, expected).await;
 }
 
-#[test]
-fn simple() {
+#[tokio::test]
+async fn simple() {
     let input = include_str!("extract/fixtures/simple.flow");
     let expected = include_str!("extract/fixtures/simple.expected");
-    test_fixture(transform_fixture, "simple.flow", "extract/fixtures/simple.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "simple.flow", "extract/fixtures/simple.expected", input, expected).await;
 }
 
-#[test]
-fn tabbed() {
+#[tokio::test]
+async fn slashes() {
+    let input = include_str!("extract/fixtures/slashes.js");
+    let expected = include_str!("extract/fixtures/slashes.expected");
+    test_fixture(transform_fixture, file!(), "slashes.js", "extract/fixtures/slashes.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn tabbed() {
     let input = include_str!("extract/fixtures/tabbed.js");
     let expected = include_str!("extract/fixtures/tabbed.expected");
-    test_fixture(transform_fixture, "tabbed.js", "extract/fixtures/tabbed.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "tabbed.js", "extract/fixtures/tabbed.expected", input, expected).await;
 }
 
-#[test]
-fn template_literal() {
+#[tokio::test]
+async fn template_literal() {
     let input = include_str!("extract/fixtures/template_literal.js");
     let expected = include_str!("extract/fixtures/template_literal.expected");
-    test_fixture(transform_fixture, "template_literal.js", "extract/fixtures/template_literal.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "template_literal.js", "extract/fixtures/template_literal.expected", input, expected).await;
 }
 
-#[test]
-fn with_space() {
+#[tokio::test]
+async fn with_space() {
     let input = include_str!("extract/fixtures/with_space.js");
     let expected = include_str!("extract/fixtures/with_space.expected");
-    test_fixture(transform_fixture, "with_space.js", "extract/fixtures/with_space.expected", input, expected);
+    test_fixture(transform_fixture, file!(), "with_space.js", "extract/fixtures/with_space.expected", input, expected).await;
 }

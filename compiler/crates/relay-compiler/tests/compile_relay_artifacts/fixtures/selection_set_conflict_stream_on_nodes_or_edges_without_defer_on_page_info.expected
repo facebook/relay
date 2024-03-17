@@ -9,7 +9,7 @@ query selectionSetConflictStreamOnNodesOrEdgesWithoutDeferOnPageInfoQuery {
             hasNextPage
           }
         }
-        edges @stream(label: "b", initial_count: 1) {
+        edges @stream(label: "b", initialCount: 1) {
           node {
             id
           }
@@ -213,7 +213,7 @@ query selectionSetConflictStreamOnNodesOrEdgesWithoutDeferOnPageInfoQuery {
       pageInfo {
         hasNextPage
       }
-      edges @stream(label: "selectionSetConflictStreamOnNodesOrEdgesWithoutDeferOnPageInfoQuery$stream$b", initial_count: 1) {
+      edges @stream(label: "selectionSetConflictStreamOnNodesOrEdgesWithoutDeferOnPageInfoQuery$stream$b", initialCount: 1) {
         node {
           id
         }

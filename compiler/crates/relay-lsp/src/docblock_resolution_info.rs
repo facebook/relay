@@ -8,6 +8,7 @@
 use common::Span;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
+use graphql_syntax::Identifier;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 
@@ -15,6 +16,10 @@ pub enum DocblockResolutionInfo {
     Type(StringKey),
     RootFragment(FragmentDefinitionName),
     FieldName(StringKey),
+    FieldArgumentName {
+        field_name: Identifier,
+        argument_name: Identifier,
+    },
     Deprecated,
 }
 
@@ -23,7 +28,7 @@ pub fn create_docblock_resolution_info(
     position_span: Span,
 ) -> Option<DocblockResolutionInfo> {
     match docblock_ir {
-        DocblockIr::RelayResolver(resolver_ir) => {
+        DocblockIr::LegacyVerboseResolver(resolver_ir) => {
             match resolver_ir.on {
                 On::Type(on_type) => {
                     if on_type.value.location.contains(position_span) {
@@ -37,18 +42,33 @@ pub fn create_docblock_resolution_info(
                 }
             };
 
+            // Root fragment
             if let Some(root_fragment) = resolver_ir.root_fragment {
                 if root_fragment.location.contains(position_span) {
                     return Some(DocblockResolutionInfo::RootFragment(root_fragment.item));
                 }
             }
 
+            // Field name
             if resolver_ir.field.name.span.contains(position_span) {
                 return Some(DocblockResolutionInfo::FieldName(
                     resolver_ir.field.name.value,
                 ));
             }
 
+            // Field arguments
+            if let Some(field_arguments) = &resolver_ir.field.arguments {
+                for field_argument in &field_arguments.items {
+                    if field_argument.name.span.contains(position_span) {
+                        return Some(DocblockResolutionInfo::FieldArgumentName {
+                            field_name: resolver_ir.field.name,
+                            argument_name: field_argument.name,
+                        });
+                    }
+                }
+            }
+
+            // Return type
             if let Some(output_type) = &resolver_ir.output_type {
                 if output_type.inner().location.contains(position_span) {
                     return Some(DocblockResolutionInfo::Type(
@@ -57,6 +77,7 @@ pub fn create_docblock_resolution_info(
                 }
             }
 
+            // @deprecated key
             if let Some(deprecated) = resolver_ir.deprecated {
                 if deprecated.key_location().contains(position_span) {
                     return Some(DocblockResolutionInfo::Deprecated);
@@ -86,6 +107,25 @@ pub fn create_docblock_resolution_info(
             if let Some(root_fragment) = resolver_ir.root_fragment {
                 if root_fragment.location.contains(position_span) {
                     return Some(DocblockResolutionInfo::RootFragment(root_fragment.item));
+                }
+            }
+
+            // Field name
+            if resolver_ir.field.name.span.contains(position_span) {
+                return Some(DocblockResolutionInfo::FieldName(
+                    resolver_ir.field.name.value,
+                ));
+            }
+
+            // Field arguments
+            if let Some(field_arguments) = &resolver_ir.field.arguments {
+                for field_argument in &field_arguments.items {
+                    if field_argument.name.span.contains(position_span) {
+                        return Some(DocblockResolutionInfo::FieldArgumentName {
+                            field_name: resolver_ir.field.name,
+                            argument_name: field_argument.name,
+                        });
+                    }
                 }
             }
 

@@ -1,0 +1,30 @@
+query clientInterfacesQuery {
+  cat {
+    description
+    ... on Tabby {
+      greeting
+    }
+    ... on Persian {
+      adopted
+    }
+  }
+}
+
+# %extensions%
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+    greeting: String
+}
+
+type Persian implements Cat {
+    description: String
+    adopted: Boolean
+}
+
+extend type Query {
+    cat: Cat
+}

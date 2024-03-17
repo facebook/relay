@@ -35,11 +35,23 @@ fragment Foo_user on User {
   # ClientObject {
   #     type_name: None,
   #     unique_id: 0,
+  #     model_resolvers: [
+  #         ClientEdgeModelResolver {
+  #             type_name: WithLocation {
+  #                 location: <generated>:144:154,
+  #                 item: ObjectName(
+  #                     "BestFriend",
+  #                 ),
+  #             },
+  #             has_model_instance_field: false,
+  #             is_live: false,
+  #         },
+  #     ],
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(518),
+    #     field_id: FieldID(525),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,

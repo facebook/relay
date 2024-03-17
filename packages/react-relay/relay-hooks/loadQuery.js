@@ -57,13 +57,14 @@ function useTrackLoadQueryInRender() {
   }
 }
 
-type QueryType<T> = T extends Query<infer V, infer D, infer RR>
-  ? {
-      variables: V,
-      response: D,
-      rawResponse?: $NonMaybeType<RR>,
-    }
-  : $Call<<T>(PreloadableConcreteRequest<T>) => T, T>;
+type QueryType<T> =
+  T extends Query<infer V, infer D, infer RR>
+    ? {
+        variables: V,
+        response: D,
+        rawResponse?: $NonMaybeType<RR>,
+      } // $FlowFixMe[deprecated-type]
+    : $Call<<T>(PreloadableConcreteRequest<T>) => T, T>;
 
 declare function loadQuery<
   T,

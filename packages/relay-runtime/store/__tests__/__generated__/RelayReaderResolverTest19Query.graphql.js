@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<662864bc2461b96a214b0203b6b02287>>
+ * @generated SignedSource<<c733c40dafb91fbd238c7d71662885f1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -102,7 +102,7 @@ return {
         "selections": [
           {
             "alias": "profile_picture2",
-            "args": null,
+            "args": [],
             "fragment": {
               "args": (v1/*: any*/),
               "kind": "FragmentSpread",

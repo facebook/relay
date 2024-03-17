@@ -12,9 +12,13 @@ mod goto_graphql_definition;
 use std::str;
 use std::sync::Arc;
 
+use common::ArgumentName;
+use common::DirectiveName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use log::error;
+use log::info;
 use lsp_types::request::GotoDefinition;
 use lsp_types::request::Request;
 use lsp_types::GotoDefinitionResponse;
@@ -41,11 +45,23 @@ pub enum DefinitionDescription {
         parent_type: Type,
         field_name: StringKey,
     },
+    FieldArgument {
+        parent_type: Type,
+        field_name: StringKey,
+        argument_name: ArgumentName,
+    },
+    DirectiveArgument {
+        directive_name: DirectiveName,
+        argument_name: ArgumentName,
+    },
     Fragment {
         fragment_name: FragmentDefinitionName,
     },
     Type {
         type_name: StringKey,
+    },
+    Directive {
+        directive_name: DirectiveName,
     },
 }
 
@@ -75,6 +91,23 @@ pub fn on_goto_definition(
     let root_dir = state.root_dir();
 
     let goto_definition_response: GotoDefinitionResponse = match definition_description {
+        DefinitionDescription::FieldArgument {
+            parent_type,
+            field_name,
+            argument_name,
+        } => locate_field_argument_definition(
+            &schema,
+            parent_type,
+            field_name,
+            argument_name,
+            &root_dir,
+        )?,
+        DefinitionDescription::DirectiveArgument {
+            directive_name,
+            argument_name,
+        } => {
+            locate_directive_argument_definition(&schema, directive_name, argument_name, &root_dir)?
+        }
         DefinitionDescription::Field {
             parent_type,
             field_name,
@@ -96,6 +129,9 @@ pub fn on_goto_definition(
             &schema,
             &root_dir,
         )?,
+        DefinitionDescription::Directive { directive_name } => {
+            locate_directive_definition(directive_name, &schema, &root_dir)?
+        }
     };
 
     // For some lsp-clients, such as clients relying on org.eclipse.lsp4j,
@@ -125,6 +161,22 @@ fn locate_fragment_definition(
     ))
 }
 
+fn locate_directive_definition(
+    directive_name: DirectiveName,
+    schema: &Arc<SDLSchema>,
+    root_dir: &std::path::Path,
+) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
+    let directive = schema.get_directive(directive_name);
+
+    directive
+        .map(|directive| directive.name.location)
+        .map(|schema_location| {
+            transform_relay_location_to_lsp_location(root_dir, schema_location)
+                .map(GotoDefinitionResponse::Scalar)
+        })
+        .ok_or(LSPRuntimeError::ExpectedError)?
+}
+
 fn locate_type_definition(
     extra_data_provider: &dyn LSPExtraDataProvider,
     project_name: StringKey,
@@ -151,7 +203,11 @@ fn locate_type_definition(
         }),
         // If we couldn't resolve through the extra data provider, we'll fallback to
         // try to find a location in the server sdl.
-        Err(_) => {
+        Err(err) => {
+            error!(
+                "Failed to resolve type definition through extra data provider. Falling back to schema file. Got error: {:?}",
+                err
+            );
             let type_ = schema.get_type(type_name);
 
             type_
@@ -174,6 +230,61 @@ fn locate_type_definition(
     }
 }
 
+fn locate_field_argument_definition(
+    schema: &Arc<SDLSchema>,
+    parent_type: Type,
+    field_name: StringKey,
+    argument_name: ArgumentName,
+    root_dir: &std::path::Path,
+) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
+    let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Could not find field with name {}", field_name))
+    })?);
+
+    let argument = field
+        .arguments
+        .iter()
+        .find(|argument| argument.name.item == argument_name)
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find argument with name {} on field with name {}",
+                argument_name, field_name,
+            ))
+        })?;
+
+    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
+        .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
+}
+
+fn locate_directive_argument_definition(
+    schema: &SDLSchema,
+    directive_name: DirectiveName,
+    argument_name: ArgumentName,
+    root_dir: &std::path::PathBuf,
+) -> LSPRuntimeResult<GotoDefinitionResponse> {
+    let directive =
+        schema
+            .get_directive(directive_name)
+            .ok_or(LSPRuntimeError::UnexpectedError(format!(
+                "Could not find directive with name {}",
+                directive_name
+            )))?;
+
+    let argument = directive
+        .arguments
+        .iter()
+        .find(|argument| argument.name.item == argument_name)
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find argument with name {} on directive with name {}",
+                argument_name, directive_name,
+            ))
+        })?;
+
+    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
+        .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
+}
+
 fn locate_field_definition(
     schema: &Arc<SDLSchema>,
     parent_type: Type,
@@ -194,25 +305,39 @@ fn locate_field_definition(
             is_extension: field.is_extension,
         }),
     );
-    Ok(if let Ok(Some(source_info)) = provider_response {
-        // Step 1: does extra_data_provider know anything about this field?
-        if source_info.is_local {
-            GotoDefinitionResponse::Scalar(get_location(
-                &source_info.file_path,
-                source_info.line_number,
-            )?)
-        } else {
-            return Err(LSPRuntimeError::ExpectedError);
+
+    match provider_response {
+        Ok(Some(source_info)) => {
+            // Step 1: does extra_data_provider know anything about this field?
+            if source_info.is_local {
+                return Ok(GotoDefinitionResponse::Scalar(get_location(
+                    &source_info.file_path,
+                    source_info.line_number,
+                )?));
+            } else {
+                error!(
+                    "Expected local source info from extra data provider, but got non-local. Falling back to schema file.",
+                );
+            }
         }
-    } else if let Ok(location) =
-        transform_relay_location_to_lsp_location(root_dir, field.name.location)
-    {
+        Ok(None) => {
+            info!(
+                "Extra data provider did not have any information about this field. Falling back to schema file."
+            );
+        }
         // Step 2: is field a standalone graphql file?
-        GotoDefinitionResponse::Scalar(location)
-    } else {
-        // Give up
-        return Err(LSPRuntimeError::ExpectedError);
-    })
+        Err(err) => {
+            error!(
+                "Failed to resolve field definition through extra data provider. Falling back to schema file. Got error: {:?}",
+                err
+            );
+        }
+    }
+
+    transform_relay_location_to_lsp_location(root_dir, field.name.location)
+        .map(GotoDefinitionResponse::Scalar)
+        // If the field does not exist in the schema, that's fine
+        .map_err(|_| LSPRuntimeError::ExpectedError)
 }
 
 fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntimeError> {

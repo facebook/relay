@@ -64,12 +64,53 @@ pub struct FeatureFlags {
     /// Create normalization nodes for client edges to client objects
     #[serde(default)]
     pub emit_normalization_nodes_for_client_edges: bool,
+
+    /// Fully build the normalization AST for Resolvers
+    #[serde(default)]
+    pub enable_resolver_normalization_ast: bool,
+
+    /// Allow legacy verbose resolver syntax
+    #[serde(default)]
+    pub relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag,
+
+    /// Allow relay resolvers to extend the Mutation type
+    #[serde(default)]
+    pub enable_relay_resolver_mutations: bool,
+
+    /// Perform strict validations when custom scalar types are used
+    #[serde(default)]
+    pub enable_strict_custom_scalars: bool,
+
+    /// Relay Resolvers are a read-time feature that are not actually handled in
+    /// our mutation APIs. We are in the process of removing any existing
+    /// examples, but this flag is part of a process of removing any existing
+    /// examples.
+    #[serde(default)]
+    pub allow_resolvers_in_mutation_response: FeatureFlag,
+
+    /// @required with an action of THROW is read-time feature that is not
+    /// compatible with our mutation APIs. We are in the process of removing
+    /// any existing examples, but this flag is part of a process of removing
+    /// any existing examples.
+    #[serde(default)]
+    pub allow_required_in_mutation_response: FeatureFlag,
+
+    /// Mirror of `enable_resolver_normalization_ast`
+    /// excludes resolver metadata from reader ast
+    #[serde(default)]
+    pub disable_resolver_reader_ast: bool,
+
+    /// Add support for parsing and transforming variable definitions on fragment
+    /// definitions and arguments on fragment spreads.
+    #[serde(default)]
+    pub enable_fragment_argument_transform: bool,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize, Default)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature
+    #[default]
     Disabled,
 
     /// Fully enabled: developers may use this feature
@@ -80,12 +121,6 @@ pub enum FeatureFlag {
 
     /// Partially enabled: used for gradual rollout of the feature
     Rollout { rollout: Rollout },
-}
-
-impl Default for FeatureFlag {
-    fn default() -> Self {
-        FeatureFlag::Disabled
-    }
 }
 
 impl FeatureFlag {

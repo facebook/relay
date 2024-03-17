@@ -193,6 +193,12 @@ module.exports = {
         pinned: false,
       },
       {
+        caption: 'Réa',
+        image: '/img/logos/rea.png',
+        infoLink: 'https://www.rea-app.fr/',
+        pinned: false,
+      },
+      {
         caption: 'Ariga',
         image: '/img/logos/ariga.png',
         infoLink: 'https://ariga.io/',

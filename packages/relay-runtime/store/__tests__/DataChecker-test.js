@@ -1957,22 +1957,22 @@ describe('check()', () => {
           updatedHometown === undefined
             ? {}
             : updatedHometown === null
-            ? {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  hometown: null,
-                },
-              }
-            : {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  hometown: {
-                    __ref: updatedHometown,
+              ? {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    hometown: null,
+                  },
+                }
+              : {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    hometown: {
+                      __ref: updatedHometown,
+                    },
                   },
                 },
-              },
         );
       },
     );
@@ -2117,22 +2117,22 @@ describe('check()', () => {
           updatedScreennames === undefined
             ? {}
             : updatedScreennames === null
-            ? {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  screennames: null,
-                },
-              }
-            : {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  screennames: {
-                    __refs: updatedScreennames,
+              ? {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    screennames: null,
+                  },
+                }
+              : {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    screennames: {
+                      __refs: updatedScreennames,
+                    },
                   },
                 },
-              },
         );
       },
     );

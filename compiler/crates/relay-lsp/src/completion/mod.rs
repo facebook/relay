@@ -6,7 +6,6 @@
  */
 
 //! Utilities for providing the completion language feature
-use std::iter::once;
 
 use common::ArgumentName;
 use common::DirectiveName;
@@ -51,6 +50,8 @@ use lsp_types::MarkupKind;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
 use schema::InputObject;
+use schema::InterfaceID;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -134,7 +135,7 @@ trait ArgumentLike {
 
 impl ArgumentLike for &SchemaArgument {
     fn name(&self) -> StringKey {
-        self.name.0
+        self.name.item.0
     }
     fn type_(&self) -> &TypeReference<Type> {
         &self.type_
@@ -671,7 +672,6 @@ fn completion_items_for_request(
     program: &Program,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
-    debug!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
@@ -844,7 +844,7 @@ fn completion_items_for_request(
                 input_object
                     .fields
                     .iter()
-                    .find(|field| field.name.0 == *field_name)
+                    .find(|field| field.name.item.0 == *field_name)
                     .and_then(|field| resolve_root_input_field(schema, &field.type_))
             }
 
@@ -971,25 +971,13 @@ fn resolve_completion_items_for_inline_fragment(
     match type_ {
         Type::Interface(id) => {
             let interface = schema.interface(id);
-            once(type_)
-                .chain(
-                    interface
-                        .implementing_objects
-                        .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
-                )
-                .collect()
+
+            get_abstract_type_suggestions(schema, &interface.implementing_objects, Some(&id))
         }
         Type::Union(id) => {
             let union = schema.union(id);
-            once(type_)
-                .chain(
-                    union
-                        .members
-                        .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
-                )
-                .collect()
+
+            get_abstract_type_suggestions(schema, &union.members, None)
         }
         Type::Enum(_) | Type::Object(_) | Type::InputObject(_) | Type::Scalar(_) => vec![],
     }
@@ -1251,7 +1239,7 @@ fn completion_item_from_directive(
     } = directive;
 
     // Always use the name of the directive as the label
-    let label = name.to_string();
+    let label = name.item.to_string();
 
     // We can return a snippet with the expected arguments of the directive
     let (insert_text, insert_text_format) = if arguments.is_empty() {
@@ -1402,6 +1390,45 @@ fn make_markdown_table_documentation(
         ]
         .join("\n"),
     })
+}
+
+fn get_abstract_type_suggestions(
+    schema: &SDLSchema,
+    objects: &[ObjectID],
+    base_interface_id: Option<&InterfaceID>,
+) -> Vec<Type> {
+    let object_types: Vec<_> = objects.iter().map(|id| schema.object(*id)).collect();
+
+    let mut interfaces = Vec::new();
+    let mut types = Vec::new();
+
+    for object_type in &object_types {
+        if let Some(t) = schema.get_type(object_type.name.item.0) {
+            types.push(t);
+        }
+
+        for interface_id in &object_type.interfaces {
+            let interface_type = schema.interface(*interface_id);
+
+            if let Some(base_id) = base_interface_id {
+                if interface_id == base_id || !interface_type.interfaces.contains(base_id) {
+                    continue;
+                }
+            }
+
+            if let Some(t) = schema.get_type(interface_type.name.item.0) {
+                if interfaces.contains(&t) {
+                    continue;
+                }
+
+                interfaces.push(t);
+            }
+        }
+    }
+
+    types.extend(interfaces);
+
+    types
 }
 
 #[cfg(test)]

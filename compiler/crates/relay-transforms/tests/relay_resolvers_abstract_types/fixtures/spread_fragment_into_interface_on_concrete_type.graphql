@@ -1,0 +1,31 @@
+# relay-resolver-enable-interface-output-type
+
+fragment spreadFragmentIntoInterfaceOnConcreteTypeFragment on Cat {
+    description
+}
+
+query Query {
+    tabby {
+        ...spreadFragmentIntoInterfaceOnConcreteTypeFragment
+        is_orange
+    }
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    is_orange: Boolean
+}
+
+type Persian implements Cat {
+    description: String
+}
+
+extend type Query {
+    tabby: Tabby
+}

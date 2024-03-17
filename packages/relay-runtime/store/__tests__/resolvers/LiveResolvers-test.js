@@ -15,7 +15,7 @@ import type {Snapshot} from '../../RelayStoreTypes';
 const {
   live_external_greeting: LiveExternalGreeting,
 } = require('./LiveExternalGreeting');
-const {RelayFeatureFlags} = require('relay-runtime');
+const {RelayFeatureFlags, suspenseSentinel} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -23,9 +23,6 @@ const {
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,

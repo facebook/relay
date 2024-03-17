@@ -33,7 +33,7 @@ function hello_world_with_provided_variable(
       @argumentDefinitions(
         provided_variable: {
           type: "String!"
-          provider: "./HelloWorldProvider.js"
+          provider: "./HelloWorldProvider.relayprovider"
         }
       ) {
         hello(world: $provided_variable)

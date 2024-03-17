@@ -19,7 +19,7 @@ use relay_config::ProjectName;
 use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let js_features = extract_graphql::extract(fixture.content);
     let executable_documents = js_features
         .iter()
@@ -66,6 +66,22 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                             enable_output_type: if fixture
                                 .content
                                 .contains("// relay:enable_output_type")
+                            {
+                                &FeatureFlag::Enabled
+                            } else {
+                                &FeatureFlag::Disabled
+                            },
+                            allow_legacy_verbose_syntax: if fixture
+                                .content
+                                .contains("// relay:allow_legacy_verbose_syntax")
+                            {
+                                &FeatureFlag::Enabled
+                            } else {
+                                &FeatureFlag::Disabled
+                            },
+                            enable_interface_output_type: if fixture
+                                .content
+                                .contains("// relay:enable_interface_output_type")
                             {
                                 &FeatureFlag::Enabled
                             } else {

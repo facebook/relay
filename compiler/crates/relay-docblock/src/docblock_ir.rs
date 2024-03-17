@@ -54,9 +54,9 @@ use crate::ir::WeakObjectIr;
 use crate::untyped_representation::AllowedFieldName;
 use crate::untyped_representation::UntypedDocblockRepresentation;
 use crate::DocblockIr;
+use crate::LegacyVerboseResolverIr;
 use crate::On;
 use crate::ParseOptions;
-use crate::RelayResolverIr;
 
 pub(crate) fn parse_docblock_ir(
     project_name: ProjectName,
@@ -96,7 +96,7 @@ pub(crate) fn parse_docblock_ir(
     };
     let parsed_docblock_ir = match resolver_field {
         IrField::UnpopulatedIrField(unpopulated_ir_field) => {
-            DocblockIr::RelayResolver(parse_relay_resolver_ir(
+            let legacy_verbose_resolver = parse_relay_resolver_ir(
                 &mut fields,
                 definitions_in_file,
                 description,
@@ -105,7 +105,35 @@ pub(crate) fn parse_docblock_ir(
                 unpopulated_ir_field,
                 parse_options,
                 source_hash,
-            )?)
+            )?;
+
+            let field_name = format!(
+                "{}.{}",
+                legacy_verbose_resolver.on.type_name(),
+                legacy_verbose_resolver.field.name.value
+            )
+            .intern();
+
+            if !parse_options
+                .allow_legacy_verbose_syntax
+                .is_enabled_for(field_name)
+            {
+                match legacy_verbose_resolver.on {
+                    On::Type(field) => {
+                        return Err(vec![Diagnostic::error(
+                            IrParsingErrorMessages::UnexpectedOnType { field_name },
+                            field.key_location,
+                        )]);
+                    }
+                    On::Interface(field) => {
+                        return Err(vec![Diagnostic::error(
+                            IrParsingErrorMessages::UnexpectedOnInterface { field_name },
+                            field.key_location,
+                        )]);
+                    }
+                }
+            }
+            DocblockIr::LegacyVerboseResolver(legacy_verbose_resolver)
         }
         IrField::PopulatedIrField(populated_ir_field) => {
             if populated_ir_field.value.item.lookup().contains('.') {
@@ -130,6 +158,7 @@ pub(crate) fn parse_docblock_ir(
                         populated_ir_field,
                         weak_field,
                         source_hash,
+                        parse_options,
                     )?),
                     None => DocblockIr::StrongObjectResolver(parse_strong_object_ir(
                         project_name,
@@ -162,7 +191,7 @@ fn parse_relay_resolver_ir(
     _resolver_field: UnpopulatedIrField,
     parse_options: &ParseOptions<'_>,
     source_hash: ResolverSourceHash,
-) -> DiagnosticsResult<RelayResolverIr> {
+) -> DiagnosticsResult<LegacyVerboseResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
     let field_name =
@@ -212,7 +241,7 @@ fn parse_relay_resolver_ir(
 
     validate_field_arguments(&field_definition_stub.arguments, location.source_location())?;
 
-    Ok(RelayResolverIr {
+    Ok(LegacyVerboseResolverIr {
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
         on,
         root_fragment: root_fragment
@@ -269,9 +298,22 @@ fn parse_weak_object_ir(
     relay_resolver_field: PopulatedIrField,
     _weak_field: UnpopulatedIrField,
     source_hash: ResolverSourceHash,
+    parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<WeakObjectIr> {
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
-    let identifier = assert_only_identifier(relay_resolver_field)?;
+    let (identifier, implements_interfaces) = if parse_options
+        .enable_interface_output_type
+        .is_fully_enabled()
+    {
+        let type_str = relay_resolver_field.value;
+        parse_identifier_and_implements_interfaces(
+            type_str.item.lookup(),
+            type_str.location.source_location(),
+            type_str.location.span().start,
+        )?
+    } else {
+        (assert_only_identifier(relay_resolver_field)?, vec![])
+    };
 
     Ok(WeakObjectIr {
         type_name: identifier,
@@ -280,6 +322,7 @@ fn parse_weak_object_ir(
         hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         location,
+        implements_interfaces,
         source_hash,
     })
 }
@@ -734,7 +777,7 @@ fn validate_field_arguments(
             if let Some(default_value) = &argument.default_value {
                 errors.push(Diagnostic::error(
                     IrParsingErrorMessages::ArgumentDefaultValuesNoSupported,
-                    Location::new(source_location, default_value.span()),
+                    Location::new(source_location, default_value.value.span()),
                 ));
             }
         }

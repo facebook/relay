@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6492bd934ab1f9f267b68406863ac60b>>
+ * @generated SignedSource<<7adb3bf6304416c32260ccb3a92c5134>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,7 +43,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__relay_internal__pv__HelloWorldProviderjs"
+      "name": "__relay_internal__pv__HelloWorldProviderrelayprovider"
     }
   ],
   "kind": "Fragment",
@@ -59,7 +59,7 @@ var node/*: ReaderFragment*/ = {
             {
               "kind": "Variable",
               "name": "world",
-              "variableName": "__relay_internal__pv__HelloWorldProviderjs"
+              "variableName": "__relay_internal__pv__HelloWorldProviderrelayprovider"
             }
           ],
           "fragment": null,
@@ -76,7 +76,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eaa3cd07d00f67f243afb816ae3dc3dd";
+  (node/*: any*/).hash = "9f94df55099df09e6d33779b83f732fc";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

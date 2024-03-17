@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<150848afe6e2738dd1c8396f463fd9fc>>
+ * @generated SignedSource<<57a1bcb2d1044ae8e6c2bfe969a71e81>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { FragmentType } from "relay-runtime";
+import type { LiveState, FragmentType } from "relay-runtime";
 import {counter_suspends_when_odd as userCounterSuspendsWhenOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/CounterSuspendsWhenOddOnUser.js";
 // Type assertion validating that `userCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

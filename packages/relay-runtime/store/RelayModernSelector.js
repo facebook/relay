@@ -27,9 +27,9 @@ const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
   CLIENT_EDGE_TRAVERSAL_PATH,
   FRAGMENT_OWNER_KEY,
+  FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
   FRAGMENTS_KEY,
   ID_KEY,
-  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
 } = require('./RelayStoreUtils');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
@@ -78,8 +78,6 @@ function getSingularSelector(
   const dataID = item[ID_KEY];
   const fragments = item[FRAGMENTS_KEY];
   const mixedOwner = item[FRAGMENT_OWNER_KEY];
-  const isWithinUnmatchedTypeRefinement =
-    item[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] === true;
   const mixedClientEdgeTraversalPath = item[CLIENT_EDGE_TRAVERSAL_PATH];
   if (
     typeof dataID === 'string' &&
@@ -102,6 +100,11 @@ function getSingularSelector(
       owner.variables,
       argumentVariables,
     );
+
+    const isWithinUnmatchedTypeRefinement =
+      argumentVariables[
+        FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
+      ] === true;
 
     return createReaderSelector(
       fragment,
@@ -406,11 +409,68 @@ function areEqualSingularSelectors(
   thatSelector: SingularReaderSelector,
 ): boolean {
   return (
-    thisSelector.owner === thatSelector.owner &&
     thisSelector.dataID === thatSelector.dataID &&
     thisSelector.node === thatSelector.node &&
-    areEqual(thisSelector.variables, thatSelector.variables)
+    areEqual(thisSelector.variables, thatSelector.variables) &&
+    areEqualOwners(thisSelector.owner, thatSelector.owner) &&
+    thisSelector.isWithinUnmatchedTypeRefinement ===
+      thatSelector.isWithinUnmatchedTypeRefinement &&
+    areEqualClientEdgeTraversalPaths(
+      thisSelector.clientEdgeTraversalPath,
+      thatSelector.clientEdgeTraversalPath,
+    )
   );
+}
+
+function areEqualOwners(
+  thisOwner: RequestDescriptor,
+  thatOwner: RequestDescriptor,
+): boolean {
+  if (thisOwner === thatOwner) {
+    return true;
+  } else {
+    return (
+      // The `identifier` should already include serilized variables, so we
+      // don't need to compare them here.
+      // And the RequestDescriptor `node` should have the same reference
+      // as it should come from the generated artifact.
+      thisOwner.identifier === thatOwner.identifier &&
+      areEqual(thisOwner.cacheConfig, thatOwner.cacheConfig)
+    );
+  }
+}
+
+function areEqualClientEdgeTraversalPaths(
+  thisPath: ClientEdgeTraversalPath | null,
+  thatPath: ClientEdgeTraversalPath | null,
+): boolean {
+  if (thisPath === thatPath) {
+    return true;
+  }
+  if (
+    thisPath == null ||
+    thatPath == null ||
+    thisPath.length !== thatPath.length
+  ) {
+    return false;
+  }
+  let idx = thisPath.length;
+  while (idx--) {
+    const a = thisPath[idx];
+    const b = thatPath[idx];
+    if (a === b) {
+      continue;
+    }
+    if (
+      a == null ||
+      b == null ||
+      a.clientEdgeDestinationID !== b.clientEdgeDestinationID ||
+      a.readerClientEdge !== b.readerClientEdge
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**

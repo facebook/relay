@@ -14,7 +14,7 @@ import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMo
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
+const useRefetchableFragmentNodeOriginal = require('../legacy/useRefetchableFragmentNode');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -172,7 +172,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -264,7 +263,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
           }),
           [owner, fragment.name],
         );

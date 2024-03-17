@@ -11,11 +11,17 @@
 
 'use strict';
 
-module.exports = function isLiveStateValue(v: mixed): boolean {
+import type {LiveState} from '../RelayStoreTypes';
+
+declare function isLiveStateValue<T, U = LiveState<T>>(v: mixed): v is U;
+
+function isLiveStateValue(v: mixed) {
   return (
     v != null &&
     typeof v === 'object' &&
     typeof v.read === 'function' &&
     typeof v.subscribe === 'function'
   );
-};
+}
+
+module.exports = isLiveStateValue;

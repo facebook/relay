@@ -73,7 +73,7 @@ describe('Relay Resolver', () => {
     const {data, seenRecords} = read(source, operation.fragment, resolverCache);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me.greeting).toEqual('Hello, Alice!'); // Resolver result
     expect(me.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
 
@@ -119,7 +119,7 @@ describe('Relay Resolver', () => {
     const {data} = read(source, operation.fragment, resolverCache);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me.dynamic_greeting).toEqual('Dynamic Greeting, Alice!');
     expect(me.greetz).toEqual('Greetz, Alice!');
     expect(me.willkommen).toEqual('Willkommen, Alice!');
@@ -135,10 +135,94 @@ describe('Relay Resolver', () => {
     );
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me: meWithNewVariables} = (dataWithNewVariables: any);
+    const {me: meWithNewVariables}: any = dataWithNewVariables;
     expect(meWithNewVariables.dynamic_greeting).toEqual(
       'New Dynamic Greeting, Alice!',
     );
+  });
+
+  describe('Relay resolver - Field Error Handling', () => {
+    it('propagates errors from the resolver up to the reader', () => {
+      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          lastName: null,
+          __errors: {
+            lastName: [
+              {
+                message: 'There was an error!',
+                path: ['me', 'lastName'],
+              },
+            ],
+          },
+        },
+      });
+
+      const FooQuery = graphql`
+        query RelayReaderResolverTestFieldErrorQuery {
+          me {
+            lastName
+          }
+        }
+      `;
+
+      const operation = createOperationDescriptor(FooQuery, {});
+      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+      const {errorResponseFields} = store.lookup(operation.fragment);
+      expect(errorResponseFields).toEqual([
+        {
+          error: {message: 'There was an error!', path: ['me', 'lastName']},
+          owner: 'RelayReaderResolverTestFieldErrorQuery',
+          path: 'me.lastName',
+        },
+      ]);
+    });
+
+    it("doesn't propagate errors from the resolver up to the reader when flag is disabled", () => {
+      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = false;
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          lastName: null,
+          __errors: {
+            lastName: [
+              {
+                message: 'There was an error!',
+                path: ['me', 'lastName'],
+              },
+            ],
+          },
+        },
+      });
+
+      const FooQuery = graphql`
+        query RelayReaderResolverTestFieldError1Query {
+          me {
+            lastName
+          }
+        }
+      `;
+
+      const operation = createOperationDescriptor(FooQuery, {});
+      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+      const {errorResponseFields} = store.lookup(operation.fragment);
+      expect(errorResponseFields).toEqual(null);
+    });
   });
 
   it('propagates @required errors from the resolver up to the reader', () => {
@@ -303,7 +387,7 @@ describe('Relay Resolver', () => {
     const {data} = read(source, operation.fragment, resolverCache);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me.the_alias).toEqual('Hello, Alice!'); // Resolver result
     expect(me.greeting).toEqual(undefined); // Unaliased name
   });
@@ -342,7 +426,7 @@ describe('Relay Resolver', () => {
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (snapshot.data: any);
+    const {me}: any = snapshot.data;
     expect(me.greeting).toEqual('Hello, Alice!');
     environment.commitUpdate(theStore => {
       const alice = nullthrows(theStore.get('1'));
@@ -400,7 +484,7 @@ describe('Relay Resolver', () => {
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (snapshot.data: any);
+    const {me}: any = snapshot.data;
     expect(me.constant_dependent).toEqual(1);
     expect(resolverInternals._relayResolverTestCallCount).toBe(1);
     environment.commitUpdate(theStore => {
@@ -411,7 +495,7 @@ describe('Relay Resolver', () => {
     subscription.dispose();
     const newSnapshot = store.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me: newMe} = (newSnapshot.data: any);
+    const {me: newMe}: any = newSnapshot.data;
     expect(newMe.constant_dependent).toEqual(1);
     expect(resolverInternals._relayResolverTestCallCount).toBe(1);
   });
@@ -450,7 +534,7 @@ describe('Relay Resolver', () => {
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (snapshot.data: any);
+    const {me}: any = snapshot.data;
     expect(me.greeting).toEqual('Hello, Alice!');
 
     const checkUpdate = (
@@ -469,7 +553,7 @@ describe('Relay Resolver', () => {
       );
       const newSnapshot = store.lookup(operation.fragment);
       // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-      const {me: newMe} = (newSnapshot.data: any);
+      const {me: newMe}: any = newSnapshot.data;
       expect(newMe.greeting).toEqual(expectedGreeting);
     };
 
@@ -526,7 +610,7 @@ describe('Relay Resolver', () => {
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (snapshot.data: any);
+    const {me}: any = snapshot.data;
     expect(me.greeting).toEqual('Hello, Alicia!');
 
     const checkUpdate = (
@@ -545,7 +629,7 @@ describe('Relay Resolver', () => {
       );
       const newSnapshot = store.lookup(operation.fragment);
       // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-      const {me: newMe} = (newSnapshot.data: any);
+      const {me: newMe}: any = newSnapshot.data;
       expect(newMe.greeting).toEqual(expectedGreeting);
     };
 
@@ -608,7 +692,7 @@ describe('Relay Resolver', () => {
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (snapshot.data: any);
+    const {me}: any = snapshot.data;
     expect(me.best_friend_greeting).toEqual('Hello, Bob!');
     environment.commitUpdate(theStore => {
       const bob = nullthrows(theStore.get('2'));
@@ -626,7 +710,7 @@ describe('Relay Resolver', () => {
     );
     const newSnapshot = store.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me: newMe} = (newSnapshot.data: any);
+    const {me: newMe}: any = newSnapshot.data;
     expect(newMe.best_friend_greeting).toEqual('Hello, Bilbo!');
     subscription.dispose();
   });
@@ -665,7 +749,7 @@ describe('Relay Resolver', () => {
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (snapshot.data: any);
+    const {me}: any = snapshot.data;
     expect(me.shouted_greeting).toEqual('HELLO, ALICE!');
     environment.commitUpdate(theStore => {
       const alice = nullthrows(theStore.get('1'));
@@ -738,7 +822,7 @@ describe('Relay Resolver', () => {
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (snapshot.data: any);
+    const {me}: any = snapshot.data;
     expect(me.best_friend_shouted_greeting).toEqual('HELLO, BOB!');
     environment.commitUpdate(updateStore => {
       const bob = nullthrows(updateStore.get('2'));
@@ -821,7 +905,7 @@ describe('Relay Resolver', () => {
     const {data} = read(source, operation.fragment, resolverCache);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me).toBe(null); // Resolver result
   });
 
@@ -1026,7 +1110,7 @@ describe('Relay Resolver', () => {
     expect(isMissingData).toBe(false);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {undefined_field} = (data: any);
+    const {undefined_field}: any = data;
     expect(undefined_field).toBe(undefined); // Resolver result
   });
 
@@ -1071,9 +1155,8 @@ describe('Relay Resolver', () => {
     expect(isMissingData).toBe(false);
 
     const {
-      me: {user_profile_picture_uri_with_scale},
-      // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    } = (data: any);
+      me: {user_profile_picture_uri_with_scale}, // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
+    }: any = data;
     expect(user_profile_picture_uri_with_scale).toBe('http://my-url-1.5'); // Resolver result
   });
 
@@ -1116,9 +1199,8 @@ describe('Relay Resolver', () => {
     expect(isMissingData).toBe(false);
 
     const {
-      me: {user_profile_picture_uri_with_scale_and_default_value},
-      // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    } = (data: any);
+      me: {user_profile_picture_uri_with_scale_and_default_value}, // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
+    }: any = data;
     expect(user_profile_picture_uri_with_scale_and_default_value).toBe(
       'http://my-url-1.5',
     ); // Resolver result
@@ -1166,9 +1248,8 @@ describe('Relay Resolver', () => {
     expect(isMissingData).toBe(false);
 
     const {
-      me: {profile_picture2},
-      // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    } = (data: any);
+      me: {profile_picture2}, // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
+    }: any = data;
     expect(profile_picture2).toBe('http://my-url-2'); // Resolver result
   });
 
@@ -1225,9 +1306,8 @@ describe('Relay Resolver', () => {
     expect(isMissingData).toBe(false);
 
     const {
-      me: {profile_picture2, big_profile_picture},
-      // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    } = (data: any);
+      me: {profile_picture2, big_profile_picture}, // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
+    }: any = data;
     expect(profile_picture2).toBe('http://my-url-2'); // Resolver result
     expect(big_profile_picture).toEqual({
       uri: 'http://my-url-1.5',

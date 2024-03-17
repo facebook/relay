@@ -1,0 +1,4 @@
+interface IAnimal {
+  id: ID!
+  legs: Int
+}

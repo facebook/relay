@@ -24,7 +24,7 @@ export function getConfig(scope?: ConfigurationScope): Config {
     pathToRelay: configuration.get('pathToRelay') ?? null,
     pathToConfig: configuration.get('pathToConfig') ?? null,
     pathToLocateCommand: configuration.get('pathToLocateCommand') ?? null,
-    lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errros',
+    lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errors',
     compilerOutpuLevel: configuration.get('compilerOutputLevel') ?? 'info',
     rootDirectory: configuration.get('rootDirectory') ?? null,
     autoStartCompiler: configuration.get('autoStartCompiler') ?? false,

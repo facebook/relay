@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dea68df4c49e39716e6248c4e4b86a70>>
+ * @generated SignedSource<<336a536903db1558ab8ce3afb2dc1991>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ var node/*: ConcreteRequest*/ = {
         "selections": [
           {
             "alias": null,
-            "args": null,
+            "args": [],
             "fragment": {
               "args": null,
               "kind": "FragmentSpread",

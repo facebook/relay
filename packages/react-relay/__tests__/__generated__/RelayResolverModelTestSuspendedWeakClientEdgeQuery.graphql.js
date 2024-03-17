@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c19ade5590a4094928027855d3310f1a>>
+ * @generated SignedSource<<1df2e4fe2748065dc05a235fb557f0ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { DataID } from "relay-runtime";
+import type { LiveState, DataID } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
@@ -106,6 +105,21 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoModel",
+        "modelResolvers": {
+          "TodoModel": {
+            "alias": null,
+            "args": [],
+            "fragment": {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "TodoModel__id"
+            },
+            "kind": "RelayLiveResolver",
+            "name": "todo_model",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "path": "todo_model.__relay_model_instance"
+          }
+        },
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),
@@ -126,6 +140,7 @@ return {
             {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "TodoDescription",
+              "modelResolvers": null,
               "backingField": {
                 "alias": null,
                 "args": null,

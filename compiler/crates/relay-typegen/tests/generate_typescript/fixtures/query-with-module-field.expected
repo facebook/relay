@@ -18,30 +18,30 @@ fragment Test_userRenderer on PlainUserRenderer {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs, Local3DPayload } from "relay-runtime";
-export type Test$variables = {};
+export type Test$variables = Record<PropertyKey, never>;
 export type Test$data = {
   readonly node: {
     readonly " $fragmentSpreads": FragmentRefs<"Test_user">;
-  } | null;
+  } | null | undefined;
 };
 export type Test_userRenderer = {
   readonly user: {
     readonly id: string;
-    readonly username: string | null;
-  } | null;
+    readonly username: string | null | undefined;
+  } | null | undefined;
 };
 export type Test$rawResponse = {
   readonly node: {
     readonly __typename: "User";
     readonly id: string;
-    readonly plainUserRenderer: Local3DPayload<"Test_user", {}> | {
-      readonly __module_component_Test_user: any | null;
-      readonly __module_operation_Test_user: any | null;
-    } | null;
+    readonly plainUserRenderer: Local3DPayload<"Test_user", Record<PropertyKey, never>> | {
+      readonly __module_component_Test_user: any | null | undefined;
+      readonly __module_operation_Test_user: any | null | undefined;
+    } | null | undefined;
   } | {
     readonly __typename: string;
     readonly id: string;
-  } | null;
+  } | null | undefined;
 };
 export type Test = {
   rawResponse: Test$rawResponse;
@@ -52,10 +52,10 @@ export type Test = {
 import { FragmentRefs } from "relay-runtime";
 export type Test_user$data = {
   readonly plainUserRenderer: {
-    readonly __fragmentPropName: string | null;
-    readonly __module_component: string | null;
+    readonly __fragmentPropName: string | null | undefined;
+    readonly __module_component: string | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"Test_userRenderer">;
-  } | null;
+  } | null | undefined;
   readonly " $fragmentType": "Test_user";
 };
 export type Test_user$key = {
@@ -66,8 +66,8 @@ export type Test_user$key = {
 import { FragmentRefs } from "relay-runtime";
 export type Test_userRenderer$data = {
   readonly user: {
-    readonly username: string | null;
-  } | null;
+    readonly username: string | null | undefined;
+  } | null | undefined;
   readonly " $fragmentType": "Test_userRenderer";
 };
 export type Test_userRenderer$key = {

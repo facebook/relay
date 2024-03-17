@@ -1,0 +1,22 @@
+# relay-resolver-enable-interface-output-type
+
+fragment spreadFragmentOnAbstractTypeFragment on Cat {
+    ... on Tabby {
+        description
+    }
+    ... on Persian {
+        description
+    }
+}
+
+# %extensions%
+
+union Cat = Tabby | Persian
+
+type Tabby {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+}
+
+type Persian {
+    description: String
+}

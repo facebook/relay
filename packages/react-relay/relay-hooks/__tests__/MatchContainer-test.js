@@ -199,7 +199,7 @@ describe('MatchContainer', () => {
   it('renders the fallback if the match object is empty', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -218,7 +218,7 @@ describe('MatchContainer', () => {
   it('renders the fallback if the match object is missing expected fields', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -246,7 +246,7 @@ describe('MatchContainer', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     expect(() => {
       TestRenderer.create(
         <MatchContainer
@@ -273,7 +273,7 @@ describe('MatchContainer', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     expect(() => {
       TestRenderer.create(
         <MatchContainer
@@ -300,7 +300,7 @@ describe('MatchContainer', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     expect(() => {
       TestRenderer.create(
         <MatchContainer
@@ -327,7 +327,7 @@ describe('MatchContainer', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     expect(() => {
       TestRenderer.create(
         <MatchContainer
@@ -353,7 +353,7 @@ describe('MatchContainer', () => {
   it('renders the fallback if the match value is null', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -384,7 +384,7 @@ describe('MatchContainer', () => {
   it('renders the fallback if the match value is undefined', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -402,7 +402,7 @@ describe('MatchContainer', () => {
 
   it('transitions from fallback when new props have a component', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -443,7 +443,7 @@ describe('MatchContainer', () => {
       propName: 'actor',
       module: 'ActorContainer.react',
     });
-    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}

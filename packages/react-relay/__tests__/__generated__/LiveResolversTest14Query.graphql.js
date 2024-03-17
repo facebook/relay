@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<acce2d079ea7ab9591c1fdf58642b09f>>
+ * @generated SignedSource<<07fb237adf081b825031732114cbbffc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment.js";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

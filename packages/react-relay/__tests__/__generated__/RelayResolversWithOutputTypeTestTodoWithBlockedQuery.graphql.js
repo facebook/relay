@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<718500b4e94b3942a8dda7d57826579e>>
+ * @generated SignedSource<<3080b514137192832e30bd58d6274360>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import type { TodoBlockedByResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoBlockedByResolverFragment.graphql";
 import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
@@ -108,6 +108,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),
@@ -133,6 +134,7 @@ return {
             {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "Todo",
+              "modelResolvers": null,
               "backingField": {
                 "alias": null,
                 "args": null,

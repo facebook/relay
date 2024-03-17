@@ -1,0 +1,16 @@
+query fragmentArgPassedToResolverRutimeArg_MeQuery($globalArg: String!) {
+  ...fragmentArgPassedToResolverRutimeArgFragment
+    @arguments(fragmentArg: $globalArg)
+}
+
+fragment fragmentArgPassedToResolverRutimeArgFragment on Query
+@argumentDefinitions(fragmentArg: {type: "String!"}) {
+  resolver_field(resolverArg: $fragmentArg)
+}
+
+# %extensions%
+
+extend type Query {
+  resolver_field(resolverArg: String!): String
+    @relay_resolver(import_path: "./path/to/Resolver.js")
+}

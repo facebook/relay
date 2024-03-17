@@ -170,7 +170,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             .map(get_mapped_location)
             .collect::<Vec<_>>();
         let parsed_directive = Directive {
-            name: DirectiveName(directive.name()?.intern()),
+            name: WithLocation::generated(DirectiveName(directive.name()?.intern())),
             is_extension: directive.is_extension(),
             arguments: self.parse_arguments(directive.arguments()?)?,
             locations,
@@ -350,7 +350,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_argument(&self, argument: schema_flatbuffer::Argument<'fb>) -> Option<Argument> {
         Some(Argument {
-            name: ArgumentName(argument.name().unwrap().intern()),
+            name: WithLocation::generated(ArgumentName(argument.name().unwrap().intern())),
             default_value: match argument.value() {
                 Some(value) => Some(self.parse_const_value(value)?),
                 _ => None,

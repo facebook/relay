@@ -197,7 +197,7 @@ function StoryLikeButton({story}) {
     commitMutation({
       variables: {
         id: data.id,
-        doesViewerLike: !data.doesViewerLike,
+        doesLike: !data.doesViewerLike,
       },
     })
     // end-change
@@ -371,7 +371,7 @@ function StoryLikeButton({story}) {
 
 ### Step 4 — Modify the Updatable Data
 
-Now `upatableData` is an object representing our existing Story as it exists in the local store. We can read and write the fields listed in our fragment:
+Now `updatableData` is an object representing our existing Story as it exists in the local store. We can read and write the fields listed in our fragment:
 
 ```
 function StoryLikeButton({story}) {
@@ -570,7 +570,7 @@ export default function StoryCommentsComposer({story}: Props) {
     // change
     const connectionID = ConnectionHandler.getConnectionID(
       data.id,
-      'StoryCommentsSectionFragment_comments',
+      'StoryCommentsSection_comments',
     );
     // end-change
     commitMutation({

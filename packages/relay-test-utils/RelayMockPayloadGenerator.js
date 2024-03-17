@@ -49,6 +49,7 @@ const {
   LINKED_HANDLE,
   MODULE_IMPORT,
   RELAY_RESOLVER,
+  RELAY_LIVE_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -208,7 +209,7 @@ class RelayMockPayloadGenerator {
   generate(
     selections: $ReadOnlyArray<NormalizationSelection>,
     operationType: string,
-  ): GraphQLResponse {
+  ): Array<GraphQLSingularResponse> {
     const defaultValues = this._getDefaultValuesForObject(
       operationType,
       null,
@@ -541,6 +542,7 @@ class RelayMockPayloadGenerator {
           break;
         case ACTOR_CHANGE:
           throw new Error('ActorChange fields are not yet supported.');
+        case RELAY_LIVE_RESOLVER:
         case RELAY_RESOLVER:
           if (selection.fragment) {
             mockData = this._traverseSelections(
@@ -920,7 +922,7 @@ function generateData(
   mockResolvers: MockResolvers | null,
   selectionMetadata: SelectionMetadata | null,
   options: ?{mockClientData?: boolean, generateDeferredPayload?: boolean},
-): GraphQLResponse {
+): Array<GraphQLSingularResponse> {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     mockResolvers,

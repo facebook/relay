@@ -180,7 +180,6 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
             {},
         },
         __fragmentOwner: ownerUser1.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // Subscribes for updates
@@ -195,9 +194,9 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
             {},
         },
         __fragmentOwner: ownerUser1.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -240,7 +239,6 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
             {},
         },
         __fragmentOwner: ownerUser1.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
       relayResolverErrors: [],
       seenRecords: {},
@@ -265,7 +263,6 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
             {},
         },
         __fragmentOwner: ownerUser1.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
     });
   });
@@ -302,7 +299,6 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
             {},
         },
         __fragmentOwner: ownerUser2.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
     });
 
@@ -318,9 +314,9 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
             {},
         },
         __fragmentOwner: ownerUser2.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -370,7 +366,6 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
             {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // Container subscribes for updates on new props
@@ -385,9 +380,9 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
             {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
-        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,

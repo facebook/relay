@@ -25,6 +25,7 @@ export opaque type Local3DPayload<
   +Response: {...},
 > = Response;
 
+// $FlowFixMe[unsupported-variance-annotation]
 function createPayloadFor3DField<+DocumentName: string, +Response: {...}>(
   name: DocumentName,
   operation: JSResourceReference<NormalizationSplitOperation>,

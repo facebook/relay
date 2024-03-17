@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<481c25170d36300263b682de955ebe8c>>
+ * @generated SignedSource<<b3c59f242eb9b5345afdb097bff3038f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql";
 import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
@@ -100,7 +100,7 @@ return {
               (v2/*: any*/),
               {
                 "alias": null,
-                "args": null,
+                "args": [],
                 "fragment": {
                   "args": (v3/*: any*/),
                   "kind": "FragmentSpread",

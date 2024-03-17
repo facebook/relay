@@ -58,7 +58,9 @@ import type {
 import type {LogEvent} from 'relay-runtime';
 import type {Fragment, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const {getFragmentResourceForEnvironment} = require('../FragmentResource');
+const {
+  getFragmentResourceForEnvironment,
+} = require('../legacy/FragmentResource');
 const {
   __internal: {fetchQuery},
   createOperationDescriptor,

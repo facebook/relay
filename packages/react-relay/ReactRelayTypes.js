@@ -103,6 +103,7 @@ export type $FragmentRef<T> = {
  */
 // prettier-ignore
 // $FlowFixMe[extra-type-arg] xplat redux flow type error
+// $FlowFixMe[deprecated-type]
 export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
   $Diff<Props, { relay: RelayPropT | void, ... }>,
   & (<T: { +$fragmentType: empty, ... }>( T) =>  T)

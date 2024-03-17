@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b104b95cbd749eb70af943636182fe92>>
+ * @generated SignedSource<<2abe93441abdb20ba1d3753369ac19d3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { DataID } from "relay-runtime";
+import type { LiveState, DataID } from "relay-runtime";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
 import {live_external_greeting as queryLiveExternalGreetingResolverType} from "../LiveExternalGreeting.js";
 // Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.

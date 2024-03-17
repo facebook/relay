@@ -7,7 +7,7 @@ query fragmentWithStream_QueryWithFragmentWithStreamQuery($id: ID!) {
 
 fragment fragmentWithStream_FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+  actors @stream(initialCount: 1, label: "StreamedActorsLabel") {
     name
   }
 }

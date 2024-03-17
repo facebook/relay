@@ -127,7 +127,7 @@ associated_data_impl!(RelayResolverFieldMetadata);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayResolverMetadata {
-    field_id: FieldID,
+    pub field_id: FieldID,
     pub import_path: StringKey,
     pub import_name: Option<StringKey>,
     pub field_alias: Option<StringKey>,
@@ -166,20 +166,10 @@ impl RelayResolverMetadata {
     }
 
     pub fn generate_local_resolver_name(&self, schema: &SDLSchema) -> StringKey {
-        to_camel_case(format!(
-            "{}_{}_resolver",
-            self.field_parent_type_name(schema),
-            self.field_name(schema)
-        ))
-        .intern()
+        resolver_import_alias(self.field_parent_type_name(schema), self.field_name(schema))
     }
     pub fn generate_local_resolver_type_name(&self, schema: &SDLSchema) -> StringKey {
-        to_camel_case(format!(
-            "{}_{}_resolver_type",
-            self.field_parent_type_name(schema),
-            self.field_name(schema)
-        ))
-        .intern()
+        resolver_type_import_alias(self.field_parent_type_name(schema), self.field_name(schema))
     }
 }
 
@@ -617,16 +607,17 @@ impl Transformer for RelayResolverFieldTransform<'_> {
     }
 }
 
-struct ResolverInfo {
+#[derive(Debug)]
+pub struct ResolverInfo {
     fragment_name: Option<FragmentDefinitionName>,
     fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
-    import_path: StringKey,
-    import_name: Option<StringKey>,
+    pub import_path: StringKey,
+    pub import_name: Option<StringKey>,
     live: bool,
     has_output_type: bool,
 }
 
-fn get_resolver_info(
+pub fn get_resolver_info(
     schema: &SDLSchema,
     resolver_field: &Field,
     error_location: Location,
@@ -776,4 +767,11 @@ fn to_camel_case(non_camelized_string: String) -> String {
         }
     }
     camelized_string
+}
+
+pub fn resolver_import_alias(parent_type_name: StringKey, field_name: StringKey) -> StringKey {
+    to_camel_case(format!("{}_{}_resolver", parent_type_name, field_name,)).intern()
+}
+pub fn resolver_type_import_alias(parent_type_name: StringKey, field_name: StringKey) -> StringKey {
+    to_camel_case(format!("{}_{}_resolver_type", parent_type_name, field_name,)).intern()
 }

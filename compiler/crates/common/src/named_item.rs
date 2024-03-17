@@ -63,7 +63,18 @@ impl FromStr for DirectiveName {
 }
 
 impl_lookup!(DirectiveName);
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Deserialize,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Serialize
+)]
 pub struct ArgumentName(pub StringKey);
 
 impl fmt::Display for ArgumentName {
@@ -94,7 +105,17 @@ impl fmt::Display for ScalarName {
     }
 }
 impl_lookup!(ArgumentName);
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
 pub struct ObjectName(pub StringKey);
 
 impl fmt::Display for ObjectName {
@@ -126,7 +147,17 @@ impl fmt::Display for EnumName {
 }
 impl_lookup!(EnumName);
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
 pub struct InterfaceName(pub StringKey);
 
 impl fmt::Display for InterfaceName {

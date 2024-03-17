@@ -168,7 +168,7 @@ fn build_refetch_operation(
                     alias: None,
                     definition: WithLocation::new(fragment.name.location, node_field_id),
                     arguments: vec![Argument {
-                        name: WithLocation::new(fragment.name.location, id_arg.name),
+                        name: WithLocation::new(fragment.name.location, id_arg.name.item),
                         value: WithLocation::new(
                             fragment.name.location,
                             Value::Variable(Variable {

@@ -22,12 +22,13 @@ import type {
   MissingFieldHandler,
   MutableRecordSource,
   MutationParameters,
+  NormalizeResponseFunction,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
-  RequiredFieldLogger,
+  RelayFieldLogger,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -47,7 +48,7 @@ import type {
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayObservable = require('../network/RelayObservable');
 const defaultGetDataID = require('../store/defaultGetDataID');
-const defaultRequiredFieldLogger = require('../store/defaultRequiredFieldLogger');
+const defaultRelayFieldLogger = require('../store/defaultRelayFieldLogger');
 const normalizeResponse = require('../store/normalizeResponse');
 const OperationExecutor = require('../store/OperationExecutor');
 const RelayModernStore = require('../store/RelayModernStore');
@@ -64,8 +65,9 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   isServer?: ?boolean,
   logFn?: ?LogFunction,
   missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
+  normalizeResponse?: NormalizeResponseFunction,
   operationLoader?: ?OperationLoader,
-  requiredFieldLogger?: ?RequiredFieldLogger,
+  relayFieldLogger?: ?RelayFieldLogger,
   scheduler?: ?TaskScheduler,
   shouldProcessClientComponents?: ?boolean,
   treatMissingFieldsAsNull?: boolean,
@@ -82,9 +84,10 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_isServer: boolean;
   +_logFn: LogFunction;
   +_missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  +_normalizeResponse: NormalizeResponseFunction;
   +_operationExecutions: Map<string, ActiveState>;
   +_operationLoader: ?OperationLoader;
-  +_requiredFieldLogger: RequiredFieldLogger;
+  +_relayFieldLogger: RelayFieldLogger;
   +_scheduler: ?TaskScheduler;
   +_shouldProcessClientComponents: ?boolean;
   +_treatMissingFieldsAsNull: boolean;
@@ -100,8 +103,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       : RelayDefaultHandlerProvider;
     this._logFn = config.logFn ?? emptyFunction;
     this._operationExecutions = new Map();
-    this._requiredFieldLogger =
-      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
+    this._relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
     this._isServer = config.isServer ?? false;
@@ -109,6 +111,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._createStoreForActor = config.createStoreForActor;
     this._createConfigNameForActor = config.createConfigNameForActor;
     this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';
+    this._normalizeResponse = config.normalizeResponse ?? normalizeResponse;
   }
 
   /**
@@ -126,7 +129,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         actorIdentifier,
         multiActorEnvironment: this,
         logFn: this._logFn,
-        requiredFieldLogger: this._requiredFieldLogger,
+        relayFieldLogger: this._relayFieldLogger,
         store:
           this._createStoreForActor != null
             ? this._createStoreForActor(actorIdentifier)
@@ -470,7 +473,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
         log: this._logFn,
-        normalizeResponse: normalizeResponse,
+        normalizeResponse: this._normalizeResponse,
       });
       return () => executor.cancel();
     });

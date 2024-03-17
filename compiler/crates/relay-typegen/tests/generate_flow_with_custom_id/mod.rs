@@ -35,7 +35,7 @@ use relay_typegen::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (
@@ -59,9 +59,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         actor_change_support: FeatureFlag::Enabled,
         ..Default::default()
     };
-    let ir = build_ir_in_relay_mode(&schema, &ast.definitions).unwrap_or_else(|e| {
-        panic!("Encountered error building IR {:?}", e);
-    });
+    let ir =
+        build_ir_in_relay_mode(&schema, &ast.definitions, &feature_flags).unwrap_or_else(|e| {
+            panic!("Encountered error building IR {:?}", e);
+        });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let mut custom_scalar_types = FnvIndexMap::default();
@@ -80,7 +81,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         typegen_config: TypegenConfig {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
-            flow_typegen: Default::default(),
             ..Default::default()
         },
         ..Default::default()

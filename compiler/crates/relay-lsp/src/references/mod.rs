@@ -76,14 +76,11 @@ fn get_references_response(
         FeatureResolutionInfo::DocblockNode(docblock_node) => {
             if let DocblockResolutionInfo::FieldName(field_name) = docblock_node.resolution_info {
                 let type_name = match docblock_node.ir {
-                    DocblockIr::RelayResolver(relay_resolver) => match relay_resolver.on {
+                    DocblockIr::LegacyVerboseResolver(relay_resolver) => match relay_resolver.on {
                         On::Type(type_) => type_.value.item,
                         On::Interface(interface) => interface.value.item,
                     },
-                    DocblockIr::TerseRelayResolver(_) => {
-                        // TODO: Implement support for terse relay resolvers.
-                        return Err(LSPRuntimeError::ExpectedError);
-                    }
+                    DocblockIr::TerseRelayResolver(terse_resolver) => terse_resolver.type_.item,
                     DocblockIr::StrongObjectResolver(_) => {
                         // TODO: Implement support for strong object.
                         return Err(LSPRuntimeError::ExpectedError);

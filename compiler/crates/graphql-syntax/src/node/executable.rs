@@ -98,7 +98,17 @@ impl OperationDefinition {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
 pub enum OperationKind {
     Query,
     Mutation,
@@ -161,19 +171,6 @@ pub struct TypeCondition {
 impl fmt::Display for TypeCondition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("on {}", self.type_))
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct DefaultValue {
-    pub span: Span,
-    pub equals: Token,
-    pub value: ConstantValue,
-}
-
-impl fmt::Display for DefaultValue {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(format_args!("{}", self.value))
     }
 }
 

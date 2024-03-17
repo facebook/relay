@@ -79,11 +79,22 @@ fn parse_source(
             enable_output_type: &project_config
                 .feature_flags
                 .relay_resolver_enable_output_type,
+            allow_legacy_verbose_syntax: &project_config
+                .feature_flags
+                .relay_resolvers_allow_legacy_verbose_syntax,
+            enable_interface_output_type: &project_config
+                .feature_flags
+                .relay_resolver_enable_interface_output_type,
         },
     )?;
     maybe_ir
         .map(|ir| {
-            ir.to_graphql_schema_ast(project_config.name, schema, &project_config.schema_config)
+            ir.to_graphql_schema_ast(
+                project_config.name,
+                schema,
+                &project_config.schema_config,
+                &project_config.feature_flags,
+            )
         })
         .transpose()
 }

@@ -11,8 +11,8 @@
 
 'use strict';
 
+const useFragmentNode = require('../legacy/useFragmentNode');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const useFragmentNode = require('../useFragmentNode');
 const React = require('react');
 const {useEffect} = require('react');
 const ReactTestRenderer = require('react-test-renderer');

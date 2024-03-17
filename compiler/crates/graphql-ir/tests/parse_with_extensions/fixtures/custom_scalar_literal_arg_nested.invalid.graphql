@@ -1,0 +1,21 @@
+# expected-to-throw
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery {
+    extension_field {
+        scalar_field(custom_scalar_arg: "1234")
+    }
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+type Obj {
+    some_key: Int!
+    scalar_field(custom_scalar_arg: CustomScalarType!): Int
+}
+
+extend type Query {
+    extension_field: Obj
+}

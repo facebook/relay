@@ -75,14 +75,20 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:255:262,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:263:265,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -104,14 +110,20 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:334:338,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:339:341,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -133,14 +145,20 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "source",
-        ),
+        name: WithLocation {
+            location: <generated>:11:17,
+            item: DirectiveName(
+                "source",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "schema",
-                ),
+                name: WithLocation {
+                    location: <generated>:18:24,
+                    item: ArgumentName(
+                        "schema",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -151,9 +169,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:35:39,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -254,9 +275,12 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "id",
-                ),
+                name: WithLocation {
+                    location: <generated>:159:161,
+                    item: ArgumentName(
+                        "id",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(4),
@@ -285,9 +309,12 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "ids",
-                ),
+                name: WithLocation {
+                    location: <generated>:182:185,
+                    item: ArgumentName(
+                        "ids",
+                    ),
+                },
                 type_: NonNull(
                     List(
                         NonNull(
@@ -570,9 +597,12 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -604,9 +634,12 @@ Text Schema:Schema {
         },
         fields: [
             Argument {
-                name: ArgumentName(
-                    "lat",
-                ),
+                name: WithLocation {
+                    location: <generated>:569:572,
+                    item: ArgumentName(
+                        "lat",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(6),
@@ -617,9 +650,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "lon",
-                ),
+                name: WithLocation {
+                    location: <generated>:583:586,
+                    item: ArgumentName(
+                        "lon",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(6),
@@ -630,9 +666,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "city",
-                ),
+                name: WithLocation {
+                    location: <generated>:597:601,
+                    item: ArgumentName(
+                        "city",
+                    ),
+                },
                 type_: Named(
                     Scalar(8),
                 ),
@@ -641,9 +680,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "zip",
-                ),
+                name: WithLocation {
+                    location: <generated>:612:615,
+                    item: ArgumentName(
+                        "zip",
+                    ),
+                },
                 type_: Named(
                     Scalar(7),
                 ),
@@ -652,9 +694,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "previous_cities",
-                ),
+                name: WithLocation {
+                    location: <generated>:623:638,
+                    item: ArgumentName(
+                        "previous_cities",
+                    ),
+                },
                 type_: List(
                     NonNull(
                         Named(
@@ -994,14 +1039,20 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1023,14 +1074,20 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1052,14 +1109,20 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "source",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "source",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "schema",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "schema",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1070,9 +1133,12 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1260,9 +1326,12 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "id",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "id",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -1291,9 +1360,12 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "ids",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "ids",
+                    ),
+                },
                 type_: NonNull(
                     List(
                         NonNull(
@@ -1405,9 +1477,12 @@ input_objects: [
         },
         fields: [
             Argument {
-                name: ArgumentName(
-                    "lat",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "lat",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -1418,9 +1493,12 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "lon",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "lon",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -1431,9 +1509,12 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "city",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "city",
+                    ),
+                },
                 type_: Named(
                     Scalar(1),
                 ),
@@ -1442,9 +1523,12 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "zip",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "zip",
+                    ),
+                },
                 type_: Named(
                     Scalar(4),
                 ),
@@ -1453,9 +1537,12 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "previous_cities",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "previous_cities",
+                    ),
+                },
                 type_: List(
                     NonNull(
                         Named(

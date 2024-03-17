@@ -34,12 +34,15 @@ use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
 use crate::ast::RequestParameters;
+use crate::ast::ResolverModuleReference;
 use crate::build_ast::build_fragment;
 use crate::build_ast::build_operation;
+use crate::build_ast::build_preloadable_request;
 use crate::build_ast::build_provided_variables;
 use crate::build_ast::build_request;
 use crate::build_ast::build_request_params;
 use crate::build_ast::build_request_params_ast_key;
+use crate::build_ast::build_resolvers_schema;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::object;
@@ -113,6 +116,14 @@ pub fn print_provided_variables(
     project_config: &ProjectConfig,
 ) -> Option<String> {
     Printer::without_dedupe(project_config).print_provided_variables(schema, operation)
+}
+
+pub fn print_resolvers_schema(
+    schema: &SDLSchema,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
+) -> String {
+    Printer::without_dedupe(project_config).print_resolvers_schema(schema, top_level_statements)
 }
 
 pub struct Printer<'p> {
@@ -217,6 +228,26 @@ impl<'p> Printer<'p> {
         printer.print(key, self.dedupe)
     }
 
+    pub fn print_preloadable_request(
+        &mut self,
+        schema: &SDLSchema,
+        request_parameters: RequestParameters<'_>,
+        operation: &OperationDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
+        let request_parameters = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            operation.name.map(|x| x.0),
+            self.project_config,
+        );
+        let key = build_preloadable_request(&mut self.builder, request_parameters);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        printer.print(key, self.dedupe)
+    }
+
     pub fn print_operation(
         &mut self,
         schema: &SDLSchema,
@@ -266,6 +297,16 @@ impl<'p> Printer<'p> {
             operation.name.map(|x| x.0),
             self.project_config,
         );
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        printer.print(key, self.dedupe)
+    }
+
+    pub fn print_resolvers_schema(
+        &mut self,
+        schema: &SDLSchema,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
+        let key = build_resolvers_schema(&mut self.builder, schema, self.project_config);
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
@@ -507,6 +548,12 @@ impl<'b> JSONPrinter<'b> {
                     import_name.clone(),
                     get_module_path(self.js_module_format, *path),
                 ),
+            Primitive::ResolverModuleReference(ResolverModuleReference {
+                field_type,
+                resolver_function_name,
+            }) => {
+                self.write_resolver_module_reference(f, resolver_function_name.clone(), field_type)
+            }
             Primitive::DynamicImport { provider, module } => match provider {
                 DynamicModuleProvider::JSResource => {
                     self.top_level_statements.insert(
@@ -552,6 +599,26 @@ impl<'b> JSONPrinter<'b> {
                 indent,
                 is_dedupe_var,
             ),
+        }
+    }
+
+    fn write_resolver_module_reference(
+        &mut self,
+        f: &mut String,
+        resolver_function_name: ModuleImportName,
+        field_type: &StringKey,
+    ) -> FmtResult {
+        match resolver_function_name {
+            ModuleImportName::Default(_) => {
+                panic!("Expected a named import for Relay Resolvers")
+            }
+            ModuleImportName::Named { name, .. } => {
+                write!(
+                    f,
+                    "{{ resolverFunctionName: \"{}\", fieldType: \"{}\" }}",
+                    name, field_type
+                )
+            }
         }
     }
 
@@ -663,7 +730,7 @@ impl<'b> JSONPrinter<'b> {
     }
 }
 
-fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {
+pub fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {
     match js_module_format {
         JsModuleFormat::CommonJS => {
             let path = Path::new(key.lookup());
@@ -827,6 +894,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::RawString(_) => panic!("Unexpected RawString"),
         Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
         Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
+        Primitive::ResolverModuleReference { .. } => panic!("Unexpected ResolverModuleReference"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
         Primitive::RelayResolverModel { .. } => panic!("Unexpected RelayResolver"),
         Primitive::RelayResolverWeakObjectWrapper { .. } => {

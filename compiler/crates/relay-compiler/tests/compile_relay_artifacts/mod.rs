@@ -44,7 +44,7 @@ use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     if fixture.content.contains("%TODO%") {
@@ -115,6 +115,16 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         emit_normalization_nodes_for_client_edges: true,
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
         relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
+        enable_resolver_normalization_ast: fixture
+            .content
+            .contains("# enable_resolver_normalization_ast"),
+        relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag::Disabled,
+        enable_relay_resolver_mutations: false,
+        enable_strict_custom_scalars: false,
+        allow_required_in_mutation_response: FeatureFlag::Disabled,
+        allow_resolvers_in_mutation_response: FeatureFlag::Disabled,
+        disable_resolver_reader_ast: false,
+        enable_fragment_argument_transform: false,
     };
 
     let default_project_config = ProjectConfig {
@@ -186,6 +196,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
+            allow_custom_scalar_literals: true, // for compatibility
         },
     );
     let ir = ir_result

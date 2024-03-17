@@ -9,6 +9,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use common::Diagnostic;
 use common::SourceLocationKey;
@@ -18,13 +19,16 @@ use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
+use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 
 use crate::artifact_map::ArtifactSourceKey;
 use crate::compiler_state::GraphQLSources;
+use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::file_source::LocatedGraphQLSource;
+use crate::utils::get_parser_features;
 
 #[derive(Debug)]
 pub struct GraphQLAsts {
@@ -50,10 +54,13 @@ impl GraphQLAsts {
     pub fn from_graphql_sources_map(
         graphql_sources_map: &FnvHashMap<ProjectName, GraphQLSources>,
         dirty_artifact_sources: &FnvHashMap<ProjectName, Vec<ArtifactSourceKey>>,
+        config: &Arc<Config>,
     ) -> Result<FnvHashMap<ProjectName, GraphQLAsts>> {
         graphql_sources_map
             .iter()
             .map(|(&project_name, sources)| {
+                let project_config = &config.projects[&project_name];
+
                 let asts = GraphQLAsts::from_graphql_sources(
                     sources,
                     dirty_artifact_sources
@@ -65,12 +72,15 @@ impl GraphQLAsts {
                                     ArtifactSourceKey::ExecutableDefinition(def_name) => {
                                         Some(def_name)
                                     }
-                                    // Dirty resolvers artifacts are handled separately
-                                    // and should not affect the list of affected document defintions
-                                    ArtifactSourceKey::ResolverHash(_) => None,
+                                    ArtifactSourceKey::Schema()
+                                    | ArtifactSourceKey::ResolverHash(_) => {
+                                        // We're only concerned with collecting ExecutableDefinitionNames
+                                        None
+                                    }
                                 })
                                 .collect()
                         }),
+                    project_config,
                 )?;
                 Ok((project_name, asts))
             })
@@ -83,7 +93,10 @@ impl GraphQLAsts {
     pub fn from_graphql_sources(
         graphql_sources: &GraphQLSources,
         dirty_definitions: Option<Vec<&ExecutableDefinitionName>>,
+        project_config: &ProjectConfig,
     ) -> Result<Self> {
+        let parser_features = get_parser_features(project_config);
+
         let mut syntax_errors = Vec::new();
 
         let mut asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>> = Default::default();
@@ -106,9 +119,10 @@ impl GraphQLAsts {
             {
                 let source_location =
                     SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                match graphql_syntax::parse_executable(
+                match graphql_syntax::parse_executable_with_features(
                     &graphql_source.text_source().text,
                     source_location,
+                    parser_features,
                 ) {
                     Ok(document) => {
                         for def in &document.definitions {
@@ -143,29 +157,46 @@ impl GraphQLAsts {
                     // TODO: parse name instead of the whole graphql text
                     let source_location =
                         SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                    if let Ok(document) = graphql_syntax::parse_executable(
+                    if let Ok(document) = graphql_syntax::parse_executable_with_features(
                         &graphql_source.text_source().text,
                         source_location,
+                        parser_features,
                     ) {
                         for def in document.definitions {
-                            let name = def.name();
-                            if let Some(def_name) = name {
-                                if !definitions_for_file.iter().any(|def| def.name() == name) {
-                                    match def {
-                                        ExecutableDefinition::Operation(_) => {
-                                            removed_definition_names.push(
-                                                ArtifactSourceKey::ExecutableDefinition(
-                                                    OperationDefinitionName(def_name).into(),
-                                                ),
-                                            )
+                            match def {
+                                ExecutableDefinition::Operation(operation) => {
+                                    if !(definitions_for_file.iter().any(|def| {
+                                        if let ExecutableDefinition::Operation(op) = def {
+                                            op.name == operation.name
+                                        } else {
+                                            false
                                         }
-                                        ExecutableDefinition::Fragment(_) => {
-                                            removed_definition_names.push(
-                                                ArtifactSourceKey::ExecutableDefinition(
-                                                    FragmentDefinitionName(def_name).into(),
+                                    })) {
+                                        if let Some(operation_name) = operation.name {
+                                            removed_definition_names
+                                                .push(ArtifactSourceKey::ExecutableDefinition(
+                                                ExecutableDefinitionName::OperationDefinitionName(
+                                                    OperationDefinitionName(operation_name.value),
                                                 ),
-                                            )
+                                            ));
                                         }
+                                    }
+                                }
+                                ExecutableDefinition::Fragment(fragment) => {
+                                    if !(definitions_for_file.iter().any(|def| {
+                                        if let ExecutableDefinition::Fragment(frag) = def {
+                                            frag.name == fragment.name
+                                        } else {
+                                            false
+                                        }
+                                    })) {
+                                        removed_definition_names.push(
+                                            ArtifactSourceKey::ExecutableDefinition(
+                                                ExecutableDefinitionName::FragmentDefinitionName(
+                                                    FragmentDefinitionName(fragment.name.value),
+                                                ),
+                                            ),
+                                        );
                                     }
                                 }
                             }
@@ -192,9 +223,10 @@ impl GraphQLAsts {
             {
                 let source_location =
                     SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                match graphql_syntax::parse_executable(
+                match graphql_syntax::parse_executable_with_features(
                     &graphql_source.text_source().text,
                     source_location,
+                    parser_features,
                 ) {
                     Ok(document) => {
                         definitions_for_file.extend(document.definitions);

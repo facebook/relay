@@ -21,7 +21,6 @@ import type {
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 const Observable = require('../network/RelayObservable');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReplaySubject = require('../util/RelayReplaySubject');
 const invariant = require('invariant');
 
@@ -250,12 +249,6 @@ function getPromiseForActiveRequest(
   if (!environment.isRequestActive(cachedRequest.identifier)) {
     return null;
   }
-  if (RelayFeatureFlags.USE_REACT_CACHE) {
-    const existing = cachedRequest.promise;
-    if (existing) {
-      return existing;
-    }
-  }
   const promise = new Promise<void>((resolve, reject) => {
     let resolveOnNext = false;
     getActiveStatusObservableForCachedRequest(
@@ -278,17 +271,6 @@ function getPromiseForActiveRequest(
     });
     resolveOnNext = true;
   });
-  if (RelayFeatureFlags.USE_REACT_CACHE) {
-    // React Suspense should get thrown the same promise each time, so we cache it.
-    // However, the promise gets resolved on each payload, so subsequently we need
-    // to provide a new fresh promise that isn't already resolved. (When the feature
-    // flag is off we do this in QueryResource.)
-    cachedRequest.promise = promise;
-    const cleanup = () => {
-      cachedRequest.promise = null;
-    };
-    promise.then(cleanup, cleanup);
-  }
   return promise;
 }
 

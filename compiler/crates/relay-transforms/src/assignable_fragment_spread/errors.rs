@@ -9,7 +9,8 @@ use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 pub enum ValidationMessage {
     #[error(
         "The @{disallowed_directive_name} directive is not allowed on assignable fragment spreads."

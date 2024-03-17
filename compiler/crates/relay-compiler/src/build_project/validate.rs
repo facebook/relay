@@ -15,6 +15,7 @@ use errors::try_all;
 use graphql_ir::Program;
 use relay_config::ProjectConfig;
 use relay_transforms::disallow_circular_no_inline_fragments;
+use relay_transforms::disallow_readtime_features_in_mutations;
 use relay_transforms::disallow_reserved_aliases;
 use relay_transforms::disallow_typename_on_root;
 use relay_transforms::validate_assignable_directive;
@@ -67,6 +68,16 @@ pub fn validate(
         } else {
             Ok(())
         },
+        disallow_readtime_features_in_mutations(
+            program,
+            &project_config
+                .feature_flags
+                .allow_resolvers_in_mutation_response,
+            &project_config
+                .feature_flags
+                .allow_required_in_mutation_response,
+            project_config.feature_flags.enable_relay_resolver_mutations,
+        ),
     ]);
 
     match output {

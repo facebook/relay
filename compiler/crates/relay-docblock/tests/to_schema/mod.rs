@@ -25,7 +25,7 @@ use relay_docblock::ParseOptions;
 use relay_test_schema::get_test_schema_with_extensions;
 use schema::SDLSchema;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let (base, mut schema) = match parts.as_slice() {
         [base, extensions] => (base, extract_schema_from_js(extensions)),
@@ -73,6 +73,22 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 } else {
                     &FeatureFlag::Disabled
                 },
+                allow_legacy_verbose_syntax: if fixture
+                    .content
+                    .contains("// relay:allow_legacy_verbose_syntax")
+                {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
+                enable_interface_output_type: if fixture
+                    .content
+                    .contains("// relay:enable_interface_output_type")
+                {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
             },
         )?
         .unwrap();
@@ -80,9 +96,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         // In non-tests, this function (correctly) consumes TypeSystemDefinition when modifying the
         // schema.
         // In tests, we need to clone, because we **also** want to print the schema changes.
-        let schema_document =
-            ir.clone()
-                .to_graphql_schema_ast(project_name, &schema, &Default::default())?;
+        let schema_document = ir.clone().to_graphql_schema_ast(
+            project_name,
+            &schema,
+            &Default::default(),
+            &Default::default(),
+        )?;
         for definition in &schema_document.definitions {
             extend_schema_with_resolver_type_system_definition(
                 definition.clone(),
@@ -92,7 +111,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             )?;
         }
 
-        ir.to_sdl_string(project_name, &schema, &Default::default())
+        ir.to_sdl_string(
+            project_name,
+            &schema,
+            &Default::default(),
+            &Default::default(),
+        )
     };
 
     let schema_strings = js_features

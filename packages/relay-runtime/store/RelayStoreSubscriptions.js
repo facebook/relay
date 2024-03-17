@@ -109,6 +109,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
           relayResolverErrors: backup.relayResolverErrors,
+          errorResponseFields: backup.errorResponseFields,
         };
       } else {
         // This subscription was created during the optimisitic state. We should
@@ -175,6 +176,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,
       relayResolverErrors: nextSnapshot.relayResolverErrors,
+      errorResponseFields: nextSnapshot.errorResponseFields,
     }: Snapshot);
     if (__DEV__) {
       deepFreeze(nextSnapshot);

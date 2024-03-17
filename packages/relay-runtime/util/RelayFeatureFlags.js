@@ -26,9 +26,6 @@ export type FeatureFlags = {
   ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT: boolean,
   MAX_DATA_ID_LENGTH: ?number,
   STRING_INTERN_LEVEL: number,
-  USE_REACT_CACHE: boolean,
-  USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
-  ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: boolean,
   LOG_MISSING_RECORDS_IN_PROD: boolean,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: boolean,
 
@@ -41,6 +38,16 @@ export type FeatureFlags = {
   // more compatible.
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: boolean,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: boolean,
+
+  // Configure whether Relay should handle any field errors that it encounteres
+  // in a partial response.
+  // @see https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
+  ENABLE_FIELD_ERROR_HANDLING: boolean,
+
+  ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: boolean,
+  ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: boolean,
+
+  PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -56,13 +63,14 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT: false,
   MAX_DATA_ID_LENGTH: null,
   STRING_INTERN_LEVEL: 0,
-  USE_REACT_CACHE: false,
-  USE_REACT_CACHE_LEGACY_TIMEOUTS: true,
-  ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: false,
   LOG_MISSING_RECORDS_IN_PROD: false,
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
+  ENABLE_FIELD_ERROR_HANDLING: false,
+  ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: false,
+  ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: false,
+  PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
 };
 
 module.exports = RelayFeatureFlags;

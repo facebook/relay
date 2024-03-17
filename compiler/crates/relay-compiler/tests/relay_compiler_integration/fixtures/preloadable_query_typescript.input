@@ -1,0 +1,21 @@
+//- foo.ts
+graphql`
+  query fooQuery @preloadable {
+   userName
+  }`;
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "./schema.graphql",
+  "eagerEsModules": true,
+  "persistConfig": { 
+    "file": "./operations.json" 
+  }
+}
+
+//- operations.json
+{}
+
+//- schema.graphql
+type Query { userName: String }

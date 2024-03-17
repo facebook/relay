@@ -295,12 +295,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   __fragmentPropName: 'name',
                   __fragments: {
                     RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name:
-                      {},
+                      {
+                        // TODO T96653810: Correctly detect reading from root of mutation/subscription
+                        $isWithinUnmatchedTypeRefinement: true, // should be false
+                      },
                   },
                   __fragmentOwner: operation.request,
-
-                  // TODO T96653810: Correctly detect reading from root of mutation/subscription
-                  __isWithinUnmatchedTypeRefinement: true, // should be false
 
                   __module_component: 'MarkdownUserNameRenderer.react',
                 },

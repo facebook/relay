@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3667cd860cf304ea0aa637b1d9d43854>>
+ * @generated SignedSource<<8517730789e16a110d8fd13287873dd5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,6 +58,7 @@ var node/*: ReaderFragment*/ = {
     {
       "kind": "ClientEdgeToClientObject",
       "concreteType": "TodoText",
+      "modelResolvers": null,
       "backingField": {
         "alias": null,
         "args": null,

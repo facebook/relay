@@ -202,6 +202,18 @@ impl From<ExecutableDefinitionName> for StringKey {
     }
 }
 
+impl From<OperationDefinitionName> for StringKey {
+    fn from(operation_definition_name: OperationDefinitionName) -> Self {
+        operation_definition_name.0
+    }
+}
+
+impl From<FragmentDefinitionName> for StringKey {
+    fn from(fragment_definition_name: FragmentDefinitionName) -> Self {
+        fragment_definition_name.0
+    }
+}
+
 impl Lookup for ExecutableDefinitionName {
     fn lookup(self) -> &'static str {
         match self {
@@ -222,7 +234,17 @@ impl ExecutableDefinitionName {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
 pub struct VariableName(pub StringKey);
 
 impl Display for VariableName {
@@ -466,7 +488,7 @@ impl Field for ScalarField {
     }
 }
 
-/// https://spec.graphql.org/June2018/#sec--skip
+/// <https://spec.graphql.org/June2018/#sec--skip>
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Condition {
     pub selections: Vec<Selection>,
@@ -566,7 +588,7 @@ pub struct Variable {
     pub type_: TypeReference<Type>,
 }
 
-/// Name : Value[Const]
+/// Name : Value\[Const\]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ConstantArgument {
     pub name: WithLocation<ArgumentName>,

@@ -156,7 +156,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.name).toEqual('Bob');
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
@@ -190,7 +190,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.name).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
@@ -288,7 +288,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.the_alias?.name).toEqual('Bob');
     expect(me?.client_edge).toBeUndefined();
     expect(Array.from(seenRecords).sort()).toEqual([
@@ -323,7 +323,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.null_client_edge).toBe(null);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
@@ -363,7 +363,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.author).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
@@ -411,7 +411,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.name).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual(['1337']);
     expect(missingClientEdges?.length).toEqual(1);
@@ -446,7 +446,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.name).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
@@ -498,7 +498,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.author).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',

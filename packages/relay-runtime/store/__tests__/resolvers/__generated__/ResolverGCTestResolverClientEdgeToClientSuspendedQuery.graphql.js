@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dab0526562362c1413966043138f9457>>
+ * @generated SignedSource<<b7eb1e6e70c13b59b0d4a2dcb7b94fb4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { DataID } from "relay-runtime";
+import type { LiveState, DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
@@ -75,6 +74,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,

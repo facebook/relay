@@ -37,7 +37,7 @@ use relay_typegen::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
@@ -68,7 +68,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_fragment_aliases: FeatureFlag::Enabled,
         ..Default::default()
     };
-    let ir = build_ir_in_relay_mode(&schema, &ast.definitions)
+    let ir = build_ir_in_relay_mode(&schema, &ast.definitions, &feature_flags)
         .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
@@ -92,6 +92,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         typegen_config: TypegenConfig {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
+            experimental_emit_semantic_nullability_types: fixture
+                .content
+                .contains("# relay:experimental_emit_semantic_nullability_types"),
             ..Default::default()
         },
         ..Default::default()

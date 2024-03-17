@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -25,16 +26,16 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ The type specified in the fragment (`User`) and the type specified in `@onInterface` (`Node`) are different. Please make sure these are exactly the same.
 
-  /path/to/test/fixture/relay-resolver-on-interface-mismatch.invalid.js:13:17
-   12 │  *
-   13 │  * @onInterface Node
+  /path/to/test/fixture/relay-resolver-on-interface-mismatch.invalid.js:14:17
+   13 │  *
+   14 │  * @onInterface Node
       │                 ^^^^
-   14 │  * @fieldName favorite_page
+   15 │  * @fieldName favorite_page
 
   ℹ︎ with fragment type condition
 
-  /path/to/test/fixture/relay-resolver-on-interface-mismatch.invalid.js:20:27
-   19 │ 
-   20 │   fragment myRootFragment on User {
+  /path/to/test/fixture/relay-resolver-on-interface-mismatch.invalid.js:21:27
+   20 │ 
+   21 │   fragment myRootFragment on User {
       │                           ^^^^^^^
-   21 │     name
+   22 │     name

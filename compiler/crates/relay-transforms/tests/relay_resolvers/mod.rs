@@ -25,7 +25,7 @@ use relay_transforms::fragment_alias_directive;
 use relay_transforms::relay_resolvers;
 use relay_transforms::validate_resolver_fragments;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let graphql_location = SourceLocationKey::embedded(fixture.file_name, 0);

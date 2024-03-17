@@ -24,7 +24,7 @@ use relay_transforms::client_edges;
 use relay_transforms::relay_resolvers;
 use relay_transforms::sort_selections;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let ast = parse_executable(base, SourceLocationKey::standalone(fixture.file_name)).unwrap();
@@ -48,7 +48,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             ..Default::default()
         };
         let next_program = sort_selections(
-            &client_edges(&program, &project_config)
+            &client_edges(&program, &project_config, &Default::default())
                 .and_then(|program| relay_resolvers(ProjectName::default(), &program, true))
                 .unwrap(),
         );

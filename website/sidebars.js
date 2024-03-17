@@ -50,16 +50,10 @@ const GuidesRescuedFromOldTutorial = [
   'guided-tour/updating-data/graphql-subscriptions',
   {
     'Updating Data': [
-      ...fbContent({
-        internal: [
-          'guided-tour/updating-data/imperatively-modifying-store-data',
-          'guided-tour/updating-data/imperatively-modifying-linked-fields',
-          'guided-tour/updating-data/typesafe-updaters-faq',
-        ],
-        external: [
-          'guided-tour/updating-data/imperatively-modifying-store-data-unsafe',
-        ],
-      }),
+      'guided-tour/list-data/updating-connections',
+      'guided-tour/updating-data/imperatively-modifying-store-data',
+      'guided-tour/updating-data/imperatively-modifying-linked-fields',
+      'guided-tour/updating-data/typesafe-updaters-faq',
       'guided-tour/updating-data/local-data-updates',
       'guided-tour/updating-data/client-only-data',
     ],
@@ -144,6 +138,7 @@ module.exports = {
         'tutorial/refetchable-fragments',
         'tutorial/connections-pagination',
         'tutorial/mutations-updates',
+        'tutorial/organizing-mutations-queries-and-subscriptions',
       ],
       Installation: [
         'getting-started/prerequisites',

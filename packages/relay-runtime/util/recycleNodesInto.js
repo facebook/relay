@@ -11,27 +11,27 @@
 
 'use strict';
 
-const hasWeakSetDefined = typeof WeakSet !== 'undefined';
-const hasWeakMapDefined = typeof WeakMap !== 'undefined';
-
 /**
  * Recycles subtrees from `prevData` by replacing equal subtrees in `nextData`.
+ * Does not mutate a frozen subtree.
  */
 function recycleNodesInto<T>(prevData: T, nextData: T): T {
+  return recycleNodesIntoImpl(prevData, nextData, true);
+}
+
+function recycleNodesIntoImpl<T>(
+  prevData: T,
+  nextData: T,
+  canMutate: boolean,
+): T {
   if (
     prevData === nextData ||
     typeof prevData !== 'object' ||
-    prevData instanceof Set ||
-    prevData instanceof Map ||
-    (hasWeakSetDefined && prevData instanceof WeakSet) ||
-    (hasWeakMapDefined && prevData instanceof WeakMap) ||
     !prevData ||
+    (prevData.constructor !== Object && !Array.isArray(prevData)) ||
     typeof nextData !== 'object' ||
-    nextData instanceof Set ||
-    nextData instanceof Map ||
-    (hasWeakSetDefined && nextData instanceof WeakSet) ||
-    (hasWeakMapDefined && nextData instanceof WeakMap) ||
-    !nextData
+    !nextData ||
+    (nextData.constructor !== Object && !Array.isArray(nextData))
   ) {
     return nextData;
   }
@@ -41,18 +41,17 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
   const prevArray: ?Array<mixed> = Array.isArray(prevData) ? prevData : null;
   const nextArray: ?Array<mixed> = Array.isArray(nextData) ? nextData : null;
   if (prevArray && nextArray) {
+    const canMutateNext = canMutate && !Object.isFrozen(nextArray);
     canRecycle =
       nextArray.reduce((wasEqual, nextItem, ii) => {
         const prevValue = prevArray[ii];
-        const nextValue = recycleNodesInto(prevValue, nextItem);
-        if (nextValue !== nextArray[ii]) {
-          if (__DEV__) {
-            if (!Object.isFrozen(nextArray)) {
-              nextArray[ii] = nextValue;
-            }
-          } else {
-            nextArray[ii] = nextValue;
-          }
+        const nextValue = recycleNodesIntoImpl(
+          prevValue,
+          nextItem,
+          canMutateNext,
+        );
+        if (nextValue !== nextArray[ii] && canMutateNext) {
+          nextArray[ii] = nextValue;
         }
         return wasEqual && nextValue === prevArray[ii];
       }, true) && prevArray.length === nextArray.length;
@@ -62,20 +61,18 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
     const nextObject = nextData;
     const prevKeys = Object.keys(prevObject);
     const nextKeys = Object.keys(nextObject);
+    const canMutateNext = canMutate && !Object.isFrozen(nextObject);
     canRecycle =
       nextKeys.reduce((wasEqual, key) => {
         const prevValue = prevObject[key];
-        const nextValue = recycleNodesInto(prevValue, nextObject[key]);
-        if (nextValue !== nextObject[key]) {
-          if (__DEV__) {
-            if (!Object.isFrozen(nextObject)) {
-              // $FlowFixMe[cannot-write]
-              nextObject[key] = nextValue;
-            }
-          } else {
-            // $FlowFixMe[cannot-write]
-            nextObject[key] = nextValue;
-          }
+        const nextValue = recycleNodesIntoImpl(
+          prevValue,
+          nextObject[key],
+          canMutateNext,
+        );
+        if (nextValue !== nextObject[key] && canMutateNext) {
+          // $FlowFixMe[cannot-write]
+          nextObject[key] = nextValue;
         }
         return wasEqual && nextValue === prevObject[key];
       }, true) && prevKeys.length === nextKeys.length;

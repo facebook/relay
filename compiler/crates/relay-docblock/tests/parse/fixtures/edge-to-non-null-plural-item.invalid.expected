@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -30,8 +31,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Unexpected non-nullable item in list type given in `@edgeTo`.
 
-  /path/to/test/fixture/edge-to-non-null-plural-item.invalid.js:15:12
-   14 │  * @fieldName favorite_page
-   15 │  * @edgeTo [Page!]
+  /path/to/test/fixture/edge-to-non-null-plural-item.invalid.js:16:12
+   15 │  * @fieldName favorite_page
+   16 │  * @edgeTo [Page!]
       │            ^^^^^^^
-   16 │  * @rootFragment myRootFragment
+   17 │  * @rootFragment myRootFragment

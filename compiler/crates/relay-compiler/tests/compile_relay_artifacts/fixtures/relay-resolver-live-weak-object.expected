@@ -53,6 +53,7 @@ extend type Query {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "MyClientType",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,

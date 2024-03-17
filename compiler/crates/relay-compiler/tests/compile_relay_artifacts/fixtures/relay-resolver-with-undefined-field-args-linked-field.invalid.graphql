@@ -1,0 +1,18 @@
+# expected-to-throw
+
+query relayResolverWithUndefinedFieldArgsLinkedFieldQuery {
+  node(id: "SOME_ID") {
+    ...relayResolverWithUndefinedFieldArgsLinkedField_PopStar
+  }
+}
+
+fragment relayResolverWithUndefinedFieldArgsLinkedField_PopStar on User {
+  pop_star(name: $undefined) @waterfall {
+    id
+  }
+}
+# %extensions%
+
+extend type User {
+  pop_star(name: String): User @relay_resolver(import_path: "./path/to/PopStarResolver.js")
+}

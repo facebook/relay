@@ -14,7 +14,7 @@
 /* eslint-disable no-unused-vars */
 
 import type {JSResourceReference} from 'JSResourceReference';
-import type {AbstractComponent, ElementConfig} from 'React';
+import type {AbstractComponent, ElementConfig} from 'react';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -137,9 +137,9 @@ and they will be passed to the EntryPointComponent as `extraProps`
 export type InternalEntryPointRepresentation<
   TEntryPointParams,
   TPreloadedQueries,
-  TPreloadedEntryPoints,
-  TRuntimeProps,
-  TExtraProps,
+  TPreloadedEntryPoints = {...},
+  TRuntimeProps = {...},
+  TExtraProps = null,
 > = $ReadOnly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
@@ -195,8 +195,11 @@ export type PreloadProps<
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{
-  entryPoints?: $ObjMap<TPreloadedEntryPoints, ExtractEntryPointTypeHelper>,
+  entryPoints?: {
+    +[K in keyof TPreloadedEntryPoints]?: ?ThinNestedEntryPointParams,
+  },
   extraProps?: TExtraProps,
+  // $FlowFixMe[deprecated-type]
   queries?: $ObjMap<
     TPreloadedQueries,
     ExtractQueryTypeHelper<TEnvironmentProviderOptions>,
@@ -214,22 +217,23 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
   rootModuleID: string,
 }>;
 
-type _ComponentFromEntryPoint = <
-  TPreloadParams,
-  +TComponent,
-  +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
->(
-  TEntryPoint,
-) => TComponent;
-
-type ComponentFromEntryPoint<+TEntryPoint> = $Call<
-  _ComponentFromEntryPoint,
-  TEntryPoint,
->;
-
-export type EntryPointElementConfig<+TEntryPoint> = ElementConfig<
-  ComponentFromEntryPoint<TEntryPoint>,
->['props'];
+export type EntryPointElementConfig<
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+  +TEntryPoint: InternalEntryPointRepresentation<any, any, any, any, any>,
+> =
+  TEntryPoint extends InternalEntryPointRepresentation<
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+    infer Props,
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+  >
+    ? Props
+    : empty;
 
 export type ThinQueryParams<
   TQuery: OperationType,
@@ -252,10 +256,6 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-export type ExtractEntryPointTypeHelper = <TEntryPointComponent>(
-  ?PreloadedEntryPoint<TEntryPointComponent>,
-) => ?ThinNestedEntryPointParams;
-
 export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<
     TEntryPointParams,
@@ -265,12 +265,7 @@ export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
     ElementConfig<TEntryPointComponent>['extraProps'],
   >;
 
-type ExtractFirstParam = <P, R>((P) => R) => P;
-type GetPreloadPropsType<T> = T['getPreloadProps'];
-export type PreloadParamsOf<T> = $Call<
-  ExtractFirstParam,
-  GetPreloadPropsType<T>,
->;
+export type PreloadParamsOf<T> = Parameters<T['getPreloadProps']>[0];
 
 export type IEnvironmentProvider<TOptions> = {
   getEnvironment: (options: ?TOptions) => IEnvironment,

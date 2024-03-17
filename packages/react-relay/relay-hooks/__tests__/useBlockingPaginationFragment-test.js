@@ -13,7 +13,7 @@
 
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 
-const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
+const useBlockingPaginationFragmentOriginal = require('../legacy/useBlockingPaginationFragment');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -135,7 +135,6 @@ describe('useBlockingPaginationFragment', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<acd2f74261230fa7dadf6bcb2efa7bea>>
+ * @generated SignedSource<<f896cccd81fe9dfbe8d43e725b6cd3f6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {todos as queryTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodos.js";
 // Type assertion validating that `queryTodosResolverType` resolver is correctly implemented.
@@ -94,6 +94,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoConnection",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": (v0/*: any*/),

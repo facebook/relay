@@ -13,7 +13,7 @@
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const {getFragment} = require('../../../relay-runtime');
-const {createFragmentResource} = require('../FragmentResource');
+const {createFragmentResource} = require('../legacy/FragmentResource');
 const {
   createOperationDescriptor,
   createReaderSelector,

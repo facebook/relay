@@ -137,7 +137,8 @@ impl<'a> HashSupportedArgumentTransform<'a> {
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 pub enum HashSupportedArgumentError {
     #[error(
         "Variables cannot be passed to the `supported` argument for data driven dependency fields, please use literal values like `\"ExampleValue\"`."

@@ -114,7 +114,7 @@ fn find_static_argument_names(schema_arguments: &ArgumentDefinitions) -> FnvHash
     schema_arguments
         .iter()
         .filter(|a| has_static_directive(a))
-        .map(|a| a.name)
+        .map(|a| a.name.item)
         .collect()
 }
 

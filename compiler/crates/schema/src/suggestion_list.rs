@@ -232,7 +232,7 @@ impl<'schema> GraphQLSuggestions<'schema> {
                 .input_object(input_id)
                 .fields
                 .iter()
-                .map(|arg| arg.name.0)
+                .map(|arg| arg.name.item.0)
                 .collect(),
             _ => vec![],
         };

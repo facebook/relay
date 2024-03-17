@@ -17,6 +17,7 @@ use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::build_project::get_project_asts;
+use relay_compiler::build_project::BuildMode;
 use relay_compiler::build_project::ProjectAstData;
 use relay_compiler::build_project::ProjectAsts;
 use relay_compiler::build_raw_program;
@@ -37,6 +38,7 @@ use relay_compiler::GraphQLAsts;
 use relay_compiler::ProjectName;
 use relay_compiler::SourceControlUpdateStatus;
 use schema::SDLSchema;
+use schema_diff::check::SchemaChangeSafety;
 use schema_documentation::SchemaDocumentation;
 use tokio::task;
 use tokio::task::JoinHandle;
@@ -240,6 +242,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
                 &compiler_state.get_dirty_artifact_sources(&self.lsp_state.config),
+                &self.lsp_state.config,
             )
         })?;
 
@@ -385,26 +388,83 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), BuildProjectFailure> {
-        let is_incremental_build = self
+        let mut build_mode = if !self
             .lsp_state
             .source_programs
             .contains_key(&project_config.name.into())
-            && compiler_state.has_processed_changes()
-            && !compiler_state
-                .has_breaking_schema_change(project_config.name, &project_config.schema_config)
-            && if let Some(base) = project_config.base {
-                !compiler_state.has_breaking_schema_change(base, &project_config.schema_config)
+            || !compiler_state.has_processed_changes()
+        {
+            BuildMode::Full
+        } else {
+            let project_schema_change = compiler_state.schema_change_safety(
+                log_event,
+                project_config.name,
+                &project_config.schema_config,
+            );
+            match project_schema_change {
+                SchemaChangeSafety::Unsafe => BuildMode::Full,
+                SchemaChangeSafety::Safe | SchemaChangeSafety::SafeWithIncrementalBuild(_) => {
+                    let base_schema_change = if let Some(base) = project_config.base {
+                        compiler_state.schema_change_safety(
+                            log_event,
+                            base,
+                            &project_config.schema_config,
+                        )
+                    } else {
+                        SchemaChangeSafety::Safe
+                    };
+                    match (project_schema_change, base_schema_change) {
+                        (SchemaChangeSafety::Unsafe, _) => BuildMode::Full,
+                        (_, SchemaChangeSafety::Unsafe) => BuildMode::Full,
+                        (SchemaChangeSafety::Safe, SchemaChangeSafety::Safe) => {
+                            BuildMode::Incremental
+                        }
+                        (
+                            SchemaChangeSafety::SafeWithIncrementalBuild(c),
+                            SchemaChangeSafety::Safe,
+                        ) => BuildMode::IncrementalWithSchemaChanges(c),
+                        (
+                            SchemaChangeSafety::Safe,
+                            SchemaChangeSafety::SafeWithIncrementalBuild(c),
+                        ) => BuildMode::IncrementalWithSchemaChanges(c),
+                        (
+                            SchemaChangeSafety::SafeWithIncrementalBuild(c1),
+                            SchemaChangeSafety::SafeWithIncrementalBuild(c2),
+                        ) => BuildMode::IncrementalWithSchemaChanges(
+                            c1.into_iter().chain(c2).collect(),
+                        ),
+                    }
+                }
+            }
+        };
+        if !self.lsp_state.config.has_schema_change_incremental_build {
+            // Killswitch here to bail out of schema based incremental builds
+            build_mode = if let BuildMode::IncrementalWithSchemaChanges(_) = build_mode {
+                BuildMode::Full
             } else {
-                true
-            };
+                build_mode
+            }
+        }
+        log_event.bool(
+            "is_incremental_build",
+            match build_mode {
+                BuildMode::Incremental | BuildMode::IncrementalWithSchemaChanges(_) => true,
+                BuildMode::Full => false,
+            },
+        );
+        log_event.string(
+            "build_mode",
+            match build_mode {
+                BuildMode::Full => String::from("Full"),
+                BuildMode::Incremental => String::from("Incremental"),
+                BuildMode::IncrementalWithSchemaChanges(_) => {
+                    String::from("IncrementalWithSchemaChanges")
+                }
+            },
+        );
 
-        let (base_program, _) = build_raw_program(
-            project_config,
-            project_asts,
-            schema,
-            log_event,
-            is_incremental_build,
-        )?;
+        let (base_program, _) =
+            build_raw_program(project_config, project_asts, schema, log_event, build_mode)?;
 
         if compiler_state.should_cancel_current_build() {
             debug!("Build is cancelled: updates in source code/or new file changes are pending.");
@@ -426,12 +486,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         .iter()
                         .filter_map(|artifact_source| match artifact_source {
                             ArtifactSourceKey::ExecutableDefinition(name) => Some(*name),
-                            // For the resolver case, we don't really need to track removed resolver definitions
-                            // here, as the documents for resolves are not accessible for the user
-                            // in the LSP program. We only care about unused fragments/operations
-                            // that are editable by the user.
-                            // We also don't write artifacts from LSP so it is safe to skip these here.
-                            ArtifactSourceKey::ResolverHash(_) => None,
+                            ArtifactSourceKey::Schema() | ArtifactSourceKey::ResolverHash(_) => {
+                                // In the LSP program, we only care about tracking user-editable ExecutableDefinitions
+                                None
+                            }
                         })
                         .collect::<Vec<_>>()
                 });

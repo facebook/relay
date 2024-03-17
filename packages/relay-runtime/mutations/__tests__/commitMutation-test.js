@@ -1169,7 +1169,7 @@ describe('Required mutation roots', () => {
       mutation commitMutationTestRequiredRootFieldMutation(
         $input: CommentDeleteInput
       ) {
-        commentDelete(input: $input) @required(action: THROW) {
+        commentDelete(input: $input) {
           deletedCommentId
         }
       }

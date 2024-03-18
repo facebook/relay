@@ -569,7 +569,9 @@ fn write_relay_resolver_imports(
                 )?;
             }
         }
-        writer.write(&resolver.resolver_type)?;
+        if let AST::AssertFunctionType(_) = &resolver.resolver_type {
+            writer.write(&resolver.resolver_type)?;
+        }
     }
     Ok(())
 }

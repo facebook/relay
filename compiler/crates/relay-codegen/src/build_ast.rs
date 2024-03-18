@@ -1281,19 +1281,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     ) -> Vec<ObjectEntry> {
         model_resolvers
             .iter()
-            .filter_map(|model_resolver| {
-                if model_resolver.has_model_instance_field {
-                    let type_name = model_resolver.type_name.item.0;
-                    Some(ObjectEntry {
-                        key: type_name,
-                        value: self.build_client_edge_model_resolver(
-                            model_resolver.type_name,
-                            model_resolver.is_live,
-                            relay_resolver_metadata,
-                        ),
-                    })
-                } else {
-                    None
+            .map(|model_resolver| {
+                let type_name = model_resolver.type_name.item.0;
+                ObjectEntry {
+                    key: type_name,
+                    value: self.build_client_edge_model_resolver(
+                        model_resolver.type_name,
+                        model_resolver.is_live,
+                        relay_resolver_metadata,
+                    ),
                 }
             })
             .collect()
@@ -1803,19 +1799,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         } else {
                             None
                         }
-                    });
-                    let client_edge_model_resolvers = if let Some(model_resolver_field) = model_resolver_field {
-                        Primitive::Key(model_resolver_field)
-                    } else {
-                        Primitive::Null
-                    };
-                    Primitive::Key(self.object(object! {
-                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                        concrete_type: concrete_type,
-                        client_edge_model_resolvers: client_edge_model_resolvers,
-                        client_edge_backing_field_key: backing_field,
-                        client_edge_selections_key: selections_item,
-                    }))
+                        });
+                        let client_edge_model_resolvers = if let Some(model_resolver_field) = model_resolver_field {
+                            Primitive::Key(model_resolver_field)
+                        } else {
+                            Primitive::Null
+                        };
+                        Primitive::Key(self.object(object! {
+                            kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                            concrete_type: concrete_type,
+                            client_edge_model_resolvers: client_edge_model_resolvers,
+                            client_edge_backing_field_key: backing_field,
+                            client_edge_selections_key: selections_item,
+                        }))
                 }
             }
         };

@@ -19,6 +19,7 @@ use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
+use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
@@ -90,7 +91,6 @@ associated_data_impl!(ClientEdgeMetadataDirective);
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ClientEdgeModelResolver {
     pub type_name: WithLocation<ObjectName>,
-    pub has_model_instance_field: bool,
     pub is_live: bool,
 }
 
@@ -383,7 +383,22 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 }
                 let mut model_resolvers: Vec<ClientEdgeModelResolver> = implementing_objects
                     .iter()
-                    .map(|object_id| self.get_client_edge_model_resolver_for_object(*object_id))
+                    .filter_map(|object_id| {
+                        let model_resolver = self.get_client_edge_model_resolver_for_object(*object_id);
+                        model_resolver.or_else(|| {
+                            if !self.is_weak_type(*object_id) && self.is_resolver_type(*object_id) {
+                                let model_name = self.program.schema.object(*object_id).name;
+                                self.errors.push(Diagnostic::error(
+                                    ValidationMessage::ClientEdgeToClientInterfaceImplementingObjectMissingModelResolver {
+                                        interface_name: interface.name.item,
+                                        type_name: model_name.item,
+                                    },
+                                    model_name.location,
+                                ));
+                            }
+                            None
+                        })
+                    })
                     .collect();
                 model_resolvers.sort();
                 Some(ClientEdgeMetadataDirective::ClientObject {
@@ -402,10 +417,12 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             }
             Type::Object(object_id) => {
                 let type_name = self.program.schema.object(object_id).name.item;
-                let model_resolver = self.get_client_edge_model_resolver_for_object(object_id);
+                let model_resolvers = self
+                    .get_client_edge_model_resolver_for_object(object_id)
+                    .map_or(vec![], |model_resolver| vec![model_resolver]);
                 Some(ClientEdgeMetadataDirective::ClientObject {
                     type_name: Some(type_name),
-                    model_resolvers: vec![model_resolver],
+                    model_resolvers,
                     unique_id: self.get_key(),
                 })
             }
@@ -415,36 +432,47 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         }
     }
 
+    fn is_weak_type(&self, object_id: ObjectID) -> bool {
+        let object = self.program.schema.object(object_id);
+        object
+            .directives
+            .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
+            .is_some()
+    }
+
+    fn is_resolver_type(&self, object_id: ObjectID) -> bool {
+        let object = self.program.schema.object(object_id);
+        object
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .is_some()
+    }
+
     fn get_client_edge_model_resolver_for_object(
         &mut self,
         object_id: ObjectID,
-    ) -> ClientEdgeModelResolver {
+    ) -> Option<ClientEdgeModelResolver> {
         let type_name = self.program.schema.object(object_id).name;
-        let parent_type = self.program.schema.get_type(type_name.item.0).unwrap();
+        let model_type = self.program.schema.get_type(type_name.item.0).unwrap();
         let model_field_id = self
             .program
             .schema
-            .named_field(parent_type, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
-        // Note: is_live is only true if the __relay_model_instance field exists on the model field
-        let is_live = if let Some(id) = model_field_id {
-            let model_field = self.program.schema.field(id);
-            let resolver_directive = model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
-            if let Some(resolver_directive) = resolver_directive {
-                resolver_directive
-                    .arguments
-                    .iter()
-                    .any(|arg| arg.name.0 == LIVE_ARGUMENT_NAME.0)
-            } else {
-                false
-            }
-        } else {
-            false
-        };
-        ClientEdgeModelResolver {
-            type_name,
-            has_model_instance_field: model_field_id.is_some(),
-            is_live,
+            .named_field(model_type, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
+        // Legacy models (using verbose resolver syntax) do not have a __relay_model_instance field
+        if self.is_weak_type(object_id) {
+            return None;
         }
+        let id = model_field_id?;
+        // Note: is_live is only true if the __relay_model_instance field exists on the model field
+        let model_field = self.program.schema.field(id);
+        let resolver_directive = model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
+        let is_live = resolver_directive.map_or(false, |resolver_directive| {
+            resolver_directive
+                .arguments
+                .iter()
+                .any(|arg| arg.name.0 == LIVE_ARGUMENT_NAME.0)
+        });
+        Some(ClientEdgeModelResolver { type_name, is_live })
     }
 
     fn get_edge_to_server_object_metadata_directive(

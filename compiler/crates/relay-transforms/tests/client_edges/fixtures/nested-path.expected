@@ -38,18 +38,7 @@ fragment Foo_user on ClientUser {
   #         ),
   #     ),
   #     unique_id: 1,
-  #     model_resolvers: [
-  #         ClientEdgeModelResolver {
-  #             type_name: WithLocation {
-  #                 location: <generated>:7:17,
-  #                 item: ObjectName(
-  #                     "ClientUser",
-  #                 ),
-  #             },
-  #             has_model_instance_field: false,
-  #             is_live: false,
-  #         },
-  #     ],
+  #     model_resolvers: [],
   # }
    {
     ...BestFriendFragment @__RelayResolverMetadata
@@ -74,18 +63,7 @@ fragment Foo_user on ClientUser {
       #         ),
       #     ),
       #     unique_id: 0,
-      #     model_resolvers: [
-      #         ClientEdgeModelResolver {
-      #             type_name: WithLocation {
-      #                 location: <generated>:7:17,
-      #                 item: ObjectName(
-      #                     "ClientUser",
-      #                 ),
-      #             },
-      #             has_model_instance_field: false,
-      #             is_live: false,
-      #         },
-      #     ],
+      #     model_resolvers: [],
       # }
        {
         ...BestFriendFragment @__RelayResolverMetadata

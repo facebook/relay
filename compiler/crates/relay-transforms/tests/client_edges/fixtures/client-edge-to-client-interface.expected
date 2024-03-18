@@ -20,6 +20,7 @@ interface ClientOnlyInterface implements Node {
 # Add a concrete type so that we don't trigger an unrelated compiler error.
 type BestFriend implements ClientOnlyInterface {
   id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
 }
 
 extend type User {
@@ -43,7 +44,6 @@ fragment Foo_user on User {
   #                     "BestFriend",
   #                 ),
   #             },
-  #             has_model_instance_field: false,
   #             is_live: false,
   #         },
   #     ],
@@ -51,7 +51,7 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(525),
+    #     field_id: FieldID(526),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,

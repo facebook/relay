@@ -1,0 +1,41 @@
+#
+query Q1 {
+  me {
+    ...F1
+    ...F2
+  }
+}
+
+fragment F1 on User {
+  userTestObj {
+    field1
+    field2
+  }
+}
+
+fragment F2 on User {
+  name
+}
+
+query QUnrelated {
+  me {
+    ...F2
+    ...F3
+  }
+}
+
+fragment F3 on User {
+  alternate_name
+}
+
+%extensions%
+# Object: TestObj
+
+type TestObj {
+  field1: String
+  field2: Int
+}
+
+extend type User {
+    userTestObj: TestObj
+}

@@ -1,0 +1,48 @@
+#
+query Q1 {
+  me {
+    fieldA {
+      A1
+    }
+  }
+}
+
+query Q2 {
+  me {
+    fieldI {
+      field1
+    }
+  }
+}
+
+query Q3 {
+  me {
+    fieldI {
+      field1
+      ... on A {
+        A1
+      }
+    }
+  }
+}
+
+fragment F1 on I {
+  field1
+}
+
+%extensions%
+# Object: A
+# Interface: I
+
+interface I {
+  field1: String
+}
+type A implements I {
+  A1: String
+  field1: String
+}
+
+extend type User {
+  fieldA: A
+  fieldI: I
+}

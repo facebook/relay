@@ -9,6 +9,7 @@ use std::collections::HashSet;
 
 use graphql_ir::*;
 use rustc_hash::FxHashSet;
+use schema::definitions::Type;
 use schema::SDLSchema;
 use schema::Schema;
 use schema_diff::check::IncrementalBuildSchemaChange;
@@ -66,18 +67,41 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
             }
         }
     }
-}
 
-impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
-    const NAME: &'static str = "DependencyAnalyzerSchemaChangeDefinitionFinder";
-    const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
-
-    fn visit_scalar_field(&mut self, field: &ScalarField) {
-        let id = field.definition.item;
-        let type_ = self.schema.field(id).type_.inner();
+    fn add_type_changes(&mut self, type_: Type) {
         match type_ {
-            schema::definitions::Type::Enum(id) => {
+            Type::Object(id) => {
+                let object_type = self.schema.object(id);
+                let key = object_type.name.item.0;
+                if self
+                    .schema_changes
+                    .contains(&IncrementalBuildSchemaChange::Object(key))
+                {
+                    self.changed_definitions
+                        .insert(self.get_name_from_executable());
+                }
+            }
+            Type::Union(id) => {
+                let union_name = self.schema.union(id).name.item.0;
+                if self
+                    .schema_changes
+                    .contains(&IncrementalBuildSchemaChange::Union(union_name))
+                {
+                    self.changed_definitions
+                        .insert(self.get_name_from_executable());
+                }
+            }
+            Type::Interface(id) => {
+                let interface_name = self.schema.interface(id).name.item.0;
+                if self
+                    .schema_changes
+                    .contains(&IncrementalBuildSchemaChange::Interface(interface_name))
+                {
+                    self.changed_definitions
+                        .insert(self.get_name_from_executable());
+                }
+            }
+            Type::Enum(id) => {
                 let enum_type = self.schema.enum_(id);
                 let key = enum_type.name.item.0;
                 if self
@@ -88,9 +112,39 @@ impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
                         .insert(self.get_name_from_executable());
                 }
             }
-            // We only care about enum fields at the moment. As more changes can be handled,
-            // they should be added here
-            _ => (),
+            Type::InputObject(_) | Type::Scalar(_) => (),
         }
+    }
+}
+
+impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
+    const NAME: &'static str = "DependencyAnalyzerSchemaChangeDefinitionFinder";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn visit_linked_field(&mut self, field: &LinkedField) {
+        let id = field.definition.item;
+        let type_ = self.schema.field(id).type_.inner();
+        self.add_type_changes(type_);
+        self.default_visit_linked_field(field);
+    }
+
+    fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
+        self.add_type_changes(fragment.type_condition);
+        self.default_visit_fragment(fragment);
+    }
+
+    fn visit_inline_fragment(&mut self, fragment: &InlineFragment) {
+        if let Some(type_) = fragment.type_condition {
+            self.add_type_changes(type_);
+        }
+        self.default_visit_inline_fragment(fragment);
+    }
+
+    fn visit_scalar_field(&mut self, field: &ScalarField) {
+        let id = field.definition.item;
+        let type_ = self.schema.field(id).type_.inner();
+        self.add_type_changes(type_);
+        self.default_visit_scalar_field(field);
     }
 }

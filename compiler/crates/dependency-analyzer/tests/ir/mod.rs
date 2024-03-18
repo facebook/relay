@@ -53,6 +53,21 @@ fn parse_schema_changes(extension_content: &str) -> FxHashSet<IncrementalBuildSc
                     changes.insert(IncrementalBuildSchemaChange::Enum(key));
                 }
             }
+            "Object" => {
+                for key in changed_names {
+                    changes.insert(IncrementalBuildSchemaChange::Object(key));
+                }
+            }
+            "Union" => {
+                for key in changed_names {
+                    changes.insert(IncrementalBuildSchemaChange::Union(key));
+                }
+            }
+            "Interface" => {
+                for key in changed_names {
+                    changes.insert(IncrementalBuildSchemaChange::Interface(key));
+                }
+            }
             _ => panic!(
                 "Included an incremental change for a schema type that does not have incremental builds"
             ),

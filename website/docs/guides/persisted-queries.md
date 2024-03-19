@@ -48,7 +48,7 @@ In your relay configiration section in `package.json` you'll need specify
 }
 ```
 
-Specifiying `persistConfig` in the config will do the following:
+Specifying `persistConfig` in the config will do the following:
 
 1.  It converts all query and mutation operation texts to md5 hashes.
 

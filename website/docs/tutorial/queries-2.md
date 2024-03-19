@@ -234,7 +234,7 @@ You might be wondering why GraphQL even has the concept of variables, instead of
 
 ## Preloaded Queries
 
-This example app is very simple, so performance isn't an issue. (In fact, the server is artifically slowed down in order to make loading states perceptible.) However, one of Relay's main concerns is to make performance as fast as possible in real apps.
+This example app is very simple, so performance isn't an issue. (In fact, the server is artificially slowed down in order to make loading states perceptible.) However, one of Relay's main concerns is to make performance as fast as possible in real apps.
 
 Right now, the hovercard uses the `useLazyLoadQuery` hook, which fetches the query when the component is rendered. That means the timeline looks something like this:
 

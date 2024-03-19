@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::hash::Hash;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -55,6 +56,7 @@ use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 use schema::EnumID;
 use schema::Field;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::ScalarID;
 use schema::Schema;
@@ -388,6 +390,67 @@ fn generate_resolver_type(
     })
 }
 
+fn add_model_argument_for_interface_resolver(
+    resolver_arguments: &mut Vec<KeyValuePairProp>,
+    implementing_objects: HashSet<ObjectID>,
+    typegen_context: &TypegenContext<'_>,
+    imported_resolvers: &mut ImportedResolvers,
+) {
+    for object_id in implementing_objects.iter().sorted() {
+        let type_name_with_location = typegen_context.schema.object(*object_id).name;
+        let type_name = type_name_with_location.item.0;
+        let import_alias =
+            resolver_type_import_alias(type_name, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
+        let model_import_path = &PathBuf::from(
+            type_name_with_location
+                .location
+                .source_location()
+                .path()
+                .intern()
+                .lookup(),
+        );
+        let model_name = ImportedResolverName::Named {
+            name: type_name,
+            import_as: import_alias,
+        };
+        let import_path = typegen_context.project_config.js_module_import_identifier(
+            &typegen_context
+                .project_config
+                .artifact_path_for_definition(typegen_context.definition_source_location),
+            model_import_path,
+        );
+        let imported_model = ImportedResolver {
+            resolver_name: model_name,
+            resolver_type: AST::ReturnTypeOfFunctionWithName(type_name),
+            import_path,
+        };
+        imported_resolvers
+            .0
+            .entry(type_name)
+            .or_insert(imported_model);
+    }
+    let object_names: SortedASTList = SortedASTList::new(
+        implementing_objects
+            .iter()
+            .map(|object_id| {
+                let object = typegen_context.schema.object(*object_id);
+                let import_alias = resolver_type_import_alias(
+                    object.name.item.0,
+                    *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
+                );
+                AST::ReturnTypeOfFunctionWithName(import_alias)
+            })
+            .collect(),
+    );
+    let interface_union_type = AST::Union(object_names);
+    resolver_arguments.push(KeyValuePairProp {
+        key: "model".intern(),
+        optional: false,
+        read_only: false,
+        value: interface_union_type,
+    });
+}
+
 #[allow(clippy::too_many_arguments)]
 fn get_resolver_arguments(
     fragment_name: Option<FragmentDefinitionName>,
@@ -405,59 +468,23 @@ fn get_resolver_arguments(
         let interface = typegen_context.schema.interface(interface_id);
         let implementing_objects =
             interface.recursively_implementing_objects(typegen_context.schema);
-        for object_id in implementing_objects.iter().sorted() {
-            let type_name_with_location = typegen_context.schema.object(*object_id).name;
-            let type_name = type_name_with_location.item.0;
-            let import_alias =
-                resolver_type_import_alias(type_name, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
-            let model_import_path = &PathBuf::from(
-                type_name_with_location
-                    .location
-                    .source_location()
-                    .path()
-                    .intern()
-                    .lookup(),
-            );
-            let model_name = ImportedResolverName::Named {
-                name: type_name,
-                import_as: import_alias,
-            };
-            let import_path = typegen_context.project_config.js_module_import_identifier(
-                &typegen_context
-                    .project_config
-                    .artifact_path_for_definition(typegen_context.definition_source_location),
-                model_import_path,
-            );
-            let imported_model = ImportedResolver {
-                resolver_name: model_name,
-                resolver_type: AST::ReturnTypeOfFunctionWithName(type_name),
-                import_path,
-            };
-            imported_resolvers
-                .0
-                .entry(type_name)
-                .or_insert(imported_model);
-        }
-        let object_names = SortedASTList::new(
-            implementing_objects
-                .iter()
-                .map(|object_id| {
-                    let object = typegen_context.schema.object(*object_id);
-                    let import_alias = resolver_type_import_alias(
-                        object.name.item.0,
-                        *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
-                    );
-                    AST::ReturnTypeOfFunctionWithName(import_alias)
-                })
-                .collect(),
-        );
-        let interface_union_type = AST::Union(object_names);
-        resolver_arguments.push(KeyValuePairProp {
-            key: "model".intern(),
-            optional: false,
-            read_only: false,
-            value: interface_union_type,
+        let should_add_model_argument = implementing_objects.iter().all(|object_id| {
+            typegen_context
+                .schema
+                .named_field(
+                    Type::Object(*object_id),
+                    *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
+                )
+                .is_some()
         });
+        if should_add_model_argument {
+            add_model_argument_for_interface_resolver(
+                &mut resolver_arguments,
+                implementing_objects,
+                typegen_context,
+                imported_resolvers,
+            )
+        }
     }
     if let Some(fragment_name) = fragment_name {
         if let Some((fragment_name, injection_mode)) =

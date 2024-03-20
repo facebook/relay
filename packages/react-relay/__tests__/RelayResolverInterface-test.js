@@ -14,12 +14,8 @@
 import type {RelayResolverInterfaceTestAnimalLegsFragment$key} from './__generated__/RelayResolverInterfaceTestAnimalLegsFragment.graphql';
 
 const React = require('react');
-const {
-  RelayEnvironmentProvider,
-  useClientQuery,
-  useFragment: useFragment_LEGACY,
-} = require('react-relay');
-const useFragment = require('react-relay/relay-hooks/useFragment');
+const {useFragment} = require('react-relay');
+const {RelayEnvironmentProvider, useClientQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -59,79 +55,74 @@ function EnvironmentWrapper({
   );
 }
 
-describe.each([
-  ['New', useFragment],
-  ['Legacy', useFragment_LEGACY],
-])('Hook implementation: %s', (_hookName, useFragment) => {
-  let environment;
-  let store;
-  beforeEach(() => {
-    store = new LiveResolverStore(RelayRecordSource.create(), {});
-    environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(jest.fn()),
-      store,
-    });
+let environment;
+let store;
+beforeEach(() => {
+  store = new LiveResolverStore(RelayRecordSource.create(), {});
+  environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
   });
+});
 
-  function AnimalLegsComponent(props: {
-    animal: ?RelayResolverInterfaceTestAnimalLegsFragment$key,
-  }) {
-    const data = useFragment(
+function AnimalLegsComponent(props: {
+  animal: ?RelayResolverInterfaceTestAnimalLegsFragment$key,
+}) {
+  const data = useFragment(
+    graphql`
+      fragment RelayResolverInterfaceTestAnimalLegsFragment on IAnimal {
+        legs
+      }
+    `,
+    props.animal,
+  );
+  return data?.legs;
+}
+
+test('should read the legs of a cat', () => {
+  function CatLegsRootComponent() {
+    const data = useClientQuery(
       graphql`
-        fragment RelayResolverInterfaceTestAnimalLegsFragment on IAnimal {
-          legs
+        query RelayResolverInterfaceTestCatLegsQuery {
+          cat {
+            ...RelayResolverInterfaceTestAnimalLegsFragment
+          }
         }
       `,
-      props.animal,
+      {},
     );
-    return data.legs;
+
+    return <AnimalLegsComponent animal={data.cat} />;
   }
 
-  test('should read the legs of a cat', () => {
-    function CatLegsRootComponent() {
-      const data = useClientQuery(
-        graphql`
-          query RelayResolverInterfaceTestCatLegsQuery {
-            cat {
-              ...RelayResolverInterfaceTestAnimalLegsFragment
-            }
+  const renderer = TestRenderer.create(
+    <EnvironmentWrapper environment={environment}>
+      <CatLegsRootComponent />
+    </EnvironmentWrapper>,
+  );
+  expect(renderer.toJSON()).toEqual('4');
+});
+
+test('should read the legs of a fish', () => {
+  function FishLegsRootComponent() {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolverInterfaceTestFishLegsQuery {
+          fish {
+            ...RelayResolverInterfaceTestAnimalLegsFragment
           }
-        `,
-        {},
-      );
-
-      return <AnimalLegsComponent animal={data.cat} />;
-    }
-
-    const renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <CatLegsRootComponent />
-      </EnvironmentWrapper>,
+        }
+      `,
+      {},
     );
-    expect(renderer.toJSON()).toEqual('4');
-  });
 
-  test('should read the legs of a fish', () => {
-    function FishLegsRootComponent() {
-      const data = useClientQuery(
-        graphql`
-          query RelayResolverInterfaceTestFishLegsQuery {
-            fish {
-              ...RelayResolverInterfaceTestAnimalLegsFragment
-            }
-          }
-        `,
-        {},
-      );
+    return <AnimalLegsComponent animal={data.fish} />;
+  }
 
-      return <AnimalLegsComponent animal={data.fish} />;
-    }
-
-    const renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <FishLegsRootComponent />
-      </EnvironmentWrapper>,
-    );
-    expect(renderer.toJSON()).toEqual('0');
-  });
+  const renderer = TestRenderer.create(
+    <EnvironmentWrapper environment={environment}>
+      <FishLegsRootComponent />
+    </EnvironmentWrapper>,
+  );
+  expect(renderer.toJSON()).toEqual('0');
 });

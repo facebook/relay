@@ -72,7 +72,7 @@ impl SchemaChange {
         let mut needs_incremental_build: FxHashSet<IncrementalBuildSchemaChange> =
             HashSet::default();
         match self {
-            SchemaChange::None => SchemaChangeSafety::Unsafe,
+            SchemaChange::None => SchemaChangeSafety::Safe,
             SchemaChange::GenericChange => SchemaChangeSafety::Unsafe,
             SchemaChange::InvalidSchema => SchemaChangeSafety::Unsafe,
             SchemaChange::DefinitionChanges(changes) => {

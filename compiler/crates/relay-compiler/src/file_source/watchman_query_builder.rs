@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::borrow::Cow;
+use std::path::Path;
 use std::path::PathBuf;
 
 use relay_typegen::TypegenLanguage;
@@ -42,7 +44,7 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                     }),
                     // In the related source root.
                     Expr::DirName(DirNameTerm {
-                        path: path.clone(),
+                        path: normalize_separators(path),
                         depth: None,
                     }),
                 ])
@@ -192,7 +194,12 @@ fn expr_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
     expr_any(
         roots
             .into_iter()
-            .map(|path| Expr::DirName(DirNameTerm { path, depth: None }))
+            .map(|path| {
+                Expr::DirName(DirNameTerm {
+                    path: normalize_separators(path),
+                    depth: None,
+                })
+            })
             .collect(),
     )
 }
@@ -237,6 +244,49 @@ fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
     roots
 }
 
+/// Takes a [PathBuf] or [&Path](Path) and returns an owned version of the
+/// underlying path with all separators normalized to forward-slashes.
+///
+/// Watchman expects the `path` argument of a `dirname` expression to use
+/// forward-slash path separators on all platforms. Since operations on [Path]
+/// (such as `join`) use the platform-specific path separator for portability,
+/// this function can be used to normalize a path before sending it to Watchman
+/// to ensure it will be properly parsed.
+fn normalize_separators<'a, P>(path: P) -> PathBuf
+where
+    Cow<'a, Path>: From<P>,
+{
+    let path = Cow::from(path);
+
+    let normalized_path = path.to_str().and_then(|path| {
+        // Early abort if no backslash is found in the entire path
+        let index = path.find('\\')?;
+        let (prefix, rest) = path.split_at(index);
+
+        let mut result = prefix.to_string();
+        result.push('/');
+
+        let mut rest = &rest[1..];
+
+        while let Some(index) = rest.find('\\') {
+            let (start, end) = rest.split_at(index);
+
+            result.push_str(start);
+            result.push('/');
+
+            rest = &end[1..];
+        }
+
+        result.push_str(rest);
+        Some(result)
+    });
+
+    match normalized_path {
+        Some(path) => path.into(),
+        None => path.into_owned(),
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -259,6 +309,23 @@ mod test {
         assert_eq!(
             unify_roots(vec!["Foo".into(), "Foo2".into()]),
             &[PathBuf::from("Foo"), PathBuf::from("Foo2"),]
+        );
+    }
+
+    #[test]
+    fn test_normalize_separators() {
+        assert_eq!(
+            normalize_separators(PathBuf::from("a/b")),
+            PathBuf::from("a/b")
+        );
+        assert_eq!(
+            normalize_separators(PathBuf::from("a\\b")),
+            PathBuf::from("a/b")
+        );
+        assert_eq!(normalize_separators(Path::new("a/b")), PathBuf::from("a/b"));
+        assert_eq!(
+            normalize_separators(Path::new("a\\b")),
+            PathBuf::from("a/b")
         );
     }
 }

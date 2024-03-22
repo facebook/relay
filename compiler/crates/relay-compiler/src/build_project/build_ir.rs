@@ -8,6 +8,7 @@
 use std::collections::HashSet;
 
 use common::Diagnostic;
+use common::PerfLogEvent;
 use dependency_analyzer::get_reachable_ir;
 use fnv::FnvHashMap;
 use graphql_ir::ExecutableDefinitionName;
@@ -57,6 +58,7 @@ pub fn build_ir(
     project_asts: ProjectAsts,
     schema: &SDLSchema,
     build_mode: BuildMode,
+    log_event: &impl PerfLogEvent,
 ) -> Result<BuildIRResult, Vec<Diagnostic>> {
     let asts = project_asts.definitions;
     let source_hashes = SourceHashes::from_definitions(&asts);
@@ -64,13 +66,14 @@ pub fn build_ir(
     if project_config.resolvers_schema_module.is_some() {
         ir = annotate_resolver_root_fragments(schema, ir);
     }
-    let affected_ir = match build_mode {
+    let affected_ir: Vec<graphql_ir::ExecutableDefinition> = match build_mode {
         BuildMode::Incremental => get_reachable_ir(
             ir,
             project_asts.base_definition_names,
             project_asts.changed_names,
             schema,
             HashSet::default(),
+            log_event,
         ),
         BuildMode::IncrementalWithSchemaChanges(changes) => get_reachable_ir(
             ir,
@@ -78,6 +81,7 @@ pub fn build_ir(
             project_asts.changed_names,
             schema,
             changes,
+            log_event,
         ),
         BuildMode::Full => ir,
     };

@@ -9,6 +9,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::fmt;
 
+use common::PerfLogEvent;
 use graphql_ir::*;
 use relay_transforms::get_resolver_fragment_dependency_name;
 use rustc_hash::FxHashMap;
@@ -52,42 +53,47 @@ pub fn get_reachable_ir(
     changed_names: ExecutableDefinitionNameSet,
     schema: &SDLSchema,
     schema_changes: FxHashSet<check::IncrementalBuildSchemaChange>,
+    log_event: &impl PerfLogEvent,
 ) -> Vec<ExecutableDefinition> {
-    if changed_names.is_empty() && schema_changes.is_empty() {
-        return vec![];
-    }
+    let timer = log_event.start("get_reachable_ir_time");
+    let result = if changed_names.is_empty() && schema_changes.is_empty() {
+        vec![]
+    } else {
+        let mut all_changed_names: ExecutableDefinitionNameSet =
+            schema_change_analyzer::get_affected_definitions(schema, &definitions, schema_changes);
+        all_changed_names.extend(changed_names);
 
-    let mut all_changed_names: ExecutableDefinitionNameSet =
-        schema_change_analyzer::get_affected_definitions(schema, &definitions, schema_changes);
-    all_changed_names.extend(changed_names);
+        // For each executable definition, define a `Node` indicating its parents and children
+        // Note: There are situations where a name in `changed_names` may not appear
+        // in `definitions`, and thus would be missing from `dependency_graph`. This can arise
+        // if you change a file which contains a fragment which is present in the
+        // base project, but is not reachable from any of the project's own
+        // queries/mutations.
+        let dependency_graph = build_dependency_graph(schema, definitions);
 
-    // For each executable definition, define a `Node` indicating its parents and children
-    // Note: There are situations where a name in `changed_names` may not appear
-    // in `definitions`, and thus would be missing from `dependency_graph`. This can arise
-    // if you change a file which contains a fragment which is present in the
-    // base project, but is not reachable from any of the project's own
-    // queries/mutations.
-    let dependency_graph = build_dependency_graph(schema, definitions);
+        let mut visited = Default::default();
+        let mut filtered_definitions = Default::default();
 
-    let mut visited = Default::default();
-    let mut filtered_definitions = Default::default();
-
-    for key in all_changed_names.into_iter() {
-        if dependency_graph.contains_key(&key) {
-            add_related_nodes(
-                &mut visited,
-                &mut filtered_definitions,
-                &dependency_graph,
-                &base_definition_names,
-                key,
-            );
+        for key in all_changed_names.into_iter() {
+            if dependency_graph.contains_key(&key) {
+                add_related_nodes(
+                    &mut visited,
+                    &mut filtered_definitions,
+                    &dependency_graph,
+                    &base_definition_names,
+                    key,
+                );
+            }
         }
-    }
 
-    filtered_definitions
-        .drain()
-        .map(|(_, definition)| definition)
-        .collect()
+        filtered_definitions
+            .drain()
+            .map(|(_, definition)| definition)
+            .collect()
+    };
+
+    log_event.stop(timer);
+    result
 }
 
 // Build a dependency graph of that nodes are "doubly linked"

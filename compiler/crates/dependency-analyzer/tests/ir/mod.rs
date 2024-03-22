@@ -8,6 +8,7 @@
 use std::collections::HashSet;
 use std::sync::Arc;
 
+use common::NoopPerfLoggerEvent;
 use common::SourceLocationKey;
 use dependency_analyzer::*;
 use fixture_tests::Fixture;
@@ -143,6 +144,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         changed_names,
         &schema,
         schema_changes,
+        &NoopPerfLoggerEvent,
     );
 
     let mut texts = result

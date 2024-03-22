@@ -125,12 +125,12 @@ pub fn build_raw_program(
 ) -> Result<(Program, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
     let BuildIRResult { ir, source_hashes } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, project_asts, &schema, build_mode).map_err(|errors| {
-            BuildProjectError::ValidationErrors {
+        build_ir::build_ir(project_config, project_asts, &schema, build_mode, log_event).map_err(
+            |errors| BuildProjectError::ValidationErrors {
                 errors,
                 project_name: project_config.name,
-            }
-        })
+            },
+        )
     })?;
 
     // Turn the IR into a base Program.

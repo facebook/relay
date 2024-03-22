@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bf7736d77f94b49eb89f5edea1ba5188>>
+ * @generated SignedSource<<c9b2717b54de0445d4d67300accc8240>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -143,6 +143,13 @@ async fn nested_fragment_spread_on_abstract_type() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/nested_fragment_spread_on_abstract_type.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/nested_fragment_spread_on_abstract_type.expected");
     test_fixture(transform_fixture, file!(), "nested_fragment_spread_on_abstract_type.graphql", "relay_resolvers_abstract_types/fixtures/nested_fragment_spread_on_abstract_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn plural_fragment_on_abstract_type() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/plural_fragment_on_abstract_type.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/plural_fragment_on_abstract_type.expected");
+    test_fixture(transform_fixture, file!(), "plural_fragment_on_abstract_type.graphql", "relay_resolvers_abstract_types/fixtures/plural_fragment_on_abstract_type.expected", input, expected).await;
 }
 
 #[tokio::test]

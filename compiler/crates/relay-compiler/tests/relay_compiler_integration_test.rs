@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7bc74fd259b90f455e2dbd166114cc72>>
+ * @generated SignedSource<<c827388ca3ea6a1c0700d536d26e3879>>
  */
 
 mod relay_compiler_integration;
@@ -164,6 +164,13 @@ async fn simple_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/simple_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/simple_fragment.expected");
     test_fixture(transform_fixture, file!(), "simple_fragment.input", "relay_compiler_integration/fixtures/simple_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_interface_fragment_on_concrete_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "spread_interface_fragment_on_concrete_type.input", "relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

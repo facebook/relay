@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f7c4dc54dc731835b1cb648cc89ad592>>
+ * @generated SignedSource<<78967df59c48179a9d472e189aed1b81>>
  */
 
 mod compile_relay_artifacts;
@@ -1203,6 +1203,13 @@ async fn relay_resolver_backing_client_edge() {
 }
 
 #[tokio::test]
+async fn relay_resolver_edge_to_interface() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-edge-to-interface.graphql", "compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn relay_resolver_edge_to_interface_with_child_interface_and_no_implementors() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.expected");
@@ -1224,6 +1231,13 @@ async fn relay_resolver_es_modules() {
 }
 
 #[tokio::test]
+async fn relay_resolver_fragment_on_interface() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-fragment-on-interface.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-fragment-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-fragment-on-interface.graphql", "compile_relay_artifacts/fixtures/relay-resolver-fragment-on-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn relay_resolver_live_weak_object() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-live-weak-object.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-live-weak-object.expected");
@@ -1242,6 +1256,13 @@ async fn relay_resolver_on_abstract_client_type() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-on-abstract-client-type.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-on-abstract-client-type.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-on-abstract-client-type.graphql", "compile_relay_artifacts/fixtures/relay-resolver-on-abstract-client-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_plural_fragment_on_interface() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-plural-fragment-on-interface.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-plural-fragment-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-plural-fragment-on-interface.graphql", "compile_relay_artifacts/fixtures/relay-resolver-plural-fragment-on-interface.expected", input, expected).await;
 }
 
 #[tokio::test]

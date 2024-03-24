@@ -44,5 +44,48 @@ export type UpdatableQuery = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+export type Assignable_node$data = {
+  readonly __typename: string;
+  readonly " $fragmentType": "Assignable_node";
+};
+export type Assignable_node$key = {
+  readonly " $data"?: Assignable_node$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
+};
+module.exports.validate = function validate(value: {
+  readonly __id: string;
+  readonly __isAssignable_node?: string;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
+}): false | {
+  readonly __id: string;
+  readonly __isAssignable_node: string;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
+} {
+  return value.__isAssignable_node != null ? value : false;
+};
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+export type Assignable_page$data = {
+  readonly __typename: "Page";
+  readonly " $fragmentType": "Assignable_page";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "Assignable_page";
+};
+export type Assignable_page$key = {
+  readonly " $data"?: Assignable_page$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
+};
+module.exports.validate = function validate(value: {
+  readonly __typename: string;
+  readonly __id: string;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
+}): false | {
+  readonly __typename: "Page";
+  readonly __id: string;
+  readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
+} {
+  return value.__typename === 'Page' ? value : false;
+};

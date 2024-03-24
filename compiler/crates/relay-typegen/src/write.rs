@@ -64,7 +64,6 @@ use crate::FUTURE_ENUM_VALUE;
 use crate::KEY_CLIENTID;
 use crate::KEY_DATA;
 use crate::KEY_FRAGMENT_SPREADS;
-use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_RAW_RESPONSE;
 use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
@@ -450,12 +449,13 @@ pub(crate) fn write_fragment_type_exports_section(
         }
     }
 
-    if !is_assignable_fragment {
-        writer.write_export_type(&data_type_name, &data_type)?;
-        writer.write_export_type(&format!("{}$key", fragment_definition.name.item), &ref_type)?;
-    } else if typegen_context
-        .typegen_options
-        .is_extra_artifact_branch_module
+    writer.write_export_type(&data_type_name, &data_type)?;
+    writer.write_export_type(&format!("{}$key", fragment_definition.name.item), &ref_type)?;
+
+    if is_assignable_fragment
+        && typegen_context
+            .typegen_options
+            .is_extra_artifact_branch_module
     {
         writer.write_export_type(&data_type_name, &data_type)?;
     }
@@ -790,7 +790,7 @@ fn write_abstract_validator_function(
     });
     let fragment_spread_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_FRAGMENT_SPREADS,
-        value: AST::Identifier(format!("{}{}", fragment_name, *KEY_FRAGMENT_TYPE).intern()),
+        value: AST::FragmentReference(SortedStringKeyList::new(vec![fragment_name.intern()])),
         read_only: true,
         optional: false,
     });
@@ -889,7 +889,7 @@ fn write_concrete_validator_function(
     });
     let fragment_spread_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_FRAGMENT_SPREADS,
-        value: AST::Identifier(format!("{}{}", fragment_name, *KEY_FRAGMENT_TYPE).intern()),
+        value: AST::FragmentReference(SortedStringKeyList::new(vec![fragment_name.intern()])),
         read_only: true,
         optional: false,
     });

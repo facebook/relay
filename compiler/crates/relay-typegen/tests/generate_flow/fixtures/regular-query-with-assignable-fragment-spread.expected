@@ -25,3 +25,30 @@ export type Foo = {|
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_viewer$fragmentType: FragmentType;
+export type Assignable_viewer$data = {|
+  +__typename: "Viewer",
+  +$fragmentType: Assignable_viewer$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: Assignable_viewer$fragmentType,
+|};
+export type Assignable_viewer$key = {
+  +$data?: Assignable_viewer$data,
+  +$fragmentSpreads: Assignable_viewer$fragmentType,
+  ...
+};
+module.exports.validate = function validate(value/*: {
+  +__typename: string,
+  +__id: string,
+  +$fragmentSpreads: Assignable_viewer$fragmentType,
+  ...
+}*/)/*: false | {
+  +__typename: "Viewer",
+  +__id: string,
+  +$fragmentSpreads: Assignable_viewer$fragmentType,
+  ...
+}*/ {
+  return value.__typename === 'Viewer' ? (value/*: any*/) : false;
+};

@@ -89,6 +89,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 } else {
                     &FeatureFlag::Disabled
                 },
+                allow_resolver_non_nullable_return_type: if fixture
+                    .content
+                    .contains("// relay:allow_resolver_non_nullable_return_type")
+                {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
             },
         )?
         .unwrap();

@@ -41,6 +41,7 @@ pub struct ParseOptions<'a> {
     pub enable_output_type: &'a FeatureFlag,
     pub allow_legacy_verbose_syntax: &'a FeatureFlag,
     pub enable_interface_output_type: &'a FeatureFlag,
+    pub allow_resolver_non_nullable_return_type: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(

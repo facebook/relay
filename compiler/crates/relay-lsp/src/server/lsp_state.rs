@@ -308,6 +308,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         enable_interface_output_type: &project_config
                             .feature_flags
                             .relay_resolver_enable_interface_output_type,
+                        allow_resolver_non_nullable_return_type: &project_config
+                            .feature_flags
+                            .allow_resolver_non_nullable_return_type,
                     },
                 )
             });

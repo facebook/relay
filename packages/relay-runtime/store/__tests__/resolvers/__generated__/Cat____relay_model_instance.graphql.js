@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1dbe59b905a25233672a9393155548d4>>
+ * @generated SignedSource<<8e0341bf38ecf7a722ac413f3e30a062>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {Cat as catRelayModelInstanceResolverType} from "../CatResolvers.js";
 ) => mixed);
 declare export opaque type Cat____relay_model_instance$fragmentType: FragmentType;
 export type Cat____relay_model_instance$data = {|
-  +__relay_model_instance: ?ReturnType<typeof catRelayModelInstanceResolverType>,
+  +__relay_model_instance: $NonMaybeType<ReturnType<typeof catRelayModelInstanceResolverType>>,
   +$fragmentType: Cat____relay_model_instance$fragmentType,
 |};
 export type Cat____relay_model_instance$key = {

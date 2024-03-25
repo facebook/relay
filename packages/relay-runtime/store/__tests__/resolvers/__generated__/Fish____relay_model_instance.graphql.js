@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<983a328272b83e497c1b84088fee56fd>>
+ * @generated SignedSource<<bcd45f09c5dd07773bc6a0d5e6cbc431>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {Fish as fishRelayModelInstanceResolverType} from "../FishResolvers.js";
 ) => mixed);
 declare export opaque type Fish____relay_model_instance$fragmentType: FragmentType;
 export type Fish____relay_model_instance$data = {|
-  +__relay_model_instance: ?ReturnType<typeof fishRelayModelInstanceResolverType>,
+  +__relay_model_instance: $NonMaybeType<ReturnType<typeof fishRelayModelInstanceResolverType>>,
   +$fragmentType: Fish____relay_model_instance$fragmentType,
 |};
 export type Fish____relay_model_instance$key = {

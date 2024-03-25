@@ -654,13 +654,15 @@ fn relay_resolver_field_type(
             inner_value
         }
     } else {
+        let field = resolver_metadata.field(typegen_context.schema);
+
         let inner_value = AST::ReturnTypeOfFunctionWithName(local_resolver_name);
         let inner_value = if live {
             AST::ReturnTypeOfMethodCall(Box::new(inner_value), intern!("read"))
         } else {
             inner_value
         };
-        if required {
+        if required || field.type_.is_non_null() {
             AST::NonNullable(Box::new(inner_value))
         } else {
             AST::Nullable(Box::new(inner_value))

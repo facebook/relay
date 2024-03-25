@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<877b80d1dcf1bacad2535dc511873e6b>>
+ * @generated SignedSource<<cb67e192fc8cfdc5b4414cf6f76a14f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {ErrorModel as errorModelRelayModelInstanceResolverType} from "../RelayRe
 ) => mixed);
 declare export opaque type ErrorModel____relay_model_instance$fragmentType: FragmentType;
 export type ErrorModel____relay_model_instance$data = {|
-  +__relay_model_instance: ?ReturnType<typeof errorModelRelayModelInstanceResolverType>,
+  +__relay_model_instance: $NonMaybeType<ReturnType<typeof errorModelRelayModelInstanceResolverType>>,
   +$fragmentType: ErrorModel____relay_model_instance$fragmentType,
 |};
 export type ErrorModel____relay_model_instance$key = {

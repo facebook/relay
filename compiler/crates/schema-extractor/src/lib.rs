@@ -195,3 +195,13 @@ pub trait SchemaExtractor {
         }
     }
 }
+
+impl FlowType {
+    pub fn location(&self) -> Location {
+        match self {
+            FlowType::NamedType(t) => t.identifier.location,
+            FlowType::GenericType(t) => t.location,
+            FlowType::PluralType(t) => t.location,
+        }
+    }
+}

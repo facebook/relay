@@ -6,6 +6,7 @@
  */
 
 use std::path::Path;
+use std::sync::Arc;
 
 use common::Diagnostic;
 use common::SourceLocationKey;
@@ -14,14 +15,21 @@ use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
 use graphql_test_helpers::ProjectFixture;
 use intern::Lookup;
+use relay_config::ProjectName;
+use relay_docblock::extend_schema_with_resolver_type_system_definition;
+use relay_docblock::DocblockIr;
 use relay_schema_generation::RelayResolverExtractor;
+use relay_test_schema::get_test_schema_with_extensions;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut extractor = RelayResolverExtractor::new();
+
+    let project_name = ProjectName::default();
+    let mut schema = get_test_schema_with_extensions("");
+
     let mut errors: Vec<Diagnostic> = vec![];
     let project_fixture = ProjectFixture::deserialize(fixture.content);
 
-    // let files = fixture.content.split("//%SPLIT_FILE%");
     project_fixture.files().iter().for_each(|(path, content)| {
         let source_location = SourceLocationKey::standalone(path.to_string_lossy().as_ref());
         if let Err(err) = extractor.parse_document(content, source_location) {
@@ -32,8 +40,45 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let out = match extractor.resolve() {
         Ok((objects, fields)) => objects
             .into_iter()
-            .map(|o| format!("{:#?}", o))
-            .chain(fields.into_iter().map(|f| format!("{:#?}", f)))
+            .map(|o| DocblockIr::StrongObjectResolver(o))
+            .chain(
+                fields
+                    .into_iter()
+                    .map(|f| DocblockIr::TerseRelayResolver(f)),
+            )
+            .map(|ir| {
+                // Extend schema with the IR and print SDL
+                let schema_document = ir
+                    .clone()
+                    .to_graphql_schema_ast(
+                        project_name,
+                        &schema,
+                        &Default::default(),
+                        &Default::default(),
+                    )
+                    .unwrap();
+                for definition in &schema_document.definitions {
+                    extend_schema_with_resolver_type_system_definition(
+                        definition.clone(),
+                        Arc::get_mut(&mut schema)
+                            .expect("Expected to be able to get mutable reference to schema"),
+                        schema_document.location,
+                    )
+                    .unwrap();
+                }
+
+                let sdl = ir
+                    .clone()
+                    .to_sdl_string(
+                        project_name,
+                        &schema,
+                        &Default::default(),
+                        &Default::default(),
+                    )
+                    .unwrap();
+
+                format!("{:#?}\n{}", &ir, sdl)
+            })
             .collect::<Vec<_>>()
             .join("\n\n"),
         Err(err) => {
@@ -42,6 +87,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         }
     };
     let err = diagnostics_to_sorted_string(&project_fixture, &errors);
+
     Ok(out + "\n\n" + &err)
 }
 

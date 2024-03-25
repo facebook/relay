@@ -348,7 +348,7 @@ fn parse_terse_relay_resolver_ir(
     let span_start = type_str.location.span().start + offset as u32;
 
     match remaining_source.chars().next() {
-        Some(dot) if dot == '.' => {}
+        Some('.') => {}
         Some(other) => {
             return Err(vec![Diagnostic::error(
                 IrParsingErrorMessages::UnexpectedNonDot { found: other },

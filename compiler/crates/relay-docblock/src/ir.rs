@@ -710,7 +710,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             (Some(a), Some(b)) => Some(List::generated(
                 a.items
                     .into_iter()
-                    .chain(b.clone().items.into_iter())
+                    .chain(b.clone().items)
                     .collect::<Vec<_>>(),
             )),
         };

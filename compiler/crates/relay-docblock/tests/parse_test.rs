@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8881aa16971d7f8a091ec7ae183bd5c8>>
+ * @generated SignedSource<<98e53ac08dc71e67267df524cf720f57>>
  */
 
 mod parse;
@@ -318,4 +318,11 @@ async fn terse_relay_resolver_no_dot_invalid() {
     let input = include_str!("parse/fixtures/terse-relay-resolver-no-dot.invalid.js");
     let expected = include_str!("parse/fixtures/terse-relay-resolver-no-dot.invalid.expected");
     test_fixture(transform_fixture, file!(), "terse-relay-resolver-no-dot.invalid.js", "parse/fixtures/terse-relay-resolver-no-dot.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn terse_relay_resolver_non_nullable() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable.expected");
+    test_fixture(transform_fixture, file!(), "terse-relay-resolver-non-nullable.js", "parse/fixtures/terse-relay-resolver-non-nullable.expected", input, expected).await;
 }

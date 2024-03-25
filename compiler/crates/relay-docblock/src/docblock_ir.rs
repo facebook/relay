@@ -29,6 +29,7 @@ use graphql_syntax::parse_identifier_and_implements_interfaces;
 use graphql_syntax::parse_type;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::FieldDefinition;
 use graphql_syntax::FragmentDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::InputValueDefinition;
@@ -144,6 +145,7 @@ pub(crate) fn parse_docblock_ir(
                     definitions_in_file,
                     docblock_location,
                     source_hash,
+                    parse_options,
                 )?)
             } else {
                 match get_optional_unpopulated_field_named(
@@ -334,10 +336,11 @@ fn parse_terse_relay_resolver_ir(
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     location: Location,
     source_hash: ResolverSourceHash,
+    parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<TerseRelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
-    let type_str = relay_resolver_field.value;
+    let type_str: WithLocation<StringKey> = relay_resolver_field.value;
 
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
     let type_name = extract_identifier(relay_resolver_field)?;
@@ -364,7 +367,7 @@ fn parse_terse_relay_resolver_ir(
         }
     };
 
-    let mut field = parse_field_definition(
+    let mut field: graphql_syntax::FieldDefinition = parse_field_definition(
         &remaining_source[1..],
         type_str.location.source_location(),
         span_start + 1,
@@ -378,13 +381,7 @@ fn parse_terse_relay_resolver_ir(
         value: description.item,
     });
 
-    if let TypeAnnotation::NonNull(non_null) = field.type_ {
-        return Err(vec![Diagnostic::error(
-            IrParsingErrorMessages::FieldWithNonNullType,
-            Location::new(type_str.location.source_location(), non_null.span),
-        )]);
-    }
-
+    validate_field_type_annotation(&field, type_str, parse_options)?;
     validate_field_arguments(&field.arguments, location.source_location())?;
 
     let (fragment_type_condition, fragment_arguments) = parse_fragment_definition(
@@ -765,6 +762,25 @@ fn extract_fragment_arguments(
                 })
                 .collect::<Result<_, _>>()
         })
+}
+
+fn validate_field_type_annotation(
+    field: &FieldDefinition,
+    type_str: WithLocation<StringKey>,
+    parse_options: &ParseOptions<'_>,
+) -> DiagnosticsResult<()> {
+    if let TypeAnnotation::NonNull(non_null) = &field.type_ {
+        if !parse_options
+            .allow_resolver_non_nullable_return_type
+            .is_enabled_for(field.name.value)
+        {
+            return Err(vec![Diagnostic::error(
+                IrParsingErrorMessages::FieldWithNonNullType,
+                Location::new(type_str.location.source_location(), non_null.span),
+            )]);
+        }
+    }
+    Ok(())
 }
 
 fn validate_field_arguments(

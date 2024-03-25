@@ -104,6 +104,10 @@ pub struct FeatureFlags {
     /// definitions and arguments on fragment spreads.
     #[serde(default)]
     pub enable_fragment_argument_transform: bool,
+
+    /// Allow non-nullable return types from resolvers.
+    #[serde(default)]
+    pub allow_resolver_non_nullable_return_type: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

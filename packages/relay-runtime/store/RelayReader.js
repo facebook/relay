@@ -758,94 +758,94 @@ class RelayReader {
       return clientEdgeResolverResponse;
     }
 
-    const validClientEdgeResolverResponse =
-      assertValidClientEdgeResolverResponse(field, clientEdgeResolverResponse);
-
-    switch (validClientEdgeResolverResponse.kind) {
-      case 'PluralConcrete':
-        const storeIDs = getStoreIDsForPluralClientEdgeResolver(
+    if (field.linkedField.plural) {
+      invariant(
+        Array.isArray(clientEdgeResolverResponse),
+        'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
+      );
+      const ids = clientEdgeResolverResponse.map(extractIdFromResponse);
+      const storeIDs = getStoreIDsForPluralClientEdgeResolver(
+        field,
+        ids,
+        this._resolverCache,
+      );
+      let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
+      if (field.modelResolvers != null) {
+        invariant(
+          field.concreteType != null,
+          'concreteType should not be null',
+        );
+        const modelResolver = field.modelResolvers[field.concreteType];
+        invariant(
+          modelResolver !== undefined,
+          'modelResolver should not be undefined',
+        );
+        validStoreIDs = storeIDs.map(storeID => {
+          const model = this._readResolverFieldImpl(
+            modelResolver, // TODO: Pick correct model resolver for this edge
+            storeID,
+          );
+          return model != null ? storeID : null;
+        });
+      }
+      this._clientEdgeTraversalPath.push(null);
+      const edgeValues = this._readLinkedIds(
+        field.linkedField,
+        validStoreIDs,
+        record,
+        data,
+      );
+      this._clientEdgeTraversalPath.pop();
+      data[applicationName] = edgeValues;
+      return edgeValues;
+    } else {
+      const id = extractIdFromResponse(clientEdgeResolverResponse);
+      const [storeID, traversalPathSegment] =
+        getStoreIDAndTraversalPathSegmentForSingularClientEdgeResolver(
           field,
-          validClientEdgeResolverResponse.ids,
+          id,
           this._resolverCache,
         );
-        let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
-        if (field.modelResolvers != null) {
-          invariant(
-            field.concreteType != null,
-            'concreteType should not be null',
-          );
-          const modelResolver = field.modelResolvers[field.concreteType];
-          invariant(
-            modelResolver !== undefined,
-            'modelResolver should not be undefined',
-          );
-          validStoreIDs = storeIDs.map(storeID => {
-            const model = this._readResolverFieldImpl(
-              modelResolver, // TODO: Pick correct model resolver for this edge
-              storeID,
-            );
-            return model != null ? storeID : null;
-          });
-        }
-        this._clientEdgeTraversalPath.push(null);
-        const edgeValues = this._readLinkedIds(
-          field.linkedField,
-          validStoreIDs,
-          record,
-          data,
-        );
-        this._clientEdgeTraversalPath.pop();
-        data[applicationName] = edgeValues;
-        return edgeValues;
 
-      case 'SingularConcrete':
-        const [storeID, traversalPathSegment] =
-          getStoreIDAndTraversalPathSegmentForSingularClientEdgeResolver(
-            field,
-            validClientEdgeResolverResponse.id,
-            this._resolverCache,
-          );
-        if (field.modelResolvers != null) {
-          invariant(
-            field.concreteType != null,
-            'concreteType should not be null',
-          );
-          const modelResolver = field.modelResolvers[field.concreteType];
-          invariant(
-            modelResolver !== undefined,
-            'modelResolver should not be undefined',
-          );
-          // TODO: Pick correct model resolver for this edge
-          const model = this._readResolverFieldImpl(modelResolver, storeID);
-          if (model == null) {
-            // If the model resolver returns undefined, we should still return null
-            // to match GQL behavior.
-            data[applicationName] = null;
-            return null;
-          }
-        }
-        this._clientEdgeTraversalPath.push(traversalPathSegment);
-
-        const prevData = data[applicationName];
+      if (field.modelResolvers != null) {
         invariant(
-          prevData == null || typeof prevData === 'object',
-          'RelayReader(): Expected data for field `%s` on record `%s` ' +
-            'to be an object, got `%s`.',
-          applicationName,
-          RelayModernRecord.getDataID(record),
-          prevData,
+          field.concreteType != null,
+          'concreteType should not be null',
         );
-        const edgeValue = this._traverse(
-          field.linkedField,
-          storeID,
-          // $FlowFixMe[incompatible-variance]
-          prevData,
+        const modelResolver = field.modelResolvers[field.concreteType];
+        invariant(
+          modelResolver !== undefined,
+          'modelResolver should not be undefined',
         );
-        this._clientEdgeTraversalPath.pop();
-        data[applicationName] = edgeValue;
-        return edgeValue;
-      default:
-        (validClientEdgeResolverResponse.kind: empty);
+        // TODO: Pick correct model resolver for this edge
+        const model = this._readResolverFieldImpl(modelResolver, storeID);
+        if (model == null) {
+          // If the model resolver returns undefined, we should still return null
+          // to match GQL behavior.
+          data[applicationName] = null;
+          return null;
+        }
+      }
+      this._clientEdgeTraversalPath.push(traversalPathSegment);
+
+      const prevData = data[applicationName];
+      invariant(
+        prevData == null || typeof prevData === 'object',
+        'RelayReader(): Expected data for field `%s` on record `%s` ' +
+          'to be an object, got `%s`.',
+        applicationName,
+        RelayModernRecord.getDataID(record),
+        prevData,
+      );
+      const edgeValue = this._traverse(
+        field.linkedField,
+        storeID,
+        // $FlowFixMe[incompatible-variance]
+        prevData,
+      );
+      this._clientEdgeTraversalPath.pop();
+      data[applicationName] = edgeValue;
+      return edgeValue;
     }
   }
 
@@ -1304,45 +1304,6 @@ function getResolverValue(
   return [resolverResult, resolverError];
 }
 
-type ValidClientEdgeResolverResponse =
-  | {
-      kind: 'PluralConcrete',
-      ids: $ReadOnlyArray<DataID>,
-    }
-  | {
-      kind: 'SingularConcrete',
-      id: DataID,
-    };
-
-function assertValidClientEdgeResolverResponse(
-  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
-  clientEdgeResolverResponse: mixed,
-): ValidClientEdgeResolverResponse {
-  if (field.linkedField.plural) {
-    invariant(
-      Array.isArray(clientEdgeResolverResponse),
-      'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
-    );
-    return {
-      kind: 'PluralConcrete',
-      ids: clientEdgeResolverResponse.map(response =>
-        extractIdFromResponse(
-          response,
-          'Expected this plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
-        ),
-      ),
-    };
-  } else {
-    return {
-      kind: 'SingularConcrete',
-      id: extractIdFromResponse(
-        clientEdgeResolverResponse,
-        'Expected this Client Edge Relay Resolver to return an ID of type `string` or an object with shape {id}.',
-      ),
-    };
-  }
-}
-
 // For weak objects:
 // The return value of a client edge resolver is the entire object (though,
 // strong objects become DataIDs or arrays thereof). However, when being read
@@ -1426,10 +1387,7 @@ function getStoreIDsForPluralClientEdgeResolver(
   }
 }
 
-function extractIdFromResponse(
-  individualResponse: mixed,
-  errorMessage: string,
-): string {
+function extractIdFromResponse(individualResponse: mixed): string {
   if (typeof individualResponse === 'string') {
     return individualResponse;
   } else if (
@@ -1439,7 +1397,10 @@ function extractIdFromResponse(
   ) {
     return individualResponse.id;
   }
-  invariant(false, errorMessage);
+  invariant(
+    false,
+    'Expected object returned from an edge resolver to be a string or an object with an `id` property',
+  );
 }
 
 module.exports = {read};

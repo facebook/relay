@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<354a6567c7df92e1bba108dd95375cc8>>
+ * @generated SignedSource<<8881aa16971d7f8a091ec7ae183bd5c8>>
  */
 
 mod parse;
@@ -272,6 +272,27 @@ async fn terse_relay_resolver() {
 }
 
 #[tokio::test]
+async fn terse_relay_resolver_disallow_non_nullable() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-disallow-non-nullable.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-disallow-non-nullable.expected");
+    test_fixture(transform_fixture, file!(), "terse-relay-resolver-disallow-non-nullable.js", "parse/fixtures/terse-relay-resolver-disallow-non-nullable.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn terse_relay_resolver_disallow_non_nullable_list() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-disallow-non-nullable-list.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-disallow-non-nullable-list.expected");
+    test_fixture(transform_fixture, file!(), "terse-relay-resolver-disallow-non-nullable-list.js", "parse/fixtures/terse-relay-resolver-disallow-non-nullable-list.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn terse_relay_resolver_disallow_non_nullable_list_item() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-disallow-non-nullable-list-item.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-disallow-non-nullable-list-item.expected");
+    test_fixture(transform_fixture, file!(), "terse-relay-resolver-disallow-non-nullable-list-item.js", "parse/fixtures/terse-relay-resolver-disallow-non-nullable-list-item.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn terse_relay_resolver_forbidden_fields_invalid() {
     let input = include_str!("parse/fixtures/terse-relay-resolver-forbidden-fields.invalid.js");
     let expected = include_str!("parse/fixtures/terse-relay-resolver-forbidden-fields.invalid.expected");
@@ -297,25 +318,4 @@ async fn terse_relay_resolver_no_dot_invalid() {
     let input = include_str!("parse/fixtures/terse-relay-resolver-no-dot.invalid.js");
     let expected = include_str!("parse/fixtures/terse-relay-resolver-no-dot.invalid.expected");
     test_fixture(transform_fixture, file!(), "terse-relay-resolver-no-dot.invalid.js", "parse/fixtures/terse-relay-resolver-no-dot.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn terse_relay_resolver_non_nullable() {
-    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable.js");
-    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable.expected");
-    test_fixture(transform_fixture, file!(), "terse-relay-resolver-non-nullable.js", "parse/fixtures/terse-relay-resolver-non-nullable.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn terse_relay_resolver_non_nullable_list() {
-    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list.js");
-    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list.expected");
-    test_fixture(transform_fixture, file!(), "terse-relay-resolver-non-nullable-list.js", "parse/fixtures/terse-relay-resolver-non-nullable-list.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn terse_relay_resolver_non_nullable_list_item() {
-    let input = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list-item.js");
-    let expected = include_str!("parse/fixtures/terse-relay-resolver-non-nullable-list-item.expected");
-    test_fixture(transform_fixture, file!(), "terse-relay-resolver-non-nullable-list-item.js", "parse/fixtures/terse-relay-resolver-non-nullable-list-item.expected", input, expected).await;
 }

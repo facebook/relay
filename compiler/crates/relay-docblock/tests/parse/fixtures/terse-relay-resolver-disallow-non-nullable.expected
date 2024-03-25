@@ -15,7 +15,7 @@
 ==================================== ERROR ====================================
 ✖︎ Unexpected Relay Resolver field with non-nullable type. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
 
-  /path/to/test/fixture/terse-relay-resolver-non-nullable.js:11:44
+  /path/to/test/fixture/terse-relay-resolver-disallow-non-nullable.js:11:44
    10 │ *
    11 │  * @RelayResolver User.mandatory_greeting: String!
       │                                            ^^^^^^^

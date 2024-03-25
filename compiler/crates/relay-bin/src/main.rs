@@ -17,8 +17,13 @@ use common::ConsoleLogger;
 use intern::string_key::Intern;
 use log::error;
 use log::info;
+
 use relay_codemod::AvailableCodemod;
 use relay_codemod::run_codemod;
+use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
+use relay_compiler::compiler::Compiler;
+use relay_compiler::config::Config;
+use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::FileSourceKind;
 use relay_compiler::LocalPersister;
 use relay_compiler::OperationPersister;
@@ -381,9 +386,6 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         )
     }));
 
-    // Atlassian: Output id -> query text for testing / mocking usage
-    config.generate_extra_artifacts = Some(Box::new(persisted_mocks::generate_persisted_mocks));
-
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman
     } else {
@@ -397,7 +399,9 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         );
     }
 
-    config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
+    // Atlassian:
+    // Edited to output id -> query text for testing / mocking usage
+    config.generate_extra_artifacts = Some(Box::new(persisted_mocks::generate_persisted_mocks));
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 

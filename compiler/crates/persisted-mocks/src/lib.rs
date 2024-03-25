@@ -6,6 +6,7 @@
  */
 
 use relay_codegen::QueryID;
+use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use relay_compiler::config::Config;
 use relay_compiler::Artifact;
 use relay_compiler::ArtifactContent;
@@ -21,13 +22,14 @@ struct QueryForMock {
 }
 
 pub fn generate_persisted_mocks(
-    _config: &Config,
+    config: &Config,
     project_config: &ProjectConfig,
-    _schema: &SDLSchema,
-    _programs: &Programs,
+    schema: &SDLSchema,
+    program: &Programs,
     artifacts: &[Artifact],
 ) -> Vec<Artifact> {
-    let mut extra = vec![];
+    let mut extra =
+        default_generate_extra_artifacts_fn(config, project_config, schema, program, artifacts);
     if let Some(folder) = &project_config.extra_artifacts_output {
         for artifact in artifacts {
             if let ArtifactContent::Operation {

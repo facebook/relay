@@ -401,11 +401,14 @@ trait ResolverIr: Sized {
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
+
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>>;
     fn root_or_id_fragment(
         &self,
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> Option<RootFragment>;
+
     fn output_type(&self) -> Option<OutputType>;
     fn deprecated(&self) -> Option<IrField>;
     fn live(&self) -> Option<UnpopulatedIrField>;
@@ -813,6 +816,10 @@ impl ResolverIr for TerseRelayResolverIr {
         self.location
     }
 
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        self.root_fragment
+    }
+
     fn root_or_id_fragment(
         &self,
         object: Option<&Object>,
@@ -989,6 +996,10 @@ impl ResolverIr for LegacyVerboseResolverIr {
 
     fn location(&self) -> Location {
         self.location
+    }
+
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        self.root_fragment
     }
 
     fn root_or_id_fragment(
@@ -1248,6 +1259,10 @@ impl ResolverIr for StrongObjectIr {
         self.location
     }
 
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        Some(self.root_fragment)
+    }
+
     // For Model resolver we always inject the `id` fragment
     fn root_or_id_fragment(
         &self,
@@ -1428,6 +1443,10 @@ impl ResolverIr for WeakObjectIr {
 
     fn location(&self) -> Location {
         self.location
+    }
+
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        None
     }
 
     fn root_or_id_fragment(

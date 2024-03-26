@@ -401,7 +401,7 @@ trait ResolverIr: Sized {
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
-    fn root_fragment(
+    fn root_or_id_fragment(
         &self,
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -464,7 +464,7 @@ trait ResolverIr: Sized {
             WithLocation::new(self.location(), import_path),
         )];
 
-        if let Some(root_fragment) = self.root_fragment(object, project_config) {
+        if let Some(root_fragment) = self.root_or_id_fragment(object, project_config) {
             arguments.push(string_argument(
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
                 root_fragment.fragment.map(|x| x.0),
@@ -813,7 +813,7 @@ impl ResolverIr for TerseRelayResolverIr {
         self.location
     }
 
-    fn root_fragment(
+    fn root_or_id_fragment(
         &self,
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -991,7 +991,7 @@ impl ResolverIr for LegacyVerboseResolverIr {
         self.location
     }
 
-    fn root_fragment(
+    fn root_or_id_fragment(
         &self,
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -1249,7 +1249,7 @@ impl ResolverIr for StrongObjectIr {
     }
 
     // For Model resolver we always inject the `id` fragment
-    fn root_fragment(
+    fn root_or_id_fragment(
         &self,
         _: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -1430,7 +1430,7 @@ impl ResolverIr for WeakObjectIr {
         self.location
     }
 
-    fn root_fragment(
+    fn root_or_id_fragment(
         &self,
         _: Option<&Object>,
         _project_config: ResolverProjectConfig<'_, '_>,

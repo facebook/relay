@@ -68,7 +68,7 @@ beforeEach(() => {
 function AnimalLegsComponent(props: {
   animal: ?RelayResolverInterfaceTestAnimalLegsFragment$key,
 }) {
-  const data = useFragment(
+  const animal = useFragment(
     graphql`
       fragment RelayResolverInterfaceTestAnimalLegsFragment on IAnimal {
         legs
@@ -76,7 +76,7 @@ function AnimalLegsComponent(props: {
     `,
     props.animal,
   );
-  return data?.legs;
+  return animal?.legs;
 }
 
 test('should read the legs of a cat', () => {
@@ -125,4 +125,122 @@ test('should read the legs of a fish', () => {
     </EnvironmentWrapper>,
   );
   expect(renderer.toJSON()).toEqual('0');
+});
+
+test('resolvers can return an interface where all implementors are strong model types', () => {
+  function AnimalLegsQueryComponent(props: {
+    request: {ofType: string, returnValidID: boolean},
+  }) {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolverInterfaceTestAnimalLegsQuery(
+          $request: AnimalRequest!
+        ) {
+          animal(request: $request) {
+            ...RelayResolverInterfaceTestAnimalLegsFragment
+          }
+        }
+      `,
+      {request: props.request},
+    );
+
+    if (data.animal == null) {
+      return 'NULL';
+    }
+
+    return <AnimalLegsComponent animal={data.animal} />;
+  }
+
+  const currentErrorMessage =
+    'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. This indicates a bug in Relay.';
+
+  expect(() => {
+    const fishRenderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <AnimalLegsQueryComponent
+          request={{ofType: 'Fish', returnValidID: true}}
+        />
+      </EnvironmentWrapper>,
+    );
+    // TODO(T178139205): This assertion is not yet hit because the above code throws.
+    // Once T178139205 is implemented we can remove the expect().toThrow() and hit this
+    // assertion instead.
+    expect(fishRenderer.toJSON()).toEqual('0');
+  }).toThrow(currentErrorMessage);
+
+  expect(() => {
+    const catRenderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <AnimalLegsQueryComponent
+          request={{ofType: 'Cat', returnValidID: true}}
+        />
+      </EnvironmentWrapper>,
+    );
+    // TODO(T178139205): This assertion is not yet hit because the above code throws.
+    // Once T178139205 is implemented we can remove the expect().toThrow() and hit this
+    // assertion instead.
+    expect(catRenderer.toJSON()).toEqual('4');
+  }).toThrow(currentErrorMessage);
+
+  expect(() => {
+    const catRenderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <AnimalLegsQueryComponent
+          request={{ofType: 'Cat', returnValidID: false}} // This should trigger a `null` value.
+        />
+      </EnvironmentWrapper>,
+    );
+    // TODO(T178139205): This assertion is not yet hit because the above code throws.
+    // Once T178139205 is implemented we can remove the expect().toThrow() and hit this
+    // assertion instead.
+    expect(catRenderer.toJSON()).toEqual(null);
+  }).toThrow(currentErrorMessage);
+});
+
+test('resolvers can return a list of interfaces where all implementors are strong model types', () => {
+  function AnimalsLegsQueryComponent(props: {
+    requests: Array<{ofType: string, returnValidID: boolean}>,
+  }) {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolverInterfaceTestAnimalsLegsQuery(
+          $requests: [AnimalRequest!]!
+        ) {
+          animals(requests: $requests) {
+            id
+            ...RelayResolverInterfaceTestAnimalLegsFragment
+          }
+        }
+      `,
+      {requests: props.requests},
+    );
+
+    return data.animals?.map((animal, index) => {
+      if (animal == null) {
+        return 'NULL';
+      }
+      return <AnimalLegsComponent key={animal.id} animal={animal} />;
+    });
+  }
+
+  const currentErrorMessage =
+    'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. This indicates a bug in Relay.';
+  expect(() => {
+    const fishRenderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <AnimalsLegsQueryComponent
+          requests={[
+            {ofType: 'Fish', returnValidID: true},
+            {ofType: 'Fish', returnValidID: false}, // This should trigger a `null` value.
+            {ofType: 'Cat', returnValidID: true},
+            {ofType: 'Cat', returnValidID: false}, // This should trigger a `null` value.
+          ]}
+        />
+      </EnvironmentWrapper>,
+    );
+    // TODO(T178139205): This assertion is not yet hit because the above code throws.
+    // Once T178139205 is implemented we can remove the expect().toThrow() and hit this
+    // assertion instead.
+    expect(fishRenderer.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
+  }).toThrow(currentErrorMessage);
 });

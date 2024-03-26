@@ -2,3 +2,14 @@ interface IAnimal {
   id: ID!
   legs: Int
 }
+
+input AnimalRequest {
+  """
+  Should be a valid GraphQL type that implements `IAnimal`.
+  """
+  ofType: String!
+  """
+  Tells the resolver to return an ID for which a model doees not exist.
+  """
+  returnValidID: Boolean!
+}

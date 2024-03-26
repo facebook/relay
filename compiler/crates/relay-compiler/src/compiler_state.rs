@@ -203,6 +203,25 @@ impl<V: Source + Clone> IncrementalSources<V> {
         sources.sort_by_key(|file_content| file_content.0);
         sources
     }
+
+    pub fn get_all_non_empty(&self) -> Vec<(&PathBuf, &V)> {
+        let mut sources: Vec<_> =
+            if self.pending.is_empty() {
+                self.processed
+                    .iter()
+                    .filter(|(_, value)| !value.is_empty())
+                    .collect()
+            } else {
+                self.pending
+                    .iter()
+                    .chain(self.processed.iter().filter(|(key, value)| {
+                        !self.pending.contains_key(*key) && !value.is_empty()
+                    }))
+                    .collect()
+            };
+        sources.sort_by_key(|file_content| file_content.0);
+        sources
+    }
 }
 
 impl<V: Source> Default for IncrementalSources<V> {
@@ -216,9 +235,11 @@ impl<V: Source> Default for IncrementalSources<V> {
 
 type GraphQLSourceSet = IncrementalSourceSet<Vec<LocatedGraphQLSource>>;
 type DocblockSourceSet = IncrementalSourceSet<Vec<LocatedDocblockSource>>;
+type FullSourceSet = IncrementalSourceSet<String>;
 pub type GraphQLSources = IncrementalSources<Vec<LocatedGraphQLSource>>;
 pub type SchemaSources = IncrementalSources<String>;
 pub type DocblockSources = IncrementalSources<Vec<LocatedDocblockSource>>;
+pub type FullSources = IncrementalSources<String>;
 
 impl Source for String {
     fn is_empty(&self) -> bool {
@@ -267,6 +288,7 @@ pub struct CompilerState {
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
+    pub full_sources: FnvHashMap<ProjectName, FullSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     #[serde(with = "clock_json_string")]
     pub clock: Option<Clock>,
@@ -301,7 +323,7 @@ impl CompilerState {
         for (category, files) in categorized {
             match category {
                 FileGroup::Source { project_set } => {
-                    let (graphql_sources, docblock_sources) = extract_sources(
+                    let (graphql_sources, docblock_sources, full_sources) = extract_sources(
                         &project_set,
                         files,
                         file_source_changes,
@@ -312,6 +334,7 @@ impl CompilerState {
                     for project_name in project_set {
                         result.set_pending_source_set(project_name, &graphql_sources);
                         result.set_pending_docblock_set(project_name, &docblock_sources);
+                        result.set_pending_full_source_set(project_name, &full_sources);
                     }
                 }
                 FileGroup::Schema { project_set } => {
@@ -383,6 +406,10 @@ impl CompilerState {
                 .docblocks
                 .values()
                 .any(|sources| !sources.processed.is_empty())
+            || self
+                .full_sources
+                .values()
+                .any(|sources| !sources.processed.is_empty())
     }
 
     fn get_schema_change(&self, sources: &SchemaSources) -> SchemaChange {
@@ -426,21 +453,6 @@ impl CompilerState {
         }
     }
 
-    /// This method will detect any schema changes in the pending sources (for LSP Server, to invalidate schema cache)
-    pub fn has_schema_changes(&self) -> bool {
-        self.docblocks
-            .values()
-            .any(|sources| !sources.pending.is_empty())
-            || self
-                .extensions
-                .values()
-                .any(|sources| !sources.pending.is_empty())
-            || self
-                .schemas
-                .iter()
-                .any(|(_, sources)| !sources.pending.is_empty())
-    }
-
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
     pub fn schema_change_safety(
         &self,
@@ -457,6 +469,12 @@ impl CompilerState {
         if let Some(docblocks) = self.docblocks.get(&project_name) {
             if !docblocks.pending.is_empty() {
                 log_event.string("has_breaking_schema_change", "docblock".to_owned());
+                return SchemaChangeSafety::Unsafe;
+            }
+        }
+        if let Some(full_sources) = self.full_sources.get(&project_name) {
+            if !full_sources.pending.is_empty() {
+                log_event.string("has_breaking_schema_change", "full_source".to_owned());
                 return SchemaChangeSafety::Unsafe;
             }
         }
@@ -503,7 +521,7 @@ impl CompilerState {
                         // extracted sources actually differ.
                         has_changed = true;
 
-                        let (graphql_sources, docblock_sources) = extract_sources(
+                        let (graphql_sources, docblock_sources, full_sources) = extract_sources(
                             &project_set,
                             files,
                             &file_source_changes,
@@ -520,6 +538,10 @@ impl CompilerState {
                                 .entry(project_name)
                                 .or_default()
                                 .merge_pending_sources(&docblock_sources);
+                            self.full_sources
+                                .entry(project_name)
+                                .or_default()
+                                .merge_pending_sources(&full_sources);
                         }
                     }
                     FileGroup::Schema { project_set } => {
@@ -567,6 +589,9 @@ impl CompilerState {
             sources.commit_pending_sources();
         }
         for sources in self.docblocks.values_mut() {
+            sources.commit_pending_sources();
+        }
+        for sources in self.full_sources.values_mut() {
             sources.commit_pending_sources();
         }
         self.dirty_artifact_paths.clear();
@@ -679,6 +704,15 @@ impl CompilerState {
         entry.merge_pending_sources(source_set);
     }
 
+    fn set_pending_full_source_set(
+        &mut self,
+        project_name: ProjectName,
+        source_set: &FullSourceSet,
+    ) {
+        let entry = &mut self.full_sources.entry(project_name).or_default();
+        entry.merge_pending_sources(source_set);
+    }
+
     fn process_schema_change(
         file_source_changes: &FileSourceResult,
         files: Vec<File>,
@@ -722,7 +756,7 @@ fn extract_sources(
     file_source_changes: &FileSourceResult,
     preserve_empty: bool,
     perf_logger: &impl PerfLogger,
-) -> Result<(GraphQLSourceSet, DocblockSourceSet)> {
+) -> Result<(GraphQLSourceSet, DocblockSourceSet, FullSourceSet)> {
     let log_event = perf_logger.create_event("categorize");
     log_event.string("source_set_name", project_set.to_string());
     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
@@ -745,6 +779,7 @@ fn extract_sources(
 
     let mut graphql_sources: GraphQLSourceSet = FnvHashMap::default();
     let mut docblock_sources: DocblockSourceSet = FnvHashMap::default();
+    let mut full_sources = FnvHashMap::default();
     for (file, features) in source_features {
         if preserve_empty || !features.graphql_sources.is_empty() {
             graphql_sources.insert(file.name.clone(), features.graphql_sources);
@@ -752,9 +787,12 @@ fn extract_sources(
         if preserve_empty || !features.docblock_sources.is_empty() {
             docblock_sources.insert(file.name.clone(), features.docblock_sources);
         }
+        if preserve_empty || !features.full_source.is_empty() {
+            full_sources.insert(file.name.clone(), features.full_source);
+        }
     }
 
-    Ok((graphql_sources, docblock_sources))
+    Ok((graphql_sources, docblock_sources, full_sources))
 }
 
 /// A module to serialize a watchman Clock value via JSON.

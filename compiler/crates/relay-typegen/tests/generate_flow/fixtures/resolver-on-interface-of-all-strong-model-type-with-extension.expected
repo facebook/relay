@@ -22,10 +22,13 @@ type Persian implements Cat {
 }
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
+import {Tabby as tabbyRelayModelInstanceResolverType} from "<generated>";
 import catDescriptionResolverType from "CatResolver";
 // Type assertion validating that `catDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(catDescriptionResolverType: () => ?mixed);
+(catDescriptionResolverType: (
+  model: ReturnType<typeof tabbyRelayModelInstanceResolverType>,
+) => ?mixed);
 declare export opaque type resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment$fragmentType: FragmentType;
 export type resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment$data = {|
   +description: ?ReturnType<typeof catDescriptionResolverType>,

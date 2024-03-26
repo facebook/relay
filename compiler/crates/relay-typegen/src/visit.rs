@@ -17,7 +17,9 @@ use ::intern::Lookup;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
+use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::Condition;
@@ -36,6 +38,7 @@ use itertools::Itertools;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_config::TypegenLanguage;
+use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
@@ -396,11 +399,17 @@ fn add_model_argument_for_interface_resolver(
     typegen_context: &TypegenContext<'_>,
     imported_resolvers: &mut ImportedResolvers,
 ) {
+    let mut model_types_for_type_assertion = vec![];
     for object_id in implementing_objects.iter().sorted() {
+        if !Type::Object(*object_id).is_terse_resolver_object(typegen_context.schema) {
+            continue;
+        }
         let type_name_with_location = typegen_context.schema.object(*object_id).name;
         let type_name = type_name_with_location.item.0;
         let import_alias =
             resolver_type_import_alias(type_name, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
+        model_types_for_type_assertion.push(AST::ReturnTypeOfFunctionWithName(import_alias));
+        // Import model type
         let model_import_path = &PathBuf::from(
             type_name_with_location
                 .location
@@ -429,26 +438,15 @@ fn add_model_argument_for_interface_resolver(
             .entry(type_name)
             .or_insert(imported_model);
     }
-    let object_names: SortedASTList = SortedASTList::new(
-        implementing_objects
-            .iter()
-            .map(|object_id| {
-                let object = typegen_context.schema.object(*object_id);
-                let import_alias = resolver_type_import_alias(
-                    object.name.item.0,
-                    *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
-                );
-                AST::ReturnTypeOfFunctionWithName(import_alias)
-            })
-            .collect(),
-    );
-    let interface_union_type = AST::Union(object_names);
-    resolver_arguments.push(KeyValuePairProp {
-        key: "model".intern(),
-        optional: false,
-        read_only: false,
-        value: interface_union_type,
-    });
+    if !model_types_for_type_assertion.is_empty() {
+        let interface_union_type = AST::Union(SortedASTList::new(model_types_for_type_assertion));
+        resolver_arguments.push(KeyValuePairProp {
+            key: "model".intern(),
+            optional: false,
+            read_only: false,
+            value: interface_union_type,
+        });
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -468,16 +466,16 @@ fn get_resolver_arguments(
         let interface = typegen_context.schema.interface(interface_id);
         let implementing_objects =
             interface.recursively_implementing_objects(typegen_context.schema);
-        let should_add_model_argument = implementing_objects.iter().all(|object_id| {
-            typegen_context
-                .schema
-                .named_field(
-                    Type::Object(*object_id),
-                    *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
-                )
-                .is_some()
-        });
-        if should_add_model_argument {
+        let resolver_directive = schema_field
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .unwrap();
+        // Add model argument if @rootFragment is not set on the resolver field
+        if !resolver_directive
+            .arguments
+            .iter()
+            .any(|arg| arg.name.0 == FRAGMENT_KEY_ARGUMENT_NAME.0)
+        {
             add_model_argument_for_interface_resolver(
                 &mut resolver_arguments,
                 implementing_objects,

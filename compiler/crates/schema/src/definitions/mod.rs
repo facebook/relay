@@ -397,6 +397,15 @@ pub struct Object {
     pub hack_source: Option<StringKey>,
 }
 
+impl Object {
+    pub fn named_field<S: Schema>(&self, name: StringKey, schema: &S) -> Option<FieldID> {
+        self.fields
+            .iter()
+            .find(|field_id| schema.field(**field_id).name.item == name)
+            .copied()
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct InputObject {
     pub name: WithLocation<InputObjectName>,

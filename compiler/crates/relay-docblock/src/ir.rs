@@ -601,8 +601,10 @@ trait ResolverTypeDefinitionIr: ResolverIr {
         for object_id in &schema.interface(interface_id).implementing_objects {
             if !seen_objects.contains(object_id) {
                 seen_objects.insert(*object_id);
-                definitions
-                    .extend(self.object_definitions(schema.object(*object_id), project_config));
+                let object = schema.object(*object_id);
+                if self.should_extend_interface_field_to_object(project_config, object) {
+                    definitions.extend(self.object_definitions(object, project_config));
+                }
             }
         }
 
@@ -638,6 +640,28 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             }
         }
         definitions
+    }
+
+    // To support model resolver fields defined directly on an interface, without @rootFragment:
+    // e.g. @RelayResolver InterfaceName.fieldName(model) { .. }
+    //
+    // Objects defined on server or in client schema extensions don't have a
+    // corresponding model to pass to such resolver fields. Skip extending the object with these
+    // resolver fields if a field of the same name is already implemented on the object.
+    //
+    // Schema validation should ensure the existing field is compatible with the interface definition.
+    fn should_extend_interface_field_to_object(
+        &self,
+        project_config: ResolverProjectConfig<'_, '_>,
+        object: &Object,
+    ) -> bool {
+        // Check @rootFragment on the interface resolver field
+        if self.root_fragment_name().is_some() {
+            return true;
+        }
+        object
+            .named_field(self.field_name().value, project_config.schema)
+            .is_none()
     }
 
     // When defining a resolver on an object or interface, we must be sure that this

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<40e2f9829c91ff17b973491611976fe1>>
+ * @generated SignedSource<<a47144580bc95ac84c3492a80a812e44>>
  */
 
 mod relay_compiler_integration;
@@ -125,6 +125,20 @@ async fn resolver_on_interface_of_all_strong_model_type() {
 }
 
 #[tokio::test]
+async fn resolver_on_interface_of_all_strong_model_type_including_cse() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type_including_cse.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type_including_cse.expected");
+    test_fixture(transform_fixture, file!(), "resolver_on_interface_of_all_strong_model_type_including_cse.input", "relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type_including_cse.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_of_all_strong_model_type_with_root_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type_with_root_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type_with_root_fragment.expected");
+    test_fixture(transform_fixture, file!(), "resolver_on_interface_of_all_strong_model_type_with_root_fragment.input", "relay_compiler_integration/fixtures/resolver_on_interface_of_all_strong_model_type_with_root_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn resolver_on_interface_of_all_weak_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_weak_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_weak_model_type.expected");
@@ -143,6 +157,13 @@ async fn resolver_returns_interface_of_all_strong_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_strong_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_strong_model_type.expected");
     test_fixture(transform_fixture, file!(), "resolver_returns_interface_of_all_strong_model_type.input", "relay_compiler_integration/fixtures/resolver_returns_interface_of_all_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_interface_of_all_strong_model_type_including_cse() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_strong_model_type_including_cse.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_strong_model_type_including_cse.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_interface_of_all_strong_model_type_including_cse.input", "relay_compiler_integration/fixtures/resolver_returns_interface_of_all_strong_model_type_including_cse.expected", input, expected).await;
 }
 
 #[tokio::test]

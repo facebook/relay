@@ -1,0 +1,62 @@
+==================================== INPUT ====================================
+fragment resolverOnInterfaceOfAllStrongModelTypeWithRootFragment on Cat {
+    description
+}
+
+fragment description_Fragment on Cat {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    id: ID!
+    description: String @relay_resolver(import_path: "CatResolver", fragment_name: "description_Fragment")
+}
+
+type Tabby implements Cat {
+    id: ID!
+    description: String @relay_resolver(import_path: "CatResolver", fragment_name: "description_Fragment")
+}
+
+type Persian implements Cat {
+    id: ID!
+    description: String @relay_resolver(import_path: "CatResolver", fragment_name: "description_Fragment")
+}
+==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+import catDescriptionResolverType from "CatResolver";
+// Type assertion validating that `catDescriptionResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(catDescriptionResolverType: (
+  rootKey: description_Fragment$key,
+) => ?mixed);
+declare export opaque type description_Fragment$fragmentType: FragmentType;
+export type description_Fragment$data = {|
+  +description: ?ReturnType<typeof catDescriptionResolverType>,
+  +$fragmentType: description_Fragment$fragmentType,
+|};
+export type description_Fragment$key = {
+  +$data?: description_Fragment$data,
+  +$fragmentSpreads: description_Fragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { description_Fragment$key } from "description_Fragment.graphql";
+import type { FragmentType } from "relay-runtime";
+import catDescriptionResolverType from "CatResolver";
+// Type assertion validating that `catDescriptionResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(catDescriptionResolverType: (
+  rootKey: description_Fragment$key,
+) => ?mixed);
+declare export opaque type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType: FragmentType;
+export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data = {|
+  +description: ?ReturnType<typeof catDescriptionResolverType>,
+  +$fragmentType: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
+|};
+export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$key = {
+  +$data?: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data,
+  +$fragmentSpreads: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
+  ...
+};

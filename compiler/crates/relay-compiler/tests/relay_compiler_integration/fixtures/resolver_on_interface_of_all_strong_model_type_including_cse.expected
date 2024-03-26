@@ -1,0 +1,64 @@
+==================================== INPUT ====================================
+//- PersonComponent.js
+graphql`fragment PersonComponentFragment on IPerson {
+  name
+}`
+
+
+//- UserTypeResolvers.js
+/**
+ * @RelayResolver User implements IPerson
+ */
+
+//- AdminTypeResolvers.js
+/**
+ * @RelayResolver Admin implements IPerson
+ */
+
+//- IPersonResolvers.js
+/**
+ * @RelayResolver IPerson.name: String
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "enable_relay_resolver_transform": true,
+    "enable_resolver_normalization_ast": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+
+//- schema-extensions/extension.graphql
+interface IPerson {
+  id: ID!
+}
+
+type Visitor implements IPerson {
+  id: ID!
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Duplicate field definition 'name' found.
+
+  IPersonResolvers.js:2:27
+    1 │ *
+    2 │  * @RelayResolver IPerson.name: String
+      │                           ^^^^
+    3 │  
+
+  ℹ︎ previously defined here
+
+  schema-extensions/extension.graphql:7:3
+    6 │   id: ID!
+    7 │   name: String
+      │   ^^^^
+    8 │ }

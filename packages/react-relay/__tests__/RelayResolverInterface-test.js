@@ -151,50 +151,34 @@ test('resolvers can return an interface where all implementors are strong model 
     return <AnimalLegsComponent animal={data.animal} />;
   }
 
-  const currentErrorMessage =
-    'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. This indicates a bug in Relay.';
+  const fishRenderer = TestRenderer.create(
+    <EnvironmentWrapper environment={environment}>
+      <AnimalLegsQueryComponent
+        request={{ofType: 'Fish', returnValidID: true}}
+      />
+    </EnvironmentWrapper>,
+  );
 
-  expect(() => {
-    const fishRenderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <AnimalLegsQueryComponent
-          request={{ofType: 'Fish', returnValidID: true}}
-        />
-      </EnvironmentWrapper>,
-    );
-    // TODO(T178139205): This assertion is not yet hit because the above code throws.
-    // Once T178139205 is implemented we can remove the expect().toThrow() and hit this
-    // assertion instead.
-    expect(fishRenderer.toJSON()).toEqual('0');
-  }).toThrow(currentErrorMessage);
+  expect(fishRenderer.toJSON()).toEqual('0');
 
-  expect(() => {
-    const catRenderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <AnimalLegsQueryComponent
-          request={{ofType: 'Cat', returnValidID: true}}
-        />
-      </EnvironmentWrapper>,
-    );
-    // TODO(T178139205): This assertion is not yet hit because the above code throws.
-    // Once T178139205 is implemented we can remove the expect().toThrow() and hit this
-    // assertion instead.
-    expect(catRenderer.toJSON()).toEqual('4');
-  }).toThrow(currentErrorMessage);
+  const catRenderer = TestRenderer.create(
+    <EnvironmentWrapper environment={environment}>
+      <AnimalLegsQueryComponent
+        request={{ofType: 'Cat', returnValidID: true}}
+      />
+    </EnvironmentWrapper>,
+  );
 
-  expect(() => {
-    const catRenderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <AnimalLegsQueryComponent
-          request={{ofType: 'Cat', returnValidID: false}} // This should trigger a `null` value.
-        />
-      </EnvironmentWrapper>,
-    );
-    // TODO(T178139205): This assertion is not yet hit because the above code throws.
-    // Once T178139205 is implemented we can remove the expect().toThrow() and hit this
-    // assertion instead.
-    expect(catRenderer.toJSON()).toEqual(null);
-  }).toThrow(currentErrorMessage);
+  expect(catRenderer.toJSON()).toEqual('4');
+
+  const nullRenderer = TestRenderer.create(
+    <EnvironmentWrapper environment={environment}>
+      <AnimalLegsQueryComponent
+        request={{ofType: 'Cat', returnValidID: false}} // This should trigger a `null` value.
+      />
+    </EnvironmentWrapper>,
+  );
+  expect(nullRenderer.toJSON()).toEqual('NULL');
 });
 
 test('resolvers can return a list of interfaces where all implementors are strong model types', () => {
@@ -223,24 +207,17 @@ test('resolvers can return a list of interfaces where all implementors are stron
     });
   }
 
-  const currentErrorMessage =
-    'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. This indicates a bug in Relay.';
-  expect(() => {
-    const fishRenderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <AnimalsLegsQueryComponent
-          requests={[
-            {ofType: 'Fish', returnValidID: true},
-            {ofType: 'Fish', returnValidID: false}, // This should trigger a `null` value.
-            {ofType: 'Cat', returnValidID: true},
-            {ofType: 'Cat', returnValidID: false}, // This should trigger a `null` value.
-          ]}
-        />
-      </EnvironmentWrapper>,
-    );
-    // TODO(T178139205): This assertion is not yet hit because the above code throws.
-    // Once T178139205 is implemented we can remove the expect().toThrow() and hit this
-    // assertion instead.
-    expect(fishRenderer.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
-  }).toThrow(currentErrorMessage);
+  const fishRenderer = TestRenderer.create(
+    <EnvironmentWrapper environment={environment}>
+      <AnimalsLegsQueryComponent
+        requests={[
+          {ofType: 'Fish', returnValidID: true},
+          {ofType: 'Fish', returnValidID: false}, // This should trigger a `null` value.
+          {ofType: 'Cat', returnValidID: true},
+          {ofType: 'Cat', returnValidID: false}, // This should trigger a `null` value.
+        ]}
+      />
+    </EnvironmentWrapper>,
+  );
+  expect(fishRenderer.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
 });

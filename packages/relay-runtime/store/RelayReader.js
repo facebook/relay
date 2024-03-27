@@ -763,51 +763,45 @@ class RelayReader {
         Array.isArray(clientEdgeResolverResponse),
         'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
       );
-      const ids = clientEdgeResolverResponse.map(extractIdFromResponse);
       let storeIDs: $ReadOnlyArray<DataID>;
       invariant(
         field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT,
         'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
       );
       if (field.backingField.normalizationInfo == null) {
-        const concreteType = field.concreteType;
-        invariant(
-          concreteType != null,
-          'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
-            'This indicates a bug in Relay.',
-        );
         // @edgeTo case where we need to ensure that the record has `id` field
-        storeIDs = ids.map(id =>
-          this._resolverCache.ensureClientRecord(id, concreteType),
-        );
+        storeIDs = clientEdgeResolverResponse.map(itemResponse => {
+          const concreteType = field.concreteType ?? itemResponse.__typename;
+          invariant(
+            typeof concreteType === 'string',
+            'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
+          );
+          const localId = extractIdFromResponse(itemResponse);
+          const id = this._resolverCache.ensureClientRecord(
+            localId,
+            concreteType,
+          );
+
+          const modelResolvers = field.modelResolvers;
+          if (modelResolvers != null) {
+            const modelResolver = modelResolvers[concreteType];
+            invariant(
+              modelResolver !== undefined,
+              `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(modelResolvers).join(', ')} but got \`${concreteType}\`.`,
+            );
+            const model = this._readResolverFieldImpl(modelResolver, id);
+            return model != null ? id : null;
+          }
+          return id;
+        });
       } else {
         // The normalization process in LiveResolverCache should take care of generating the correct ID.
-        storeIDs = ids;
-      }
-
-      let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
-      if (field.modelResolvers != null) {
-        invariant(
-          field.concreteType != null,
-          'concreteType should not be null',
-        );
-        const modelResolver = field.modelResolvers[field.concreteType];
-        invariant(
-          modelResolver !== undefined,
-          'modelResolver should not be undefined',
-        );
-        validStoreIDs = storeIDs.map(storeID => {
-          const model = this._readResolverFieldImpl(
-            modelResolver, // TODO: Pick correct model resolver for this edge
-            storeID,
-          );
-          return model != null ? storeID : null;
-        });
+        storeIDs = clientEdgeResolverResponse.map(extractIdFromResponse);
       }
       this._clientEdgeTraversalPath.push(null);
       const edgeValues = this._readLinkedIds(
         field.linkedField,
-        validStoreIDs,
+        storeIDs,
         record,
         data,
       );
@@ -817,14 +811,14 @@ class RelayReader {
     } else {
       const id = extractIdFromResponse(clientEdgeResolverResponse);
       let storeID: DataID;
+      const concreteType =
+        field.concreteType ?? clientEdgeResolverResponse.__typename;
       let traversalPathSegment: ClientEdgeTraversalInfo | null;
       if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
         if (field.backingField.normalizationInfo == null) {
-          const concreteType = field.concreteType;
           invariant(
-            concreteType != null,
-            'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
-              'This indicates a bug in Relay.',
+            typeof concreteType === 'string',
+            'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
           );
           // @edgeTo case where we need to ensure that the record has `id` field
           storeID = this._resolverCache.ensureClientRecord(id, concreteType);
@@ -842,17 +836,17 @@ class RelayReader {
         };
       }
 
-      if (field.modelResolvers != null) {
+      const modelResolvers = field.modelResolvers;
+      if (modelResolvers != null) {
         invariant(
-          field.concreteType != null,
-          'concreteType should not be null',
+          typeof concreteType === 'string',
+          'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
         );
-        const modelResolver = field.modelResolvers[field.concreteType];
+        const modelResolver = modelResolvers[concreteType];
         invariant(
           modelResolver !== undefined,
-          'modelResolver should not be undefined',
+          `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(modelResolvers).join(', ')} but got \`${concreteType}\`.`,
         );
-        // TODO: Pick correct model resolver for this edge
         const model = this._readResolverFieldImpl(modelResolver, storeID);
         if (model == null) {
           // If the model resolver returns undefined, we should still return null

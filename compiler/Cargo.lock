@@ -133,6 +133,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "base64"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
+
+[[package]]
 name = "beef"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -166,6 +172,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "bstr"
+version = "1.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05efc5cfd9110c8416e471df0e96702d58690178e206e61b7173706673c93706"
+dependencies = [
+ "memchr",
+ "serde",
 ]
 
 [[package]]
@@ -278,6 +294,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cmake"
+version = "0.1.50"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a31c789563b815f77f4250caee12365734369f942439b7defd71e18a48197130"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "colored"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -308,6 +333,18 @@ name = "common-path"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2382f75942f4b3be3690fe4f86365e9c853c1587d6ee58212cebf6e2a9ccd101"
+
+[[package]]
+name = "console"
+version = "0.15.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0e1f83fc076bd6dd27517eacdf25fef6c4dfe5f1d7448bafaaf3a26f13b5e4eb"
+dependencies = [
+ "encode_unicode",
+ "lazy_static",
+ "libc",
+ "windows-sys 0.52.0",
+]
 
 [[package]]
 name = "console_error_panic_hook"
@@ -496,6 +533,12 @@ name = "either"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
+
+[[package]]
+name = "encode_unicode"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a357d28ed41a50f9c765dbfe56cbc04a64e53e5fc58ba79fbc34c10ef3df831f"
 
 [[package]]
 name = "equivalent"
@@ -729,6 +772,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 
 [[package]]
+name = "globset"
+version = "0.4.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57da3b9b5b85bd66f31093f8c408b90a74431672542466497dcbdfdc02034be1"
+dependencies = [
+ "aho-corasick",
+ "bstr",
+ "log",
+ "regex-automata",
+ "regex-syntax 0.8.2",
+]
+
+[[package]]
 name = "graphql-cli"
 version = "0.0.0"
 dependencies = [
@@ -874,6 +930,78 @@ name = "heck"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
+
+[[package]]
+name = "hermes"
+version = "0.1.0"
+source = "git+https://github.com/facebook/hermes.git#c4a4655c0192218b37ba14af71a5fa5877ecd29b"
+dependencies = [
+ "cmake",
+ "juno_support",
+ "libc",
+ "libcplusplus",
+ "thiserror",
+]
+
+[[package]]
+name = "hermes_comments"
+version = "0.1.0"
+source = "git+https://github.com/facebook/hermes.git#c4a4655c0192218b37ba14af71a5fa5877ecd29b"
+dependencies = [
+ "hermes_estree",
+ "hermes_parser",
+]
+
+[[package]]
+name = "hermes_diagnostics"
+version = "0.1.0"
+source = "git+https://github.com/facebook/hermes.git#c4a4655c0192218b37ba14af71a5fa5877ecd29b"
+dependencies = [
+ "hermes_estree",
+ "miette",
+ "static_assertions",
+ "thiserror",
+]
+
+[[package]]
+name = "hermes_estree"
+version = "0.1.0"
+source = "git+https://github.com/facebook/hermes.git#c4a4655c0192218b37ba14af71a5fa5877ecd29b"
+dependencies = [
+ "hermes_estree_codegen",
+ "insta",
+ "serde",
+ "serde_json",
+ "static_assertions",
+]
+
+[[package]]
+name = "hermes_estree_codegen"
+version = "0.1.0"
+source = "git+https://github.com/facebook/hermes.git#c4a4655c0192218b37ba14af71a5fa5877ecd29b"
+dependencies = [
+ "indexmap 2.2.2",
+ "prettyplease",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn 2.0.48",
+]
+
+[[package]]
+name = "hermes_parser"
+version = "0.1.0"
+source = "git+https://github.com/facebook/hermes.git#c4a4655c0192218b37ba14af71a5fa5877ecd29b"
+dependencies = [
+ "hermes",
+ "hermes_diagnostics",
+ "hermes_estree",
+ "hermes_estree_codegen",
+ "insta",
+ "juno_support",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "hermit-abi"
@@ -1024,6 +1152,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "insta"
+version = "1.37.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1718b3f2b85bb5054baf8ce406e36401f27c3169205f4175504c4b1d98252d3f"
+dependencies = [
+ "console",
+ "globset",
+ "lazy_static",
+ "linked-hash-map",
+ "similar",
+ "walkdir",
+]
+
+[[package]]
 name = "intern"
 version = "0.1.0"
 dependencies = [
@@ -1122,6 +1264,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "juno_support"
+version = "0.1.0"
+source = "git+https://github.com/facebook/hermes.git#c4a4655c0192218b37ba14af71a5fa5877ecd29b"
+dependencies = [
+ "anyhow",
+ "base64",
+ "cmake",
+ "libcplusplus",
+ "thiserror",
+ "url",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1132,6 +1287,17 @@ name = "libc"
 version = "0.2.153"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
+
+[[package]]
+name = "libcplusplus"
+version = "0.1.0"
+source = "git+https://github.com/facebook/hermes.git#c4a4655c0192218b37ba14af71a5fa5877ecd29b"
+
+[[package]]
+name = "linked-hash-map"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
 
 [[package]]
 name = "linux-raw-sys"
@@ -1239,6 +1405,29 @@ name = "memory_units"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8452105ba047068f40ff7093dd1d9da90898e63dd61736462e9cdda6a90ad3c3"
+
+[[package]]
+name = "miette"
+version = "5.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59bb584eaeeab6bd0226ccf3509a69d7936d148cf3d036ad350abe35e8c6856e"
+dependencies = [
+ "miette-derive",
+ "once_cell",
+ "thiserror",
+ "unicode-width",
+]
+
+[[package]]
+name = "miette-derive"
+version = "5.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "49e7bc1560b95a3c4a25d03de42fe76ca718ab92d1a22a55b9b4cf67b3ae635c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.48",
+]
 
 [[package]]
 name = "miniz_oxide"
@@ -1467,6 +1656,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
 
 [[package]]
+name = "prettyplease"
+version = "0.2.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d3928fb5db768cb86f891ff014f0144589297e3c6a1aba6ed7cecfdace270c7"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.48",
+]
+
+[[package]]
 name = "proc-macro-error"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1682,6 +1881,7 @@ dependencies = [
  "relay-config",
  "relay-docblock",
  "relay-schema",
+ "relay-schema-generation",
  "relay-test-schema",
  "relay-transforms",
  "relay-typegen",
@@ -1809,9 +2009,36 @@ name = "relay-schema"
 version = "0.0.0"
 dependencies = [
  "common",
+ "docblock-shared",
  "intern",
  "lazy_static",
  "schema",
+]
+
+[[package]]
+name = "relay-schema-generation"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "docblock-shared",
+ "docblock-syntax",
+ "fixture-tests",
+ "graphql-cli",
+ "graphql-ir",
+ "graphql-syntax",
+ "graphql-test-helpers",
+ "hermes_comments",
+ "hermes_estree",
+ "hermes_parser",
+ "intern",
+ "relay-config",
+ "relay-docblock",
+ "relay-test-schema",
+ "rustc-hash",
+ "schema-extractor",
+ "serde",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -1848,6 +2075,7 @@ dependencies = [
  "parking_lot",
  "regex",
  "relay-config",
+ "relay-schema",
  "relay-test-schema",
  "rustc-hash",
  "schema",
@@ -2002,6 +2230,22 @@ version = "0.0.0"
 dependencies = [
  "intern",
  "schema",
+]
+
+[[package]]
+name = "schema-extractor"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "fixture-tests",
+ "graphql-cli",
+ "hermes_comments",
+ "hermes_estree",
+ "hermes_parser",
+ "intern",
+ "serde",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -2191,6 +2435,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "similar"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32fea41aca09ee824cc9724996433064c89f7777e60762749a4170a14abbfa21"
+
+[[package]]
 name = "simplelog"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2228,6 +2478,12 @@ dependencies = [
  "libc",
  "windows-sys 0.48.0",
 ]
+
+[[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strsim"

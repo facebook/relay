@@ -33,7 +33,7 @@ dunce = "1.0.2"
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
-futures = { version = "0.3.28", features = ["async-await", "compat"] }
+futures = { version = "0.3.30", features = ["async-await", "compat"] }
 glob = "0.3"
 graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
@@ -74,6 +74,6 @@ zstd = { version = "0.13", features = ["experimental", "zstdmt"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-futures-util = "0.3.7"
+futures-util = "0.3.30"
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }

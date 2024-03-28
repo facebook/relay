@@ -58,6 +58,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
       | ((null | React$ElementRef<TBase>) => mixed)
       | {-current: null | React$ElementRef<TBase>, ...},
   ) {
+    // $FlowFixMe[react-rule-hook]
     const context = useContext(ReactRelayContext);
     invariant(
       context != null,
@@ -66,6 +67,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
       containerName,
       containerName,
     );
+    // $FlowFixMe[react-rule-hook]
     const queryRendererContext = useContext(ReactRelayQueryRendererContext);
 
     return (

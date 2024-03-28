@@ -149,6 +149,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       );
 
       const name = result?.node?.name ?? 'Empty';
+      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         queryRenderLogs.push(`commit: ${name}`);
         return () => {
@@ -185,6 +186,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       } else {
         entryPointRefId = entryPointRef.queries.TestQuery?.id ?? 'Unknown';
       }
+      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         loaderRenderLogs.push(`commit: ${entryPointRefId}`);
         return () => {

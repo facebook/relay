@@ -132,6 +132,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
 
       const name = result?.node?.name ?? 'Empty';
+      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         queryRenderLogs.push(`commit: ${name}`);
         return () => {
@@ -148,6 +149,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       const [queryRef] = useQueryLoader(gqlQuery, props.initialQueryRef);
 
       const queryRefId = queryRef == null ? 'null' : queryRef.id ?? 'Unknown';
+      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         loaderRenderLogs.push(`commit: ${queryRefId}`);
         return () => {

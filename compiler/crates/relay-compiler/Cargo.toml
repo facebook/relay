@@ -54,7 +54,6 @@ relay-codegen = { path = "../relay-codegen" }
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }
 relay-schema = { path = "../relay-schema" }
-relay-schema-generation = { path = "../relay-schema-generation" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 rustc-hash = "1.1.0"

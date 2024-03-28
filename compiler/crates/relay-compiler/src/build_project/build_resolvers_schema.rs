@@ -6,7 +6,6 @@
  */
 
 use common::DiagnosticsResult;
-use common::SourceLocationKey;
 use common::Span;
 use docblock_syntax::DocblockAST;
 use errors::try_all;
@@ -25,8 +24,6 @@ use graphql_syntax::TokenKind;
 use graphql_syntax::TypeSystemDefinition;
 use relay_config::ProjectName;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
-use relay_docblock::DocblockIr;
-use relay_schema_generation::RelayResolverExtractor;
 use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use schema::SDLSchema;
 
@@ -52,16 +49,8 @@ pub(crate) fn extend_schema_with_resolvers(
         graphql_asts_map,
     )?;
 
-    let (types_ir, fields_ir) = extract_flow_based_resolvers(project_config.name, compiler_state)?;
-
-    extend_schema_with_types(schema, project_config, type_asts, types_ir, false)?;
-    extend_schema_with_fields(
-        schema,
-        project_config,
-        field_asts_and_definitions,
-        fields_ir,
-        false,
-    )?;
+    extend_schema_with_types(schema, project_config, type_asts, false)?;
+    extend_schema_with_fields(schema, project_config, field_asts_and_definitions, false)?;
 
     if let Some(base_project_name) = project_config.base {
         // We also need to extend the schema with resolvers from base project.
@@ -77,17 +66,8 @@ pub(crate) fn extend_schema_with_resolvers(
             graphql_asts_map,
         )?;
 
-        let (types_ir, fields_ir) =
-            extract_flow_based_resolvers(project_config.name, compiler_state)?;
-
-        extend_schema_with_types(schema, project_config, type_asts, types_ir, true)?;
-        extend_schema_with_fields(
-            schema,
-            project_config,
-            field_asts_and_definitions,
-            fields_ir,
-            true,
-        )?;
+        extend_schema_with_types(schema, project_config, type_asts, true)?;
+        extend_schema_with_fields(schema, project_config, field_asts_and_definitions, true)?;
     }
 
     Ok(())
@@ -97,25 +77,12 @@ fn extend_schema_with_types(
     schema: &mut SDLSchema,
     project_config: &ProjectConfig,
     type_asts: TypeAsts,
-    types_ir: impl Iterator<Item = DocblockIr>,
     is_base_project: bool,
 ) -> DiagnosticsResult<()> {
     let type_definitions =
         build_schema_documents_from_docblocks(&type_asts.0, project_config, schema, None)?;
 
-    let new_type_defintions = try_all(types_ir.map(|ir| {
-        ir.to_graphql_schema_ast(
-            project_config.name,
-            schema,
-            &project_config.schema_config,
-            &project_config.feature_flags,
-        )
-    }))?;
-
-    for schema_document in type_definitions
-        .into_iter()
-        .chain(new_type_defintions.into_iter())
-    {
+    for schema_document in type_definitions {
         for definition in schema_document.definitions {
             extend_schema_with_resolver_type_system_definition(
                 if is_base_project {
@@ -136,7 +103,6 @@ fn extend_schema_with_fields(
     schema: &mut SDLSchema,
     project_config: &ProjectConfig,
     field_asts_and_definitions: FieldAstsAndDefinitions<'_>,
-    fields_ir: impl Iterator<Item = DocblockIr>,
     is_base_project: bool,
 ) -> DiagnosticsResult<()> {
     let field_definitions = try_all(field_asts_and_definitions.0.into_iter().map(
@@ -145,20 +111,10 @@ fn extend_schema_with_fields(
         },
     ))?;
 
-    let new_field_defintions = try_all(fields_ir.map(|ir| {
-        ir.to_graphql_schema_ast(
-            project_config.name,
-            schema,
-            &project_config.schema_config,
-            &project_config.feature_flags,
-        )
-    }))?;
-
     try_all(
         field_definitions
             .into_iter()
             .flatten()
-            .chain(new_field_defintions.into_iter())
             .map::<DiagnosticsResult<()>, _>(|schema_document| {
                 for definition in schema_document.definitions {
                     extend_schema_with_resolver_type_system_definition(
@@ -176,49 +132,6 @@ fn extend_schema_with_fields(
     )?;
 
     Ok(())
-}
-
-fn extract_flow_based_resolvers(
-    project_name: ProjectName,
-    compiler_state: &CompilerState,
-) -> DiagnosticsResult<(
-    impl Iterator<Item = DocblockIr>,
-    impl Iterator<Item = DocblockIr>,
-)> {
-    let full_sources = compiler_state.full_sources.get(&project_name);
-    if let Some(full_sources) = full_sources {
-        let sources = full_sources.get_all_non_empty();
-        let mut errors = vec![];
-        let mut extractor = RelayResolverExtractor::new();
-
-        sources.into_iter().for_each(|(path, content)| {
-            let source_location: common::SourceLocationKey =
-                SourceLocationKey::standalone(path.to_str().unwrap());
-            if let Err(err) = extractor.parse_document(content, source_location) {
-                errors.extend(err);
-            }
-        });
-
-        match extractor.resolve() {
-            Ok((objects, fields)) => {
-                return if !errors.is_empty() {
-                    Err(errors)
-                } else {
-                    Ok((
-                        objects.into_iter().map(DocblockIr::StrongObjectResolver),
-                        fields.into_iter().map(DocblockIr::TerseRelayResolver),
-                    ))
-                };
-            }
-            Err(err) => {
-                errors.extend(err);
-            }
-        };
-
-        Err(errors)
-    } else {
-        unreachable!("Expected sources to exist.");
-    }
 }
 
 struct ResolverSchemaDocuments<'a> {

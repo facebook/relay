@@ -38,7 +38,6 @@ pub struct LocatedDocblockSource {
 pub struct LocatedJavascriptSourceFeatures {
     pub graphql_sources: Vec<LocatedGraphQLSource>,
     pub docblock_sources: Vec<LocatedDocblockSource>,
-    pub full_source: String,
 }
 
 pub trait SourceReader {
@@ -55,9 +54,6 @@ impl SourceReader for FsSourceReader {
     }
 }
 
-// Tag to determine if the compiler should use the new parser to process @RelayResolver
-const NEW_RELAY_RESOLVER_TAG: &str = "relay:enable-new-relay-resolver";
-
 /// Reads and extracts `graphql` tagged literals and Relay-specific docblocks
 /// from a JavaScript file.
 pub fn extract_javascript_features_from_file(
@@ -68,8 +64,6 @@ pub fn extract_javascript_features_from_file(
     let features = extract_graphql::extract(&contents);
     let mut graphql_sources = Vec::new();
     let mut docblock_sources = Vec::new();
-    let enable_new_relay_resolvers = contents.contains(NEW_RELAY_RESOLVER_TAG);
-
     for (index, feature) in features.into_iter().enumerate() {
         match feature {
             JavaScriptSourceFeature::GraphQL(graphql_source) => {
@@ -79,12 +73,10 @@ pub fn extract_javascript_features_from_file(
                 })
             }
             JavaScriptSourceFeature::Docblock(docblock_source) => {
-                if !enable_new_relay_resolvers {
-                    docblock_sources.push(LocatedDocblockSource {
-                        docblock_source,
-                        index,
-                    })
-                }
+                docblock_sources.push(LocatedDocblockSource {
+                    docblock_source,
+                    index,
+                })
             }
         }
     }
@@ -92,11 +84,6 @@ pub fn extract_javascript_features_from_file(
     Ok(LocatedJavascriptSourceFeatures {
         graphql_sources,
         docblock_sources,
-        full_source: if enable_new_relay_resolvers {
-            contents
-        } else {
-            String::new()
-        },
     })
 }
 

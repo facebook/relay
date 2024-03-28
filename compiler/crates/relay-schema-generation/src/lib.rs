@@ -245,10 +245,7 @@ impl RelayResolverExtractor {
         let strong_object = StrongObjectIr {
             type_name: string_key_to_identifier(name),
             rhs_location: name.location,
-            root_fragment: WithLocation::new(
-                name.location,
-                FragmentDefinitionName(format!("{}__id", name.item).intern()),
-            ),
+            root_fragment: WithLocation::new(name.location, FragmentDefinitionName(name.item)),
             description: None,
             deprecated: None,
             live: None,

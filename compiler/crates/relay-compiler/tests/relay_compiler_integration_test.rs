@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a47144580bc95ac84c3492a80a812e44>>
+ * @generated SignedSource<<7361e8ee8ea5d74f22c7aa6f30d86839>>
  */
 
 mod relay_compiler_integration;
@@ -94,20 +94,6 @@ async fn preloadable_query_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
     test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn resolver_mixed_on_function() {
-    let input = include_str!("relay_compiler_integration/fixtures/resolver_mixed_on_function.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/resolver_mixed_on_function.expected");
-    test_fixture(transform_fixture, file!(), "resolver_mixed_on_function.input", "relay_compiler_integration/fixtures/resolver_mixed_on_function.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn resolver_new_on_function() {
-    let input = include_str!("relay_compiler_integration/fixtures/resolver_new_on_function.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/resolver_new_on_function.expected");
-    test_fixture(transform_fixture, file!(), "resolver_new_on_function.input", "relay_compiler_integration/fixtures/resolver_new_on_function.expected", input, expected).await;
 }
 
 #[tokio::test]

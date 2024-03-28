@@ -47,7 +47,7 @@ StrongObjectResolver(
         root_fragment: WithLocation {
             location: module.js:272:275,
             item: FragmentDefinitionName(
-                "Cat__id",
+                "Cat",
             ),
         },
         description: None,
@@ -62,7 +62,7 @@ StrongObjectResolver(
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 

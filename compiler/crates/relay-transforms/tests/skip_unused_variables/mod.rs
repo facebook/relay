@@ -10,5 +10,5 @@ use graphql_test_helpers::apply_transform_for_test;
 use relay_transforms::validate_operation_variables;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    apply_transform_for_test(fixture, |program| validate_operation_variables(program))
+    apply_transform_for_test(fixture, validate_operation_variables)
 }

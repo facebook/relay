@@ -118,8 +118,8 @@ impl WatchmanFileSourceSubscription {
 /// TODO: Make this dynamic on the default branch name.
 fn get_base_hg_revision(commit_hash: Option<String>) -> Option<String> {
     let output = Command::new("hg")
-        .arg("log".to_string())
-        .arg("-r".to_string())
+        .arg("log")
+        .arg("-r")
         .arg(format!(
             "ancestor(master, {})",
             commit_hash.unwrap_or_else(|| ".".to_string())

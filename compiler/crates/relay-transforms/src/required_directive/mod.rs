@@ -526,9 +526,9 @@ pub enum RequiredAction {
     Throw,
 }
 
-impl Into<StringKey> for RequiredAction {
-    fn into(self) -> StringKey {
-        match self {
+impl From<RequiredAction> for StringKey {
+    fn from(val: RequiredAction) -> Self {
+        match val {
             RequiredAction::None => *NONE_ACTION,
             RequiredAction::Log => *LOG_ACTION,
             RequiredAction::Throw => *THROW_ACTION,

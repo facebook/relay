@@ -186,7 +186,7 @@ pub async fn test_fixture<T, U, V>(
 fn workspace_root() -> PathBuf {
     if let Ok(cargo) = std::env::var("CARGO") {
         let stdout = Command::new(cargo)
-            .args(&["locate-project", "--workspace", "--message-format=plain"])
+            .args(["locate-project", "--workspace", "--message-format=plain"])
             .output()
             .unwrap()
             .stdout;

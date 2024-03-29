@@ -152,50 +152,43 @@ mod tests {
 
     #[test]
     fn test_no_filter() {
-        assert_eq!(
-            should_include_named_item("Yohan Blake", &Some("London 2012".to_string()), &None),
-            true
-        );
-        assert_eq!(should_include_named_item("Usain Bolt", &None, &None), true);
+        assert!(should_include_named_item(
+            "Yohan Blake",
+            &Some("London 2012".to_string()),
+            &None
+        ));
+        assert!(should_include_named_item("Usain Bolt", &None, &None));
     }
 
     #[test]
     fn test_filter_matches_name() {
-        assert_eq!(
-            should_include_named_item("Michael Frater", &None, &Some("michael".to_string())),
-            true
-        );
-        assert_eq!(
-            should_include_named_item(
-                "Nesta Carter",
-                &Some("London 2012".to_string()),
-                &Some("nesta".to_string())
-            ),
-            true
-        );
+        assert!(should_include_named_item(
+            "Michael Frater",
+            &None,
+            &Some("michael".to_string())
+        ));
+        assert!(should_include_named_item(
+            "Nesta Carter",
+            &Some("London 2012".to_string()),
+            &Some("nesta".to_string())
+        ));
     }
 
     #[test]
     fn test_filter_matches_description() {
-        assert_eq!(
-            should_include_named_item(
-                "Tiana Bartoletta",
-                &Some("London 2012".to_string()),
-                &Some("london".to_string())
-            ),
-            true
-        );
+        assert!(should_include_named_item(
+            "Tiana Bartoletta",
+            &Some("London 2012".to_string()),
+            &Some("london".to_string())
+        ));
     }
 
     #[test]
     fn test_non_matching_filter() {
-        assert_eq!(
-            should_include_named_item(
-                "Allyson Felix",
-                &Some("London 2012".to_string()),
-                &Some("salt lake city".to_string())
-            ),
-            false
-        );
+        assert!(!should_include_named_item(
+            "Allyson Felix",
+            &Some("London 2012".to_string()),
+            &Some("salt lake city".to_string())
+        ));
     }
 }

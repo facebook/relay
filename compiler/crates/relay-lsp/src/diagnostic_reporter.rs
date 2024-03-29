@@ -323,11 +323,7 @@ pub fn publish_diagnostic(
     sender: &Sender<Message>,
 ) -> LSPProcessResult<()> {
     let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
-    sender
-        .send(Message::Notification(notif))
-        .unwrap_or_else(|_| {
-            // TODO(brandondail) log here
-        });
+    sender.send(Message::Notification(notif)).unwrap_or(());
     Ok(())
 }
 

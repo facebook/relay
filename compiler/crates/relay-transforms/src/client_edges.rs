@@ -133,8 +133,7 @@ impl<'a> ClientEdgeMetadata<'a> {
                 "Expected Client Edge inline fragment to have exactly two selections. This is a bug in the Relay compiler."
             );
             let mut backing_field = fragment
-                .selections
-                .get(0)
+                .selections.first()
                 .expect("Client Edge inline fragments have exactly two selections").clone();
 
             let backing_field_directives = backing_field.directives().iter().filter(|directive|
@@ -687,7 +686,7 @@ fn make_refetchable_directive(query_name: OperationDefinitionName) -> Directive 
 }
 
 pub fn remove_client_edge_selections(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesCleanupTransform::default();
+    let mut transform = ClientEdgesCleanupTransform;
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());

@@ -613,7 +613,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8192).try_for_each_init(
         || Printer::with_dedupe(project_config),
-        |mut printer, artifacts| {
+        |printer, artifacts| {
             for artifact in artifacts {
                 if should_stop_updating_artifacts() {
                     return Err(BuildProjectFailure::Cancelled);
@@ -622,7 +622,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
                 let content = artifact.content.as_bytes(
                     config,
                     project_config,
-                    &mut printer,
+                    printer,
                     schema,
                     artifact.source_file,
                     fragment_locations,

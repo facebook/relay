@@ -246,7 +246,7 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
         }
     }
 
-    return Ok(());
+    Ok(())
 }
 
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
@@ -266,7 +266,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     set_project_flag(&mut config, command.projects)?;
 
     if command.validate {
-        config.artifact_writer = Box::new(ArtifactValidationWriter::default());
+        config.artifact_writer = Box::<ArtifactValidationWriter>::default();
     }
 
     config.create_operation_persister = Some(Box::new(|project_config| {

@@ -87,7 +87,7 @@ pub fn on_goto_definition(
         }
     };
 
-    let extra_data_provider = &*state.get_extra_data_provider();
+    let extra_data_provider = state.get_extra_data_provider();
     let root_dir = state.root_dir();
 
     let goto_definition_response: GotoDefinitionResponse = match definition_description {

@@ -32,7 +32,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         (get_test_schema(), fixture.content)
     };
     let cursor_position = document.find('|').unwrap() - 1;
-    let source = document.replace("|", "");
+    let source = document.replace('|', "");
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let ast = parse_executable(&source, source_location)
         .map_err(|diagnostics| diagnostics_to_sorted_string(&source, &diagnostics))?;

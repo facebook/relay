@@ -28,7 +28,7 @@ fn parse_and_resolve_completion_items(
     program: Option<Program>,
 ) -> Option<Vec<CompletionItem>> {
     let pos = source.find('|').unwrap() - 1;
-    let next_source = source.replace("|", "");
+    let next_source = source.replace('|', "");
     let document = parse_executable_with_error_recovery(
         &next_source,
         SourceLocationKey::standalone("/test/file"),

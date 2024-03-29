@@ -116,7 +116,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
         ..Default::default()
     };
 
-    let server_capabilities = serde_json::to_value(&server_capabilities)?;
+    let server_capabilities = serde_json::to_value(server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
     let params: InitializeParams = serde_json::from_value(params)?;
     Ok(params)

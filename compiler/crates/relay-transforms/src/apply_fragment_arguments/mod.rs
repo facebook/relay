@@ -533,7 +533,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         );
 
         // add this fragment's provided variables to that of the enclosing operation / fragment
-        saved_provided_vars.extend(self.provided_variables.drain(..).into_iter());
+        saved_provided_vars.extend(self.provided_variables.drain(..));
         self.provided_variables = saved_provided_vars;
         self.scope = saved_scope;
     }
@@ -632,7 +632,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         );
 
         // add this fragment's provided variables to that of the enclosing operation / fragment
-        saved_provided_vars.extend(self.provided_variables.drain(..).into_iter());
+        saved_provided_vars.extend(self.provided_variables.drain(..));
         self.provided_variables = saved_provided_vars;
         self.scope.pop();
 

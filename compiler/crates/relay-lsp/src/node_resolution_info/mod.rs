@@ -125,7 +125,7 @@ pub fn create_node_resolution_info(
                     }
                 }
 
-                let (_, kind) = operation.operation.clone().ok_or_else(|| {
+                let (_, kind) = operation.operation.ok_or_else(|| {
                     LSPRuntimeError::UnexpectedError(
                         "Expected operation to exist, but it did not".to_string(),
                     )

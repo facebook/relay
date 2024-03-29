@@ -43,15 +43,12 @@ pub fn transform_relay_location_to_lsp_location(
 
             let response = extract_graphql::extract(&file_contents);
             let response_length = response.len();
-            let embedded_source = response
-                .into_iter()
-                .nth(index.try_into().unwrap())
-                .ok_or_else(|| {
-                    LSPRuntimeError::UnexpectedError(format!(
-                        "File {:?} does not contain enough graphql literals: {} needed; {} found",
-                        path_to_fragment, index, response_length
-                    ))
-                })?;
+            let embedded_source = response.into_iter().nth(index.into()).ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "File {:?} does not contain enough graphql literals: {} needed; {} found",
+                    path_to_fragment, index, response_length
+                ))
+            })?;
 
             let text_source = embedded_source.text_source();
             let range = text_source.to_span_range(location.span());
@@ -64,7 +61,7 @@ pub fn transform_relay_location_to_lsp_location(
 }
 
 fn get_file_contents(path: &Path) -> LSPRuntimeResult<String> {
-    let file = std::fs::read(&path).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
+    let file = std::fs::read(path).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
     String::from_utf8(file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))
 }
 

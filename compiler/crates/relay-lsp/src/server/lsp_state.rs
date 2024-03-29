@@ -235,7 +235,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let mut docblock_sources = vec![];
 
         for (index, feature) in javascript_features.iter().enumerate() {
-            let source_location_key = SourceLocationKey::embedded(&url.to_string(), index);
+            let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
 
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {

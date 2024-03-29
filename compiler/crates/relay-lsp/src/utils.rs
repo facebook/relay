@@ -61,7 +61,7 @@ pub fn extract_executable_definitions_from_text_document(
         .flat_map(|graphql_source| {
             let document = parse_executable_with_error_recovery_and_parser_features(
                 &graphql_source.text_source().text,
-                SourceLocationKey::standalone(&text_document_uri.to_string()),
+                SourceLocationKey::standalone(text_document_uri.as_ref()),
                 parser_features,
             )
             .item;

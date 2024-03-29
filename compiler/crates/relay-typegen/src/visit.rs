@@ -1227,7 +1227,7 @@ fn selections_to_babel(
         if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
             by_concrete_type
                 .entry(concrete_type)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(selection);
         } else {
             let key = selection.get_string_key();
@@ -1471,7 +1471,7 @@ pub(crate) fn raw_response_selections_to_babel(
         if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
             by_concrete_type
                 .entry(concrete_type)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(selection);
         } else {
             base_fields.push(selection);
@@ -1903,10 +1903,12 @@ fn transform_graphql_scalar_type(
         let path = directive
             .arguments
             .named(ArgumentName(*PATH_CUSTOM_SCALAR_ARGUMENT_NAME))
-            .expect(&format!(
-                "Expected @{} directive to have a path argument",
-                *CUSTOM_SCALAR_DIRECTIVE_NAME
-            ))
+            .unwrap_or_else(|| {
+                panic!(
+                    "Expected @{} directive to have a path argument",
+                    *CUSTOM_SCALAR_DIRECTIVE_NAME
+                )
+            })
             .expect_string_literal();
 
         let import_path = typegen_context.project_config.js_module_import_identifier(
@@ -1919,10 +1921,12 @@ fn transform_graphql_scalar_type(
         let export_name = directive
             .arguments
             .named(ArgumentName(*EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME))
-            .expect(&format!(
-                "Expected @{} directive to have an export_name argument",
-                *CUSTOM_SCALAR_DIRECTIVE_NAME
-            ))
+            .unwrap_or_else(|| {
+                panic!(
+                    "Expected @{} directive to have an export_name argument",
+                    *CUSTOM_SCALAR_DIRECTIVE_NAME
+                )
+            })
             .expect_string_literal();
         custom_scalars.insert((export_name, PathBuf::from(import_path.lookup())));
         return AST::RawType(export_name);

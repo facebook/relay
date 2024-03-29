@@ -40,12 +40,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let out = match extractor.resolve() {
         Ok((objects, fields)) => objects
             .into_iter()
-            .map(|o| DocblockIr::StrongObjectResolver(o))
-            .chain(
-                fields
-                    .into_iter()
-                    .map(|f| DocblockIr::TerseRelayResolver(f)),
-            )
+            .map(DocblockIr::StrongObjectResolver)
+            .chain(fields.into_iter().map(DocblockIr::TerseRelayResolver))
             .map(|ir| {
                 // Extend schema with the IR and print SDL
                 let schema_document = ir

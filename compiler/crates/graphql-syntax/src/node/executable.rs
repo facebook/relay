@@ -93,8 +93,7 @@ impl OperationDefinition {
         // https://spec.graphql.org/June2018/#sec-Anonymous-Operation-Definitions
         self.operation
             .as_ref()
-            .map(|(_, operation_kind)| *operation_kind)
-            .unwrap_or(OperationKind::Query)
+            .map_or(OperationKind::Query, |(_, operation_kind)| *operation_kind)
     }
 }
 

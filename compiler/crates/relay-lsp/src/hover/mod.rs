@@ -83,7 +83,7 @@ pub fn on_hover(
         &resolution_path,
         &schema,
         project_name,
-        &*state.get_extra_data_provider(),
+        state.get_extra_data_provider(),
         &schema_documentation,
         &state.get_program(&project_name)?,
         state.get_content_consumer_type(),
@@ -120,8 +120,8 @@ fn get_open_schema_explorer_command(params: &GraphQLSchemaExplorerParams<'_>) ->
 
     const FRAGMENT: AsciiSet = CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
 
-    return format!(
+    format!(
         "nuclide.relay-lsp.openSchemaExplorer?{}",
         utf8_percent_encode(&serde_json::to_string(params).unwrap(), &FRAGMENT)
-    );
+    )
 }

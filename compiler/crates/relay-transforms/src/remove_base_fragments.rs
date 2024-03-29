@@ -35,7 +35,7 @@ pub fn remove_base_fragments(
     }
     let mut transform = StripBaseFragmentsTransform {
         program,
-        base_fragment_names: &base_fragment_names,
+        base_fragment_names,
     };
     transform
         .transform_program(program)

@@ -346,7 +346,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         operation: &graphql_syntax::OperationDefinition,
     ) -> DiagnosticsResult<Identifier> {
         match &operation.name {
-            Some(name) => Ok(name.clone()),
+            Some(name) => Ok(*name),
             None => {
                 if let Some(name) = self.options.default_anonymous_operation_name {
                     Ok(Identifier {
@@ -375,8 +375,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let kind = operation
             .operation
             .as_ref()
-            .map(|x| x.1)
-            .unwrap_or_else(|| OperationKind::Query);
+            .map_or_else(|| OperationKind::Query, |x| x.1);
         let operation_type = match kind {
             OperationKind::Mutation => self.schema.mutation_type(),
             OperationKind::Query => self.schema.query_type(),

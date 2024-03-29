@@ -431,8 +431,8 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
     }
 }
 
-fn get_hover_contents<'a>(
-    hover_behavior: HoverBehavior<'a>,
+fn get_hover_contents(
+    hover_behavior: HoverBehavior<'_>,
     schema: &SDLSchema,
     schema_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
@@ -527,11 +527,10 @@ fn on_hover_variable_definition(
     let variable_identifier = &variable_definition.name;
     let variable_inner_type = variable_definition.type_.inner().name.value;
     let variable_type = &variable_definition.type_;
-    let variable_default_value = variable_definition
-        .default_value
-        .as_ref()
-        .map(|default_value| format!(" with default value `{}`", default_value.value))
-        .unwrap_or_else(|| "".to_string());
+    let variable_default_value = variable_definition.default_value.as_ref().map_or_else(
+        || "".to_string(),
+        |default_value| format!(" with default value `{}`", default_value.value),
+    );
 
     HoverContents::Scalar(MarkedString::String(format!(
         "`{}`: **{}**{}",
@@ -573,8 +572,8 @@ fn on_hover_constant_value<'a>(
     }
 }
 
-fn on_hover_argument_path<'a>(
-    argument_path: &ArgumentPath<'a>,
+fn on_hover_argument_path(
+    argument_path: &ArgumentPath<'_>,
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
@@ -613,7 +612,7 @@ fn on_hover_argument_path<'a>(
     }?;
 
     let mut contents = vec![argument_info];
-    contents.extend(field_hover_info.into_iter());
+    contents.extend(field_hover_info);
 
     Some(HoverContents::Array(contents))
 }
@@ -951,16 +950,16 @@ For example:
     Some(HoverContents::Array(hover_contents))
 }
 
-fn on_hover_directive<'a>(
-    directive_path: &DirectivePath<'a>,
+fn on_hover_directive(
+    directive_path: &DirectivePath<'_>,
     schema: &SDLSchema,
 ) -> Option<HoverContents> {
     let content = get_directive_hover_content(directive_path, schema)?;
     Some(HoverContents::Array(content))
 }
 
-fn get_directive_hover_content<'a>(
-    directive_path: &DirectivePath<'a>,
+fn get_directive_hover_content(
+    directive_path: &DirectivePath<'_>,
     schema: &SDLSchema,
 ) -> Option<Vec<MarkedString>> {
     let DirectivePath {

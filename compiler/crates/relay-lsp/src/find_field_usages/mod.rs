@@ -188,12 +188,7 @@ impl<'schema> FieldUsageFinder<'schema> {
     }
 
     pub(crate) fn get_locations(&self) -> Vec<IRLocation> {
-        self.usages
-            .values()
-            .into_iter()
-            .flatten()
-            .copied()
-            .collect_vec()
+        self.usages.values().flatten().copied().collect_vec()
     }
 }
 

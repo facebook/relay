@@ -250,7 +250,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
                 node_interface.id_field,
             )));
         }
-        result.extend(next_selections.into_iter());
+        result.extend(next_selections);
         TransformedValue::Replace(result)
     }
 

@@ -160,7 +160,7 @@ mod escalate_tests {
 
         escalate(DiagnosticSeverity::WARNING, &mut diagnostics);
 
-        let expected_severities = vec![
+        let expected_severities = [
             DiagnosticSeverity::ERROR,
             DiagnosticSeverity::ERROR,
             DiagnosticSeverity::HINT,

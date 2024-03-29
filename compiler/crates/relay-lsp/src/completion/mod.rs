@@ -181,7 +181,7 @@ impl CompletionRequestBuilder {
                             .name
                             .as_ref()
                             .map(|name| ExecutableName::Operation(name.value));
-                        let (_, kind) = operation.operation.clone()?;
+                        let (_, kind) = operation.operation?;
                         let type_path = vec![TypePathItem::Operation(kind)];
 
                         debug!(

@@ -42,22 +42,12 @@ pub trait ArtifactWriter {
 
 type SourceControlFn =
     fn(&PathBuf, &Mutex<Vec<PathBuf>>, &Mutex<Vec<PathBuf>>) -> crate::errors::Result<()>;
+#[derive(Default)]
 pub struct ArtifactFileWriter {
     added: Mutex<Vec<PathBuf>>,
     removed: Mutex<Vec<PathBuf>>,
     source_control_fn: Option<SourceControlFn>,
     root_dir: PathBuf,
-}
-
-impl Default for ArtifactFileWriter {
-    fn default() -> Self {
-        Self {
-            added: Default::default(),
-            removed: Default::default(),
-            source_control_fn: None,
-            root_dir: Default::default(),
-        }
-    }
 }
 
 impl ArtifactFileWriter {

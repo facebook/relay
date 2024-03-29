@@ -142,7 +142,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function (props: any) {
+    QueryComponent = function TestQueryComponent(props: any) {
       const result = usePreloadedQuery(
         gqlQuery,
         (props.queries.TestQuery: $FlowFixMe),
@@ -162,7 +162,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function (props: any) {
+    LoaderComponent = function TestLoaderComponent(props: any) {
       // $FlowFixMe[underconstrained-implicit-instantiation]
       const [entryPointRef] = useEntryPointLoader<
         _,

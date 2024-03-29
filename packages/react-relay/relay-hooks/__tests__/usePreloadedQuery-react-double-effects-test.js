@@ -157,7 +157,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     };
 
     renderLogs = [];
-    QueryComponent = function (props: any) {
+    QueryComponent = function TestQueryComponent(props: any) {
       const result = usePreloadedQuery(props.queryInput, props.queryRef);
 
       const name = result?.node?.name ?? 'Empty';

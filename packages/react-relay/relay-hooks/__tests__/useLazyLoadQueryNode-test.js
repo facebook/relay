@@ -151,7 +151,7 @@ describe.each([['New', false]])(
         return renderFn(data);
       };
 
-      Container = (props: Props, key?: number) => {
+      Container = function TestContainer(props: Props, key?: number) {
         // $FlowFixMe[react-rule-hook]
         const [nextProps, setNextProps] = React.useState(props);
         // $FlowFixMe[react-rule-hook]

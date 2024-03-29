@@ -216,12 +216,14 @@ fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Schem
     request: lsp_server::Request,
 ) {
     debug!("request received {:?}", request);
+    let lsp_request_event = lsp_state.perf_logger.create_event("lsp_message");
     let get_server_response_bound = |req| dispatch_request(req, lsp_state.as_ref());
-    let get_response = with_request_logging(&lsp_state.perf_logger, get_server_response_bound);
+    let get_response = with_request_logging(&lsp_request_event, get_server_response_bound);
 
     lsp_state
         .send_message(Message::Response(get_response(request)))
         .expect("Unable to send message to a client.");
+    lsp_request_event.complete();
 }
 
 fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) -> ServerResponse {
@@ -265,12 +267,11 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
     }
 }
 
-fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
-    perf_logger: &'a Arc<TPerfLogger>,
+fn with_request_logging<'a>(
+    lsp_request_event: &'a impl PerfLogEvent,
     get_response: impl FnOnce(lsp_server::Request) -> ServerResponse + 'a,
 ) -> impl FnOnce(lsp_server::Request) -> ServerResponse + 'a {
     move |request| {
-        let lsp_request_event = perf_logger.create_event("lsp_message");
         lsp_request_event.string("lsp_method", request.method.clone());
         lsp_request_event.string("lsp_type", "request".to_string());
         let lsp_request_processing_time = lsp_request_event.start("lsp_message_processing_time");
@@ -294,8 +295,6 @@ fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
         // an error, which is an invalid state.
 
         lsp_request_event.stop(lsp_request_processing_time);
-        lsp_request_event.complete();
-
         response
     }
 }

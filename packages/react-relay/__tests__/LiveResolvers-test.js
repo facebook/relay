@@ -881,7 +881,7 @@ describe.each([['New', useFragment]])(
       });
     });
 
-    test('Live Resolver with Missing Data and @required', () => {
+    test('Live Resolver with Missing Data and @required', async () => {
       function InnerTestComponent({id}: {id: string}) {
         const data = useLazyLoadQuery(
           graphql`
@@ -955,9 +955,13 @@ describe.each([['New', useFragment]])(
       const environment = createEnvironment(source);
 
       // First, render with missing data
-      expect(() => {
-        TestRenderer.create(<TestComponent environment={environment} id="1" />);
-      }).toThrow(
+      await expect(async () => {
+        await TestRenderer.act(() => {
+          TestRenderer.create(
+            <TestComponent environment={environment} id="1" />,
+          );
+        });
+      }).rejects.toThrow(
         "Relay: Missing @required value at path 'username' in 'ResolverThatThrows'.",
       );
       expect(relayFieldLogger.mock.calls).toEqual([

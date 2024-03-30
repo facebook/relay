@@ -231,10 +231,7 @@ export type RequiredFieldAction = 'NONE' | 'LOG' | 'THROW';
 
 export type ReaderRequiredField = {
   +kind: 'RequiredField',
-  +field:
-    | ReaderField
-    | ReaderClientEdgeToClientObject
-    | ReaderClientEdgeToServerObject,
+  +field: ReaderField | ReaderClientEdge,
   +action: RequiredFieldAction,
   +path: string,
 };
@@ -294,10 +291,13 @@ export type ReaderClientEdgeToServerObject = {
     | ReaderClientExtension,
 };
 
+export type ReaderClientEdge =
+  | ReaderClientEdgeToClientObject
+  | ReaderClientEdgeToServerObject;
+
 export type ReaderSelection =
   | ReaderCondition
-  | ReaderClientEdgeToClientObject
-  | ReaderClientEdgeToServerObject
+  | ReaderClientEdge
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField

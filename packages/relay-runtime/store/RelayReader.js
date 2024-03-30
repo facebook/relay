@@ -14,8 +14,7 @@
 import type {
   ReaderActorChange,
   ReaderAliasedFragmentSpread,
-  ReaderClientEdgeToClientObject,
-  ReaderClientEdgeToServerObject,
+  ReaderClientEdge,
   ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
@@ -730,7 +729,7 @@ class RelayReader {
   }
 
   _readClientEdge(
-    field: ReaderClientEdgeToServerObject | ReaderClientEdgeToClientObject,
+    field: ReaderClientEdge,
     record: Record,
     data: SelectorData,
   ): ?mixed {

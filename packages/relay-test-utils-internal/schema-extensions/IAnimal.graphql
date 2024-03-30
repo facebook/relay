@@ -17,6 +17,7 @@ input AnimalRequest {
 type Chicken implements IAnimal {
   id: ID!
   legs: Int
+  greeting: String
 }
 
 extend type Query {

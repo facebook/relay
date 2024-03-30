@@ -13,7 +13,9 @@ import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {INVALID_ID} = require('./AnimalQueryResolvers');
 
-type FishModel = {};
+type FishModel = {
+  __id: DataID,
+};
 
 /**
  * @RelayResolver Fish implements IAnimal
@@ -22,7 +24,9 @@ function Fish(id: DataID): ?FishModel {
   if (id === INVALID_ID) {
     return null;
   }
-  return {};
+  return {
+    __id: id,
+  };
 }
 
 /**

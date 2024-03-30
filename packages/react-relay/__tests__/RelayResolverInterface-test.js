@@ -69,6 +69,7 @@ beforeEach(() => {
         __id: 'greeneggsandham',
         __typename: 'Chicken',
         legs: '2',
+        greeting: 'Hello, greeneggsandham!',
       },
     }),
     {},
@@ -164,6 +165,64 @@ test('should read the legs of a chicken (client schema extension type)', () => {
   );
   expect(renderer.toJSON()).toEqual('2');
 });
+
+function AnimalGreetingQueryComponent(props: {
+  request: {ofType: string, returnValidID: boolean},
+}) {
+  const data = useClientQuery(
+    graphql`
+      query RelayResolverInterfaceTestAnimalGreetingQuery(
+        $request: AnimalRequest!
+      ) {
+        animal(request: $request) {
+          greeting
+        }
+      }
+    `,
+    {request: props.request},
+  );
+  if (data.animal == null) {
+    return 'NULL';
+  }
+  return data.animal.greeting;
+}
+
+describe.each([
+  {
+    inputAnimalType: 'Fish',
+    id: '12redblue',
+  },
+  {
+    inputAnimalType: 'Cat',
+    id: '1234567890',
+  },
+])(
+  'resolvers can read resolver on an interface where all implementors are strong model types: %s',
+  ({inputAnimalType, id}) => {
+    test(`should read the greeting of a ${inputAnimalType}`, () => {
+      const animalRenderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <AnimalGreetingQueryComponent
+            request={{ofType: inputAnimalType, returnValidID: true}}
+          />
+        </EnvironmentWrapper>,
+      );
+
+      expect(animalRenderer.toJSON()).toEqual(`Hello, ${id}!`);
+    });
+
+    test(`should return null for nonexistent ${inputAnimalType}`, () => {
+      const nullRenderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <AnimalGreetingQueryComponent
+            request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
+          />
+        </EnvironmentWrapper>,
+      );
+      expect(nullRenderer.toJSON()).toEqual('NULL');
+    });
+  },
+);
 
 test('resolvers can return a list of interfaces where all implementors are strong model types', () => {
   function AnimalsLegsQueryComponent(props: {

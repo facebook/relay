@@ -15,6 +15,20 @@ type IAnimalTypeNames = 'Cat' | 'Fish' | 'Chicken';
 
 const INVALID_ID = 'invalid_id';
 
+type IAnimalType = {
+  __id: DataID,
+};
+
+/**
+ * @RelayResolver IAnimal.greeting: String
+ */
+function greeting(model: ?IAnimalType): ?string {
+  if (model == null) {
+    return null;
+  }
+  return `Hello, ${model.__id}!`;
+}
+
 /**
  * Returns a single `IAnimal` of a given type and optionally returns an invalid ID.
  *
@@ -58,4 +72,5 @@ module.exports = {
   INVALID_ID,
   animal,
   animals,
+  greeting,
 };

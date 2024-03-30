@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6eae9d1778cf65a30d7df406da009a3a>>
+ * @generated SignedSource<<a25d16447be608f67d40ca4e224344f6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -137,6 +137,20 @@ return {
                   "kind": "InlineFragment",
                   "selections": [
                     {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "legs",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "Chicken",
+                  "abstractKey": null
+                },
+                {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
                       "name": "legs",
                       "args": null,
                       "fragment": {
@@ -214,6 +228,7 @@ return {
     "clientAbstractTypes": {
       "__isIAnimal": [
         "Cat",
+        "Chicken",
         "Fish"
       ]
     }

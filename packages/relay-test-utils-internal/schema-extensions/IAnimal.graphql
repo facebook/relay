@@ -13,3 +13,12 @@ input AnimalRequest {
   """
   returnValidID: Boolean!
 }
+
+type Chicken implements IAnimal {
+  id: ID!
+  legs: Int
+}
+
+extend type Query {
+  chicken: Chicken
+}

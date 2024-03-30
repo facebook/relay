@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<17e8a3e8f17d83bf26a5ed8f059c0886>>
+ * @generated SignedSource<<438b9cfa39ef26639040bed14b5b7274>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -40,6 +40,20 @@ var node/*: ReaderFragment*/ = {
     {
       "kind": "ClientExtension",
       "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "legs",
+              "storageKey": null
+            }
+          ],
+          "type": "Chicken",
+          "abstractKey": null
+        },
         {
           "kind": "InlineFragment",
           "selections": [

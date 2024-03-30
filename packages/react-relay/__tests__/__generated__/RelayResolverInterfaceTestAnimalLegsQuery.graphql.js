@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a1d1920b89486e63868c077784e4adb0>>
+ * @generated SignedSource<<105f73cb11426e65f57f8fc1eeed8992>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {animal as queryAnimalResolverType} from "../../../relay-runtime/store/__
     request: AnimalRequest,
   |},
 ) => ?{|
-  +__typename: "Cat" | "Fish",
+  +__typename: "Cat" | "Chicken" | "Fish",
   +id: DataID,
 |});
 export type AnimalRequest = {|
@@ -179,6 +179,20 @@ return {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "legs",
+                  "storageKey": null
+                }
+              ],
+              "type": "Chicken",
+              "abstractKey": null
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
                   "name": "legs",
                   "args": null,
                   "fragment": {
@@ -252,6 +266,7 @@ return {
     "clientAbstractTypes": {
       "__isIAnimal": [
         "Cat",
+        "Chicken",
         "Fish"
       ]
     }

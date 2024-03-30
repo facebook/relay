@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<043c24dbeff3bbc7d4531ce1d66b7251>>
+ * @generated SignedSource<<83df13c334d14559d2e8bc4c2cfa660d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {animals as queryAnimalsResolverType} from "../../../relay-runtime/store/
     requests: $ReadOnlyArray<AnimalRequest>,
   |},
 ) => ?$ReadOnlyArray<?{|
-  +__typename: "Cat" | "Fish",
+  +__typename: "Cat" | "Chicken" | "Fish",
   +id: DataID,
 |}>);
 export type AnimalRequest = {|
@@ -182,6 +182,20 @@ return {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "legs",
+                  "storageKey": null
+                }
+              ],
+              "type": "Chicken",
+              "abstractKey": null
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
                   "name": "legs",
                   "args": null,
                   "fragment": {
@@ -254,6 +268,7 @@ return {
     "clientAbstractTypes": {
       "__isIAnimal": [
         "Cat",
+        "Chicken",
         "Fish"
       ]
     }

@@ -11,7 +11,7 @@
 
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
-type IAnimalTypeNames = 'Cat' | 'Fish';
+type IAnimalTypeNames = 'Cat' | 'Fish' | 'Chicken';
 
 const INVALID_ID = 'invalid_id';
 
@@ -46,7 +46,7 @@ function animal(args: {request: {ofType: string, returnValidID: boolean}}): {
 function animals(args: {
   requests: $ReadOnlyArray<{ofType: string, returnValidID: boolean}>,
 }): Array<{
-  __typename: 'Cat' | 'Fish',
+  __typename: IAnimalTypeNames,
   id: DataID,
 }> {
   return args.requests.map(request => {

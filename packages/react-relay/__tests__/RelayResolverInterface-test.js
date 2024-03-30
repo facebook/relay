@@ -17,12 +17,12 @@ const React = require('react');
 const {useFragment} = require('react-relay');
 const {RelayEnvironmentProvider, useClientQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
+const {RecordSource} = require('relay-runtime');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
-const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -58,7 +58,21 @@ function EnvironmentWrapper({
 let environment;
 let store;
 beforeEach(() => {
-  store = new LiveResolverStore(RelayRecordSource.create(), {});
+  store = new LiveResolverStore(
+    new RecordSource({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        chicken: {__ref: 'greeneggsandham'},
+      },
+      greeneggsandham: {
+        __id: 'greeneggsandham',
+        __typename: 'Chicken',
+        legs: '2',
+      },
+    }),
+    {},
+  );
   environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
     store,
@@ -127,58 +141,28 @@ test('should read the legs of a fish', () => {
   expect(renderer.toJSON()).toEqual('0');
 });
 
-test('resolvers can return an interface where all implementors are strong model types', () => {
-  function AnimalLegsQueryComponent(props: {
-    request: {ofType: string, returnValidID: boolean},
-  }) {
+test('should read the legs of a chicken (client schema extension type)', () => {
+  function ChickenLegsRootComponent() {
     const data = useClientQuery(
       graphql`
-        query RelayResolverInterfaceTestAnimalLegsQuery(
-          $request: AnimalRequest!
-        ) {
-          animal(request: $request) {
+        query RelayResolverInterfaceTestChickenLegsQuery {
+          chicken {
             ...RelayResolverInterfaceTestAnimalLegsFragment
           }
         }
       `,
-      {request: props.request},
+      {},
     );
 
-    if (data.animal == null) {
-      return 'NULL';
-    }
-
-    return <AnimalLegsComponent animal={data.animal} />;
+    return <AnimalLegsComponent animal={data.chicken} />;
   }
 
-  const fishRenderer = TestRenderer.create(
+  const renderer = TestRenderer.create(
     <EnvironmentWrapper environment={environment}>
-      <AnimalLegsQueryComponent
-        request={{ofType: 'Fish', returnValidID: true}}
-      />
+      <ChickenLegsRootComponent />
     </EnvironmentWrapper>,
   );
-
-  expect(fishRenderer.toJSON()).toEqual('0');
-
-  const catRenderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <AnimalLegsQueryComponent
-        request={{ofType: 'Cat', returnValidID: true}}
-      />
-    </EnvironmentWrapper>,
-  );
-
-  expect(catRenderer.toJSON()).toEqual('4');
-
-  const nullRenderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <AnimalLegsQueryComponent
-        request={{ofType: 'Cat', returnValidID: false}} // This should trigger a `null` value.
-      />
-    </EnvironmentWrapper>,
-  );
-  expect(nullRenderer.toJSON()).toEqual('NULL');
+  expect(renderer.toJSON()).toEqual('2');
 });
 
 test('resolvers can return a list of interfaces where all implementors are strong model types', () => {
@@ -207,7 +191,7 @@ test('resolvers can return a list of interfaces where all implementors are stron
     });
   }
 
-  const fishRenderer = TestRenderer.create(
+  const animalRenderer = TestRenderer.create(
     <EnvironmentWrapper environment={environment}>
       <AnimalsLegsQueryComponent
         requests={[
@@ -219,5 +203,64 @@ test('resolvers can return a list of interfaces where all implementors are stron
       />
     </EnvironmentWrapper>,
   );
-  expect(fishRenderer.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
+  expect(animalRenderer.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
 });
+
+function AnimalLegsQueryComponent(props: {
+  request: {ofType: string, returnValidID: boolean},
+}) {
+  const data = useClientQuery(
+    graphql`
+      query RelayResolverInterfaceTestAnimalLegsQuery(
+        $request: AnimalRequest!
+      ) {
+        animal(request: $request) {
+          ...RelayResolverInterfaceTestAnimalLegsFragment
+        }
+      }
+    `,
+    {request: props.request},
+  );
+  if (data.animal == null) {
+    return 'NULL';
+  }
+
+  return <AnimalLegsComponent animal={data.animal} />;
+}
+
+describe.each([
+  {
+    inputAnimalType: 'Fish',
+    expectedLegs: '0',
+  },
+  {
+    inputAnimalType: 'Cat',
+    expectedLegs: '4',
+  },
+])(
+  'resolvers can return an interface where all implementors are strong model types: %s',
+  ({inputAnimalType, expectedLegs}) => {
+    test(`should read the legs of a ${inputAnimalType}`, () => {
+      const animalRenderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <AnimalLegsQueryComponent
+            request={{ofType: inputAnimalType, returnValidID: true}}
+          />
+        </EnvironmentWrapper>,
+      );
+
+      expect(animalRenderer.toJSON()).toEqual(expectedLegs);
+    });
+
+    test(`should return null for nonexistent ${inputAnimalType}`, () => {
+      const nullRenderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <AnimalLegsQueryComponent
+            request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
+          />
+        </EnvironmentWrapper>,
+      );
+      expect(nullRenderer.toJSON()).toEqual('NULL');
+    });
+  },
+);

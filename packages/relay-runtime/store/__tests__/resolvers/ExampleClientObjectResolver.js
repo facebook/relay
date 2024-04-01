@@ -14,10 +14,7 @@
 import type {Query__example_client_object$normalization as ReturnType} from './__generated__/Query__example_client_object$normalization.graphql';
 
 /**
- * @RelayResolver
- * @fieldName example_client_object
- * @onType Query
- * @outputType ClientObject
+ * @RelayResolver Query.example_client_object: ClientObject
  */
 function example_client_object(): ReturnType {
   return {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0d04eec30308d8ca6cc4f8d7235e8537>>
+ * @generated SignedSource<<a39dce98b04b748400d2235c517f6105>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {always_throws as userAlwaysThrowsResolverType} from "../UserAlwaysThrows
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAlwaysThrowsResolverType: (
   rootKey: UserAlwaysThrowsResolver$key,
-) => ?mixed);
+) => ?string);
 declare export opaque type UserAlwaysThrowsTransitivelyResolver$fragmentType: FragmentType;
 export type UserAlwaysThrowsTransitivelyResolver$data = {|
-  +always_throws: ?ReturnType<typeof userAlwaysThrowsResolverType>,
+  +always_throws: ?string,
   +$fragmentType: UserAlwaysThrowsTransitivelyResolver$fragmentType,
 |};
 export type UserAlwaysThrowsTransitivelyResolver$key = {

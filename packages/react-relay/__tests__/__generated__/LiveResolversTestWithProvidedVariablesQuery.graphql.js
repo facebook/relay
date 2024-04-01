@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0ae5db59ccd730e887c0c2643dc666e8>>
+ * @generated SignedSource<<9af76fa2cc8b4009ca1a3937a6f65434>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,10 +24,10 @@ import {hello_world_with_provided_variable as queryHelloWorldWithProvidedVariabl
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloWorldWithProvidedVariableResolverType: (
   rootKey: HelloWorldResolverWithProvidedVariable$key,
-) => ?mixed);
+) => ?string);
 export type LiveResolversTestWithProvidedVariablesQuery$variables = {||};
 export type LiveResolversTestWithProvidedVariablesQuery$data = {|
-  +hello_world_with_provided_variable: ?ReturnType<typeof queryHelloWorldWithProvidedVariableResolverType>,
+  +hello_world_with_provided_variable: ?string,
 |};
 export type LiveResolversTestWithProvidedVariablesQuery = {|
   response: LiveResolversTestWithProvidedVariablesQuery$data,
@@ -99,7 +99,7 @@ var node/*: ClientRequest*/ = {
                   "fragment": null,
                   "kind": "RelayResolver",
                   "storageKey": null,
-                  "isOutputType": false
+                  "isOutputType": true
                 }
               ]
             }
@@ -109,7 +109,7 @@ var node/*: ClientRequest*/ = {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": false
+        "isOutputType": true
       }
     ]
   },

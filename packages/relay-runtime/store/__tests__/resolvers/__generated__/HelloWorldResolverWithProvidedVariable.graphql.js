@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7adb3bf6304416c32260ccb3a92c5134>>
+ * @generated SignedSource<<f322b2f6615796b06a3c69377d6b5b12>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,10 +26,10 @@ import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
   args: {|
     world: string,
   |},
-) => ?mixed);
+) => ?string);
 declare export opaque type HelloWorldResolverWithProvidedVariable$fragmentType: FragmentType;
 export type HelloWorldResolverWithProvidedVariable$data = {|
-  +hello: ?ReturnType<typeof queryHelloResolverType>,
+  +hello: ?string,
   +$fragmentType: HelloWorldResolverWithProvidedVariable$fragmentType,
 |};
 export type HelloWorldResolverWithProvidedVariable$key = {

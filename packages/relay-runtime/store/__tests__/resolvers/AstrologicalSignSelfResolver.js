@@ -22,10 +22,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName self
+ * @RelayResolver AstrologicalSign.self: RelayResolverValue
  * @rootFragment AstrologicalSignSelfResolver
- * @onType AstrologicalSign
  *
  * Local state knowledge of the user's astrological sign.
  */

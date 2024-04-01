@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3ce25b0789e23a786885b73809a212ba>>
+ * @generated SignedSource<<09e3064c92490719ad5471d37be08cbd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,13 +28,13 @@ import {house as astrologicalSignHouseResolverType} from "../resolvers/Astrologi
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignHouseResolverType: (
   rootKey: AstrologicalSignHouseResolver$key,
-) => ?mixed);
+) => ?number);
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => ?mixed);
+) => ?string);
 import {opposite as astrologicalSignOppositeResolverType} from "../resolvers/AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -56,15 +56,15 @@ export type ClientEdgeToClientObjectTest1Query$data = {|
   +me: ?{|
     +astrological_sign: ?{|
       +__id: string,
-      +house: ?ReturnType<typeof astrologicalSignHouseResolverType>,
-      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+      +house: ?number,
+      +name: ?string,
       +opposite: ?{|
         +__id: string,
-        +house: ?ReturnType<typeof astrologicalSignHouseResolverType>,
-        +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+        +house: ?number,
+        +name: ?string,
         +opposite: ?{|
           +__id: string,
-          +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+          +name: ?string,
         |},
       |},
     |},
@@ -122,7 +122,7 @@ v5 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": false
+      "isOutputType": true
     }
   ],
   "type": "AstrologicalSign",
@@ -134,7 +134,7 @@ v6 = {
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
-  "isOutputType": false
+  "isOutputType": true
 },
 v7 = {
   "name": "house",
@@ -142,7 +142,7 @@ v7 = {
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
-  "isOutputType": false
+  "isOutputType": true
 },
 v8 = {
   "name": "opposite",

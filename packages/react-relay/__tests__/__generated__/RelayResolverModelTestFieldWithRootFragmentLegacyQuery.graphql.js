@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f799a66c11db645d01370b3b67b39faa>>
+ * @generated SignedSource<<edca95f340972085206d6a9f32e28f4d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,13 +35,13 @@ import {capitalized_id_legacy as todoModelCapitalizedIdLegacyResolverType} from 
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelCapitalizedIdLegacyResolverType: (
   rootKey: TodoModelCapitalizedIDLegacy$key,
-) => ?mixed);
+) => ?string);
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables = {|
   id: string,
 |};
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data = {|
   +todo_model: ?{|
-    +capitalized_id_legacy: ?ReturnType<typeof todoModelCapitalizedIdLegacyResolverType>,
+    +capitalized_id_legacy: ?string,
   |},
 |};
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery = {|
@@ -174,7 +174,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": false
+              "isOutputType": true
             },
             (v2/*: any*/)
           ],

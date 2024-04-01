@@ -69,9 +69,7 @@ function capitalized_id(key: TodoModelCapitalizedID$key): ?string {
 }
 
 /**
- * @RelayResolver
- * @fieldName capitalized_id_legacy
- * @onType TodoModel
+ * @RelayResolver TodoModel.capitalized_id_legacy: String
  * @rootFragment TodoModelCapitalizedIDLegacy
  *
  * Like `capitalized_id`, but implemented using the non-terse legacy syntax

@@ -19,10 +19,8 @@ const {graphql, suspenseSentinel} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName user_profile_picture_uri_suspends_when_the_counter_is_odd
+ * @RelayResolver User.user_profile_picture_uri_suspends_when_the_counter_is_odd: String
  * @rootFragment UserProfilePictureUriSuspendsWhenTheCounterIsOdd
- * @onType User
  * @live
  *
  * This field returns the profile picture url, when the GLOBAL_STORE number is

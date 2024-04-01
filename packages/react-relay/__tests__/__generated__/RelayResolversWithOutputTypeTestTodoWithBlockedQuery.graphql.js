@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3080b514137192832e30bd58d6274360>>
+ * @generated SignedSource<<273fdfbdeaac0b0d93e0ae7d499a7eed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -90,7 +90,7 @@ v2 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": false
+      "isOutputType": true
     }
   ],
   "type": "Todo",
@@ -287,7 +287,7 @@ return {
                                   },
                                   "kind": "RelayResolver",
                                   "storageKey": null,
-                                  "isOutputType": false
+                                  "isOutputType": true
                                 }
                               ],
                               "storageKey": null
@@ -305,7 +305,7 @@ return {
                     "fragment": (v2/*: any*/),
                     "kind": "RelayResolver",
                     "storageKey": null,
-                    "isOutputType": false
+                    "isOutputType": true
                   }
                 ],
                 "storageKey": null

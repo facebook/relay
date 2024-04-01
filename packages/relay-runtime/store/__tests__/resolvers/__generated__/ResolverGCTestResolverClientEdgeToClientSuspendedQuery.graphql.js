@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b7eb1e6e70c13b59b0d4a2dcb7b94fb4>>
+ * @generated SignedSource<<2935b9600729c90bf8148a5deba4ec77>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => ?mixed);
+) => ?string);
 import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOddResolverType} from "../QueryVirgoLiveSuspendsWhenOddResolver.js";
 // Type assertion validating that `queryVirgoSuspendsWhenCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -38,7 +38,7 @@ export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {|
     +__typename: "User",
   |},
   +virgo_suspends_when_counter_is_odd: ?{|
-    +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+    +name: ?string,
   |},
 |};
 export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery = {|
@@ -168,7 +168,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "storageKey": null,
-                    "isOutputType": false
+                    "isOutputType": true
                   }
                 ],
                 "type": "AstrologicalSign",
@@ -176,7 +176,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": false
+              "isOutputType": true
             },
             (v1/*: any*/)
           ],

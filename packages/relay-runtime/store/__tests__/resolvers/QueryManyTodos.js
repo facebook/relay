@@ -14,10 +14,7 @@
 import type {Query__many_todos$normalization as ReturnType} from './__generated__/Query__many_todos$normalization.graphql';
 
 /**
- * @RelayResolver
- * @onType Query
- * @fieldName many_todos(todo_ids: [ID]!)
- * @outputType [Todo]
+ * @RelayResolver Query.many_todos(todo_ids: [ID]!): [Todo]
  */
 function many_todos(args: {
   todo_ids: $ReadOnlyArray<?string>,

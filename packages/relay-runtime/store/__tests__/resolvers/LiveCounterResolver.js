@@ -19,10 +19,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName counter
+ * @RelayResolver Query.counter: Int
  * @rootFragment LiveCounterResolver
- * @onType Query
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State

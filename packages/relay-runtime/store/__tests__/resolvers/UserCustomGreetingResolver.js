@@ -17,10 +17,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName custom_greeting(salutation: String!)
+ * @RelayResolver User.custom_greeting(salutation: String!): String
  * @rootFragment UserCustomGreetingResolver
- * @onType User
  *
  * Greet the user with a custom salutation provided via arguments.
  */

@@ -284,14 +284,14 @@ describe.each(['New'])(
           </RelayEnvironmentProvider>
         );
       }
-      // See UserClientEdgeClientObjectResolver: for `0` we should return `null` for `client_object`.
-      const variables = {id: '0'};
+      const variables = {return_null: true};
       function InnerComponent() {
         const data = useLazyLoadQuery(
           graphql`
-            query ClientEdgesTest4Query($id: ID!) {
+            query ClientEdgesTest4Query($return_null: Boolean!) {
               me {
-                client_object(id: $id) @required(action: THROW) {
+                client_object(return_null: $return_null)
+                  @required(action: THROW) {
                   description
                 }
               }
@@ -299,6 +299,7 @@ describe.each(['New'])(
           `,
           variables,
         );
+
         return data.me?.client_object?.description;
       }
       expect(() => {

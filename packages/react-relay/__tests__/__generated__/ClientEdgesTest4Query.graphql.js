@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9ad4b4a4d0809e8fee2dc71c2eae1319>>
+ * @generated SignedSource<<fedd511179c4608b241e16ac0fa0cb4d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,19 +18,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { DataID } from "relay-runtime";
 import {client_object as userClientObjectResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeClientObjectResolver.js";
 // Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientObjectResolverType: (
   args: {|
-    id: string,
+    return_null: boolean,
   |},
-) => ?{|
-  +id: DataID,
-|});
+) => ?User__client_object$normalization);
+import type { User__client_object$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/User__client_object$normalization.graphql";
 export type ClientEdgesTest4Query$variables = {|
-  id: string,
+  return_null: boolean,
 |};
 export type ClientEdgesTest4Query$data = {|
   +me: ?{|
@@ -50,14 +48,14 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "id"
+    "name": "return_null"
   }
 ],
 v1 = [
   {
     "kind": "Variable",
-    "name": "id",
-    "variableName": "id"
+    "name": "return_null",
+    "variableName": "return_null"
   }
 ],
 v2 = {
@@ -108,7 +106,12 @@ return {
                 "kind": "RelayResolver",
                 "name": "client_object",
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeClientObjectResolver').client_object,
-                "path": "me.client_object"
+                "path": "me.client_object",
+                "normalizationInfo": {
+                  "concreteType": "ClientObject",
+                  "plural": false,
+                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/User__client_object$normalization.graphql')
+                }
               },
               "linkedField": (v2/*: any*/)
             },
@@ -144,7 +147,7 @@ return {
               "fragment": null,
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": false
+              "isOutputType": true
             },
             "linkedField": (v2/*: any*/)
           },
@@ -172,7 +175,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "acb202133f9bd8681e05bbbba9508ae6";
+  (node/*: any*/).hash = "0d0d4be86097cc63c772eac5a3a43409";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

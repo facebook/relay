@@ -21,6 +21,7 @@ use super::read_file_to_string;
 use super::File;
 use super::FileSourceResult;
 use crate::errors::Result;
+use crate::file_source::Config;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LocatedGraphQLSource {
@@ -38,6 +39,7 @@ pub struct LocatedDocblockSource {
 pub struct LocatedJavascriptSourceFeatures {
     pub graphql_sources: Vec<LocatedGraphQLSource>,
     pub docblock_sources: Vec<LocatedDocblockSource>,
+    pub full_source: String,
 }
 
 pub trait SourceReader {
@@ -59,11 +61,17 @@ impl SourceReader for FsSourceReader {
 pub fn extract_javascript_features_from_file(
     file_source_result: &FileSourceResult,
     file: &File,
+    config: &Config,
 ) -> Result<LocatedJavascriptSourceFeatures> {
     let contents = read_file_to_string(file_source_result, file)?;
     let features = extract_graphql::extract(&contents);
     let mut graphql_sources = Vec::new();
     let mut docblock_sources = Vec::new();
+    let extract_full_source_for_docblock = match &config.should_extract_full_source {
+        Some(f) => f(&contents),
+        None => false,
+    };
+
     for (index, feature) in features.into_iter().enumerate() {
         match feature {
             JavaScriptSourceFeature::GraphQL(graphql_source) => {
@@ -73,10 +81,12 @@ pub fn extract_javascript_features_from_file(
                 })
             }
             JavaScriptSourceFeature::Docblock(docblock_source) => {
-                docblock_sources.push(LocatedDocblockSource {
-                    docblock_source,
-                    index,
-                })
+                if !extract_full_source_for_docblock {
+                    docblock_sources.push(LocatedDocblockSource {
+                        docblock_source,
+                        index,
+                    })
+                }
             }
         }
     }
@@ -84,6 +94,11 @@ pub fn extract_javascript_features_from_file(
     Ok(LocatedJavascriptSourceFeatures {
         graphql_sources,
         docblock_sources,
+        full_source: if extract_full_source_for_docblock {
+            contents
+        } else {
+            String::new()
+        },
     })
 }
 

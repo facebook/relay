@@ -14,11 +14,13 @@ use schema::SDLSchema;
 
 use super::build_resolvers_schema::extend_schema_with_resolvers;
 use crate::compiler_state::CompilerState;
+use crate::config::Config;
 use crate::config::ProjectConfig;
 use crate::GraphQLAsts;
 
 pub fn build_schema(
     compiler_state: &CompilerState,
+    config: &Config,
     project_config: &ProjectConfig,
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
@@ -52,6 +54,7 @@ pub fn build_schema(
             if project_config.feature_flags.enable_relay_resolver_transform {
                 extend_schema_with_resolvers(
                     &mut schema,
+                    config,
                     compiler_state,
                     project_config,
                     graphql_asts_map,

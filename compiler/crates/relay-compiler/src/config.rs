@@ -14,6 +14,7 @@ use std::sync::Arc;
 use std::vec;
 
 use async_trait::async_trait;
+use common::DiagnosticsResult;
 use common::FeatureFlags;
 use common::Rollout;
 use dunce::canonicalize;
@@ -42,6 +43,7 @@ use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
+use relay_docblock::DocblockIr;
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::Deserialize;
@@ -161,6 +163,22 @@ pub struct Config {
 
     // Allow incremental build for some schema changes
     pub has_schema_change_incremental_build: bool,
+
+    /// A custom function to extract resolver Dockblock IRs from sources
+    pub custom_extract_relay_resolvers: Option<
+        Box<
+            dyn Fn(
+                    ProjectName,
+                    &CompilerState,
+                ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>
+                // (Types, Fields)
+                + Send
+                + Sync,
+        >,
+    >,
+
+    /// A function to determine if full file source should be extracted instead of docblock
+    pub should_extract_full_source: Option<Box<dyn Fn(&str) -> bool + Send + Sync>>,
 }
 
 pub enum FileSourceKind {
@@ -427,6 +445,8 @@ impl Config {
             initialize_resources: None,
             update_compiler_state_from_saved_state: None,
             has_schema_change_incremental_build: false,
+            custom_extract_relay_resolvers: None,
+            should_extract_full_source: None,
         };
 
         let mut validation_errors = Vec::new();

@@ -23,6 +23,7 @@ use relay_compiler::build_project::ProjectAsts;
 use relay_compiler::build_raw_program;
 use relay_compiler::build_schema;
 use relay_compiler::compiler_state::CompilerState;
+use relay_compiler::config::Config;
 use relay_compiler::config::ProjectConfig;
 use relay_compiler::errors::BuildProjectError;
 use relay_compiler::errors::Error;
@@ -280,7 +281,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 }
                 compiler_state.project_has_pending_changes(project_config.name)
             })
-            .map(|project_config| self.build_project(project_config, compiler_state, &graphql_asts))
+            .map(|project_config| {
+                self.build_project(
+                    &self.lsp_state.config,
+                    project_config,
+                    compiler_state,
+                    &graphql_asts,
+                )
+            })
             .collect();
         log_event.stop(timer);
 
@@ -303,6 +311,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn build_project(
         &self,
+        config: &Config,
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
@@ -316,7 +325,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         log_event.string("project", project_name.to_string());
 
         let schema = log_event.time("build_schema_time", || {
-            self.build_schema(compiler_state, project_config, graphql_asts_map)
+            self.build_schema(compiler_state, config, project_config, graphql_asts_map)
         })?;
 
         let ProjectAstData {
@@ -344,12 +353,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn build_schema(
         &self,
         compiler_state: &CompilerState,
+        config: &Config,
         project_config: &ProjectConfig,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
         match self.lsp_state.schemas.entry(project_config.name.into()) {
             Entry::Vacant(e) => {
-                let schema = build_schema(compiler_state, project_config, graphql_asts_map)
+                let schema = build_schema(compiler_state, config, project_config, graphql_asts_map)
                     .map_err(|errors| {
                         BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
                             errors,
@@ -363,14 +373,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !compiler_state.project_has_pending_schema_changes(project_config.name) {
                     Ok(Arc::clone(e.get()))
                 } else {
-                    let schema = build_schema(compiler_state, project_config, graphql_asts_map)
-                        .map_err(|errors| {
-                            debug!("build error");
-                            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                                errors,
-                                project_name: project_config.name,
-                            })
-                        })?;
+                    let schema =
+                        build_schema(compiler_state, config, project_config, graphql_asts_map)
+                            .map_err(|errors| {
+                                debug!("build error");
+                                BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                                    errors,
+                                    project_name: project_config.name,
+                                })
+                            })?;
                     e.insert(Arc::clone(&schema));
                     Ok(schema)
                 }

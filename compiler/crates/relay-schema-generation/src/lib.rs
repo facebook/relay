@@ -110,7 +110,25 @@ impl RelayResolverExtractor {
                 store_comments: true,
             },
         )
-        .unwrap(); // TODO: convert hermes_diagnostics to relay_diagnostics
+        .map_err(|errs| {
+            errs.into_iter()
+                .map(|err| {
+                    let source_span = err.span();
+                    Diagnostic::error(
+                        err.into_message(),
+                        Location::new(
+                            source_location,
+                            Span::new(
+                                source_span.offset().try_into().unwrap(),
+                                (source_span.offset() + source_span.len())
+                                    .try_into()
+                                    .unwrap(),
+                            ),
+                        ),
+                    )
+                })
+                .collect::<Vec<_>>()
+        })?;
 
         let mut imports_visitor = ImportsVisitor::new(source_location);
         imports_visitor.visit_program(&ast);
@@ -122,7 +140,7 @@ impl RelayResolverExtractor {
             .filter(|(comment, _)| comment.contains("@RelayResolver"))
         {
             // TODO: Handle unwraps
-            let docblock = parse_docblock(comment, source_location).unwrap();
+            let docblock = parse_docblock(comment, source_location)?;
             let FieldData {
                 field_name,
                 return_type,

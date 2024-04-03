@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+//- module.js
+
+import type CatFlowType from "Cat";
+
+/ @RelayResolver
+func() {}
+==================================== OUTPUT ===================================
+
+
+✖︎ ';' expected
+
+  module.js:13:8
+   12 │ / @RelayResolver
+   13 │ func() {}
+      │        ^
+
+
+✖︎ non-terminated regular expression literal
+
+  module.js:12:17
+   11 │ 
+   12 │ / @RelayResolver 
+      │                 ^
+   13 │ func() {}
+
+
+✖︎ regular expression started here
+
+  module.js:12:1
+   10 │ import type CatFlowType from "Cat";
+   11 │ 
+   12 │ / @RelayResolver
+      │ ^
+   13 │ func() {}

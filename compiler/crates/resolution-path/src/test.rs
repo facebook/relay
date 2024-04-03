@@ -38,7 +38,27 @@ pub(super) fn test_resolution(source: &str, sub_str: &str, cb: impl Fn(&Resoluti
 }
 
 #[test]
-fn operation_definition_type_condition() {
+fn operation_definition_operation() {
+    let source = r#"
+            query Foo {
+                me {
+                    id
+                }
+            }
+        "#;
+    test_resolution(source, "query", |resolved| {
+        assert_matches!(
+            resolved,
+            ResolutionPath::Operation(OperationPath {
+                inner: (_, OperationKind::Query),
+                parent: _,
+            })
+        );
+    })
+}
+
+#[test]
+fn operation_definition_name() {
     let source = r#"
             query Foo {
                 me {
@@ -58,22 +78,68 @@ fn operation_definition_type_condition() {
 }
 
 #[test]
-fn operation_definition_operation() {
+fn operation_definition_variable_definition_name() {
     let source = r#"
-            query Foo {
+            query Foo($bar: ID!) {
                 me {
                     id
                 }
             }
         "#;
-    test_resolution(source, "query", |resolved| {
+    test_resolution(source, "bar", |resolved| {
         assert_matches!(
             resolved,
-            ResolutionPath::Operation(OperationPath {
-                inner: (_, OperationKind::Query),
-                parent: _,
+            ResolutionPath::VariableIdentifier(VariableIdentifierPath {
+                inner: _,
+                parent: VariableIdentifierParent::VariableDefinition(VariableDefinitionPath {
+                    inner: _,
+                    parent: VariableDefinitionListPath {
+                        inner: _,
+                        parent: VariableDefinitionListParent::OperationDefinition(_),
+                    },
+                }),
             })
         );
+    })
+}
+
+#[test]
+fn operation_definition_variable_definition_type() {
+    let source = r#"
+            query Foo($bar: ID!) {
+                me {
+                    id
+                }
+            }
+        "#;
+    test_resolution(source, "ID!", |resolved| {
+        assert_matches!(
+            resolved,
+            ResolutionPath::Ident(IdentPath {
+                inner: _,
+                parent: IdentParent::NamedTypeAnnotation(NamedTypeAnnotationPath {
+                    inner: _,
+                    parent: TypeAnnotationPath {
+                        inner: _,
+                        parent: TypeAnnotationParent::NonNullTypeAnnotation(_),
+                    }
+                }),
+            })
+        )
+    })
+}
+
+#[test]
+fn operation_definition_variable_definition_default_value() {
+    let source = r#"
+            query Foo($localId: ID! = "1") {
+                me {
+                    id
+                }
+            }
+        "#;
+    test_resolution(source, r#""1""#, |resolved| {
+        assert_matches!(resolved, ResolutionPath::ConstantString(_));
     })
 }
 
@@ -249,6 +315,27 @@ fn fragment_spread_name() {
 }
 
 #[test]
+fn fragment_spread_argument_name() {
+    let source = r#"
+            fragment Foo on Node {
+                ...someFragment(someArg: 5)
+            }
+        "#;
+    test_resolution(source, "someArg", |resolved| {
+        assert_matches!(
+            resolved,
+            ResolutionPath::Ident(IdentPath {
+                inner: _,
+                parent: IdentParent::ArgumentName(ArgumentPath {
+                    inner: _,
+                    parent: ArgumentParent::FragmentSpread(_),
+                }),
+            })
+        );
+    })
+}
+
+#[test]
 fn directive_name() {
     let source = r#"
             fragment Foo on Node {
@@ -321,7 +408,7 @@ fn list_literal() {
 }
 
 #[test]
-fn fragment_argument_name() {
+fn fragment_argument_definition_name() {
     let source = r#"
         fragment Foo($localId: ID!) on User {
             id
@@ -345,7 +432,7 @@ fn fragment_argument_name() {
 }
 
 #[test]
-fn fragment_argument_type() {
+fn fragment_argument_definition_type() {
     let source = r#"
         fragment Foo($localId: ID!) on User {
             id
@@ -369,7 +456,7 @@ fn fragment_argument_type() {
 }
 
 #[test]
-fn fragment_argument_default_value() {
+fn fragment_argument_definition_default_value() {
     let source = r#"
         fragment Foo($localId: ID! = "1") on User {
             id
@@ -380,13 +467,19 @@ fn fragment_argument_default_value() {
     })
 }
 #[test]
-fn fragment_argument_directive() {
+fn fragment_argument_definition_directive() {
     let source = r#"
-        fragment Foo($localId: ID! = "1") on User {
+        fragment Foo($localId: ID! = "1" @bar) on User {
             id
           }
         "#;
-    test_resolution(source, r#""1""#, |resolved| {
-        assert_matches!(resolved, ResolutionPath::ConstantString(_));
+    test_resolution(source, "bar", |resolved| {
+        assert_matches!(
+            resolved,
+            ResolutionPath::Ident(IdentPath {
+                inner: _,
+                parent: IdentParent::DirectiveName(_)
+            })
+        );
     })
 }

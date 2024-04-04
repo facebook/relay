@@ -88,6 +88,7 @@ pub struct CodegenConstants {
     pub operation_module_provider: StringKey,
     pub operation_value: StringKey,
     pub operation: StringKey,
+    pub output_type: StringKey,
     pub params: StringKey,
     pub passing_value: StringKey,
     pub path: StringKey,
@@ -122,6 +123,7 @@ pub struct CodegenConstants {
     pub value: StringKey,
     pub variable_name: StringKey,
     pub variable: StringKey,
+    pub weak_model: StringKey,
 }
 
 lazy_static! {
@@ -204,6 +206,7 @@ lazy_static! {
         operation_module_provider: "operationModuleProvider".intern(),
         operation_value: "Operation".intern(),
         operation: "operation".intern(),
+        output_type: "OutputType".intern(),
         params: "params".intern(),
         passing_value: "passingValue".intern(),
         path: "path".intern(),
@@ -238,5 +241,6 @@ lazy_static! {
         value: "value".intern(),
         variable_name: "variableName".intern(),
         variable: "Variable".intern(),
+        weak_model: "WeakModel".intern(),
     };
 }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<273fdfbdeaac0b0d93e0ae7d499a7eed>>
+ * @generated SignedSource<<23a2228e817b92c509d48fc7d96971e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -118,6 +118,7 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo').todo,
           "path": "todo",
           "normalizationInfo": {
+            "kind": "OutputType",
             "concreteType": "Todo",
             "plural": false,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
@@ -148,6 +149,7 @@ return {
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
                 "path": "todo.blocked_by",
                 "normalizationInfo": {
+                  "kind": "OutputType",
                   "concreteType": "Todo",
                   "plural": true,
                   "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')

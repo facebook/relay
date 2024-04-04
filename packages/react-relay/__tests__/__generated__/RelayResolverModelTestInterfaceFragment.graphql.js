@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be81cd9b5207ce75fdeb514a2488f5b0>>
+ * @generated SignedSource<<70210ade280bc14cf3e3bc655af12867>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -112,9 +112,9 @@ return {
         "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true), '__relay_model_instance', false),
         "path": "fancy_description",
         "normalizationInfo": {
+          "kind": "WeakModel",
           "concreteType": "TodoDescription",
-          "plural": false,
-          "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql')
+          "plural": false
         }
       },
       "linkedField": {
@@ -138,6 +138,7 @@ return {
               "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', true),
               "path": "fancy_description.some_interface",
               "normalizationInfo": {
+                "kind": "OutputType",
                 "concreteType": null,
                 "plural": false,
                 "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_interface$normalization.graphql')
@@ -167,6 +168,7 @@ return {
               "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_client_type_with_interface, '__relay_model_instance', true),
               "path": "fancy_description.some_client_type_with_interface",
               "normalizationInfo": {
+                "kind": "OutputType",
                 "concreteType": "ClientTypeWithNestedClientInterface",
                 "plural": false,
                 "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql')

@@ -240,10 +240,30 @@ export type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line 
 // With ES6 imports, a resolver function might be exported under the `default` key.
 export type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
-export type ResolverNormalizationInfo = {
+export type ResolverNormalizationInfo =
+  | ResolverOutputTypeNormalizationInfo
+  | ResolverWeakModelNormalizationInfo
+  | LegacyResolverOutputTypeNormalizationInfo;
+
+// This is the old format used by output type resolves and weak model resolves.
+// Once we've upgraded all compilers to emit the new types we can remove this.
+export type LegacyResolverOutputTypeNormalizationInfo = {
   +concreteType: string | null,
   +plural: boolean,
   +normalizationNode: NormalizationSelectableNode,
+};
+
+export type ResolverOutputTypeNormalizationInfo = {
+  +kind: 'OutputType',
+  +concreteType: string | null,
+  +plural: boolean,
+  +normalizationNode: NormalizationSelectableNode,
+};
+
+export type ResolverWeakModelNormalizationInfo = {
+  +kind: 'WeakModel',
+  +concreteType: string | null,
+  +plural: boolean,
 };
 
 export type ReaderRelayResolver = {

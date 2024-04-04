@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<146d0fe51bbff84067632e1850b3b265>>
+ * @generated SignedSource<<0612be7579d4f6404f10ba4c2be3d727>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -107,6 +107,7 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos').many_todos,
           "path": "many_todos",
           "normalizationInfo": {
+            "kind": "OutputType",
             "concreteType": "Todo",
             "plural": true,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql')

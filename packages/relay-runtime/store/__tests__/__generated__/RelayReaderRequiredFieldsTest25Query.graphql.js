@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f047f83a94d25f632bd57126ca4bbf38>>
+ * @generated SignedSource<<86902294f3e87ef8874799bbffd9a469>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -99,6 +99,7 @@ return {
                 "resolverModule": require('./../resolvers/UserClientEdgeClientObjectResolver').client_object,
                 "path": "me.client_object",
                 "normalizationInfo": {
+                  "kind": "OutputType",
                   "concreteType": "ClientObject",
                   "plural": false,
                   "normalizationNode": require('./../resolvers/__generated__/User__client_object$normalization.graphql')

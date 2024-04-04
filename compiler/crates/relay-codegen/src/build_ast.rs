@@ -1490,13 +1490,22 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 Primitive::String(self.schema.get_type_name(normalization_info.inner_type))
             };
 
-            let normalization_info = object! {
-                concrete_type: concrete_type,
-                plural: Primitive::Bool(normalization_info.plural),
-                normalization_node: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Path {
-                    path: normalization_import_path,
-                    name: normalization_info.normalization_operation.item.into()
-            }),
+            let normalization_info = if normalization_info.weak_object_instance_field.is_some() {
+                object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.weak_model),
+                    concrete_type: concrete_type,
+                    plural: Primitive::Bool(normalization_info.plural),
+                }
+            } else {
+                object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.output_type),
+                    concrete_type: concrete_type,
+                    plural: Primitive::Bool(normalization_info.plural),
+                    normalization_node: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Path {
+                        path: normalization_import_path,
+                        name: normalization_info.normalization_operation.item.into(),
+                    }),
+                }
             };
 
             object_props.push(ObjectEntry {

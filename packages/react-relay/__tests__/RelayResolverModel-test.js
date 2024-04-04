@@ -472,10 +472,8 @@ describe.each([['New', useFragment]])(
         </EnvironmentWrapper>,
       );
 
-      // TODO(T184435336): This is a bug. Instead of returning null for the item, or
-      // filtering it out like we do for @outputType (T184433715) we end up with
-      // an edge to a record with no model.
-      expect(renderer.toJSON()).toEqual('Test todo, TEXT IS NULL');
+      // TODO: T184433715 We currently break with the GraphQL spec and filter out null items in lists.
+      expect(renderer.toJSON()).toEqual('Test todo');
     });
 
     test('read a field with its own root fragment', () => {

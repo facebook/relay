@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<076f8bb7f82382cb1314a833dc02d2eb>>
+ * @generated SignedSource<<5451d709cb840278df5d822aba954bbe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -104,6 +104,7 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodos').todos,
           "path": "todos",
           "normalizationInfo": {
+            "kind": "OutputType",
             "concreteType": "TodoConnection",
             "plural": false,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')

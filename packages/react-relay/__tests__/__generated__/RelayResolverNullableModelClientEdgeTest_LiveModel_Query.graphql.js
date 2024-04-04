@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1d27ddcdc18866ceaa5e76fec9c17b5d>>
+ * @generated SignedSource<<ad10e1013be04fd6735072d3ee9574da>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -125,9 +125,9 @@ return {
                 "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true), '__relay_model_instance', false),
                 "path": "edge_to_live_object_does_not_exist.fancy_description",
                 "normalizationInfo": {
+                  "kind": "WeakModel",
                   "concreteType": "TodoDescription",
-                  "plural": false,
-                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql')
+                  "plural": false
                 }
               },
               "linkedField": {

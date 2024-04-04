@@ -137,6 +137,7 @@ pub struct FileCategorizer {
     extensions_mapping: PathMapping<ProjectSet>,
     default_generated_dir: &'static OsStr,
     generated_dir_mapping: PathMapping<ProjectName>,
+    generated_sources: Vec<PathBuf>,
     source_mapping: PathMapping<ProjectSet>,
     schema_file_mapping: HashMap<PathBuf, ProjectSet>,
     schema_dir_mapping: PathMapping<ProjectSet>,
@@ -147,6 +148,14 @@ impl FileCategorizer {
         let mut source_mapping = vec![];
         for (path, project_set) in &config.sources {
             source_mapping.push((path.clone(), project_set.clone()));
+        }
+
+        let default_generated_dir = OsStr::new("__generated__");
+        let mut generated_sources = vec![];
+        for (path, _project_set) in &config.sources {
+            if in_relative_generated_dir(default_generated_dir, path) {
+                generated_sources.push(path.clone());
+            }
         }
 
         let mut extensions_map: HashMap<PathBuf, ProjectSet> = Default::default();
@@ -216,8 +225,9 @@ impl FileCategorizer {
         Self {
             source_language,
             extensions_mapping: PathMapping::new(extensions_map.into_iter().collect()),
-            default_generated_dir: OsStr::new("__generated__"),
+            default_generated_dir,
             generated_dir_mapping: PathMapping::new(generated_dir_mapping),
+            generated_sources,
             schema_file_mapping,
             schema_dir_mapping: PathMapping::new(schema_dir_mapping),
             source_mapping: PathMapping::new(source_mapping),
@@ -230,15 +240,24 @@ impl FileCategorizer {
     pub fn categorize(&self, path: &Path) -> Result<FileGroup, Cow<'static, str>> {
         let extension = path.extension();
 
+        let in_generated_sources = self
+            .generated_sources
+            .iter()
+            .any(|generated_root| path.starts_with(generated_root));
+
         if let Some(project_name) = self.generated_dir_mapping.find(path) {
-            return if let Some(extension) = extension {
-                if is_source_code_extension(extension) || is_extra_extensions(extension) {
-                    Ok(FileGroup::Generated { project_name })
+            if let Some(extension) = extension {
+                if is_source_code_extension(extension) {
+                    if !in_generated_sources {
+                        return Ok(FileGroup::Generated { project_name });
+                    }
+                } else if is_extra_extensions(extension) {
+                    return Ok(FileGroup::Generated { project_name });
                 } else {
-                    Ok(FileGroup::Ignore)
+                    return Ok(FileGroup::Ignore);
                 }
             } else {
-                Ok(FileGroup::Ignore)
+                return Ok(FileGroup::Ignore);
             };
         }
 
@@ -249,7 +268,11 @@ impl FileCategorizer {
                 .source_mapping
                 .find(path)
                 .ok_or(Cow::Borrowed("File is not in any source set."))?;
-            if self.in_relative_generated_dir(path) {
+
+            let in_generated_dir = in_relative_generated_dir(self.default_generated_dir, path);
+            // If the path is in a generated directory and is not a generated source
+            // Some generated files can be treated as sources files. For example, resolver codegen.
+            if in_generated_dir && !in_generated_sources {
                 if project_set.has_multiple_projects() {
                     Err(Cow::Owned(format!(
                         "Overlapping input sources are incompatible with relative generated \
@@ -288,13 +311,6 @@ impl FileCategorizer {
                 "File categorizer encounter a file with unsupported extension.",
             ))
         }
-    }
-
-    fn in_relative_generated_dir(&self, path: &Path) -> bool {
-        path.components().any(|comp| match comp {
-            Component::Normal(comp) => comp == self.default_generated_dir,
-            _ => false,
-        })
     }
 
     fn is_valid_extension_for_project_set(
@@ -340,6 +356,13 @@ impl<T: Clone> PathMapping<T> {
     }
 }
 
+fn in_relative_generated_dir(default_generated_dir: &OsStr, path: &Path) -> bool {
+    path.components().any(|comp| match comp {
+        Component::Normal(comp) => comp == default_generated_dir,
+        _ => false,
+    })
+}
+
 fn is_source_code_extension(extension: &OsStr) -> bool {
     extension == "js" || extension == "jsx" || extension == "ts" || extension == "tsx"
 }
@@ -377,7 +400,8 @@ mod tests {
                         "src/vendor": "public",
                         "src/custom": "with_custom_generated_dir",
                         "src/typescript": "typescript",
-                        "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"]
+                        "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"],
+                        "src/resolver_codegen/__generated__": "public"
                     },
                     "projects": {
                         "public": {
@@ -416,6 +440,24 @@ mod tests {
         assert_eq!(
             categorizer
                 .categorize(&PathBuf::from("src/js/a.js"))
+                .unwrap(),
+            FileGroup::Source {
+                project_set: ProjectSet::of("public".intern().into()),
+            },
+        );
+        assert_eq!(
+            categorizer
+                .categorize(&PathBuf::from("src/js/__generated__/a.js"))
+                .unwrap(),
+            FileGroup::Generated {
+                project_name: "public".intern().into(),
+            },
+        );
+        assert_eq!(
+            categorizer
+                .categorize(&PathBuf::from(
+                    "src/resolver_codegen/__generated__/resolvers.js"
+                ))
                 .unwrap(),
             FileGroup::Source {
                 project_set: ProjectSet::of("public".intern().into()),

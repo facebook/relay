@@ -676,6 +676,7 @@ test('render with recursive resolvers (with blocked_by)', () => {
   ]);
 });
 
+// TODO: T184433715 We currently break with the GraphQL spec here and filter out null values.
 test('rendering lists with nulls', () => {
   addTodo('Todo 1');
   addTodo('Todo 2');

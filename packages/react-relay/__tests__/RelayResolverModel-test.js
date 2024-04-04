@@ -433,6 +433,51 @@ describe.each([['New', useFragment]])(
       expect(renderer.toJSON()).toEqual('Loading...');
     });
 
+    test('null items in list of @weak models', () => {
+      function TodoComponentWithNullablePluralResolverComponent(props: {
+        todoID: string,
+      }) {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverModelTestTodoWithNullablePluralFieldQuery(
+              $id: ID!
+            ) {
+              todo_model(todoID: $id) {
+                many_fancy_descriptions_but_some_are_null {
+                  text
+                }
+              }
+            }
+          `,
+          {id: props.todoID},
+        );
+
+        const fancyDescriptions =
+          data?.todo_model?.many_fancy_descriptions_but_some_are_null;
+        if (fancyDescriptions == null) {
+          return null;
+        }
+
+        return fancyDescriptions
+          .map(item =>
+            item == null ? 'ITEM IS NULL' : item.text ?? 'TEXT IS NULL',
+          )
+          .join(', ');
+      }
+      addTodo('Test todo');
+
+      const renderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <TodoComponentWithNullablePluralResolverComponent todoID="todo-1" />
+        </EnvironmentWrapper>,
+      );
+
+      // TODO(T184435336): This is a bug. Instead of returning null for the item, or
+      // filtering it out like we do for @outputType (T184433715) we end up with
+      // an edge to a record with no model.
+      expect(renderer.toJSON()).toEqual('Test todo, TEXT IS NULL');
+    });
+
     test('read a field with its own root fragment', () => {
       function TodoComponentWithFieldWithRootFragmentComponent(props: {
         todoID: string,

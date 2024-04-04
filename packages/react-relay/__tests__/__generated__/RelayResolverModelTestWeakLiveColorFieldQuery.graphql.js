@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0a684401e994e1d8878789d0749438ea>>
+ * @generated SignedSource<<fc4000adf21e4c93a3fa98d5c7bb08a2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -40,7 +40,6 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
 (todoDescriptionTextResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
 ) => ?string);
-import type { Query__live_todo_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__live_todo_description$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestWeakLiveColorFieldQuery$variables = {|
   id: string,

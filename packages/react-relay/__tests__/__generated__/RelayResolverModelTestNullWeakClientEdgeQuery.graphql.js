@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d6be67163a6328e9dc8b9a86d81c9a3a>>
+ * @generated SignedSource<<bd2069393a5df95a55268538042894ec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -46,7 +46,6 @@ import {fancy_description_null as todoModelFancyDescriptionNullResolverType} fro
 (todoModelFancyDescriptionNullResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
 ) => ?TodoDescription);
-import type { TodoModel__fancy_description_null$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description_null$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestNullWeakClientEdgeQuery$variables = {|
   id: string,

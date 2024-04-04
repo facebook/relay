@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1df2e4fe2748065dc05a235fb557f0ac>>
+ * @generated SignedSource<<627b035a3957663195cc61ccef7af2b4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -46,7 +46,6 @@ import {fancy_description_suspends as todoModelFancyDescriptionSuspendsResolverT
 (todoModelFancyDescriptionSuspendsResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
 ) => LiveState<?TodoDescription>);
-import type { TodoModel__fancy_description_suspends$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description_suspends$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestSuspendedWeakClientEdgeQuery$variables = {|
   id: string,

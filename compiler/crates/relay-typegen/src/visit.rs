@@ -345,16 +345,15 @@ fn generate_resolver_type(
             }
         }
         ResolverOutputTypeInfo::Composite(normalization_info) => {
-            imported_raw_response_types.0.insert(
-                normalization_info.normalization_operation.item.0,
-                Some(normalization_info.normalization_operation.location),
-            );
-
             if let Some(field_id) = normalization_info.weak_object_instance_field {
                 let type_ =
                     &field_type(typegen_context.schema.field(field_id), typegen_context).inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             } else {
+                imported_raw_response_types.0.insert(
+                    normalization_info.normalization_operation.item.0,
+                    Some(normalization_info.normalization_operation.location),
+                );
                 AST::RawType(normalization_info.normalization_operation.item.0)
             }
         }
@@ -1357,6 +1356,7 @@ fn get_merged_object_with_optional_fields(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn get_discriminated_union_ast(
     by_concrete_type: IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,

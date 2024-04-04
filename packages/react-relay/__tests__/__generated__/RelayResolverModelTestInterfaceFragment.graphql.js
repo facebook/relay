@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cd70b06d48fcc804b131de1d879453a7>>
+ * @generated SignedSource<<be81cd9b5207ce75fdeb514a2488f5b0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ import type { TodoDescription____relay_model_instance$data } from "./../../../re
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import type { TodoDescription__some_client_type_with_interface$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql";
 import type { TodoDescription__some_interface$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription__some_interface$normalization.graphql";
-import type { TodoModel__fancy_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 import {some_client_type_with_interface as todoDescriptionSomeClientTypeWithInterfaceResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";

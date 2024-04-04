@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9498d1cc077502c2932d9432bc23b10c>>
+ * @generated SignedSource<<b44e7f5ecd1a47c3f9ad9a43bd88f939>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,6 @@ import {first_name as weakModelFirstNameResolverType} from "../RelayResolverNull
 (weakModelFirstNameResolverType: (
   __relay_model_instance: WeakModel____relay_model_instance$data['__relay_model_instance'],
 ) => ?string);
-import type { Query__edge_to_null_weak_model$normalization } from "./Query__edge_to_null_weak_model$normalization.graphql";
 import type { WeakModel } from "../RelayResolverNullableModelClientEdge-test.js";
 export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data = {|

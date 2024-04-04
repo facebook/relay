@@ -87,6 +87,8 @@ lazy_static! {
         DirectiveName("deprecated".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
+    static ref SEMANTIC_NON_NULL_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("semanticNonNull".intern());
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -431,14 +433,13 @@ trait ResolverIr: Sized {
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> Vec<ConstantDirective> {
-        let location = self.location();
-        let span = location.span();
         let mut directives: Vec<ConstantDirective> = vec![
             self.directive(object, project_config),
             resolver_source_hash_directive(self.source_hash()),
         ];
 
         if let Some(deprecated) = self.deprecated() {
+            let span = deprecated.key_location().span();
             directives.push(ConstantDirective {
                 span,
                 at: dummy_token(span),
@@ -449,6 +450,16 @@ trait ResolverIr: Sized {
                         value,
                     )])
                 }),
+            })
+        }
+
+        if let Some(semantic_non_null) = self.semantic_non_null() {
+            let span = semantic_non_null.key_location.span();
+            directives.push(ConstantDirective {
+                span,
+                at: dummy_token(span),
+                name: string_key_as_identifier(SEMANTIC_NON_NULL_DIRECTIVE_NAME.0),
+                arguments: None,
             })
         }
 

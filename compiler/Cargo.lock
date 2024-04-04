@@ -1845,7 +1845,6 @@ dependencies = [
  "intern",
  "itertools",
  "lazy_static",
- "once_cell",
  "parking_lot",
  "regex",
  "relay-config",

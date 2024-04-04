@@ -65,6 +65,7 @@ TerseRelayResolver(
         },
         root_fragment: None,
         deprecated: None,
+        semantic_non_null: None,
         live: None,
         location: /path/to/test/fixture/terse-relay-resolver-non-nullable.js:0:69,
         fragment_arguments: None,

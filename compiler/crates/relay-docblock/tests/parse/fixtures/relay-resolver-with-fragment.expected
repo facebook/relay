@@ -56,6 +56,7 @@ LegacyVerboseResolver(
         description: None,
         hack_source: None,
         deprecated: None,
+        semantic_non_null: None,
         live: None,
         location: /path/to/test/fixture/relay-resolver-with-fragment.js:0:94,
         fragment_arguments: None,

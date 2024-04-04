@@ -9,6 +9,7 @@
 /**
  * @RelayResolver User.favorite_page: Page
  * @rootFragment myRootFragment
+ * @semanticNonNull
  *
  * The user's favorite page! They probably clicked something in the UI
  * to tell us that it was their favorite page and then we put that in a
@@ -49,7 +50,7 @@ TerseRelayResolver(
             description: Some(
                 StringNode {
                     token: Token {
-                        span: 79:370,
+                        span: 99:390,
                         kind: Empty,
                     },
                     value: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
@@ -59,24 +60,28 @@ TerseRelayResolver(
             span: 25:44,
         },
         type_: WithLocation {
-            location: /path/to/test/fixture/terse-relay-resolver.js:20:24,
+            location: /path/to/test/fixture/terse-relay-resolver-semantic-non-null.js:20:24,
             item: "User",
         },
         root_fragment: Some(
             WithLocation {
-                location: /path/to/test/fixture/terse-relay-resolver.js:62:76,
+                location: /path/to/test/fixture/terse-relay-resolver-semantic-non-null.js:62:76,
                 item: FragmentDefinitionName(
                     "myRootFragment",
                 ),
             },
         ),
         deprecated: None,
-        semantic_non_null: None,
+        semantic_non_null: Some(
+            UnpopulatedIrField {
+                key_location: /path/to/test/fixture/terse-relay-resolver-semantic-non-null.js:81:96,
+            },
+        ),
         live: None,
-        location: /path/to/test/fixture/terse-relay-resolver.js:0:371,
+        location: /path/to/test/fixture/terse-relay-resolver-semantic-non-null.js:0:391,
         fragment_arguments: None,
         source_hash: ResolverSourceHash(
-            "0a9950ad1f952f5777b27604738fcf91",
+            "27524a0a58f36e5480cea6a72c2c0a88",
         ),
     },
 )

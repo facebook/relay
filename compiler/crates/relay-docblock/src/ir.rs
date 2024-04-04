@@ -414,6 +414,7 @@ trait ResolverIr: Sized {
     fn live(&self) -> Option<UnpopulatedIrField>;
     fn named_import(&self) -> Option<StringKey>;
     fn source_hash(&self) -> ResolverSourceHash;
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField>;
 
     fn to_graphql_schema_ast(
         self,
@@ -783,6 +784,7 @@ pub struct TerseRelayResolverIr {
     pub type_: WithLocation<StringKey>,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub deprecated: Option<IrField>,
+    pub semantic_non_null: Option<UnpopulatedIrField>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
@@ -869,6 +871,10 @@ impl ResolverIr for TerseRelayResolverIr {
         self.deprecated
     }
 
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
+        self.semantic_non_null
+    }
+
     fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
     }
@@ -913,6 +919,7 @@ pub struct LegacyVerboseResolverIr {
     pub description: Option<WithLocation<StringKey>>,
     pub hack_source: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
+    pub semantic_non_null: Option<UnpopulatedIrField>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
@@ -1052,6 +1059,10 @@ impl ResolverIr for LegacyVerboseResolverIr {
         self.live
     }
 
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
+        self.semantic_non_null
+    }
+
     fn named_import(&self) -> Option<StringKey> {
         Some(self.field.name.value)
     }
@@ -1095,6 +1106,7 @@ pub struct StrongObjectIr {
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub live: Option<UnpopulatedIrField>,
+    pub semantic_non_null: Option<UnpopulatedIrField>,
     pub location: Location,
     /// The interfaces which the newly-created object implements
     pub implements_interfaces: Vec<Identifier>,
@@ -1314,6 +1326,10 @@ impl ResolverIr for StrongObjectIr {
         self.live
     }
 
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
+        None
+    }
+
     fn named_import(&self) -> Option<StringKey> {
         Some(self.type_name.value)
     }
@@ -1490,6 +1506,10 @@ impl ResolverIr for WeakObjectIr {
     }
 
     fn live(&self) -> Option<UnpopulatedIrField> {
+        None
+    }
+
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
         None
     }
 

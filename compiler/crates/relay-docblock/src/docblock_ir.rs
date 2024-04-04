@@ -256,6 +256,10 @@ fn parse_relay_resolver_ir(
         output_type,
         fragment_arguments,
         source_hash,
+        semantic_non_null: get_optional_unpopulated_field_named(
+            fields,
+            AllowedFieldName::SemanticNonNullField,
+        )?,
     })
 }
 
@@ -289,6 +293,10 @@ fn parse_strong_object_ir(
         location,
         implements_interfaces,
         source_hash,
+        semantic_non_null: get_optional_unpopulated_field_named(
+            fields,
+            AllowedFieldName::SemanticNonNullField,
+        )?,
     })
 }
 
@@ -417,6 +425,10 @@ fn parse_terse_relay_resolver_ir(
         location,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
+        semantic_non_null: get_optional_unpopulated_field_named(
+            fields,
+            AllowedFieldName::SemanticNonNullField,
+        )?,
         fragment_arguments,
         source_hash,
     })

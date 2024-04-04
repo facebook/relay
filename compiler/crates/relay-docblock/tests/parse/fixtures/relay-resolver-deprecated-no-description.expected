@@ -82,6 +82,7 @@ LegacyVerboseResolver(
                 },
             ),
         ),
+        semantic_non_null: None,
         live: None,
         location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
         fragment_arguments: None,

@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:enable_output_type
 // relay:allow_legacy_verbose_syntax
 
 /**
@@ -14,19 +13,15 @@
  *
  * @onType User
  * @fieldName favorite_page
- * @outputType ClientPage
+ * @edgeTo Page
  * @rootFragment myRootFragment
- *
- * The user's favorite page! They probably clicked something in the UI
- * to tell us that it was their favorite page and then we put that in a
- * database or something. Then we got that info out again and put it out
- * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
+ * @semanticNonNull
  */
 
 graphql`
- fragment myRootFragment on User {
-   name
- }
+  fragment myRootFragment on User {
+    name
+  }
 `
 ==================================== OUTPUT ===================================
 LegacyVerboseResolver(
@@ -44,54 +39,53 @@ LegacyVerboseResolver(
         },
         on: Type(
             PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver-with-output-type.js:27:33,
+                key_location: /path/to/test/fixture/relay-resolver-semantic-non-null.js:27:33,
                 value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-with-output-type.js:34:38,
+                    location: /path/to/test/fixture/relay-resolver-semantic-non-null.js:34:38,
                     item: "User",
                 },
             },
         ),
         root_fragment: Some(
             WithLocation {
-                location: /path/to/test/fixture/relay-resolver-with-output-type.js:110:124,
+                location: /path/to/test/fixture/relay-resolver-semantic-non-null.js:100:114,
                 item: FragmentDefinitionName(
                     "myRootFragment",
                 ),
             },
         ),
         output_type: Some(
-            Output(
+            EdgeTo(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-with-output-type.js:82:92,
+                    location: /path/to/test/fixture/relay-resolver-semantic-non-null.js:78:82,
                     item: Named(
                         NamedTypeAnnotation {
                             name: Identifier {
-                                span: 82:92,
+                                span: 78:82,
                                 token: Token {
-                                    span: 82:92,
+                                    span: 78:82,
                                     kind: Identifier,
                                 },
-                                value: "ClientPage",
+                                value: "Page",
                             },
                         },
                     ),
                 },
             ),
         ),
-        description: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver-with-output-type.js:127:418,
-                item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
-            },
-        ),
+        description: None,
         hack_source: None,
         deprecated: None,
-        semantic_non_null: None,
+        semantic_non_null: Some(
+            UnpopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver-semantic-non-null.js:119:134,
+            },
+        ),
         live: None,
-        location: /path/to/test/fixture/relay-resolver-with-output-type.js:0:419,
+        location: /path/to/test/fixture/relay-resolver-semantic-non-null.js:0:135,
         fragment_arguments: None,
         source_hash: ResolverSourceHash(
-            "88293c3a51d22c37485f8fb1444eed2b",
+            "4c15e0d97e469bd51918e4d04bc77794",
         ),
     },
 )

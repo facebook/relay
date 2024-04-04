@@ -30,6 +30,7 @@ StrongObjectResolver(
         description: None,
         deprecated: None,
         live: None,
+        semantic_non_null: None,
         location: /path/to/test/fixture/relay-resolver-strong-object.js:0:31,
         implements_interfaces: [],
         source_hash: ResolverSourceHash(

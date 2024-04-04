@@ -196,6 +196,7 @@ impl RelayResolverExtractor {
                     live: None,
                     fragment_arguments: None,
                     source_hash: field.source_hash,
+                    semantic_non_null: None,
                 });
             } else {
                 errors.push(Diagnostic::error(
@@ -273,6 +274,7 @@ impl RelayResolverExtractor {
             location: name.location,
             implements_interfaces: vec![],
             source_hash,
+            semantic_non_null: None,
         };
         // For now, we assume the flow type for the strong object is always imported
         // from a separate file

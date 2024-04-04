@@ -57,6 +57,7 @@ StrongObjectResolver(
         description: None,
         deprecated: None,
         live: None,
+        semantic_non_null: None,
         location: Cat.js:274:277,
         implements_interfaces: [],
         source_hash: ResolverSourceHash(
@@ -114,6 +115,7 @@ TerseRelayResolver(
         },
         root_fragment: None,
         deprecated: None,
+        semantic_non_null: None,
         live: None,
         location: Cat-name.js:80:84,
         fragment_arguments: None,

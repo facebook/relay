@@ -12,9 +12,13 @@ use common::DirectiveName;
 use common::Span;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDocument;
+use graphql_syntax::SchemaDocument;
 use intern::string_key::StringKey;
 use resolution_path::ArgumentParent;
 use resolution_path::ArgumentPath;
+use resolution_path::ConstantArgumentParent;
+use resolution_path::ConstantArgumentPath;
+use resolution_path::ConstantDirectivePath;
 use resolution_path::DirectivePath;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
@@ -29,6 +33,54 @@ use schema::SDLSchema;
 use super::DefinitionDescription;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
+
+pub fn get_graphql_schema_definition_description(
+    document: SchemaDocument,
+    position_span: Span,
+) -> LSPRuntimeResult<DefinitionDescription> {
+    let node_path = document.resolve((), position_span);
+
+    match node_path {
+        ResolutionPath::Ident(IdentPath {
+            inner: type_name,
+            parent:
+                IdentParent::NamedTypeAnnotation(_)
+                | IdentParent::UnionTypeMemberType(_)
+                | IdentParent::ImplementedInterfaceName(_)
+                | IdentParent::OperationTypeDefinitionType(_)
+                | IdentParent::InputObjectTypeExtensionName(_)
+                | IdentParent::ObjectTypeExtensionName(_)
+                | IdentParent::InterfaceTypeExtensionName(_)
+                | IdentParent::UnionTypeExtensionName(_)
+                | IdentParent::EnumTypeExtensionName(_)
+                | IdentParent::ScalarTypeExtensionName(_),
+        }) => Ok(DefinitionDescription::Type {
+            type_name: type_name.value,
+        }),
+        ResolutionPath::Ident(IdentPath {
+            inner: directive_name,
+            parent: IdentParent::ConstantDirectiveName(_),
+        }) => Ok(DefinitionDescription::Directive {
+            directive_name: DirectiveName(directive_name.value),
+        }),
+        ResolutionPath::Ident(IdentPath {
+            inner: argument_name,
+            parent:
+                IdentParent::ConstantArgumentKey(ConstantArgumentPath {
+                    inner: _,
+                    parent:
+                        ConstantArgumentParent::ConstantDirective(ConstantDirectivePath {
+                            inner: directive,
+                            ..
+                        }),
+                }),
+        }) => Ok(DefinitionDescription::DirectiveArgument {
+            directive_name: DirectiveName(directive.name.value),
+            argument_name: ArgumentName(argument_name.value),
+        }),
+        _ => Err(LSPRuntimeError::ExpectedError),
+    }
+}
 
 pub fn get_graphql_definition_description(
     document: ExecutableDocument,

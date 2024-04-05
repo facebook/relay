@@ -42,21 +42,21 @@ pub enum TypeSystemDefinition {
 impl TypeSystemDefinition {
     pub fn span(&self) -> Span {
         match self {
-            TypeSystemDefinition::SchemaDefinition(_extension) => Span::empty(), // Not implemented
-            TypeSystemDefinition::SchemaExtension(_extension) => Span::empty(),  // Not implemented
-            TypeSystemDefinition::ObjectTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::ObjectTypeDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::InterfaceTypeDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::InterfaceTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::UnionTypeDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::DirectiveDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::InputObjectTypeDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::EnumTypeDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::EnumTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::ScalarTypeDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::ScalarTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::SchemaDefinition(definition) => definition.span,
+            TypeSystemDefinition::SchemaExtension(extension) => extension.span,
+            TypeSystemDefinition::ObjectTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::ObjectTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::InterfaceTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::InterfaceTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::UnionTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::UnionTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::DirectiveDefinition(definition) => definition.span,
+            TypeSystemDefinition::InputObjectTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::EnumTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::EnumTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::ScalarTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::ScalarTypeExtension(extension) => extension.span,
         }
     }
 }

@@ -21,6 +21,9 @@ pub enum TypePathItem {
     InlineFragment { type_name: StringKey },
     LinkedField { name: StringKey },
     ScalarField { name: StringKey },
+    FieldDefinition { name: StringKey },
+    ObjectType { name: StringKey },
+    InterfaceType { name: StringKey },
 }
 
 /// Given a root path item and the schema this function will return a root type of the document
@@ -34,6 +37,8 @@ fn resolve_root_type(root_path_item: TypePathItem, schema: &SDLSchema) -> Option
             OperationKind::Subscription => schema.subscription_type(),
         },
         TypePathItem::FragmentDefinition { type_name } => schema.get_type(type_name),
+        TypePathItem::ObjectType { name } => schema.get_type(name),
+        TypePathItem::InterfaceType { name } => schema.get_type(name),
         _ => {
             // TODO(brandondail) log here
             None
@@ -62,6 +67,9 @@ fn resolve_relative_type(
         }
         TypePathItem::ScalarField { .. } => Some(parent_type),
         TypePathItem::InlineFragment { type_name } => schema.get_type(type_name),
+        TypePathItem::ObjectType { name } => schema.get_type(name),
+        TypePathItem::InterfaceType { name } => schema.get_type(name),
+        TypePathItem::FieldDefinition { .. } => Some(parent_type),
     }
 }
 
@@ -91,7 +99,7 @@ impl TypePath {
         Some(type_)
     }
 
-    /// Returns the leaf is it is a field
+    /// Returns the leaf if it is a field
     pub fn resolve_current_field(self, schema: &SDLSchema) -> Option<(Type, &Field)> {
         let mut type_path = self.0;
         type_path.reverse();
@@ -100,11 +108,11 @@ impl TypePath {
         while let Some(path_item) = type_path.pop() {
             if type_path.is_empty() {
                 return match path_item {
-                    TypePathItem::LinkedField { name } | TypePathItem::ScalarField { name } => {
-                        schema
-                            .named_field(type_, name)
-                            .map(|field_id| (type_, schema.field(field_id)))
-                    }
+                    TypePathItem::LinkedField { name }
+                    | TypePathItem::ScalarField { name }
+                    | TypePathItem::FieldDefinition { name } => schema
+                        .named_field(type_, name)
+                        .map(|field_id| (type_, schema.field(field_id))),
                     _ => None,
                 };
             } else {

@@ -10,6 +10,7 @@ use graphql_syntax::Argument;
 use graphql_syntax::Directive;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::ExecutableDocument;
+use graphql_syntax::FieldDefinition;
 use graphql_syntax::FragmentDefinition;
 use graphql_syntax::FragmentSpread;
 use graphql_syntax::InlineFragment;
@@ -17,9 +18,11 @@ use graphql_syntax::LinkedField;
 use graphql_syntax::List;
 use graphql_syntax::OperationDefinition;
 use graphql_syntax::ScalarField;
+use graphql_syntax::SchemaDocument;
 use graphql_syntax::Selection;
 use graphql_syntax::TypeCondition;
 use intern::string_key::StringKey;
+use schema::TypeSystemDefinition;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -30,6 +33,7 @@ pub use type_path::TypePathItem;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
+    SchemaDocument,
     OperationDefinition(OperationDefinition),
     FragmentDefinition(FragmentDefinition),
     FieldName,
@@ -91,6 +95,94 @@ fn type_condition_at_position(
     }
 
     Some(NodeKind::TypeCondition(type_condition.type_.value))
+}
+
+pub fn create_node_resolution_info_for_schema_document(
+    document: SchemaDocument,
+    position_span: Span,
+) -> LSPRuntimeResult<NodeResolutionInfo> {
+    let definition = document
+        .definitions
+        .iter()
+        .find(|definition| definition.location().contains(position_span))
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    let mut node_resolution_info = NodeResolutionInfo::new(NodeKind::SchemaDocument);
+
+    match definition {
+        TypeSystemDefinition::ObjectTypeDefinition(object_type) => {
+            build_node_resolution_info_from_field_definitions(
+                &object_type.fields,
+                TypePathItem::ObjectType {
+                    name: object_type.name.value,
+                },
+                position_span,
+                &mut node_resolution_info,
+            );
+
+            Ok(node_resolution_info)
+        }
+        TypeSystemDefinition::ObjectTypeExtension(object_type) => {
+            build_node_resolution_info_from_field_definitions(
+                &object_type.fields,
+                TypePathItem::ObjectType {
+                    name: object_type.name.value,
+                },
+                position_span,
+                &mut node_resolution_info,
+            );
+
+            Ok(node_resolution_info)
+        }
+        TypeSystemDefinition::InterfaceTypeDefinition(interface_type) => {
+            build_node_resolution_info_from_field_definitions(
+                &interface_type.fields,
+                TypePathItem::InterfaceType {
+                    name: interface_type.name.value,
+                },
+                position_span,
+                &mut node_resolution_info,
+            );
+
+            Ok(node_resolution_info)
+        }
+        TypeSystemDefinition::InterfaceTypeExtension(interface_type) => {
+            build_node_resolution_info_from_field_definitions(
+                &interface_type.fields,
+                TypePathItem::InterfaceType {
+                    name: interface_type.name.value,
+                },
+                position_span,
+                &mut node_resolution_info,
+            );
+
+            Ok(node_resolution_info)
+        }
+        _ => Err(LSPRuntimeError::ExpectedError),
+    }
+}
+
+fn build_node_resolution_info_from_field_definitions(
+    fields: &Option<List<FieldDefinition>>,
+    type_path_item: TypePathItem,
+    position_span: Span,
+    node_resolution_info: &mut NodeResolutionInfo,
+) {
+    if let Some(fields) = &fields {
+        if let Some(field) = fields
+            .items
+            .iter()
+            .find(|item| item.span.contains(position_span))
+        {
+            node_resolution_info.kind = NodeKind::FieldName;
+            node_resolution_info.type_path.add_type(type_path_item);
+            node_resolution_info
+                .type_path
+                .add_type(TypePathItem::FieldDefinition {
+                    name: field.name.value,
+                });
+        }
+    }
 }
 
 pub fn create_node_resolution_info(

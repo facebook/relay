@@ -170,7 +170,7 @@ struct Printer<'schema, 'writer> {
     type_writers_index: Option<(StringKey, usize)>,
 }
 
-impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
+impl<'schema, 'writer> Printer<'schema, 'writer> {
     fn new(schema: &'schema SDLSchema, writers: &'writer mut Vec<String>) -> Self {
         Self {
             schema,

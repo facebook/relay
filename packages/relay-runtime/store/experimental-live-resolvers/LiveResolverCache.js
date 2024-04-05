@@ -722,10 +722,6 @@ class LiveResolverCache implements ResolverCache {
     const source = RelayRecordSource.create();
 
     switch (normalizationInfo.kind) {
-      // This case handles generated artifacts from previous compiler versions,
-      // which did not have an explict `kind` property. We can remove this once
-      // all compiler changes have synced.
-      case undefined:
       case 'OutputType': {
         const record = RelayModernRecord.create(outputTypeDataID, typename);
         source.set(outputTypeDataID, record);

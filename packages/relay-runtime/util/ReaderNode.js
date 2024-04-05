@@ -242,16 +242,7 @@ export type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
 export type ResolverNormalizationInfo =
   | ResolverOutputTypeNormalizationInfo
-  | ResolverWeakModelNormalizationInfo
-  | LegacyResolverOutputTypeNormalizationInfo;
-
-// This is the old format used by output type resolves and weak model resolves.
-// Once we've upgraded all compilers to emit the new types we can remove this.
-export type LegacyResolverOutputTypeNormalizationInfo = {
-  +concreteType: string | null,
-  +plural: boolean,
-  +normalizationNode: NormalizationSelectableNode,
-};
+  | ResolverWeakModelNormalizationInfo;
 
 export type ResolverOutputTypeNormalizationInfo = {
   +kind: 'OutputType',

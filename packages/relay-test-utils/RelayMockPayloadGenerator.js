@@ -314,7 +314,9 @@ class RelayMockPayloadGenerator {
         // falls through
         case DEFER:
         case STREAM: {
-          if (this._generateDeferredPayload) {
+          const isDeferreable =
+            selection.if == null || this._variables[selection.if];
+          if (this._generateDeferredPayload && isDeferreable) {
             const deferredData = this._traverseSelections(
               selection.selections,
               typeName,

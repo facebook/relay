@@ -1759,3 +1759,135 @@ test('generate mock for deferred fragments', () => {
     {generateDeferredPayload: true},
   );
 });
+
+test('generate mock for deferred fragments with if condition true', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest62Fragment on User {
+      name
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest62Query {
+        node(id: "my-id") {
+          id
+          ...RelayMockPayloadGeneratorTest62Fragment @defer(if: true)
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for deferred fragments with if condition false', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest63Fragment on User {
+      name
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest63Query {
+        node(id: "my-id") {
+          id
+          ...RelayMockPayloadGeneratorTest63Fragment @defer(if: false)
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for streamed fragments', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest64Fragment on User {
+      id
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest64Query {
+        me {
+          ... on User {
+            friends(first: 10)
+              @stream_connection(initial_count: 4, key: "test-64__friends") {
+              edges {
+                node {
+                  ...RelayMockPayloadGeneratorTest64Fragment
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for streamed fragments with if condition true', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest65Fragment on User {
+      id
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest65Query {
+        me {
+          ... on User {
+            friends(first: 10)
+              @stream_connection(
+                initial_count: 4
+                key: "test-65__friends"
+                if: true
+              ) {
+              edges {
+                node {
+                  ...RelayMockPayloadGeneratorTest65Fragment
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for streamed fragments with if condition false', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest66Fragment on User {
+      id
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest66Query {
+        me {
+          ... on User {
+            friends(first: 10)
+              @stream_connection(
+                initial_count: 4
+                key: "test-66__friends"
+                if: false
+              ) {
+              edges {
+                node {
+                  ...RelayMockPayloadGeneratorTest66Fragment
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});

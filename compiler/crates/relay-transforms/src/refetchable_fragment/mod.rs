@@ -254,14 +254,31 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         {
             return Err(vec![
                 Diagnostic::error(
-                    ValidationMessage::RefetchableQueryConflictWithQuery {
-                        query_name: refetchable_directive.query_name.item,
+                    ValidationMessage::RefetchableQueryConflictWithDefinition {
+                        definition_name: refetchable_directive.query_name.item.0,
                     },
                     refetchable_directive.query_name.location,
                 )
                 .annotate(
                     "an operation with that name is already defined here",
                     existing_query.name.location,
+                ),
+            ]);
+        }
+
+        if let Some(existing_fragment) = self.program.fragment(FragmentDefinitionName(
+            refetchable_directive.query_name.item.0,
+        )) {
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::RefetchableQueryConflictWithDefinition {
+                        definition_name: refetchable_directive.query_name.item.0,
+                    },
+                    refetchable_directive.query_name.location,
+                )
+                .annotate(
+                    "a fragment with that name is already defined here",
+                    existing_fragment.name.location,
                 ),
             ]);
         }

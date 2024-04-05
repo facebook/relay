@@ -37,6 +37,7 @@ use common::PerfLogger;
 use docblock_resolution_info::DocblockResolutionInfo;
 pub use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::ExecutableDocument;
+use graphql_syntax::SchemaDocument;
 pub use hover::ContentConsumerType;
 use log::debug;
 pub use lsp_extra_data_provider::DummyExtraDataProvider;
@@ -60,8 +61,9 @@ pub use server::Schemas;
 pub use utils::position_to_offset;
 
 pub enum Feature {
-    GraphQLDocument(ExecutableDocument),
+    ExecutableDocument(ExecutableDocument),
     DocblockIr(DocblockIr),
+    SchemaDocument(SchemaDocument),
 }
 
 #[allow(clippy::large_enum_variant)]

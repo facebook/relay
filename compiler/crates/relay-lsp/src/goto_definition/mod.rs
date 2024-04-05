@@ -260,7 +260,7 @@ fn locate_directive_argument_definition(
     schema: &SDLSchema,
     directive_name: DirectiveName,
     argument_name: ArgumentName,
-    root_dir: &std::path::PathBuf,
+    root_dir: &std::path::Path,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     let directive =
         schema

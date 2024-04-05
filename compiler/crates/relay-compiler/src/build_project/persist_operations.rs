@@ -6,6 +6,7 @@
  */
 
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 
 use common::sync::ParallelIterator;
@@ -34,7 +35,7 @@ lazy_static! {
 
 pub async fn persist_operations(
     artifacts: &mut [Artifact],
-    root_dir: &PathBuf,
+    root_dir: &Path,
     config: &Config,
     project_config: &ProjectConfig,
     operation_persister: &'_ (dyn OperationPersister + Send + Sync),

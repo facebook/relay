@@ -321,7 +321,7 @@ impl ArtifactWriter for ArtifactDifferenceShardedWriter {
     }
 }
 
-fn ensure_file_directory_exists(file_path: &PathBuf) -> io::Result<()> {
+fn ensure_file_directory_exists(file_path: &Path) -> io::Result<()> {
     if let Some(file_directory) = file_path.parent() {
         if !file_directory.exists() {
             create_dir_all(file_directory)?;

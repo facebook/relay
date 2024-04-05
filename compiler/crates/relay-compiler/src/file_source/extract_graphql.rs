@@ -7,7 +7,6 @@
 
 use std::fs;
 use std::path::Path;
-use std::path::PathBuf;
 
 use common::SourceLocationKey;
 use docblock_syntax::DocblockSource;
@@ -43,7 +42,7 @@ pub struct LocatedJavascriptSourceFeatures {
 }
 
 pub trait SourceReader {
-    fn read_file_to_string(&self, path: &PathBuf) -> std::io::Result<String>;
+    fn read_file_to_string(&self, path: &Path) -> std::io::Result<String>;
 }
 
 /// Default implementation of the file source reader
@@ -51,7 +50,7 @@ pub trait SourceReader {
 pub struct FsSourceReader;
 
 impl SourceReader for FsSourceReader {
-    fn read_file_to_string(&self, path: &PathBuf) -> std::io::Result<String> {
+    fn read_file_to_string(&self, path: &Path) -> std::io::Result<String> {
         fs::read_to_string(path)
     }
 }

@@ -535,9 +535,10 @@ class LiveResolverCache implements ResolverCache {
             '_setResolverValue: Expected object value as the payload for the @outputType resolver.',
           );
 
-          // TODO: T184433715 We currently break with the GraphQL spec and filter out null items in lists.
+          // TODO: T184468561 Remove this check once we've landed compiler changes that remove the weak model wrapper.
           if (
             normalizationInfo.kind === 'WeakModel' &&
+            currentValue.hasOwnProperty(MODEL_PROPERTY_NAME) &&
             currentValue[MODEL_PROPERTY_NAME] == null
           ) {
             continue;
@@ -753,11 +754,14 @@ class LiveResolverCache implements ResolverCache {
       // single field on the record.
       case 'WeakModel': {
         const record = RelayModernRecord.create(outputTypeDataID, typename);
-        RelayModernRecord.setValue(
-          record,
-          MODEL_PROPERTY_NAME,
-          value[MODEL_PROPERTY_NAME],
-        );
+
+        // TODO: T184468561 Remove this check once we've landed compiler changes that remove the weak model wrapper.
+        const model = value.hasOwnProperty(MODEL_PROPERTY_NAME)
+          ? value[MODEL_PROPERTY_NAME]
+          : value;
+
+        RelayModernRecord.setValue(record, MODEL_PROPERTY_NAME, model);
+
         source.set(outputTypeDataID, record);
         return source;
       }

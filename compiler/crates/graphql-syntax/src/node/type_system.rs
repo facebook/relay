@@ -40,6 +40,7 @@ pub enum TypeSystemDefinition {
 }
 
 impl TypeSystemDefinition {
+    /// Returns the span for the entire type definition.
     pub fn span(&self) -> Span {
         match self {
             TypeSystemDefinition::SchemaDefinition(definition) => definition.span,
@@ -57,6 +58,28 @@ impl TypeSystemDefinition {
             TypeSystemDefinition::EnumTypeExtension(extension) => extension.span,
             TypeSystemDefinition::ScalarTypeDefinition(definition) => definition.span,
             TypeSystemDefinition::ScalarTypeExtension(extension) => extension.span,
+        }
+    }
+
+    /// Returns the span for the type definition name
+    /// or the span for the entire definition, if a name is non-existent.
+    pub fn name_span(&self) -> Span {
+        match self {
+            TypeSystemDefinition::SchemaDefinition(definition) => definition.span,
+            TypeSystemDefinition::SchemaExtension(extension) => extension.span,
+            TypeSystemDefinition::ObjectTypeDefinition(definition) => definition.name.span,
+            TypeSystemDefinition::ObjectTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::InterfaceTypeDefinition(definition) => definition.name.span,
+            TypeSystemDefinition::InterfaceTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::UnionTypeDefinition(definition) => definition.name.span,
+            TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::DirectiveDefinition(definition) => definition.name.span,
+            TypeSystemDefinition::InputObjectTypeDefinition(definition) => definition.name.span,
+            TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::EnumTypeDefinition(definition) => definition.name.span,
+            TypeSystemDefinition::EnumTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::ScalarTypeDefinition(definition) => definition.name.span,
+            TypeSystemDefinition::ScalarTypeExtension(extension) => extension.name.span,
         }
     }
 }

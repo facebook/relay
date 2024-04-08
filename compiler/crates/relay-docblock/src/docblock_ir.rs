@@ -104,7 +104,6 @@ pub(crate) fn parse_docblock_ir(
                 None, // This might be necessary for field hack source links
                 docblock_location,
                 unpopulated_ir_field,
-                parse_options,
                 source_hash,
             )?;
 
@@ -191,7 +190,6 @@ fn parse_relay_resolver_ir(
     hack_source: Option<WithLocation<StringKey>>,
     location: Location,
     _resolver_field: UnpopulatedIrField,
-    parse_options: &ParseOptions<'_>,
     source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<LegacyVerboseResolverIr> {
     let root_fragment =
@@ -217,17 +215,12 @@ fn parse_relay_resolver_ir(
         get_optional_populated_field_named(fields, AllowedFieldName::OutputTypeField)?;
 
     if let Some(output_type) = output_type_opt {
-        if !parse_options
-            .enable_output_type
-            .is_enabled_for(field_definition_stub.name.value)
-        {
-            return Err(vec![Diagnostic::error(
-                IrParsingErrorMessages::UnexpectedOutputType {
-                    field_name: field_definition_stub.name.value,
-                },
-                output_type.key_location,
-            )]);
-        }
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::UnexpectedOutputType {
+                field_name: field_definition_stub.name.value,
+            },
+            output_type.key_location,
+        )]);
     }
 
     let output_type = combine_edge_to_and_output_type(edge_to_opt, output_type_opt)?;

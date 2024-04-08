@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<352f018a582767211d069064d155a271>>
+ * @generated SignedSource<<0fb7882e0b2057258997dac1ce03d300>>
  */
 
 mod to_schema;
@@ -213,13 +213,6 @@ async fn relay_resolver_with_field_args() {
     let input = include_str!("to_schema/fixtures/relay-resolver-with-field-args.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-with-field-args.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-field-args.js", "to_schema/fixtures/relay-resolver-with-field-args.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_with_output_type() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-with-output-type.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-with-output-type.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-with-output-type.js", "to_schema/fixtures/relay-resolver-with-output-type.expected", input, expected).await;
 }
 
 #[tokio::test]

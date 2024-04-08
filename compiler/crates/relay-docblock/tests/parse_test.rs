@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1448414cce64aeced6807f767c522565>>
+ * @generated SignedSource<<fa1363f9a3288f7fa73949a68070fcc0>>
  */
 
 mod parse;
@@ -262,13 +262,6 @@ async fn relay_resolver_with_fragment_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-fragment.invalid.js", "parse/fixtures/relay-resolver-with-fragment.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_with_output_type() {
-    let input = include_str!("parse/fixtures/relay-resolver-with-output-type.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-with-output-type.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-with-output-type.js", "parse/fixtures/relay-resolver-with-output-type.expected", input, expected).await;
 }
 
 #[tokio::test]

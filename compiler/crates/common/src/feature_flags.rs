@@ -23,10 +23,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
-    /// Enable deprecated `@outputType` on Relay Resolvers.
-    #[serde(default)]
-    pub relay_resolver_enable_output_type: FeatureFlag,
-
     #[serde(default)]
     // Enable returning interfaces from Relay Resolvers without @outputType
     pub relay_resolver_enable_interface_output_type: FeatureFlag,

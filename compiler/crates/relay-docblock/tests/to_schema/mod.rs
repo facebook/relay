@@ -68,11 +68,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             &ast,
             Some(&executable_documents),
             ParseOptions {
-                enable_output_type: if fixture.content.contains("// relay:enable_output_type") {
-                    &FeatureFlag::Enabled
-                } else {
-                    &FeatureFlag::Disabled
-                },
                 allow_legacy_verbose_syntax: if fixture
                     .content
                     .contains("// relay:allow_legacy_verbose_syntax")

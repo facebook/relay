@@ -185,9 +185,6 @@ pub fn extract_feature_from_text(
                         &ast,
                         Some(&executable_definitions_in_file),
                         ParseOptions {
-                            enable_output_type: &project_config
-                                .feature_flags
-                                .relay_resolver_enable_output_type,
                             allow_legacy_verbose_syntax: &project_config
                                 .feature_flags
                                 .relay_resolvers_allow_legacy_verbose_syntax,

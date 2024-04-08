@@ -1430,26 +1430,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Primitive::JSModuleDependency(resolver_js_module)
         };
 
-        let resolver_module = if let Some((field_id, plural)) =
-            match &relay_resolver_metadata.output_type_info {
-                ResolverOutputTypeInfo::ScalarField => None,
-                ResolverOutputTypeInfo::Composite(info) => info
-                    .weak_object_instance_field
-                    .map(|field_name| (field_name, info.plural)),
-                ResolverOutputTypeInfo::EdgeTo => None,
-                ResolverOutputTypeInfo::Legacy => None,
-            } {
-            let key = self.schema.field(field_id).name.item;
-            Primitive::RelayResolverWeakObjectWrapper {
-                resolver: Box::new(resolver_module),
-                key,
-                plural,
-                live: relay_resolver_metadata.live,
-            }
-        } else {
-            resolver_module
-        };
-
         // For Relay Resolvers in the Reader AST, we need enough
         // information to _read_ the resolver. Specifically, enough data
         // to construct a fragment key, and an import of the resolver

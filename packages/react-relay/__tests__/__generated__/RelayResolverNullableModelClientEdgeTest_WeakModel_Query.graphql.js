@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<15f6951880332a66f46cb0d569504f06>>
+ * @generated SignedSource<<de1623c63548f9082e2e54a2063d938f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -61,7 +61,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_null_weak_model",
-          "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('./../RelayResolverNullableModelClientEdge-test').edge_to_null_weak_model, '__relay_model_instance', false),
+          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_null_weak_model,
           "path": "edge_to_null_weak_model",
           "normalizationInfo": {
             "kind": "WeakModel",

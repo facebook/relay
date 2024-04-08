@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4e383ebe73fa3bd9eb356dd84d4d994e>>
+ * @generated SignedSource<<ab42932b32e0ff6fe93da1ad82758435>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -109,7 +109,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_todo_description",
-          "resolverModule": require('relay-runtime/experimental').weakObjectWrapperLive(require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').live_todo_description, '__relay_model_instance', false),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').live_todo_description,
           "path": "live_todo_description",
           "normalizationInfo": {
             "kind": "WeakModel",

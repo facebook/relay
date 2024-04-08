@@ -39,7 +39,7 @@ extend type Query {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "client_types",
-          "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('ClientTypeResolver'), '__relay_model_instance', true),
+          "resolverModule": require('ClientTypeResolver'),
           "path": "client_types",
           "normalizationInfo": {
             "kind": "WeakModel",

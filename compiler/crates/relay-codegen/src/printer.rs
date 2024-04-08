@@ -585,20 +585,6 @@ impl<'b> JSONPrinter<'b> {
                 js_module,
                 injected_field_name_details.as_ref().copied(),
             ),
-            Primitive::RelayResolverWeakObjectWrapper {
-                resolver,
-                key,
-                plural,
-                live,
-            } => self.write_relay_resolver_weak_object_wrapper(
-                f,
-                resolver,
-                *key,
-                *plural,
-                *live,
-                indent,
-                is_dedupe_var,
-            ),
         }
     }
 
@@ -697,36 +683,6 @@ impl<'b> JSONPrinter<'b> {
             write!(f, ", {}", is_required_field)?;
         }
         write!(f, ")")
-    }
-
-    fn write_relay_resolver_weak_object_wrapper(
-        &mut self,
-        f: &mut String,
-        resolver: &Primitive,
-        key: StringKey,
-        plural: bool,
-        live: bool,
-        indent: usize,
-        is_dedupe_var: bool,
-    ) -> FmtResult {
-        let relay_runtime_experimental = "relay-runtime/experimental";
-        let weak_object_wrapper = if live {
-            "weakObjectWrapperLive"
-        } else {
-            "weakObjectWrapper"
-        };
-
-        self.write_js_dependency(
-            f,
-            ModuleImportName::Named {
-                name: weak_object_wrapper.intern(),
-                import_as: None,
-            },
-            Cow::Borrowed(relay_runtime_experimental),
-        )?;
-        write!(f, "(")?;
-        self.print_primitive(f, resolver, indent + 1, is_dedupe_var)?;
-        write!(f, ", '{}', {})", key, plural)
     }
 }
 
@@ -897,8 +853,5 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::ResolverModuleReference { .. } => panic!("Unexpected ResolverModuleReference"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
         Primitive::RelayResolverModel { .. } => panic!("Unexpected RelayResolver"),
-        Primitive::RelayResolverWeakObjectWrapper { .. } => {
-            panic!("Unexpected RelayResolverWeakObjectWrapper")
-        }
     }
 }

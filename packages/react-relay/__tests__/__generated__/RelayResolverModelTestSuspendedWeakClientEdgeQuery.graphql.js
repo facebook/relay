@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a53ee0fda8e954ec4d66bd6228e5f24>>
+ * @generated SignedSource<<430ac2bc4f448133a1efd70b6d1760ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -150,7 +150,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "fancy_description_suspends",
-                "resolverModule": require('relay-runtime/experimental').weakObjectWrapperLive(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description_suspends, '__relay_model_instance', true), '__relay_model_instance', false),
+                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description_suspends, '__relay_model_instance', true),
                 "path": "todo_model.fancy_description_suspends",
                 "normalizationInfo": {
                   "kind": "WeakModel",

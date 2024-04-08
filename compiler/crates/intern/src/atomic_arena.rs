@@ -670,8 +670,8 @@ mod tests {
 
     use super::*;
 
-    static mut ZERO: Zero<&str> = Zero::new("zero");
-    static STRING_ARENA: AtomicArena<'static, &str> = AtomicArena::with_zero(unsafe { &ZERO });
+    static ZERO: Zero<&str> = Zero::new("zero");
+    static STRING_ARENA: AtomicArena<'static, &str> = AtomicArena::with_zero(&ZERO);
 
     /// For internal testing purposes we permit the unsafe synthesis of Refs.
     fn mk_ref<'a, T>(index: u32) -> Ref<'a, T> {

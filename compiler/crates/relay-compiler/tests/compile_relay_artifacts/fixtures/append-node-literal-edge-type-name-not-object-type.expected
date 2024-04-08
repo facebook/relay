@@ -13,7 +13,7 @@ mutation appendNodeLiteralEdgeTypeNameNotObjectTypeMutation(
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected the 'edgeTypeName' argument value on @appendNode to be the name of an object type. 'Node' does not refer to an object type within the schema.
+✖︎ Expected the 'edgeTypeName' argument value on @appendNode to be the name of an object type. 'Node' does not refer to a known object type.
 
   append-node-literal-edge-type-name-not-object-type.graphql:9:60
     8 │     comment

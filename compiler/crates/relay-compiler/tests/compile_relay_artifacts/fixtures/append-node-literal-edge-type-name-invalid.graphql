@@ -6,7 +6,7 @@ mutation appendNodeLiteralEdgeTypeNameInvalidCommentCreateMutation(
 ) {
   commentCreate(input: $input) {
     comment
-      @appendNode(connections: $connections, edgeTypeName: "NonExistentEdgeType") {
+      @appendNode(connections: $connections, edgeTypeName: "CommentEdge") {
       id
     }
   }

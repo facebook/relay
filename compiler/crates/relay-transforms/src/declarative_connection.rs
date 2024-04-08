@@ -23,6 +23,8 @@ use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+use schema::suggestion_list::did_you_mean;
+use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -285,10 +287,14 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                     .map_or(true, |edge_type| !edge_type.is_object());
 
                                 if is_not_object_type {
+                                    let suggestions = GraphQLSuggestions::new(self.schema);
+
                                     self.errors.push(Diagnostic::error(
                                         ValidationMessage::InvalidEdgeTypeName {
                                             directive_name: node_directive.name.item,
                                             edge_typename: edge_typename_value,
+                                            suggestions: suggestions
+                                                .object_type_suggestions(edge_typename_value),
                                         },
                                         edge_typename_arg.value.location,
                                     ));
@@ -425,10 +431,11 @@ enum ValidationMessage {
         current_type: String,
     },
     #[error(
-        "Expected the 'edgeTypeName' argument value on @{directive_name} to be the name of an object type. '{edge_typename}' does not refer to an object type within the schema."
+        "Expected the 'edgeTypeName' argument value on @{directive_name} to be the name of an object type. '{edge_typename}' does not refer to a known object type.{suggestions}", suggestions = did_you_mean(suggestions)
     )]
     InvalidEdgeTypeName {
         directive_name: DirectiveName,
         edge_typename: StringKey,
+        suggestions: Vec<StringKey>,
     },
 }

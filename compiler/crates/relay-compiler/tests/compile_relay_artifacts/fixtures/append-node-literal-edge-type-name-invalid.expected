@@ -7,16 +7,16 @@ mutation appendNodeLiteralEdgeTypeNameInvalidCommentCreateMutation(
 ) {
   commentCreate(input: $input) {
     comment
-      @appendNode(connections: $connections, edgeTypeName: "NonExistentEdgeType") {
+      @appendNode(connections: $connections, edgeTypeName: "CommentEdge") {
       id
     }
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected the 'edgeTypeName' argument value on @appendNode to be the name of an object type. 'NonExistentEdgeType' does not refer to an object type within the schema.
+✖︎ Expected the 'edgeTypeName' argument value on @appendNode to be the name of an object type. 'CommentEdge' does not refer to a known object type. Did you mean `CommentsEdge`, `Comment`, or `SegmentsEdge`?
 
   append-node-literal-edge-type-name-invalid.graphql:9:60
     8 │     comment
-    9 │       @appendNode(connections: $connections, edgeTypeName: "NonExistentEdgeType") {
-      │                                                            ^^^^^^^^^^^^^^^^^^^^^
+    9 │       @appendNode(connections: $connections, edgeTypeName: "CommentEdge") {
+      │                                                            ^^^^^^^^^^^^^
    10 │       id

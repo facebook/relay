@@ -11,6 +11,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlags;
 use common::NamedItem;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
@@ -38,8 +39,10 @@ use crate::handle_fields::HandleFieldDirectiveValues;
 pub fn transform_declarative_connection(
     program: &Program,
     connection_interface: &ConnectionInterface,
+    feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = DeclarativeConnectionMutationTransform::new(program, connection_interface);
+    let mut transform =
+        DeclarativeConnectionMutationTransform::new(program, connection_interface, feature_flags);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -67,13 +70,19 @@ struct DeclarativeConnectionMutationTransform<'a> {
     schema: &'a SDLSchema,
     errors: Vec<Diagnostic>,
     connection_interface: &'a ConnectionInterface,
+    feature_flags: &'a FeatureFlags,
 }
 
 impl<'a> DeclarativeConnectionMutationTransform<'a> {
-    fn new(program: &'a Program, connection_interface: &'a ConnectionInterface) -> Self {
+    fn new(
+        program: &'a Program,
+        connection_interface: &'a ConnectionInterface,
+        feature_flags: &'a FeatureFlags,
+    ) -> Self {
         Self {
             schema: &program.schema,
             connection_interface,
+            feature_flags,
             errors: vec![],
         }
     }
@@ -281,25 +290,27 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                 .get_constant()
                                 .and_then(|c| c.get_string_literal())
                             {
-                                let is_not_object_type = self
-                                    .schema
-                                    .get_type(edge_typename_value)
-                                    .map_or(true, |edge_type| !edge_type.is_object());
+                                if !self.feature_flags.disable_edge_type_name_validation_on_declerative_connection_directives.is_enabled_for(edge_typename_value) {
+                                    let is_not_object_type = self
+                                        .schema
+                                        .get_type(edge_typename_value)
+                                        .map_or(true, |edge_type| !edge_type.is_object());
 
-                                if is_not_object_type {
-                                    let suggestions = GraphQLSuggestions::new(self.schema);
+                                    if is_not_object_type {
+                                        let suggestions = GraphQLSuggestions::new(self.schema);
 
-                                    self.errors.push(Diagnostic::error(
-                                        ValidationMessage::InvalidEdgeTypeName {
-                                            directive_name: node_directive.name.item,
-                                            edge_typename: edge_typename_value,
-                                            suggestions: suggestions
-                                                .object_type_suggestions(edge_typename_value),
-                                        },
-                                        edge_typename_arg.value.location,
-                                    ));
+                                        self.errors.push(Diagnostic::error(
+                                            ValidationMessage::InvalidEdgeTypeName {
+                                                directive_name: node_directive.name.item,
+                                                edge_typename: edge_typename_value,
+                                                suggestions: suggestions
+                                                    .object_type_suggestions(edge_typename_value),
+                                            },
+                                            edge_typename_arg.value.location,
+                                        ));
 
-                                    return Transformed::Keep;
+                                        return Transformed::Keep;
+                                    }
                                 }
                             }
 

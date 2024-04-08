@@ -250,19 +250,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         self.diagnostic_reporter
                             .convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
-
-                    let errors_or_warnings = build_ir_with_extra_features(
-                        &schema,
-                        &result.item.definitions,
-                        &BuilderOptions {
-                            allow_undefined_fragment_spreads: true,
-                            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                            relay_mode: Some(RelayMode),
-                            default_anonymous_operation_name: None,
-                            allow_custom_scalar_literals: true, // for compatibility
-                        },
-                    )
-                    .and_then(|documents| {
+                    let get_errors_or_warnings = |documents| {
                         let mut warnings = vec![];
                         for document in documents {
                             // Today the only warning we check for is deprecated
@@ -273,9 +261,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                             )?)
                         }
                         Ok(warnings)
-                    });
-
-                    let compiler_diagnostics = match errors_or_warnings {
+                    };
+                    let compiler_diagnostics = match build_ir_with_extra_features(
+                        &schema,
+                        &result.item.definitions,
+                        &BuilderOptions {
+                            allow_undefined_fragment_spreads: true,
+                            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+                            relay_mode: Some(RelayMode),
+                            default_anonymous_operation_name: None,
+                            allow_custom_scalar_literals: true, // for compatibility
+                        },
+                    )
+                    .and_then(get_errors_or_warnings)
+                    {
                         Ok(warnings) => warnings,
                         Err(errors) => errors,
                     };

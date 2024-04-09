@@ -1328,21 +1328,13 @@ pub fn on_completion(
             Ok(Some(CompletionResponse::Array(items)))
         }
         Err(graphql_err) => {
-            let js_server = state.get_js_language_sever().ok_or_else(|| {
-                if matches!(graphql_err, LSPRuntimeError::ExpectedError) {
-                    LSPRuntimeError::ExpectedError
-                } else {
-                    LSPRuntimeError::UnexpectedError(format!(
-                        "Unable to get completion {:?}",
-                        &graphql_err,
-                    ))
-                }
-            })?;
-
-            if let Ok(response) = js_server.on_complete(&params, state) {
-                Ok(response)
+            if matches!(graphql_err, LSPRuntimeError::ExpectedError) {
+                Err(LSPRuntimeError::ExpectedError)
             } else {
-                Err(graphql_err)
+                Err(LSPRuntimeError::UnexpectedError(format!(
+                    "Unable to get completion {:?}",
+                    &graphql_err,
+                )))
             }
         }
     }

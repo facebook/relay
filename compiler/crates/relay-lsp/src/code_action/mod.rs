@@ -51,12 +51,6 @@ pub(crate) fn on_code_action(
         return Err(LSPRuntimeError::ExpectedError);
     }
 
-    if let Some(js_server) = state.get_js_language_sever() {
-        if let Ok(result) = js_server.on_code_action(&params, state) {
-            return Ok(result);
-        }
-    }
-
     if let Some(diagnostic) = state.get_diagnostic_for_range(&uri, params.range) {
         let code_actions = get_code_actions_from_diagnostics(&uri, diagnostic);
         if code_actions.is_some() {

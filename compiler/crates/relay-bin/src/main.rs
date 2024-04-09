@@ -383,14 +383,12 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
 
     let perf_logger = Arc::new(ConsoleLogger);
     let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> = None;
-    let js_language_server = None;
 
     start_language_server(
         config,
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
-        js_language_server,
     )
     .await
     .map_err(|err| Error::LSPError {

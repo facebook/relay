@@ -17,7 +17,6 @@ pub mod find_field_usages;
 pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;
-pub mod js_language_server;
 pub mod location;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;
@@ -39,7 +38,6 @@ use docblock_resolution_info::DocblockResolutionInfo;
 pub use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::ExecutableDocument;
 pub use hover::ContentConsumerType;
-pub use js_language_server::JSLanguageServer;
 use log::debug;
 pub use lsp_extra_data_provider::DummyExtraDataProvider;
 pub use lsp_extra_data_provider::FieldDefinitionSourceInfo;
@@ -85,9 +83,6 @@ pub async fn start_language_server<
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
-    js_language_server: Option<
-        Box<dyn JSLanguageServer<TState = LSPState<TPerfLogger, TSchemaDocumentation>>>,
-    >,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -103,7 +98,6 @@ where
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
-        js_language_server,
     )
     .await?;
     io_handles.join()?;

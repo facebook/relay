@@ -237,12 +237,12 @@ pub(crate) fn get_query_text<
     );
 
     if !&result.diagnostics.is_empty() {
+        let err_string = "".to_string();
         return Err(LSPRuntimeError::UnexpectedError(
             result
                 .diagnostics
                 .iter()
-                .map(|err| format!("- {}\n", err))
-                .collect::<String>(),
+                .fold(err_string, |acc, err| format!("{acc} - {err}\n")),
         ));
     }
 

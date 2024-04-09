@@ -294,11 +294,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         let mut errors = vec![];
         for build_result in build_results {
-            match build_result {
-                Err(BuildProjectFailure::Error(err)) => {
-                    errors.push(err);
-                }
-                _ => {}
+            if let Err(BuildProjectFailure::Error(err)) = build_result {
+                errors.push(err);
             }
         }
         if errors.is_empty() {
@@ -389,6 +386,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn build_programs(
         &self,
         project_config: &ProjectConfig,

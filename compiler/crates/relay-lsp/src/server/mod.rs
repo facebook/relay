@@ -72,7 +72,6 @@ use crate::goto_definition::GetSourceLocationOfTypeDefinition;
 use crate::graphql_tools::on_graphql_execute_query;
 use crate::graphql_tools::GraphQLExecuteQuery;
 use crate::hover::on_hover;
-use crate::js_language_server::JSLanguageServer;
 use crate::lsp_process_error::LSPProcessResult;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::references::on_references;
@@ -139,9 +138,6 @@ pub async fn run<
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
-    js_resource: Option<
-        Box<dyn JSLanguageServer<TState = LSPState<TPerfLogger, TSchemaDocumentation>>>,
-    >,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -168,7 +164,6 @@ where
         Arc::clone(&perf_logger),
         extra_data_provider,
         schema_documentation_loader,
-        js_resource,
     ));
 
     LSPStateResources::new(Arc::clone(&lsp_state)).watch();

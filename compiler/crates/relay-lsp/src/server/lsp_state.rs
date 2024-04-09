@@ -52,7 +52,6 @@ use super::task_queue::TaskScheduler;
 use crate::diagnostic_reporter::DiagnosticReporter;
 use crate::docblock_resolution_info::create_docblock_resolution_info;
 use crate::graphql_tools::get_query_text;
-use crate::js_language_server::JSLanguageServer;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::create_node_resolution_info;
 use crate::utils::extract_executable_definitions_from_text_document;
@@ -119,9 +118,6 @@ pub trait GlobalState {
     /// For Native - it may be a BuildConfigName.
     fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey>;
 
-    /// Experimental (Relay-only) JS Language Server instance
-    fn get_js_language_sever(&self) -> Option<&dyn JSLanguageServer<TState = Self>>;
-
     /// This is powering the functionality of executing GraphQL query from the IDE
     fn get_full_query_text(
         &self,
@@ -161,7 +157,6 @@ pub struct LSPState<
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
     pub(crate) project_status: ProjectStatusMap,
-    js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
@@ -177,7 +172,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema_documentation_loader: Option<
             Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
         >,
-        js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
     ) -> Self {
         debug!("Creating lsp_state...");
         let file_categorizer = FileCategorizer::from_config(&config);
@@ -202,7 +196,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             schema_documentation_loader,
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_javascript_features: Default::default(),
-            js_resource,
         };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -514,10 +507,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .get_diagnostics_for_range(url, range)
     }
 
-    fn get_js_language_sever(&self) -> Option<&dyn JSLanguageServer<TState = Self>> {
-        self.js_resource.as_deref()
-    }
-
     fn get_full_query_text(
         &self,
         query_text: String,
@@ -545,10 +534,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(())
             }
             FileGroup::Source { project_set: _ } => {
-                if let Some(js_server) = self.get_js_language_sever() {
-                    js_server.process_js_source(uri, text);
-                }
-
                 let embedded_sources = extract_graphql::extract(text);
 
                 if embedded_sources.is_empty() {
@@ -563,10 +548,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_changed(&self, uri: &Url, full_text: &str) -> LSPRuntimeResult<()> {
-        if let Some(js_server) = self.get_js_language_sever() {
-            js_server.process_js_source(uri, full_text);
-        }
-
         // First we check to see if this document has any GraphQL documents.
         let embedded_sources = extract_graphql::extract(full_text);
         if embedded_sources.is_empty() {
@@ -578,9 +559,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_closed(&self, uri: &Url) -> LSPRuntimeResult<()> {
-        if let Some(js_server) = self.get_js_language_sever() {
-            js_server.remove_js_source(uri);
-        }
         self.remove_synced_sources(uri);
         Ok(())
     }

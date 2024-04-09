@@ -612,208 +612,232 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      describe('when using a scheduler', () => {
-        let taskID;
-        let tasks;
-        let scheduler;
-        let runTask;
-
-        beforeEach(() => {
-          taskID = 0;
-          tasks = new Map<string, () => void>();
-          scheduler = {
-            cancel: (id: string) => {
-              tasks.delete(id);
-            },
-            schedule: (task: () => void) => {
-              const id = String(taskID++);
-              tasks.set(id, task);
-              return id;
-            },
-          };
-          runTask = () => {
-            for (const [id, task] of tasks) {
-              tasks.delete(id);
-              task();
-              break;
-            }
-          };
-
-          const multiActorEnvironment = new MultiActorEnvironment({
-            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-            createNetworkForActor: _actorID => RelayNetwork.create(fetch),
-            createStoreForActor: _actorID => store,
-            scheduler,
-          });
-          environment =
-            environmentType === 'MultiActorEnvironment'
-              ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
-              : new RelayModernEnvironment({
-                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-                  network: RelayNetwork.create(fetch),
-                  store,
-                  scheduler,
-                });
-        });
-
-        it('applies the optimistic update', () => {
-          const selector = createReaderSelector(
-            CommentFragment,
-            commentID,
-            {},
-            queryOperation.request,
-          );
-          const snapshot = environment.lookup(selector);
-          const callback = jest.fn<[Snapshot], void>();
-          environment.subscribe(snapshot, callback);
-
-          environment
-            .executeMutation({
-              operation,
-              optimisticUpdater: _store => {
-                const comment = _store.create(commentID, 'Comment');
-                comment.setValue(commentID, 'id');
-                const body = _store.create(commentID + '.text', 'Text');
-                comment.setLinkedRecord(body, 'body');
-                body.setValue('Give Relay', 'text');
-              },
-            })
-            .subscribe(callbacks);
-
-          // Verify task was scheduled and run it
-          expect(tasks.size).toBe(1);
-          runTask();
-
-          // Update is applied after scheduler runs scheduled task
-          expect(complete).not.toBeCalled();
-          expect(error).not.toBeCalled();
-          expect(callback.mock.calls.length).toBe(1);
-          expect(callback.mock.calls[0][0].data).toEqual({
-            id: commentID,
-            body: {
-              text: 'Give Relay',
-            },
-          });
-        });
-
-        it('reverts the optimistic update and commits the server payload', () => {
-          const selector = createReaderSelector(
-            CommentFragment,
-            commentID,
-            {},
-            queryOperation.request,
-          );
-          const snapshot = environment.lookup(selector);
-          const callback = jest.fn<[Snapshot], void>();
-          environment.subscribe(snapshot, callback);
-
-          environment
-            .executeMutation({
-              operation,
-              optimisticUpdater: _store => {
-                const comment = _store.create(commentID, 'Comment');
-                comment.setValue(commentID, 'id');
-                const body = _store.create(commentID + '.text', 'Text');
-                comment.setLinkedRecord(body, 'body');
-                body.setValue('Give Relay', 'text');
-              },
-            })
-            .subscribe(callbacks);
-
-          // Verify optimistic update task was scheduled and run it
-          expect(tasks.size).toBe(1);
-          runTask();
-
-          // Update is applied after scheduler runs scheduled task
-          expect(callback.mock.calls.length).toBe(1);
-          expect(callback.mock.calls[0][0].data).toEqual({
-            id: commentID,
-            body: {
-              text: 'Give Relay',
-            },
+      describe.each([false, true])(
+        'with PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION=%s',
+        featureFlagValue => {
+          beforeEach(() => {
+            RelayFeatureFlags.PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION =
+              featureFlagValue;
           });
 
-          callback.mockClear();
-          subject.next({
-            data: {
-              commentCreate: {
-                comment: {
-                  id: commentID,
-                  body: {
-                    text: 'Gave Relay',
+          afterEach(() => {
+            RelayFeatureFlags.PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION =
+              false;
+          });
+
+          describe('when using a scheduler', () => {
+            let taskID;
+            let tasks;
+            let scheduler;
+            let runTask;
+
+            beforeEach(() => {
+              RelayFeatureFlags.SCHEDULE_OPTIMISTIC_RESPONSE_AND_ROLLBACK =
+                true;
+              taskID = 0;
+              tasks = new Map<string, () => void>();
+              scheduler = {
+                cancel: (id: string) => {
+                  tasks.delete(id);
+                },
+                schedule: (task: () => void) => {
+                  const id = String(taskID++);
+                  tasks.set(id, task);
+                  return id;
+                },
+              };
+              runTask = () => {
+                for (const [id, task] of tasks) {
+                  tasks.delete(id);
+                  task();
+                  break;
+                }
+              };
+
+              const multiActorEnvironment = new MultiActorEnvironment({
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+                createNetworkForActor: _actorID => RelayNetwork.create(fetch),
+                createStoreForActor: _actorID => store,
+                scheduler,
+              });
+              environment =
+                environmentType === 'MultiActorEnvironment'
+                  ? multiActorEnvironment.forActor(
+                      getActorIdentifier('actor:1234'),
+                    )
+                  : new RelayModernEnvironment({
+                      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+                      network: RelayNetwork.create(fetch),
+                      store,
+                      scheduler,
+                    });
+            });
+
+            afterEach(() => {
+              RelayFeatureFlags.SCHEDULE_OPTIMISTIC_RESPONSE_AND_ROLLBACK =
+                false;
+            });
+
+            it('applies the optimistic update', () => {
+              const selector = createReaderSelector(
+                CommentFragment,
+                commentID,
+                {},
+                queryOperation.request,
+              );
+              const snapshot = environment.lookup(selector);
+              const callback = jest.fn<[Snapshot], void>();
+              environment.subscribe(snapshot, callback);
+
+              environment
+                .executeMutation({
+                  operation,
+                  optimisticUpdater: _store => {
+                    const comment = _store.create(commentID, 'Comment');
+                    comment.setValue(commentID, 'id');
+                    const body = _store.create(commentID + '.text', 'Text');
+                    comment.setLinkedRecord(body, 'body');
+                    body.setValue('Give Relay', 'text');
+                  },
+                })
+                .subscribe(callbacks);
+
+              // Verify task was scheduled and run it
+              expect(tasks.size).toBe(1);
+              runTask();
+
+              // Update is applied after scheduler runs scheduled task
+              expect(complete).not.toBeCalled();
+              expect(error).not.toBeCalled();
+              expect(callback.mock.calls.length).toBe(1);
+              expect(callback.mock.calls[0][0].data).toEqual({
+                id: commentID,
+                body: {
+                  text: 'Give Relay',
+                },
+              });
+            });
+
+            it('reverts the optimistic update and commits the server payload', () => {
+              const selector = createReaderSelector(
+                CommentFragment,
+                commentID,
+                {},
+                queryOperation.request,
+              );
+              const snapshot = environment.lookup(selector);
+              const callback = jest.fn<[Snapshot], void>();
+              environment.subscribe(snapshot, callback);
+
+              environment
+                .executeMutation({
+                  operation,
+                  optimisticUpdater: _store => {
+                    const comment = _store.create(commentID, 'Comment');
+                    comment.setValue(commentID, 'id');
+                    const body = _store.create(commentID + '.text', 'Text');
+                    comment.setLinkedRecord(body, 'body');
+                    body.setValue('Give Relay', 'text');
+                  },
+                })
+                .subscribe(callbacks);
+
+              // Verify optimistic update task was scheduled and run it
+              expect(tasks.size).toBe(1);
+              runTask();
+
+              // Update is applied after scheduler runs scheduled task
+              expect(callback.mock.calls.length).toBe(1);
+              expect(callback.mock.calls[0][0].data).toEqual({
+                id: commentID,
+                body: {
+                  text: 'Give Relay',
+                },
+              });
+
+              callback.mockClear();
+              subject.next({
+                data: {
+                  commentCreate: {
+                    comment: {
+                      id: commentID,
+                      body: {
+                        text: 'Gave Relay',
+                      },
+                    },
                   },
                 },
-              },
-            },
+              });
+              subject.complete();
+
+              // Verify update task was scheduled and run it
+              expect(tasks.size).toBe(1);
+              runTask();
+
+              // Update is applied after scheduler runs scheduled task
+              expect(complete).toBeCalled();
+              expect(error).not.toBeCalled();
+              expect(callback.mock.calls.length).toBe(1);
+              expect(callback.mock.calls[0][0].data).toEqual({
+                id: commentID,
+                body: {
+                  text: 'Gave Relay',
+                },
+              });
+            });
+
+            it('reverts the optimistic update if the fetch is rejected', () => {
+              const selector = createReaderSelector(
+                CommentFragment,
+                commentID,
+                {},
+                queryOperation.request,
+              );
+              const snapshot = environment.lookup(selector);
+              const callback = jest.fn<[Snapshot], void>();
+              environment.subscribe(snapshot, callback);
+
+              environment
+                .executeMutation({
+                  operation,
+                  optimisticUpdater: _store => {
+                    const comment = _store.create(commentID, 'Comment');
+                    comment.setValue(commentID, 'id');
+                    const body = _store.create(commentID + '.text', 'Text');
+                    comment.setLinkedRecord(body, 'body');
+                    body.setValue('Give Relay', 'text');
+                  },
+                })
+                .subscribe(callbacks);
+
+              // Verify optimistic update task was scheduled and run it
+              expect(tasks.size).toBe(1);
+              runTask();
+
+              // Update is applied after scheduler runs scheduled task
+              expect(callback.mock.calls.length).toBe(1);
+              expect(callback.mock.calls[0][0].data).toEqual({
+                id: commentID,
+                body: {
+                  text: 'Give Relay',
+                },
+              });
+
+              callback.mockClear();
+              subject.error(new Error('wtf'));
+
+              // Verify rollback task was scheduled and run it
+              expect(tasks.size).toBe(1);
+              runTask();
+
+              expect(complete).not.toBeCalled();
+              expect(error).toBeCalled();
+              expect(callback.mock.calls.length).toBe(1);
+              expect(callback.mock.calls[0][0].data).toEqual(undefined);
+            });
           });
-          subject.complete();
-
-          // Verify update task was scheduled and run it
-          expect(tasks.size).toBe(1);
-          runTask();
-
-          // Update is applied after scheduler runs scheduled task
-          expect(complete).toBeCalled();
-          expect(error).not.toBeCalled();
-          expect(callback.mock.calls.length).toBe(1);
-          expect(callback.mock.calls[0][0].data).toEqual({
-            id: commentID,
-            body: {
-              text: 'Gave Relay',
-            },
-          });
-        });
-
-        it('reverts the optimistic update if the fetch is rejected', () => {
-          const selector = createReaderSelector(
-            CommentFragment,
-            commentID,
-            {},
-            queryOperation.request,
-          );
-          const snapshot = environment.lookup(selector);
-          const callback = jest.fn<[Snapshot], void>();
-          environment.subscribe(snapshot, callback);
-
-          environment
-            .executeMutation({
-              operation,
-              optimisticUpdater: _store => {
-                const comment = _store.create(commentID, 'Comment');
-                comment.setValue(commentID, 'id');
-                const body = _store.create(commentID + '.text', 'Text');
-                comment.setLinkedRecord(body, 'body');
-                body.setValue('Give Relay', 'text');
-              },
-            })
-            .subscribe(callbacks);
-
-          // Verify optimistic update task was scheduled and run it
-          expect(tasks.size).toBe(1);
-          runTask();
-
-          // Update is applied after scheduler runs scheduled task
-          expect(callback.mock.calls.length).toBe(1);
-          expect(callback.mock.calls[0][0].data).toEqual({
-            id: commentID,
-            body: {
-              text: 'Give Relay',
-            },
-          });
-
-          callback.mockClear();
-          subject.error(new Error('wtf'));
-
-          // Verify rollback task was scheduled and run it
-          expect(tasks.size).toBe(1);
-          runTask();
-
-          expect(complete).not.toBeCalled();
-          expect(error).toBeCalled();
-          expect(callback.mock.calls.length).toBe(1);
-          expect(callback.mock.calls[0][0].data).toEqual(undefined);
-        });
-      });
+        },
+      );
     });
   },
 );

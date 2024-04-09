@@ -216,7 +216,7 @@ class Executor<TMutation: MutationParameters> {
       RelayFeatureFlags.PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION &&
       optimisticConfig != null
     ) {
-      this._schedule(() => {
+      const task = () => {
         this._processOptimisticResponse(
           optimisticConfig.response != null
             ? {data: optimisticConfig.response}
@@ -224,7 +224,10 @@ class Executor<TMutation: MutationParameters> {
           optimisticConfig.updater,
           false,
         );
-      });
+      };
+      RelayFeatureFlags.SCHEDULE_OPTIMISTIC_RESPONSE_AND_ROLLBACK
+        ? this._schedule(task)
+        : task();
     }
     source.subscribe({
       complete: () => this._complete(id),
@@ -252,7 +255,7 @@ class Executor<TMutation: MutationParameters> {
       !RelayFeatureFlags.PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION &&
       optimisticConfig != null
     ) {
-      this._schedule(() => {
+      const task = () => {
         this._processOptimisticResponse(
           optimisticConfig.response != null
             ? {data: optimisticConfig.response}
@@ -260,7 +263,10 @@ class Executor<TMutation: MutationParameters> {
           optimisticConfig.updater,
           false,
         );
-      });
+      };
+      RelayFeatureFlags.SCHEDULE_OPTIMISTIC_RESPONSE_AND_ROLLBACK
+        ? this._schedule(task)
+        : task();
     }
   }
 
@@ -362,7 +368,7 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _error(error: Error): void {
-    this._schedule(() => {
+    const task = () => {
       this.cancel();
       this._sink.error(error);
       this._log({
@@ -370,7 +376,10 @@ class Executor<TMutation: MutationParameters> {
         executeId: this._executeId,
         error,
       });
-    });
+    };
+    RelayFeatureFlags.SCHEDULE_OPTIMISTIC_RESPONSE_AND_ROLLBACK
+      ? this._schedule(task)
+      : task();
   }
 
   _start(id: number, subscription: Subscription): void {

@@ -198,6 +198,12 @@ module.exports = {
         infoLink: 'https://www.rea-app.fr/',
         pinned: false,
       },
+      {
+        caption: 'Techjobs.be',
+        image: '/img/logos/techjobsbe.svg',
+        infoLink: 'https://techjobs.be/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

@@ -863,6 +863,16 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when fragment pointers change', () => {
+      // Requires the `allowConcurrentByDefault` feature flag. Only run if
+      // we detect support for `unstable_concurrentUpdatesByDefault`.
+      if (
+        !TestRenderer.create
+          .toString()
+          .includes('unstable_concurrentUpdatesByDefault')
+      ) {
+        return;
+      }
+
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
@@ -992,6 +1002,16 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when fragment pointers change, but still handle updates to the new data', () => {
+      // Requires the `allowConcurrentByDefault` feature flag. Only run if
+      // we detect support for `unstable_concurrentUpdatesByDefault`.
+      if (
+        !TestRenderer.create
+          .toString()
+          .includes('unstable_concurrentUpdatesByDefault')
+      ) {
+        return;
+      }
+
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
@@ -1246,6 +1266,16 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when variables change', () => {
+      // Requires the `allowConcurrentByDefault` feature flag. Only run if
+      // we detect support for `unstable_concurrentUpdatesByDefault`.
+      if (
+        !TestRenderer.create
+          .toString()
+          .includes('unstable_concurrentUpdatesByDefault')
+      ) {
+        return;
+      }
+
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         Scheduler.log(props.children);
@@ -1575,6 +1605,16 @@ describe.each([
     });
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
+      // Requires the `allowConcurrentByDefault` feature flag. Only run if
+      // we detect support for `unstable_concurrentUpdatesByDefault`.
+      if (
+        !TestRenderer.create
+          .toString()
+          .includes('unstable_concurrentUpdatesByDefault')
+      ) {
+        return;
+      }
+
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         Scheduler.log(props.children);

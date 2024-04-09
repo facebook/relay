@@ -140,6 +140,16 @@ describe('ReactRelayQueryRenderer', () => {
     describe('when constructor fires multiple times', () => {
       describe('when store does not have snapshot and fetch does not return snapshot', () => {
         it('fetches the query only once, renders loading state', () => {
+          // Requires the `allowConcurrentByDefault` feature flag. Only run if
+          // we detect support for `unstable_concurrentUpdatesByDefault`.
+          if (
+            !ReactTestRenderer.create
+              .toString()
+              .includes('unstable_concurrentUpdatesByDefault')
+          ) {
+            return;
+          }
+
           environment.mockClear();
           function Child(props) {
             // NOTE the log method will move to the static renderer.
@@ -197,6 +207,16 @@ describe('ReactRelayQueryRenderer', () => {
       });
       describe('when store has a snapshot', () => {
         it('fetches the query only once, renders snapshot from store', () => {
+          // Requires the `allowConcurrentByDefault` feature flag. Only run if
+          // we detect support for `unstable_concurrentUpdatesByDefault`.
+          if (
+            !ReactTestRenderer.create
+              .toString()
+              .includes('unstable_concurrentUpdatesByDefault')
+          ) {
+            return;
+          }
+
           environment.mockClear();
           environment.applyUpdate({
             storeUpdater: _store => {
@@ -290,6 +310,16 @@ describe('ReactRelayQueryRenderer', () => {
       });
       describe('when fetch returns a response synchronously first time', () => {
         it('fetches the query once, always renders snapshot returned by fetch', () => {
+          // Requires the `allowConcurrentByDefault` feature flag. Only run if
+          // we detect support for `unstable_concurrentUpdatesByDefault`.
+          if (
+            !ReactTestRenderer.create
+              .toString()
+              .includes('unstable_concurrentUpdatesByDefault')
+          ) {
+            return;
+          }
+
           const fetch = jest.fn().mockReturnValueOnce(response);
           store = new Store(new RecordSource());
           environment = new Environment({

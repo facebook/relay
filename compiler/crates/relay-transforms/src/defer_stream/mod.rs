@@ -111,7 +111,7 @@ impl DeferStreamTransform<'_> {
         defer_stream_interface: &DeferStreamInterface,
     ) -> Result<Transformed<Selection>, Diagnostic> {
         let DeferDirective { if_arg, label_arg } =
-            DeferDirective::from(defer, defer_stream_interface);
+            DeferDirective::from(defer, defer_stream_interface)?;
 
         if is_literal_false_arg(if_arg) {
             return Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
@@ -191,7 +191,7 @@ impl DeferStreamTransform<'_> {
             label_arg,
             initial_count_arg,
             use_customized_batch_arg,
-        } = StreamDirective::from(stream, defer_stream_interface);
+        } = StreamDirective::from(stream, defer_stream_interface)?;
 
         let transformed_linked_field = self.default_transform_linked_field(linked_field);
         let get_next_selection = |directives| match transformed_linked_field {
@@ -445,4 +445,10 @@ enum ValidationMessage {
         arg_name: ArgumentName,
         directive_name: DirectiveName,
     },
+
+    #[error("Unexpected argument to @defer: '{arg_name}'.")]
+    UnexpectedArgumentDefer { arg_name: ArgumentName },
+
+    #[error("Unexpected argument to @stream: '{arg_name}'.")]
+    UnexpectedArgumentStream { arg_name: ArgumentName },
 }

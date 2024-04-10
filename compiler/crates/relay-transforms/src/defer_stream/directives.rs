@@ -5,9 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::Diagnostic;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use relay_config::DeferStreamInterface;
+
+use crate::defer_stream::ValidationMessage;
 
 /// Utility to access the arguments of the @defer directive.
 pub struct DeferDirective<'a> {
@@ -19,7 +22,10 @@ impl<'a> DeferDirective<'a> {
     /// Extracts the arguments from the given directive assumed to be a @defer
     /// directive.
     /// Panics on any unexpected arguments.
-    pub fn from(directive: &'a Directive, defer_stream_interface: &DeferStreamInterface) -> Self {
+    pub fn from(
+        directive: &'a Directive,
+        defer_stream_interface: &DeferStreamInterface,
+    ) -> Result<Self, Diagnostic> {
         let mut if_arg = None;
         let mut label_arg = None;
         for arg in &directive.arguments {
@@ -28,10 +34,15 @@ impl<'a> DeferDirective<'a> {
             } else if arg.name.item == defer_stream_interface.label_arg {
                 label_arg = Some(arg);
             } else {
-                panic!("Unexpected argument to @defer: {}", arg.name.item);
+                return Err(Diagnostic::error(
+                    ValidationMessage::UnexpectedArgumentDefer {
+                        arg_name: arg.name.item,
+                    },
+                    arg.name.location,
+                ));
             }
         }
-        Self { if_arg, label_arg }
+        Ok(Self { if_arg, label_arg })
     }
 }
 
@@ -47,7 +58,10 @@ impl<'a> StreamDirective<'a> {
     /// Extracts the arguments from the given directive assumed to be a @stream
     /// directive.
     /// Panics on any unexpected arguments.
-    pub fn from(directive: &'a Directive, defer_stream_interface: &DeferStreamInterface) -> Self {
+    pub fn from(
+        directive: &'a Directive,
+        defer_stream_interface: &DeferStreamInterface,
+    ) -> Result<Self, Diagnostic> {
         let mut if_arg = None;
         let mut label_arg = None;
         let mut initial_count_arg = None;
@@ -62,14 +76,19 @@ impl<'a> StreamDirective<'a> {
             } else if arg.name.item == defer_stream_interface.use_customized_batch_arg {
                 use_customized_batch_arg = Some(arg);
             } else {
-                panic!("Unexpected argument to @stream: {}", arg.name.item);
+                return Err(Diagnostic::error(
+                    ValidationMessage::UnexpectedArgumentStream {
+                        arg_name: arg.name.item,
+                    },
+                    arg.name.location,
+                ));
             }
         }
-        Self {
+        Ok(Self {
             if_arg,
             label_arg,
             initial_count_arg,
             use_customized_batch_arg,
-        }
+        })
     }
 }

@@ -39,6 +39,7 @@ pub use signatures::ProvidedVariableMetadata;
 pub use signatures::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 pub use transform::transform_list;
 pub use transform::transform_list_multi;
+pub use transform::TransformProgramPipe;
 pub use transform::Transformed;
 pub use transform::TransformedMulti;
 pub use transform::TransformedValue;

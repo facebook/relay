@@ -28,6 +28,7 @@ const {
   ACTOR_CHANGE,
   ALIASED_FRAGMENT_SPREAD,
   ALIASED_INLINE_FRAGMENT_SPREAD,
+  CATCH_FIELD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
@@ -204,6 +205,7 @@ function updateProxyFromSelections<TData>(
       case MODULE_IMPORT:
       case RELAY_LIVE_RESOLVER:
       case REQUIRED_FIELD:
+      case CATCH_FIELD:
       case STREAM:
       case RELAY_RESOLVER:
         // These types of reader nodes are not currently handled.

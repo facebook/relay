@@ -14,6 +14,7 @@
 import type {
   ReaderActorChange,
   ReaderAliasedFragmentSpread,
+  ReaderCatchField,
   ReaderClientEdge,
   ReaderFragment,
   ReaderFragmentSpread,
@@ -51,6 +52,7 @@ const {
   ACTOR_CHANGE,
   ALIASED_FRAGMENT_SPREAD,
   ALIASED_INLINE_FRAGMENT_SPREAD,
+  CATCH_FIELD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
@@ -92,6 +94,8 @@ const {
 } = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
+
+type RequiredOrCatchField = ReaderRequiredField | ReaderCatchField;
 
 function read(
   recordSource: RecordSource,
@@ -236,6 +240,7 @@ class RelayReader {
     if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
       return;
     }
+
     const errors = RelayModernRecord.getErrors(record, storageKey);
 
     if (errors == null) {
@@ -282,7 +287,6 @@ class RelayReader {
   ): ?SelectorData {
     const record = this._recordSource.get(dataID);
     this._seenRecords.add(dataID);
-
     if (record == null) {
       if (record === undefined) {
         this._markDataAsMissing();
@@ -341,6 +345,75 @@ class RelayReader {
     }
   }
 
+  _handleCatchFieldValue(selection: ReaderCatchField) {
+    const {to} = selection;
+
+    if (this._errorResponseFields != null) {
+      for (let i = 0; i < this._errorResponseFields.length; i++) {
+        // if it's a @catch - it can only be NULL or RESULT. So we always add the "to" from the CatchField.
+        this._errorResponseFields[i].to = to;
+      }
+    }
+    // If we have a nested @required(THROW)  that will throw,
+    // we want to catch that error and provide it, and remove the original error
+    if (this._missingRequiredFields?.action === 'THROW') {
+      if (this._missingRequiredFields?.field == null) {
+        return;
+      }
+
+      // We want to catch nested @required THROWs
+      if (this._errorResponseFields == null) {
+        this._errorResponseFields = [];
+      }
+
+      const {owner, path} = this._missingRequiredFields.field;
+      this._errorResponseFields.push({
+        owner: owner,
+        path: path,
+        error: {
+          message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
+        },
+        to,
+      });
+
+      // remove missing required because we're providing it in catch instead.
+      this._missingRequiredFields = null;
+
+      return;
+    }
+
+    // we do nothing if to is 'NULL'
+  }
+
+  _handleRequiredFieldValue(
+    selection: ReaderRequiredField,
+    value: mixed,
+  ): boolean /*should continue to siblings*/ {
+    if (value == null) {
+      const {action} = selection;
+      if (action !== 'NONE') {
+        this._maybeReportUnexpectedNull(selection.path, action);
+      }
+      // We are going to throw, or our parent is going to get nulled out.
+      // Either way, sibling values are going to be ignored, so we can
+      // bail early here as an optimization.
+      return false;
+    }
+    return true;
+  }
+
+  _isRequiredField(
+    selection: RequiredOrCatchField,
+  ): selection is ReaderRequiredField {
+    return selection.kind === REQUIRED_FIELD;
+  }
+
+  _isCatchField(
+    selection: RequiredOrCatchField,
+  ): selection is ReaderCatchField {
+    return selection.kind === CATCH_FIELD;
+  }
+
   _traverseSelections(
     selections: $ReadOnlyArray<ReaderSelection>,
     record: Record,
@@ -348,21 +421,30 @@ class RelayReader {
   ): boolean /* had all expected data */ {
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
+
       switch (selection.kind) {
-        case REQUIRED_FIELD: {
-          const fieldValue = this._readRequiredField(selection, record, data);
-          if (fieldValue == null) {
-            const {action} = selection;
-            if (action !== 'NONE') {
-              this._maybeReportUnexpectedNull(selection.path, action);
-            }
-            // We are going to throw, or our parent is going to get nulled out.
-            // Either way, sibling values are going to be ignored, so we can
-            // bail early here as an optimization.
+        case REQUIRED_FIELD:
+          const requiredFieldValue = this._readClientSideDirectiveField(
+            selection,
+            record,
+            data,
+          );
+          if (!this._handleRequiredFieldValue(selection, requiredFieldValue)) {
             return false;
           }
           break;
-        }
+        case CATCH_FIELD:
+          this._readClientSideDirectiveField(selection, record, data);
+          if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE) {
+            /* NULL is old behavior. do nothing. */
+            if (selection.to != 'NULL') {
+              /* @catch(to: RESULT) is the default */
+              this._handleCatchFieldValue(selection);
+            }
+          }
+
+          break;
+
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;
@@ -494,8 +576,8 @@ class RelayReader {
     return true;
   }
 
-  _readRequiredField(
-    selection: ReaderRequiredField,
+  _readClientSideDirectiveField(
+    selection: RequiredOrCatchField,
     record: Record,
     data: SelectorData,
   ): ?mixed {

@@ -236,6 +236,18 @@ export type ReaderRequiredField = {
   +path: string,
 };
 
+export type CatchFieldTo = 'RESULT' | 'NULL';
+
+export type ReaderCatchField = {
+  +kind: 'CatchField',
+  +field:
+    | ReaderField
+    | ReaderClientEdgeToClientObject
+    | ReaderClientEdgeToServerObject,
+  +to: CatchFieldTo,
+  +path: string,
+};
+
 export type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
 // With ES6 imports, a resolver function might be exported under the `default` key.
 export type ResolverModule = ResolverFunction | {default: ResolverFunction};
@@ -320,6 +332,7 @@ export type ReaderSelection =
   | ReaderInlineFragment
   | ReaderModuleImport
   | ReaderStream
+  | ReaderCatchField
   | ReaderRequiredField
   | ReaderRelayResolver;
 

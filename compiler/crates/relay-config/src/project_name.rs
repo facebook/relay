@@ -27,9 +27,7 @@ impl ProjectName {
         object_name: StringKey,
         field_name: StringKey,
     ) -> String {
-        match self {
-            _ => format!("{}__{}", object_name, field_name),
-        }
+        format!("{}__{}", object_name, field_name)
     }
 }
 

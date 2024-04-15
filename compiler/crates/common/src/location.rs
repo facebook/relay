@@ -27,7 +27,8 @@ use crate::span::Span;
     Ord,
     PartialOrd,
     Hash,
-    serde::Serialize
+    serde::Serialize,
+    serde::Deserialize
 )]
 #[serde(tag = "type")]
 pub enum SourceLocationKey {

@@ -226,7 +226,7 @@ fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
     let mut roots = Vec::new();
     for path in paths {
         match roots.last() {
-            Some(prev) if path.starts_with(&prev) => {
+            Some(prev) if path.starts_with(prev) => {
                 // skip
             }
             _ => {

@@ -13,13 +13,15 @@ use common::TextSource;
 use dashmap::DashMap;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
-use graphql_syntax::parse_executable_with_error_recovery;
+use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::ParserFeatures;
 use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::Position;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
+use relay_compiler::get_parser_features;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
 use relay_compiler::ProjectConfig;
@@ -42,6 +44,7 @@ pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
+    parser_features: ParserFeatures,
 ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
     let source_features = source_feature_cache
         .get(text_document_uri)
@@ -55,26 +58,26 @@ pub fn extract_executable_definitions_from_text_document(
             JavaScriptSourceFeature::Docblock(_) => None,
             JavaScriptSourceFeature::GraphQL(graphql_source) => Some(graphql_source),
         })
-        .map(|graphql_source| {
-            let document = parse_executable_with_error_recovery(
+        .flat_map(|graphql_source| {
+            let document = parse_executable_with_error_recovery_and_parser_features(
                 &graphql_source.text_source().text,
-                SourceLocationKey::standalone(&text_document_uri.to_string()),
+                SourceLocationKey::standalone(text_document_uri.as_ref()),
+                parser_features,
             )
             .item;
 
             document.definitions
         })
-        .flatten()
         .collect::<Vec<ExecutableDefinition>>();
 
     Ok(definitions)
 }
 
-pub fn extract_project_name_from_url(
+pub fn get_file_group_from_uri(
     file_categorizer: &FileCategorizer,
     url: &Url,
     root_dir: &PathBuf,
-) -> LSPRuntimeResult<StringKey> {
+) -> LSPRuntimeResult<FileGroup> {
     let absolute_file_path = url.to_file_path().map_err(|_| {
         LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
     })?;
@@ -86,25 +89,26 @@ pub fn extract_project_name_from_url(
         ))
     })?;
 
-    let project_name = if let FileGroup::Source { project_set } =
-        file_categorizer.categorize(file_path).map_err(|_| {
-            LSPRuntimeError::UnexpectedError(format!(
-                "Unable to categorize the file correctly: {:?}",
-                file_path
-            ))
-        })? {
-        *project_set.first().ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!(
-                "Expected to find at least one project for {:?}",
-                file_path
-            ))
-        })?
-    } else {
-        return Err(LSPRuntimeError::UnexpectedError(format!(
-            "File path {:?} is not a source set",
+    file_categorizer.categorize(file_path).map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Unable to categorize the file correctly: {:?}",
             file_path
-        )));
-    };
+        ))
+    })
+}
+
+pub fn get_project_name_from_file_group(file_group: &FileGroup) -> Result<StringKey, String> {
+    let project_set = match file_group {
+        FileGroup::Source { project_set } => Ok(project_set),
+        FileGroup::Schema { project_set } => Ok(project_set),
+        FileGroup::Extension { project_set } => Ok(project_set),
+        _ => Err("Not part of a source set"),
+    }?;
+
+    let project_name = *project_set
+        .first()
+        .ok_or("Expected to find at least one project")?;
+
     Ok(project_name.into())
 }
 
@@ -134,11 +138,14 @@ pub fn extract_feature_from_text(
 
     let source_location_key = SourceLocationKey::embedded(uri.as_ref(), index);
 
+    let parser_features = get_parser_features(project_config);
+
     match javascript_feature {
         JavaScriptSourceFeature::GraphQL(graphql_source) => {
-            let document = parse_executable_with_error_recovery(
+            let document = parse_executable_with_error_recovery_and_parser_features(
                 &graphql_source.text_source().text,
                 source_location_key,
+                parser_features,
             )
             .item;
 
@@ -163,8 +170,11 @@ pub fn extract_feature_from_text(
             Ok((Feature::GraphQLDocument(document), position_span))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
-            let executable_definitions_in_file =
-                extract_executable_definitions_from_text_document(uri, source_feature_cache)?;
+            let executable_definitions_in_file = extract_executable_definitions_from_text_document(
+                uri,
+                source_feature_cache,
+                parser_features,
+            )?;
 
             let text_source = &docblock_source.text_source();
             let text = &text_source.text;
@@ -175,18 +185,15 @@ pub fn extract_feature_from_text(
                         &ast,
                         Some(&executable_definitions_in_file),
                         ParseOptions {
-                            enable_output_type: &project_config
-                                .feature_flags
-                                .relay_resolver_enable_output_type,
-                            enable_strict_resolver_flavors: &project_config
-                                .feature_flags
-                                .relay_resolvers_enable_strict_resolver_flavors,
                             allow_legacy_verbose_syntax: &project_config
                                 .feature_flags
                                 .relay_resolvers_allow_legacy_verbose_syntax,
                             enable_interface_output_type: &project_config
                                 .feature_flags
                                 .relay_resolver_enable_interface_output_type,
+                            allow_resolver_non_nullable_return_type: &project_config
+                                .feature_flags
+                                .allow_resolver_non_nullable_return_type,
                         },
                     )
                 })

@@ -24,7 +24,6 @@ pub struct ObjectEntry {
 #[macro_export]
 macro_rules! object {
     { $ ( $(:$func: expr,)* $key:ident: $value:expr,)* } => ({
-        use crate::constants::CODEGEN_CONSTANTS;
         vec![
             $(
                 $(
@@ -125,12 +124,6 @@ pub enum Primitive {
         graphql_module_path: StringKey,
         js_module: JSModuleDependency,
         injected_field_name_details: Option<(StringKey, bool)>,
-    },
-    RelayResolverWeakObjectWrapper {
-        resolver: Box<Primitive>,
-        key: StringKey,
-        plural: bool,
-        live: bool,
     },
 }
 

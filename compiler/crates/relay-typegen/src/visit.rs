@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::hash::Hash;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -16,7 +17,10 @@ use ::intern::Lookup;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
+use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
@@ -30,12 +34,15 @@ use graphql_ir::Selection;
 use indexmap::map::Entry;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
+use itertools::Itertools;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_config::TypegenLanguage;
+use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
+use relay_transforms::resolver_type_import_alias;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::FragmentDataInjectionMode;
@@ -52,6 +59,7 @@ use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 use schema::EnumID;
 use schema::Field;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::ScalarID;
 use schema::Schema;
@@ -311,6 +319,7 @@ fn generate_resolver_type(
     resolver_function_name: StringKey,
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
+    imported_resolvers: &mut ImportedResolvers,
 ) -> AST {
     let schema_field = resolver_metadata.field(typegen_context.schema);
 
@@ -323,6 +332,7 @@ fn generate_resolver_type(
         encountered_enums,
         custom_scalars,
         schema_field,
+        imported_resolvers,
     );
 
     let inner_ast = match &resolver_metadata.output_type_info {
@@ -335,16 +345,15 @@ fn generate_resolver_type(
             }
         }
         ResolverOutputTypeInfo::Composite(normalization_info) => {
-            imported_raw_response_types.0.insert(
-                normalization_info.normalization_operation.item.0,
-                Some(normalization_info.normalization_operation.location),
-            );
-
             if let Some(field_id) = normalization_info.weak_object_instance_field {
                 let type_ =
                     &field_type(typegen_context.schema.field(field_id), typegen_context).inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             } else {
+                imported_raw_response_types.0.insert(
+                    normalization_info.normalization_operation.item.0,
+                    Some(normalization_info.normalization_operation.location),
+                );
                 AST::RawType(normalization_info.normalization_operation.item.0)
             }
         }
@@ -383,6 +392,62 @@ fn generate_resolver_type(
     })
 }
 
+fn add_model_argument_for_interface_resolver(
+    resolver_arguments: &mut Vec<KeyValuePairProp>,
+    implementing_objects: HashSet<ObjectID>,
+    typegen_context: &TypegenContext<'_>,
+    imported_resolvers: &mut ImportedResolvers,
+) {
+    let mut model_types_for_type_assertion = vec![];
+    for object_id in implementing_objects.iter().sorted() {
+        if !Type::Object(*object_id).is_terse_resolver_object(typegen_context.schema) {
+            continue;
+        }
+        let type_name_with_location = typegen_context.schema.object(*object_id).name;
+        let type_name = type_name_with_location.item.0;
+        let import_alias =
+            resolver_type_import_alias(type_name, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
+        model_types_for_type_assertion.push(AST::ReturnTypeOfFunctionWithName(import_alias));
+        // Import model type
+        let model_import_path = &PathBuf::from(
+            type_name_with_location
+                .location
+                .source_location()
+                .path()
+                .intern()
+                .lookup(),
+        );
+        let model_name = ImportedResolverName::Named {
+            name: type_name,
+            import_as: import_alias,
+        };
+        let import_path = typegen_context.project_config.js_module_import_identifier(
+            &typegen_context
+                .project_config
+                .artifact_path_for_definition(typegen_context.definition_source_location),
+            model_import_path,
+        );
+        let imported_model = ImportedResolver {
+            resolver_name: model_name,
+            resolver_type: AST::ReturnTypeOfFunctionWithName(type_name),
+            import_path,
+        };
+        imported_resolvers
+            .0
+            .entry(type_name)
+            .or_insert(imported_model);
+    }
+    if !model_types_for_type_assertion.is_empty() {
+        let interface_union_type = AST::Union(SortedASTList::new(model_types_for_type_assertion));
+        resolver_arguments.push(KeyValuePairProp {
+            key: "model".intern(),
+            optional: false,
+            read_only: false,
+            value: interface_union_type,
+        });
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn get_resolver_arguments(
     fragment_name: Option<FragmentDefinitionName>,
@@ -393,8 +458,31 @@ fn get_resolver_arguments(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut std::collections::HashSet<(StringKey, PathBuf)>,
     schema_field: &Field,
+    imported_resolvers: &mut ImportedResolvers,
 ) -> Vec<KeyValuePairProp> {
     let mut resolver_arguments = vec![];
+    if let Some(Type::Interface(interface_id)) = schema_field.parent_type {
+        let interface = typegen_context.schema.interface(interface_id);
+        let implementing_objects =
+            interface.recursively_implementing_objects(typegen_context.schema);
+        let resolver_directive = schema_field
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .unwrap();
+        // Add model argument if @rootFragment is not set on the resolver field
+        if !resolver_directive
+            .arguments
+            .iter()
+            .any(|arg| arg.name.0 == FRAGMENT_KEY_ARGUMENT_NAME.0)
+        {
+            add_model_argument_for_interface_resolver(
+                &mut resolver_arguments,
+                implementing_objects,
+                typegen_context,
+                imported_resolvers,
+            )
+        }
+    }
     if let Some(fragment_name) = fragment_name {
         if let Some((fragment_name, injection_mode)) =
             resolver_metadata.fragment_data_injection_mode
@@ -434,7 +522,7 @@ fn get_resolver_arguments(
     let mut args = vec![];
     for field_argument in schema_field.arguments.iter() {
         args.push(Prop::KeyValuePair(KeyValuePairProp {
-            key: field_argument.name.0,
+            key: field_argument.name.item.0,
             optional: false,
             read_only: false,
             value: transform_input_type(
@@ -501,6 +589,7 @@ fn import_relay_resolver_function_type(
             local_resolver_name,
             fragment_name,
             resolver_metadata,
+            imported_resolvers,
         ),
         import_path,
     };
@@ -562,13 +651,15 @@ fn relay_resolver_field_type(
             inner_value
         }
     } else {
+        let field = resolver_metadata.field(typegen_context.schema);
+
         let inner_value = AST::ReturnTypeOfFunctionWithName(local_resolver_name);
         let inner_value = if live {
             AST::ReturnTypeOfMethodCall(Box::new(inner_value), intern!("read"))
         } else {
             inner_value
         };
-        if required {
+        if required || field.type_.is_non_null() {
             AST::NonNullable(Box::new(inner_value))
         } else {
             AST::Nullable(Box::new(inner_value))
@@ -1135,7 +1226,7 @@ fn selections_to_babel(
         if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
             by_concrete_type
                 .entry(concrete_type)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(selection);
         } else {
             let key = selection.get_string_key();
@@ -1265,6 +1356,7 @@ fn get_merged_object_with_optional_fields(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn get_discriminated_union_ast(
     by_concrete_type: IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,
@@ -1379,7 +1471,7 @@ pub(crate) fn raw_response_selections_to_babel(
         if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
             by_concrete_type
                 .entry(concrete_type)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(selection);
         } else {
             base_fields.push(selection);
@@ -1811,10 +1903,12 @@ fn transform_graphql_scalar_type(
         let path = directive
             .arguments
             .named(ArgumentName(*PATH_CUSTOM_SCALAR_ARGUMENT_NAME))
-            .expect(&format!(
-                "Expected @{} directive to have a path argument",
-                *CUSTOM_SCALAR_DIRECTIVE_NAME
-            ))
+            .unwrap_or_else(|| {
+                panic!(
+                    "Expected @{} directive to have a path argument",
+                    *CUSTOM_SCALAR_DIRECTIVE_NAME
+                )
+            })
             .expect_string_literal();
 
         let import_path = typegen_context.project_config.js_module_import_identifier(
@@ -1827,10 +1921,12 @@ fn transform_graphql_scalar_type(
         let export_name = directive
             .arguments
             .named(ArgumentName(*EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME))
-            .expect(&format!(
-                "Expected @{} directive to have an export_name argument",
-                *CUSTOM_SCALAR_DIRECTIVE_NAME
-            ))
+            .unwrap_or_else(|| {
+                panic!(
+                    "Expected @{} directive to have an export_name argument",
+                    *CUSTOM_SCALAR_DIRECTIVE_NAME
+                )
+            })
             .expect_string_literal();
         custom_scalars.insert((export_name, PathBuf::from(import_path.lookup())));
         return AST::RawType(export_name);
@@ -2028,14 +2124,14 @@ fn transform_non_nullable_input_type(
                             .iter()
                             .map(|field| {
                                 Prop::KeyValuePair(KeyValuePairProp {
-                                    key: field.name.0,
+                                    key: field.name.item.0,
                                     read_only: false,
                                     optional: !field.type_.is_non_null()
                                         || typegen_context
                                             .project_config
                                             .typegen_config
                                             .optional_input_fields
-                                            .contains(&field.name.0)
+                                            .contains(&field.name.item.0)
                                         || field.default_value.is_some(),
                                     value: transform_input_type(
                                         typegen_context,

@@ -82,8 +82,9 @@ impl<'s> Transformer for ValidateOperationVariables<'s> {
                     definition
                         .default_value
                         .as_ref()
-                        .map(|default_value| default_value.location)
-                        .unwrap_or(definition.name.location),
+                        .map_or(definition.name.location, |default_value| {
+                            default_value.location
+                        }),
                 ));
                 continue;
             }

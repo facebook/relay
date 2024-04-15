@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0785113b958651724c9f7105d4f66b9a>>
+ * @generated SignedSource<<3c050ca09443626e5c37c757025ed430>>
  */
 
 mod generate_flow;
@@ -675,6 +675,34 @@ async fn required_within_aliased_inline_fragment_on_abstract() {
     let input = include_str!("generate_flow/fixtures/required-within-aliased-inline-fragment-on-abstract.graphql");
     let expected = include_str!("generate_flow/fixtures/required-within-aliased-inline-fragment-on-abstract.expected");
     test_fixture(transform_fixture, file!(), "required-within-aliased-inline-fragment-on-abstract.graphql", "generate_flow/fixtures/required-within-aliased-inline-fragment-on-abstract.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_of_all_strong_model_type() {
+    let input = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type.expected");
+    test_fixture(transform_fixture, file!(), "resolver-on-interface-of-all-strong-model-type.graphql", "generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_of_all_strong_model_type_with_extension() {
+    let input = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-extension.graphql");
+    let expected = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-extension.expected");
+    test_fixture(transform_fixture, file!(), "resolver-on-interface-of-all-strong-model-type-with-extension.graphql", "generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-extension.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_of_all_strong_model_type_with_root_fragment() {
+    let input = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-root-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-root-fragment.expected");
+    test_fixture(transform_fixture, file!(), "resolver-on-interface-of-all-strong-model-type-with-root-fragment.graphql", "generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-root-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_of_all_weak_model_type() {
+    let input = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-weak-model-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-weak-model-type.expected");
+    test_fixture(transform_fixture, file!(), "resolver-on-interface-of-all-weak-model-type.graphql", "generate_flow/fixtures/resolver-on-interface-of-all-weak-model-type.expected", input, expected).await;
 }
 
 #[tokio::test]

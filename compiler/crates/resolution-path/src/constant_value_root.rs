@@ -12,7 +12,11 @@ impl<'a> ConstantValueParent<'a> {
         match self {
             ConstantValueParent::DefaultValue(DefaultValuePath {
                 inner: _,
-                parent: variable_definition_path,
+                parent: DefaultValueParent::InputValueDefinition(input_value_definition_path),
+            }) => ConstantValueRoot::InputValueDefinition(input_value_definition_path),
+            ConstantValueParent::DefaultValue(DefaultValuePath {
+                inner: _,
+                parent: DefaultValueParent::VariableDefinition(variable_definition_path),
             }) => ConstantValueRoot::VariableDefinition(variable_definition_path),
             ConstantValueParent::Value(ValuePath {
                 inner: _,
@@ -25,14 +29,17 @@ impl<'a> ConstantValueParent<'a> {
             ConstantValueParent::ConstantObj(constant_obj) => {
                 constant_obj.parent.parent.find_constant_value_root()
             }
-            ConstantValueParent::ConstantArgValue(ConstantArgPath {
-                inner: _,
-                parent:
-                    ConstantObjPath {
+            ConstantValueParent::ConstantArgumentValue(constant_argument_path) => {
+                match &constant_argument_path.parent {
+                    ConstantArgumentParent::ConstantDirective(_) => {
+                        ConstantValueRoot::ConstantArgument(constant_argument_path)
+                    }
+                    ConstantArgumentParent::ConstantObj(ConstantObjPath {
                         inner: _,
                         parent: constant_value_path,
-                    },
-            }) => constant_value_path.parent.find_constant_value_root(),
+                    }) => constant_value_path.parent.find_constant_value_root(),
+                }
+            }
         }
     }
 }
@@ -65,6 +72,8 @@ impl<'a> ValueParent<'a> {
 #[derive(Debug)]
 pub enum ConstantValueRoot<'a> {
     VariableDefinition(&'a VariableDefinitionPath<'a>),
+    InputValueDefinition(&'a InputValueDefinitionPath<'a>),
+    ConstantArgument(&'a ConstantArgumentPath<'a>),
     Argument(&'a ArgumentPath<'a>),
 }
 
@@ -72,6 +81,7 @@ pub enum ConstantValueRoot<'a> {
 mod test {
     use super::*;
     use crate::test::test_resolution;
+    use crate::test::test_schema_resolution;
 
     #[test]
     fn constant_value_root_variable_definition_simple_boolean() {
@@ -167,6 +177,106 @@ mod test {
                 assert_matches!(
                     parent.find_constant_value_root(),
                     ConstantValueRoot::Argument(_)
+                )
+            } else {
+                panic!(
+                    "Should resolve to ConstantBoolean, instead got {:?}",
+                    resolved
+                );
+            }
+        })
+    }
+
+    #[test]
+    fn constant_value_input_value_definition_simple_boolean() {
+        let source = r#"
+            input Foo {
+                bar: Boolean = true
+            }
+        "#;
+        test_schema_resolution(source, "true", |resolved| {
+            if let ResolutionPath::ConstantBoolean(ConstantBooleanPath {
+                inner: _,
+                parent: ConstantValuePath { inner: _, parent },
+            }) = resolved
+            {
+                assert_matches!(
+                    parent.find_constant_value_root(),
+                    ConstantValueRoot::InputValueDefinition(_)
+                )
+            } else {
+                panic!(
+                    "Should resolve to ConstantBoolean, instead got {:?}",
+                    resolved
+                );
+            }
+        })
+    }
+
+    #[test]
+    fn constant_value_input_value_definition_nested_boolean() {
+        let source = r#"
+            input Foo {
+                bar: AComplexType = {greeting: "Hello", inputs: [true]}
+            }
+        "#;
+        test_schema_resolution(source, "true", |resolved| {
+            if let ResolutionPath::ConstantBoolean(ConstantBooleanPath {
+                inner: _,
+                parent: ConstantValuePath { inner: _, parent },
+            }) = resolved
+            {
+                assert_matches!(
+                    parent.find_constant_value_root(),
+                    ConstantValueRoot::InputValueDefinition(_)
+                )
+            } else {
+                panic!(
+                    "Should resolve to ConstantBoolean, instead got {:?}",
+                    resolved
+                );
+            }
+        })
+    }
+
+    #[test]
+    fn constant_value_constant_argument_simple_boolean() {
+        let source = r#"
+            scalar Foo @bar(baz: true)
+        "#;
+        test_schema_resolution(source, "true", |resolved| {
+            if let ResolutionPath::ConstantBoolean(ConstantBooleanPath {
+                inner: _,
+                parent: ConstantValuePath { inner: _, parent },
+            }) = resolved
+            {
+                assert_matches!(
+                    parent.find_constant_value_root(),
+                    ConstantValueRoot::ConstantArgument(_)
+                )
+            } else {
+                panic!(
+                    "Should resolve to ConstantBoolean, instead got {:?}",
+                    resolved
+                );
+            }
+        })
+    }
+
+    #[test]
+    fn constant_value_constant_argument_nested_boolean() {
+        let source = r#"
+            scalar Foo @bar(baz: {greeting: "Hello", inputs: [true]})
+        "#;
+        test_schema_resolution(source, "true", |resolved| {
+            if let ResolutionPath::ConstantBoolean(ConstantBooleanPath {
+                inner: _,
+                parent: ConstantValuePath { inner: _, parent },
+            }) = resolved
+            {
+                assert_matches!(
+                    parent.find_constant_value_root(),
+                    ConstantValueRoot::ConstantArgument(_)
                 )
             } else {
                 panic!(

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be408f33cce4d6dc52e5ec361d6f0bac>>
+ * @generated SignedSource<<f4ccdfbe25914b9f6db8678bb4b785f7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,10 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import {non_live_resolver_with_live_return_value as queryNonLiveResolverWithLiveReturnValueResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue.js";
 // Type assertion validating that `queryNonLiveResolverWithLiveReturnValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryNonLiveResolverWithLiveReturnValueResolverType: () => ?mixed);
+(queryNonLiveResolverWithLiveReturnValueResolverType: () => ?string);
 export type LiveResolversTest17Query$variables = {||};
 export type LiveResolversTest17Query$data = {|
-  +non_live_resolver_with_live_return_value: ?ReturnType<typeof queryNonLiveResolverWithLiveReturnValueResolverType>,
+  +non_live_resolver_with_live_return_value: ?string,
 |};
 export type LiveResolversTest17Query = {|
   response: LiveResolversTest17Query$data,
@@ -72,7 +72,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           }
         ]
       }

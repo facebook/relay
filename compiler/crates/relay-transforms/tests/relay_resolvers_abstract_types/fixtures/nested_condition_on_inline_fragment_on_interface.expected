@@ -30,16 +30,25 @@ extend type Query {
 }
 ==================================== OUTPUT ===================================
 fragment nestedConditionOnInlineFragmentOnInterfaceFragment on Cat {
-  ... on Tabby {
-    ... @include(if: $has_owner) {
-      description
-      name @include(if: $has_name)
+  ... @include(if: $has_owner) {
+    name @include(if: $has_name)
+    ... on Tabby {
+      __id @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(525),
+      #     import_path: "TabbyResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "description",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: Legacy,
+      #     fragment_data_injection_mode: None,
+      # }
+      
     }
-  }
-  ... on Persian {
-    ... @include(if: $has_owner) {
+    ... on Persian {
       description
-      name @include(if: $has_name)
     }
   }
 }

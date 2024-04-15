@@ -119,13 +119,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
         let dummy_hashset = HashSet::new();
         while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
-            if let Err(e) = self.validate_and_collect_fragment(
+            self.validate_and_collect_fragment(
                 program
                     .fragment(visiting)
                     .expect("fragment must have been registered"),
-            ) {
-                return Err(e);
-            }
+            )?;
 
             for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
                 // fragment "used_by" now can assume "...now" cached.

@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// expected-to-throw
+// relay:allow_resolver_non_nullable_return_type
 
 /**
  * @RelayResolver User.mandatory_greeting: String!
- * Non-nullable 
+ * Non-nullable
  */

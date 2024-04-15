@@ -16,8 +16,9 @@ interface ClientOnlyInterface implements Node {
 }
 
 # Add a concrete type so that we don't trigger an unrelated compiler error.
-type BestFriend implements ClientOnlyInterface {
+type BestFriend implements ClientOnlyInterface @__RelayResolverModel {
   id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
 }
 
 extend type User {

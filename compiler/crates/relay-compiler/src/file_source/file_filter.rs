@@ -87,7 +87,7 @@ fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<ProjectName>)
                 let is_enabled = project_set
                     .iter()
                     .any(|name| enabled_projects.contains(name));
-                is_enabled.then(|| path)
+                is_enabled.then_some(path)
             })
             .collect(),
     )
@@ -99,7 +99,7 @@ fn unify_roots(mut paths: Vec<&PathBuf>) -> Vec<PathBuf> {
     let mut roots = Vec::new();
     for path in paths {
         match roots.last() {
-            Some(prev) if path.starts_with(&prev) => {
+            Some(prev) if path.starts_with(prev) => {
                 // skip
             }
             _ => {

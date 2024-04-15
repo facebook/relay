@@ -82,8 +82,8 @@ impl<'a> Validator for StaticArgValidator<'a> {
     }
 }
 
-fn validate_all_static_args<'a, 'b>(
-    field_to_static_args: &'b mut StaticArgCache,
+fn validate_all_static_args<'a>(
+    field_to_static_args: &mut StaticArgCache,
     field_name: StringKey,
     schema_arguments: &'a ArgumentDefinitions,
     ir_arguments: &'a [IRArgument],
@@ -114,7 +114,7 @@ fn find_static_argument_names(schema_arguments: &ArgumentDefinitions) -> FnvHash
     schema_arguments
         .iter()
         .filter(|a| has_static_directive(a))
-        .map(|a| a.name)
+        .map(|a| a.name.item)
         .collect()
 }
 

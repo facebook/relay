@@ -78,12 +78,12 @@ pub fn flatten(
 
     par_iter(&mut program.operations).for_each(|operation| {
         if let Err(err) = transform.transform_operation(operation) {
-            errors.lock().extend(err.into_iter());
+            errors.lock().extend(err);
         }
     });
     par_iter(&mut program.fragments).for_each(|(_, fragment)| {
         if let Err(err) = transform.transform_fragment(fragment) {
-            errors.lock().extend(err.into_iter());
+            errors.lock().extend(err);
         }
     });
     let is_errors_empty = { errors.lock().is_empty() };
@@ -608,6 +608,6 @@ fn merge_handle_directives(
             }
         }
     }
-    directives.extend(handles.into_iter());
+    directives.extend(handles);
     directives
 }

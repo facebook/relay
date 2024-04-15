@@ -23,10 +23,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
-    /// Enable deprecated `@outputType` on Relay Resolvers.
-    #[serde(default)]
-    pub relay_resolver_enable_output_type: FeatureFlag,
-
     #[serde(default)]
     // Enable returning interfaces from Relay Resolvers without @outputType
     pub relay_resolver_enable_interface_output_type: FeatureFlag,
@@ -69,10 +65,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
 
-    /// Enforce strict flavors for relay resolvers and disallow mixing flavors
-    #[serde(default)]
-    pub relay_resolvers_enable_strict_resolver_flavors: FeatureFlag,
-
     /// Allow legacy verbose resolver syntax
     #[serde(default)]
     pub relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag,
@@ -98,6 +90,20 @@ pub struct FeatureFlags {
     /// any existing examples.
     #[serde(default)]
     pub allow_required_in_mutation_response: FeatureFlag,
+
+    /// Mirror of `enable_resolver_normalization_ast`
+    /// excludes resolver metadata from reader ast
+    #[serde(default)]
+    pub disable_resolver_reader_ast: bool,
+
+    /// Add support for parsing and transforming variable definitions on fragment
+    /// definitions and arguments on fragment spreads.
+    #[serde(default)]
+    pub enable_fragment_argument_transform: bool,
+
+    /// Allow non-nullable return types from resolvers.
+    #[serde(default)]
+    pub allow_resolver_non_nullable_return_type: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

@@ -22,7 +22,7 @@ pub struct CodegenConstants {
     pub cache_id: StringKey,
     pub client_abstract_types: StringKey,
     pub client_edge_backing_field_key: StringKey,
-    pub client_edge_model_resolver: StringKey,
+    pub client_edge_model_resolvers: StringKey,
     pub client_edge_selections_key: StringKey,
     pub client_edge_to_client_object: StringKey,
     pub client_edge_to_server_object: StringKey,
@@ -65,6 +65,7 @@ pub struct CodegenConstants {
     pub inline_data_fragment_spread: StringKey,
     pub inline_data_fragment: StringKey,
     pub inline_fragment: StringKey,
+    pub is_nullable: StringKey,
     pub is_output_type: StringKey,
     pub items: StringKey,
     pub key: StringKey,
@@ -87,6 +88,7 @@ pub struct CodegenConstants {
     pub operation_module_provider: StringKey,
     pub operation_value: StringKey,
     pub operation: StringKey,
+    pub output_type: StringKey,
     pub params: StringKey,
     pub passing_value: StringKey,
     pub path: StringKey,
@@ -121,6 +123,7 @@ pub struct CodegenConstants {
     pub value: StringKey,
     pub variable_name: StringKey,
     pub variable: StringKey,
+    pub weak_model: StringKey,
 }
 
 lazy_static! {
@@ -137,7 +140,7 @@ lazy_static! {
         cache_id: "cacheID".intern(),
         client_abstract_types: "clientAbstractTypes".intern(),
         client_edge_backing_field_key: "backingField".intern(),
-        client_edge_model_resolver: "modelResolver".intern(),
+        client_edge_model_resolvers: "modelResolvers".intern(),
         client_edge_selections_key: "linkedField".intern(),
         client_edge_to_client_object: "ClientEdgeToClientObject".intern(),
         client_edge_to_server_object: "ClientEdgeToServerObject".intern(),
@@ -180,6 +183,7 @@ lazy_static! {
         inline_data_fragment_spread: "InlineDataFragmentSpread".intern(),
         inline_data_fragment: "InlineDataFragment".intern(),
         inline_fragment: "InlineFragment".intern(),
+        is_nullable: "isNullable".intern(),
         is_output_type: "isOutputType".intern(),
         items: "items".intern(),
         key: "key".intern(),
@@ -202,6 +206,7 @@ lazy_static! {
         operation_module_provider: "operationModuleProvider".intern(),
         operation_value: "Operation".intern(),
         operation: "operation".intern(),
+        output_type: "OutputType".intern(),
         params: "params".intern(),
         passing_value: "passingValue".intern(),
         path: "path".intern(),
@@ -236,5 +241,6 @@ lazy_static! {
         value: "value".intern(),
         variable_name: "variableName".intern(),
         variable: "Variable".intern(),
+        weak_model: "WeakModel".intern(),
     };
 }

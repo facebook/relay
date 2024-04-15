@@ -1,0 +1,138 @@
+==================================== INPUT ====================================
+//- Cat.js
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+import type CatFlowType from 'Cat';
+
+/** 
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+//- Cat-name.js
+
+import type CatFlowType from 'Cat';
+/** 
+ * @RelayResolver
+ */
+export function name(cat: CatFlowType): string {
+  return "cat";
+}
+
+//- Cat-hungry.js
+
+/** 
+ * @RelayResolver is_hungry
+ */
+export function hungry(cat: CatFlowType): number {
+  return 5;
+}
+==================================== OUTPUT ===================================
+StrongObjectResolver(
+    StrongObjectIr {
+        type_name: Identifier {
+            span: 274:277,
+            token: Token {
+                span: 274:277,
+                kind: Identifier,
+            },
+            value: "Cat",
+        },
+        rhs_location: Cat.js:274:277,
+        root_fragment: WithLocation {
+            location: Cat.js:274:277,
+            item: FragmentDefinitionName(
+                "Cat__id",
+            ),
+        },
+        description: None,
+        deprecated: None,
+        live: None,
+        semantic_non_null: None,
+        location: Cat.js:274:277,
+        implements_interfaces: [],
+        source_hash: ResolverSourceHash(
+            "eebce78124501ce6f814dc5fa5dda98a",
+        ),
+    },
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "Cat.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "eebce78124501ce6f814dc5fa5dda98a") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+TerseRelayResolver(
+    TerseRelayResolverIr {
+        field: FieldDefinition {
+            name: Identifier {
+                span: 80:84,
+                token: Token {
+                    span: 80:84,
+                    kind: Identifier,
+                },
+                value: "name",
+            },
+            type_: NonNull(
+                NonNullTypeAnnotation {
+                    span: 104:110,
+                    type_: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 104:110,
+                                token: Token {
+                                    span: 104:110,
+                                    kind: Identifier,
+                                },
+                                value: "String",
+                            },
+                        },
+                    ),
+                    exclamation: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                },
+            ),
+            arguments: None,
+            directives: [],
+            description: None,
+            hack_source: None,
+            span: 80:84,
+        },
+        type_: WithLocation {
+            location: <generated>:274:277,
+            item: "Cat",
+        },
+        root_fragment: None,
+        deprecated: None,
+        semantic_non_null: None,
+        live: None,
+        location: Cat-name.js:80:84,
+        fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "e8321f58929f05312e01a48777d3931e",
+        ),
+    },
+)
+extend type Cat {
+  name: String! @relay_resolver(import_path: "Cat-name.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name") @resolver_source_hash(value: "e8321f58929f05312e01a48777d3931e")
+}
+
+
+✖︎ Can't find type import for `CatFlowType`, expected the type to be imported from another module
+
+  Cat-hungry.js:5:29
+    4 │  */
+    5 │ export function hungry(cat: CatFlowType): number {
+      │                             ^^^^^^^^^^^
+    6 │   return 5;

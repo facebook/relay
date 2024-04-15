@@ -30,7 +30,7 @@ pub fn default_generate_extra_artifacts_fn(
 ) -> Vec<Artifact> {
     artifacts
         .iter()
-        .map(|artifact| match &artifact.content {
+        .filter_map(|artifact| match &artifact.content {
             ArtifactContent::Operation {
                 normalization_operation,
                 id_and_text_hash,
@@ -50,6 +50,5 @@ pub fn default_generate_extra_artifacts_fn(
             }
             _ => None,
         })
-        .flatten()
         .collect()
 }

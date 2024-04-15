@@ -79,7 +79,7 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
         location: Location,
         highlight_color: Style,
     ) -> std::fmt::Result {
-        let source_printer = SourcePrinter::default();
+        let source_printer = SourcePrinter;
         if let Some(source) = self.sources.get(location.source_location()) {
             let range = source.to_span_range(location.span());
             writeln!(

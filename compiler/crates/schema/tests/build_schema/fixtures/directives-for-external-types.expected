@@ -53,14 +53,20 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: DirectiveName(
-            "extern_type",
-        ),
+        name: WithLocation {
+            location: <generated>:179:190,
+            item: DirectiveName(
+                "extern_type",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "schema",
-                ),
+                name: WithLocation {
+                    location: <generated>:191:197,
+                    item: ArgumentName(
+                        "schema",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -69,9 +75,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:207:211,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -89,14 +98,20 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "fetchable",
-        ),
+        name: WithLocation {
+            location: <generated>:245:254,
+            item: DirectiveName(
+                "fetchable",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "field_name",
-                ),
+                name: WithLocation {
+                    location: <generated>:255:265,
+                    item: ArgumentName(
+                        "field_name",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -114,14 +129,20 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:255:262,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:263:265,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -143,14 +164,20 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "ref_type",
-        ),
+        name: WithLocation {
+            location: <generated>:109:117,
+            item: DirectiveName(
+                "ref_type",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "schema",
-                ),
+                name: WithLocation {
+                    location: <generated>:118:124,
+                    item: ArgumentName(
+                        "schema",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -159,9 +186,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:134:138,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -179,14 +209,20 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:334:338,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:339:341,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -208,14 +244,20 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "source",
-        ),
+        name: WithLocation {
+            location: <generated>:11:17,
+            item: DirectiveName(
+                "source",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:21:25,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -264,9 +306,12 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "id",
-                ),
+                name: WithLocation {
+                    location: <generated>:364:366,
+                    item: ArgumentName(
+                        "id",
+                    ),
+                },
                 type_: Named(
                     Scalar(5),
                 ),
@@ -293,9 +338,12 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "id",
-                ),
+                name: WithLocation {
+                    location: <generated>:396:398,
+                    item: ArgumentName(
+                        "id",
+                    ),
+                },
                 type_: Named(
                     Scalar(5),
                 ),
@@ -409,9 +457,12 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "country",
-                ),
+                name: WithLocation {
+                    location: <generated>:660:667,
+                    item: ArgumentName(
+                        "country",
+                    ),
+                },
                 type_: Named(
                     InputObject(0),
                 ),
@@ -593,9 +644,12 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -627,9 +681,12 @@ Text Schema:Schema {
         },
         fields: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:833:837,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1061,14 +1118,20 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: DirectiveName(
-            "extern_type",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "extern_type",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "schema",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "schema",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1077,9 +1140,12 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1097,14 +1163,20 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "fetchable",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "fetchable",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "field_name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "field_name",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1122,14 +1194,20 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1151,14 +1229,20 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "ref_type",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "ref_type",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "schema",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "schema",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1167,9 +1251,12 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1187,14 +1274,20 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1216,14 +1309,20 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "source",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "source",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1309,9 +1408,12 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "id",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "id",
+                    ),
+                },
                 type_: Named(
                     Scalar(0),
                 ),
@@ -1338,9 +1440,12 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "id",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "id",
+                    ),
+                },
                 type_: Named(
                     Scalar(0),
                 ),
@@ -1437,9 +1542,12 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "country",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "country",
+                    ),
+                },
                 type_: Named(
                     InputObject(0),
                 ),
@@ -1520,9 +1628,12 @@ input_objects: [
         },
         fields: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),

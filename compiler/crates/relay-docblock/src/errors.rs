@@ -154,12 +154,6 @@ pub enum IrParsingErrorMessages {
         "Unexpected `@onInterface`. The deprecated `@onType` option is not enabled for the field `{field_name}`. Please use the new syntax: `@RelayResolver ParentInterface.field_name`."
     )]
     UnexpectedOnInterface { field_name: StringKey },
-
-    #[error("@live is incompatible with @rootFragment")]
-    IncompatibleLiveAndRootFragment,
-
-    #[error("@outputType is incompatible with @rootFragment")]
-    IncompatibleOutputTypeAndRootFragment,
 }
 
 #[derive(

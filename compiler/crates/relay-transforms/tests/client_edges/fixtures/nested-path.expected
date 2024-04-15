@@ -37,10 +37,8 @@ fragment Foo_user on ClientUser {
   #             "ClientUser",
   #         ),
   #     ),
-  #     location: <generated>:7:17,
-  #     has_model_instance_field: false,
-  #     is_model_live: false,
   #     unique_id: 1,
+  #     model_resolvers: [],
   # }
    {
     ...BestFriendFragment @__RelayResolverMetadata
@@ -64,10 +62,8 @@ fragment Foo_user on ClientUser {
       #             "ClientUser",
       #         ),
       #     ),
-      #     location: <generated>:7:17,
-      #     has_model_instance_field: false,
-      #     is_model_live: false,
       #     unique_id: 0,
+      #     model_resolvers: [],
       # }
        {
         ...BestFriendFragment @__RelayResolverMetadata

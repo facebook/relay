@@ -1,0 +1,147 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//extract
+function live_user(user: User): LiveState<User> {}
+
+//extract
+function live_generic_user(user: User): LiveState<Generic<User>> {}
+
+//extract
+function live_array_generic_optinal_user(user: User): LiveState<Array<Generic<?User>>> {}
+==================================== OUTPUT ===================================
+FieldData {
+    field_name: WithLocation {
+        location: generics.js:211:220,
+        item: "live_user",
+    },
+    return_type: GenericType(
+        GenericType {
+            identifier: WithLocation {
+                location: generics.js:234:249,
+                item: "LiveState",
+            },
+            parameter: NamedType(
+                NamedType {
+                    identifier: WithLocation {
+                        location: generics.js:244:248,
+                        item: "User",
+                    },
+                    optional: false,
+                },
+            ),
+            optional: false,
+            location: generics.js:244:248,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: generics.js:227:231,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}
+
+FieldData {
+    field_name: WithLocation {
+        location: generics.js:273:290,
+        item: "live_generic_user",
+    },
+    return_type: GenericType(
+        GenericType {
+            identifier: WithLocation {
+                location: generics.js:304:328,
+                item: "LiveState",
+            },
+            parameter: GenericType(
+                GenericType {
+                    identifier: WithLocation {
+                        location: generics.js:314:327,
+                        item: "Generic",
+                    },
+                    parameter: NamedType(
+                        NamedType {
+                            identifier: WithLocation {
+                                location: generics.js:322:326,
+                                item: "User",
+                            },
+                            optional: false,
+                        },
+                    ),
+                    optional: false,
+                    location: generics.js:322:326,
+                },
+            ),
+            optional: false,
+            location: generics.js:314:327,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: generics.js:297:301,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}
+
+FieldData {
+    field_name: WithLocation {
+        location: generics.js:352:383,
+        item: "live_array_generic_optinal_user",
+    },
+    return_type: GenericType(
+        GenericType {
+            identifier: WithLocation {
+                location: generics.js:397:429,
+                item: "LiveState",
+            },
+            parameter: PluralType(
+                PluralType {
+                    inner: GenericType(
+                        GenericType {
+                            identifier: WithLocation {
+                                location: generics.js:413:427,
+                                item: "Generic",
+                            },
+                            parameter: NamedType(
+                                NamedType {
+                                    identifier: WithLocation {
+                                        location: generics.js:422:426,
+                                        item: "User",
+                                    },
+                                    optional: true,
+                                },
+                            ),
+                            optional: false,
+                            location: generics.js:421:426,
+                        },
+                    ),
+                    optional: false,
+                    location: generics.js:413:427,
+                },
+            ),
+            optional: false,
+            location: generics.js:407:428,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: generics.js:390:394,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}

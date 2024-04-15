@@ -346,7 +346,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         operation: &graphql_syntax::OperationDefinition,
     ) -> DiagnosticsResult<Identifier> {
         match &operation.name {
-            Some(name) => Ok(name.clone()),
+            Some(name) => Ok(*name),
             None => {
                 if let Some(name) = self.options.default_anonymous_operation_name {
                     Ok(Identifier {
@@ -375,8 +375,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let kind = operation
             .operation
             .as_ref()
-            .map(|x| x.1)
-            .unwrap_or_else(|| OperationKind::Query);
+            .map_or_else(|| OperationKind::Query, |x| x.1);
         let operation_type = match kind {
             OperationKind::Mutation => self.schema.mutation_type(),
             OperationKind::Query => self.schema.query_type(),
@@ -1236,7 +1235,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         None => {
                             let possible_argument_names = argument_definitions
                                 .iter()
-                                .map(|arg_def| arg_def.name.0)
+                                .map(|arg_def| arg_def.name.item.0)
                                 .collect::<Vec<_>>();
                             let suggestions = suggestion_list::suggestion_list(
                                 argument.name.value,
@@ -1268,9 +1267,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 arguments
                     .iter()
                     .flat_map(|args| &args.items)
-                    .all(|arg| arg.name.value != required_arg_def.name.0)
+                    .all(|arg| arg.name.value != required_arg_def.name.item.0)
             })
-            .map(|missing_arg| missing_arg.name.0)
+            .map(|missing_arg| missing_arg.name.item.0)
             .filter(is_non_nullable_field_required)
             .collect::<Vec<_>>();
         if !missing_arg_names.is_empty() {
@@ -1569,8 +1568,8 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let mut required_fields = type_definition
             .fields
             .iter()
-            .filter(|x| x.type_.is_non_null())
-            .map(|x| x.name.0)
+            .filter(|x| x.type_.is_non_null() && x.default_value.is_none())
+            .map(|x| x.name.item.0)
             .collect::<StringKeySet>();
 
         let fields = object
@@ -1720,8 +1719,8 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let mut required_fields = type_definition
             .fields
             .iter()
-            .filter(|x| x.type_.is_non_null())
-            .map(|x| x.name.0)
+            .filter(|x| x.type_.is_non_null() && x.default_value.is_none())
+            .map(|x| x.name.item.0)
             .collect::<StringKeySet>();
 
         let mut errors = vec![];

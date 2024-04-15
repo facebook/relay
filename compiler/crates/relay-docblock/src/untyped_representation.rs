@@ -29,6 +29,7 @@ use crate::ON_TYPE_FIELD;
 use crate::OUTPUT_TYPE_FIELD;
 use crate::RELAY_RESOLVER_FIELD;
 use crate::ROOT_FRAGMENT_FIELD;
+use crate::SEMANTIC_NON_NULL_FIELD;
 use crate::WEAK_FIELD;
 
 /// All fields which are allowed in RelayResolver docblocks.
@@ -54,6 +55,7 @@ pub enum AllowedFieldName {
     LiveField,
     OutputTypeField,
     WeakField,
+    SemanticNonNullField,
 }
 
 impl Display for AllowedFieldName {
@@ -69,6 +71,7 @@ impl Display for AllowedFieldName {
             AllowedFieldName::LiveField => write!(f, "{}", *LIVE_FIELD),
             AllowedFieldName::OutputTypeField => write!(f, "{}", *OUTPUT_TYPE_FIELD),
             AllowedFieldName::WeakField => write!(f, "{}", *WEAK_FIELD),
+            AllowedFieldName::SemanticNonNullField => write!(f, "{}", *SEMANTIC_NON_NULL_FIELD),
         }
     }
 }
@@ -86,6 +89,9 @@ impl TryFrom<WithLocation<StringKey>> for AllowedFieldName {
             value if value == *EDGE_TO_FIELD => Ok(AllowedFieldName::EdgeToField),
             value if value == *DEPRECATED_FIELD => Ok(AllowedFieldName::DeprecatedField),
             value if value == *LIVE_FIELD => Ok(AllowedFieldName::LiveField),
+            value if value == *SEMANTIC_NON_NULL_FIELD => {
+                Ok(AllowedFieldName::SemanticNonNullField)
+            }
             value if value == *OUTPUT_TYPE_FIELD => Ok(AllowedFieldName::OutputTypeField),
             value if value == *WEAK_FIELD => Ok(AllowedFieldName::WeakField),
             invalid_value => Err(Diagnostic::error(

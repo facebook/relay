@@ -8,6 +8,7 @@
 use common::Span;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
+use graphql_syntax::Identifier;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 
@@ -15,6 +16,10 @@ pub enum DocblockResolutionInfo {
     Type(StringKey),
     RootFragment(FragmentDefinitionName),
     FieldName(StringKey),
+    FieldArgumentName {
+        field_name: Identifier,
+        argument_name: Identifier,
+    },
     Deprecated,
 }
 
@@ -49,6 +54,18 @@ pub fn create_docblock_resolution_info(
                 return Some(DocblockResolutionInfo::FieldName(
                     resolver_ir.field.name.value,
                 ));
+            }
+
+            // Field arguments
+            if let Some(field_arguments) = &resolver_ir.field.arguments {
+                for field_argument in &field_arguments.items {
+                    if field_argument.name.span.contains(position_span) {
+                        return Some(DocblockResolutionInfo::FieldArgumentName {
+                            field_name: resolver_ir.field.name,
+                            argument_name: field_argument.name,
+                        });
+                    }
+                }
             }
 
             // Return type
@@ -98,6 +115,18 @@ pub fn create_docblock_resolution_info(
                 return Some(DocblockResolutionInfo::FieldName(
                     resolver_ir.field.name.value,
                 ));
+            }
+
+            // Field arguments
+            if let Some(field_arguments) = &resolver_ir.field.arguments {
+                for field_argument in &field_arguments.items {
+                    if field_argument.name.span.contains(position_span) {
+                        return Some(DocblockResolutionInfo::FieldArgumentName {
+                            field_name: resolver_ir.field.name,
+                            argument_name: field_argument.name,
+                        });
+                    }
+                }
             }
 
             // @deprecated key

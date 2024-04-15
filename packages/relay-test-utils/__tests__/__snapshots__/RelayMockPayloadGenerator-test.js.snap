@@ -211,6 +211,71 @@ fragment RelayMockPayloadGeneratorTest61Fragment on User {
 ]
 `;
 
+exports[`generate mock for deferred fragments with if condition false 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest63Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ...RelayMockPayloadGeneratorTest63Fragment
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest63Fragment on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "data": {
+      "node": {
+        "__typename": "User",
+        "id": "<mock-id-1>",
+        "name": "<mock-value-for-field-\\"name\\">"
+      }
+    }
+  }
+]
+`;
+
+exports[`generate mock for deferred fragments with if condition true 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest62Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ...RelayMockPayloadGeneratorTest62Fragment @defer(label: "RelayMockPayloadGeneratorTest62Query$defer$RelayMockPayloadGeneratorTest62Fragment", if: true)
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest62Fragment on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "data": {
+      "node": {
+        "__typename": "__MockObject",
+        "id": "<mock-id-1>"
+      }
+    }
+  },
+  {
+    "path": [
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest62Query$defer$RelayMockPayloadGeneratorTest62Fragment",
+    "data": {
+      "__typename": "User",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+]
+`;
+
 exports[`generate mock for fragment with @argumentsDefinition 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest15Query(
@@ -427,6 +492,203 @@ fragment RelayMockPayloadGeneratorTestFragment on User {
     }
   }
 }
+`;
+
+exports[`generate mock for streamed fragments 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest64Query {
+  me {
+    friends(first: 10) {
+      edges @stream(label: "RelayMockPayloadGeneratorTest64Query$stream$test-64__friends", initial_count: 4) {
+        node {
+          ...RelayMockPayloadGeneratorTest64Fragment
+          id
+          __typename
+        }
+        cursor
+      }
+      ... @defer(label: "RelayMockPayloadGeneratorTest64Query$defer$test-64__friends$pageInfo") {
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest64Fragment on User {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "data": {
+      "me": {
+        "friends": {},
+        "id": "<User-mock-id-2>"
+      }
+    }
+  },
+  {
+    "path": [
+      "me",
+      "friends"
+    ],
+    "label": "RelayMockPayloadGeneratorTest64Query$stream$test-64__friends",
+    "data": {
+      "edges": [
+        {
+          "node": {
+            "id": "<User-mock-id-1>",
+            "__typename": "User"
+          },
+          "cursor": "<mock-value-for-field-\\"cursor\\">"
+        }
+      ]
+    }
+  },
+  {
+    "path": [
+      "me",
+      "friends"
+    ],
+    "label": "RelayMockPayloadGeneratorTest64Query$defer$test-64__friends$pageInfo",
+    "data": {
+      "pageInfo": {
+        "endCursor": "<mock-value-for-field-\\"endCursor\\">",
+        "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
+      }
+    }
+  }
+]
+`;
+
+exports[`generate mock for streamed fragments with if condition false 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest66Query {
+  me {
+    friends(first: 10) {
+      edges {
+        node {
+          ...RelayMockPayloadGeneratorTest66Fragment
+          id
+          __typename
+        }
+        cursor
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest66Fragment on User {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "data": {
+      "me": {
+        "friends": {
+          "edges": [
+            {
+              "node": {
+                "id": "<User-mock-id-1>",
+                "__typename": "User"
+              },
+              "cursor": "<mock-value-for-field-\\"cursor\\">"
+            }
+          ],
+          "pageInfo": {
+            "endCursor": "<mock-value-for-field-\\"endCursor\\">",
+            "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
+          }
+        },
+        "id": "<User-mock-id-2>"
+      }
+    }
+  }
+]
+`;
+
+exports[`generate mock for streamed fragments with if condition true 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest65Query {
+  me {
+    friends(first: 10) {
+      edges @stream(label: "RelayMockPayloadGeneratorTest65Query$stream$test-65__friends", if: true, initial_count: 4) {
+        node {
+          ...RelayMockPayloadGeneratorTest65Fragment
+          id
+          __typename
+        }
+        cursor
+      }
+      ... @defer(label: "RelayMockPayloadGeneratorTest65Query$defer$test-65__friends$pageInfo", if: true) {
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest65Fragment on User {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "data": {
+      "me": {
+        "friends": {},
+        "id": "<User-mock-id-2>"
+      }
+    }
+  },
+  {
+    "path": [
+      "me",
+      "friends"
+    ],
+    "label": "RelayMockPayloadGeneratorTest65Query$stream$test-65__friends",
+    "data": {
+      "edges": [
+        {
+          "node": {
+            "id": "<User-mock-id-1>",
+            "__typename": "User"
+          },
+          "cursor": "<mock-value-for-field-\\"cursor\\">"
+        }
+      ]
+    }
+  },
+  {
+    "path": [
+      "me",
+      "friends"
+    ],
+    "label": "RelayMockPayloadGeneratorTest65Query$defer$test-65__friends$pageInfo",
+    "data": {
+      "pageInfo": {
+        "endCursor": "<mock-value-for-field-\\"endCursor\\">",
+        "hasNextPage": "<mock-value-for-field-\\"hasNextPage\\">"
+      }
+    }
+  }
+]
 `;
 
 exports[`generate mock for with directives and handlers 1`] = `

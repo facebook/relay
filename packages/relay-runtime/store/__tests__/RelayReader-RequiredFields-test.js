@@ -823,8 +823,7 @@ describe('RelayReader @required', () => {
       const FooQuery = graphql`
         query RelayReaderRequiredFieldsTest25Query {
           me {
-            # client_object resolver will return null for an id of "0"
-            client_object(id: "0") @required(action: THROW) {
+            client_object(return_null: true) @required(action: THROW) {
               description
             }
           }

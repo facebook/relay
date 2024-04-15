@@ -23,7 +23,7 @@ use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::Program;
 use graphql_ir::RelayMode;
-use graphql_syntax::parse_executable_with_error_recovery;
+use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::ExecutableDocument;
 use intern::string_key::Intern;
@@ -35,7 +35,9 @@ use lsp_types::Range;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
 use relay_compiler::config::Config;
+use relay_compiler::get_parser_features;
 use relay_compiler::FileCategorizer;
+use relay_compiler::FileGroup;
 use relay_compiler::ProjectName;
 use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
@@ -50,12 +52,12 @@ use super::task_queue::TaskScheduler;
 use crate::diagnostic_reporter::DiagnosticReporter;
 use crate::docblock_resolution_info::create_docblock_resolution_info;
 use crate::graphql_tools::get_query_text;
-use crate::js_language_server::JSLanguageServer;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::create_node_resolution_info;
 use crate::utils::extract_executable_definitions_from_text_document;
 use crate::utils::extract_feature_from_text;
-use crate::utils::extract_project_name_from_url;
+use crate::utils::get_file_group_from_uri;
+use crate::utils::get_project_name_from_file_group;
 use crate::ContentConsumerType;
 use crate::DocblockNode;
 use crate::Feature;
@@ -116,9 +118,6 @@ pub trait GlobalState {
     /// For Native - it may be a BuildConfigName.
     fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey>;
 
-    /// Experimental (Relay-only) JS Language Server instance
-    fn get_js_language_sever(&self) -> Option<&dyn JSLanguageServer<TState = Self>>;
-
     /// This is powering the functionality of executing GraphQL query from the IDE
     fn get_full_query_text(
         &self,
@@ -158,7 +157,6 @@ pub struct LSPState<
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
     pub(crate) project_status: ProjectStatusMap,
-    js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
@@ -174,7 +172,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema_documentation_loader: Option<
             Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
         >,
-        js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
     ) -> Self {
         debug!("Creating lsp_state...");
         let file_categorizer = FileCategorizer::from_config(&config);
@@ -199,7 +196,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             schema_documentation_loader,
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_javascript_features: Default::default(),
-            js_resource,
         };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -220,6 +216,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
+        let project_config = self
+            .config
+            .projects
+            .get(&ProjectName::from(project_name))
+            .unwrap();
         let schema = self
             .schemas
             .get(&project_name)
@@ -229,19 +230,31 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let mut docblock_sources = vec![];
 
         for (index, feature) in javascript_features.iter().enumerate() {
-            let source_location_key = SourceLocationKey::embedded(&url.to_string(), index);
+            let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
 
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
-                    let result = parse_executable_with_error_recovery(
+                    let result = parse_executable_with_error_recovery_and_parser_features(
                         &graphql_source.text_source().text,
                         source_location_key,
+                        get_parser_features(project_config),
                     );
                     diagnostics.extend(result.diagnostics.iter().map(|diagnostic| {
                         self.diagnostic_reporter
                             .convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
-
+                    let get_errors_or_warnings = |documents| {
+                        let mut warnings = vec![];
+                        for document in documents {
+                            // Today the only warning we check for is deprecated
+                            // fields, but in the future we could check for more
+                            // things here by making this more generic.
+                            warnings.extend(deprecated_fields_for_executable_definition(
+                                &schema, &document,
+                            )?)
+                        }
+                        Ok(warnings)
+                    };
                     let compiler_diagnostics = match build_ir_with_extra_features(
                         &schema,
                         &result.item.definitions,
@@ -253,18 +266,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                             allow_custom_scalar_literals: true, // for compatibility
                         },
                     )
-                    .and_then(|documents| {
-                        let mut warnings = vec![];
-                        for document in documents {
-                            // Today the only warning we check for is deprecated
-                            // fields, but in the future we could check for more
-                            // things here by making this more generic.
-                            warnings.extend(deprecated_fields_for_executable_definition(
-                                &schema, &document,
-                            )?)
-                        }
-                        Ok(warnings)
-                    }) {
+                    .and_then(get_errors_or_warnings)
+                    {
                         Ok(warnings) => warnings,
                         Err(errors) => errors,
                     };
@@ -282,11 +285,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
-        let project_config = self
-            .config
-            .projects
-            .get(&ProjectName::from(project_name))
-            .unwrap();
         for (index, docblock_source) in docblock_sources.iter().enumerate() {
             let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
             let text_source = docblock_source.text_source();
@@ -297,18 +295,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     &ast,
                     Some(&executable_definitions),
                     ParseOptions {
-                        enable_output_type: &project_config
-                            .feature_flags
-                            .relay_resolver_enable_output_type,
-                        enable_strict_resolver_flavors: &project_config
-                            .feature_flags
-                            .relay_resolvers_enable_strict_resolver_flavors,
                         allow_legacy_verbose_syntax: &project_config
                             .feature_flags
                             .relay_resolvers_allow_legacy_verbose_syntax,
                         enable_interface_output_type: &project_config
                             .feature_flags
                             .relay_resolver_enable_interface_output_type,
+                        allow_resolver_non_nullable_return_type: &project_config
+                            .feature_flags
+                            .allow_resolver_non_nullable_return_type,
                     },
                 )
             });
@@ -345,13 +340,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         uri: &Url,
         sources: Vec<JavaScriptSourceFeature>,
     ) -> LSPRuntimeResult<()> {
-        let project_name = self.extract_project_name_from_url(uri)?;
-
-        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
-            self.notify_lsp_state_resources.notify_one();
-        }
-
         self.insert_synced_sources(uri, sources);
         self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
 
@@ -362,6 +350,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.synced_javascript_features.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
+    }
+
+    fn initialize_lsp_state_resources(&self, project_name: StringKey) {
+        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
+            e.insert(ProjectStatus::Activated);
+            self.notify_lsp_state_resources.notify_one();
+        }
     }
 }
 
@@ -477,7 +472,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
-        extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
+        let file_group = get_file_group_from_uri(&self.file_categorizer, url, &self.root_dir)?;
+
+        get_project_name_from_file_group(&file_group).map_err(|msg| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not determine project name for \"{}\": {}",
+                url, msg
+            ))
+        })
     }
 
     fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider {
@@ -488,19 +490,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         text_document_uri: &Url,
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
+        let project_name: ProjectName = self
+            .extract_project_name_from_url(text_document_uri)?
+            .into();
+        let project_config = self.config.projects.get(&project_name).unwrap();
+
         extract_executable_definitions_from_text_document(
             text_document_uri,
             &self.synced_javascript_features,
+            get_parser_features(project_config),
         )
     }
 
     fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
         self.diagnostic_reporter
             .get_diagnostics_for_range(url, range)
-    }
-
-    fn get_js_language_sever(&self) -> Option<&dyn JSLanguageServer<TState = Self>> {
-        self.js_resource.as_deref()
     }
 
     fn get_full_query_text(
@@ -512,24 +516,38 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
-        if let Some(js_server) = self.get_js_language_sever() {
-            js_server.process_js_source(uri, text);
-        }
+        let file_group = get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir)?;
+        let project_name = get_project_name_from_file_group(&file_group).map_err(|msg| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not determine project name for \"{}\": {}",
+                uri, msg
+            ))
+        })?;
 
-        // First we check to see if this document has any GraphQL documents.
-        let embedded_sources = extract_graphql::extract(text);
-        if embedded_sources.is_empty() {
-            Ok(())
-        } else {
-            self.process_synced_sources(uri, embedded_sources)
+        match file_group {
+            FileGroup::Schema { project_set: _ } => {
+                self.initialize_lsp_state_resources(project_name);
+                Ok(())
+            }
+            FileGroup::Extension { project_set: _ } => {
+                self.initialize_lsp_state_resources(project_name);
+                Ok(())
+            }
+            FileGroup::Source { project_set: _ } => {
+                let embedded_sources = extract_graphql::extract(text);
+
+                if embedded_sources.is_empty() {
+                    Ok(())
+                } else {
+                    self.initialize_lsp_state_resources(project_name);
+                    self.process_synced_sources(uri, embedded_sources)
+                }
+            }
+            _ => Err(LSPRuntimeError::ExpectedError),
         }
     }
 
     fn document_changed(&self, uri: &Url, full_text: &str) -> LSPRuntimeResult<()> {
-        if let Some(js_server) = self.get_js_language_sever() {
-            js_server.process_js_source(uri, full_text);
-        }
-
         // First we check to see if this document has any GraphQL documents.
         let embedded_sources = extract_graphql::extract(full_text);
         if embedded_sources.is_empty() {
@@ -541,9 +559,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_closed(&self, uri: &Url) -> LSPRuntimeResult<()> {
-        if let Some(js_server) = self.get_js_language_sever() {
-            js_server.remove_js_source(uri);
-        }
         self.remove_synced_sources(uri);
         Ok(())
     }

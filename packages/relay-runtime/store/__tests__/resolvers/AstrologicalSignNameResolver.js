@@ -17,10 +17,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName name
+ * @RelayResolver AstrologicalSign.name: String
  * @rootFragment AstrologicalSignNameResolver
- * @onType AstrologicalSign
  *
  * Re-expose `Name` from our client fat `self` object.
  */

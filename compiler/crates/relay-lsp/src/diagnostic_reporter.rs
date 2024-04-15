@@ -6,6 +6,7 @@
  */
 
 //! Utilities for reporting errors to an LSP client
+use std::path::Path;
 use std::path::PathBuf;
 
 use common::get_diagnostics_data;
@@ -41,7 +42,7 @@ use crate::lsp_process_error::LSPProcessResult;
 
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
 /// Returns None if we are unable to do the conversion
-fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {
+fn url_from_location(location: Location, root_dir: &Path) -> Option<Url> {
     let file_path = location.source_location().path();
     let canonical_path = canonicalize(root_dir.join(file_path)).ok()?;
     Url::from_file_path(canonical_path).ok()
@@ -323,17 +324,14 @@ pub fn publish_diagnostic(
     sender: &Sender<Message>,
 ) -> LSPProcessResult<()> {
     let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
-    sender
-        .send(Message::Notification(notif))
-        .unwrap_or_else(|_| {
-            // TODO(brandondail) log here
-        });
+    sender.send(Message::Notification(notif)).unwrap_or(());
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use std::env;
+    use std::path::Path;
     use std::path::PathBuf;
 
     use common::Diagnostic;
@@ -351,7 +349,7 @@ mod tests {
     struct MockSourceReader(String);
 
     impl SourceReader for MockSourceReader {
-        fn read_file_to_string(&self, _path: &PathBuf) -> std::io::Result<String> {
+        fn read_file_to_string(&self, _path: &Path) -> std::io::Result<String> {
             Ok(self.0.to_string())
         }
     }

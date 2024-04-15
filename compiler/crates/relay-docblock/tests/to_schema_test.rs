@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1ffacfeab59157dc3df605ce3d320d2c>>
+ * @generated SignedSource<<0fb7882e0b2057258997dac1ce03d300>>
  */
 
 mod to_schema;
@@ -132,6 +132,13 @@ async fn relay_resolver_on_type_with_interface_invalid() {
 }
 
 #[tokio::test]
+async fn relay_resolver_semantic_non_null() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-semantic-non-null.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-semantic-non-null.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-semantic-non-null.js", "to_schema/fixtures/relay-resolver-semantic-non-null.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn relay_resolver_strong_object() {
     let input = include_str!("to_schema/fixtures/relay-resolver-strong-object.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object.expected");
@@ -209,13 +216,6 @@ async fn relay_resolver_with_field_args() {
 }
 
 #[tokio::test]
-async fn relay_resolver_with_output_type() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-with-output-type.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-with-output-type.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-with-output-type.js", "to_schema/fixtures/relay-resolver-with-output-type.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn terse_relay_resolver() {
     let input = include_str!("to_schema/fixtures/terse-relay-resolver.js");
     let expected = include_str!("to_schema/fixtures/terse-relay-resolver.expected");
@@ -241,6 +241,13 @@ async fn terse_relay_resolver_non_existent_type_invalid() {
     let input = include_str!("to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.js");
     let expected = include_str!("to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.expected");
     test_fixture(transform_fixture, file!(), "terse-relay-resolver-non-existent-type.invalid.js", "to_schema/fixtures/terse-relay-resolver-non-existent-type.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn terse_relay_resolver_semantic_non_null() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-semantic-non-null.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-semantic-non-null.expected");
+    test_fixture(transform_fixture, file!(), "terse-relay-resolver-semantic-non-null.js", "to_schema/fixtures/terse-relay-resolver-semantic-non-null.expected", input, expected).await;
 }
 
 #[tokio::test]

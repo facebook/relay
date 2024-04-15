@@ -76,6 +76,7 @@ LegacyVerboseResolver(
         description: None,
         hack_source: None,
         deprecated: None,
+        semantic_non_null: None,
         live: Some(
             UnpopulatedIrField {
                 key_location: /path/to/test/fixture/relay-resolver-live.js:119:123,

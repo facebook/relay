@@ -18,11 +18,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName another_client_edge
+ * @RelayResolver User.another_client_edge: User
  * @rootFragment UserAnotherClientEdgeResolver
- * @onType User
- * @edgeTo User
  */
 function another_client_edge(
   rootKey: UserAnotherClientEdgeResolver$key,

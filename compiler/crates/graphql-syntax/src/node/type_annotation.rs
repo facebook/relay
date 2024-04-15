@@ -32,16 +32,16 @@ impl TypeAnnotation {
     pub fn inner(&self) -> &NamedTypeAnnotation {
         match self {
             TypeAnnotation::Named(named) => named,
-            TypeAnnotation::List(of) => (*of).type_.inner(),
-            TypeAnnotation::NonNull(of) => (*of).type_.inner(),
+            TypeAnnotation::List(of) => of.type_.inner(),
+            TypeAnnotation::NonNull(of) => of.type_.inner(),
         }
     }
 
     pub fn span(&self) -> Span {
         match self {
             TypeAnnotation::Named(named) => named.name.span,
-            TypeAnnotation::List(of) => (*of).span,
-            TypeAnnotation::NonNull(of) => (*of).span,
+            TypeAnnotation::List(of) => of.span,
+            TypeAnnotation::NonNull(of) => of.span,
         }
     }
 }

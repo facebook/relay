@@ -23,6 +23,7 @@ mod operation_persister;
 mod red_to_green;
 pub mod saved_state;
 pub mod status_reporter;
+mod utils;
 
 pub use artifact_map::ArtifactSourceKey;
 pub use build_project::add_to_mercurial;
@@ -72,3 +73,4 @@ pub use graphql_asts::GraphQLAsts;
 pub use operation_persister::LocalPersister;
 pub use operation_persister::RemotePersister;
 pub use relay_config::ProjectName;
+pub use utils::get_parser_features;

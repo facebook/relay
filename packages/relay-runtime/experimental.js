@@ -12,13 +12,7 @@
 'use strict';
 
 const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
-const {
-  weakObjectWrapper,
-  weakObjectWrapperLive,
-} = require('./store/experimental-live-resolvers/weakObjectWrapper');
 
 module.exports = {
   resolverDataInjector,
-  weakObjectWrapper,
-  weakObjectWrapperLive,
 };

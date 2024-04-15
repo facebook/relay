@@ -25,23 +25,21 @@ use docblock_shared::ON_TYPE_FIELD;
 use docblock_shared::OUTPUT_TYPE_FIELD;
 use docblock_shared::RELAY_RESOLVER_FIELD;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
+use docblock_shared::SEMANTIC_NON_NULL_FIELD;
 use docblock_shared::WEAK_FIELD;
 use docblock_syntax::DocblockAST;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::TypeSystemDefinition;
 use intern::Lookup;
-pub use ir::DocblockIr;
-use ir::LegacyVerboseResolverIr;
-pub use ir::On;
+pub use ir::*;
 use relay_config::ProjectName;
 use schema::SDLSchema;
 use untyped_representation::parse_untyped_docblock_representation;
 
 pub struct ParseOptions<'a> {
-    pub enable_output_type: &'a FeatureFlag,
-    pub enable_strict_resolver_flavors: &'a FeatureFlag,
     pub allow_legacy_verbose_syntax: &'a FeatureFlag,
     pub enable_interface_output_type: &'a FeatureFlag,
+    pub allow_resolver_non_nullable_return_type: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(

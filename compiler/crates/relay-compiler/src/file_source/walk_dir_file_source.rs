@@ -85,7 +85,7 @@ impl<'config> WalkDirFileSource<'config> {
                     .ok()?
                     .to_path_buf();
 
-                self.should_include_file(&relative_path).then(|| File {
+                self.should_include_file(&relative_path).then_some(File {
                     name: relative_path,
                     exists: true,
                 })

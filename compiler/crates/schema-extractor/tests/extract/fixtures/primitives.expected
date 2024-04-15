@@ -1,0 +1,91 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//extract
+function id(user: User): ID {}
+
+//extract
+function number(user: User): number {}
+
+//extract
+function string(user: User): string {}
+==================================== OUTPUT ===================================
+FieldData {
+    field_name: WithLocation {
+        location: primitives.js:211:213,
+        item: "id",
+    },
+    return_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: primitives.js:227:229,
+                item: "ID",
+            },
+            optional: false,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: primitives.js:220:224,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}
+
+FieldData {
+    field_name: WithLocation {
+        location: primitives.js:253:259,
+        item: "number",
+    },
+    return_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: primitives.js:273:279,
+                item: "Float",
+            },
+            optional: false,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: primitives.js:266:270,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}
+
+FieldData {
+    field_name: WithLocation {
+        location: primitives.js:303:309,
+        item: "string",
+    },
+    return_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: primitives.js:323:329,
+                item: "String",
+            },
+            optional: false,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: primitives.js:316:320,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}

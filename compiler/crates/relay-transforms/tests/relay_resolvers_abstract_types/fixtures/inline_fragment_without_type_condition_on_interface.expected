@@ -30,16 +30,25 @@ extend type Query {
 }
 ==================================== OUTPUT ===================================
 fragment inlineFragmentWithoutTypeConditionOnInterfaceFragment on Cat {
-  ... on Tabby {
-    ... {
-      description
-      name
+  ... {
+    name
+    ... on Tabby {
+      __id @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(525),
+      #     import_path: "TabbyResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "description",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: Legacy,
+      #     fragment_data_injection_mode: None,
+      # }
+      
     }
-  }
-  ... on Persian {
-    ... {
+    ... on Persian {
       description
-      name
     }
   }
 }

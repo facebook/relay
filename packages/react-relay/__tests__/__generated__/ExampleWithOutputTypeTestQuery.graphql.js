@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<03326d860aa33d678191fbe7962934db>>
+ * @generated SignedSource<<60733524045b7557f96d427d5ba67f87>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -66,6 +66,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "ClientObject",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -75,6 +76,7 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver').example_client_object,
           "path": "example_client_object",
           "normalizationInfo": {
+            "kind": "OutputType",
             "concreteType": "ClientObject",
             "plural": false,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql')

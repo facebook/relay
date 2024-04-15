@@ -19,7 +19,6 @@ use docblock_shared::ARGUMENT_DEFINITIONS;
 use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
-use docblock_shared::OUTPUT_TYPE_FIELD;
 use docblock_shared::PROVIDER_ARG_NAME;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
@@ -30,6 +29,7 @@ use graphql_syntax::parse_identifier_and_implements_interfaces;
 use graphql_syntax::parse_type;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::FieldDefinition;
 use graphql_syntax::FragmentDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::InputValueDefinition;
@@ -104,7 +104,6 @@ pub(crate) fn parse_docblock_ir(
                 None, // This might be necessary for field hack source links
                 docblock_location,
                 unpopulated_ir_field,
-                parse_options,
                 source_hash,
             )?;
 
@@ -145,6 +144,7 @@ pub(crate) fn parse_docblock_ir(
                     definitions_in_file,
                     docblock_location,
                     source_hash,
+                    parse_options,
                 )?)
             } else {
                 match get_optional_unpopulated_field_named(
@@ -174,8 +174,6 @@ pub(crate) fn parse_docblock_ir(
         }
     };
 
-    validate_strict_resolver_flavors(parse_options, &parsed_docblock_ir)?;
-
     assert_all_fields_removed(
         fields,
         resolver_field.key_location(),
@@ -192,7 +190,6 @@ fn parse_relay_resolver_ir(
     hack_source: Option<WithLocation<StringKey>>,
     location: Location,
     _resolver_field: UnpopulatedIrField,
-    parse_options: &ParseOptions<'_>,
     source_hash: ResolverSourceHash,
 ) -> DiagnosticsResult<LegacyVerboseResolverIr> {
     let root_fragment =
@@ -218,17 +215,12 @@ fn parse_relay_resolver_ir(
         get_optional_populated_field_named(fields, AllowedFieldName::OutputTypeField)?;
 
     if let Some(output_type) = output_type_opt {
-        if !parse_options
-            .enable_output_type
-            .is_enabled_for(field_definition_stub.name.value)
-        {
-            return Err(vec![Diagnostic::error(
-                IrParsingErrorMessages::UnexpectedOutputType {
-                    field_name: field_definition_stub.name.value,
-                },
-                output_type.key_location,
-            )]);
-        }
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::UnexpectedOutputType {
+                field_name: field_definition_stub.name.value,
+            },
+            output_type.key_location,
+        )]);
     }
 
     let output_type = combine_edge_to_and_output_type(edge_to_opt, output_type_opt)?;
@@ -257,6 +249,10 @@ fn parse_relay_resolver_ir(
         output_type,
         fragment_arguments,
         source_hash,
+        semantic_non_null: get_optional_unpopulated_field_named(
+            fields,
+            AllowedFieldName::SemanticNonNullField,
+        )?,
     })
 }
 
@@ -290,6 +286,10 @@ fn parse_strong_object_ir(
         location,
         implements_interfaces,
         source_hash,
+        semantic_non_null: get_optional_unpopulated_field_named(
+            fields,
+            AllowedFieldName::SemanticNonNullField,
+        )?,
     })
 }
 
@@ -337,10 +337,11 @@ fn parse_terse_relay_resolver_ir(
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     location: Location,
     source_hash: ResolverSourceHash,
+    parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<TerseRelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
-    let type_str = relay_resolver_field.value;
+    let type_str: WithLocation<StringKey> = relay_resolver_field.value;
 
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
     let type_name = extract_identifier(relay_resolver_field)?;
@@ -351,7 +352,7 @@ fn parse_terse_relay_resolver_ir(
     let span_start = type_str.location.span().start + offset as u32;
 
     match remaining_source.chars().next() {
-        Some(dot) if dot == '.' => {}
+        Some('.') => {}
         Some(other) => {
             return Err(vec![Diagnostic::error(
                 IrParsingErrorMessages::UnexpectedNonDot { found: other },
@@ -367,7 +368,7 @@ fn parse_terse_relay_resolver_ir(
         }
     };
 
-    let mut field = parse_field_definition(
+    let mut field: graphql_syntax::FieldDefinition = parse_field_definition(
         &remaining_source[1..],
         type_str.location.source_location(),
         span_start + 1,
@@ -381,13 +382,7 @@ fn parse_terse_relay_resolver_ir(
         value: description.item,
     });
 
-    if let TypeAnnotation::NonNull(non_null) = field.type_ {
-        return Err(vec![Diagnostic::error(
-            IrParsingErrorMessages::FieldWithNonNullType,
-            Location::new(type_str.location.source_location(), non_null.span),
-        )]);
-    }
-
+    validate_field_type_annotation(&field, type_str, parse_options)?;
     validate_field_arguments(&field.arguments, location.source_location())?;
 
     let (fragment_type_condition, fragment_arguments) = parse_fragment_definition(
@@ -423,6 +418,10 @@ fn parse_terse_relay_resolver_ir(
         location,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
+        semantic_non_null: get_optional_unpopulated_field_named(
+            fields,
+            AllowedFieldName::SemanticNonNullField,
+        )?,
         fragment_arguments,
         source_hash,
     })
@@ -770,101 +769,23 @@ fn extract_fragment_arguments(
         })
 }
 
-fn get_resolver_field_path(docblock_ir: &DocblockIr) -> Option<String> {
-    match docblock_ir {
-        DocblockIr::LegacyVerboseResolver(resolver_ir) => {
-            let parent_type_name = match resolver_ir.on {
-                On::Type(field) => field.value.item,
-                On::Interface(field) => field.value.item,
-            };
-
-            Some(format!("{}.{}", parent_type_name, resolver_ir.field.name))
-        }
-        DocblockIr::TerseRelayResolver(terse_ir) => {
-            Some(format!("{}.{}", terse_ir.type_.item, terse_ir.field.name))
-        }
-        DocblockIr::StrongObjectResolver(_) => None,
-        DocblockIr::WeakObjectType(_) => None,
-    }
-}
-
-// Flavorings help the compiler understand what execution strategies are viable for the resolver.
-// We perform validation here (if enabled) to ensure that the resolver conforms to a specific flavor.
-fn validate_strict_resolver_flavors(
+fn validate_field_type_annotation(
+    field: &FieldDefinition,
+    type_str: WithLocation<StringKey>,
     parse_options: &ParseOptions<'_>,
-    docblock_ir: &DocblockIr,
 ) -> DiagnosticsResult<()> {
-    struct ResolverFlavorValidationInfo {
-        live: Option<Location>,
-        root_fragment: Option<Location>,
-        output_type: Option<Location>,
-    }
-    let validation_info: Option<ResolverFlavorValidationInfo> = match docblock_ir {
-        DocblockIr::LegacyVerboseResolver(resolver_ir) => {
-            let output_type_location = resolver_ir.output_type.as_ref().map(|ot| {
-                let type_loc = ot.inner().location;
-                let (type_start, _) = type_loc.span().as_usize();
-                let output_type_end = type_start.saturating_sub(1); // -1 for space
-                let output_type_start =
-                    output_type_end.saturating_sub(OUTPUT_TYPE_FIELD.lookup().len());
-
-                type_loc.with_span(Span::from_usize(output_type_start, output_type_end))
-            });
-            Some(ResolverFlavorValidationInfo {
-                live: resolver_ir.live.map(|l| l.key_location),
-                root_fragment: resolver_ir.root_fragment.map(|rf| rf.location),
-                output_type: output_type_location,
-            })
-        }
-        DocblockIr::TerseRelayResolver(terse_ir) => Some(ResolverFlavorValidationInfo {
-            live: terse_ir.live.map(|l| l.key_location),
-            root_fragment: terse_ir.root_fragment.map(|rf| rf.location),
-            output_type: None,
-        }),
-        DocblockIr::StrongObjectResolver(_) => None,
-        DocblockIr::WeakObjectType(_) => None,
-    };
-
-    let validation_info = if let Some(validation_info) = validation_info {
-        validation_info
-    } else {
-        return Ok(());
-    };
-
-    // TODO(T161157239): also check if this is a model resolver, which is not compatible with root fragment
-
-    if validation_info.root_fragment.is_some()
-        && (validation_info.live.is_some() || validation_info.output_type.is_some())
-    {
-        let resolver_field_path = get_resolver_field_path(docblock_ir)
-            .expect("Should have a resolver path for RelayResolver or TerseRelayResolver");
-
+    if let TypeAnnotation::NonNull(non_null) = &field.type_ {
         if !parse_options
-            .enable_strict_resolver_flavors
-            .is_enabled_for(resolver_field_path.intern())
+            .allow_resolver_non_nullable_return_type
+            .is_enabled_for(field.name.value)
         {
-            return Ok(());
+            return Err(vec![Diagnostic::error(
+                IrParsingErrorMessages::FieldWithNonNullType,
+                Location::new(type_str.location.source_location(), non_null.span),
+            )]);
         }
-
-        let mut errs = vec![];
-        if let Some(live_loc) = validation_info.live {
-            errs.push(Diagnostic::error(
-                IrParsingErrorMessages::IncompatibleLiveAndRootFragment,
-                live_loc,
-            ));
-        }
-
-        if let Some(output_type_loc) = validation_info.output_type {
-            errs.push(Diagnostic::error(
-                IrParsingErrorMessages::IncompatibleOutputTypeAndRootFragment,
-                output_type_loc,
-            ));
-        }
-
-        Err(errs)
-    } else {
-        Ok(())
     }
+    Ok(())
 }
 
 fn validate_field_arguments(
@@ -877,7 +798,7 @@ fn validate_field_arguments(
             if let Some(default_value) = &argument.default_value {
                 errors.push(Diagnostic::error(
                     IrParsingErrorMessages::ArgumentDefaultValuesNoSupported,
-                    Location::new(source_location, default_value.span()),
+                    Location::new(source_location, default_value.value.span()),
                 ));
             }
         }

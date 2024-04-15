@@ -1,0 +1,144 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+//extract
+function plural_string(user: User): Array<string> {}
+
+//extract
+function plural_optional_string(user: User): Array<?string> {}
+
+//extract
+function optional_plural_string(user: User): ?Array<string> {}
+
+//extract
+function optional_plural_optional_string(user: User): ?Array<?string> {}
+==================================== OUTPUT ===================================
+FieldData {
+    field_name: WithLocation {
+        location: plural-optional.js:212:225,
+        item: "plural_string",
+    },
+    return_type: PluralType(
+        PluralType {
+            inner: NamedType(
+                NamedType {
+                    identifier: WithLocation {
+                        location: plural-optional.js:245:251,
+                        item: "String",
+                    },
+                    optional: false,
+                },
+            ),
+            optional: false,
+            location: plural-optional.js:245:251,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: plural-optional.js:232:236,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}
+
+FieldData {
+    field_name: WithLocation {
+        location: plural-optional.js:276:298,
+        item: "plural_optional_string",
+    },
+    return_type: PluralType(
+        PluralType {
+            inner: NamedType(
+                NamedType {
+                    identifier: WithLocation {
+                        location: plural-optional.js:319:325,
+                        item: "String",
+                    },
+                    optional: true,
+                },
+            ),
+            optional: false,
+            location: plural-optional.js:318:325,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: plural-optional.js:305:309,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}
+
+FieldData {
+    field_name: WithLocation {
+        location: plural-optional.js:350:372,
+        item: "optional_plural_string",
+    },
+    return_type: PluralType(
+        PluralType {
+            inner: NamedType(
+                NamedType {
+                    identifier: WithLocation {
+                        location: plural-optional.js:393:399,
+                        item: "String",
+                    },
+                    optional: false,
+                },
+            ),
+            optional: true,
+            location: plural-optional.js:393:399,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: plural-optional.js:379:383,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}
+
+FieldData {
+    field_name: WithLocation {
+        location: plural-optional.js:424:455,
+        item: "optional_plural_optional_string",
+    },
+    return_type: PluralType(
+        PluralType {
+            inner: NamedType(
+                NamedType {
+                    identifier: WithLocation {
+                        location: plural-optional.js:477:483,
+                        item: "String",
+                    },
+                    optional: true,
+                },
+            ),
+            optional: true,
+            location: plural-optional.js:476:483,
+        },
+    ),
+    entity_type: NamedType(
+        NamedType {
+            identifier: WithLocation {
+                location: plural-optional.js:462:466,
+                item: "User",
+            },
+            optional: false,
+        },
+    ),
+}

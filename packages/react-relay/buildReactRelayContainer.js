@@ -52,12 +52,13 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   const Container = createContainerWithFragments(ComponentClass, fragments);
   Container.displayName = containerName;
 
-  function forwardRef(
+  function ForwardRef(
     props: any,
     ref:
       | ((null | React$ElementRef<TBase>) => mixed)
       | {-current: null | React$ElementRef<TBase>, ...},
   ) {
+    // $FlowFixMe[react-rule-hook]
     const context = useContext(ReactRelayContext);
     invariant(
       context != null,
@@ -66,6 +67,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
       containerName,
       containerName,
     );
+    // $FlowFixMe[react-rule-hook]
     const queryRendererContext = useContext(ReactRelayQueryRendererContext);
 
     return (
@@ -79,8 +81,8 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
       />
     );
   }
-  forwardRef.displayName = containerName;
-  const ForwardContainer = React.forwardRef(forwardRef);
+  ForwardRef.displayName = containerName;
+  const ForwardContainer = React.forwardRef(ForwardRef);
 
   if (__DEV__) {
     // Used by RelayModernTestUtils

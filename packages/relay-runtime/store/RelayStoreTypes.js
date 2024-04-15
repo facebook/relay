@@ -32,6 +32,7 @@ import type {
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
 import type {
+  CatchFieldTo,
   ReaderClientEdgeToServerObject,
   ReaderFragment,
   ReaderLinkedField,
@@ -119,6 +120,7 @@ type FieldLocation = {
 type ErrorFieldLocation = {
   ...FieldLocation,
   error: TRelayFieldError,
+  to?: CatchFieldTo,
 };
 
 export type MissingRequiredFields = $ReadOnly<

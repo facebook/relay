@@ -38,11 +38,12 @@ relay-docblock = { path = "../relay-docblock" }
 relay-transforms = { path = "../relay-transforms" }
 resolution-path = { path = "../resolution-path" }
 schema = { path = "../schema" }
+schema-diff = { path = "../schema-diff" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
-tokio = { version = "1.29.1", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.36.0", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

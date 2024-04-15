@@ -40,6 +40,7 @@ use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
+use graphql_syntax::DefaultValue;
 use graphql_syntax::FieldDefinition;
 use graphql_syntax::FieldDefinitionStub;
 use graphql_syntax::Identifier;
@@ -86,6 +87,8 @@ lazy_static! {
         DirectiveName("deprecated".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
+    static ref SEMANTIC_NON_NULL_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("semanticNonNull".intern());
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -400,16 +403,20 @@ trait ResolverIr: Sized {
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
-    fn root_fragment(
+
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>>;
+    fn root_or_id_fragment(
         &self,
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> Option<RootFragment>;
+
     fn output_type(&self) -> Option<OutputType>;
     fn deprecated(&self) -> Option<IrField>;
     fn live(&self) -> Option<UnpopulatedIrField>;
     fn named_import(&self) -> Option<StringKey>;
     fn source_hash(&self) -> ResolverSourceHash;
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField>;
 
     fn to_graphql_schema_ast(
         self,
@@ -426,14 +433,13 @@ trait ResolverIr: Sized {
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> Vec<ConstantDirective> {
-        let location = self.location();
-        let span = location.span();
         let mut directives: Vec<ConstantDirective> = vec![
             self.directive(object, project_config),
             resolver_source_hash_directive(self.source_hash()),
         ];
 
         if let Some(deprecated) = self.deprecated() {
+            let span = deprecated.key_location().span();
             directives.push(ConstantDirective {
                 span,
                 at: dummy_token(span),
@@ -444,6 +450,16 @@ trait ResolverIr: Sized {
                         value,
                     )])
                 }),
+            })
+        }
+
+        if let Some(semantic_non_null) = self.semantic_non_null() {
+            let span = semantic_non_null.key_location.span();
+            directives.push(ConstantDirective {
+                span,
+                at: dummy_token(span),
+                name: string_key_as_identifier(SEMANTIC_NON_NULL_DIRECTIVE_NAME.0),
+                arguments: None,
             })
         }
 
@@ -463,7 +479,7 @@ trait ResolverIr: Sized {
             WithLocation::new(self.location(), import_path),
         )];
 
-        if let Some(root_fragment) = self.root_fragment(object, project_config) {
+        if let Some(root_fragment) = self.root_or_id_fragment(object, project_config) {
             arguments.push(string_argument(
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
                 root_fragment.fragment.map(|x| x.0),
@@ -589,6 +605,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 interfaces: Vec::new(),
                 directives: vec![],
                 fields: Some(fields),
+                span: Span::empty(),
             },
         )];
 
@@ -596,8 +613,10 @@ trait ResolverTypeDefinitionIr: ResolverIr {
         for object_id in &schema.interface(interface_id).implementing_objects {
             if !seen_objects.contains(object_id) {
                 seen_objects.insert(*object_id);
-                definitions
-                    .extend(self.object_definitions(schema.object(*object_id), project_config));
+                let object = schema.object(*object_id);
+                if self.should_extend_interface_field_to_object(project_config, object) {
+                    definitions.extend(self.object_definitions(object, project_config));
+                }
             }
         }
 
@@ -633,6 +652,28 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             }
         }
         definitions
+    }
+
+    // To support model resolver fields defined directly on an interface, without @rootFragment:
+    // e.g. @RelayResolver InterfaceName.fieldName(model) { .. }
+    //
+    // Objects defined on server or in client schema extensions don't have a
+    // corresponding model to pass to such resolver fields. Skip extending the object with these
+    // resolver fields if a field of the same name is already implemented on the object.
+    //
+    // Schema validation should ensure the existing field is compatible with the interface definition.
+    fn should_extend_interface_field_to_object(
+        &self,
+        project_config: ResolverProjectConfig<'_, '_>,
+        object: &Object,
+    ) -> bool {
+        // Check @rootFragment on the interface resolver field
+        if self.root_fragment_name().is_some() {
+            return true;
+        }
+        object
+            .named_field(self.field_name().value, project_config.schema)
+            .is_none()
     }
 
     // When defining a resolver on an object or interface, we must be sure that this
@@ -678,6 +719,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                 interfaces: vec![],
                 directives: vec![],
                 fields: Some(self.fields(Some(object), project_config)),
+                span: Span::empty(),
             },
         )]
     }
@@ -707,7 +749,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             (Some(a), Some(b)) => Some(List::generated(
                 a.items
                     .into_iter()
-                    .chain(b.clone().items.into_iter())
+                    .chain(b.clone().items)
                     .collect::<Vec<_>>(),
             )),
         };
@@ -719,18 +761,27 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             directives: self.directives(object, project_config),
             description: self.description(),
             hack_source: self.hack_source(),
+            span: Span::empty(),
         }])
     }
 
     fn fragment_argument_definitions(&self) -> Option<List<InputValueDefinition>> {
+        let span = Span::empty();
         self.fragment_arguments().as_ref().map(|args| {
             List::generated(
                 args.iter()
                     .map(|arg| InputValueDefinition {
                         name: arg.name.clone(),
                         type_: arg.type_.clone(),
-                        default_value: arg.default_value.clone(),
+                        default_value: arg.default_value.as_ref().map(|default_value| {
+                            DefaultValue {
+                                value: default_value.clone(),
+                                equals: dummy_token(span),
+                                span,
+                            }
+                        }),
                         directives: vec![],
+                        span,
                     })
                     .collect::<Vec<_>>(),
             )
@@ -744,6 +795,7 @@ pub struct TerseRelayResolverIr {
     pub type_: WithLocation<StringKey>,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub deprecated: Option<IrField>,
+    pub semantic_non_null: Option<UnpopulatedIrField>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
@@ -801,7 +853,11 @@ impl ResolverIr for TerseRelayResolverIr {
         self.location
     }
 
-    fn root_fragment(
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        self.root_fragment
+    }
+
+    fn root_or_id_fragment(
         &self,
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -824,6 +880,10 @@ impl ResolverIr for TerseRelayResolverIr {
 
     fn deprecated(&self) -> Option<IrField> {
         self.deprecated
+    }
+
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
+        self.semantic_non_null
     }
 
     fn live(&self) -> Option<UnpopulatedIrField> {
@@ -870,6 +930,7 @@ pub struct LegacyVerboseResolverIr {
     pub description: Option<WithLocation<StringKey>>,
     pub hack_source: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
+    pub semantic_non_null: Option<UnpopulatedIrField>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
@@ -979,7 +1040,11 @@ impl ResolverIr for LegacyVerboseResolverIr {
         self.location
     }
 
-    fn root_fragment(
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        self.root_fragment
+    }
+
+    fn root_or_id_fragment(
         &self,
         object: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -1003,6 +1068,10 @@ impl ResolverIr for LegacyVerboseResolverIr {
 
     fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
+    }
+
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
+        self.semantic_non_null
     }
 
     fn named_import(&self) -> Option<StringKey> {
@@ -1048,6 +1117,7 @@ pub struct StrongObjectIr {
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub live: Option<UnpopulatedIrField>,
+    pub semantic_non_null: Option<UnpopulatedIrField>,
     pub location: Location,
     /// The interfaces which the newly-created object implements
     pub implements_interfaces: Vec<Identifier>,
@@ -1205,6 +1275,7 @@ impl ResolverIr for StrongObjectIr {
                 directives: vec![],
                 description: None,
                 hack_source: None,
+                span,
             },
             generate_model_instance_field(
                 project_config,
@@ -1225,6 +1296,7 @@ impl ResolverIr for StrongObjectIr {
                 arguments: None,
             }],
             fields: Some(List::generated(fields)),
+            span,
         });
 
         Ok(vec![type_])
@@ -1234,8 +1306,12 @@ impl ResolverIr for StrongObjectIr {
         self.location
     }
 
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        Some(self.root_fragment)
+    }
+
     // For Model resolver we always inject the `id` fragment
-    fn root_fragment(
+    fn root_or_id_fragment(
         &self,
         _: Option<&Object>,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -1259,6 +1335,10 @@ impl ResolverIr for StrongObjectIr {
 
     fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
+    }
+
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
+        None
     }
 
     fn named_import(&self) -> Option<StringKey> {
@@ -1343,6 +1423,7 @@ impl WeakObjectIr {
                 vec![resolver_source_hash_directive(source_hash)],
                 location,
             )])),
+            span,
         })
     }
 
@@ -1384,6 +1465,7 @@ impl WeakObjectIr {
                     },
                 ])),
             }],
+            span,
         })
     }
 
@@ -1414,7 +1496,11 @@ impl ResolverIr for WeakObjectIr {
         self.location
     }
 
-    fn root_fragment(
+    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        None
+    }
+
+    fn root_or_id_fragment(
         &self,
         _: Option<&Object>,
         _project_config: ResolverProjectConfig<'_, '_>,
@@ -1431,6 +1517,10 @@ impl ResolverIr for WeakObjectIr {
     }
 
     fn live(&self) -> Option<UnpopulatedIrField> {
+        None
+    }
+
+    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
         None
     }
 
@@ -1573,6 +1663,7 @@ fn generate_model_instance_field(
         directives,
         description,
         hack_source,
+        span,
     }
 }
 

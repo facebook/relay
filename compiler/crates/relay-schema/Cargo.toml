@@ -10,6 +10,7 @@ license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
+docblock-shared = { path = "../docblock-shared" }
 intern = { path = "../intern" }
 lazy_static = "1.4"
 schema = { path = "../schema" }

@@ -14,6 +14,7 @@ use std::sync::Arc;
 use std::vec;
 
 use async_trait::async_trait;
+use common::DiagnosticsResult;
 use common::FeatureFlags;
 use common::Rollout;
 use dunce::canonicalize;
@@ -42,6 +43,7 @@ use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
+use relay_docblock::DocblockIr;
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::Deserialize;
@@ -149,7 +151,7 @@ pub struct Config {
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
     pub custom_override_schema_determinator:
-        Option<Box<dyn Fn(&OperationDefinition, &ProjectConfig) -> Option<String> + Send + Sync>>,
+        Option<Box<dyn Fn(&ProjectConfig, &OperationDefinition) -> Option<String> + Send + Sync>>,
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
 
     /// The async function is called before the compiler connects to the file
@@ -158,6 +160,25 @@ pub struct Config {
 
     /// Runs in `try_saved_state` when the compiler state is initialized from saved state.
     pub update_compiler_state_from_saved_state: UpdateCompilerStateFromSavedState,
+
+    // Allow incremental build for some schema changes
+    pub has_schema_change_incremental_build: bool,
+
+    /// A custom function to extract resolver Dockblock IRs from sources
+    pub custom_extract_relay_resolvers: Option<
+        Box<
+            dyn Fn(
+                    ProjectName,
+                    &CompilerState,
+                ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>
+                // (Types, Fields)
+                + Send
+                + Sync,
+        >,
+    >,
+
+    /// A function to determine if full file source should be extracted instead of docblock
+    pub should_extract_full_source: Option<Box<dyn Fn(&str) -> bool + Send + Sync>>,
 }
 
 pub enum FileSourceKind {
@@ -237,19 +258,19 @@ impl Config {
             Ok(None) => Err(Error::ConfigError {
                 details: format!(
                     r#"
-Configuration for Relay compiler not found.
+ Configuration for Relay compiler not found.
 
-Please make sure that the configuration file is created in {}.
+ Please make sure that the configuration file is created in {}.
 
-You can also pass the path to the configuration file as `relay-compiler ./path-to-config/relay.json`.
+ You can also pass the path to the configuration file as `relay-compiler ./path-to-config/relay.json`.
 
-Example file:
-{{
-  "src": "./src",
-  "schema": "./path-to/schema.graphql",
-  "language": "javascript"
-}}
-"#,
+ Example file:
+ {{
+   "src": "./src",
+   "schema": "./path-to/schema.graphql",
+   "language": "javascript"
+ }}
+ "#,
                     match loaders_sources.len() {
                         1 => loaders_sources[0].to_string(),
                         2 => format!("{} or {}", loaders_sources[0], loaders_sources[1]),
@@ -423,6 +444,9 @@ Example file:
             export_persisted_query_ids_to_file: None,
             initialize_resources: None,
             update_compiler_state_from_saved_state: None,
+            has_schema_change_incremental_build: false,
+            custom_extract_relay_resolvers: None,
+            should_extract_full_source: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -900,10 +924,10 @@ impl<'de> Deserialize<'de> for ConfigFile {
                 Err(single_project_error) => {
                     let error_message = format!(
                         r#"The config file cannot be parsed as a single-project config file due to:
-- {:?}.
+ - {:?}.
 
-It also cannot be a multi-project config file due to:
-- {:?}."#,
+ It also cannot be a multi-project config file due to:
+ - {:?}."#,
                         single_project_error, multi_project_error,
                     );
 

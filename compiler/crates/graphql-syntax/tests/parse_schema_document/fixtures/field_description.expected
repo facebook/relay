@@ -83,6 +83,7 @@ SchemaDocument {
                                     },
                                 ),
                                 hack_source: None,
+                                span: 13:62,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -117,6 +118,7 @@ SchemaDocument {
                                     },
                                 ),
                                 hack_source: None,
+                                span: 62:116,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -151,6 +153,7 @@ SchemaDocument {
                                     },
                                 ),
                                 hack_source: None,
+                                span: 116:241,
                             },
                         ],
                         end: Token {
@@ -159,6 +162,7 @@ SchemaDocument {
                         },
                     },
                 ),
+                span: 0:244,
             },
         ),
         ObjectTypeExtension(
@@ -214,6 +218,7 @@ SchemaDocument {
                                     },
                                 ),
                                 hack_source: None,
+                                span: 264:331,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -248,6 +253,7 @@ SchemaDocument {
                                     },
                                 ),
                                 hack_source: None,
+                                span: 331:394,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -282,6 +288,7 @@ SchemaDocument {
                                     },
                                 ),
                                 hack_source: None,
+                                span: 394:528,
                             },
                         ],
                         end: Token {
@@ -290,6 +297,7 @@ SchemaDocument {
                         },
                     },
                 ),
+                span: 256:530,
             },
         ),
     ],

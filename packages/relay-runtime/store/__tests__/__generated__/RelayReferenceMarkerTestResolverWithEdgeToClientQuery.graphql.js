@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3418ca4ec85276525ed889c967bff1d2>>
+ * @generated SignedSource<<b8e3b57334adcf821b16d2a10966fb69>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,12 +25,12 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolverType: (
   rootKey: QueryAllAstrologicalSignsResolver$key,
-) => ?$ReadOnlyArray<?{|
+) => ?$ReadOnlyArray<{|
   +id: DataID,
 |}>);
 export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables = {||};
 export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data = {|
-  +all_astrological_signs: ?$ReadOnlyArray<?{|
+  +all_astrological_signs: ?$ReadOnlyArray<{|
     +id: string,
   |}>,
 |};
@@ -72,6 +72,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,

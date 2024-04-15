@@ -1,0 +1,8 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment UserFragment on User {
+  firstName(if: $some_vari|able)
+}
+==================================== ERROR ====================================
+Rename failed

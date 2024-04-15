@@ -103,7 +103,7 @@ pub trait GlobalState {
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(Feature, Span)>;
+    ) -> LSPRuntimeResult<(Feature, Location)>;
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
 
@@ -406,7 +406,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<FeatureResolutionInfo> {
-        let (feature, position_span) = self.extract_feature_from_text(
+        let (feature, location) = self.extract_feature_from_text(
             text_document_position,
             // For hovering, offset the index by 1
             // ```
@@ -421,12 +421,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         match feature {
             Feature::ExecutableDocument(executable_document) => {
                 Ok(FeatureResolutionInfo::GraphqlNode(
-                    create_node_resolution_info(executable_document, position_span)?,
+                    create_node_resolution_info(executable_document, location.span())?,
                 ))
             }
             Feature::DocblockIr(docblock_ir) => {
                 Ok(FeatureResolutionInfo::DocblockNode(DocblockNode {
-                    resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                    resolution_info: create_docblock_resolution_info(&docblock_ir, location.span())
                         .ok_or(LSPRuntimeError::ExpectedError)?,
                     ir: docblock_ir,
                 }))
@@ -442,9 +442,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
-        let (feature, span) = self.extract_feature_from_text(position, index_offset)?;
+        let (feature, location) = self.extract_feature_from_text(position, index_offset)?;
         match feature {
-            Feature::ExecutableDocument(document) => Ok((document, span)),
+            Feature::ExecutableDocument(document) => Ok((document, location.span())),
             Feature::DocblockIr(_) => Err(LSPRuntimeError::ExpectedError),
             Feature::SchemaDocument(_) => Err(LSPRuntimeError::ExpectedError),
         }
@@ -456,7 +456,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(Feature, Span)> {
+    ) -> LSPRuntimeResult<(Feature, Location)> {
         let project_name: ProjectName = self
             .extract_project_name_from_url(&position.text_document.uri)?
             .into();

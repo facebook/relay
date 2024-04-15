@@ -61,7 +61,7 @@ describe('RelayReader @catch', () => {
       expect(data).toEqual({me: {lastName: null}});
     });
 
-    it('if scalar has @catch(to: RESULT) - scalar value should provide the error', () => {
+    it('if scalar has catch to RESULT - scalar value should provide the error', () => {
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -99,7 +99,15 @@ describe('RelayReader @catch', () => {
       const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         me: {
-          lastName: null,
+          lastName: {
+            ok: false,
+            errors: [
+              {
+                message: 'There was an error!',
+                path: ['me', 'lastName'],
+              },
+            ],
+          },
         },
       });
 
@@ -307,6 +315,48 @@ describe('RelayReader @catch', () => {
       });
       expect(errorResponseFields).toBeNull();
     });
+
+    it('if scalar has catch to RESULT with nested required THROW - do nothing', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          lastName: null,
+        },
+      });
+
+      // Mocking the query below with RelayReaderCatchFieldsTest0Query
+      // const FooQuery = graphql`
+      //   query RelayReaderCatchFieldsTest1Query {
+      //     me @catch {
+      //       lastName @required(action: THROW)
+      //     }
+      //   }
+      // `;
+      const operation = createOperationDescriptor(
+        RelayReaderCatchFieldsTest2Query,
+        {id: '1'},
+      );
+      const {data, errorResponseFields, missingRequiredFields} = read(
+        source,
+        operation.fragment,
+      );
+      expect(data).toEqual({
+        me: null,
+      });
+
+      expect(missingRequiredFields).toEqual({
+        action: 'THROW',
+        field: {owner: 'RelayReaderCatchFieldsTest2Query', path: 'me.lastName'},
+      });
+      expect(errorResponseFields).toBeNull();
+    });
     afterAll(() => {
       RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
         wasFieldErrorHandlingEnabled;
@@ -316,3 +366,4 @@ describe('RelayReader @catch', () => {
     });
   });
 });
+// RelayReaderCatchFieldsTest3Query

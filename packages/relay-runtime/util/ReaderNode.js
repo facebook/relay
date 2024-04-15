@@ -240,10 +240,7 @@ export type CatchFieldTo = 'RESULT' | 'NULL';
 
 export type ReaderCatchField = {
   +kind: 'CatchField',
-  +field:
-    | ReaderField
-    | ReaderClientEdgeToClientObject
-    | ReaderClientEdgeToServerObject,
+  +field: ReaderField | ReaderClientEdge,
   +to: CatchFieldTo,
   +path: string,
 };

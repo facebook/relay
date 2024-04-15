@@ -345,8 +345,22 @@ class RelayReader {
     }
   }
 
-  _handleCatchFieldValue(selection: ReaderCatchField) {
+  _handleCatchFieldValue(
+    selection: ReaderCatchField,
+    record: Record,
+    data: SelectorData,
+    value: mixed,
+  ) {
     const {to} = selection;
+    const field = selection.field?.backingField ?? selection.field;
+    const applicationName = field?.alias ?? field?.name;
+
+    // ReaderClientExtension doesn't have `alias` or `name`
+    // so we don't support this yet
+    invariant(
+      applicationName != null,
+      "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
+    );
 
     if (this._errorResponseFields != null) {
       for (let i = 0; i < this._errorResponseFields.length; i++) {
@@ -381,6 +395,21 @@ class RelayReader {
 
       return;
     }
+
+    if (this._errorResponseFields != null) {
+      const errors = this._errorResponseFields.map(error => error.error);
+
+      data[applicationName] = {
+        ok: false,
+        errors,
+      };
+      return;
+    }
+
+    data[applicationName] = {
+      ok: true,
+      value,
+    };
 
     // we do nothing if to is 'NULL'
   }
@@ -434,12 +463,21 @@ class RelayReader {
           }
           break;
         case CATCH_FIELD:
-          this._readClientSideDirectiveField(selection, record, data);
+          const catchFieldValue = this._readClientSideDirectiveField(
+            selection,
+            record,
+            data,
+          );
           if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE) {
             /* NULL is old behavior. do nothing. */
             if (selection.to != 'NULL') {
               /* @catch(to: RESULT) is the default */
-              this._handleCatchFieldValue(selection);
+              this._handleCatchFieldValue(
+                selection,
+                record,
+                data,
+                catchFieldValue,
+              );
             }
           }
 

@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+query MeQuery {
+  me {
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  name
+}
+
+fragment CommentFragment on Comment {
+  author {
+    ...Us|erFragment
+  }
+}
+==================================== OUTPUT ===================================
+query MeQuery {
+  me {
+    ...RENAMED
+  }
+}
+
+fragment RENAMED on User {
+  name
+}
+
+fragment CommentFragment on Comment {
+  author {
+    ...RENAMED
+  }
+}

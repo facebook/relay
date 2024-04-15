@@ -71,13 +71,14 @@ pub fn on_goto_definition(
     state: &impl GlobalState,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
-    let (feature, position_span) =
+    let (feature, location) =
         state.extract_feature_from_text(&params.text_document_position_params, 1)?;
 
     let project_name = state
         .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;
     let schema = state.get_schema(&project_name)?;
     let program = state.get_program(&project_name)?;
+    let position_span = location.span();
 
     let definition_description = match feature {
         crate::Feature::ExecutableDocument(document) => {

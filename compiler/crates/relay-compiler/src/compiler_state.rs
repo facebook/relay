@@ -6,6 +6,7 @@
  */
 
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 use std::env;
 use std::fmt;
 use std::fs::File as FsFile;
@@ -302,6 +303,21 @@ pub struct CompilerState {
     #[serde(skip)]
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
 }
+/// Used to store the intermediate results of processing a file source in parallel.
+/// Because the compiler state does not support concurrency, we process in parallel,
+/// then merge the results into the compiler state.
+enum FileSourceIntermediateResult {
+    Source(
+        ProjectSet,
+        GraphQLSourceSet,
+        DocblockSourceSet,
+        FullSourceSet,
+    ),
+    Schema(ProjectSet, FnvHashMap<PathBuf, String>, Vec<PathBuf>),
+    Extension(ProjectSet, FnvHashMap<PathBuf, String>, Vec<PathBuf>),
+    Generated(ProjectName, FnvHashSet<PathBuf>),
+    Ignore,
+}
 
 impl CompilerState {
     pub fn from_file_source_changes(
@@ -320,49 +336,51 @@ impl CompilerState {
             ..Default::default()
         };
 
-        for (category, files) in categorized {
-            match category {
-                FileGroup::Source { project_set } => {
-                    let (graphql_sources, docblock_sources, full_sources) = extract_sources(
-                        &project_set,
-                        files,
-                        file_source_changes,
-                        false,
-                        perf_logger,
-                        config,
-                    )?;
-
+        let file_source_result = process_categorized_sources(
+            categorized,
+            config,
+            file_source_changes,
+            perf_logger,
+            false,
+        )?;
+        for file_source in file_source_result {
+            match file_source {
+                FileSourceIntermediateResult::Source(
+                    project_set,
+                    graphql_sources,
+                    docblock_sources,
+                    full_sources,
+                ) => {
                     for project_name in project_set {
                         result.set_pending_source_set(project_name, &graphql_sources);
                         result.set_pending_docblock_set(project_name, &docblock_sources);
                         result.set_pending_full_source_set(project_name, &full_sources);
                     }
                 }
-                FileGroup::Schema { project_set } => {
-                    Self::process_schema_change(
-                        file_source_changes,
-                        files,
-                        project_set,
-                        &mut result.schemas,
-                    )?;
+                FileSourceIntermediateResult::Schema(project_set, added, removed) => {
+                    for project_name in project_set {
+                        let entry = result.schemas.entry(project_name).or_default();
+                        for source in &removed {
+                            entry.pending.insert(source.clone(), "".to_string());
+                        }
+                        entry.merge_pending_sources(&added);
+                    }
                 }
-                FileGroup::Extension { project_set } => {
-                    Self::process_schema_change(
-                        file_source_changes,
-                        files,
-                        project_set,
-                        &mut result.extensions,
-                    )?;
+                FileSourceIntermediateResult::Extension(project_set, added, removed) => {
+                    for project_name in project_set {
+                        let entry = result.extensions.entry(project_name).or_default();
+                        for source in &removed {
+                            entry.pending.insert(source.clone(), "".to_string());
+                        }
+                        entry.merge_pending_sources(&added);
+                    }
                 }
-                FileGroup::Generated { project_name } => {
-                    result.artifacts.insert(
-                        project_name,
-                        Arc::new(ArtifactMapKind::Unconnected(
-                            files.into_iter().map(|file| file.name).collect(),
-                        )),
-                    );
+                FileSourceIntermediateResult::Generated(project_name, files) => {
+                    result
+                        .artifacts
+                        .insert(project_name, Arc::new(ArtifactMapKind::Unconnected(files)));
                 }
-                FileGroup::Ignore => {}
+                FileSourceIntermediateResult::Ignore => {}
             }
         }
 
@@ -514,22 +532,24 @@ impl CompilerState {
             let categorized = log_event.time("categorize_files_time", || {
                 categorize_files(config, &file_source_changes)
             });
-
-            for (category, files) in categorized {
-                match category {
-                    FileGroup::Source { project_set } => {
+            let file_source_result = process_categorized_sources(
+                categorized,
+                config,
+                &file_source_changes,
+                perf_logger,
+                true,
+            )?;
+            for file_source in file_source_result {
+                match file_source {
+                    FileSourceIntermediateResult::Source(
+                        project_set,
+                        graphql_sources,
+                        docblock_sources,
+                        full_sources,
+                    ) => {
                         // TODO: possible optimization to only set this if the
                         // extracted sources actually differ.
                         has_changed = true;
-
-                        let (graphql_sources, docblock_sources, full_sources) = extract_sources(
-                            &project_set,
-                            files,
-                            &file_source_changes,
-                            true,
-                            perf_logger,
-                            config,
-                        )?;
 
                         for project_name in project_set {
                             self.graphql_sources
@@ -546,33 +566,33 @@ impl CompilerState {
                                 .merge_pending_sources(&full_sources);
                         }
                     }
-                    FileGroup::Schema { project_set } => {
+                    FileSourceIntermediateResult::Schema(project_set, added, removed) => {
                         has_changed = true;
-                        Self::process_schema_change(
-                            &file_source_changes,
-                            files,
-                            project_set,
-                            &mut self.schemas,
-                        )?;
-                    }
-                    FileGroup::Extension { project_set } => {
-                        has_changed = true;
-                        Self::process_schema_change(
-                            &file_source_changes,
-                            files,
-                            project_set,
-                            &mut self.extensions,
-                        )?;
-                    }
-                    FileGroup::Generated { project_name } => {
-                        if should_collect_changed_artifacts {
-                            let mut dashset =
-                                DashSet::with_capacity_and_hasher(files.len(), Default::default());
-                            dashset.extend(files.into_iter().map(|f| f.name));
-                            self.dirty_artifact_paths.insert(project_name, dashset);
+                        for project_name in project_set {
+                            let entry = self.schemas.entry(project_name).or_default();
+                            for source in &removed {
+                                entry.pending.insert(source.clone(), "".to_string());
+                            }
+                            entry.merge_pending_sources(&added);
                         }
                     }
-                    FileGroup::Ignore => {}
+                    FileSourceIntermediateResult::Extension(project_set, added, removed) => {
+                        has_changed = true;
+                        for project_name in project_set {
+                            let entry = self.extensions.entry(project_name).or_default();
+                            for source in &removed {
+                                entry.pending.insert(source.clone(), "".to_string());
+                            }
+                            entry.merge_pending_sources(&added);
+                        }
+                    }
+                    FileSourceIntermediateResult::Generated(project_name, files) => {
+                        if should_collect_changed_artifacts {
+                            self.dirty_artifact_paths
+                                .insert(project_name, files.into_iter().collect());
+                        }
+                    }
+                    FileSourceIntermediateResult::Ignore => {}
                 }
             }
         }
@@ -715,32 +735,6 @@ impl CompilerState {
         entry.merge_pending_sources(source_set);
     }
 
-    fn process_schema_change(
-        file_source_changes: &FileSourceResult,
-        files: Vec<File>,
-        project_set: ProjectSet,
-        source_map: &mut FnvHashMap<ProjectName, SchemaSources>,
-    ) -> Result<()> {
-        let mut removed_sources = vec![];
-        let mut added_sources = FnvHashMap::default();
-        for file in files {
-            let file_name = file.name.clone();
-            if file.exists {
-                added_sources.insert(file_name, read_file_to_string(file_source_changes, &file)?);
-            } else {
-                removed_sources.push(file_name);
-            }
-        }
-        for project_name in project_set {
-            let entry = source_map.entry(project_name).or_default();
-            for source in &removed_sources {
-                entry.pending.insert(source.clone(), "".to_string());
-            }
-            entry.merge_pending_sources(&added_sources);
-        }
-        Ok(())
-    }
-
     pub fn is_source_control_update_in_progress(&self) -> bool {
         self.source_control_update_status.is_started()
     }
@@ -750,6 +744,77 @@ impl CompilerState {
     pub fn should_cancel_current_build(&self) -> bool {
         self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
     }
+}
+
+fn process_intermediate_schema_change(
+    file_source_changes: &FileSourceResult,
+    files: Vec<File>,
+) -> Result<(FnvHashMap<PathBuf, String>, Vec<PathBuf>)> {
+    let mut removed_sources = vec![];
+    let mut added_sources = FnvHashMap::default();
+    for file in files {
+        let file_name = file.name.clone();
+        if file.exists {
+            added_sources.insert(file_name, read_file_to_string(file_source_changes, &file)?);
+        } else {
+            removed_sources.push(file_name);
+        }
+    }
+    Ok((added_sources, removed_sources))
+}
+
+fn process_categorized_sources(
+    categorized: HashMap<FileGroup, Vec<File>>,
+    config: &Config,
+    file_source_changes: &FileSourceResult,
+    perf_logger: &impl PerfLogger,
+    preserve_empty: bool,
+) -> Result<Vec<FileSourceIntermediateResult>> {
+    categorized
+        .into_par_iter()
+        .map(|(category, files)| match category {
+            FileGroup::Source { project_set } => {
+                // Slow step: reading from disk and parsing
+                let (graphql_sources, docblock_sources, full_sources) = extract_sources(
+                    &project_set,
+                    files,
+                    file_source_changes,
+                    preserve_empty,
+                    perf_logger,
+                    config,
+                )?;
+                Ok(FileSourceIntermediateResult::Source(
+                    project_set,
+                    graphql_sources,
+                    docblock_sources,
+                    full_sources,
+                ))
+            }
+            FileGroup::Schema { project_set } => {
+                let (added, removed) =
+                    process_intermediate_schema_change(file_source_changes, files)?;
+                Ok(FileSourceIntermediateResult::Schema(
+                    project_set,
+                    added,
+                    removed,
+                ))
+            }
+            FileGroup::Extension { project_set } => {
+                let (added, removed) =
+                    process_intermediate_schema_change(file_source_changes, files)?;
+                Ok(FileSourceIntermediateResult::Extension(
+                    project_set,
+                    added,
+                    removed,
+                ))
+            }
+            FileGroup::Generated { project_name } => Ok(FileSourceIntermediateResult::Generated(
+                project_name,
+                files.into_iter().map(|file: File| file.name).collect(),
+            )),
+            FileGroup::Ignore => Ok(FileSourceIntermediateResult::Ignore),
+        })
+        .collect()
 }
 
 fn extract_sources(

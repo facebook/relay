@@ -7,10 +7,14 @@
 
 use std::sync::Arc;
 
+use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::Location;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
 use schema::SDLSchema;
+use schema_validate_lib::validate;
+use schema_validate_lib::SchemaValidationOptions;
 
 use super::build_resolvers_schema::extend_schema_with_resolvers;
 use crate::compiler_state::CompilerState;
@@ -59,6 +63,26 @@ pub fn build_schema(
                     project_config,
                     graphql_asts_map,
                 )?;
+            }
+
+            if project_config
+                .feature_flags
+                .enable_experimental_schema_validation
+            {
+                let validation_context = validate(
+                    &schema,
+                    SchemaValidationOptions {
+                        allow_introspection_names: false,
+                    },
+                );
+                if !validation_context.errors.is_empty() {
+                    // TODO: Before removing this feature flag, we should update schema validation
+                    // to be able to return a list of Diagnostics with locations.
+                    return Err(vec![Diagnostic::error(
+                        validation_context.print_errors(),
+                        Location::generated(),
+                    )]);
+                }
             }
 
             Ok(Arc::new(schema))

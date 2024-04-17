@@ -13,6 +13,7 @@ use common::DiagnosticsResult;
 use schema::build_schema;
 use schema::SDLSchema;
 use schema_validate_lib::validate;
+use schema_validate_lib::SchemaValidationOptions;
 
 #[derive(Parser)]
 #[clap(name = "schema-validate", about = "Binary to Validate GraphQL Schema.")]
@@ -26,7 +27,12 @@ pub fn main() {
     let opt = Opt::parse();
     match build_schema_from_file(&opt.schema_path) {
         Ok(schema) => {
-            let validation_context = validate(&schema);
+            let validation_context = validate(
+                &schema,
+                SchemaValidationOptions {
+                    allow_introspection_names: false,
+                },
+            );
             if !validation_context.errors.is_empty() {
                 eprintln!(
                     "Schema failed validation with below errors:\n{}",

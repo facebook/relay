@@ -55,8 +55,12 @@ lazy_static! {
     static ref TYPE_NAME_REGEX: Regex = Regex::new(r"^[_a-zA-Z][_a-zA-Z0-9]*$").unwrap();
 }
 
-pub fn validate(schema: &SDLSchema) -> ValidationContext<'_> {
-    let mut validation_context = ValidationContext::new(schema);
+pub struct SchemaValidationOptions {
+    pub allow_introspection_names: bool,
+}
+
+pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions) -> ValidationContext<'_> {
+    let mut validation_context = ValidationContext::new(schema, options);
     validation_context.validate();
     validation_context
 }
@@ -80,13 +84,15 @@ impl ValidationContextType {
 
 pub struct ValidationContext<'schema> {
     pub schema: &'schema SDLSchema,
+    pub options: SchemaValidationOptions,
     pub errors: FnvHashMap<ValidationContextType, Vec<SchemaValidationError>>,
 }
 
 impl<'schema> ValidationContext<'schema> {
-    pub fn new(schema: &'schema SDLSchema) -> Self {
+    pub fn new(schema: &'schema SDLSchema, options: SchemaValidationOptions) -> Self {
         Self {
             schema,
+            options,
             errors: FnvHashMap::default(),
         }
     }
@@ -505,13 +511,17 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_name(&mut self, name: StringKey, context: ValidationContextType) {
         let name = name.lookup();
-        let mut chars = name.chars();
-        if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
-            self.report_error(
-                SchemaValidationError::InvalidNamePrefix(name.to_string()),
-                context,
-            );
+
+        if !self.options.allow_introspection_names {
+            let mut chars = name.chars();
+            if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
+                self.report_error(
+                    SchemaValidationError::InvalidNamePrefix(name.to_string()),
+                    context,
+                );
+            }
         }
+
         if !TYPE_NAME_REGEX.is_match(name) {
             self.report_error(
                 SchemaValidationError::InvalidName(name.to_string()),

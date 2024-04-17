@@ -10,17 +10,15 @@ use common::InterfaceName;
 use common::ObjectName;
 use common::UnionName;
 use intern::string_key::StringKey;
-use schema::Type;
-use schema::TypeReference;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error, serde::Serialize)]
 pub enum SchemaValidationError {
     #[error("'{0}' root type must be provided.")]
     MissingRootType(StringKey),
 
-    #[error("'{0}' root type must be Object type. Found '{1:?}'")]
-    InvalidRootType(StringKey, Type),
+    #[error("'{0}' root type must be Object type. Found {1}")]
+    InvalidRootType(StringKey, String),
 
     #[error("Name '{0}' must not begin with '__', which is reserved by GraphQL introspection.")]
     InvalidNamePrefix(String),
@@ -37,11 +35,11 @@ pub enum SchemaValidationError {
     #[error("Type must define one or more fields.")]
     TypeWithNoFields,
 
-    #[error("The type of '{0}.{1}' must be Output Type but got: '{2:?}'.")]
-    InvalidFieldType(StringKey, StringKey, TypeReference<Type>),
+    #[error("The type of '{0}.{1}' must be Output Type but got {2}.")]
+    InvalidFieldType(StringKey, StringKey, String),
 
-    #[error("The type of '{0}.{1}({2}:)' must be InputType but got: '{3:?}'.")]
-    InvalidArgumentType(StringKey, StringKey, ArgumentName, TypeReference<Type>),
+    #[error("The type of '{0}.{1}({2}:)' must be InputType but got: {3}.")]
+    InvalidArgumentType(StringKey, StringKey, ArgumentName, String),
 
     #[error("Type '{0}' can only implement '{1}' once.")]
     DuplicateInterfaceImplementation(StringKey, InterfaceName),

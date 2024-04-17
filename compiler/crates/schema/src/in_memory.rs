@@ -1576,9 +1576,10 @@ impl InMemorySchema {
     fn build_object_id(&mut self, name: StringKey) -> DiagnosticsResult<ObjectID> {
         match self.type_map.get(&name) {
             Some(Type::Object(id)) => Ok(*id),
-            Some(non_object_type) => {
-                todo_add_location(SchemaError::ExpectedObjectReference(name, *non_object_type))
-            }
+            Some(non_object_type) => todo_add_location(SchemaError::ExpectedObjectReference(
+                name,
+                non_object_type.get_variant_name().to_string(),
+            )),
             None => todo_add_location(SchemaError::UndefinedType(name)),
         }
     }
@@ -1591,7 +1592,10 @@ impl InMemorySchema {
         match self.type_map.get(&name.value) {
             Some(Type::Interface(id)) => Ok(*id),
             Some(non_interface_type) => Err(vec![Diagnostic::error(
-                SchemaError::ExpectedInterfaceReference(name.value, *non_interface_type),
+                SchemaError::ExpectedInterfaceReference(
+                    name.value,
+                    non_interface_type.get_variant_name().to_string(),
+                ),
                 Location::new(*location_key, name.span),
             )]),
             None => Err(vec![Diagnostic::error(

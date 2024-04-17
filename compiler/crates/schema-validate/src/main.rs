@@ -10,7 +10,13 @@ use std::path::Path;
 
 use clap::Parser;
 use common::DiagnosticsResult;
-use schema::build_schema;
+use common::Location;
+use common::SourceLocationKey;
+use common::Span;
+use common::TextSource;
+use graphql_cli::DiagnosticPrinter;
+use intern::Lookup;
+use schema::build_schema_with_extensions;
 use schema::SDLSchema;
 use schema_validate_lib::validate;
 use schema_validate_lib::SchemaValidationOptions;
@@ -25,39 +31,87 @@ struct Opt {
 
 pub fn main() {
     let opt = Opt::parse();
-    match build_schema_from_file(&opt.schema_path) {
-        Ok(schema) => {
-            let validation_context = validate(
+    match build_schema_from_path(&opt.schema_path) {
+        Ok((schema, default_location)) => {
+            if let Err(diagnostics) = validate(
                 &schema,
+                default_location,
                 SchemaValidationOptions {
                     allow_introspection_names: false,
                 },
-            );
-            if !validation_context.errors.is_empty() {
-                eprintln!(
+            ) {
+                let printer = DiagnosticPrinter::new(sources);
+                println!(
                     "Schema failed validation with below errors:\n{}",
-                    validation_context.print_errors()
+                    printer.diagnostics_to_string(&diagnostics)
                 );
                 std::process::exit(1);
             }
         }
-        Err(error) => {
-            eprintln!("Failed to parse schema:\n{:?}", error);
+        Err(diagnostics) => {
+            let printer = DiagnosticPrinter::new(sources);
+            println!(
+                "Failed to parse schema:\n{}",
+                printer.diagnostics_to_string(&diagnostics)
+            );
             std::process::exit(1);
         }
     }
 }
 
-fn build_schema_from_file(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
+/// Returns a SDLSchema with a default location used for reporting non-location specific errors.
+fn build_schema_from_path(schema_file: &str) -> DiagnosticsResult<(SDLSchema, Location)> {
     let path = Path::new(schema_file);
-    let data = if path.is_file() {
-        fs::read_to_string(path).unwrap()
+    let extensions: &[(&str, SourceLocationKey)] = &[];
+
+    return if path.is_file() {
+        let location_key = SourceLocationKey::standalone(path.to_str().unwrap());
+        let schema = build_schema_with_extensions(&[path_to_schema_source(&path)], extensions)?;
+        Ok((schema, Location::new(location_key, Span::empty())))
     } else {
-        let mut buffer = String::new();
-        for entry in path.read_dir().unwrap() {
-            buffer.push_str(&fs::read_to_string(entry.unwrap().path()).unwrap());
+        let paths = path
+            .read_dir()
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .collect::<Vec<_>>();
+
+        if paths.is_empty() {
+            println!("No schema files found in the directory: {}", schema_file);
+            std::process::exit(1);
         }
-        buffer
+
+        let default_location = Location::new(
+            SourceLocationKey::standalone(paths.first().unwrap().to_str().unwrap()),
+            Span::empty(),
+        );
+
+        let sdls: Vec<(String, SourceLocationKey)> = paths
+            .iter()
+            .map(|path| path_to_schema_source(&path))
+            .collect();
+
+        let schema = build_schema_with_extensions(&sdls, extensions)?;
+        Ok((schema, default_location))
     };
-    build_schema(&data)
+}
+
+fn path_to_schema_source<'a>(path: &Path) -> (String, SourceLocationKey) {
+    (
+        fs::read_to_string(path.clone()).unwrap(),
+        SourceLocationKey::standalone(path.to_str().unwrap()),
+    )
+}
+
+fn sources(source_key: SourceLocationKey) -> Option<TextSource> {
+    match source_key {
+        SourceLocationKey::Standalone { path } => Some(TextSource::from_whole_document(
+            fs::read_to_string(Path::new(path.lookup())).unwrap(),
+        )),
+        SourceLocationKey::Embedded { .. } => {
+            panic!("Embedded sources are not supported in this context. This should not happen.",)
+        }
+        SourceLocationKey::Generated => {
+            panic!("Generated sources are not supported in this context. This should not happen.")
+        }
+    }
 }

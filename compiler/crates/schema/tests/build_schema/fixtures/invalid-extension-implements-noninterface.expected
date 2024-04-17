@@ -17,7 +17,7 @@ extend type User implements Foo {
   client: String
 }
 ==================================== ERROR ====================================
-✖︎ Expected an interface type for name 'Foo', got 'Object(1)'.
+✖︎ Expected an interface type for name 'Foo', got an object.
 
   <generated>:14:29
    13 │ }

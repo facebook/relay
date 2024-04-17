@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f5708275a9732c3842b1df840547eac9>>
+ * @generated SignedSource<<acfea8824e445c77070b52df2044f420>>
  */
 
 mod relay_compiler_integration;
@@ -115,6 +115,13 @@ async fn resolver_on_interface() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface.expected");
     test_fixture(transform_fixture, file!(), "resolver_on_interface.input", "relay_compiler_integration/fixtures/resolver_on_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_does_not_pass_schema_validation_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_does_not_pass_schema_validation.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_does_not_pass_schema_validation.invalid.expected");
+    test_fixture(transform_fixture, file!(), "resolver_on_interface_does_not_pass_schema_validation.invalid.input", "relay_compiler_integration/fixtures/resolver_on_interface_does_not_pass_schema_validation.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

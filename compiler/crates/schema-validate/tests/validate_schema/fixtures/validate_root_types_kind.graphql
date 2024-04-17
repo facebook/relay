@@ -1,0 +1,18 @@
+scalar Query
+
+enum Mutation {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+input Subscription {
+  id: ID!
+  name: String!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}

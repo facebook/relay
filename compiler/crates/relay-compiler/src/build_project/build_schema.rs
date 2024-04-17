@@ -7,10 +7,10 @@
 
 use std::sync::Arc;
 
-use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
 use common::PerfLogEvent;
+use common::Span;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
 use schema::SDLSchema;
@@ -74,22 +74,25 @@ pub fn build_schema(
                 .feature_flags
                 .enable_experimental_schema_validation
             {
-                let validation_context = log_event.time("validate_composite_schema_time", || {
+                log_event.time("validate_composite_schema_time", || {
+                    let default_location_key = schema_sources
+                        .first()
+                        .map(|(_, key)| key)
+                        .or_else(|| extensions.first().map(|(_, key)| key));
+
+                    let default_location = match default_location_key {
+                        Some(location) => Location::new(*location, Span::empty()),
+                        None => Location::generated(),
+                    };
+
                     validate(
                         &schema,
+                        default_location,
                         SchemaValidationOptions {
                             allow_introspection_names: true,
                         },
                     )
-                });
-                if !validation_context.errors.is_empty() {
-                    // TODO: Before removing this feature flag, we should update schema validation
-                    // to be able to return a list of Diagnostics with locations.
-                    return Err(vec![Diagnostic::error(
-                        validation_context.print_errors(),
-                        Location::generated(),
-                    )]);
-                }
+                })?;
             }
 
             Ok(Arc::new(schema))

@@ -32,39 +32,149 @@ type Query {
   image: Image
 }
 ==================================== OUTPUT ===================================
-Type BaseNode with definition:
-	interface BaseNode implements BaseNode2 {
-  id: ID!
-}
-had errors:
-	* Cyclic reference found for interface inheritance: BaseNode2->BaseNode1->Resource->Node->BaseNode.
+✖︎ Cyclic reference found for interface inheritance: BaseNode2->BaseNode1.
 
-Type BaseNode1 with definition:
-	interface BaseNode1 implements BaseNode2 & Resource {
-  id: ID!
-}
-had errors:
-	* Cyclic reference found for interface inheritance: BaseNode2->BaseNode1.
+  validate_interface_implements_interface_cyclic.graphql:1:11
+    1 │ interface BaseNode1 implements BaseNode2 & Resource {
+      │           ^^^^^^^^^
+    2 │   id: ID!
 
-Type BaseNode2 with definition:
-	interface BaseNode2 implements BaseNode1 {
-  id: ID!
-}
-had errors:
-	* Cyclic reference found for interface inheritance: BaseNode1->BaseNode2.
+  ℹ︎ ->
 
-Type Node with definition:
-	interface Node implements BaseNode & BaseNode1 {
-  name: String!
-}
-had errors:
-	* Cyclic reference found for interface inheritance: BaseNode->BaseNode2->BaseNode1->Resource->Node.
+  validate_interface_implements_interface_cyclic.graphql:5:11
+    4 │ 
+    5 │ interface BaseNode2 implements BaseNode1 {
+      │           ^^^^^^^^^
+    6 │   id: ID!
 
-Type Resource with definition:
-	interface Resource implements Node {
-  id: ID!
-  name: String!
-  url: String
-}
-had errors:
-	* Cyclic reference found for interface inheritance: Node->BaseNode->BaseNode2->BaseNode1->Resource.
+✖︎ Cyclic reference found for interface inheritance: BaseNode1->BaseNode2.
+
+  validate_interface_implements_interface_cyclic.graphql:5:11
+    4 │ 
+    5 │ interface BaseNode2 implements BaseNode1 {
+      │           ^^^^^^^^^
+    6 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:1:11
+    1 │ interface BaseNode1 implements BaseNode2 & Resource {
+      │           ^^^^^^^^^
+    2 │   id: ID!
+
+✖︎ Cyclic reference found for interface inheritance: BaseNode2->BaseNode1->Resource->Node->BaseNode.
+
+  validate_interface_implements_interface_cyclic.graphql:9:11
+    8 │ 
+    9 │ interface BaseNode implements BaseNode2 {
+      │           ^^^^^^^^
+   10 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:13:11
+   12 │ 
+   13 │ interface Node implements BaseNode & BaseNode1 {
+      │           ^^^^
+   14 │   name: String!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:17:11
+   16 │ 
+   17 │ interface Resource implements Node {
+      │           ^^^^^^^^
+   18 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:1:11
+    1 │ interface BaseNode1 implements BaseNode2 & Resource {
+      │           ^^^^^^^^^
+    2 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:5:11
+    4 │ 
+    5 │ interface BaseNode2 implements BaseNode1 {
+      │           ^^^^^^^^^
+    6 │   id: ID!
+
+✖︎ Cyclic reference found for interface inheritance: BaseNode->BaseNode2->BaseNode1->Resource->Node.
+
+  validate_interface_implements_interface_cyclic.graphql:13:11
+   12 │ 
+   13 │ interface Node implements BaseNode & BaseNode1 {
+      │           ^^^^
+   14 │   name: String!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:17:11
+   16 │ 
+   17 │ interface Resource implements Node {
+      │           ^^^^^^^^
+   18 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:1:11
+    1 │ interface BaseNode1 implements BaseNode2 & Resource {
+      │           ^^^^^^^^^
+    2 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:5:11
+    4 │ 
+    5 │ interface BaseNode2 implements BaseNode1 {
+      │           ^^^^^^^^^
+    6 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:9:11
+    8 │ 
+    9 │ interface BaseNode implements BaseNode2 {
+      │           ^^^^^^^^
+   10 │   id: ID!
+
+✖︎ Cyclic reference found for interface inheritance: Node->BaseNode->BaseNode2->BaseNode1->Resource.
+
+  validate_interface_implements_interface_cyclic.graphql:17:11
+   16 │ 
+   17 │ interface Resource implements Node {
+      │           ^^^^^^^^
+   18 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:1:11
+    1 │ interface BaseNode1 implements BaseNode2 & Resource {
+      │           ^^^^^^^^^
+    2 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:5:11
+    4 │ 
+    5 │ interface BaseNode2 implements BaseNode1 {
+      │           ^^^^^^^^^
+    6 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:9:11
+    8 │ 
+    9 │ interface BaseNode implements BaseNode2 {
+      │           ^^^^^^^^
+   10 │   id: ID!
+
+  ℹ︎ ->
+
+  validate_interface_implements_interface_cyclic.graphql:13:11
+   12 │ 
+   13 │ interface Node implements BaseNode & BaseNode1 {
+      │           ^^^^
+   14 │   name: String!

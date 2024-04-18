@@ -23,3 +23,7 @@ type Chicken implements IAnimal {
 extend type Query {
   chicken: Chicken
 }
+
+interface IWeakAnimal {
+  legs: Int
+}

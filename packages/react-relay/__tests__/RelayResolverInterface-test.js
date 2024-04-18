@@ -12,6 +12,7 @@
 'use strict';
 
 import type {RelayResolverInterfaceTestAnimalLegsFragment$key} from './__generated__/RelayResolverInterfaceTestAnimalLegsFragment.graphql';
+import type {RelayResolverInterfaceTestWeakAnimalLegsFragment$key} from './__generated__/RelayResolverInterfaceTestWeakAnimalLegsFragment.graphql';
 
 const React = require('react');
 const {useFragment} = require('react-relay');
@@ -164,6 +165,44 @@ test('should read the legs of a chicken (client schema extension type)', () => {
     </EnvironmentWrapper>,
   );
   expect(renderer.toJSON()).toEqual('2');
+});
+
+function WeakAnimalLegsFragmentComponent(props: {
+  animal: ?RelayResolverInterfaceTestWeakAnimalLegsFragment$key,
+}) {
+  const animal = useFragment(
+    graphql`
+      fragment RelayResolverInterfaceTestWeakAnimalLegsFragment on IWeakAnimal {
+        legs
+      }
+    `,
+    props.animal,
+  );
+  return animal?.legs;
+}
+
+test('should read the legs of an octopus (weak model type)', () => {
+  function OctopusLegsRootComponent() {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolverInterfaceTestOctopusLegsQuery {
+          octopus {
+            ...RelayResolverInterfaceTestWeakAnimalLegsFragment
+          }
+        }
+      `,
+      {},
+    );
+
+    return <WeakAnimalLegsFragmentComponent animal={data.octopus} />;
+  }
+
+  const renderer = TestRenderer.create(
+    <EnvironmentWrapper environment={environment}>
+      <OctopusLegsRootComponent />
+    </EnvironmentWrapper>,
+  );
+  expect(renderer.toJSON()).toEqual('8');
 });
 
 function AnimalGreetingQueryComponent(props: {

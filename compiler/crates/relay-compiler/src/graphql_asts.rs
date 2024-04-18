@@ -11,6 +11,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use common::sync::ParallelIterator;
 use common::Diagnostic;
 use common::SourceLocationKey;
 use dependency_analyzer::ExecutableDefinitionNameSet;
@@ -19,6 +20,7 @@ use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
+use rayon::iter::IntoParallelRefIterator;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 
@@ -57,7 +59,7 @@ impl GraphQLAsts {
         config: &Arc<Config>,
     ) -> Result<FnvHashMap<ProjectName, GraphQLAsts>> {
         graphql_sources_map
-            .iter()
+            .par_iter()
             .map(|(&project_name, sources)| {
                 let project_config = &config.projects[&project_name];
 

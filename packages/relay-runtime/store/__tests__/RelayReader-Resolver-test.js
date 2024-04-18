@@ -522,65 +522,76 @@ describe.each([
     expect(resolverInternals._relayResolverTestCallCount).toBe(1);
   });
 
-  it('marks the resolver cache as clean if the upstream has not changed', () => {
-    const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-      },
-    });
+  it.each([true, false])(
+    'marks the resolver cache as clean if the upstream has not changed with RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD=%s',
+    markClean => {
+      RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD =
+        markClean;
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+        },
+      });
 
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-    const environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(jest.fn()),
-      store,
-    });
+      const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+      const environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        store,
+      });
 
-    const FooQuery = graphql`
-      query RelayReaderResolverTestMarkCleanQuery {
-        me {
-          constant_dependent
+      const FooQuery = graphql`
+        query RelayReaderResolverTestMarkCleanQuery {
+          me {
+            constant_dependent
+          }
         }
+      `;
+
+      const cb = jest.fn<[Snapshot], void>();
+      const operation = createOperationDescriptor(FooQuery, {});
+      const snapshot = store.lookup(operation.fragment);
+      const subscription = store.subscribe(snapshot, cb);
+      // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+      const {me}: any = snapshot.data;
+      expect(me.constant_dependent).toEqual(1);
+      environment.commitUpdate(theStore => {
+        const alice = nullthrows(theStore.get('1'));
+        alice.setValue('Alicia', 'name');
+      });
+      subscription.dispose();
+
+      // Rereading the resolver's fragment, only to find that no fields that we read have changed,
+      // should clear the RELAY_RESOLVER_INVALIDATION_KEY.
+      const resolverCacheRecord = environment
+        .getStore()
+        .getSource()
+        .get('client:1:constant_dependent');
+      invariant(
+        resolverCacheRecord != null,
+        'Expected a resolver cache record',
+      );
+
+      const isMaybeInvalid = RelayModernRecord.getValue(
+        resolverCacheRecord,
+        RELAY_RESOLVER_INVALIDATION_KEY,
+      );
+
+      if (markClean) {
+        expect(isMaybeInvalid).toBe(false);
+      } else {
+        // Without the feature flag enabled, T185969900 still reproduces.
+        expect(isMaybeInvalid).toBe(true);
       }
-    `;
-
-    const cb = jest.fn<[Snapshot], void>();
-    const operation = createOperationDescriptor(FooQuery, {});
-    const snapshot = store.lookup(operation.fragment);
-    const subscription = store.subscribe(snapshot, cb);
-    // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = snapshot.data;
-    expect(me.constant_dependent).toEqual(1);
-    environment.commitUpdate(theStore => {
-      const alice = nullthrows(theStore.get('1'));
-      alice.setValue('Alicia', 'name');
-    });
-    subscription.dispose();
-
-    // Rereading the resolver's fragment, only to find that no fields that we read have changed,
-    // should clear the RELAY_RESOLVER_INVALIDATION_KEY.
-    const resolverCacheRecord = environment
-      .getStore()
-      .getSource()
-      .get('client:1:constant_dependent');
-    invariant(resolverCacheRecord != null, 'Expected a resolver cache record');
-
-    const isMaybeInvalid = RelayModernRecord.getValue(
-      resolverCacheRecord,
-      RELAY_RESOLVER_INVALIDATION_KEY,
-    );
-
-    // TODO(T185969900) This should actually be false since the reread of the fragment
-    // should have reset the RELAY_RESOLVER_INVALIDATION_KEY flag.
-    expect(isMaybeInvalid).toBe(true);
-  });
+    },
+  );
 
   it('handles optimistic updates (applied after subscribing)', () => {
     const source = RelayRecordSource.create({

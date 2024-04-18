@@ -35,6 +35,7 @@ import type {LiveState} from 'relay-runtime';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const shallowFreeze = require('../../util/shallowFreeze');
 const {generateClientID, generateClientObjectClientID} = require('../ClientID');
 const RelayModernRecord = require('../RelayModernRecord');
@@ -699,6 +700,22 @@ class LiveResolverCache implements ResolverCache {
     if (recycled !== originalInputs) {
       return true;
     }
+
+    if (RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD) {
+      // This record does not need to be recomputed, we can reuse the cached value.
+      // For subsequent reads we can mark this record as "clean" so that they will
+      // not need to re-read the fragment.
+      const nextRecord = RelayModernRecord.clone(record);
+      RelayModernRecord.setValue(
+        nextRecord,
+        RELAY_RESOLVER_INVALIDATION_KEY,
+        false,
+      );
+
+      const recordSource = this._getRecordSource();
+      recordSource.set(RelayModernRecord.getDataID(record), nextRecord);
+    }
+
     return false;
   }
 

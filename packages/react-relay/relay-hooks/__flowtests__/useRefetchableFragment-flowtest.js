@@ -33,6 +33,7 @@ import {
 // Nullability of returned data type is correct
 // $FlowFixMe[prop-missing]
 // $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-exact]
 (useRefetchableFragment(refetchableFragmentInput, keyNonNullable): [
   NonNullableData,
   FetchFn<QueryVariablesSubset>,

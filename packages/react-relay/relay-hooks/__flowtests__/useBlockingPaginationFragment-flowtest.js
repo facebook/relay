@@ -47,6 +47,7 @@ type ExpectedReturnType<
 // Nullability of returned data type is correct
 // $FlowFixMe[prop-missing]
 // $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-exact]
 (useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,

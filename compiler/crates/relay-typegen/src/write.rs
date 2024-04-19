@@ -636,16 +636,18 @@ fn write_enum_definitions(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     let enum_ids = encountered_enums.into_sorted_vec(typegen_context.schema);
+    let maybe_suffix = &typegen_context
+        .project_config
+        .typegen_config
+        .enum_module_suffix;
     for enum_id in enum_ids {
         let enum_type = typegen_context.schema.enum_(enum_id);
-        if let Some(enum_module_suffix) = &typegen_context
-            .project_config
-            .typegen_config
-            .enum_module_suffix
-        {
+        if !enum_type.is_extension && maybe_suffix.is_some() {
+            // We can't chain `if let` statements, so we need to unwrap here.
+            let suffix = maybe_suffix.as_ref().unwrap();
             writer.write_import_type(
                 &[enum_type.name.item.lookup()],
-                &format!("{}{}", enum_type.name.item, enum_module_suffix),
+                &format!("{}{}", enum_type.name.item, suffix),
             )?;
         } else {
             let mut members: Vec<AST> = enum_type

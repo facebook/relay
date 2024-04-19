@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<823c6076c55e06b925aa21d67e515614>>
+ * @generated SignedSource<<d556cfd00f447342092f1ee992fbaade>>
  */
 
 mod relay_compiler_integration;
@@ -136,6 +136,13 @@ async fn resolver_returns_enum() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum.expected");
     test_fixture(transform_fixture, file!(), "resolver_returns_enum.input", "relay_compiler_integration/fixtures/resolver_returns_enum.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_enum_with_enum_suffix() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum_with_enum_suffix.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum_with_enum_suffix.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_enum_with_enum_suffix.input", "relay_compiler_integration/fixtures/resolver_returns_enum_with_enum_suffix.expected", input, expected).await;
 }
 
 #[tokio::test]

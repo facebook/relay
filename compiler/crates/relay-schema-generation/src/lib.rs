@@ -40,6 +40,7 @@ use hermes_estree::Declaration;
 use hermes_estree::ImportDeclarationSpecifier;
 use hermes_estree::Node;
 use hermes_estree::Range;
+use hermes_estree::SourceRange;
 use hermes_estree::Visitor;
 use hermes_estree::_Literal;
 use hermes_parser::parse;
@@ -143,15 +144,15 @@ impl RelayResolverExtractor {
         let imports = imports_visitor.get_imports()?;
 
         let attached_comments = find_nodes_after_comments(&ast, &comments);
-        for (comment, node) in attached_comments
+        for (comment, node, range) in attached_comments
             .into_iter()
-            .filter(|(comment, _)| comment.contains("@RelayResolver"))
+            .filter(|(comment, _, _)| comment.contains("@RelayResolver"))
         {
             // TODO: Handle unwraps
             let docblock = parse_docblock(comment, self.current_location)?;
             let resolver_value = docblock.find_field(intern!("RelayResolver")).unwrap();
 
-            match self.extract_graphql_types(&node)? {
+            match self.extract_graphql_types(&node, range)? {
                 ResolverFlowData::Strong(FieldData {
                     field_name,
                     return_type,
@@ -408,21 +409,38 @@ impl RelayResolverExtractor {
         }
     }
 
-    fn extract_graphql_types(&self, node: &Node<'_>) -> DiagnosticsResult<ResolverFlowData> {
+    fn extract_graphql_types(
+        &self,
+        node: &Node<'_>,
+        range: SourceRange,
+    ) -> DiagnosticsResult<ResolverFlowData> {
         if let Node::ExportNamedDeclaration(node) = node {
             match node.declaration {
                 Some(Declaration::FunctionDeclaration(ref node)) => {
                     let data = self.extract_function(&node.function)?;
-                    return Ok(ResolverFlowData::Strong(data));
+                    Ok(ResolverFlowData::Strong(data))
                 }
                 Some(Declaration::TypeAlias(ref node)) => {
                     let data = self.extract_type_alias(node)?;
-                    return Ok(ResolverFlowData::Weak(data));
+                    Ok(ResolverFlowData::Weak(data))
                 }
-                _ => todo!("Error for other types"),
+                _ => Err(vec![Diagnostic::error(
+                    SchemaGenerationError::ExpectedFunctionOrTypeAlias,
+                    Location::new(
+                        self.current_location,
+                        Span::new(range.start, range.end.into()),
+                    ),
+                )]),
             }
+        } else {
+            Err(vec![Diagnostic::error(
+                SchemaGenerationError::ExpectedNamedExport,
+                Location::new(
+                    self.current_location,
+                    Span::new(range.start, range.end.into()),
+                ),
+            )])
         }
-        todo!("Error for other types");
     }
 }
 

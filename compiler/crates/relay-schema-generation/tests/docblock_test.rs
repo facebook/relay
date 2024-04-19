@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e18e0ebad43b6218dc27b8908c35629b>>
+ * @generated SignedSource<<18e8dc66da00460911f639840cefe122>>
  */
 
 mod docblock;
 
 use docblock::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn incorrect_export_error() {
+    let input = include_str!("docblock/fixtures/incorrect-export-error.input");
+    let expected = include_str!("docblock/fixtures/incorrect-export-error.expected");
+    test_fixture(transform_fixture, file!(), "incorrect-export-error.input", "docblock/fixtures/incorrect-export-error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incorrect_type_error() {
+    let input = include_str!("docblock/fixtures/incorrect-type-error.input");
+    let expected = include_str!("docblock/fixtures/incorrect-type-error.expected");
+    test_fixture(transform_fixture, file!(), "incorrect-type-error.input", "docblock/fixtures/incorrect-type-error.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn multiple_modules() {

@@ -37,6 +37,10 @@ pub enum SchemaGenerationError {
     ExpectedTypeAliasToBeObject,
     #[error("Expected object definition to include fields")]
     ExpectedWeakObjectToHaveFields,
+    #[error("@RelayResolver annotation is expected to be on a named export")]
+    ExpectedNamedExport,
+    #[error("@RelayResolver annotation is expected to be on a named function or type alias")]
+    ExpectedFunctionOrTypeAlias,
     #[error(
         "Failed to find type definition for type `{export_name}` from module `{module_name}`, please make sure `{export_name}` is imported and it is a resolver type"
     )]

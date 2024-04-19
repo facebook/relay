@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7361e8ee8ea5d74f22c7aa6f30d86839>>
+ * @generated SignedSource<<823c6076c55e06b925aa21d67e515614>>
  */
 
 mod relay_compiler_integration;
@@ -129,6 +129,13 @@ async fn resolver_on_interface_of_all_weak_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_weak_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_weak_model_type.expected");
     test_fixture(transform_fixture, file!(), "resolver_on_interface_of_all_weak_model_type.input", "relay_compiler_integration/fixtures/resolver_on_interface_of_all_weak_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_enum() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_enum.input", "relay_compiler_integration/fixtures/resolver_returns_enum.expected", input, expected).await;
 }
 
 #[tokio::test]

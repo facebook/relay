@@ -31,8 +31,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let project_fixture = ProjectFixture::deserialize(fixture.content);
 
     project_fixture.files().iter().for_each(|(path, content)| {
-        let source_location = SourceLocationKey::standalone(path.to_string_lossy().as_ref());
-        if let Err(err) = extractor.parse_document(content, source_location) {
+        if let Err(err) = extractor.parse_document(content, path.to_string_lossy().as_ref()) {
             errors.extend(err);
         }
     });
@@ -40,7 +39,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let mut out = match extractor.resolve() {
         Ok((objects, fields)) => objects
             .into_iter()
-            .map(DocblockIr::StrongObjectResolver)
             .chain(fields.into_iter().map(DocblockIr::TerseRelayResolver))
             .map(|ir| {
                 // Extend schema with the IR and print SDL

@@ -31,6 +31,12 @@ pub enum SchemaGenerationError {
     GenericNotSupported,
     #[error("Plural types not supported")]
     PluralNotSupported,
+    #[error("Object types not supported")]
+    ObjectNotSupported,
+    #[error("Type aliases in Relay resolvers are expected to be object types")]
+    ExpectedTypeAliasToBeObject,
+    #[error("Expected object definition to include fields")]
+    ExpectedWeakObjectToHaveFields,
     #[error(
         "Failed to find type definition for type `{export_name}` from module `{module_name}`, please make sure `{export_name}` is imported and it is a resolver type"
     )]

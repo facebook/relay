@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<456d2421d1f503f7b8072844537f22cb>>
+ * @generated SignedSource<<e18e0ebad43b6218dc27b8908c35629b>>
  */
 
 mod docblock;
@@ -38,4 +38,25 @@ async fn single_module() {
     let input = include_str!("docblock/fixtures/single-module.input");
     let expected = include_str!("docblock/fixtures/single-module.expected");
     test_fixture(transform_fixture, file!(), "single-module.input", "docblock/fixtures/single-module.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn weak_object() {
+    let input = include_str!("docblock/fixtures/weak-object.input");
+    let expected = include_str!("docblock/fixtures/weak-object.expected");
+    test_fixture(transform_fixture, file!(), "weak-object.input", "docblock/fixtures/weak-object.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn weak_object_no_fields() {
+    let input = include_str!("docblock/fixtures/weak-object-no-fields.input");
+    let expected = include_str!("docblock/fixtures/weak-object-no-fields.expected");
+    test_fixture(transform_fixture, file!(), "weak-object-no-fields.input", "docblock/fixtures/weak-object-no-fields.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn weak_type_error() {
+    let input = include_str!("docblock/fixtures/weak-type-error.input");
+    let expected = include_str!("docblock/fixtures/weak-type-error.expected");
+    test_fixture(transform_fixture, file!(), "weak-type-error.input", "docblock/fixtures/weak-type-error.expected", input, expected).await;
 }

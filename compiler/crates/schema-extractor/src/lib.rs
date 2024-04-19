@@ -22,14 +22,25 @@ use common::WithLocation;
 use errors::ExtractError;
 use hermes_estree::FlowTypeAnnotation;
 use hermes_estree::Function;
+use hermes_estree::ObjectTypePropertyKey;
+use hermes_estree::ObjectTypePropertyType;
 use hermes_estree::Pattern;
 use hermes_estree::Range;
+use hermes_estree::TypeAlias;
 use hermes_estree::TypeAnnotation as HermesTypeAnnotation;
 use hermes_estree::TypeAnnotationEnum;
+use hermes_estree::TypeIdentifier;
+use rustc_hash::FxHashMap;
 
 /**
  * Reprensents a subset of supported Flow type definitions
  */
+#[derive(Debug)]
+pub enum ResolverFlowData {
+    Strong(FieldData), // strong object or field on an object
+    Weak(WeakObjectData),
+}
+
 #[derive(Debug)]
 pub struct FieldData {
     pub field_name: WithLocation<StringKey>,
@@ -39,10 +50,17 @@ pub struct FieldData {
 }
 
 #[derive(Debug)]
+pub struct WeakObjectData {
+    pub field_name: WithLocation<StringKey>,
+    pub type_alias: FlowType,
+}
+
+#[derive(Debug)]
 pub enum FlowType {
     NamedType(NamedType),
     GenericType(GenericType),
     PluralType(PluralType),
+    ObjectType(ObjectType),
 }
 
 #[derive(Debug)]
@@ -63,6 +81,12 @@ pub struct GenericType {
 pub struct PluralType {
     pub inner: Box<FlowType>,
     pub optional: bool,
+    pub location: Location,
+}
+
+#[derive(Debug)]
+pub struct ObjectType {
+    pub field_map: Box<FxHashMap<WithLocation<StringKey>, FlowType>>,
     pub location: Location,
 }
 
@@ -128,9 +152,9 @@ pub trait SchemaExtractor {
             FlowTypeAnnotation::GenericTypeAnnotation(node) => {
                 // Extracts type identifier, generics, handles nullables and arrays
                 let identifier = match &node.id {
-                    hermes_estree::TypeIdentifier::Identifier(id) => (&id.name).intern(),
-                    hermes_estree::TypeIdentifier::QualifiedTypeIdentifier(_)
-                    | hermes_estree::TypeIdentifier::QualifiedTypeofIdentifier(_) => {
+                    TypeIdentifier::Identifier(id) => (&id.name).intern(),
+                    TypeIdentifier::QualifiedTypeIdentifier(_)
+                    | TypeIdentifier::QualifiedTypeofIdentifier(_) => {
                         return self.error_result(ExtractError::UnsupportedType, node.as_ref());
                     }
                 };
@@ -191,8 +215,42 @@ pub trait SchemaExtractor {
             FlowTypeAnnotation::NullableTypeAnnotation(node) => {
                 self.extract_flow_type(&node.type_annotation, true)
             }
+            FlowTypeAnnotation::ObjectTypeAnnotation(node) => {
+                let location = self.to_location(node.as_ref());
+
+                let mut field_map: Box<FxHashMap<WithLocation<StringKey>, FlowType>> =
+                    Box::default();
+                for property in node.properties.iter() {
+                    if let ObjectTypePropertyType::ObjectTypeProperty(prop) = property {
+                        if let ObjectTypePropertyKey::Identifier(id) = &prop.key {
+                            let value = self.extract_flow_type(&prop.value, false)?;
+                            let name = WithLocation {
+                                item: (&id.name).intern(),
+                                location: self.to_location(node.as_ref()),
+                            };
+                            field_map.insert(name, value);
+                        }
+                    }
+                }
+                Ok(FlowType::ObjectType(ObjectType {
+                    field_map,
+                    location,
+                }))
+            }
             _ => self.error_result(ExtractError::UnsupportedType, type_annotation),
         }
+    }
+
+    fn extract_type_alias(&self, node: &TypeAlias) -> DiagnosticsResult<WeakObjectData> {
+        let field_name = WithLocation {
+            item: (&node.id.name).intern(),
+            location: self.to_location(&node.id),
+        };
+        let type_alias = self.extract_flow_type(&node.right, false)?;
+        Ok(WeakObjectData {
+            field_name,
+            type_alias,
+        })
     }
 }
 
@@ -202,6 +260,7 @@ impl FlowType {
             FlowType::NamedType(t) => t.identifier.location,
             FlowType::GenericType(t) => t.location,
             FlowType::PluralType(t) => t.location,
+            FlowType::ObjectType(t) => t.location,
         }
     }
 }

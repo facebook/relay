@@ -11,6 +11,8 @@
 
 mod errors;
 
+use std::path::Path;
+
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
@@ -44,17 +46,23 @@ use hermes_parser::parse;
 use hermes_parser::ParseResult;
 use hermes_parser::ParserDialect;
 use hermes_parser::ParserFlags;
+use relay_docblock::DocblockIr;
 use relay_docblock::StrongObjectIr;
 use relay_docblock::TerseRelayResolverIr;
+use relay_docblock::WeakObjectIr;
 use rustc_hash::FxHashMap;
 use schema_extractor::FieldData;
 use schema_extractor::FlowType;
+use schema_extractor::ObjectType;
+use schema_extractor::ResolverFlowData;
 use schema_extractor::SchemaExtractor;
+use schema_extractor::WeakObjectData;
 
 pub struct RelayResolverExtractor {
     /// Cross module states
-    type_definitions: FxHashMap<ModuleResolutionKey, StrongObjectIr>,
+    type_definitions: FxHashMap<ModuleResolutionKey, DocblockIr>,
     unresolved_field_definitions: Vec<(ModuleResolutionKey, UnresolvedFieldDefinition)>,
+    resolved_field_definitions: Vec<TerseRelayResolverIr>,
 
     // Needs to keep track of source location because hermes_parser currently
     // does not embed the information
@@ -84,6 +92,7 @@ impl RelayResolverExtractor {
         Self {
             type_definitions: Default::default(),
             unresolved_field_definitions: Default::default(),
+            resolved_field_definitions: vec![],
             current_location: SourceLocationKey::generated(),
         }
     }
@@ -92,12 +101,11 @@ impl RelayResolverExtractor {
     pub fn parse_document(
         &mut self,
         text: &str,
-        source_location: SourceLocationKey,
+        source_module_path: &str,
     ) -> DiagnosticsResult<()> {
         // Assume the caller knows the text contains at least one RelayResolver decorator
-        // TODO: handle weak types
 
-        self.current_location = source_location;
+        self.current_location = SourceLocationKey::standalone(source_module_path);
         let source_hash = ResolverSourceHash::new(text);
         let ParseResult { ast, comments } = parse(
             text,
@@ -117,7 +125,7 @@ impl RelayResolverExtractor {
                     Diagnostic::error(
                         err.into_message(),
                         Location::new(
-                            source_location,
+                            self.current_location,
                             Span::new(
                                 source_span.offset().try_into().unwrap(),
                                 (source_span.offset() + source_span.len())
@@ -130,7 +138,7 @@ impl RelayResolverExtractor {
                 .collect::<Vec<_>>()
         })?;
 
-        let mut imports_visitor = ImportsVisitor::new(source_location);
+        let mut imports_visitor = ImportsVisitor::new(self.current_location);
         imports_visitor.visit_program(&ast);
         let imports = imports_visitor.get_imports()?;
 
@@ -140,42 +148,57 @@ impl RelayResolverExtractor {
             .filter(|(comment, _)| comment.contains("@RelayResolver"))
         {
             // TODO: Handle unwraps
-            let docblock = parse_docblock(comment, source_location)?;
-            let FieldData {
-                field_name,
-                return_type,
-                entity_type,
-            } = self.extract_graphql_types(&node)?;
+            let docblock = parse_docblock(comment, self.current_location)?;
             let resolver_value = docblock.find_field(intern!("RelayResolver")).unwrap();
 
-            let name = resolver_value.field_value.unwrap_or(field_name);
-
-            // Heuristic to treat lowercase name as field definition, otherwise object definition
-            let is_field_definition = {
-                let name_str = name.item.lookup();
-                name_str.chars().next().unwrap().is_lowercase()
-            };
-            if is_field_definition {
-                self.add_unresolved_field_definition(
-                    &imports,
-                    name,
-                    entity_type,
+            match self.extract_graphql_types(&node)? {
+                ResolverFlowData::Strong(FieldData {
+                    field_name,
                     return_type,
-                    source_hash,
-                )?;
-            } else {
-                self.add_type_definition(&imports, name, return_type, source_hash)?;
+                    entity_type,
+                }) => {
+                    let name = resolver_value.field_value.unwrap_or(field_name);
+
+                    // Heuristic to treat lowercase name as field definition, otherwise object definition
+                    let is_field_definition = {
+                        let name_str = name.item.lookup();
+                        name_str.chars().next().unwrap().is_lowercase()
+                    };
+                    if is_field_definition {
+                        self.add_unresolved_field_definition(
+                            &imports,
+                            name,
+                            entity_type,
+                            return_type,
+                            source_hash,
+                        )?;
+                    } else {
+                        self.add_type_definition(&imports, name, return_type, source_hash)?;
+                    }
+                }
+                ResolverFlowData::Weak(WeakObjectData {
+                    field_name,
+                    type_alias,
+                }) => {
+                    let name = resolver_value.field_value.unwrap_or(field_name);
+                    self.add_weak_type_definition(
+                        name,
+                        type_alias,
+                        source_hash,
+                        source_module_path,
+                    )?;
+                }
             }
         }
         Ok(())
     }
 
     /// Second pass to resolve all field definitions
-    pub fn resolve(self) -> DiagnosticsResult<(Vec<StrongObjectIr>, Vec<TerseRelayResolverIr>)> {
+    pub fn resolve(mut self) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<TerseRelayResolverIr>)> {
         let mut errors = vec![];
-        let mut fields = vec![];
         for (key, field) in self.unresolved_field_definitions {
-            if let Some(object) = self.type_definitions.get(&key) {
+            if let Some(DocblockIr::StrongObjectResolver(object)) = self.type_definitions.get(&key)
+            {
                 let field_definition = FieldDefinition {
                     name: string_key_to_identifier(field.field_name),
                     type_: return_type_to_type_annotation(field.return_type),
@@ -185,7 +208,7 @@ impl RelayResolverExtractor {
                     hack_source: None,
                     span: field.field_name.location.span(),
                 };
-                fields.push(TerseRelayResolverIr {
+                self.resolved_field_definitions.push(TerseRelayResolverIr {
                     field: field_definition,
                     type_: object
                         .type_name
@@ -209,7 +232,10 @@ impl RelayResolverExtractor {
             }
         }
         if errors.is_empty() {
-            Ok((self.type_definitions.into_values().collect(), fields))
+            Ok((
+                self.type_definitions.into_values().collect(),
+                self.resolved_field_definitions,
+            ))
         } else {
             Err(errors)
         }
@@ -287,7 +313,8 @@ impl RelayResolverExtractor {
                         type_.identifier.location,
                     )
                 })?;
-                self.type_definitions.insert(key.clone(), strong_object);
+                self.type_definitions
+                    .insert(key.clone(), DocblockIr::StrongObjectResolver(strong_object));
                 Ok(())
             }
             FlowType::GenericType(node) => Err(vec![Diagnostic::error(
@@ -298,13 +325,101 @@ impl RelayResolverExtractor {
                 SchemaGenerationError::PluralNotSupported,
                 node.location,
             )]),
+            FlowType::ObjectType(node) => Err(vec![Diagnostic::error(
+                SchemaGenerationError::ObjectNotSupported,
+                node.location,
+            )]),
         }
     }
 
-    fn extract_graphql_types(&self, node: &Node<'_>) -> DiagnosticsResult<FieldData> {
+    fn add_weak_type_definition(
+        &mut self,
+        name: WithLocation<StringKey>,
+        type_alias: FlowType,
+        source_hash: ResolverSourceHash,
+        source_module_path: &str,
+    ) -> DiagnosticsResult<()> {
+        let weak_object = WeakObjectIr {
+            type_name: string_key_to_identifier(name),
+            rhs_location: name.location,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: name.location,
+            implements_interfaces: vec![],
+            source_hash,
+        };
+        let haste_module_name = Path::new(source_module_path)
+            .file_stem()
+            .unwrap()
+            .to_str()
+            .unwrap();
+        let key = ModuleResolutionKey {
+            export_name: haste_module_name.intern(),
+            module_name: name.item,
+        };
+        // Add fields
+        if let FlowType::ObjectType(ObjectType {
+            field_map,
+            location,
+        }) = type_alias
+        {
+            if !field_map.is_empty() {
+                for (field_name, field_type) in field_map.into_iter() {
+                    let field_definition = FieldDefinition {
+                        name: string_key_to_identifier(field_name),
+                        type_: return_type_to_type_annotation(field_type),
+                        arguments: None,
+                        directives: vec![],
+                        description: None,
+                        hack_source: None,
+                        span: field_name.location.span(),
+                    };
+
+                    self.resolved_field_definitions.push(TerseRelayResolverIr {
+                        field: field_definition,
+                        type_: weak_object
+                            .type_name
+                            .name_with_location(SourceLocationKey::Generated),
+                        root_fragment: None,
+                        location: field_name.location,
+                        deprecated: None,
+                        live: None,
+                        fragment_arguments: None,
+                        source_hash,
+                        semantic_non_null: None,
+                    });
+                }
+
+                self.type_definitions
+                    .insert(key.clone(), DocblockIr::WeakObjectType(weak_object));
+                Ok(())
+            } else {
+                Err(vec![Diagnostic::error(
+                    SchemaGenerationError::ExpectedWeakObjectToHaveFields,
+                    location,
+                )])
+            }
+        } else {
+            Err(vec![Diagnostic::error(
+                SchemaGenerationError::ExpectedTypeAliasToBeObject,
+                type_alias.location(),
+            )])
+        }
+    }
+
+    fn extract_graphql_types(&self, node: &Node<'_>) -> DiagnosticsResult<ResolverFlowData> {
         if let Node::ExportNamedDeclaration(node) = node {
-            if let Some(Declaration::FunctionDeclaration(ref node)) = node.declaration {
-                return self.extract_function(&node.function);
+            match node.declaration {
+                Some(Declaration::FunctionDeclaration(ref node)) => {
+                    let data = self.extract_function(&node.function)?;
+                    return Ok(ResolverFlowData::Strong(data));
+                }
+                Some(Declaration::TypeAlias(ref node)) => {
+                    let data = self.extract_type_alias(node)?;
+                    return Ok(ResolverFlowData::Weak(data));
+                }
+                _ => todo!("Error for other types"),
             }
         }
         todo!("Error for other types");
@@ -430,6 +545,7 @@ fn return_type_to_type_annotation(return_type: FlowType) -> TypeAnnotation {
             result
         }
         FlowType::GenericType(_) => todo!(),
+        FlowType::ObjectType(_) => todo!(), // Do we want to allow this?
     }
 }
 

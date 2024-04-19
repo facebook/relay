@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d556cfd00f447342092f1ee992fbaade>>
+ * @generated SignedSource<<be9e021bfe875928b8f65310c8e413a7>>
  */
 
 mod relay_compiler_integration;
@@ -129,6 +129,13 @@ async fn resolver_on_interface_of_all_weak_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_weak_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_of_all_weak_model_type.expected");
     test_fixture(transform_fixture, file!(), "resolver_on_interface_of_all_weak_model_type.input", "relay_compiler_integration/fixtures/resolver_on_interface_of_all_weak_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_returns_custom_scalar() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.expected");
+    test_fixture(transform_fixture, file!(), "resolver_on_interface_returns_custom_scalar.input", "relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.expected", input, expected).await;
 }
 
 #[tokio::test]

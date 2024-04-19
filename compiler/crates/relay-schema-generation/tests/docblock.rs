@@ -37,7 +37,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         }
     });
 
-    let out = match extractor.resolve() {
+    let mut out = match extractor.resolve() {
         Ok((objects, fields)) => objects
             .into_iter()
             .map(DocblockIr::StrongObjectResolver)
@@ -75,8 +75,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
                 format!("{:#?}\n{}", &ir, sdl)
             })
-            .collect::<Vec<_>>()
-            .join("\n\n"),
+            .collect::<Vec<_>>(),
         Err(err) => {
             errors.extend(err);
             Default::default()
@@ -84,7 +83,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     };
     let err = diagnostics_to_sorted_string(&project_fixture, &errors);
 
-    Ok(out + "\n\n" + &err)
+    out.sort();
+    Ok(out.join("\n\n") + "\n\n" + &err)
 }
 
 fn diagnostics_to_sorted_string(fixtures: &ProjectFixture, diagnostics: &[Diagnostic]) -> String {

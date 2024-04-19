@@ -353,12 +353,12 @@ class RelayReader {
   ) {
     const {to} = selection;
     const field = selection.field?.backingField ?? selection.field;
-    const applicationName = field?.alias ?? field?.name;
+    const fieldName = field?.alias ?? field?.name;
 
     // ReaderClientExtension doesn't have `alias` or `name`
     // so we don't support this yet
     invariant(
-      applicationName != null,
+      fieldName != null,
       "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
     );
 
@@ -399,14 +399,14 @@ class RelayReader {
     if (this._errorResponseFields != null) {
       const errors = this._errorResponseFields.map(error => error.error);
 
-      data[applicationName] = {
+      data[fieldName] = {
         ok: false,
         errors,
       };
       return;
     }
 
-    data[applicationName] = {
+    data[fieldName] = {
       ok: true,
       value,
     };
@@ -662,8 +662,8 @@ class RelayReader {
     const parentRecordID = RelayModernRecord.getDataID(record);
     const result = this._readResolverFieldImpl(field, parentRecordID);
 
-    const applicationName = field.alias ?? field.name;
-    data[applicationName] = result;
+    const fieldName = field.alias ?? field.name;
+    data[fieldName] = result;
     return result;
   }
 
@@ -856,24 +856,24 @@ class RelayReader {
     const backingField = field.backingField;
 
     // Because ReaderClientExtension doesn't have `alias` or `name` and so I don't know
-    // how to get its applicationName or storageKey yet:
+    // how to get its fieldName or storageKey yet:
     invariant(
       backingField.kind !== 'ClientExtension',
       'Client extension client edges are not yet implemented.',
     );
 
-    const applicationName = backingField.alias ?? backingField.name;
+    const fieldName = backingField.alias ?? backingField.name;
     const backingFieldData = {};
     this._traverseSelections([backingField], record, backingFieldData);
-    // At this point, backingFieldData is an object with a single key (applicationName)
+    // At this point, backingFieldData is an object with a single key (fieldName)
     // whose value is the value returned from the resolver, or a suspense sentinel.
 
-    const clientEdgeResolverResponse = backingFieldData[applicationName];
+    const clientEdgeResolverResponse = backingFieldData[fieldName];
     if (
       clientEdgeResolverResponse == null ||
       isSuspenseSentinel(clientEdgeResolverResponse)
     ) {
-      data[applicationName] = clientEdgeResolverResponse;
+      data[fieldName] = clientEdgeResolverResponse;
       return clientEdgeResolverResponse;
     }
 
@@ -925,7 +925,7 @@ class RelayReader {
         data,
       );
       this._clientEdgeTraversalPath.pop();
-      data[applicationName] = edgeValues;
+      data[fieldName] = edgeValues;
       return edgeValues;
     } else {
       const id = extractIdFromResponse(clientEdgeResolverResponse);
@@ -970,18 +970,18 @@ class RelayReader {
         if (model == null) {
           // If the model resolver returns undefined, we should still return null
           // to match GQL behavior.
-          data[applicationName] = null;
+          data[fieldName] = null;
           return null;
         }
       }
       this._clientEdgeTraversalPath.push(traversalPathSegment);
 
-      const prevData = data[applicationName];
+      const prevData = data[fieldName];
       invariant(
         prevData == null || typeof prevData === 'object',
         'RelayReader(): Expected data for field `%s` on record `%s` ' +
           'to be an object, got `%s`.',
-        applicationName,
+        fieldName,
         RelayModernRecord.getDataID(record),
         prevData,
       );
@@ -992,7 +992,7 @@ class RelayReader {
         prevData,
       );
       this._clientEdgeTraversalPath.pop();
-      data[applicationName] = edgeValue;
+      data[fieldName] = edgeValue;
       return edgeValue;
     }
   }
@@ -1002,7 +1002,7 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const applicationName = field.alias ?? field.name;
+    const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
     if (value === null) {
@@ -1010,7 +1010,7 @@ class RelayReader {
     } else if (value === undefined) {
       this._markDataAsMissing();
     }
-    data[applicationName] = value;
+    data[fieldName] = value;
     return value;
   }
 
@@ -1019,11 +1019,11 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const applicationName = field.alias ?? field.name;
+    const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
-      data[applicationName] = linkedID;
+      data[fieldName] = linkedID;
       if (linkedID === null) {
         this._maybeAddErrorResponseFields(record, storageKey);
       } else if (linkedID === undefined) {
@@ -1032,18 +1032,18 @@ class RelayReader {
       return linkedID;
     }
 
-    const prevData = data[applicationName];
+    const prevData = data[fieldName];
     invariant(
       prevData == null || typeof prevData === 'object',
       'RelayReader(): Expected data for field `%s` on record `%s` ' +
         'to be an object, got `%s`.',
-      applicationName,
+      fieldName,
       RelayModernRecord.getDataID(record),
       prevData,
     );
     // $FlowFixMe[incompatible-variance]
     const value = this._traverse(field, linkedID, prevData);
-    data[applicationName] = value;
+    data[fieldName] = value;
     return value;
   }
 
@@ -1052,7 +1052,7 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const applicationName = field.alias ?? field.name;
+    const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const externalRef = RelayModernRecord.getActorLinkedRecordID(
       record,
@@ -1060,13 +1060,13 @@ class RelayReader {
     );
 
     if (externalRef == null) {
-      data[applicationName] = externalRef;
+      data[fieldName] = externalRef;
       if (externalRef === undefined) {
         this._markDataAsMissing();
       } else if (externalRef === null) {
         this._maybeAddErrorResponseFields(record, storageKey);
       }
-      return data[applicationName];
+      return data[fieldName];
     }
     const [actorIdentifier, dataID] = externalRef;
 
@@ -1078,11 +1078,11 @@ class RelayReader {
       }),
       fragmentRef,
     );
-    data[applicationName] = {
+    data[fieldName] = {
       __fragmentRef: fragmentRef,
       __viewer: actorIdentifier,
     };
-    return data[applicationName];
+    return data[fieldName];
   }
 
   _readPluralLink(
@@ -1104,22 +1104,22 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const applicationName = field.alias ?? field.name;
+    const fieldName = field.alias ?? field.name;
 
     if (linkedIDs == null) {
-      data[applicationName] = linkedIDs;
+      data[fieldName] = linkedIDs;
       if (linkedIDs === undefined) {
         this._markDataAsMissing();
       }
       return linkedIDs;
     }
 
-    const prevData = data[applicationName];
+    const prevData = data[fieldName];
     invariant(
       prevData == null || Array.isArray(prevData),
       'RelayReader(): Expected data for field `%s` on record `%s` ' +
         'to be an array, got `%s`.',
-      applicationName,
+      fieldName,
       RelayModernRecord.getDataID(record),
       prevData,
     );
@@ -1138,7 +1138,7 @@ class RelayReader {
         prevItem == null || typeof prevItem === 'object',
         'RelayReader(): Expected data for field `%s` on record `%s` ' +
           'to be an object, got `%s`.',
-        applicationName,
+        fieldName,
         RelayModernRecord.getDataID(record),
         prevItem,
       );
@@ -1146,7 +1146,7 @@ class RelayReader {
       // $FlowFixMe[incompatible-variance]
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
     });
-    data[applicationName] = linkedArray;
+    data[fieldName] = linkedArray;
     return linkedArray;
   }
 

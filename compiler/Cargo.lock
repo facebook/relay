@@ -1976,6 +1976,7 @@ dependencies = [
  "intern",
  "lazy_static",
  "ouroboros",
+ "rayon",
  "schema-flatbuffer",
  "serde",
  "strsim",

@@ -11,9 +11,11 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
-use graphql_ir::ValidationMessage;
+use graphql_ir::ValidationDiagnosticCode;
+use graphql_ir::ValidationMessageWithData;
 use graphql_ir::Validator;
-use intern::Lookup;
+use itertools::Itertools;
+use schema::Schema;
 
 use crate::root_variables::InferVariablesVisitor;
 use crate::DIRECTIVE_SPLIT_OPERATION;
@@ -24,12 +26,14 @@ pub fn validate_global_variables(program: &Program) -> DiagnosticsResult<()> {
 
 pub struct ValidateGlobalVariables<'program> {
     visitor: InferVariablesVisitor<'program>,
+    program: &'program Program,
 }
 
 impl<'program> ValidateGlobalVariables<'program> {
     fn new(program: &'program Program) -> Self {
         Self {
             visitor: InferVariablesVisitor::new(program),
+            program,
         }
     }
 }
@@ -62,29 +66,20 @@ impl Validator for ValidateGlobalVariables<'_> {
             .collect();
         undefined_variables.sort_by(|a, b| a.name.cmp(&b.name));
         if !undefined_variables.is_empty() {
-            let is_plural = undefined_variables.len() > 1;
-            let mut locations = undefined_variables
+            return Err(undefined_variables
                 .iter()
-                .map(|arg_def| arg_def.name.location);
-            let mut error = Diagnostic::error(
-                ValidationMessage::GlobalVariables {
-                    operation_name: operation.name.item.0,
-                    variables_string: format!(
-                        "{}: '${}'",
-                        if is_plural { "s" } else { "" },
-                        undefined_variables
-                            .iter()
-                            .map(|var| var.name.item.0.lookup())
-                            .collect::<Vec<_>>()
-                            .join("', '$"),
-                    ),
-                },
-                locations.next().unwrap(),
-            );
-            for related_location in locations {
-                error = error.annotate("related location", related_location);
-            }
-            return Err(vec![error]);
+                .map(|variable| {
+                    Diagnostic::error_with_data_and_code(
+                        ValidationDiagnosticCode::UNDEFINED_VARIABLE_REFERENCED,
+                        ValidationMessageWithData::UndefinedVariableReferenced {
+                            operation_name: operation.name.item.0,
+                            variable_name: variable.name.item,
+                            variable_type: self.program.schema.get_type_string(&variable.type_),
+                        },
+                        variable.name.location,
+                    )
+                })
+                .collect_vec());
         }
         Ok(())
     }

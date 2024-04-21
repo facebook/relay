@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod create_fragment_argument;
 mod create_name_suggestion;
 mod create_operation_variable;
 
@@ -43,6 +44,7 @@ use resolution_path::ResolveDefinition;
 use resolution_path::ResolvePosition;
 use serde_json::Value;
 
+use self::create_fragment_argument::create_fragment_argument_code_action;
 use self::create_operation_variable::create_operation_variable_code_action;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -94,7 +96,8 @@ fn get_code_actions_from_diagnostic(
         Diagnostic {
             code:
                 Some(NumberOrString::Number(
-                    ValidationDiagnosticCode::EXPECTED_OPERATION_VARIABLE_TO_BE_DEFINED,
+                    ValidationDiagnosticCode::EXPECTED_OPERATION_VARIABLE_TO_BE_DEFINED
+                    | ValidationDiagnosticCode::UNDEFINED_VARIABLE_REFERENCED,
                 )),
             data: Some(Value::Array(array_data)),
             ..
@@ -114,7 +117,17 @@ fn get_code_actions_from_diagnostic(
                         )
                         .and_then(|code_action| Some(vec![code_action]))
                     }
-                    ExecutableDefinition::Fragment(_) => None,
+                    ExecutableDefinition::Fragment(fragment) => {
+                        create_fragment_argument_code_action(
+                            fragment,
+                            variable_name,
+                            variable_type,
+                            location,
+                            state,
+                            url,
+                        )
+                        .and_then(|code_action| Some(vec![code_action]))
+                    }
                 },
                 _ => None,
             }

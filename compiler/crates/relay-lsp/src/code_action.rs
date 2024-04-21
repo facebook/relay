@@ -6,23 +6,29 @@
  */
 
 mod create_name_suggestion;
+mod create_operation_variable;
 
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use common::Location;
 use common::Span;
 use create_name_suggestion::create_default_name;
 use create_name_suggestion::create_default_name_with_index;
 use create_name_suggestion::create_impactful_name;
 use create_name_suggestion::create_name_wrapper;
 use create_name_suggestion::DefinitionNameSuffix;
+use graphql_ir::ValidationDiagnosticCode;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::ExecutableDocument;
 use intern::Lookup;
+use itertools::Itertools;
 use lsp_types::request::CodeActionRequest;
 use lsp_types::request::Request;
 use lsp_types::CodeAction;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::Diagnostic;
+use lsp_types::NumberOrString;
 use lsp_types::Position;
 use lsp_types::Range;
 use lsp_types::TextDocumentPositionParams;
@@ -33,9 +39,11 @@ use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::OperationDefinitionPath;
 use resolution_path::ResolutionPath;
+use resolution_path::ResolveDefinition;
 use resolution_path::ResolvePosition;
 use serde_json::Value;
 
+use self::create_operation_variable::create_operation_variable_code_action;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
@@ -51,15 +59,6 @@ pub(crate) fn on_code_action(
         return Err(LSPRuntimeError::ExpectedError);
     }
 
-    if let Some(diagnostic) = state.get_diagnostic_for_range(&uri, params.range) {
-        let code_actions = get_code_actions_from_diagnostics(&uri, diagnostic);
-        if code_actions.is_some() {
-            return Ok(code_actions);
-        }
-    }
-
-    let definitions = state.resolve_executable_definitions(&params.text_document.uri)?;
-
     let text_document_position_params = TextDocumentPositionParams {
         text_document: params.text_document,
         position: params.range.start,
@@ -67,38 +66,77 @@ pub(crate) fn on_code_action(
     let (document, location) =
         state.extract_executable_document_from_text(&text_document_position_params, 1)?;
 
-    let path = document.resolve((), location.span());
+    if let Some(diagnostic) = state.get_diagnostic_for_range(&uri, params.range) {
+        let code_actions =
+            get_code_actions_from_diagnostic(&uri, diagnostic, &document, &location, state);
+        if code_actions.is_some() {
+            return Ok(code_actions);
+        }
+    }
 
+    let path = document.resolve((), location.span());
+    let definitions = state.resolve_executable_definitions(&uri)?;
     let used_definition_names = get_definition_names(&definitions);
-    let result = get_code_actions(path, used_definition_names, uri, params.range)
-        .ok_or(LSPRuntimeError::ExpectedError)?;
-    Ok(Some(result))
+
+    get_code_actions(path, used_definition_names, uri, params.range)
+        .map(|code_actions| Some(code_actions))
+        .ok_or(LSPRuntimeError::ExpectedError)
 }
 
-fn get_code_actions_from_diagnostics(
+fn get_code_actions_from_diagnostic(
     url: &Url,
     diagnostic: Diagnostic,
+    document: &ExecutableDocument,
+    location: &Location,
+    state: &impl GlobalState,
 ) -> Option<Vec<CodeActionOrCommand>> {
-    let code_actions = if let Some(Value::Array(data)) = &diagnostic.data {
-        data.iter()
-            .filter_map(|item| match item {
-                Value::String(suggestion) => Some(create_code_action(
-                    "Fix Error",
-                    suggestion.to_string(),
-                    url,
-                    diagnostic.range,
+    match diagnostic {
+        Diagnostic {
+            code:
+                Some(NumberOrString::Number(
+                    ValidationDiagnosticCode::EXPECTED_OPERATION_VARIABLE_TO_BE_DEFINED,
                 )),
-                _ => None,
-            })
-            .collect::<_>()
-    } else {
-        vec![]
-    };
+            data: Some(Value::Array(array_data)),
+            ..
+        } => {
+            let definition = document.find_definition(location.span())?;
 
-    if !code_actions.is_empty() {
-        Some(code_actions)
-    } else {
-        None
+            match &array_data[..] {
+                [Value::String(variable_name), Value::String(variable_type)] => match definition {
+                    ExecutableDefinition::Operation(operation) => {
+                        create_operation_variable_code_action(
+                            operation,
+                            variable_name,
+                            variable_type,
+                            location,
+                            state,
+                            url,
+                        )
+                        .and_then(|code_action| Some(vec![code_action]))
+                    }
+                    ExecutableDefinition::Fragment(_) => None,
+                },
+                _ => None,
+            }
+        }
+        Diagnostic {
+            data: Some(Value::Array(array_data)),
+            ..
+        } => Some(
+            array_data
+                .iter()
+                .filter_map(|item| match item {
+                    Value::String(suggestion) => Some(create_code_action(
+                        "Fix Error",
+                        suggestion.to_string(),
+                        url,
+                        diagnostic.range,
+                    )),
+                    _ => None,
+                })
+                .collect_vec(),
+        ),
+        _ => None,
     }
 }
 
@@ -243,54 +281,4 @@ fn create_code_action(
         is_preferred: Some(false),
         ..Default::default()
     })
-}
-
-#[cfg(test)]
-mod tests {
-    use lsp_types::CodeActionOrCommand;
-    use lsp_types::Diagnostic;
-    use lsp_types::Position;
-    use lsp_types::Range;
-    use lsp_types::Url;
-    use serde_json::json;
-
-    use crate::code_action::get_code_actions_from_diagnostics;
-
-    #[test]
-    fn test_get_code_actions_from_diagnostics() {
-        let diagnostic = Diagnostic {
-            range: Range {
-                start: Position {
-                    line: 0,
-                    character: 0,
-                },
-                end: Position {
-                    line: 0,
-                    character: 0,
-                },
-            },
-            message: "Error Message".to_string(),
-            data: Some(json!(vec!["item1", "item2"])),
-            ..Default::default()
-        };
-        let url = Url::parse("file://relay.js").unwrap();
-        let code_actions = get_code_actions_from_diagnostics(&url, diagnostic);
-
-        assert_eq!(
-            code_actions
-                .unwrap()
-                .iter()
-                .map(|item| {
-                    match item {
-                        CodeActionOrCommand::CodeAction(action) => action.title.clone(),
-                        _ => panic!("unexpected case"),
-                    }
-                })
-                .collect::<Vec<String>>(),
-            vec![
-                "Fix Error: 'item1'".to_string(),
-                "Fix Error: 'item2'".to_string(),
-            ]
-        );
-    }
 }

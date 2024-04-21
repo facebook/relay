@@ -47,6 +47,7 @@ pub use transform::Transformer;
 pub use validator::Validator;
 pub use visitor::Visitor;
 
+pub use crate::errors::ValidationDiagnosticCode;
 pub use crate::errors::ValidationMessage;
 
 /// Re-exported values to be used by the `associated_data_impl!` macro.

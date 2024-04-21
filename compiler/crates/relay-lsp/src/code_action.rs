@@ -64,10 +64,10 @@ pub(crate) fn on_code_action(
         text_document: params.text_document,
         position: params.range.start,
     };
-    let (document, position_span) =
+    let (document, location) =
         state.extract_executable_document_from_text(&text_document_position_params, 1)?;
 
-    let path = document.resolve((), position_span);
+    let path = document.resolve((), location.span());
 
     let used_definition_names = get_definition_names(&definitions);
     let result = get_code_actions(path, used_definition_names, uri, params.range)

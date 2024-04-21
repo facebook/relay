@@ -67,10 +67,10 @@ pub fn on_hover(
     state: &impl GlobalState,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
-    let (document, position_span) =
+    let (document, location) =
         state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
 
-    let resolution_path = document.resolve((), position_span);
+    let resolution_path = document.resolve((), location.span());
 
     let project_name = state
         .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;

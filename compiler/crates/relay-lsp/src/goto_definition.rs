@@ -69,7 +69,7 @@ pub fn on_goto_definition(
     state: &impl GlobalState,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
-    let (feature, position_span) =
+    let (feature, location) =
         state.extract_feature_from_text(&params.text_document_position_params, 1)?;
 
     let project_name = state
@@ -79,10 +79,10 @@ pub fn on_goto_definition(
 
     let definition_description = match feature {
         crate::Feature::GraphQLDocument(document) => {
-            get_graphql_definition_description(document, position_span, &schema)?
+            get_graphql_definition_description(document, location.span(), &schema)?
         }
         crate::Feature::DocblockIr(docblock_ir) => {
-            get_docblock_definition_description(&docblock_ir, position_span)?
+            get_docblock_definition_description(&docblock_ir, location.span())?
         }
     };
 

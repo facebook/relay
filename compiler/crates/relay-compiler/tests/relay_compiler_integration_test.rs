@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<be9e021bfe875928b8f65310c8e413a7>>
+ * @generated SignedSource<<276e2284c38de688261ae6c3a87e49ee>>
  */
 
 mod relay_compiler_integration;
@@ -139,10 +139,10 @@ async fn resolver_on_interface_returns_custom_scalar() {
 }
 
 #[tokio::test]
-async fn resolver_returns_enum() {
-    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum.expected");
-    test_fixture(transform_fixture, file!(), "resolver_returns_enum.input", "relay_compiler_integration/fixtures/resolver_returns_enum.expected", input, expected).await;
+async fn resolver_returns_client_schema_extension_enum() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_client_schema_extension_enum.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_client_schema_extension_enum.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_client_schema_extension_enum.input", "relay_compiler_integration/fixtures/resolver_returns_client_schema_extension_enum.expected", input, expected).await;
 }
 
 #[tokio::test]

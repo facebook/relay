@@ -636,16 +636,18 @@ fn write_enum_definitions(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     let enum_ids = encountered_enums.into_sorted_vec(typegen_context.schema);
+    let maybe_suffix = &typegen_context
+        .project_config
+        .typegen_config
+        .enum_module_suffix;
     for enum_id in enum_ids {
         let enum_type = typegen_context.schema.enum_(enum_id);
-        if let Some(enum_module_suffix) = &typegen_context
-            .project_config
-            .typegen_config
-            .enum_module_suffix
-        {
+        if !enum_type.is_extension && maybe_suffix.is_some() {
+            // We can't chain `if let` statements, so we need to unwrap here.
+            let suffix = maybe_suffix.as_ref().unwrap();
             writer.write_import_type(
                 &[enum_type.name.item.lookup()],
-                &format!("{}{}", enum_type.name.item, enum_module_suffix),
+                &format!("{}{}", enum_type.name.item, suffix),
             )?;
         } else {
             let mut members: Vec<AST> = enum_type
@@ -654,10 +656,21 @@ fn write_enum_definitions(
                 .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
                 .collect();
 
-            if !typegen_context
-                .project_config
-                .typegen_config
-                .no_future_proof_enums
+            // Users can specify a config option to disable the inclusion of
+            // FUTURE_ENUM_VALUE in the enum union. Additionally we want to avoid
+            // emitting FUTURE_ENUM_VALUE if the enum is actually defined on the
+            // client. For example in Client Schema Extensions or (some day)
+            // Relay Resolvers.
+            //
+            // In the case of a client defined enum, we don't need to enforce
+            // the breaking change semantics dictated by the GraphQL spec
+            // because new fields added to the client schema will simply result
+            // in fixable Flow/TypeScript errors elsewhere in the codebase.
+            if !(enum_type.is_extension
+                || typegen_context
+                    .project_config
+                    .typegen_config
+                    .no_future_proof_enums)
             {
                 members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));
             }

@@ -868,6 +868,7 @@ class RelayReader {
     // At this point, backingFieldData is an object with a single key (fieldName)
     // whose value is the value returned from the resolver, or a suspense sentinel.
 
+    // $FlowFixMe[invalid-computed-prop]
     const clientEdgeResolverResponse = backingFieldData[fieldName];
     if (
       clientEdgeResolverResponse == null ||

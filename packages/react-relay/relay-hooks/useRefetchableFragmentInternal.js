@@ -160,7 +160,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
   }
 }
 
-function useRefetchableFragmentNode<
+hook useRefetchableFragmentNode<
   TQuery: OperationType,
   TKey: ?{+$data?: mixed, ...},
 >(
@@ -355,7 +355,7 @@ function useRefetchableFragmentNode<
   };
 }
 
-function useRefetchFunction<TQuery: OperationType>(
+hook useRefetchFunction<TQuery: OperationType>(
   componentDisplayName: string,
   dispatch: (
     | {

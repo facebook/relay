@@ -900,6 +900,7 @@ describe('loadQuery', () => {
 
     beforeEach(() => {
       Container = (props: {children: React.Node}) => {
+        // $FlowFixMe[react-rule-hook]
         useTrackLoadQueryInRender();
         return props.children;
       };

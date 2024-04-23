@@ -40,7 +40,7 @@ const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-function useDeepCompare<T: {...}>(value: T): T {
+hook useDeepCompare<T: {...}>(value: T): T {
   const latestValue = React.useRef(value);
   if (!areEqual(latestValue.current, value)) {
     if (__DEV__) {

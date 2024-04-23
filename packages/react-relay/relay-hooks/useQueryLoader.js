@@ -108,11 +108,7 @@ declare function useQueryLoader<TQuery: OperationType>(
   initialQueryReference?: ?PreloadedQuery<TQuery>,
 ): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;
 
-function useQueryLoader<
-  TVariables: Variables,
-  TData,
-  TRawResponse: ?{...} = void,
->(
+hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,

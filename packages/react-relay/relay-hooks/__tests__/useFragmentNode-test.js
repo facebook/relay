@@ -92,7 +92,7 @@ type ReturnType<TFragmentData: mixed> = {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
-function useFragmentNode_NEW<TFragmentData: mixed>(
+hook useFragmentNode_NEW<TFragmentData: mixed>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,

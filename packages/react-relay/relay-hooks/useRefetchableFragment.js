@@ -64,7 +64,7 @@ export type UseRefetchableFragmentType = <
   key: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
-function useRefetchableFragment<
+hook useRefetchableFragment<
   TFragmentType: FragmentType,
   TVariables: Variables,
   TData,
@@ -84,6 +84,7 @@ function useRefetchableFragment<
   >(fragmentNode, fragmentRef, 'useRefetchableFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // $FlowFixMe[react-rule-hook]
     useDebugValue({fragment: fragmentNode.name, data: fragmentData});
   }
   // $FlowFixMe[incompatible-return]

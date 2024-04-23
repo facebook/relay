@@ -41,7 +41,7 @@ export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
   },
 ) => TData;
 
-function useLazyLoadQuery<TVariables: Variables, TData>(
+hook useLazyLoadQuery<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: {
@@ -75,4 +75,5 @@ function useLazyLoadQuery<TVariables: Variables, TData>(
   return data;
 }
 
+// $FlowFixMe[react-rule-hook-incompatible]
 module.exports = (useLazyLoadQuery: UseLazyLoadQueryHookType);

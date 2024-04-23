@@ -16,7 +16,7 @@ import type {ReaderFragment} from 'relay-runtime';
 const useUnsafeRef_DEPRECATED = require('./useUnsafeRef_DEPRECATED');
 const warning = require('warning');
 
-function useStaticFragmentNodeWarning(
+hook useStaticFragmentNodeWarning(
   fragmentNode: ReaderFragment,
   warningContext: string,
 ): void {
@@ -25,6 +25,7 @@ function useStaticFragmentNodeWarning(
     // __DEV__ setting which shouldn't change. This allows us to only pay the
     // cost of `useRef` in development mode to produce the warning.
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // $FlowFixMe[react-rule-hook]
     const initialPropRef = useUnsafeRef_DEPRECATED(fragmentNode.name);
     warning(
       initialPropRef.current === fragmentNode.name,

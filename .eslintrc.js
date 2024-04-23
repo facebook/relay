@@ -26,6 +26,9 @@ module.exports = {
     // Flow declares trip up the no-redeclare rule
     'no-redeclare': 'off',
 
+    // Flow handles these rules
+    'no-unreachable': 'off',
+
     // Prettier and ESLint may disagree on the following rules
     indent: 'off',
     'array-bracket-spacing': 'off',

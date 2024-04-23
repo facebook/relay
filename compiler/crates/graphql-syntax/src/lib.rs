@@ -103,6 +103,15 @@ pub fn parse_schema_document(
     parser.parse_schema_document()
 }
 
+pub fn parse_type_system_definition(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<TypeSystemDefinition> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_type_system_definition()
+}
+
 pub fn parse_field_definition(
     source: &str,
     source_location: SourceLocationKey,

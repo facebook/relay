@@ -209,6 +209,15 @@ impl<'a> Parser<'a> {
         }
     }
 
+    pub fn parse_type_system_definition(mut self) -> DiagnosticsResult<TypeSystemDefinition> {
+        let type_system_definition = self.parse_type_system_definition_impl();
+        if self.errors.is_empty() {
+            Ok(type_system_definition.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
     fn parse_eof(mut self) -> DiagnosticsResult<()> {
         self.parse_kind(TokenKind::EndOfFile)
             .map(|_| ())
@@ -244,7 +253,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let definitions = self.parse_list(
             |s| s.peek_type_system_definition(),
-            |s| s.parse_type_system_definition(),
+            |s| s.parse_type_system_definition_impl(),
         )?;
         let end = self.index();
         let span = Span::new(start, end);
@@ -283,7 +292,7 @@ impl<'a> Parser<'a> {
             | (TokenKind::Identifier, "input")
             | (TokenKind::Identifier, "directive")
             | (TokenKind::Identifier, "extend") => Ok(Definition::TypeSystemDefinition(
-                self.parse_type_system_definition()?,
+                self.parse_type_system_definition_impl()?,
             )),
             _ => {
                 let error = Diagnostic::error(
@@ -345,7 +354,7 @@ impl<'a> Parser<'a> {
     /// Definition :
     /// [] ExecutableDefinition
     /// [x]  TypeSystemDefinition
-    /// []  TypeSystemExtension
+    /// [x]  TypeSystemExtension
     fn peek_type_system_definition(&self) -> bool {
         let token = self.peek();
         match token.kind {
@@ -369,8 +378,8 @@ impl<'a> Parser<'a> {
     /// Definition :
     /// [] ExecutableDefinition
     /// [x]  TypeSystemDefinition
-    /// []  TypeSystemExtension
-    fn parse_type_system_definition(&mut self) -> ParseResult<TypeSystemDefinition> {
+    /// [x]  TypeSystemExtension
+    fn parse_type_system_definition_impl(&mut self) -> ParseResult<TypeSystemDefinition> {
         let description = self.parse_optional_description();
         let hack_source = self.parse_optional_hack_source();
         let token = self.peek();
@@ -429,7 +438,7 @@ impl<'a> Parser<'a> {
      *   - EnumTypeExtension
      *   - InputObjectTypeDefinition
      */
-    pub fn parse_type_system_extension(&mut self) -> ParseResult<TypeSystemDefinition> {
+    fn parse_type_system_extension(&mut self) -> ParseResult<TypeSystemDefinition> {
         self.parse_keyword("extend")?;
         let token = self.parse_kind(TokenKind::Identifier)?;
         match self.source(&token) {

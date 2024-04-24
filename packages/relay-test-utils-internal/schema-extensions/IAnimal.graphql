@@ -27,3 +27,10 @@ extend type Query {
 interface IWeakAnimal {
   legs: Int
 }
+
+input WeakAnimalRequest {
+  """
+  Should be a valid GraphQL type that implements `IWeakAnimal`.
+  """
+  ofType: String!
+}

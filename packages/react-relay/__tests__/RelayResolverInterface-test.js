@@ -263,6 +263,45 @@ describe.each([
   },
 );
 
+describe.each([
+  {
+    animalType: 'Octopus',
+    numLegs: '8',
+  },
+  {
+    animalType: 'PurpleOctopus',
+    numLegs: '8',
+  },
+])(
+  'resolvers can return an interface where all implementors are weak model types: %s',
+  ({animalType, numLegs}) => {
+    function WeakAnimalLegsQueryComponent(props: {request: {ofType: string}}) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverInterfaceTestWeakAnimalLegsQuery(
+            $request: WeakAnimalRequest!
+          ) {
+            weak_animal(request: $request) {
+              ...RelayResolverInterfaceTestWeakAnimalLegsFragment
+            }
+          }
+        `,
+        {request: props.request},
+      );
+      return <WeakAnimalLegsFragmentComponent animal={data.weak_animal} />;
+    }
+
+    test(`should read the legs of a ${animalType}`, () => {
+      const animalRenderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <WeakAnimalLegsQueryComponent request={{ofType: animalType}} />
+        </EnvironmentWrapper>,
+      );
+      expect(animalRenderer.toJSON()).toEqual(numLegs);
+    });
+  },
+);
+
 test('resolvers can return a list of interfaces where all implementors are strong model types', () => {
   function AnimalsLegsQueryComponent(props: {
     requests: Array<{ofType: string, returnValidID: boolean}>,

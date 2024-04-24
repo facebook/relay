@@ -16,13 +16,16 @@ use std::iter::once;
 
 use ::intern::string_key::StringKey;
 use common::ArgumentName;
+use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::SourceLocationKey;
 use intern::intern;
 use lazy_static::lazy_static;
+use relay_config::ProjectConfig;
 use schema::ArgumentDefinitions;
 use schema::SDLSchema;
+use schema::Schema;
 use schema::TypeReference;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
@@ -42,6 +45,7 @@ pub fn build_schema_with_extensions<
 >(
     server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
+    project_config: &ProjectConfig,
 ) -> DiagnosticsResult<SDLSchema> {
     let extensions: Vec<(&str, SourceLocationKey)> =
         once((RELAY_EXTENSIONS, SourceLocationKey::generated()))
@@ -53,6 +57,27 @@ pub fn build_schema_with_extensions<
             .collect();
 
     let mut schema = schema::build_schema_with_extensions(server_sdls, &extensions)?;
+
+    if project_config.typegen_config.require_custom_scalar_types {
+        for scalar in schema.scalars() {
+            if scalar.is_builtin_type() {
+                continue;
+            }
+            if !project_config
+                .typegen_config
+                .custom_scalar_types
+                .contains_key(&scalar.name.item)
+            {
+                return Err(vec![Diagnostic::error(
+                    format!(
+                        "Expected the JS type for '{}' to be defined, please update 'customScalarTypes' in your compiler config.",
+                        scalar.name.item
+                    ),
+                    scalar.name.location,
+                )]);
+            }
+        }
+    }
 
     // Remove label arg from @defer and @stream directives since the compiler
     // adds these arguments.

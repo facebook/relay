@@ -96,6 +96,7 @@ pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundRes
         build_schema_with_extensions(
             &[(schema_text, SourceLocationKey::generated())],
             &Vec::<(&str, SourceLocationKey)>::new(),
+            &Default::default(),
         )
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
@@ -132,6 +133,7 @@ pub fn parse_to_reader_ast_impl(
         build_schema_with_extensions(
             &[(schema_text, SourceLocationKey::Generated)],
             &Vec::<(&str, SourceLocationKey)>::new(),
+            &Default::default(),
         )
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
@@ -179,6 +181,7 @@ pub fn parse_to_normalization_ast_impl(
         build_schema_with_extensions(
             &[(schema_text, SourceLocationKey::Generated)],
             &Vec::<(&str, SourceLocationKey)>::new(),
+            &Default::default(),
         )
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
@@ -225,6 +228,7 @@ pub fn parse_to_types_impl(
         build_schema_with_extensions(
             &[(schema_text, SourceLocationKey::Generated)],
             &Vec::<(&str, SourceLocationKey)>::new(),
+            &Default::default(),
         )
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
@@ -282,6 +286,7 @@ fn transform_impl(
         build_schema_with_extensions(
             &[(schema_text, SourceLocationKey::Generated)],
             &Vec::<(&str, SourceLocationKey)>::new(),
+            &Default::default(),
         )
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );

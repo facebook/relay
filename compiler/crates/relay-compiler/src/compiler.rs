@@ -370,8 +370,8 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
             .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
         let mut removed_artifact_sources = graphql_asts
             .remove(&project_name)
-            .expect("Expect GraphQLAsts to exist.")
-            .removed_definition_names;
+            .map(|ast| ast.removed_definition_names)
+            .unwrap_or_else(|| Vec::new()); // We may have no js files in this project yet
 
         let removed_docblock_artifact_sources =
             get_removed_docblock_artifact_source_keys(compiler_state.docblocks.get(&project_name));

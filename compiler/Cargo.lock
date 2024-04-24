@@ -1812,6 +1812,7 @@ dependencies = [
  "docblock-shared",
  "intern",
  "lazy_static",
+ "relay-config",
  "schema",
 ]
 

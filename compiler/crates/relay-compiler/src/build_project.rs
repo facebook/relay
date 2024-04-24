@@ -208,20 +208,13 @@ pub fn build_programs(
     let mut build_mode = if !compiler_state.has_processed_changes() {
         BuildMode::Full
     } else {
-        let project_schema_change = compiler_state.schema_change_safety(
-            log_event,
-            project_name,
-            &project_config.schema_config,
-        );
+        let project_schema_change =
+            compiler_state.schema_change_safety(log_event, project_name, &project_config);
         match project_schema_change {
             SchemaChangeSafety::Unsafe => BuildMode::Full,
             SchemaChangeSafety::Safe | SchemaChangeSafety::SafeWithIncrementalBuild(_) => {
                 let base_schema_change = if let Some(base) = project_config.base {
-                    compiler_state.schema_change_safety(
-                        log_event,
-                        base,
-                        &project_config.schema_config,
-                    )
+                    compiler_state.schema_change_safety(log_event, base, &project_config)
                 } else {
                     SchemaChangeSafety::Safe
                 };

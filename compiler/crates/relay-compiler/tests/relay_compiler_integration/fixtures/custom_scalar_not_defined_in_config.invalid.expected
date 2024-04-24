@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+==================================== INPUT ====================================
+//- foo.js
+graphql`
+  fragment foo on Query {
+     greeting
+  }`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "requireCustomScalarTypes": true
+}
+
+//- schema.graphql
+type Query { greeting: MyScalar }
+
+scalar MyScalar # Not present in config
+==================================== OUTPUT ===================================
+✖︎ Expected the JS type for 'MyScalar' to be defined, please update 'customScalarTypes' in your compiler config.
+
+  schema.graphql:3:8
+    2 │ 
+    3 │ scalar MyScalar # Not present in config
+      │        ^^^^^^^^

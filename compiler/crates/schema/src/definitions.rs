@@ -12,6 +12,9 @@ use std::fmt;
 use std::hash::Hash;
 use std::slice::Iter;
 
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::EnumName;
@@ -26,8 +29,6 @@ use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
 pub use interface::*;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 use crate::Schema;
@@ -384,6 +385,17 @@ pub struct Scalar {
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
     pub hack_source: Option<StringKey>,
+}
+
+impl Scalar {
+    pub fn is_builtin_type(&self) -> bool {
+        let name = self.name.item.0;
+        name == intern!("String")
+            || name == intern!("Int")
+            || name == intern!("Float")
+            || name == intern!("Boolean")
+            || name == intern!("ID")
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]

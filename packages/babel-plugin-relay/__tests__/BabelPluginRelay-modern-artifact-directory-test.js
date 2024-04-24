@@ -11,7 +11,7 @@
 'use strict';
 
 const transformerWithOptions = require('./transformerWithOptions');
-const {generateTestsFromFixtures} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal/node');
 
 generateTestsFromFixtures(
   `${__dirname}/fixtures`,

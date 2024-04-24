@@ -4,13 +4,22 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow
  * @format
  * @oncall relay
  */
 
 'use strict';
 
-const transformerWithOptions = require('./transformerWithOptions');
-const {generateTestsFromFixtures} = require('relay-test-utils-internal/node');
+const {
+  FIXTURE_TAG,
+  generateTestsFromFixtures,
+} = require('./generateTestsFromFixtures');
 
-generateTestsFromFixtures(`${__dirname}/fixtures`, transformerWithOptions({}));
+/**
+ * The public interface to Relay Test Utils.
+ */
+module.exports = {
+  FIXTURE_TAG,
+  generateTestsFromFixtures,
+};

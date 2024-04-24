@@ -10,7 +10,9 @@
 
 'use strict';
 
-const transformerWithOptions = require('./transformerWithOptions');
-const {generateTestsFromFixtures} = require('relay-test-utils-internal/node');
+const FIXTURE_TAG = Symbol.for('FIXTURE_TAG');
 
-generateTestsFromFixtures(`${__dirname}/fixtures`, transformerWithOptions({}));
+/**
+ * The public interface to Relay Test Utils.
+ */
+module.exports = FIXTURE_TAG;

@@ -144,6 +144,7 @@ pub use inline_data_fragment::inline_data_fragment;
 pub use inline_data_fragment::InlineDirectiveMetadata;
 pub use inline_data_fragment::INLINE_DIRECTIVE_NAME;
 pub use inline_fragments::inline_fragments;
+pub use inline_fragments::inline_fragments_keep_fragments;
 pub use mask::mask;
 pub use match_::split_module_import;
 pub use match_::transform_match;

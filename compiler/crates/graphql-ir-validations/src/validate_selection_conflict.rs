@@ -14,6 +14,7 @@ use std::sync::Arc;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
+use common::NamedItem;
 use common::PointerAddress;
 use dashmap::DashMap;
 use dashmap::DashSet;
@@ -31,6 +32,8 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use relay_config::ProjectConfig;
+use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -42,9 +45,11 @@ use self::ignoring_type_and_location::arguments_equals;
 /// Note:set `further_optimization` will enable: (1) cache the paired-fields; and (2) avoid duplicate fragment validations in multi-core machines.
 pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
     program: &Program,
+    project_config: &ProjectConfig,
     further_optimization: bool,
 ) -> DiagnosticsResult<()> {
-    ValidateSelectionConflict::<B>::new(program, further_optimization).validate_program(program)
+    ValidateSelectionConflict::<B>::new(program, project_config, further_optimization)
+        .validate_program(program)
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -57,6 +62,7 @@ type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>, intern::BuildIdHasher<u32>>
 
 struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
+    project_config: &'s ProjectConfig,
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
     further_optimization: bool,
@@ -65,9 +71,14 @@ struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
 }
 
 impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
-    fn new(program: &'s Program, further_optimization: bool) -> Self {
+    fn new(
+        program: &'s Program,
+        project_config: &'s ProjectConfig,
+        further_optimization: bool,
+    ) -> Self {
         Self {
             program,
+            project_config,
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
             further_optimization,
@@ -157,11 +168,17 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     ) -> DiagnosticsResult<()> {
         match selection {
             Selection::LinkedField(field) => {
+                if !self.should_validate_selection(field.definition.item) {
+                    return Ok(());
+                }
                 self.validate_linked_field_selections(field)?;
                 let field = Field::LinkedField(field.as_ref());
                 self.validate_and_insert_field_selection(fields, &field, false)
             }
             Selection::ScalarField(field) => {
+                if !self.should_validate_selection(field.definition.item) {
+                    return Ok(());
+                }
                 let field = Field::ScalarField(field.as_ref());
                 self.validate_and_insert_field_selection(fields, &field, false)
             }
@@ -179,6 +196,18 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 self.validate_and_merge_fields(fields, &new_fields, false)
             }
         }
+    }
+
+    fn should_validate_selection(&self, field_id: FieldID) -> bool {
+        let schema_field = self.program.schema.field(field_id);
+        let unselectable_directive_name = self
+            .project_config
+            .schema_config
+            .unselectable_directive_name;
+        schema_field
+            .directives
+            .named(unselectable_directive_name)
+            .is_none()
     }
 
     fn validate_and_collect_fragment(

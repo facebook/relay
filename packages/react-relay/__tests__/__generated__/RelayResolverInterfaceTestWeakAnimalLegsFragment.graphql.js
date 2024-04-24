@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<18c1629379503b0a197cf1f9e5ba94a6>>
+ * @generated SignedSource<<0755cea003ca4f58ade98c19b502d44a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,6 +58,26 @@ var node/*: ReaderFragment*/ = {
             }
           ],
           "type": "Octopus",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "fragment": {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "PurpleOctopus____relay_model_instance"
+              },
+              "kind": "RelayResolver",
+              "name": "legs",
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/PurpleOctopusResolvers').legs, '__relay_model_instance', true),
+              "path": "legs"
+            }
+          ],
+          "type": "PurpleOctopus",
           "abstractKey": null
         }
       ]

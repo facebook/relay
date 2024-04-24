@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<87e48bf1b8480a6bd09e7e76fbc51c48>>
+ * @generated SignedSource<<81d5b53384bb675978d92e9829597952>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,7 +36,17 @@ export type RelayResolverInterfaceTestOctopusLegsQuery = {|
 |};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "__relay_model_instance",
+    "storageKey": null
+  }
+];
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -119,15 +129,7 @@ var node/*: ClientRequest*/ = {
                       "args": null,
                       "fragment": {
                         "kind": "InlineFragment",
-                        "selections": [
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "__relay_model_instance",
-                            "storageKey": null
-                          }
-                        ],
+                        "selections": (v0/*: any*/),
                         "type": "Octopus",
                         "abstractKey": null
                       },
@@ -137,6 +139,26 @@ var node/*: ClientRequest*/ = {
                     }
                   ],
                   "type": "Octopus",
+                  "abstractKey": null
+                },
+                {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "legs",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": (v0/*: any*/),
+                        "type": "PurpleOctopus",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null,
+                      "isOutputType": true
+                    }
+                  ],
+                  "type": "PurpleOctopus",
                   "abstractKey": null
                 }
               ],
@@ -150,7 +172,8 @@ var node/*: ClientRequest*/ = {
     ],
     "clientAbstractTypes": {
       "__isIWeakAnimal": [
-        "Octopus"
+        "Octopus",
+        "PurpleOctopus"
       ]
     }
   },
@@ -163,6 +186,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "a5c917bd6d8d0ac2656557c77209abde";

@@ -11,6 +11,7 @@
 
 mod errors;
 
+use std::fmt;
 use std::path::Path;
 
 use ::intern::intern;
@@ -70,13 +71,40 @@ pub struct RelayResolverExtractor {
     current_location: SourceLocationKey,
 }
 
+#[derive(
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Debug,
+    Hash,
+    Copy,
+    serde::Serialize
+)]
+pub enum JSImportType {
+    Default,
+    Namespace,
+    Named(StringKey),
+}
+impl fmt::Display for JSImportType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            JSImportType::Default => write!(f, "default"),
+            JSImportType::Namespace => write!(f, "namespace"),
+            JSImportType::Named(_) => write!(f, "named"),
+        }
+    }
+}
+
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
 struct ModuleResolutionKey {
     module_name: StringKey,
-    export_name: StringKey,
+    import_type: JSImportType,
 }
 
 struct UnresolvedFieldDefinition {
+    entity_name: WithLocation<StringKey>,
     field_name: WithLocation<StringKey>,
     return_type: FlowType,
     source_hash: ResolverSourceHash,
@@ -225,10 +253,11 @@ impl RelayResolverExtractor {
             } else {
                 errors.push(Diagnostic::error(
                     SchemaGenerationError::ModuleNotFound {
-                        export_name: key.export_name,
+                        entity_name: field.entity_name.item,
+                        export_type: key.import_type,
                         module_name: key.module_name,
                     },
-                    field.field_name.location,
+                    field.entity_name.location,
                 ))
             }
         }
@@ -244,7 +273,7 @@ impl RelayResolverExtractor {
 
     fn add_unresolved_field_definition(
         &mut self,
-        imports: &FxHashMap<StringKey, ModuleResolutionKey>,
+        imports: &FxHashMap<StringKey, (ModuleResolutionKey, Location)>,
         field_name: WithLocation<StringKey>,
         entity_type: FlowType,
         return_type: FlowType,
@@ -260,18 +289,20 @@ impl RelayResolverExtractor {
             }
         };
 
-        let key: &ModuleResolutionKey = imports.get(&entity_name.item).ok_or_else(|| {
-            Diagnostic::error(
-                SchemaGenerationError::ExpectedFlowImportForType {
-                    name: entity_name.item,
-                },
-                entity_name.location,
-            )
-        })?;
+        let (key, _): &(ModuleResolutionKey, Location) =
+            imports.get(&entity_name.item).ok_or_else(|| {
+                Diagnostic::error(
+                    SchemaGenerationError::ExpectedFlowImportForType {
+                        name: entity_name.item,
+                    },
+                    entity_name.location,
+                )
+            })?;
 
         self.unresolved_field_definitions.push((
             key.clone(),
             UnresolvedFieldDefinition {
+                entity_name,
                 field_name,
                 return_type,
                 source_hash,
@@ -283,7 +314,7 @@ impl RelayResolverExtractor {
 
     fn add_type_definition(
         &mut self,
-        imports: &FxHashMap<StringKey, ModuleResolutionKey>,
+        imports: &FxHashMap<StringKey, (ModuleResolutionKey, Location)>,
         name: WithLocation<StringKey>,
         return_type: FlowType,
         source_hash: ResolverSourceHash,
@@ -308,12 +339,21 @@ impl RelayResolverExtractor {
         match return_type {
             FlowType::NamedType(type_) => {
                 let name = type_.identifier.item;
-                let key = imports.get(&name).ok_or_else(|| {
+                let (key, import_location) = imports.get(&name).ok_or_else(|| {
                     Diagnostic::error(
                         SchemaGenerationError::ExpectedFlowImportForType { name },
                         type_.identifier.location,
                     )
                 })?;
+                if let JSImportType::Namespace = key.import_type {
+                    return Err(vec![
+                        Diagnostic::error(
+                            SchemaGenerationError::UseNamedOrDefaultImport,
+                            type_.identifier.location,
+                        )
+                        .annotate(format!("{} is imported from", name), *import_location),
+                    ]);
+                };
                 self.type_definitions
                     .insert(key.clone(), DocblockIr::StrongObjectResolver(strong_object));
                 Ok(())
@@ -356,8 +396,8 @@ impl RelayResolverExtractor {
             .to_str()
             .unwrap();
         let key = ModuleResolutionKey {
-            export_name: haste_module_name.intern(),
-            module_name: name.item,
+            module_name: haste_module_name.intern(),
+            import_type: JSImportType::Named(name.item),
         };
         // Add fields
         if let FlowType::ObjectType(ObjectType {
@@ -451,7 +491,7 @@ impl SchemaExtractor for RelayResolverExtractor {
 }
 
 struct ImportsVisitor {
-    imports: FxHashMap<StringKey, ModuleResolutionKey>,
+    imports: FxHashMap<StringKey, (ModuleResolutionKey, Location)>,
     errors: Vec<Diagnostic>,
     location: SourceLocationKey,
 }
@@ -466,7 +506,9 @@ impl ImportsVisitor {
     }
 
     /// Returns a map of local name => module key
-    fn get_imports(self) -> DiagnosticsResult<FxHashMap<StringKey, ModuleResolutionKey>> {
+    fn get_imports(
+        self,
+    ) -> DiagnosticsResult<FxHashMap<StringKey, (ModuleResolutionKey, Location)>> {
         if !self.errors.is_empty() {
             Err(self.errors)
         } else {
@@ -477,12 +519,13 @@ impl ImportsVisitor {
 
 impl Visitor<'_> for ImportsVisitor {
     fn visit_import_declaration(&mut self, ast: &'_ hermes_estree::ImportDeclaration) {
+        let location = to_location(self.location, &ast.source);
         let source = match &ast.source {
             _Literal::StringLiteral(node) => (&node.value).intern(),
             _ => {
                 self.errors.push(Diagnostic::error(
                     SchemaGenerationError::ExpectedStringLiteralSource,
-                    to_location(self.location, &ast.source),
+                    location,
                 ));
                 return;
             }
@@ -492,24 +535,33 @@ impl Visitor<'_> for ImportsVisitor {
             .extend(ast.specifiers.iter().map(|specifier| match specifier {
                 ImportDeclarationSpecifier::ImportDefaultSpecifier(node) => (
                     (&node.local.name).intern(),
-                    ModuleResolutionKey {
-                        export_name: source,
-                        module_name: intern!("default"),
-                    },
-                ),
-                ImportDeclarationSpecifier::ImportNamespaceSpecifier(node) => (
-                    (&node.local.name).intern(),
-                    ModuleResolutionKey {
-                        export_name: source,
-                        module_name: intern!("*"),
-                    },
+                    (
+                        ModuleResolutionKey {
+                            module_name: source,
+                            import_type: JSImportType::Default,
+                        },
+                        to_location(self.location, &node.local),
+                    ),
                 ),
                 ImportDeclarationSpecifier::ImportSpecifier(node) => (
                     (&node.local.name).intern(),
-                    ModuleResolutionKey {
-                        export_name: source,
-                        module_name: (&node.imported.name).intern(),
-                    },
+                    (
+                        ModuleResolutionKey {
+                            module_name: source,
+                            import_type: JSImportType::Named((&node.imported.name).intern()),
+                        },
+                        to_location(self.location, &node.local),
+                    ),
+                ),
+                ImportDeclarationSpecifier::ImportNamespaceSpecifier(node) => (
+                    (&node.local.name).intern(),
+                    (
+                        ModuleResolutionKey {
+                            module_name: source,
+                            import_type: JSImportType::Namespace,
+                        },
+                        to_location(self.location, &node.local),
+                    ),
                 ),
             }));
     }

@@ -37,10 +37,20 @@ export function hungry(cat: CatFlowType): number {
   return 5;
 }
 
+//- Dog.js
+
+import * as DogNamespace from 'Dog';
+
+/**
+ * @RelayResolver
+ */
+export function Dog(id: DataID): DogNamespace {
+  return {};
+}
 
 //- Dog-name.js
 
-import type DogFlowType from 'Dog';
+import type DogFlowType from 'Dog.flow';
 
 /**
  * @RelayResolver
@@ -60,10 +70,27 @@ export function name(dog: DogFlowType): string {
     6 │   return 5;
 
 
-✖︎ Failed to find type definition for type `Dog` from module `default`, please make sure `Dog` is imported and it is a resolver type
+✖︎ Failed to find type definition for `DogFlowType` using a default import from module `Dog.flow`. Please make sure `DogFlowType` is imported using a named or default import and that it is a resolver type
 
-  Dog-name.js:7:17
+  Dog-name.js:7:27
     6 │  */
     7 │ export function name(dog: DogFlowType): string {
-      │                 ^^^^
+      │                           ^^^^^^^^^^^
     8 │   return "dog";
+
+
+✖︎ Types used in @RelayResolver definitions should be imported using named or default imports (without using a `*`)
+
+  Dog.js:7:34
+    6 │  */
+    7 │ export function Dog(id: DataID): DogNamespace {
+      │                                  ^^^^^^^^^^^^
+    8 │   return {};
+
+  ℹ︎ DogNamespace is imported from
+
+  Dog.js:2:13
+    1 │ 
+    2 │ import * as DogNamespace from 'Dog';
+      │             ^^^^^^^^^^^^
+    3 │

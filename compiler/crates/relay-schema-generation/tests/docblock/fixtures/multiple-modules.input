@@ -36,10 +36,20 @@ export function hungry(cat: CatFlowType): number {
   return 5;
 }
 
+//- Dog.js
+
+import * as DogNamespace from 'Dog';
+
+/**
+ * @RelayResolver
+ */
+export function Dog(id: DataID): DogNamespace {
+  return {};
+}
 
 //- Dog-name.js
 
-import type DogFlowType from 'Dog';
+import type DogFlowType from 'Dog.flow';
 
 /**
  * @RelayResolver

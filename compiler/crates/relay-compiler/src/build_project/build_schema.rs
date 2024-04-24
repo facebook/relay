@@ -48,8 +48,11 @@ pub fn build_schema(
                     .into_iter()
                     .map(|(schema, location_key)| (schema.as_str(), location_key)),
             );
-            let mut schema =
-                relay_schema::build_schema_with_extensions(&schema_sources, &extensions)?;
+            let mut schema = relay_schema::build_schema_with_extensions(
+                &schema_sources,
+                &extensions,
+                project_config,
+            )?;
 
             if project_config.feature_flags.enable_relay_resolver_transform {
                 extend_schema_with_resolvers(

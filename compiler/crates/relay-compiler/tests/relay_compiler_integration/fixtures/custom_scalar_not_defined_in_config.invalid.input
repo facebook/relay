@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+//- foo.js
+graphql`
+  fragment foo on Query {
+     greeting
+  }`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "requireCustomScalarTypes": true
+}
+
+//- schema.graphql
+type Query { greeting: MyScalar }
+
+scalar MyScalar # Not present in config

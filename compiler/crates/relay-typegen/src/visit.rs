@@ -1960,6 +1960,8 @@ fn transform_graphql_scalar_type(
             .typegen_config
             .require_custom_scalar_types
         {
+            // There is a diagnostic in relay-schema which checks this when the schema is built. We should never hit this
+            // condition in practice.
             panic!(
                 "Expected the JS type for '{}' to be defined, please update 'customScalarTypes' in your compiler config.",
                 scalar_name.item

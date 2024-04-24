@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f79ec1771e29102c917c2acdb8bdb98d>>
+ * @generated SignedSource<<adeb8226ad6a02ceb0968abce186b942>>
  */
 
 mod relay_compiler_integration;
@@ -45,6 +45,13 @@ async fn client_mutation_resolver_invalid_nonscalar() {
     let input = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.input");
     let expected = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.expected");
     test_fixture(transform_fixture, file!(), "client_mutation_resolver_invalid_nonscalar.input", "relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn custom_scalar_not_defined_in_config_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/custom_scalar_not_defined_in_config.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/custom_scalar_not_defined_in_config.invalid.expected");
+    test_fixture(transform_fixture, file!(), "custom_scalar_not_defined_in_config.invalid.input", "relay_compiler_integration/fixtures/custom_scalar_not_defined_in_config.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -94,6 +101,13 @@ async fn preloadable_query_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
     test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn project_with_no_js() {
+    let input = include_str!("relay_compiler_integration/fixtures/project_with_no_js.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/project_with_no_js.expected");
+    test_fixture(transform_fixture, file!(), "project_with_no_js.input", "relay_compiler_integration/fixtures/project_with_no_js.expected", input, expected).await;
 }
 
 #[tokio::test]

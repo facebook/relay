@@ -23,7 +23,8 @@ lazy_static! {
     pub static ref TEST_SCHEMA: Arc<SDLSchema> = Arc::new(
         build_schema_with_extensions::<_, &str>(
             &[(TEST_SCHEMA_DATA, SourceLocationKey::generated())],
-            &[]
+            &[],
+            &Default::default(),
         )
         .expect("Expected test schema to be valid")
     );
@@ -33,7 +34,8 @@ lazy_static! {
                 TEST_SCHEMA_WITH_CUSTOM_ID_DATA,
                 SourceLocationKey::generated()
             )],
-            &[]
+            &[],
+            &Default::default(),
         )
         .expect("Expected test schema to be valid")
     );
@@ -55,6 +57,7 @@ pub fn get_test_schema_with_located_extensions(
         build_schema_with_extensions(
             &[(TEST_SCHEMA_DATA, SourceLocationKey::generated())],
             &[(extensions_sdl, source_location)],
+            &Default::default(),
         )
         .expect("Expected test schema (and extensions) to be valid"),
     )
@@ -72,6 +75,7 @@ pub fn get_test_schema_with_custom_id_with_extensions(extensions_sdl: &str) -> A
                 SourceLocationKey::generated(),
             )],
             &[(extensions_sdl, SourceLocationKey::generated())],
+            &Default::default(),
         )
         .expect("Expected test schema (and extensions) to be valid"),
     )

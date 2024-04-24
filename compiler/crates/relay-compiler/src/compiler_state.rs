@@ -28,8 +28,8 @@ use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use rayon::prelude::*;
+use relay_config::ProjectConfig;
 use relay_config::ProjectName;
-use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use schema_diff::check::SchemaChangeSafety;
 use schema_diff::definitions::SchemaChange;
@@ -451,7 +451,7 @@ impl CompilerState {
         &self,
         sources: &SchemaSources,
         schema_change: SchemaChange,
-        schema_config: &SchemaConfig,
+        project_config: &ProjectConfig,
     ) -> SchemaChangeSafety {
         if schema_change == SchemaChange::None {
             SchemaChangeSafety::Safe
@@ -465,8 +465,9 @@ impl CompilerState {
             match relay_schema::build_schema_with_extensions(
                 &current_sources_with_location,
                 &Vec::<(&str, SourceLocationKey)>::new(),
+                &project_config,
             ) {
-                Ok(schema) => schema_change.get_safety(&schema, schema_config),
+                Ok(schema) => schema_change.get_safety(&schema, &project_config.schema_config),
                 Err(_) => SchemaChangeSafety::Unsafe,
             }
         }
@@ -477,7 +478,7 @@ impl CompilerState {
         &self,
         log_event: &impl PerfLogEvent,
         project_name: ProjectName,
-        schema_config: &SchemaConfig,
+        project_config: &ProjectConfig,
     ) -> SchemaChangeSafety {
         if let Some(extension) = self.extensions.get(&project_name) {
             if !extension.pending.is_empty() {
@@ -502,7 +503,7 @@ impl CompilerState {
                 let schema_change = self.get_schema_change(schema);
                 let schema_change_string = schema_change.to_string();
                 let schema_change_safety =
-                    self.get_schema_change_safety(schema, schema_change, schema_config);
+                    self.get_schema_change_safety(schema, schema_change, project_config);
                 match schema_change_safety {
                     SchemaChangeSafety::Unsafe => {
                         log_event.string("schema_change", schema_change_string);

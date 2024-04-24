@@ -28,6 +28,7 @@ hook useStaticFragmentNodeWarning(
     // $FlowFixMe[react-rule-hook]
     const initialPropRef = useUnsafeRef_DEPRECATED(fragmentNode.name);
     warning(
+      // $FlowFixMe[react-rule-unsafe-ref]
       initialPropRef.current === fragmentNode.name,
       'Relay: The %s has to remain the same over the lifetime of a component. ' +
         'Changing it is not supported and will result in unexpected behavior.',

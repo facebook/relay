@@ -168,6 +168,7 @@ hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
     // necessary here
     // TODO(T78446637): Handle disposal of managed query references in
     // components that were never mounted after rendering
+    // $FlowFixMe[react-rule-unsafe-ref]
     undisposedQueryReferencesRef.current.add(initialQueryReferenceInternal);
     setPreviousInitialQueryReference(initialQueryReferenceInternal);
     setQueryReference(initialQueryReferenceInternal);

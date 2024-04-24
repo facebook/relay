@@ -533,6 +533,7 @@ hook useFragmentInternal(
       RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE ||
       environment !== previousEnvironment ||
       !committedFragmentSelectorRef.current ||
+      // $FlowFixMe[react-rule-unsafe-ref]
       !areEqualSelectors(committedFragmentSelectorRef.current, fragmentSelector)
     ) {
       invariant(fragmentSelector != null, 'refinement, see invariants above');
@@ -592,6 +593,7 @@ hook useFragmentInternal(
         state = updatedState;
       }
     }
+    // $FlowFixMe[react-rule-unsafe-ref]
     hasPendingStateChanges.current = false;
   }
 

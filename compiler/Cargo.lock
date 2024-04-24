@@ -1688,6 +1688,7 @@ dependencies = [
  "rustc-hash",
  "schema",
  "schema-diff",
+ "schema-validate-lib",
  "serde",
  "serde_bser",
  "serde_json",

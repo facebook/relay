@@ -28,4 +28,5 @@ graphql`fragment UserFooFragment on User {
 }
 
 //- schema.graphql
+type Query { me: User }
 type User { name: String }

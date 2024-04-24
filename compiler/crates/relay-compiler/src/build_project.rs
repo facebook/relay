@@ -313,7 +313,13 @@ pub fn build_project(
     // Construct a schema instance including project specific extensions.
     let schema = log_event
         .time("build_schema_time", || {
-            build_schema(compiler_state, config, project_config, graphql_asts_map)
+            build_schema(
+                compiler_state,
+                config,
+                project_config,
+                graphql_asts_map,
+                &log_event,
+            )
         })
         .map_err(|errors| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors {

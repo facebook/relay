@@ -107,6 +107,11 @@ pub struct FeatureFlags {
     /// Allow non-nullable return types from resolvers.
     #[serde(default)]
     pub allow_resolver_non_nullable_return_type: FeatureFlag,
+
+    /// Enable validating the composite schema (server, client schema
+    /// extensions, Relay Resolvers) after its built.
+    #[serde(default)]
+    pub enable_experimental_schema_validation: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

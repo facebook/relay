@@ -20,6 +20,7 @@ graphql`fragment barFragment on User {
 }
 
 //- schema.graphql
+type Query { user: User }
 type User { name: String }
 ==================================== OUTPUT ===================================
 //- __generated__/barFragment.graphql.ts

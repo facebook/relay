@@ -40,9 +40,10 @@ graphql`fragment PersonComponentFragment on IPerson {
 //- schema.graphql
 
 //- schema-extensions/extension.graphql
-interface IPerson {
-  id: ID!
-}
+type Query { me: IPerson }
+
+# Fields to be added later by resolvers
+interface IPerson
 ==================================== OUTPUT ===================================
 //- __generated__/Admin____relay_model_instance.graphql.js
 /**

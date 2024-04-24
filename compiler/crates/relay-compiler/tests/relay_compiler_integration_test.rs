@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<276e2284c38de688261ae6c3a87e49ee>>
+ * @generated SignedSource<<f79ec1771e29102c917c2acdb8bdb98d>>
  */
 
 mod relay_compiler_integration;
@@ -220,6 +220,13 @@ async fn spread_interface_fragment_on_concrete_type() {
     let input = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.expected");
     test_fixture(transform_fixture, file!(), "spread_interface_fragment_on_concrete_type.input", "relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_interface_fragment_on_weak_concrete_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "spread_interface_fragment_on_weak_concrete_type.input", "relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

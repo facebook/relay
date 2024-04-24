@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f79ec1771e29102c917c2acdb8bdb98d>>
+ * @generated SignedSource<<f5708275a9732c3842b1df840547eac9>>
  */
 
 mod relay_compiler_integration;
@@ -73,6 +73,20 @@ async fn live_resolver_implements_interface_field() {
     let input = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.input");
     let expected = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected");
     test_fixture(transform_fixture, file!(), "live_resolver_implements_interface_field.input", "relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_resolvers_on_interface_of_all_strong_model_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_on_interface_of_all_strong_model_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_on_interface_of_all_strong_model_type.expected");
+    test_fixture(transform_fixture, file!(), "multiple_resolvers_on_interface_of_all_strong_model_type.input", "relay_compiler_integration/fixtures/multiple_resolvers_on_interface_of_all_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_resolvers_returns_interfaces_of_all_strong_model_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.expected");
+    test_fixture(transform_fixture, file!(), "multiple_resolvers_returns_interfaces_of_all_strong_model_type.input", "relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -227,6 +241,13 @@ async fn spread_interface_fragment_on_weak_concrete_type() {
     let input = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.expected");
     test_fixture(transform_fixture, file!(), "spread_interface_fragment_on_weak_concrete_type.input", "relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_multiple_interface_fragments_on_concrete_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "spread_multiple_interface_fragments_on_concrete_type.input", "relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

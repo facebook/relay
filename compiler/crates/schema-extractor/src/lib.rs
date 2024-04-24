@@ -121,7 +121,7 @@ pub trait SchemaExtractor {
         let param = &node.params[0];
         let entity_type = if let Pattern::Identifier(identifier) = param {
             let raw_type = identifier.type_annotation.as_ref().ok_or_else(|| {
-                Diagnostic::error(ExtractError::MissingReturnType, self.to_location(node))
+                Diagnostic::error(ExtractError::MissingParamType, self.to_location(param))
             })?;
             self.extract_type(raw_type)?
         } else {

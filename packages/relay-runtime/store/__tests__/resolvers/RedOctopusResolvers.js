@@ -10,30 +10,30 @@
  */
 
 /**
- * @RelayResolver Octopus implements IWeakAnimal
+ * @RelayResolver RedOctopus implements IWeakAnimal
  * @weak
  */
-export type Octopus = {
+export type RedOctopus = {
   name: string,
 };
 
 /**
- * @RelayResolver Octopus.legs: Int
+ * @RelayResolver RedOctopus.color: String
  */
-function legs(octopus: Octopus): number {
-  return 8;
+function color(red_octopus: RedOctopus): ?string {
+  return 'red';
 }
 
 /**
- * @RelayResolver Query.octopus: Octopus
+ * @RelayResolver Query.red_octopus: RedOctopus
  */
-function octopus(): Octopus {
+function red_octopus(): RedOctopus {
   return {
-    name: 'Octopus',
+    name: 'RedOctopus',
   };
 }
 
 module.exports = {
-  octopus,
-  legs,
+  red_octopus,
+  color,
 };

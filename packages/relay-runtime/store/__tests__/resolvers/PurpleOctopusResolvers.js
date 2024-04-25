@@ -18,10 +18,10 @@ export type PurpleOctopus = {
 };
 
 /**
- * @RelayResolver PurpleOctopus.legs: Int
+ * @RelayResolver PurpleOctopus.color: String
  */
-function legs(purpleOctopus: PurpleOctopus): number {
-  return 8;
+function color(purpleOctopus: PurpleOctopus): ?string {
+  return 'purple';
 }
 
 /**
@@ -34,6 +34,6 @@ function purpleOctopus(): PurpleOctopus {
 }
 
 module.exports = {
-  legs,
+  color,
   purpleOctopus,
 };

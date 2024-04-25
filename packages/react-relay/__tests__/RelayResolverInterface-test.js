@@ -12,7 +12,7 @@
 'use strict';
 
 import type {RelayResolverInterfaceTestAnimalLegsFragment$key} from './__generated__/RelayResolverInterfaceTestAnimalLegsFragment.graphql';
-import type {RelayResolverInterfaceTestWeakAnimalLegsFragment$key} from './__generated__/RelayResolverInterfaceTestWeakAnimalLegsFragment.graphql';
+import type {RelayResolverInterfaceTestWeakAnimalColorFragment$key} from './__generated__/RelayResolverInterfaceTestWeakAnimalColorFragment.graphql';
 
 const React = require('react');
 const {useFragment} = require('react-relay');
@@ -167,42 +167,42 @@ test('should read the legs of a chicken (client schema extension type)', () => {
   expect(renderer.toJSON()).toEqual('2');
 });
 
-function WeakAnimalLegsFragmentComponent(props: {
-  animal: ?RelayResolverInterfaceTestWeakAnimalLegsFragment$key,
+function WeakAnimalColorFragmentComponent(props: {
+  animal: ?RelayResolverInterfaceTestWeakAnimalColorFragment$key,
 }) {
   const animal = useFragment(
     graphql`
-      fragment RelayResolverInterfaceTestWeakAnimalLegsFragment on IWeakAnimal {
-        legs
+      fragment RelayResolverInterfaceTestWeakAnimalColorFragment on IWeakAnimal {
+        color
       }
     `,
     props.animal,
   );
-  return animal?.legs;
+  return animal?.color;
 }
 
-test('should read the legs of an octopus (weak model type)', () => {
-  function OctopusLegsRootComponent() {
+test('should read the color of a red octopus (weak model type)', () => {
+  function RedOctopusColorRootComponent() {
     const data = useClientQuery(
       graphql`
-        query RelayResolverInterfaceTestOctopusLegsQuery {
-          octopus {
-            ...RelayResolverInterfaceTestWeakAnimalLegsFragment
+        query RelayResolverInterfaceTestRedOctopusColorQuery {
+          red_octopus {
+            ...RelayResolverInterfaceTestWeakAnimalColorFragment
           }
         }
       `,
       {},
     );
 
-    return <WeakAnimalLegsFragmentComponent animal={data.octopus} />;
+    return <WeakAnimalColorFragmentComponent animal={data.red_octopus} />;
   }
 
   const renderer = TestRenderer.create(
     <EnvironmentWrapper environment={environment}>
-      <OctopusLegsRootComponent />
+      <RedOctopusColorRootComponent />
     </EnvironmentWrapper>,
   );
-  expect(renderer.toJSON()).toEqual('8');
+  expect(renderer.toJSON()).toEqual('red');
 });
 
 function AnimalGreetingQueryComponent(props: {
@@ -284,7 +284,7 @@ describe.each([
 
 describe.each([
   {
-    inputAnimalType: 'Octopus',
+    inputAnimalType: 'RedOctopus',
     name: 'Shiny',
   },
   {
@@ -310,39 +310,39 @@ describe.each([
 
 describe.each([
   {
-    animalType: 'Octopus',
-    numLegs: '8',
+    animalType: 'RedOctopus',
+    color: 'red',
   },
   {
     animalType: 'PurpleOctopus',
-    numLegs: '8',
+    color: 'purple',
   },
 ])(
   'resolvers can return an interface where all implementors are weak model types: %s',
-  ({animalType, numLegs}) => {
-    function WeakAnimalLegsQueryComponent(props: {request: {ofType: string}}) {
+  ({animalType, color}) => {
+    function WeakAnimalColorQueryComponent(props: {request: {ofType: string}}) {
       const data = useClientQuery(
         graphql`
-          query RelayResolverInterfaceTestWeakAnimalLegsQuery(
+          query RelayResolverInterfaceTestWeakAnimalColorQuery(
             $request: WeakAnimalRequest!
           ) {
             weak_animal(request: $request) {
-              ...RelayResolverInterfaceTestWeakAnimalLegsFragment
+              ...RelayResolverInterfaceTestWeakAnimalColorFragment
             }
           }
         `,
         {request: props.request},
       );
-      return <WeakAnimalLegsFragmentComponent animal={data.weak_animal} />;
+      return <WeakAnimalColorFragmentComponent animal={data.weak_animal} />;
     }
 
-    test(`should read the legs of a ${animalType}`, () => {
+    test(`should read the color of a ${animalType}`, () => {
       const animalRenderer = TestRenderer.create(
         <EnvironmentWrapper environment={environment}>
-          <WeakAnimalLegsQueryComponent request={{ofType: animalType}} />
+          <WeakAnimalColorQueryComponent request={{ofType: animalType}} />
         </EnvironmentWrapper>,
       );
-      expect(animalRenderer.toJSON()).toEqual(numLegs);
+      expect(animalRenderer.toJSON()).toEqual(color);
     });
   },
 );

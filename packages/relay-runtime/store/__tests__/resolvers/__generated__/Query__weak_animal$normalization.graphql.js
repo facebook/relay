@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<95b83bdc6bd0b02dcaf343e68c8e7782>>
+ * @generated SignedSource<<31d6ff1e0c9d59015ae3c217b6c8de59>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,14 +19,14 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-import type { Octopus } from "../OctopusResolvers.js";
 import type { PurpleOctopus } from "../PurpleOctopusResolvers.js";
+import type { RedOctopus } from "../RedOctopusResolvers.js";
 export type Query__weak_animal$normalization = {|
-  +__typename: "Octopus",
-  +__relay_model_instance: Octopus,
-|} | {|
   +__typename: "PurpleOctopus",
   +__relay_model_instance: PurpleOctopus,
+|} | {|
+  +__typename: "RedOctopus",
+  +__relay_model_instance: RedOctopus,
 |};
 
 */
@@ -59,13 +59,13 @@ return {
         {
           "kind": "InlineFragment",
           "selections": (v0/*: any*/),
-          "type": "Octopus",
+          "type": "PurpleOctopus",
           "abstractKey": null
         },
         {
           "kind": "InlineFragment",
           "selections": (v0/*: any*/),
-          "type": "PurpleOctopus",
+          "type": "RedOctopus",
           "abstractKey": null
         }
       ]

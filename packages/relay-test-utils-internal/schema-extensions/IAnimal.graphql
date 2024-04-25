@@ -25,7 +25,7 @@ extend type Query {
 }
 
 interface IWeakAnimal {
-  legs: Int
+  color: String
 }
 
 input WeakAnimalRequest {

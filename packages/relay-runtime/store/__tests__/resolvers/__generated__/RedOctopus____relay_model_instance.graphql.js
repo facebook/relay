@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5bb82740637ead58fafb450bcd5f09ef>>
+ * @generated SignedSource<<751fc00d0d418c2e811a86dc7eed794a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,16 +18,16 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-import type { Octopus } from "../OctopusResolvers.js";
+import type { RedOctopus } from "../RedOctopusResolvers.js";
 import type { FragmentType } from "relay-runtime";
-declare export opaque type Octopus____relay_model_instance$fragmentType: FragmentType;
-export type Octopus____relay_model_instance$data = {|
-  +__relay_model_instance: Octopus,
-  +$fragmentType: Octopus____relay_model_instance$fragmentType,
+declare export opaque type RedOctopus____relay_model_instance$fragmentType: FragmentType;
+export type RedOctopus____relay_model_instance$data = {|
+  +__relay_model_instance: RedOctopus,
+  +$fragmentType: RedOctopus____relay_model_instance$fragmentType,
 |};
-export type Octopus____relay_model_instance$key = {
-  +$data?: Octopus____relay_model_instance$data,
-  +$fragmentSpreads: Octopus____relay_model_instance$fragmentType,
+export type RedOctopus____relay_model_instance$key = {
+  +$data?: RedOctopus____relay_model_instance$data,
+  +$fragmentSpreads: RedOctopus____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -36,7 +36,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Octopus____relay_model_instance",
+  "name": "RedOctopus____relay_model_instance",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -51,11 +51,11 @@ var node/*: ReaderFragment*/ = {
       ]
     }
   ],
-  "type": "Octopus",
+  "type": "RedOctopus",
   "abstractKey": null
 };
 
 module.exports = ((node/*: any*/)/*: Fragment<
-  Octopus____relay_model_instance$fragmentType,
-  Octopus____relay_model_instance$data,
+  RedOctopus____relay_model_instance$fragmentType,
+  RedOctopus____relay_model_instance$data,
 >*/);

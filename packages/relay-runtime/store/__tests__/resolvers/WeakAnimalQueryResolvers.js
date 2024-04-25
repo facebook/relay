@@ -9,11 +9,11 @@
  * @oncall relay
  */
 
-import type {Octopus} from './OctopusResolvers';
 import type {PurpleOctopus} from './PurpleOctopusResolvers';
+import type {RedOctopus} from './RedOctopusResolvers';
 import type {Query__weak_animal$normalization} from 'relay-runtime/store/__tests__/resolvers/__generated__/Query__weak_animal$normalization.graphql';
 
-type IWeakAnimal = Octopus | PurpleOctopus;
+type IWeakAnimal = RedOctopus | PurpleOctopus;
 
 /**
  * Defines greeting of a `IWeakAnimal`.
@@ -33,12 +33,12 @@ function weak_animal(args: {
   request: {ofType: string},
 }): Query__weak_animal$normalization {
   switch (args.request.ofType) {
-    case 'Octopus':
+    case 'RedOctopus':
       return {
         __relay_model_instance: {
           name: 'Shiny',
         },
-        __typename: 'Octopus',
+        __typename: 'RedOctopus',
       };
     case 'PurpleOctopus':
       return {

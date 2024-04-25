@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<81d5b53384bb675978d92e9829597952>>
+ * @generated SignedSource<<f7b15df9b150c2facfc8f391b2c2bce5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,21 +18,21 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { RelayResolverInterfaceTestWeakAnimalLegsFragment$fragmentType } from "./RelayResolverInterfaceTestWeakAnimalLegsFragment.graphql";
-import {octopus as queryOctopusResolverType} from "../../../relay-runtime/store/__tests__/resolvers/OctopusResolvers.js";
-// Type assertion validating that `queryOctopusResolverType` resolver is correctly implemented.
+import type { RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType } from "./RelayResolverInterfaceTestWeakAnimalColorFragment.graphql";
+import {red_octopus as queryRedOctopusResolverType} from "../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers.js";
+// Type assertion validating that `queryRedOctopusResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryOctopusResolverType: () => ?Octopus);
-import type { Octopus } from "../../../relay-runtime/store/__tests__/resolvers/OctopusResolvers.js";
-export type RelayResolverInterfaceTestOctopusLegsQuery$variables = {||};
-export type RelayResolverInterfaceTestOctopusLegsQuery$data = {|
-  +octopus: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestWeakAnimalLegsFragment$fragmentType,
+(queryRedOctopusResolverType: () => ?RedOctopus);
+import type { RedOctopus } from "../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers.js";
+export type RelayResolverInterfaceTestRedOctopusColorQuery$variables = {||};
+export type RelayResolverInterfaceTestRedOctopusColorQuery$data = {|
+  +red_octopus: ?{|
+    +$fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
   |},
 |};
-export type RelayResolverInterfaceTestOctopusLegsQuery = {|
-  response: RelayResolverInterfaceTestOctopusLegsQuery$data,
-  variables: RelayResolverInterfaceTestOctopusLegsQuery$variables,
+export type RelayResolverInterfaceTestRedOctopusColorQuery = {|
+  response: RelayResolverInterfaceTestRedOctopusColorQuery$data,
+  variables: RelayResolverInterfaceTestRedOctopusColorQuery$variables,
 |};
 */
 
@@ -53,38 +53,38 @@ return {
     "metadata": {
       "hasClientEdges": true
     },
-    "name": "RelayResolverInterfaceTestOctopusLegsQuery",
+    "name": "RelayResolverInterfaceTestRedOctopusColorQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
-        "concreteType": "Octopus",
+        "concreteType": "RedOctopus",
         "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,
           "fragment": null,
           "kind": "RelayResolver",
-          "name": "octopus",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/OctopusResolvers').octopus,
-          "path": "octopus",
+          "name": "red_octopus",
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers').red_octopus,
+          "path": "red_octopus",
           "normalizationInfo": {
             "kind": "WeakModel",
-            "concreteType": "Octopus",
+            "concreteType": "RedOctopus",
             "plural": false
           }
         },
         "linkedField": {
           "alias": null,
           "args": null,
-          "concreteType": "Octopus",
+          "concreteType": "RedOctopus",
           "kind": "LinkedField",
-          "name": "octopus",
+          "name": "red_octopus",
           "plural": false,
           "selections": [
             {
               "args": null,
               "kind": "FragmentSpread",
-              "name": "RelayResolverInterfaceTestWeakAnimalLegsFragment"
+              "name": "RelayResolverInterfaceTestWeakAnimalColorFragment"
             }
           ],
           "storageKey": null
@@ -98,12 +98,12 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayResolverInterfaceTestOctopusLegsQuery",
+    "name": "RelayResolverInterfaceTestRedOctopusColorQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
-          "name": "octopus",
+          "name": "red_octopus",
           "args": null,
           "fragment": null,
           "kind": "RelayResolver",
@@ -113,9 +113,9 @@ return {
         "linkedField": {
           "alias": null,
           "args": null,
-          "concreteType": "Octopus",
+          "concreteType": "RedOctopus",
           "kind": "LinkedField",
-          "name": "octopus",
+          "name": "red_octopus",
           "plural": false,
           "selections": [
             {
@@ -125,27 +125,7 @@ return {
                   "kind": "InlineFragment",
                   "selections": [
                     {
-                      "name": "legs",
-                      "args": null,
-                      "fragment": {
-                        "kind": "InlineFragment",
-                        "selections": (v0/*: any*/),
-                        "type": "Octopus",
-                        "abstractKey": null
-                      },
-                      "kind": "RelayResolver",
-                      "storageKey": null,
-                      "isOutputType": true
-                    }
-                  ],
-                  "type": "Octopus",
-                  "abstractKey": null
-                },
-                {
-                  "kind": "InlineFragment",
-                  "selections": [
-                    {
-                      "name": "legs",
+                      "name": "color",
                       "args": null,
                       "fragment": {
                         "kind": "InlineFragment",
@@ -160,6 +140,26 @@ return {
                   ],
                   "type": "PurpleOctopus",
                   "abstractKey": null
+                },
+                {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "color",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": (v0/*: any*/),
+                        "type": "RedOctopus",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null,
+                      "isOutputType": true
+                    }
+                  ],
+                  "type": "RedOctopus",
+                  "abstractKey": null
                 }
               ],
               "type": "IWeakAnimal",
@@ -172,16 +172,16 @@ return {
     ],
     "clientAbstractTypes": {
       "__isIWeakAnimal": [
-        "Octopus",
-        "PurpleOctopus"
+        "PurpleOctopus",
+        "RedOctopus"
       ]
     }
   },
   "params": {
-    "cacheID": "edc7acd1daffc1c9c2abbdc16bb0ba00",
+    "cacheID": "fe03faa56132552c947fd62dd0e8ce24",
     "id": null,
     "metadata": {},
-    "name": "RelayResolverInterfaceTestOctopusLegsQuery",
+    "name": "RelayResolverInterfaceTestRedOctopusColorQuery",
     "operationKind": "query",
     "text": null
   }
@@ -189,10 +189,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a5c917bd6d8d0ac2656557c77209abde";
+  (node/*: any*/).hash = "ffbde5e537add11a8fa22b95fcd6c23c";
 }
 
 module.exports = ((node/*: any*/)/*: ClientQuery<
-  RelayResolverInterfaceTestOctopusLegsQuery$variables,
-  RelayResolverInterfaceTestOctopusLegsQuery$data,
+  RelayResolverInterfaceTestRedOctopusColorQuery$variables,
+  RelayResolverInterfaceTestRedOctopusColorQuery$data,
 >*/);

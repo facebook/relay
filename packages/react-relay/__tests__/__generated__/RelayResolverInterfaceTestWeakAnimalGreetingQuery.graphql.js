@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<57ab71a3878a337d4b8f83de98ef03a0>>
+ * @generated SignedSource<<0dda61bd5d4cfe5e4bfd63029690812c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,13 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { Octopus____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Octopus____relay_model_instance.graphql";
 import type { PurpleOctopus____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql";
+import type { RedOctopus____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql";
 import {greeting as iWeakAnimalGreetingResolverType} from "../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers.js";
 // Type assertion validating that `iWeakAnimalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (iWeakAnimalGreetingResolverType: (
-  model: Octopus____relay_model_instance$data['__relay_model_instance'] | PurpleOctopus____relay_model_instance$data['__relay_model_instance'],
+  model: PurpleOctopus____relay_model_instance$data['__relay_model_instance'] | RedOctopus____relay_model_instance$data['__relay_model_instance'],
 ) => ?string);
 import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers.js";
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
@@ -121,15 +121,15 @@ return {
                   "fragment": {
                     "args": null,
                     "kind": "FragmentSpread",
-                    "name": "Octopus____relay_model_instance"
+                    "name": "PurpleOctopus____relay_model_instance"
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Octopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
                   "path": "weak_animal.greeting"
                 }
               ],
-              "type": "Octopus",
+              "type": "PurpleOctopus",
               "abstractKey": null
             },
             {
@@ -141,15 +141,15 @@ return {
                   "fragment": {
                     "args": null,
                     "kind": "FragmentSpread",
-                    "name": "PurpleOctopus____relay_model_instance"
+                    "name": "RedOctopus____relay_model_instance"
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
                   "path": "weak_animal.greeting"
                 }
               ],
-              "type": "PurpleOctopus",
+              "type": "RedOctopus",
               "abstractKey": null
             }
           ],
@@ -200,7 +200,7 @@ return {
                   "fragment": {
                     "kind": "InlineFragment",
                     "selections": (v2/*: any*/),
-                    "type": "Octopus",
+                    "type": "PurpleOctopus",
                     "abstractKey": null
                   },
                   "kind": "RelayResolver",
@@ -208,7 +208,7 @@ return {
                   "isOutputType": true
                 }
               ],
-              "type": "Octopus",
+              "type": "PurpleOctopus",
               "abstractKey": null
             },
             {
@@ -220,7 +220,7 @@ return {
                   "fragment": {
                     "kind": "InlineFragment",
                     "selections": (v2/*: any*/),
-                    "type": "PurpleOctopus",
+                    "type": "RedOctopus",
                     "abstractKey": null
                   },
                   "kind": "RelayResolver",
@@ -228,7 +228,7 @@ return {
                   "isOutputType": true
                 }
               ],
-              "type": "PurpleOctopus",
+              "type": "RedOctopus",
               "abstractKey": null
             }
           ],

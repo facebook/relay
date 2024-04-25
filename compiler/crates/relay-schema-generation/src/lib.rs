@@ -51,6 +51,7 @@ use hermes_parser::ParserFlags;
 use relay_docblock::DocblockIr;
 use relay_docblock::StrongObjectIr;
 use relay_docblock::TerseRelayResolverIr;
+use relay_docblock::UnpopulatedIrField;
 use relay_docblock::WeakObjectIr;
 use rustc_hash::FxHashMap;
 use schema_extractor::FieldData;
@@ -108,6 +109,7 @@ struct UnresolvedFieldDefinition {
     field_name: WithLocation<StringKey>,
     return_type: FlowType,
     source_hash: ResolverSourceHash,
+    is_live: Option<Location>,
 }
 
 impl Default for RelayResolverExtractor {
@@ -185,6 +187,7 @@ impl RelayResolverExtractor {
                     field_name,
                     return_type,
                     entity_type,
+                    is_live,
                 }) => {
                     let name = resolver_value.field_value.unwrap_or(field_name);
 
@@ -200,9 +203,16 @@ impl RelayResolverExtractor {
                             entity_type,
                             return_type,
                             source_hash,
+                            is_live,
                         )?;
                     } else {
-                        self.add_type_definition(&imports, name, return_type, source_hash)?;
+                        self.add_type_definition(
+                            &imports,
+                            name,
+                            return_type,
+                            source_hash,
+                            is_live,
+                        )?;
                     }
                 }
                 ResolverFlowData::Weak(WeakObjectData {
@@ -237,6 +247,9 @@ impl RelayResolverExtractor {
                     hack_source: None,
                     span: field.field_name.location.span(),
                 };
+                let live = field
+                    .is_live
+                    .map(|loc| UnpopulatedIrField { key_location: loc });
                 self.resolved_field_definitions.push(TerseRelayResolverIr {
                     field: field_definition,
                     type_: object
@@ -245,7 +258,7 @@ impl RelayResolverExtractor {
                     root_fragment: None,
                     location: field.field_name.location,
                     deprecated: None,
-                    live: None,
+                    live,
                     fragment_arguments: None,
                     source_hash: field.source_hash,
                     semantic_non_null: None,
@@ -278,6 +291,7 @@ impl RelayResolverExtractor {
         entity_type: FlowType,
         return_type: FlowType,
         source_hash: ResolverSourceHash,
+        is_live: Option<Location>,
     ) -> DiagnosticsResult<()> {
         let entity_name = match entity_type {
             FlowType::NamedType(named_type) => named_type.identifier,
@@ -306,6 +320,7 @@ impl RelayResolverExtractor {
                 field_name,
                 return_type,
                 source_hash,
+                is_live,
             },
         ));
 
@@ -318,6 +333,7 @@ impl RelayResolverExtractor {
         name: WithLocation<StringKey>,
         return_type: FlowType,
         source_hash: ResolverSourceHash,
+        is_live: Option<Location>,
     ) -> DiagnosticsResult<()> {
         let strong_object = StrongObjectIr {
             type_name: string_key_to_identifier(name),
@@ -328,7 +344,7 @@ impl RelayResolverExtractor {
             ),
             description: None,
             deprecated: None,
-            live: None,
+            live: is_live.map(|loc| UnpopulatedIrField { key_location: loc }),
             location: name.location,
             implements_interfaces: vec![],
             source_hash,
@@ -457,8 +473,7 @@ impl RelayResolverExtractor {
         if let Node::ExportNamedDeclaration(node) = node {
             match node.declaration {
                 Some(Declaration::FunctionDeclaration(ref node)) => {
-                    let data = self.extract_function(&node.function)?;
-                    Ok(ResolverFlowData::Strong(data))
+                    self.extract_function(&node.function)
                 }
                 Some(Declaration::TypeAlias(ref node)) => {
                     let data = self.extract_type_alias(node)?;

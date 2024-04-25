@@ -14,6 +14,7 @@ mod errors;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
+use ::intern::Lookup;
 use common::Diagnostic;
 use common::DiagnosticDisplay;
 use common::DiagnosticsResult;
@@ -32,6 +33,8 @@ use hermes_estree::TypeAnnotationEnum;
 use hermes_estree::TypeIdentifier;
 use rustc_hash::FxHashMap;
 
+pub static LIVE_FLOW_TYPE_NAME: &str = "LiveState";
+
 /**
  * Reprensents a subset of supported Flow type definitions
  */
@@ -46,6 +49,7 @@ pub struct FieldData {
     pub field_name: WithLocation<StringKey>,
     pub return_type: FlowType,
     pub entity_type: FlowType,
+    pub is_live: Option<Location>,
     // TODO: args
 }
 
@@ -101,7 +105,7 @@ pub trait SchemaExtractor {
         Err(vec![Diagnostic::error(message, self.to_location(node))])
     }
 
-    fn extract_function(&self, node: &Function) -> DiagnosticsResult<FieldData> {
+    fn extract_function(&self, node: &Function) -> DiagnosticsResult<ResolverFlowData> {
         let ident = node.id.as_ref().ok_or_else(|| {
             Diagnostic::error(ExtractError::MissingFunctionName, self.to_location(node))
         })?;
@@ -113,7 +117,27 @@ pub trait SchemaExtractor {
         let raw_return_type = node.return_type.as_ref().ok_or_else(|| {
             Diagnostic::error(ExtractError::MissingReturnType, self.to_location(node))
         })?;
-        let return_type = self.extract_type(raw_return_type)?;
+        let return_type_with_live = self.extract_type(raw_return_type)?;
+
+        let (return_type, is_live) =
+            if let FlowType::GenericType(generic_flow_type) = return_type_with_live {
+                if generic_flow_type.identifier.item.lookup() == LIVE_FLOW_TYPE_NAME {
+                    if generic_flow_type.optional {
+                        return Err(vec![Diagnostic::error(
+                            ExtractError::NoOptionalLiveType,
+                            generic_flow_type.location,
+                        )]);
+                    }
+                    (
+                        *generic_flow_type.parameter,
+                        Some(generic_flow_type.identifier.location),
+                    )
+                } else {
+                    (FlowType::GenericType(generic_flow_type), None)
+                }
+            } else {
+                (return_type_with_live, None)
+            };
 
         if node.params.is_empty() {
             return self.error_result(ExtractError::MissingFunctionParam, node);
@@ -128,11 +152,12 @@ pub trait SchemaExtractor {
             return self.error_result(ExtractError::UnsupportedType, param);
         };
 
-        Ok(FieldData {
+        Ok(ResolverFlowData::Strong(FieldData {
             field_name,
             return_type,
             entity_type,
-        })
+            is_live,
+        }))
     }
 
     fn extract_type(&self, type_annotation: &HermesTypeAnnotation) -> DiagnosticsResult<FlowType> {

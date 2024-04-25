@@ -30,4 +30,6 @@ pub enum ExtractError {
     MissingFunctionParam,
     #[error("Expected Relay Resolver function param to include type annotation")]
     MissingParamType,
+    #[error("Cannot use a LiveState that is also optional")]
+    NoOptionalLiveType,
 }

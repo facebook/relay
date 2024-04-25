@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<239d36d29dd431064798cc3cf17e3b83>>
+ * @generated SignedSource<<259c085b2741cc09797b460375d7d146>>
  */
 
 mod docblock;
@@ -24,6 +24,13 @@ async fn incorrect_type_error() {
     let input = include_str!("docblock/fixtures/incorrect-type-error.input");
     let expected = include_str!("docblock/fixtures/incorrect-type-error.expected");
     test_fixture(transform_fixture, file!(), "incorrect-type-error.input", "docblock/fixtures/incorrect-type-error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn live() {
+    let input = include_str!("docblock/fixtures/live.input");
+    let expected = include_str!("docblock/fixtures/live.expected");
+    test_fixture(transform_fixture, file!(), "live.input", "docblock/fixtures/live.expected", input, expected).await;
 }
 
 #[tokio::test]

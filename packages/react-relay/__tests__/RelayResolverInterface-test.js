@@ -226,6 +226,25 @@ function AnimalGreetingQueryComponent(props: {
   return data.animal.greeting;
 }
 
+function WeakAnimalGreetingQueryComponent(props: {request: {ofType: string}}) {
+  const data = useClientQuery(
+    graphql`
+      query RelayResolverInterfaceTestWeakAnimalGreetingQuery(
+        $request: WeakAnimalRequest!
+      ) {
+        weak_animal(request: $request) {
+          greeting
+        }
+      }
+    `,
+    {request: props.request},
+  );
+  if (data.weak_animal == null) {
+    return 'NULL';
+  }
+  return data.weak_animal.greeting;
+}
+
 describe.each([
   {
     inputAnimalType: 'Fish',
@@ -259,6 +278,32 @@ describe.each([
         </EnvironmentWrapper>,
       );
       expect(nullRenderer.toJSON()).toEqual('NULL');
+    });
+  },
+);
+
+describe.each([
+  {
+    inputAnimalType: 'Octopus',
+    name: 'Shiny',
+  },
+  {
+    inputAnimalType: 'PurpleOctopus',
+    name: 'Glowing',
+  },
+])(
+  'resolvers can read resolver on an interface where all implementors are weak model types: %s',
+  ({inputAnimalType, name}) => {
+    test(`should read the greeting of a ${inputAnimalType}`, () => {
+      const animalRenderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <WeakAnimalGreetingQueryComponent
+            request={{ofType: inputAnimalType}}
+          />
+        </EnvironmentWrapper>,
+      );
+
+      expect(animalRenderer.toJSON()).toEqual(`Hello, ${name}!`);
     });
   },
 );

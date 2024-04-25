@@ -13,7 +13,9 @@
  * @RelayResolver PurpleOctopus implements IWeakAnimal
  * @weak
  */
-export type PurpleOctopus = {};
+export type PurpleOctopus = {
+  name: string,
+};
 
 /**
  * @RelayResolver PurpleOctopus.legs: Int
@@ -26,7 +28,9 @@ function legs(purpleOctopus: PurpleOctopus): number {
  * @RelayResolver Query.purple_octopus: PurpleOctopus
  */
 function purpleOctopus(): PurpleOctopus {
-  return {};
+  return {
+    name: 'PurpleOctopus',
+  };
 }
 
 module.exports = {

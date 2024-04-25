@@ -7,6 +7,7 @@
 
 use std::path::PathBuf;
 
+use common::Location;
 use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
@@ -119,7 +120,7 @@ pub fn extract_feature_from_text(
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
-) -> LSPRuntimeResult<(Feature, Span)> {
+) -> LSPRuntimeResult<(Feature, Location)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 
@@ -136,7 +137,7 @@ pub fn extract_feature_from_text(
         })
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let source_location_key = SourceLocationKey::embedded(uri.as_ref(), index);
+    let source_location_key = SourceLocationKey::embedded(uri.path(), index);
 
     let parser_features = get_parser_features(project_config);
 
@@ -167,7 +168,10 @@ pub fn extract_feature_from_text(
             // since the change event fires before completion.
             debug!("position_span: {:?}", position_span);
 
-            Ok((Feature::GraphQLDocument(document), position_span))
+            Ok((
+                Feature::GraphQLDocument(document),
+                Location::new(source_location_key, position_span),
+            ))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
             let executable_definitions_in_file = extract_executable_definitions_from_text_document(
@@ -213,7 +217,10 @@ pub fn extract_feature_from_text(
                         )
                     })?;
 
-            Ok((Feature::DocblockIr(docblock_ir), position_span))
+            Ok((
+                Feature::DocblockIr(docblock_ir),
+                Location::new(source_location_key, position_span),
+            ))
         }
     }
 }

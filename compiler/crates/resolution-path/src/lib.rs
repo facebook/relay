@@ -196,6 +196,18 @@ pub trait ResolvePosition<'a>: Sized {
     }
 }
 
+pub trait ResolveDefinition {
+    fn find_definition(&self, position_span: Span) -> Option<&ExecutableDefinition>;
+}
+
+impl ResolveDefinition for ExecutableDocument {
+    fn find_definition(&self, position_span: Span) -> Option<&ExecutableDefinition> {
+        self.definitions
+            .iter()
+            .find(|def| def.contains(position_span))
+    }
+}
+
 pub type ExecutableDocumentPath<'a> = Path<&'a ExecutableDocument, ()>;
 
 // Clippy gets grumpy about us passing around `()`, but we need it for consistency with other implementations of `ResolvePosition`.

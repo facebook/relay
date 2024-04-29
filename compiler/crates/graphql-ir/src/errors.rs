@@ -149,9 +149,6 @@ pub enum ValidationMessage {
         next_type: String,
     },
 
-    #[error("Expected variable `${0}` to be defined on the operation")]
-    ExpectedOperationVariableToBeDefined(VariableName),
-
     #[error(
         "Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'"
     )]
@@ -539,6 +536,13 @@ pub enum ValidationMessage {
     ResolverInMutation,
 }
 
+#[derive(Clone, Debug)]
+pub struct ValidationDiagnosticCode;
+
+impl ValidationDiagnosticCode {
+    pub const EXPECTED_OPERATION_VARIABLE_TO_BE_DEFINED: i32 = 1;
+}
+
 #[derive(
     Clone,
     Debug,
@@ -584,6 +588,12 @@ pub enum ValidationMessageWithData {
         argument_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
+    #[error("Expected variable `${variable_name}` to be defined on the operation")]
+    ExpectedOperationVariableToBeDefined {
+        variable_name: VariableName,
+        variable_type: String,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -599,6 +609,13 @@ impl WithDiagnosticData for ValidationMessageWithData {
             ValidationMessageWithData::ExpectedSelectionsOnObjectField { field_name, .. } => {
                 vec![Box::new(format!("{} {{ }}", field_name))]
             }
+            ValidationMessageWithData::ExpectedOperationVariableToBeDefined {
+                variable_name,
+                variable_type,
+            } => vec![
+                Box::new(variable_name.to_owned()),
+                Box::new(variable_type.to_owned()),
+            ],
         }
     }
 }

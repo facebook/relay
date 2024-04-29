@@ -12,6 +12,7 @@ use std::fmt::Write;
 
 use lsp_types::DiagnosticSeverity;
 use lsp_types::DiagnosticTag;
+use lsp_types::NumberOrString;
 use serde::ser::SerializeMap;
 use serde_json::Value;
 
@@ -64,6 +65,7 @@ impl Diagnostic {
         tags: Vec<DiagnosticTag>,
     ) -> Self {
         Self(Box::new(DiagnosticData {
+            code: None,
             message: Box::new(message),
             location,
             related_information: Vec::new(),
@@ -88,6 +90,27 @@ impl Diagnostic {
     ) -> Self {
         let data = message.get_data();
         Self(Box::new(DiagnosticData {
+            code: None,
+            message: Box::new(message),
+            location,
+            tags: Vec::new(),
+            severity: DiagnosticSeverity::ERROR,
+            related_information: Vec::new(),
+            data,
+            machine_readable: BTreeMap::new(),
+        }))
+    }
+
+    /// Creates a new error Diagnostic with additional data and code
+    /// that can be used in IDE code actions
+    pub fn error_with_data_and_code<T: 'static + DiagnosticDisplay + WithDiagnosticData>(
+        code: i32,
+        message: T,
+        location: Location,
+    ) -> Self {
+        let data = message.get_data();
+        Self(Box::new(DiagnosticData {
+            code: Some(NumberOrString::Number(code)),
             message: Box::new(message),
             location,
             tags: Vec::new(),
@@ -165,6 +188,10 @@ impl Diagnostic {
             .machine_readable
             .insert(key.as_ref().to_string(), value.as_ref().to_string());
         self
+    }
+
+    pub fn code(&self) -> Option<NumberOrString> {
+        self.0.code.to_owned()
     }
 
     pub fn message(&self) -> &impl DiagnosticDisplay {
@@ -276,6 +303,9 @@ where
 
 #[derive(fmt::Debug)]
 struct DiagnosticData {
+    /// The diagnostic's code. Can be omitted.
+    code: Option<NumberOrString>,
+
     /// Human readable error message.
     message: Box<dyn DiagnosticDisplay>,
 

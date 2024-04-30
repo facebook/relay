@@ -24,10 +24,6 @@ const {
   expectConsoleWarningWillFire,
 } = require('./consoleWarning');
 const describeWithFeatureFlags = require('./describeWithFeatureFlags');
-const {
-  FIXTURE_TAG,
-  generateTestsFromFixtures,
-} = require('./generateTestsFromFixtures');
 const Matchers = require('./Matchers');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
@@ -75,8 +71,6 @@ module.exports = {
   expectToWarn,
   expectToWarnMany,
   expectWarningWillFire,
-  FIXTURE_TAG,
-  generateTestsFromFixtures,
   matchers: Matchers,
   printAST,
   simpleClone,

@@ -1,0 +1,11 @@
+# relay:experimental_emit_semantic_nullability_types
+
+schema {
+  query: Query
+}
+
+type Query {
+  foo: String @semanticNonNull
+  foo_list: [String] @semanticNonNull
+  foo_list_levels: [String] @semanticNonNull(levels: [1])
+}

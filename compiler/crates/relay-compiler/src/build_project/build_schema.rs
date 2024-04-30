@@ -13,6 +13,7 @@ use common::Location;
 use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
+use schema::transform_semantic_non_null::transform_semantic_non_null;
 use schema::SDLSchema;
 use schema_validate_lib::validate;
 use schema_validate_lib::SchemaValidationOptions;
@@ -90,6 +91,13 @@ pub fn build_schema(
                         Location::generated(),
                     )]);
                 }
+            }
+
+            if project_config
+                .typegen_config
+                .experimental_emit_semantic_nullability_types
+            {
+                transform_semantic_non_null(&mut schema)?;
             }
 
             Ok(Arc::new(schema))

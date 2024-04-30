@@ -58,6 +58,7 @@ use graphql_syntax::SchemaDocument;
 pub use graphql_syntax::TypeSystemDefinition;
 pub use in_memory::InMemorySchema;
 use rayon::iter::IntoParallelRefIterator;
+pub mod transform_semantic_non_null;
 
 pub use crate::schema::SDLSchema;
 

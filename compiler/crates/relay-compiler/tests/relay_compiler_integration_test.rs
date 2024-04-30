@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f5708275a9732c3842b1df840547eac9>>
+ * @generated SignedSource<<8fe8995bc622f1503f1cee900e65becb>>
  */
 
 mod relay_compiler_integration;
@@ -199,6 +199,20 @@ async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.expected");
     test_fixture(transform_fixture, file!(), "resolver_returns_interface_of_live_and_non_live_strong_model_type.input", "relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_scalar() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_scalar.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_scalar_disabled() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_scalar_disabled.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.expected", input, expected).await;
 }
 
 #[tokio::test]

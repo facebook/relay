@@ -249,10 +249,7 @@ fn parse_relay_resolver_ir(
         output_type,
         fragment_arguments,
         source_hash,
-        semantic_non_null: get_optional_unpopulated_field_named(
-            fields,
-            AllowedFieldName::SemanticNonNullField,
-        )?,
+        semantic_non_null: None,
     })
 }
 
@@ -286,10 +283,7 @@ fn parse_strong_object_ir(
         location,
         implements_interfaces,
         source_hash,
-        semantic_non_null: get_optional_unpopulated_field_named(
-            fields,
-            AllowedFieldName::SemanticNonNullField,
-        )?,
+        semantic_non_null: None,
     })
 }
 
@@ -410,6 +404,8 @@ fn parse_terse_relay_resolver_ir(
         }
     }
 
+    let semantic_non_null = field.directives.named("semanticNonNull".intern()).cloned();
+
     Ok(TerseRelayResolverIr {
         field,
         type_: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
@@ -418,10 +414,7 @@ fn parse_terse_relay_resolver_ir(
         location,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
-        semantic_non_null: get_optional_unpopulated_field_named(
-            fields,
-            AllowedFieldName::SemanticNonNullField,
-        )?,
+        semantic_non_null,
         fragment_arguments,
         source_hash,
     })

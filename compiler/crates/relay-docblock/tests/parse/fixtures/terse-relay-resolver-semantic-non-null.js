@@ -6,9 +6,8 @@
  */
 
 /**
- * @RelayResolver User.favorite_page: Page
+ * @RelayResolver User.favorite_page: Page @semanticNonNull
  * @rootFragment myRootFragment
- * @semanticNonNull
  *
  * The user's favorite page! They probably clicked something in the UI
  * to tell us that it was their favorite page and then we put that in a

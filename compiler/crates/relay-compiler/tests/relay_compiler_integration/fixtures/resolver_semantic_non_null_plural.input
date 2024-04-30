@@ -1,6 +1,6 @@
 //- User_foo.js
 /**
- * @RelayResolver User.foo: String
+ * @RelayResolver User.foo: String @semanticNonNull
  * @rootFragment UserFooFragment
  */
 graphql`fragment UserFooFragment on User {
@@ -9,7 +9,7 @@ graphql`fragment UserFooFragment on User {
 
 //- User_bar.js
 /**
- * @RelayResolver User.bar: String @semanticNonNull
+ * @RelayResolver User.bar: [String] @semanticNonNull(levels: [0,1])
  */
 
 //- relay.config.json
@@ -25,7 +25,7 @@ graphql`fragment UserFooFragment on User {
   "resolversSchemaModule": {
     "path": "__generated__/ResolversSchemaModule.js"
   },
-  "experimentalEmitSemanticNullabilityTypes": false
+  "experimentalEmitSemanticNullabilityTypes": true
 }
 
 //- schema.graphql

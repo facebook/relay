@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8fe8995bc622f1503f1cee900e65becb>>
+ * @generated SignedSource<<c3144d72f1bfc9f8e41f435536eb5325>>
  */
 
 mod relay_compiler_integration;
@@ -199,6 +199,27 @@ async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.expected");
     test_fixture(transform_fixture, file!(), "resolver_returns_interface_of_live_and_non_live_strong_model_type.input", "relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_live() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_live.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_live.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_live.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_live.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_plural() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_plural.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_plural.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_plural_live() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_plural_live.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkrelay_website=self.webpackChunkrelay_website||[]).push([[5621],{7085:e=>{e.exports=JSON.parse('{"name":"docusaurus-theme-search-algolia","id":"default"}')}}]);

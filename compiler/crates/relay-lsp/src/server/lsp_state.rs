@@ -8,9 +8,9 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use common::Location;
 use common::PerfLogger;
 use common::SourceLocationKey;
-use common::Span;
 use crossbeam::channel::SendError;
 use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
@@ -52,6 +52,7 @@ use super::task_queue::TaskScheduler;
 use crate::diagnostic_reporter::DiagnosticReporter;
 use crate::docblock_resolution_info::create_docblock_resolution_info;
 use crate::graphql_tools::get_query_text;
+use crate::location::transform_relay_location_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::create_node_resolution_info;
 use crate::utils::extract_executable_definitions_from_text_document;
@@ -93,13 +94,13 @@ pub trait GlobalState {
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(ExecutableDocument, Span)>;
+    ) -> LSPRuntimeResult<(ExecutableDocument, Location)>;
 
     fn extract_feature_from_text(
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(Feature, Span)>;
+    ) -> LSPRuntimeResult<(Feature, Location)>;
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
 
@@ -135,6 +136,8 @@ pub trait GlobalState {
     /// we may need to know who's our current consumer.
     /// This is mostly for hover handler (where we render markup)
     fn get_content_consumer_type(&self) -> ContentConsumerType;
+
+    fn get_lsp_location(&self, location: Location) -> LSPRuntimeResult<lsp_types::Location>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -399,7 +402,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<FeatureResolutionInfo> {
-        let (feature, position_span) = self.extract_feature_from_text(
+        let (feature, location) = self.extract_feature_from_text(
             text_document_position,
             // For hovering, offset the index by 1
             // ```
@@ -413,10 +416,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         let info = match feature {
             Feature::GraphQLDocument(executable_document) => FeatureResolutionInfo::GraphqlNode(
-                create_node_resolution_info(executable_document, position_span)?,
+                create_node_resolution_info(executable_document, location.span())?,
             ),
             Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
-                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                resolution_info: create_docblock_resolution_info(&docblock_ir, location.span())
                     .ok_or(LSPRuntimeError::ExpectedError)?,
                 ir: docblock_ir,
             }),
@@ -430,10 +433,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
-        let (feature, span) = self.extract_feature_from_text(position, index_offset)?;
+    ) -> LSPRuntimeResult<(ExecutableDocument, Location)> {
+        let (feature, location) = self.extract_feature_from_text(position, index_offset)?;
         match feature {
-            Feature::GraphQLDocument(document) => Ok((document, span)),
+            Feature::GraphQLDocument(document) => Ok((document, location)),
             Feature::DocblockIr(_) => Err(LSPRuntimeError::ExpectedError),
         }
     }
@@ -444,7 +447,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(Feature, Span)> {
+    ) -> LSPRuntimeResult<(Feature, Location)> {
         let project_name: ProjectName = self
             .extract_project_name_from_url(&position.text_document.uri)?
             .into();
@@ -565,6 +568,16 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn get_content_consumer_type(&self) -> ContentConsumerType {
         ContentConsumerType::Relay
+    }
+
+    fn get_lsp_location(&self, location: Location) -> LSPRuntimeResult<lsp_types::Location> {
+        let root_dir = &self.root_dir();
+
+        transform_relay_location_to_lsp_location(
+            root_dir,
+            location,
+            &self.synced_javascript_features,
+        )
     }
 }
 

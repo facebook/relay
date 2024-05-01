@@ -32,12 +32,10 @@ disallowWarnings();
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 test('Can read a deep portion of the schema that is backed by client edges to client objects.', () => {

@@ -180,12 +180,10 @@ export function edge_to_plural_models_some_throw(): $ReadOnlyArray<{
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 const logEvents: Array<LogEvent> = [];

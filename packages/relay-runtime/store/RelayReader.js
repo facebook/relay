@@ -136,11 +136,9 @@ class RelayReader {
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
   ) {
-    this._clientEdgeTraversalPath =
-      RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
-      selector.clientEdgeTraversalPath?.length
-        ? [...selector.clientEdgeTraversalPath]
-        : [];
+    this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
+      ? [...selector.clientEdgeTraversalPath]
+      : [];
     this._missingClientEdges = [];
     this._missingLiveResolverFields = [];
     this._isMissingData = false;
@@ -223,10 +221,9 @@ class RelayReader {
     return {
       data,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
-      missingClientEdges:
-        RelayFeatureFlags.ENABLE_CLIENT_EDGES && this._missingClientEdges.length
-          ? this._missingClientEdges
-          : null,
+      missingClientEdges: this._missingClientEdges.length
+        ? this._missingClientEdges
+        : null,
       missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
@@ -262,10 +259,7 @@ class RelayReader {
 
   _markDataAsMissing(): void {
     this._isMissingData = true;
-    if (
-      RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
-      this._clientEdgeTraversalPath.length
-    ) {
+    if (this._clientEdgeTraversalPath.length) {
       const top =
         this._clientEdgeTraversalPath[this._clientEdgeTraversalPath.length - 1];
       // Top can be null if we've traversed past a client edge into an ordinary
@@ -557,9 +551,7 @@ class RelayReader {
         case CLIENT_EXTENSION: {
           const isMissingData = this._isMissingData;
           const alreadyMissingClientEdges = this._missingClientEdges.length;
-          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
-            this._clientEdgeTraversalPath.push(null);
-          }
+          this._clientEdgeTraversalPath.push(null);
           const hasExpectedData = this._traverseSelections(
             selection.selections,
             record,
@@ -572,9 +564,7 @@ class RelayReader {
             isMissingData ||
             this._missingClientEdges.length > alreadyMissingClientEdges ||
             this._missingLiveResolverFields.length > 0;
-          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
-            this._clientEdgeTraversalPath.pop();
-          }
+          this._clientEdgeTraversalPath.pop();
           if (!hasExpectedData) {
             return false;
           }
@@ -596,11 +586,7 @@ class RelayReader {
           break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
         case CLIENT_EDGE_TO_SERVER_OBJECT:
-          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
-            this._readClientEdge(selection, record, data);
-          } else {
-            throw new Error('Client edges are not yet supported.');
-          }
+          this._readClientEdge(selection, record, data);
           break;
         default:
           (selection: empty);
@@ -1317,15 +1303,13 @@ class RelayReader {
     );
     data[FRAGMENT_OWNER_KEY] = this._owner;
 
-    if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
-      if (
-        this._clientEdgeTraversalPath.length > 0 &&
-        this._clientEdgeTraversalPath[
-          this._clientEdgeTraversalPath.length - 1
-        ] !== null
-      ) {
-        data[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
-      }
+    if (
+      this._clientEdgeTraversalPath.length > 0 &&
+      this._clientEdgeTraversalPath[
+        this._clientEdgeTraversalPath.length - 1
+      ] !== null
+    ) {
+      data[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
     }
   }
 

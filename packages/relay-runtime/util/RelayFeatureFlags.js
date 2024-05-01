@@ -14,7 +14,6 @@
 import type {Disposable} from '../util/RelayRuntimeTypes';
 
 export type FeatureFlags = {
-  ENABLE_CLIENT_EDGES: boolean,
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
   ENABLE_RELAY_RESOLVERS: boolean,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean,
@@ -54,7 +53,6 @@ export type FeatureFlags = {
 };
 
 const RelayFeatureFlags: FeatureFlags = {
-  ENABLE_CLIENT_EDGES: false,
   ENABLE_VARIABLE_CONNECTION_KEY: false,
   ENABLE_RELAY_RESOLVERS: false,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: false,

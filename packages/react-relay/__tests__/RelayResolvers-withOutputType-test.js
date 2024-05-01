@@ -49,14 +49,12 @@ function logFn(event: LogEvent): void {
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
   logEvents = [];
   resetStore(logFn);
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 function createEnvironment() {

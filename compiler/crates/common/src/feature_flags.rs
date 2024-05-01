@@ -68,10 +68,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
 
-    /// Allow legacy verbose resolver syntax
-    #[serde(default)]
-    pub relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag,
-
     /// Allow relay resolvers to extend the Mutation type
     #[serde(default)]
     pub enable_relay_resolver_mutations: bool,

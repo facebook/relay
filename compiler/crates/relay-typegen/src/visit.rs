@@ -335,7 +335,10 @@ fn generate_resolver_type(
     let inner_ast = match &resolver_metadata.output_type_info {
         ResolverOutputTypeInfo::ScalarField => {
             if is_relay_resolver_type(typegen_context, schema_field) {
-                AST::Mixed
+                match schema_field.type_.is_non_null() {
+                    true => AST::NonNullable(Box::new(AST::Mixed)),
+                    false => AST::Mixed,
+                }
             } else {
                 let type_ = &schema_field.type_.inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c3144d72f1bfc9f8e41f435536eb5325>>
+ * @generated SignedSource<<aa23230d800989291dcd6027f2fd8c63>>
  */
 
 mod relay_compiler_integration;
@@ -202,6 +202,13 @@ async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
 }
 
 #[tokio::test]
+async fn resolver_semantic_non_null_custom_scalar() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_custom_scalar.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_custom_scalar.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_custom_scalar.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_custom_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn resolver_semantic_non_null_live() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_live.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_live.expected");
@@ -220,6 +227,13 @@ async fn resolver_semantic_non_null_plural_live() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.expected");
     test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_plural_live.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_relayresolvervalue() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_relayresolvervalue.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -5,11 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::NamedItem;
+use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -21,10 +24,13 @@ use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-
 mod catchable_field;
 mod validation_message;
+use graphql_ir::Field;
+use intern::Lookup;
 
+use self::catchable_field::CatchMetadata;
+use self::catchable_field::CatchableField;
 use crate::catch_directive::validation_message::ValidationMessage;
 
 lazy_static! {
@@ -41,6 +47,16 @@ pub enum CatchTo {
     Result,
 }
 
+impl From<StringKey> for CatchTo {
+    fn from(to: StringKey) -> Self {
+        match to {
+            _ if to == *RESULT_TO => Self::Result,
+            _ if to == *NULL_TO => Self::Null,
+            _ => panic!("unknown @catch `to` value. Use `NULL` or `RESULT` (default) instead."),
+        }
+    }
+}
+
 impl From<CatchTo> for StringKey {
     fn from(val: CatchTo) -> Self {
         match val {
@@ -49,9 +65,15 @@ impl From<CatchTo> for StringKey {
         }
     }
 }
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct CatchMetadataDirective {
+    pub to: CatchTo,
+    pub path: StringKey,
+}
+associated_data_impl!(CatchMetadataDirective);
 
-pub fn catch_directive(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = CatchDirective::new(program);
+pub fn catch_directive(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
+    let mut transform = CatchDirective::new(program, enabled);
 
     let next_program = transform
         .transform_program(program)
@@ -63,28 +85,41 @@ pub fn catch_directive(program: &Program) -> DiagnosticsResult<Program> {
         Err(transform.errors)
     }
 }
-//struct CatchDirective<'s> {
 
 struct CatchDirective<'s> {
     #[allow(dead_code)]
     program: &'s Program,
     errors: Vec<Diagnostic>,
+    enabled: bool,
+    path: Vec<&'s str>,
 }
 
 impl<'program> CatchDirective<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, enabled: bool) -> Self {
         Self {
             program,
             errors: Default::default(),
+            enabled,
+            path: vec![],
         }
     }
 
-    fn report_unimplemented(&mut self, directives: Vec<Directive>) {
+    fn report_unimplemented(&mut self, directives: &[Directive]) {
         if let Some(directive) = directives.named(*CATCH_DIRECTIVE_NAME) {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::CatchDirectiveNotImplemented,
                 directive.name.location,
             ));
+        }
+    }
+
+    fn get_catch_metadata<T: CatchableField>(&mut self, field: &T) -> Option<CatchMetadata> {
+        match field.catch_metadata() {
+            Err(err) => {
+                self.errors.push(err);
+                None
+            }
+            Ok(catch) => catch,
         }
     }
 }
@@ -95,20 +130,55 @@ impl<'s> Transformer for CatchDirective<'s> {
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
-        self.report_unimplemented(field.directives.clone());
+        if !self.enabled {
+            self.report_unimplemented(&field.directives);
+        }
+        let name = field.alias_or_name(&self.program.schema).lookup();
+        self.path.push(name);
+        let path_name = self.path.join(".").intern();
+        self.path.pop();
 
-        self.default_transform_scalar_field(field)
+        match self.get_catch_metadata(field) {
+            None => Transformed::Keep,
+            Some(catch_metadata) => {
+                Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
+                    directives: add_metadata_directive(
+                        &field.directives,
+                        path_name,
+                        catch_metadata.to,
+                    ),
+                    ..field.clone()
+                })))
+            }
+        }
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        self.report_unimplemented(field.directives.clone());
+        self.report_unimplemented(&field.directives);
 
         self.default_transform_linked_field(field)
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        self.report_unimplemented(fragment.directives.clone());
+        self.report_unimplemented(&fragment.directives);
 
         self.default_transform_inline_fragment(fragment)
     }
+}
+
+fn add_metadata_directive(
+    directives: &[Directive],
+    path_name: StringKey,
+    to: CatchTo,
+) -> Vec<Directive> {
+    let mut next_directives: Vec<Directive> = Vec::with_capacity(directives.len() + 1);
+    next_directives.extend(directives.iter().cloned());
+    next_directives.push(
+        CatchMetadataDirective {
+            to,
+            path: path_name,
+        }
+        .into(),
+    );
+    next_directives
 }

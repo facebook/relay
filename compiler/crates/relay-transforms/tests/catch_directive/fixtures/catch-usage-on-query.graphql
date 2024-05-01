@@ -1,0 +1,6 @@
+query Foo {
+  me {
+    id
+    name @catch
+  }
+}

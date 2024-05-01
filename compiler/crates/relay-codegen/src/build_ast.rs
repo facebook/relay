@@ -48,6 +48,7 @@ use relay_transforms::relay_resolvers::get_resolver_info;
 use relay_transforms::relay_resolvers::resolver_import_alias;
 use relay_transforms::relay_resolvers::ResolverInfo;
 use relay_transforms::remove_directive;
+use relay_transforms::CatchMetadataDirective;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
 use relay_transforms::ClientEdgeModelResolver;
@@ -755,6 +756,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
         if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
             self.build_required_field(required_metadata, resolver_primitive)
+        } else if let Some(catch_metadata) = CatchMetadataDirective::find(&field.directives) {
+            self.build_catch_field(catch_metadata, resolver_primitive)
         } else {
             resolver_primitive
         }
@@ -977,6 +980,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }))
     }
 
+    fn build_catch_field(
+        &mut self,
+        catch_metadata: &CatchMetadataDirective,
+        primitive: Primitive,
+    ) -> Primitive {
+        Primitive::Key(self.object(object! {
+            kind: Primitive::String(CODEGEN_CONSTANTS.catch_field),
+            field: primitive,
+            to: Primitive::String(catch_metadata.to.into()),
+            path: Primitive::String(catch_metadata.path),
+        }))
+    }
+
     fn build_scalar_field(&mut self, field: &ScalarField) -> Primitive {
         let schema_field = self.schema.field(field.definition.item);
         let (name, alias) =
@@ -1004,6 +1020,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
             self.build_required_field(required_metadata, primitive)
+        } else if let Some(catch_metadata) = CatchMetadataDirective::find(&field.directives) {
+            self.build_catch_field(catch_metadata, primitive)
         } else {
             primitive
         }
@@ -1102,6 +1120,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
             self.build_required_field(required_metadata, primitive)
+        } else if let Some(catch_metadata) = CatchMetadataDirective::find(&field.directives) {
+            self.build_catch_field(catch_metadata, primitive)
         } else {
             primitive
         }
@@ -1268,6 +1288,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 RequiredMetadataDirective::find(&frag_spread.directives)
             {
                 self.build_required_field(required_metadata, resolver_primitive)
+            } else if let Some(catch_metadata) =
+                CatchMetadataDirective::find(&frag_spread.directives)
+            {
+                self.build_catch_field(catch_metadata, resolver_primitive)
             } else {
                 resolver_primitive
             }
@@ -1707,6 +1731,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         context: &mut ContextualMetadata,
         client_edge_metadata: &ClientEdgeMetadata<'_>,
         required_metadata: Option<RequiredMetadataDirective>,
+        catch_metadata: Option<CatchMetadataDirective>,
     ) -> Primitive {
         context.has_client_edges = true;
         let backing_field = match &client_edge_metadata.backing_field {
@@ -1809,6 +1834,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         if let Some(required_metadata) = required_metadata {
             self.build_required_field(&required_metadata, field)
+        } else if let Some(catch_metadata) = catch_metadata {
+            self.build_catch_field(&catch_metadata, field)
         } else {
             field
         }
@@ -1826,10 +1853,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         CodegenVariant::Reader => {
                             let required_metadata =
                                 RequiredMetadataDirective::find(&inline_frag.directives).cloned();
+                            let catch_metadata =
+                                CatchMetadataDirective::find(&inline_frag.directives).cloned();
                             self.build_reader_client_edge(
                                 context,
                                 &client_edge_metadata,
                                 required_metadata,
+                                catch_metadata,
                             )
                         }
                         CodegenVariant::Normalization => {

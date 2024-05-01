@@ -11,6 +11,7 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Directive;
 use graphql_ir::Field;
+use graphql_ir::LinkedField;
 use graphql_ir::ScalarField;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
@@ -52,6 +53,15 @@ pub trait CatchableField {
 }
 
 impl CatchableField for ScalarField {
+    fn directives(&self) -> &Vec<Directive> {
+        &self.directives
+    }
+    fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
+        WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
+    }
+}
+
+impl CatchableField for LinkedField {
     fn directives(&self) -> &Vec<Directive> {
         &self.directives
     }

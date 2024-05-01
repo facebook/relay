@@ -1,0 +1,5 @@
+fragment MyFragmentFirst on User {
+  parents @catch {
+    lastName @catch
+  }
+}

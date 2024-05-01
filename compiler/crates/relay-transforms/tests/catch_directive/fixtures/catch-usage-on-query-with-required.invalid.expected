@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query Foo {
+  me {
+    id
+    name @catch @required(action: THROW)
+  }
+}
+==================================== ERROR ====================================
+✖︎ @catch and @required directives cannot be on the same field
+
+  catch-usage-on-query-with-required.invalid.graphql:5:17
+    4 │     id
+    5 │     name @catch @required(action: THROW)
+      │                 ^^^^^^^^^
+    6 │   }

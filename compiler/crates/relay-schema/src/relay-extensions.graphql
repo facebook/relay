@@ -170,7 +170,7 @@ directive @required(action: RequiredFieldAction! @static) on FIELD
 `@catch` is a directive you can add to fields in your Relay queries to
 declare how errors are handled.
 """
-directive @catch(to: CatchFieldTo! @static) on FIELD
+directive @catch(to: CatchFieldTo! = RESULT @static) on FIELD
 
 # DeclarativeConnection
 """

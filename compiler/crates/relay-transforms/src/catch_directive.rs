@@ -14,7 +14,6 @@ use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
-use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
@@ -32,6 +31,7 @@ use intern::Lookup;
 use self::catchable_field::CatchMetadata;
 use self::catchable_field::CatchableField;
 use crate::catch_directive::validation_message::ValidationMessage;
+use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
     pub static ref CATCH_DIRECTIVE_NAME: DirectiveName = DirectiveName("catch".intern());
@@ -114,12 +114,27 @@ impl<'program> CatchDirective<'program> {
     }
 
     fn get_catch_metadata<T: CatchableField>(&mut self, field: &T) -> Option<CatchMetadata> {
+        self.assert_not_with_required(field);
+
         match field.catch_metadata() {
             Err(err) => {
                 self.errors.push(err);
                 None
             }
             Ok(catch) => catch,
+        }
+    }
+
+    fn assert_not_with_required<T: CatchableField>(&mut self, field: &T) {
+        let catchable_field = field.directives().named(*CATCH_DIRECTIVE_NAME);
+        let required_field = field.directives().named(*REQUIRED_DIRECTIVE_NAME);
+
+        if catchable_field.is_some() && required_field.is_some() {
+            let required_location = required_field.unwrap().name.location;
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::CatchDirectiveWithRequiredDirective,
+                required_location,
+            ));
         }
     }
 }
@@ -133,9 +148,10 @@ impl<'s> Transformer for CatchDirective<'s> {
         if !self.enabled {
             self.report_unimplemented(&field.directives);
         }
+
         let name = field.alias_or_name(&self.program.schema).lookup();
         self.path.push(name);
-        let path_name = self.path.join(".").intern();
+        let path_name: StringKey = self.path.join(".").intern();
         self.path.pop();
 
         match self.get_catch_metadata(field) {
@@ -154,15 +170,44 @@ impl<'s> Transformer for CatchDirective<'s> {
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        self.report_unimplemented(&field.directives);
+        if !self.enabled {
+            self.report_unimplemented(&field.directives);
+        }
 
-        self.default_transform_linked_field(field)
-    }
+        let name = field.alias_or_name(&self.program.schema).lookup();
+        self.path.push(name);
 
-    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        self.report_unimplemented(&fragment.directives);
+        let maybe_catch_metadata = self.get_catch_metadata(field);
 
-        self.default_transform_inline_fragment(fragment)
+        match maybe_catch_metadata {
+            None => {
+                let selections = self.transform_selections(&field.selections);
+                self.path.pop();
+                if selections.should_keep() {
+                    Transformed::Keep
+                } else {
+                    Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                        selections: selections.replace_or_else(|| field.selections.clone()),
+                        ..field.clone()
+                    })))
+                }
+            }
+            Some(catch_metadata) => {
+                let path_name = self.path.join(".").intern();
+                let next_directives =
+                    add_metadata_directive(&field.directives, path_name, catch_metadata.to);
+
+                let selections = self.transform_selections(&field.selections);
+
+                self.path.pop();
+
+                Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                    directives: next_directives,
+                    selections: selections.replace_or_else(|| field.selections.clone()),
+                    ..field.clone()
+                })))
+            }
+        }
     }
 }
 

@@ -104,6 +104,7 @@ pub use assignable_fragment_spread::ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN;
 pub use assignable_fragment_spread::UPDATABLE_DIRECTIVE;
 pub use assignable_fragment_spread::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 pub use catch_directive::catch_directive;
+pub use catch_directive::CatchMetadataDirective;
 pub use catch_directive::CatchTo;
 pub use catch_directive::CATCH_DIRECTIVE_NAME;
 pub use catch_directive::NULL_TO;

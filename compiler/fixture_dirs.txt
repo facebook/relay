@@ -18,6 +18,7 @@ crates/graphql-text-printer/tests/operation_printer
 crates/graphql-text-printer/tests/print_ast
 crates/graphql-text-printer/tests/print
 crates/relay-codegen/tests/aliased_fragments
+crates/relay-codegen/tests/catch_directive_codegen
 crates/relay-codegen/tests/client_edges
 crates/relay-codegen/tests/client_extensions
 crates/relay-codegen/tests/client_extensions_abstract_types

@@ -1,0 +1,4 @@
+# expected-to-throw
+fragment FragFoo on User {
+  name @catch(to: RESULT)
+}

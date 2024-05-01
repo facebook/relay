@@ -40,6 +40,7 @@ crates/relay-schema-generation/tests/docblock
 crates/relay-transforms/tests/apply_fragment_arguments
 crates/relay-transforms/tests/assignable_directive
 crates/relay-transforms/tests/assignable_fragment_spread
+crates/relay-transforms/tests/catch_directive
 crates/relay-transforms/tests/client_edges
 crates/relay-transforms/tests/client_extensions
 crates/relay-transforms/tests/client_extensions_abstract_types

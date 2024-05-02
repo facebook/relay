@@ -61,7 +61,7 @@ pub struct FeatureFlags {
     pub compact_query_text: FeatureFlag,
 
     /// Create normalization nodes for client edges to client objects
-    #[serde(default)]
+    #[serde(default = "default_as_true")]
     pub emit_normalization_nodes_for_client_edges: bool,
 
     /// Fully build the normalization AST for Resolvers
@@ -108,6 +108,10 @@ pub struct FeatureFlags {
     /// extensions, Relay Resolvers) after its built.
     #[serde(default)]
     pub enable_experimental_schema_validation: bool,
+}
+
+fn default_as_true() -> bool {
+    true
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default)]

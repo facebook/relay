@@ -149,10 +149,13 @@ impl FileCategorizer {
         for (path, project_set) in &config.sources {
             source_mapping.push((path.clone(), project_set.clone()));
         }
+        for (path, project_set) in &config.generated_sources {
+            source_mapping.push((path.clone(), project_set.clone()));
+        }
 
         let default_generated_dir = OsStr::new("__generated__");
         let mut generated_sources = vec![];
-        for (path, _project_set) in &config.sources {
+        for (path, _project_set) in &config.generated_sources {
             if in_relative_generated_dir(default_generated_dir, path) {
                 generated_sources.push(path.clone());
             }
@@ -400,7 +403,9 @@ mod tests {
                         "src/vendor": "public",
                         "src/custom": "with_custom_generated_dir",
                         "src/typescript": "typescript",
-                        "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"],
+                        "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"]
+                    },
+                    "generatedSources": {
                         "src/resolver_codegen/__generated__": "public"
                     },
                     "projects": {

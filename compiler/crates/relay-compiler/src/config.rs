@@ -96,6 +96,10 @@ pub struct Config {
     pub root_dir: PathBuf,
     pub sources: FnvIndexMap<PathBuf, ProjectSet>,
     pub excludes: Vec<String>,
+    /// Some projects may need to include extra source directories without being
+    /// affected by exclusion globs from the `excludes` config (e.g. generated
+    /// directories).
+    pub generated_sources: FnvIndexMap<PathBuf, ProjectSet>,
     pub projects: FnvIndexMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
@@ -422,6 +426,7 @@ impl Config {
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
+            generated_sources: config_file.generated_sources,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
@@ -580,6 +585,7 @@ impl fmt::Debug for Config {
             root_dir,
             sources,
             excludes,
+            generated_sources,
             compile_everything,
             repersist_operations,
             projects,
@@ -604,6 +610,7 @@ impl fmt::Debug for Config {
             .field("root_dir", root_dir)
             .field("sources", sources)
             .field("excludes", excludes)
+            .field("generated_sources", generated_sources)
             .field("compile_everything", compile_everything)
             .field("repersist_operations", repersist_operations)
             .field("projects", projects)
@@ -663,12 +670,16 @@ struct MultiProjectConfigFile {
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
-    sources: IndexMap<PathBuf, ProjectSet, fnv::FnvBuildHasher>,
+    sources: FnvIndexMap<PathBuf, ProjectSet>,
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
     #[serde(default = "get_default_excludes")]
     excludes: Vec<String>,
+
+    /// Similar to sources but not affected by excludes.
+    #[serde(default)]
+    generated_sources: FnvIndexMap<PathBuf, ProjectSet>,
 
     /// Configuration of projects to compile.
     projects: FnvIndexMap<ProjectName, ConfigFileProject>,

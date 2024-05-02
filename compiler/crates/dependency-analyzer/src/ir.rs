@@ -305,3 +305,55 @@ fn add_descendants(
         }
     }
 }
+
+/// Get fragment references of each definition
+pub fn get_ir_definition_references<'a>(
+    schema: &SDLSchema,
+    definitions: impl IntoIterator<Item = &'a ExecutableDefinition>,
+) -> ExecutableDefinitionNameMap<ExecutableDefinitionNameSet> {
+    let mut result: ExecutableDefinitionNameMap<ExecutableDefinitionNameSet> = Default::default();
+    for definition in definitions {
+        let name = definition.name_with_location().item;
+        let name = match definition {
+            ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
+            ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
+        };
+        let mut selections: Vec<_> = match definition {
+            ExecutableDefinition::Operation(definition) => &definition.selections,
+            ExecutableDefinition::Fragment(definition) => &definition.selections,
+        }
+        .iter()
+        .collect();
+        let mut references: ExecutableDefinitionNameSet = Default::default();
+        while let Some(selection) = selections.pop() {
+            match selection {
+                Selection::FragmentSpread(selection) => {
+                    references.insert(selection.fragment.item.into());
+                }
+                Selection::LinkedField(selection) => {
+                    if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                        schema.field(selection.definition.item),
+                    ) {
+                        references.insert(fragment_name.into());
+                    }
+                    selections.extend(&selection.selections);
+                }
+                Selection::InlineFragment(selection) => {
+                    selections.extend(&selection.selections);
+                }
+                Selection::Condition(selection) => {
+                    selections.extend(&selection.selections);
+                }
+                Selection::ScalarField(selection) => {
+                    if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                        schema.field(selection.definition.item),
+                    ) {
+                        references.insert(fragment_name.into());
+                    }
+                }
+            }
+        }
+        result.insert(name, references);
+    }
+    result
+}

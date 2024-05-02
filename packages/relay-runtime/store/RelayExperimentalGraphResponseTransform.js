@@ -150,7 +150,6 @@ export function normalizeResponseWithMetadata(
 export class GraphModeNormalizer {
   _cacheKeyToStreamID: Map<string, number>;
   _sentFields: Map<string, Set<string>>;
-  _getDataId: GetDataID;
   _nextStreamID: number;
   _getDataID: GetDataID;
   _variables: Variables;

@@ -376,8 +376,8 @@ class RelayReader {
 
       const {owner, path} = this._missingRequiredFields.field;
       this._errorResponseFields.push({
-        owner: owner,
-        path: path,
+        owner,
+        path,
         error: {
           message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
         },
@@ -423,18 +423,6 @@ class RelayReader {
       return false;
     }
     return true;
-  }
-
-  _isRequiredField(
-    selection: RequiredOrCatchField,
-  ): selection is ReaderRequiredField {
-    return selection.kind === REQUIRED_FIELD;
-  }
-
-  _isCatchField(
-    selection: RequiredOrCatchField,
-  ): selection is ReaderCatchField {
-    return selection.kind === CATCH_FIELD;
   }
 
   _traverseSelections(

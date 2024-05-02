@@ -1182,10 +1182,7 @@ type JestPrettyFormatColors = {
 };
 
 type JestPrettyFormatIndent = string => string;
-type JestPrettyFormatRefs = Array<any>;
 type JestPrettyFormatPrint = any => string;
-type JestPrettyFormatStringOrNull = string | null;
-
 type JestPrettyFormatOptions = {|
   callToJSON: boolean,
   edgeSpacing: string,

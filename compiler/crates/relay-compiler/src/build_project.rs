@@ -504,7 +504,8 @@ fn merge_programs(onto: &mut Programs, from: Programs) {
 }
 
 fn merge_program(onto: &mut Program, from: Arc<Program>) {
-    let from = Arc::unwrap_or_clone(from);
+    // Note: this it the inner implementation of the unstable "unwrap_or_clone"
+    let from = Arc::try_unwrap(from).unwrap_or_else(|arc| (*arc).clone());
     onto.fragments.extend(from.fragments);
     onto.operations.extend(from.operations);
 }

@@ -41,7 +41,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 hex = "0.4.3"
-indexmap = { version = "2.1.0", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.4"
@@ -49,7 +49,7 @@ log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
 md-5 = "0.10"
 persist-query = { path = "../persist-query" }
 petgraph = { version = "0.6.3", features = ["serde-1"] }
-rayon = "1.2"
+rayon = "1.9.0"
 regex = "1.9.2"
 relay-codegen = { path = "../relay-codegen" }
 relay-config = { path = "../relay-config" }

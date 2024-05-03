@@ -8,8 +8,15 @@
 use fixture_tests::Fixture;
 use schema::build_schema;
 use schema_validate_lib::validate;
+use schema_validate_lib::SchemaValidationOptions;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let schema = build_schema(fixture.content).unwrap();
-    Ok(validate(&schema).print_errors())
+    Ok(validate(
+        &schema,
+        SchemaValidationOptions {
+            allow_introspection_names: false,
+        },
+    )
+    .print_errors())
 }

@@ -58,7 +58,7 @@ let SingularRenderer;
 let PluralRenderer;
 let ContextProvider;
 
-function useFragment(
+hook useFragment(
   fragmentNode:
     | Fragment<
         useFragmentTestUserFragment$fragmentType,

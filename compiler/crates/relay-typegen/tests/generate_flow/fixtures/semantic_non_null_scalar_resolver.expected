@@ -19,7 +19,7 @@ import clientUserNameResolverType from "bar";
 (clientUserNameResolverType: () => mixed);
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {|
-  +name: ?ReturnType<typeof clientUserNameResolverType>,
+  +name: $NonMaybeType<ReturnType<typeof clientUserNameResolverType>>,
   +$fragmentType: MyFragment$fragmentType,
 |};
 export type MyFragment$key = {

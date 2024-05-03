@@ -28,11 +28,11 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
+
+const {disallowWarnings, expectWarningWillFire} = (jest.requireActual(
+  'relay-test-utils-internal',
+): $FlowFixMe);
 
 const {useMemo, useState} = React;
 
@@ -2491,7 +2491,6 @@ describe('useBlockingPaginationFragment', () => {
         // the component twice: `expectFragmentResults` will fail in the next
         // test
         jest.resetModules();
-        disallowWarnings();
       });
 
       it('preserves pagination request if re-rendered with same fragment ref', () => {

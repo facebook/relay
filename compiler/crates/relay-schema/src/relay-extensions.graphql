@@ -141,6 +141,17 @@ enum RequiredFieldAction {
   THROW
 }
 
+# CatchTransform
+"""
+(Relay Only)
+
+NULL and RESULT are the `to` values you can use in the @catch directive to tell relay how to treat field-level errors
+"""
+enum CatchFieldTo {
+  NULL
+  RESULT
+}
+
 """
 (Relay Only)
 
@@ -152,6 +163,14 @@ null".
 [Read More](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/required-directive/) (FB only)
 """
 directive @required(action: RequiredFieldAction! @static) on FIELD
+
+"""
+(Relay Only)
+
+`@catch` is a directive you can add to fields in your Relay queries to
+declare how errors are handled.
+"""
+directive @catch(to: CatchFieldTo! = RESULT @static) on FIELD
 
 # DeclarativeConnection
 """

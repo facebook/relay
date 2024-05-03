@@ -15,17 +15,26 @@ import type {Snapshot} from '../RelayStoreTypes';
 const {
   constant_dependent: UserConstantDependentResolver,
 } = require('./resolvers/UserConstantDependentResolver');
+const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
+const {
+  LiveResolverCache,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverCache');
+const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernRecord = require('relay-runtime/store/RelayModernRecord');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {read} = require('relay-runtime/store/RelayReader');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
+const {
+  RELAY_RESOLVER_INVALIDATION_KEY,
+} = require('relay-runtime/store/RelayStoreUtils');
 const {RecordResolverCache} = require('relay-runtime/store/ResolverCache');
 const {
   disallowConsoleErrors,
@@ -41,9 +50,22 @@ beforeEach(() => {
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+  // The call count of the resolver used in this test
+  UserConstantDependentResolver._relayResolverTestCallCount = undefined;
 });
 
-describe('Relay Resolver', () => {
+describe.each([
+  {
+    name: 'RecordResolverCache',
+    ResolverCache: RecordResolverCache,
+    RelayStore: RelayModernStore,
+  },
+  {
+    name: 'LiveResolverCache',
+    ResolverCache: LiveResolverCache,
+    RelayStore: LiveResolverStore,
+  },
+])('Relay Resolver with $name', ({ResolverCache, RelayStore}) => {
   it('returns the result of the resolver function', () => {
     const source = RelayRecordSource.create({
       'client:root': {
@@ -58,7 +80,7 @@ describe('Relay Resolver', () => {
         name: 'Alice',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest1Query {
@@ -98,7 +120,7 @@ describe('Relay Resolver', () => {
         name: 'Alice',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTestCustomGreetingDynamicQuery(
@@ -175,7 +197,7 @@ describe('Relay Resolver', () => {
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+      const store = new RelayStore(source, {gcReleaseBufferSize: 0});
       const {errorResponseFields} = store.lookup(operation.fragment);
       expect(errorResponseFields).toEqual([
         {
@@ -219,7 +241,7 @@ describe('Relay Resolver', () => {
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+      const store = new RelayStore(source, {gcReleaseBufferSize: 0});
       const {errorResponseFields} = store.lookup(operation.fragment);
       expect(errorResponseFields).toEqual(null);
     });
@@ -248,7 +270,7 @@ describe('Relay Resolver', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const {missingRequiredFields} = store.lookup(operation.fragment);
     expect(missingRequiredFields).toEqual({
       action: 'LOG',
@@ -290,7 +312,7 @@ describe('Relay Resolver', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const {isMissingData} = store.lookup(operation.fragment);
     expect(isMissingData).toBe(true);
 
@@ -327,7 +349,7 @@ describe('Relay Resolver', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const {missingRequiredFields} = store.lookup(operation.fragment);
     expect(missingRequiredFields).toEqual({
       action: 'LOG',
@@ -372,7 +394,7 @@ describe('Relay Resolver', () => {
         name: 'Alice',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest11Query {
@@ -407,7 +429,7 @@ describe('Relay Resolver', () => {
       },
     });
 
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -460,7 +482,7 @@ describe('Relay Resolver', () => {
       },
     });
 
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -500,6 +522,77 @@ describe('Relay Resolver', () => {
     expect(resolverInternals._relayResolverTestCallCount).toBe(1);
   });
 
+  it.each([true, false])(
+    'marks the resolver cache as clean if the upstream has not changed with RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD=%s',
+    markClean => {
+      RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD =
+        markClean;
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+        },
+      });
+
+      const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+      const environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        store,
+      });
+
+      const FooQuery = graphql`
+        query RelayReaderResolverTestMarkCleanQuery {
+          me {
+            constant_dependent
+          }
+        }
+      `;
+
+      const cb = jest.fn<[Snapshot], void>();
+      const operation = createOperationDescriptor(FooQuery, {});
+      const snapshot = store.lookup(operation.fragment);
+      const subscription = store.subscribe(snapshot, cb);
+      // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+      const {me}: any = snapshot.data;
+      expect(me.constant_dependent).toEqual(1);
+      environment.commitUpdate(theStore => {
+        const alice = nullthrows(theStore.get('1'));
+        alice.setValue('Alicia', 'name');
+      });
+      subscription.dispose();
+
+      // Rereading the resolver's fragment, only to find that no fields that we read have changed,
+      // should clear the RELAY_RESOLVER_INVALIDATION_KEY.
+      const resolverCacheRecord = environment
+        .getStore()
+        .getSource()
+        .get('client:1:constant_dependent');
+      invariant(
+        resolverCacheRecord != null,
+        'Expected a resolver cache record',
+      );
+
+      const isMaybeInvalid = RelayModernRecord.getValue(
+        resolverCacheRecord,
+        RELAY_RESOLVER_INVALIDATION_KEY,
+      );
+
+      if (markClean) {
+        expect(isMaybeInvalid).toBe(false);
+      } else {
+        // Without the feature flag enabled, T185969900 still reproduces.
+        expect(isMaybeInvalid).toBe(true);
+      }
+    },
+  );
+
   it('handles optimistic updates (applied after subscribing)', () => {
     const source = RelayRecordSource.create({
       'client:root': {
@@ -515,7 +608,7 @@ describe('Relay Resolver', () => {
       },
     });
 
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -584,7 +677,7 @@ describe('Relay Resolver', () => {
       },
     });
 
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -673,7 +766,7 @@ describe('Relay Resolver', () => {
       },
     });
 
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -730,7 +823,7 @@ describe('Relay Resolver', () => {
       },
     });
 
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -803,7 +896,7 @@ describe('Relay Resolver', () => {
       },
     });
 
-    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -898,7 +991,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
@@ -931,7 +1024,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
@@ -997,7 +1090,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
@@ -1056,7 +1149,7 @@ describe('Relay Resolver', () => {
       }
     `;
 
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const operation = createOperationDescriptor(FooQuery, {});
 
@@ -1091,7 +1184,7 @@ describe('Relay Resolver', () => {
         __id: '1',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest15Query {
@@ -1133,7 +1226,7 @@ describe('Relay Resolver', () => {
         uri: 'http://my-url-1.5',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest16Query($scale: Float!) {
@@ -1179,7 +1272,7 @@ describe('Relay Resolver', () => {
         uri: 'http://my-url-1.5',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest17Query {
@@ -1225,7 +1318,7 @@ describe('Relay Resolver', () => {
         uri: 'http://my-url-2',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest18Query {
@@ -1278,7 +1371,7 @@ describe('Relay Resolver', () => {
         uri: 'http://my-url-1.5',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const resolverCache = new ResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest19Query($scale: Float) {
@@ -1333,7 +1426,9 @@ describe('Relay Resolver', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'profile_picture(scale:1.5)': {__ref: '1:profile_picture(scale:1.5)'},
+          'profile_picture(scale:1.5)': {
+            __ref: '1:profile_picture(scale:1.5)',
+          },
           'profile_picture(scale:2)': {__ref: '1:profile_picture(scale:2)'},
         },
         '1:profile_picture(scale:1.5)': {
@@ -1347,7 +1442,7 @@ describe('Relay Resolver', () => {
           uri: 'http://my-url-2',
         },
       });
-      const resolverCache = new RecordResolverCache(() => source);
+      const resolverCache = new ResolverCache(() => source);
 
       let operation = createOperationDescriptor(Query, {scale: 1.5});
       let readResult = read(source, operation.fragment, resolverCache);
@@ -1386,7 +1481,9 @@ describe('Relay Resolver', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'profile_picture(scale:1.5)': {__ref: '1:profile_picture(scale:1.5)'},
+          'profile_picture(scale:1.5)': {
+            __ref: '1:profile_picture(scale:1.5)',
+          },
           'profile_picture(scale:2)': {__ref: '1:profile_picture(scale:2)'},
         },
         '1:profile_picture(scale:1.5)': {
@@ -1400,7 +1497,7 @@ describe('Relay Resolver', () => {
           // uri: 'http://my-url-2', this field now is missing
         },
       });
-      const resolverCache = new RecordResolverCache(() => source);
+      const resolverCache = new ResolverCache(() => source);
 
       let operation = createOperationDescriptor(Query, {scale: 1.5});
       let readResult = read(source, operation.fragment, resolverCache);
@@ -1442,7 +1539,9 @@ describe('Relay Resolver', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'profile_picture(scale:1.5)': {__ref: '1:profile_picture(scale:1.5)'},
+          'profile_picture(scale:1.5)': {
+            __ref: '1:profile_picture(scale:1.5)',
+          },
           'profile_picture(scale:2)': {__ref: '1:profile_picture(scale:2)'},
         },
         '1:profile_picture(scale:1.5)': {
@@ -1457,7 +1556,7 @@ describe('Relay Resolver', () => {
         },
       });
 
-      const resolverCache = new RecordResolverCache(() => source);
+      const resolverCache = new ResolverCache(() => source);
 
       let operation = createOperationDescriptor(Query, {
         scale: 1.5,
@@ -1490,7 +1589,10 @@ describe('Relay Resolver', () => {
       });
 
       // Changing both arguments
-      operation = createOperationDescriptor(Query, {scale: 1.5, name: 'Clair'});
+      operation = createOperationDescriptor(Query, {
+        scale: 1.5,
+        name: 'Clair',
+      });
       readResult = read(source, operation.fragment, resolverCache);
       expect(readResult.isMissingData).toBe(false);
       expect(readResult.data).toEqual({

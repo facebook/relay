@@ -117,7 +117,7 @@ class ErrorBoundary extends React.Component<any, any> {
   }
 }
 
-function usePaginationFragment(fragmentNode: any, fragmentRef: any) {
+hook usePaginationFragment(fragmentNode: any, fragmentRef: any) {
   /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
    * enabling Flow LTI mode */
   const {data, ...result} = usePaginationFragmentImpl(

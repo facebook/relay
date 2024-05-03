@@ -416,7 +416,7 @@ trait ResolverIr: Sized {
     fn live(&self) -> Option<UnpopulatedIrField>;
     fn named_import(&self) -> Option<StringKey>;
     fn source_hash(&self) -> ResolverSourceHash;
-    fn semantic_non_null(&self) -> Option<UnpopulatedIrField>;
+    fn semantic_non_null(&self) -> Option<ConstantDirective>;
 
     fn to_graphql_schema_ast(
         self,
@@ -454,13 +454,7 @@ trait ResolverIr: Sized {
         }
 
         if let Some(semantic_non_null) = self.semantic_non_null() {
-            let span = semantic_non_null.key_location.span();
-            directives.push(ConstantDirective {
-                span,
-                at: dummy_token(span),
-                name: string_key_as_identifier(SEMANTIC_NON_NULL_DIRECTIVE_NAME.0),
-                arguments: None,
-            })
+            directives.push(semantic_non_null)
         }
 
         directives
@@ -795,7 +789,7 @@ pub struct TerseRelayResolverIr {
     pub type_: WithLocation<StringKey>,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub deprecated: Option<IrField>,
-    pub semantic_non_null: Option<UnpopulatedIrField>,
+    pub semantic_non_null: Option<ConstantDirective>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
@@ -882,8 +876,8 @@ impl ResolverIr for TerseRelayResolverIr {
         self.deprecated
     }
 
-    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
-        self.semantic_non_null
+    fn semantic_non_null(&self) -> Option<ConstantDirective> {
+        self.semantic_non_null.clone()
     }
 
     fn live(&self) -> Option<UnpopulatedIrField> {
@@ -930,7 +924,7 @@ pub struct LegacyVerboseResolverIr {
     pub description: Option<WithLocation<StringKey>>,
     pub hack_source: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
-    pub semantic_non_null: Option<UnpopulatedIrField>,
+    pub semantic_non_null: Option<ConstantDirective>,
     pub live: Option<UnpopulatedIrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
@@ -1070,8 +1064,8 @@ impl ResolverIr for LegacyVerboseResolverIr {
         self.live
     }
 
-    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
-        self.semantic_non_null
+    fn semantic_non_null(&self) -> Option<ConstantDirective> {
+        self.semantic_non_null.clone()
     }
 
     fn named_import(&self) -> Option<StringKey> {
@@ -1337,7 +1331,7 @@ impl ResolverIr for StrongObjectIr {
         self.live
     }
 
-    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
+    fn semantic_non_null(&self) -> Option<ConstantDirective> {
         None
     }
 
@@ -1520,7 +1514,7 @@ impl ResolverIr for WeakObjectIr {
         None
     }
 
-    fn semantic_non_null(&self) -> Option<UnpopulatedIrField> {
+    fn semantic_non_null(&self) -> Option<ConstantDirective> {
         None
     }
 

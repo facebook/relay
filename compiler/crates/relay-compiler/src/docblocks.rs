@@ -8,6 +8,7 @@
 use std::path::Path;
 
 use common::DiagnosticsResult;
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use docblock_syntax::parse_docblock;
 use docblock_syntax::DocblockAST;
@@ -76,9 +77,7 @@ fn parse_source(
         ast,
         definitions,
         ParseOptions {
-            allow_legacy_verbose_syntax: &project_config
-                .feature_flags
-                .relay_resolvers_allow_legacy_verbose_syntax,
+            allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
             enable_interface_output_type: &project_config
                 .feature_flags
                 .relay_resolver_enable_interface_output_type,

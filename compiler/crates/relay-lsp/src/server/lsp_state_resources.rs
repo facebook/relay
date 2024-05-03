@@ -322,7 +322,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         log_event.string("project", project_name.to_string());
 
         let schema = log_event.time("build_schema_time", || {
-            self.build_schema(compiler_state, config, project_config, graphql_asts_map)
+            self.build_schema(
+                compiler_state,
+                config,
+                project_config,
+                graphql_asts_map,
+                &log_event,
+            )
         })?;
 
         let ProjectAstData {
@@ -353,16 +359,23 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         config: &Config,
         project_config: &ProjectConfig,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
+        log_event: &impl PerfLogEvent,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
         match self.lsp_state.schemas.entry(project_config.name.into()) {
             Entry::Vacant(e) => {
-                let schema = build_schema(compiler_state, config, project_config, graphql_asts_map)
-                    .map_err(|errors| {
-                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                            errors,
-                            project_name: project_config.name,
-                        })
-                    })?;
+                let schema = build_schema(
+                    compiler_state,
+                    config,
+                    project_config,
+                    graphql_asts_map,
+                    log_event,
+                )
+                .map_err(|errors| {
+                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                        errors,
+                        project_name: project_config.name,
+                    })
+                })?;
                 e.insert(Arc::clone(&schema));
                 Ok(schema)
             }
@@ -370,15 +383,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !compiler_state.project_has_pending_schema_changes(project_config.name) {
                     Ok(Arc::clone(e.get()))
                 } else {
-                    let schema =
-                        build_schema(compiler_state, config, project_config, graphql_asts_map)
-                            .map_err(|errors| {
-                                debug!("build error");
-                                BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                                    errors,
-                                    project_name: project_config.name,
-                                })
-                            })?;
+                    let schema = build_schema(
+                        compiler_state,
+                        config,
+                        project_config,
+                        graphql_asts_map,
+                        log_event,
+                    )
+                    .map_err(|errors| {
+                        debug!("build error");
+                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                            errors,
+                            project_name: project_config.name,
+                        })
+                    })?;
                     e.insert(Arc::clone(&schema));
                     Ok(schema)
                 }

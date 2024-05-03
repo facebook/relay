@@ -28,7 +28,7 @@ const {useCallback, useEffect} = require('react');
  * The additional functions returned by this Hook can be used to mutate
  * the ref.
  */
-function useFetchTrackingRef(): {
+hook useFetchTrackingRef(): {
   isFetchingRef: {current: ?boolean, ...},
   startFetch: Subscription => void,
   disposeFetch: () => void,

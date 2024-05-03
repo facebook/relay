@@ -25,7 +25,7 @@ const {useEffect, useRef} = require('react');
  * re-established and the previous one will be disposed.
  * The subscription will automatically be disposed on unmount
  */
-function useSubscribeToInvalidationState(
+hook useSubscribeToInvalidationState(
   dataIDs: $ReadOnlyArray<DataID>,
   callback: () => void,
 ): Disposable {

@@ -595,7 +595,9 @@ function createContainerWithFragments<
         PAGE_INFO,
         connectionData,
       );
+      // $FlowFixMe[invalid-computed-prop]
       const edges = connectionData[EDGES];
+      // $FlowFixMe[invalid-computed-prop]
       const pageInfo = connectionData[PAGE_INFO];
       if (edges == null || pageInfo == null) {
         return null;

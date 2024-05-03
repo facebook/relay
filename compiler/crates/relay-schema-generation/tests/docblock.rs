@@ -31,16 +31,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let project_fixture = ProjectFixture::deserialize(fixture.content);
 
     project_fixture.files().iter().for_each(|(path, content)| {
-        let source_location = SourceLocationKey::standalone(path.to_string_lossy().as_ref());
-        if let Err(err) = extractor.parse_document(content, source_location) {
+        if let Err(err) = extractor.parse_document(content, path.to_string_lossy().as_ref()) {
             errors.extend(err);
         }
     });
 
-    let out = match extractor.resolve() {
+    let mut out = match extractor.resolve() {
         Ok((objects, fields)) => objects
             .into_iter()
-            .map(DocblockIr::StrongObjectResolver)
             .chain(fields.into_iter().map(DocblockIr::TerseRelayResolver))
             .map(|ir| {
                 // Extend schema with the IR and print SDL
@@ -75,8 +73,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
                 format!("{:#?}\n{}", &ir, sdl)
             })
-            .collect::<Vec<_>>()
-            .join("\n\n"),
+            .collect::<Vec<_>>(),
         Err(err) => {
             errors.extend(err);
             Default::default()
@@ -84,7 +81,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     };
     let err = diagnostics_to_sorted_string(&project_fixture, &errors);
 
-    Ok(out + "\n\n" + &err)
+    out.sort();
+    Ok(out.join("\n\n") + "\n\n" + &err)
 }
 
 fn diagnostics_to_sorted_string(fixtures: &ProjectFixture, diagnostics: &[Diagnostic]) -> String {

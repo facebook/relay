@@ -49,29 +49,40 @@ type ExpectedReturnType<
 // Nullability of returned data type is correct
 // $FlowFixMe[prop-missing]
 // $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-exact]
+// $FlowFixMe[react-rule-hook]
 (usePaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
 ): ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>);
 
+// $FlowFixMe[react-rule-hook]
 (usePaginationFragment(
   refetchableFragmentInput,
   keyNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
 
 // $FlowExpectedError: can't cast nullable to non-nullable
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[incompatible-cast]
 (usePaginationFragment(
   refetchableFragmentInput,
   keyNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: actual type of returned data is correct
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[incompatible-exact]
+// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-cast]
 (usePaginationFragment(
   refetchableFragmentInput,
   // $FlowFixMe[incompatible-call]
   keyAnotherNonNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
 // $FlowExpectedError
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[incompatible-cast]
 (usePaginationFragment(
   refetchableFragmentInput,
   // $FlowFixMe[incompatible-call]
@@ -79,18 +90,25 @@ type ExpectedReturnType<
 ): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: Key should not be a user provided object
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[prop-missing]
 usePaginationFragment(refetchableFragmentInput, {abc: 123});
 
 // $FlowExpectedError: Key should not be an empty object
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[prop-missing]
 usePaginationFragment(refetchableFragmentInput, {});
 
 // $FlowExpectedError: Key should be the `<name>$key` type from generated flow
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[prop-missing]
 usePaginationFragment(refetchableFragmentInput, fragmentData);
 
 // Refetch function options:
 declare var variables: QueryVariables;
 declare var environment: IEnvironment;
 
+// $FlowFixMe[react-rule-hook]
 const {refetch} = usePaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
@@ -109,6 +127,7 @@ refetch(variables, {
 declare var extraVariables: {nickname: string};
 declare var invalidVariables: {foo: string};
 
+// $FlowFixMe[react-rule-hook]
 const {loadNext} = usePaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,

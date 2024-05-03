@@ -8,6 +8,8 @@
 use intern::string_key::StringKey;
 use thiserror::Error;
 
+use crate::JSImportType;
+
 #[derive(
     Clone,
     Copy,
@@ -31,11 +33,26 @@ pub enum SchemaGenerationError {
     GenericNotSupported,
     #[error("Plural types not supported")]
     PluralNotSupported,
+    #[error("Object types not supported")]
+    ObjectNotSupported,
+    #[error("Type aliases in Relay resolvers are expected to be object types")]
+    ExpectedTypeAliasToBeObject,
+    #[error("Expected object definition to include fields")]
+    ExpectedWeakObjectToHaveFields,
+    #[error("@RelayResolver annotation is expected to be on a named export")]
+    ExpectedNamedExport,
+    #[error("@RelayResolver annotation is expected to be on a named function or type alias")]
+    ExpectedFunctionOrTypeAlias,
     #[error(
-        "Failed to find type definition for type `{export_name}` from module `{module_name}`, please make sure `{export_name}` is imported and it is a resolver type"
+        "Types used in @RelayResolver definitions should be imported using named or default imports (without using a `*`)"
+    )]
+    UseNamedOrDefaultImport,
+    #[error(
+        "Failed to find type definition for `{entity_name}` using a {export_type} import from module `{module_name}`. Please make sure `{entity_name}` is imported using a named or default import and that it is a resolver type"
     )]
     ModuleNotFound {
-        export_name: StringKey,
+        entity_name: StringKey,
+        export_type: JSImportType,
         module_name: StringKey,
     },
 }

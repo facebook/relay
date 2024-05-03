@@ -40,14 +40,17 @@ const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-function useDeepCompare<T: {...}>(value: T): T {
+hook useDeepCompare<T: {...}>(value: T): T {
   const latestValue = React.useRef(value);
+  // $FlowFixMe[react-rule-unsafe-ref]
   if (!areEqual(latestValue.current, value)) {
     if (__DEV__) {
       deepFreeze(value);
     }
+    // $FlowFixMe[react-rule-unsafe-ref]
     latestValue.current = value;
   }
+  // $FlowFixMe[react-rule-unsafe-ref]
   return latestValue.current;
 }
 

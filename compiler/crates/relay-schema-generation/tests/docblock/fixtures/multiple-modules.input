@@ -10,7 +10,7 @@
 
 import type CatFlowType from 'Cat';
 
-/** 
+/**
  * @RelayResolver
  */
 export function Cat(id: DataID): CatFlowType {
@@ -20,7 +20,7 @@ export function Cat(id: DataID): CatFlowType {
 //- Cat-name.js
 
 import type CatFlowType from 'Cat';
-/** 
+/**
  * @RelayResolver
  */
 export function name(cat: CatFlowType): string {
@@ -29,9 +29,31 @@ export function name(cat: CatFlowType): string {
 
 //- Cat-hungry.js
 
-/** 
+/**
  * @RelayResolver is_hungry
  */
 export function hungry(cat: CatFlowType): number {
   return 5;
+}
+
+//- Dog.js
+
+import * as DogNamespace from 'Dog';
+
+/**
+ * @RelayResolver
+ */
+export function Dog(id: DataID): DogNamespace {
+  return {};
+}
+
+//- Dog-name.js
+
+import type DogFlowType from 'Dog.flow';
+
+/**
+ * @RelayResolver
+ */
+export function name(dog: DogFlowType): string {
+  return "dog";
 }

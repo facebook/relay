@@ -4,13 +4,41 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<456d2421d1f503f7b8072844537f22cb>>
+ * @generated SignedSource<<259c085b2741cc09797b460375d7d146>>
  */
 
 mod docblock;
 
 use docblock::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn incorrect_export_error() {
+    let input = include_str!("docblock/fixtures/incorrect-export-error.input");
+    let expected = include_str!("docblock/fixtures/incorrect-export-error.expected");
+    test_fixture(transform_fixture, file!(), "incorrect-export-error.input", "docblock/fixtures/incorrect-export-error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incorrect_type_error() {
+    let input = include_str!("docblock/fixtures/incorrect-type-error.input");
+    let expected = include_str!("docblock/fixtures/incorrect-type-error.expected");
+    test_fixture(transform_fixture, file!(), "incorrect-type-error.input", "docblock/fixtures/incorrect-type-error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn live() {
+    let input = include_str!("docblock/fixtures/live.input");
+    let expected = include_str!("docblock/fixtures/live.expected");
+    test_fixture(transform_fixture, file!(), "live.input", "docblock/fixtures/live.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn missing_param_type_error() {
+    let input = include_str!("docblock/fixtures/missing-param-type-error.input");
+    let expected = include_str!("docblock/fixtures/missing-param-type-error.expected");
+    test_fixture(transform_fixture, file!(), "missing-param-type-error.input", "docblock/fixtures/missing-param-type-error.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn multiple_modules() {
@@ -38,4 +66,25 @@ async fn single_module() {
     let input = include_str!("docblock/fixtures/single-module.input");
     let expected = include_str!("docblock/fixtures/single-module.expected");
     test_fixture(transform_fixture, file!(), "single-module.input", "docblock/fixtures/single-module.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn weak_object() {
+    let input = include_str!("docblock/fixtures/weak-object.input");
+    let expected = include_str!("docblock/fixtures/weak-object.expected");
+    test_fixture(transform_fixture, file!(), "weak-object.input", "docblock/fixtures/weak-object.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn weak_object_no_fields() {
+    let input = include_str!("docblock/fixtures/weak-object-no-fields.input");
+    let expected = include_str!("docblock/fixtures/weak-object-no-fields.expected");
+    test_fixture(transform_fixture, file!(), "weak-object-no-fields.input", "docblock/fixtures/weak-object-no-fields.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn weak_type_error() {
+    let input = include_str!("docblock/fixtures/weak-type-error.input");
+    let expected = include_str!("docblock/fixtures/weak-type-error.expected");
+    test_fixture(transform_fixture, file!(), "weak-type-error.input", "docblock/fixtures/weak-type-error.expected", input, expected).await;
 }

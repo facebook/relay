@@ -23,3 +23,14 @@ type Chicken implements IAnimal {
 extend type Query {
   chicken: Chicken
 }
+
+interface IWeakAnimal {
+  color: String
+}
+
+input WeakAnimalRequest {
+  """
+  Should be a valid GraphQL type that implements `IWeakAnimal`.
+  """
+  ofType: String!
+}

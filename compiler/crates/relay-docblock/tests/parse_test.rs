@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fa1363f9a3288f7fa73949a68070fcc0>>
+ * @generated SignedSource<<39d7900ffa33ff834b34da21de3059d6>>
  */
 
 mod parse;
@@ -157,13 +157,6 @@ async fn relay_resolver_on_type_not_allowed_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-type-not-allowed.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-type-not-allowed.invalid.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-on-type-not-allowed.invalid.js", "parse/fixtures/relay-resolver-on-type-not-allowed.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_semantic_non_null() {
-    let input = include_str!("parse/fixtures/relay-resolver-semantic-non-null.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-semantic-non-null.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-semantic-non-null.js", "parse/fixtures/relay-resolver-semantic-non-null.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -80,7 +80,7 @@ export type UsePaginationFragmentType = <
   parentFragmentRef: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
-function usePaginationFragment<
+hook usePaginationFragment<
   TFragmentType: FragmentType,
   TVariables: Variables,
   TData,
@@ -144,6 +144,7 @@ function usePaginationFragment<
 
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // $FlowFixMe[react-rule-hook]
     useDebugValue({
       fragment: fragmentNode.name,
       data: fragmentData,
@@ -166,7 +167,7 @@ function usePaginationFragment<
   };
 }
 
-function useLoadMore<TVariables: Variables>(
+hook useLoadMore<TVariables: Variables>(
   args: $Diff<
     UseLoadMoreFunctionArgs,
     {

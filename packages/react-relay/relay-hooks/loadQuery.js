@@ -46,7 +46,7 @@ const warning = require('warning');
 let RenderDispatcher = null;
 let fetchKey = 100001;
 
-function useTrackLoadQueryInRender() {
+hook useTrackLoadQueryInRender() {
   if (RenderDispatcher === null) {
     // Flow does not know of React internals (rightly so), but we need to
     // ensure here that this function isn't called inside render.

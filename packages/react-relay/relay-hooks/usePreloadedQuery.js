@@ -52,7 +52,7 @@ type PreloadedQuery<
       TEnvironmentProviderOptions,
     >;
 
-function usePreloadedQuery<
+hook usePreloadedQuery<
   TVariables: Variables,
   TData,
   TRawResponse: ?{...} = void,
@@ -164,6 +164,7 @@ function usePreloadedQuery<
 
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // $FlowFixMe[react-rule-hook]
     useDebugValue({
       query: preloadedQuery.name,
       variables: preloadedQuery.variables,

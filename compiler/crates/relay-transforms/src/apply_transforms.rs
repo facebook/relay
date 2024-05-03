@@ -264,6 +264,16 @@ fn apply_reader_transforms(
 
     program = log_event.time("required_directive", || required_directive(&program))?;
 
+    program = log_event.time("catch_directive", || {
+        catch_directive(
+            &program,
+            project_config
+                .feature_flags
+                .enable_catch_directive_transform
+                .is_fully_enabled(),
+        )
+    })?;
+
     program = log_event.time("client_edges", || {
         client_edges(&program, project_config, &base_fragment_names)
     })?;
@@ -584,7 +594,9 @@ fn apply_operation_text_transforms(
     });
     log_event.time("validate_selection_conflict", || {
         graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
-            &program, true,
+            &program,
+            project_config,
+            true,
         )
     })?;
     program = log_event.time("skip_client_extensions", || {
@@ -669,6 +681,15 @@ fn apply_typegen_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("catch_directive", || {
+        catch_directive(
+            &program,
+            project_config
+                .feature_flags
+                .enable_catch_directive_transform
+                .is_fully_enabled(),
+        )
+    })?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
         generate_relay_resolvers_model_fragments(
             project_config.name,

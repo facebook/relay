@@ -31,7 +31,7 @@ This downloads a template project to get started from and starts the server. (If
 When you run `npm run dev`, several processes are started:
 
 * A Webpack-based HTTP server that serves up the front-end code.
-* A basic GraphQL server that that front-end will query to retrieve information.
+* A basic GraphQL server that front-end will query to retrieve information.
 * The Relay compiler, which processes the GraphQL in your app and generates additional files that Relay uses at runtime, as well as TypeScript types representing the inputs and results of your queries. It will automatically regenerate when you save changes in your files.
 
 In the terminal output, these three processes’ log output are marked with tags: `[webpack]` in yellow, `[server]` in green, and `[relay]` in blue. Keep a look out for errors marked with `[relay]` as these are helpful if your GraphQL has any mistakes.

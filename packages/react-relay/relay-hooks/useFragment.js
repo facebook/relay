@@ -25,30 +25,30 @@ type HasSpread<TFragmentType> = {
 };
 
 // if the key is non-nullable, return non-nullable value
-declare function useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: HasSpread<TFragmentType>,
 ): TData;
 
 // if the key is nullable, return nullable value
-declare function useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: ?HasSpread<TFragmentType>,
 ): ?TData;
 
 // if the key is a non-nullable array of keys, return non-nullable array
-declare function useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: $ReadOnlyArray<HasSpread<TFragmentType>>,
 ): TData;
 
 // if the key is a nullable array of keys, return nullable array
-declare function useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: ?$ReadOnlyArray<HasSpread<TFragmentType>>,
 ): ?TData;
 
-function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
+hook useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
@@ -58,6 +58,7 @@ function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
   const data = useFragmentInternal(fragmentNode, key, 'useFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // $FlowFixMe[react-rule-hook]
     useDebugValue({fragment: fragmentNode.name, data});
   }
   return data;

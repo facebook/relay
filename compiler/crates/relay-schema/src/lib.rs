@@ -36,7 +36,10 @@ lazy_static! {
     pub static ref EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME: StringKey = intern!("export_name");
 }
 
-pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
+pub fn build_schema_with_extensions<
+    T: AsRef<str> + std::marker::Sync,
+    U: AsRef<str> + std::marker::Sync,
+>(
     server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {

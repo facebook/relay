@@ -466,30 +466,6 @@ impl Field {
                     .and_then(|reason| reason.value.get_string_literal()),
             })
     }
-    pub fn semantic_type(&self) -> TypeReference<Type> {
-        match self
-            .directives
-            .named(DirectiveName("semanticNonNull".intern()))
-        {
-            Some(directive) => {
-                match directive
-                    .arguments
-                    .named(ArgumentName("levels".intern()))
-                    .map(|levels| levels.expect_int_list())
-                {
-                    Some(levels) => {
-                        let mut type_ = self.type_.clone();
-                        for level in levels {
-                            type_ = type_.with_non_null_level(level);
-                        }
-                        type_
-                    }
-                    None => self.type_.non_null(),
-                }
-            }
-            None => self.type_.clone(),
-        }
-    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

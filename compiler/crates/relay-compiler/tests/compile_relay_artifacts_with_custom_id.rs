@@ -87,6 +87,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let feature_flags = FeatureFlags {
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
+        enable_catch_directive_transform: FeatureFlag::Disabled,
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
@@ -94,16 +95,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
         emit_normalization_nodes_for_client_edges: true,
-        relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
-        enable_resolver_normalization_ast: false,
-        relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag::Disabled,
-        enable_relay_resolver_mutations: false,
-        enable_strict_custom_scalars: false,
-        allow_required_in_mutation_response: FeatureFlag::Disabled,
-        allow_resolvers_in_mutation_response: FeatureFlag::Disabled,
-        disable_resolver_reader_ast: false,
-        enable_fragment_argument_transform: false,
-        allow_resolver_non_nullable_return_type: FeatureFlag::Disabled,
+        ..Default::default()
     };
 
     let default_schema_config = SchemaConfig::default();

@@ -694,14 +694,37 @@ impl InMemorySchema {
         schema_documents: &[SchemaDocument],
         client_schema_documents: &[SchemaDocument],
     ) -> DiagnosticsResult<Self> {
+        let schema_documents = schema_documents
+            .iter()
+            .map(|i| (i.definitions.iter().collect::<Vec<_>>(), i.location))
+            .collect();
+
+        let client_schema_documents = client_schema_documents
+            .iter()
+            .map(|i| (i.definitions.iter().collect::<Vec<_>>(), i.location))
+            .collect();
+        Self::build_impl(schema_documents, client_schema_documents)
+    }
+
+    pub fn build_with_definition_ptrs(
+        definitions: Vec<&TypeSystemDefinition>,
+        location: Location,
+    ) -> DiagnosticsResult<Self> {
+        Self::build_impl(vec![(definitions, location)], vec![])
+    }
+
+    fn build_impl<'a>(
+        schema_documents: Vec<(Vec<&'a TypeSystemDefinition>, Location)>,
+        client_schema_documents: Vec<(Vec<&'a TypeSystemDefinition>, Location)>,
+    ) -> DiagnosticsResult<Self> {
         let schema_definitions: Vec<&TypeSystemDefinition> = schema_documents
             .iter()
-            .flat_map(|document| &document.definitions)
+            .flat_map(|document| document.0.to_vec())
             .collect();
 
         let client_definitions: Vec<&TypeSystemDefinition> = client_schema_documents
             .iter()
-            .flat_map(|document| &document.definitions)
+            .flat_map(|document| document.0.to_vec())
             .collect();
 
         // Step 1: build the type_map from type names to type keys
@@ -828,20 +851,23 @@ impl InMemorySchema {
             unions: Vec::with_capacity(next_union_id.try_into().unwrap()),
         };
 
-        for document in schema_documents {
-            for definition in &document.definitions {
-                schema.add_definition(definition, &document.location.source_location(), false)?;
+        for document in schema_documents.iter() {
+            for definition in document.0.iter() {
+                schema.add_definition(definition, &document.1.source_location(), false)?;
             }
         }
 
-        for document in client_schema_documents {
-            for definition in &document.definitions {
-                schema.add_definition(definition, &document.location.source_location(), true)?;
+        for document in client_schema_documents.iter() {
+            for definition in document.0.iter() {
+                schema.add_definition(definition, &document.1.source_location(), true)?;
             }
         }
 
-        for document in schema_documents.iter().chain(client_schema_documents) {
-            for definition in &document.definitions {
+        for document in schema_documents
+            .iter()
+            .chain(client_schema_documents.iter())
+        {
+            for definition in document.0.iter() {
                 if let TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
                     name,
                     interfaces,

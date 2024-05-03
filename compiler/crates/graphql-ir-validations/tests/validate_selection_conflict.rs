@@ -18,6 +18,7 @@ use graphql_ir::Program;
 use graphql_ir_validations::validate_selection_conflict;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
+use relay_test_schema::get_test_schema_with_located_extensions;
 use relay_test_schema::TEST_SCHEMA;
 
 #[derive(Clone)]
@@ -32,10 +33,21 @@ impl LocationAgnosticBehavior for LocationAgnosticBehaviorForTestOnly {
 }
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let source_location = SourceLocationKey::standalone(fixture.file_name);
-
-    let ast = parse_executable(fixture.content, source_location).unwrap();
-    let ir_result = build(&TEST_SCHEMA, &ast.definitions);
+    let mut schema = TEST_SCHEMA.to_owned();
+    let mut source = fixture.content;
+    let source_location = SourceLocationKey::embedded(fixture.file_name, 0);
+    if fixture.content.contains("%extensions%") {
+        let extension_location = SourceLocationKey::embedded(fixture.file_name, 1);
+        let parts: Vec<_> = fixture.content.split("%extensions%").collect();
+        if let [base, extensions] = parts.as_slice() {
+            source = base;
+            schema = get_test_schema_with_located_extensions(extensions, extension_location);
+        } else {
+            panic!("Expected exactly one %extensions% section marker.")
+        }
+    }
+    let ast = parse_executable(source, source_location).unwrap();
+    let ir_result = build(&schema, &ast.definitions);
     let ir = match ir_result {
         Ok(res) => res,
         Err(errors) => {
@@ -54,8 +66,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     };
 
     let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
-    validate_selection_conflict::<LocationAgnosticBehaviorForTestOnly>(&program, true)
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+    validate_selection_conflict::<LocationAgnosticBehaviorForTestOnly>(
+        &program,
+        &Default::default(),
+        true,
+    )
+    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     Ok("OK".to_owned())
 }

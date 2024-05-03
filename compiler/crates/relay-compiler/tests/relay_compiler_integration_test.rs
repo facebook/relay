@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7361e8ee8ea5d74f22c7aa6f30d86839>>
+ * @generated SignedSource<<aa23230d800989291dcd6027f2fd8c63>>
  */
 
 mod relay_compiler_integration;
@@ -76,6 +76,20 @@ async fn live_resolver_implements_interface_field() {
 }
 
 #[tokio::test]
+async fn multiple_resolvers_on_interface_of_all_strong_model_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_on_interface_of_all_strong_model_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_on_interface_of_all_strong_model_type.expected");
+    test_fixture(transform_fixture, file!(), "multiple_resolvers_on_interface_of_all_strong_model_type.input", "relay_compiler_integration/fixtures/multiple_resolvers_on_interface_of_all_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_resolvers_returns_interfaces_of_all_strong_model_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.expected");
+    test_fixture(transform_fixture, file!(), "multiple_resolvers_returns_interfaces_of_all_strong_model_type.input", "relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn preloadable_query_flow() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_flow.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_flow.expected");
@@ -132,6 +146,27 @@ async fn resolver_on_interface_of_all_weak_model_type() {
 }
 
 #[tokio::test]
+async fn resolver_on_interface_returns_custom_scalar() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.expected");
+    test_fixture(transform_fixture, file!(), "resolver_on_interface_returns_custom_scalar.input", "relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_client_schema_extension_enum() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_client_schema_extension_enum.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_client_schema_extension_enum.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_client_schema_extension_enum.input", "relay_compiler_integration/fixtures/resolver_returns_client_schema_extension_enum.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_enum_with_enum_suffix() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum_with_enum_suffix.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_enum_with_enum_suffix.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_enum_with_enum_suffix.input", "relay_compiler_integration/fixtures/resolver_returns_enum_with_enum_suffix.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn resolver_returns_interface_of_all_live_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_live_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_all_live_model_type.expected");
@@ -167,6 +202,55 @@ async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
 }
 
 #[tokio::test]
+async fn resolver_semantic_non_null_custom_scalar() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_custom_scalar.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_custom_scalar.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_custom_scalar.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_custom_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_live() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_live.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_live.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_live.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_live.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_plural() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_plural.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_plural.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_plural_live() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_plural_live.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_plural_live.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_relayresolvervalue() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_relayresolvervalue.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_scalar() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_scalar.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_scalar_disabled() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_scalar_disabled.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn resolvers_non_nullable() {
     let input = include_str!("relay_compiler_integration/fixtures/resolvers_non_nullable.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolvers_non_nullable.expected");
@@ -199,6 +283,20 @@ async fn spread_interface_fragment_on_concrete_type() {
     let input = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.expected");
     test_fixture(transform_fixture, file!(), "spread_interface_fragment_on_concrete_type.input", "relay_compiler_integration/fixtures/spread_interface_fragment_on_concrete_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_interface_fragment_on_weak_concrete_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "spread_interface_fragment_on_weak_concrete_type.input", "relay_compiler_integration/fixtures/spread_interface_fragment_on_weak_concrete_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_multiple_interface_fragments_on_concrete_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "spread_multiple_interface_fragments_on_concrete_type.input", "relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

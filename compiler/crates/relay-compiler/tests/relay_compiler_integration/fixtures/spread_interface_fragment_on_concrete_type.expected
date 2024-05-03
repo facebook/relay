@@ -45,6 +45,9 @@ graphql`fragment SpreadInterfaceFragmentOnConcreteTypeComponentFragment on User 
 //- schema.graphql
 
 //- schema-extensions/extension.graphql
+type Query {
+  me: IPerson
+}
 interface IPerson {
   id: ID!
   name: String

@@ -12,6 +12,7 @@
 'use strict';
 
 import type {RelayResolverInterfaceTestAnimalLegsFragment$key} from './__generated__/RelayResolverInterfaceTestAnimalLegsFragment.graphql';
+import type {RelayResolverInterfaceTestWeakAnimalColorFragment$key} from './__generated__/RelayResolverInterfaceTestWeakAnimalColorFragment.graphql';
 
 const React = require('react');
 const {useFragment} = require('react-relay');
@@ -33,12 +34,10 @@ disallowConsoleErrors();
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 function EnvironmentWrapper({
@@ -166,6 +165,44 @@ test('should read the legs of a chicken (client schema extension type)', () => {
   expect(renderer.toJSON()).toEqual('2');
 });
 
+function WeakAnimalColorFragmentComponent(props: {
+  animal: ?RelayResolverInterfaceTestWeakAnimalColorFragment$key,
+}) {
+  const animal = useFragment(
+    graphql`
+      fragment RelayResolverInterfaceTestWeakAnimalColorFragment on IWeakAnimal {
+        color
+      }
+    `,
+    props.animal,
+  );
+  return animal?.color;
+}
+
+test('should read the color of a red octopus (weak model type)', () => {
+  function RedOctopusColorRootComponent() {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolverInterfaceTestRedOctopusColorQuery {
+          red_octopus {
+            ...RelayResolverInterfaceTestWeakAnimalColorFragment
+          }
+        }
+      `,
+      {},
+    );
+
+    return <WeakAnimalColorFragmentComponent animal={data.red_octopus} />;
+  }
+
+  const renderer = TestRenderer.create(
+    <EnvironmentWrapper environment={environment}>
+      <RedOctopusColorRootComponent />
+    </EnvironmentWrapper>,
+  );
+  expect(renderer.toJSON()).toEqual('red');
+});
+
 function AnimalGreetingQueryComponent(props: {
   request: {ofType: string, returnValidID: boolean},
 }) {
@@ -185,6 +222,25 @@ function AnimalGreetingQueryComponent(props: {
     return 'NULL';
   }
   return data.animal.greeting;
+}
+
+function WeakAnimalGreetingQueryComponent(props: {request: {ofType: string}}) {
+  const data = useClientQuery(
+    graphql`
+      query RelayResolverInterfaceTestWeakAnimalGreetingQuery(
+        $request: WeakAnimalRequest!
+      ) {
+        weak_animal(request: $request) {
+          greeting
+        }
+      }
+    `,
+    {request: props.request},
+  );
+  if (data.weak_animal == null) {
+    return 'NULL';
+  }
+  return data.weak_animal.greeting;
 }
 
 describe.each([
@@ -220,6 +276,71 @@ describe.each([
         </EnvironmentWrapper>,
       );
       expect(nullRenderer.toJSON()).toEqual('NULL');
+    });
+  },
+);
+
+describe.each([
+  {
+    inputAnimalType: 'RedOctopus',
+    name: 'Shiny',
+  },
+  {
+    inputAnimalType: 'PurpleOctopus',
+    name: 'Glowing',
+  },
+])(
+  'resolvers can read resolver on an interface where all implementors are weak model types: %s',
+  ({inputAnimalType, name}) => {
+    test(`should read the greeting of a ${inputAnimalType}`, () => {
+      const animalRenderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <WeakAnimalGreetingQueryComponent
+            request={{ofType: inputAnimalType}}
+          />
+        </EnvironmentWrapper>,
+      );
+
+      expect(animalRenderer.toJSON()).toEqual(`Hello, ${name}!`);
+    });
+  },
+);
+
+describe.each([
+  {
+    animalType: 'RedOctopus',
+    color: 'red',
+  },
+  {
+    animalType: 'PurpleOctopus',
+    color: 'purple',
+  },
+])(
+  'resolvers can return an interface where all implementors are weak model types: %s',
+  ({animalType, color}) => {
+    function WeakAnimalColorQueryComponent(props: {request: {ofType: string}}) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverInterfaceTestWeakAnimalColorQuery(
+            $request: WeakAnimalRequest!
+          ) {
+            weak_animal(request: $request) {
+              ...RelayResolverInterfaceTestWeakAnimalColorFragment
+            }
+          }
+        `,
+        {request: props.request},
+      );
+      return <WeakAnimalColorFragmentComponent animal={data.weak_animal} />;
+    }
+
+    test(`should read the color of a ${animalType}`, () => {
+      const animalRenderer = TestRenderer.create(
+        <EnvironmentWrapper environment={environment}>
+          <WeakAnimalColorQueryComponent request={{ofType: animalType}} />
+        </EnvironmentWrapper>,
+      );
+      expect(animalRenderer.toJSON()).toEqual(color);
     });
   },
 );

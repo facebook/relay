@@ -32,7 +32,7 @@ const React = require('react');
 
 const {useContext, useEffect, useState, useRef} = React;
 
-function useLazyLoadQueryNode<TQuery: OperationType>({
+hook useLazyLoadQueryNode<TQuery: OperationType>({
   query,
   componentDisplayName,
   fetchObservable,

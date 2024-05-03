@@ -42,7 +42,6 @@ use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
-use relay_transforms::resolver_type_import_alias;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::FragmentDataInjectionMode;
@@ -162,11 +161,11 @@ pub(crate) fn visit_selections(
                 enclosing_linked_field_concrete_type,
             ),
             Selection::LinkedField(linked_field) => {
-                let linked_field_type = field_type(
-                    typegen_context.schema.field(linked_field.definition.item),
-                    typegen_context,
-                )
-                .inner();
+                let linked_field_type = typegen_context
+                    .schema
+                    .field(linked_field.definition.item)
+                    .type_
+                    .inner();
                 let nested_enclosing_linked_field_concrete_type =
                     if linked_field_type.is_abstract_type() {
                         None
@@ -319,7 +318,6 @@ fn generate_resolver_type(
     resolver_function_name: StringKey,
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
-    imported_resolvers: &mut ImportedResolvers,
 ) -> AST {
     let schema_field = resolver_metadata.field(typegen_context.schema);
 
@@ -332,22 +330,23 @@ fn generate_resolver_type(
         encountered_enums,
         custom_scalars,
         schema_field,
-        imported_resolvers,
     );
 
     let inner_ast = match &resolver_metadata.output_type_info {
         ResolverOutputTypeInfo::ScalarField => {
             if is_relay_resolver_type(typegen_context, schema_field) {
-                AST::Mixed
+                match schema_field.type_.is_non_null() {
+                    true => AST::NonNullable(Box::new(AST::Mixed)),
+                    false => AST::Mixed,
+                }
             } else {
-                let type_ = &field_type(schema_field, typegen_context).inner();
+                let type_ = &schema_field.type_.inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             }
         }
         ResolverOutputTypeInfo::Composite(normalization_info) => {
             if let Some(field_id) = normalization_info.weak_object_instance_field {
-                let type_ =
-                    &field_type(typegen_context.schema.field(field_id), typegen_context).inner();
+                let type_ = &typegen_context.schema.field(field_id).type_.inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             } else {
                 imported_raw_response_types.0.insert(
@@ -358,16 +357,14 @@ fn generate_resolver_type(
             }
         }
         ResolverOutputTypeInfo::EdgeTo => create_edge_to_return_type_ast(
-            &field_type(schema_field, typegen_context).inner(),
+            &schema_field.type_.inner(),
             typegen_context.schema,
             runtime_imports,
         ),
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
     };
 
-    let ast = transform_type_reference_into_ast(&field_type(schema_field, typegen_context), |_| {
-        inner_ast
-    });
+    let ast = transform_type_reference_into_ast(&schema_field.type_, |_| inner_ast);
 
     let return_type = if matches!(
         typegen_context.project_config.typegen_config.language,
@@ -392,50 +389,44 @@ fn generate_resolver_type(
     })
 }
 
+fn add_fragment_name_to_encountered_fragments(
+    fragment_name: FragmentDefinitionName,
+    encountered_fragments: &mut EncounteredFragments,
+) {
+    encountered_fragments
+        .0
+        .insert(EncounteredFragment::Data(fragment_name));
+}
+
+fn get_fragment_data_type(fragment_name: StringKey) -> Box<AST> {
+    Box::new(AST::RawType(format!("{}$data", fragment_name).intern()))
+}
+
 fn add_model_argument_for_interface_resolver(
     resolver_arguments: &mut Vec<KeyValuePairProp>,
+    encountered_fragments: &mut EncounteredFragments,
     implementing_objects: HashSet<ObjectID>,
     typegen_context: &TypegenContext<'_>,
-    imported_resolvers: &mut ImportedResolvers,
 ) {
     let mut model_types_for_type_assertion = vec![];
     for object_id in implementing_objects.iter().sorted() {
         if !Type::Object(*object_id).is_terse_resolver_object(typegen_context.schema) {
             continue;
         }
-        let type_name_with_location = typegen_context.schema.object(*object_id).name;
-        let type_name = type_name_with_location.item.0;
-        let import_alias =
-            resolver_type_import_alias(type_name, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD);
-        model_types_for_type_assertion.push(AST::ReturnTypeOfFunctionWithName(import_alias));
-        // Import model type
-        let model_import_path = &PathBuf::from(
-            type_name_with_location
-                .location
-                .source_location()
-                .path()
-                .intern()
-                .lookup(),
+        let type_name = typegen_context.schema.object(*object_id).name.item.0;
+        let fragment_name = typegen_context
+            .project_config
+            .name
+            .generate_name_for_object_and_field(type_name, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD)
+            .intern();
+        add_fragment_name_to_encountered_fragments(
+            FragmentDefinitionName(fragment_name),
+            encountered_fragments,
         );
-        let model_name = ImportedResolverName::Named {
-            name: type_name,
-            import_as: import_alias,
-        };
-        let import_path = typegen_context.project_config.js_module_import_identifier(
-            &typegen_context
-                .project_config
-                .artifact_path_for_definition(typegen_context.definition_source_location),
-            model_import_path,
-        );
-        let imported_model = ImportedResolver {
-            resolver_name: model_name,
-            resolver_type: AST::ReturnTypeOfFunctionWithName(type_name),
-            import_path,
-        };
-        imported_resolvers
-            .0
-            .entry(type_name)
-            .or_insert(imported_model);
+        model_types_for_type_assertion.push(AST::PropertyType {
+            type_: get_fragment_data_type(fragment_name),
+            property_name: *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
+        });
     }
     if !model_types_for_type_assertion.is_empty() {
         let interface_union_type = AST::Union(SortedASTList::new(model_types_for_type_assertion));
@@ -458,7 +449,6 @@ fn get_resolver_arguments(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut std::collections::HashSet<(StringKey, PathBuf)>,
     schema_field: &Field,
-    imported_resolvers: &mut ImportedResolvers,
 ) -> Vec<KeyValuePairProp> {
     let mut resolver_arguments = vec![];
     if let Some(Type::Interface(interface_id)) = schema_field.parent_type {
@@ -477,9 +467,9 @@ fn get_resolver_arguments(
         {
             add_model_argument_for_interface_resolver(
                 &mut resolver_arguments,
+                encountered_fragments,
                 implementing_objects,
                 typegen_context,
-                imported_resolvers,
             )
         }
     }
@@ -489,16 +479,14 @@ fn get_resolver_arguments(
         {
             match injection_mode {
                 FragmentDataInjectionMode::Field { name, .. } => {
-                    encountered_fragments
-                        .0
-                        .insert(EncounteredFragment::Data(fragment_name.item));
-
+                    add_fragment_name_to_encountered_fragments(
+                        fragment_name.item,
+                        encountered_fragments,
+                    );
                     resolver_arguments.push(KeyValuePairProp {
                         key: name,
                         value: AST::PropertyType {
-                            type_: Box::new(AST::RawType(
-                                format!("{}$data", fragment_name.item).intern(),
-                            )),
+                            type_: get_fragment_data_type(fragment_name.item.0),
                             property_name: name,
                         },
                         read_only: false,
@@ -589,7 +577,6 @@ fn import_relay_resolver_function_type(
             local_resolver_name,
             fragment_name,
             resolver_metadata,
-            imported_resolvers,
         ),
         import_path,
     };
@@ -637,12 +624,11 @@ fn relay_resolver_field_type(
         };
 
     if let Some(field) = maybe_scalar_field {
-        let type_ = field_type(field, typegen_context);
-        let inner_value = transform_type_reference_into_ast(&type_, |type_| {
+        let inner_value = transform_type_reference_into_ast(&field.type_, |type_| {
             expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
         });
         if required {
-            if type_.is_non_null() {
+            if field.type_.is_non_null() {
                 inner_value
             } else {
                 AST::NonNullable(Box::new(inner_value))
@@ -1065,10 +1051,7 @@ fn gen_visit_linked_field(
     };
     let selections = visit_selections_fn(&linked_field.selections);
 
-    let node_type = apply_required_directive_nullability(
-        &field_type(field, typegen_context),
-        &linked_field.directives,
-    );
+    let node_type = apply_required_directive_nullability(&field.type_, &linked_field.directives);
 
     type_selections.push(TypeSelection::LinkedField(TypeSelectionLinkedField {
         field_name_or_alias: key,
@@ -1094,10 +1077,7 @@ fn visit_scalar_field(
     } else {
         schema_name
     };
-    let field_type = apply_required_directive_nullability(
-        &field_type(field, typegen_context),
-        &scalar_field.directives,
-    );
+    let field_type = apply_required_directive_nullability(&field.type_, &scalar_field.directives);
     let special_field = ScalarFieldSpecialSchemaField::from_schema_name(
         schema_name,
         &typegen_context.project_config.schema_config,
@@ -2034,11 +2014,11 @@ pub(crate) fn raw_response_visit_selections(
                 // raw response type is generally used to construct payloads for apis which do not
                 // allow the user to provide additional field level error data, we must ensure that
                 // only semantically valid values are allowed in the raw response type.
-                let linked_field_type = field_type(
-                    typegen_context.schema.field(linked_field.definition.item),
-                    typegen_context,
-                )
-                .inner();
+                let linked_field_type = typegen_context
+                    .schema
+                    .field(linked_field.definition.item)
+                    .type_
+                    .inner();
                 let nested_enclosing_linked_field_concrete_type =
                     if linked_field_type.is_abstract_type() {
                         None
@@ -2521,19 +2501,5 @@ fn return_ast_in_object_case(
         }
         Type::InputObject(_) => panic!("Unexpected input type"),
         Type::Interface(_) | Type::Object(_) | Type::Union(_) => ast_in_object_case,
-    }
-}
-
-/// Returns the type of the field, potentially wrapping the field or list items in a non-null type
-/// to reflect the semantic nullability of the field if that feature is enabled.
-fn field_type(field: &Field, typegen_options: &'_ TypegenContext<'_>) -> TypeReference<Type> {
-    if typegen_options
-        .project_config
-        .typegen_config
-        .experimental_emit_semantic_nullability_types
-    {
-        field.semantic_type()
-    } else {
-        field.type_.clone()
     }
 }

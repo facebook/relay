@@ -15,6 +15,7 @@ import type {PayloadError} from '../network/RelayNetworkTypes';
 
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
+// $FlowFixMe[recursive-definition]
 const SELF: Self = Symbol('$SELF');
 
 class RelayFieldError extends Error {

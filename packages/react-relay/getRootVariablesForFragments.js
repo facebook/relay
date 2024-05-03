@@ -25,6 +25,7 @@ function getRootVariablesForFragments<TProps: {...}>(
   // should all point to the same owner
   Object.keys(fragments).forEach(key => {
     const fragmentNode = fragments[key];
+    // $FlowFixMe[invalid-computed-prop]
     const fragmentRef = props[key];
     const selector = getSelector(fragmentNode, fragmentRef);
     const fragmentOwnerVariables =

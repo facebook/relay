@@ -11,7 +11,7 @@
 
 import type CatFlowType from 'Cat';
 
-/** 
+/**
  * @RelayResolver
  */
 export function Cat(id: DataID): CatFlowType {
@@ -21,7 +21,7 @@ export function Cat(id: DataID): CatFlowType {
 //- Cat-name.js
 
 import type CatFlowType from 'Cat';
-/** 
+/**
  * @RelayResolver
  */
 export function name(cat: CatFlowType): string {
@@ -30,103 +30,35 @@ export function name(cat: CatFlowType): string {
 
 //- Cat-hungry.js
 
-/** 
+/**
  * @RelayResolver is_hungry
  */
 export function hungry(cat: CatFlowType): number {
   return 5;
 }
+
+//- Dog.js
+
+import * as DogNamespace from 'Dog';
+
+/**
+ * @RelayResolver
+ */
+export function Dog(id: DataID): DogNamespace {
+  return {};
+}
+
+//- Dog-name.js
+
+import type DogFlowType from 'Dog.flow';
+
+/**
+ * @RelayResolver
+ */
+export function name(dog: DogFlowType): string {
+  return "dog";
+}
 ==================================== OUTPUT ===================================
-StrongObjectResolver(
-    StrongObjectIr {
-        type_name: Identifier {
-            span: 274:277,
-            token: Token {
-                span: 274:277,
-                kind: Identifier,
-            },
-            value: "Cat",
-        },
-        rhs_location: Cat.js:274:277,
-        root_fragment: WithLocation {
-            location: Cat.js:274:277,
-            item: FragmentDefinitionName(
-                "Cat__id",
-            ),
-        },
-        description: None,
-        deprecated: None,
-        live: None,
-        semantic_non_null: None,
-        location: Cat.js:274:277,
-        implements_interfaces: [],
-        source_hash: ResolverSourceHash(
-            "eebce78124501ce6f814dc5fa5dda98a",
-        ),
-    },
-)
-type Cat @__RelayResolverModel {
-  id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "Cat.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "eebce78124501ce6f814dc5fa5dda98a") @unselectable(reason: "This field is intended only for Relay's internal use")
-}
-
-
-TerseRelayResolver(
-    TerseRelayResolverIr {
-        field: FieldDefinition {
-            name: Identifier {
-                span: 80:84,
-                token: Token {
-                    span: 80:84,
-                    kind: Identifier,
-                },
-                value: "name",
-            },
-            type_: NonNull(
-                NonNullTypeAnnotation {
-                    span: 104:110,
-                    type_: Named(
-                        NamedTypeAnnotation {
-                            name: Identifier {
-                                span: 104:110,
-                                token: Token {
-                                    span: 104:110,
-                                    kind: Identifier,
-                                },
-                                value: "String",
-                            },
-                        },
-                    ),
-                    exclamation: Token {
-                        span: 0:0,
-                        kind: Empty,
-                    },
-                },
-            ),
-            arguments: None,
-            directives: [],
-            description: None,
-            hack_source: None,
-            span: 80:84,
-        },
-        type_: WithLocation {
-            location: <generated>:274:277,
-            item: "Cat",
-        },
-        root_fragment: None,
-        deprecated: None,
-        semantic_non_null: None,
-        live: None,
-        location: Cat-name.js:80:84,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "e8321f58929f05312e01a48777d3931e",
-        ),
-    },
-)
-extend type Cat {
-  name: String! @relay_resolver(import_path: "Cat-name.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name") @resolver_source_hash(value: "e8321f58929f05312e01a48777d3931e")
-}
 
 
 ✖︎ Can't find type import for `CatFlowType`, expected the type to be imported from another module
@@ -136,3 +68,29 @@ extend type Cat {
     5 │ export function hungry(cat: CatFlowType): number {
       │                             ^^^^^^^^^^^
     6 │   return 5;
+
+
+✖︎ Failed to find type definition for `DogFlowType` using a default import from module `Dog.flow`. Please make sure `DogFlowType` is imported using a named or default import and that it is a resolver type
+
+  Dog-name.js:7:27
+    6 │  */
+    7 │ export function name(dog: DogFlowType): string {
+      │                           ^^^^^^^^^^^
+    8 │   return "dog";
+
+
+✖︎ Types used in @RelayResolver definitions should be imported using named or default imports (without using a `*`)
+
+  Dog.js:7:34
+    6 │  */
+    7 │ export function Dog(id: DataID): DogNamespace {
+      │                                  ^^^^^^^^^^^^
+    8 │   return {};
+
+  ℹ︎ DogNamespace is imported from
+
+  Dog.js:2:13
+    1 │ 
+    2 │ import * as DogNamespace from 'Dog';
+      │             ^^^^^^^^^^^^
+    3 │

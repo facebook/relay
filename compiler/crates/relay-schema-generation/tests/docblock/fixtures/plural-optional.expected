@@ -73,55 +73,6 @@ TerseRelayResolver(
     TerseRelayResolverIr {
         field: FieldDefinition {
             name: Identifier {
-                span: 79:83,
-                token: Token {
-                    span: 79:83,
-                    kind: Identifier,
-                },
-                value: "name",
-            },
-            type_: Named(
-                NamedTypeAnnotation {
-                    name: Identifier {
-                        span: 104:110,
-                        token: Token {
-                            span: 104:110,
-                            kind: Identifier,
-                        },
-                        value: "String",
-                    },
-                },
-            ),
-            arguments: None,
-            directives: [],
-            description: None,
-            hack_source: None,
-            span: 79:83,
-        },
-        type_: WithLocation {
-            location: <generated>:273:276,
-            item: "Cat",
-        },
-        root_fragment: None,
-        deprecated: None,
-        semantic_non_null: None,
-        live: None,
-        location: Cat-name.js:79:83,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "b4f1a8f1551cd4c93a9b61b8c25d2e61",
-        ),
-    },
-)
-extend type Cat {
-  name: String @relay_resolver(import_path: "Cat-name.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name") @resolver_source_hash(value: "b4f1a8f1551cd4c93a9b61b8c25d2e61")
-}
-
-
-TerseRelayResolver(
-    TerseRelayResolverIr {
-        field: FieldDefinition {
-            name: Identifier {
                 span: 174:179,
                 token: Token {
                     span: 174:179,
@@ -186,4 +137,53 @@ TerseRelayResolver(
 )
 extend type Cat {
   names: [String]! @relay_resolver(import_path: "Cat-name.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "names") @resolver_source_hash(value: "b4f1a8f1551cd4c93a9b61b8c25d2e61")
+}
+
+
+TerseRelayResolver(
+    TerseRelayResolverIr {
+        field: FieldDefinition {
+            name: Identifier {
+                span: 79:83,
+                token: Token {
+                    span: 79:83,
+                    kind: Identifier,
+                },
+                value: "name",
+            },
+            type_: Named(
+                NamedTypeAnnotation {
+                    name: Identifier {
+                        span: 104:110,
+                        token: Token {
+                            span: 104:110,
+                            kind: Identifier,
+                        },
+                        value: "String",
+                    },
+                },
+            ),
+            arguments: None,
+            directives: [],
+            description: None,
+            hack_source: None,
+            span: 79:83,
+        },
+        type_: WithLocation {
+            location: <generated>:273:276,
+            item: "Cat",
+        },
+        root_fragment: None,
+        deprecated: None,
+        semantic_non_null: None,
+        live: None,
+        location: Cat-name.js:79:83,
+        fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "b4f1a8f1551cd4c93a9b61b8c25d2e61",
+        ),
+    },
+)
+extend type Cat {
+  name: String @relay_resolver(import_path: "Cat-name.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name") @resolver_source_hash(value: "b4f1a8f1551cd4c93a9b61b8c25d2e61")
 }

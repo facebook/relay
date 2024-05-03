@@ -27,7 +27,7 @@ declare module react {
     getStack: ?() => ?string,
   ): void;
 
-  declare export var createClass: React$CreateClass;
+  declare export var createClass: $FlowFixMe;
   declare export function createContext<T>(
     defaultValue: T,
     calculateChangedBits: ?(a: T, b: T) => number,

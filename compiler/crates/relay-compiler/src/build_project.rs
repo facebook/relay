@@ -750,7 +750,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     fragment_locations: &FragmentLocations,
     artifacts_file_hash_map: &Option<FxHashMap<String, Option<String>>>,
 ) -> Result<(), BuildProjectFailure> {
-    artifacts.par_chunks(8192).try_for_each_init(
+    artifacts.par_chunks(8).try_for_each_init(
         || Printer::with_dedupe(project_config),
         |printer, artifacts| {
             for artifact in artifacts {

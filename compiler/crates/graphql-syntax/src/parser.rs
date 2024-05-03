@@ -176,6 +176,35 @@ impl<'a> Parser<'a> {
         }
     }
 
+    pub fn parse_schema_document_into_type_system_definitions(
+        mut self,
+    ) -> DiagnosticsResult<Vec<&'a str>> {
+        let start = self.index();
+        let definition_tokens = self
+            .parse_list(
+                |s| s.peek_type_system_definition(),
+                |s| s.advance_type_system_definition(),
+            )
+            .unwrap_or_else(|_| Vec::new());
+        if self.errors.is_empty() {
+            let definition_strs =
+                // Create range for first definition
+                std::iter::once((start, definition_tokens.first().map_or(0, |t| t.span.start)))
+                    // Chain rest of definitions
+                    .chain(definition_tokens.windows(2).map(|definition_pairs| {
+                        let from = definition_pairs[0].span.start;
+                        let to = definition_pairs[1].span.start;
+                        (from, to)
+                    }))
+                    .map(|(from, to)| self.source[from as usize..to as usize].into())
+                    .collect::<Vec<_>>();
+            self.parse_eof()?;
+            Ok(definition_strs)
+        } else {
+            Err(self.errors)
+        }
+    }
+
     /// Parses a type annotation such as `ID` or `[User!]!`.
     pub fn parse_type(mut self) -> DiagnosticsResult<TypeAnnotation> {
         let type_annotation = self.parse_type_annotation();
@@ -425,6 +454,38 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Definition :
+    /// [] ExecutableDefinition
+    /// [x]  TypeSystemDefinition
+    /// []  TypeSystemExtension
+    fn advance_type_system_definition(&mut self) -> ParseResult<Token> {
+        self.advance_optional_description(); // description
+        self.advance_optional_hack_source(); // hack_source
+        let token = self.peek();
+        if token.kind != TokenKind::Identifier {
+            return Err(());
+        }
+        match self.source(token) {
+            "schema" => self.advance_schema_definition(),
+            "scalar" => self.advance_scalar_type_definition(),
+            "type" => self.advance_object_type_definition(),
+            "interface" => self.advance_interface_type_definition(),
+            "union" => self.advance_union_type_definition(),
+            "enum" => self.advance_enum_type_definition(),
+            "input" => self.advance_input_object_type_definition(),
+            "directive" => self.advance_directive_definition(),
+            "extend" => self.advance_type_system_extension(),
+            token_str => {
+                let error = Diagnostic::error(
+                    format!("Unexpected token: `{}`", token_str),
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+        }
+    }
+
     /**
      * TypeSystemExtension :
      *   - SchemaExtension
@@ -475,6 +536,41 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * TypeSystemExtension :
+     *   - SchemaExtension
+     *   - TypeExtension
+     *
+     * TypeExtension :
+     *   - ScalarTypeExtension
+     *   - ObjectTypeExtension
+     *   - InterfaceTypeExtension
+     *   - UnionTypeExtension
+     *   - EnumTypeExtension
+     *   - InputObjectTypeDefinition
+     */
+    fn advance_type_system_extension(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("extend")?;
+        let token = self.advance_kind(TokenKind::Identifier)?;
+        match self.source(&token) {
+            "schema" => self.advance_schema_extension(),
+            "scalar" => self.advance_scalar_type_extension(),
+            "type" => self.advance_object_type_extension(),
+            "interface" => self.advance_interface_type_extension(),
+            "union" => self.advance_union_type_extension(),
+            "enum" => self.advance_enum_type_extension(),
+            "input" => self.advance_input_object_type_extension(),
+            token_str => {
+                let error = Diagnostic::error(
+                    format!("Unexpected token `{}`", token_str),
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+        }
+    }
+
+    /**
      * SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
      */
     fn parse_schema_definition(&mut self) -> ParseResult<SchemaDefinition> {
@@ -493,6 +589,21 @@ impl<'a> Parser<'a> {
             operation_types,
             span,
         })
+    }
+
+    /**
+     * SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
+     */
+    fn advance_schema_definition(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("schema")?;
+        self.advance_constant_directives()?; // directives
+        self.advance_delimited_nonempty_list(
+            // operation_types
+            TokenKind::OpenBrace,
+            TokenKind::CloseBrace,
+            Self::advance_operation_type_definition,
+        )?;
+        Ok(self.current)
     }
 
     /**
@@ -519,6 +630,23 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * SchemaExtension :
+     *  - extend schema Directives? { OperationTypeDefinition+ }
+     *  - extend schema Directives
+     */
+    fn advance_schema_extension(&mut self) -> ParseResult<Token> {
+        // `extend schema` was already parsed
+        self.advance_constant_directives()?; // directives
+        self.advance_optional_delimited_nonempty_list(
+            // operation_types
+            TokenKind::OpenBrace,
+            TokenKind::CloseBrace,
+            Self::advance_operation_type_definition,
+        )?;
+        Ok(self.current)
+    }
+
+    /**
      * OperationTypeDefinition : OperationType : NamedType
      */
     fn parse_operation_type_definition(&mut self) -> ParseResult<OperationTypeDefinition> {
@@ -536,6 +664,16 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * OperationTypeDefinition : OperationType : NamedType
+     */
+    fn advance_operation_type_definition(&mut self) -> ParseResult<Token> {
+        self.advance_operation_type()?; // operation
+        self.advance_kind(TokenKind::Colon)?;
+        self.advance_identifier()?; // type_
+        Ok(self.current)
+    }
+
+    /**
      * OperationType : one of query mutation subscription
      */
     fn parse_operation_type(&mut self) -> ParseResult<OperationType> {
@@ -544,6 +682,29 @@ impl<'a> Parser<'a> {
             "query" => Ok(OperationType::Query),
             "mutation" => Ok(OperationType::Mutation),
             "subscription" => Ok(OperationType::Subscription),
+            token_str => {
+                let error = Diagnostic::error(
+                    format!(
+                        "Expected one of `query`, `mutation`, `subscription`, got `{}`",
+                        token_str
+                    ),
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+        }
+    }
+
+    /**
+     * OperationType : one of query mutation subscription
+     */
+    fn advance_operation_type(&mut self) -> ParseResult<Token> {
+        let token = self.advance_kind(TokenKind::Identifier)?;
+        match self.source(&token) {
+            "query" => Ok(token),
+            "mutation" => Ok(token),
+            "subscription" => Ok(token),
             token_str => {
                 let error = Diagnostic::error(
                     format!(
@@ -576,6 +737,15 @@ impl<'a> Parser<'a> {
         })
     }
 
+    fn advance_object_type_definition(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("type")?;
+        self.advance_identifier()?; // name
+        self.advance_implements_interfaces()?; // interfaces
+        self.advance_constant_directives()?; // directives
+        self.advance_fields_definition()?; // fields
+        Ok(self.current)
+    }
+
     fn parse_interface_type_definition(&mut self) -> ParseResult<InterfaceTypeDefinition> {
         let start = self.index();
         self.parse_keyword("interface")?;
@@ -592,6 +762,15 @@ impl<'a> Parser<'a> {
             fields,
             span,
         })
+    }
+
+    fn advance_interface_type_definition(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("interface")?;
+        self.advance_identifier()?; // name
+        self.advance_implements_interfaces()?; // interfaces
+        self.advance_constant_directives()?; // directives
+        self.advance_fields_definition()?; // fields
+        Ok(self.current)
     }
 
     /**
@@ -612,6 +791,18 @@ impl<'a> Parser<'a> {
             members,
             span,
         })
+    }
+
+    /**
+     * UnionTypeDefinition :
+     *   - Description? union Name Directives? UnionMemberTypes?
+     */
+    fn advance_union_type_definition(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("union")?;
+        self.advance_identifier()?;
+        self.advance_constant_directives()?;
+        self.advance_union_member_types()?;
+        Ok(self.current)
     }
 
     /**
@@ -636,6 +827,19 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * UnionTypeExtension :
+     *   - extend union Name Directives? UnionMemberTypes
+     *   - extend union Name Directives
+     */
+    fn advance_union_type_extension(&mut self) -> ParseResult<Token> {
+        // `extend union` was parsed before
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
+        self.advance_union_member_types()?; // members
+        Ok(self.current)
+    }
+
+    /**
      * UnionMemberTypes :
      *   - = `|`? NamedType
      *   - UnionMemberTypes | NamedType
@@ -650,6 +854,22 @@ impl<'a> Parser<'a> {
             }
         }
         Ok(members)
+    }
+
+    /**
+     * UnionMemberTypes :
+     *   - = `|`? NamedType
+     *   - UnionMemberTypes | NamedType
+     */
+    fn advance_union_member_types(&mut self) -> ParseResult<Token> {
+        if self.advance_optional_kind(TokenKind::Equals).is_some() {
+            self.advance_optional_kind(TokenKind::Pipe);
+            self.advance_identifier()?;
+            while self.advance_optional_kind(TokenKind::Pipe).is_some() {
+                self.advance_identifier()?;
+            }
+        }
+        Ok(self.current)
     }
 
     /**
@@ -670,6 +890,18 @@ impl<'a> Parser<'a> {
             values,
             span,
         })
+    }
+
+    /**
+     * EnumTypeDefinition :
+     *   - Description? enum Name Directives? EnumValuesDefinition?
+     */
+    fn advance_enum_type_definition(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("enum")?;
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
+        self.advance_enum_values_definition()?; // values
+        Ok(self.current)
     }
 
     /**
@@ -694,6 +926,19 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * EnumTypeExtension :
+     *   - extend enum Name Directives? EnumValuesDefinition
+     *   - extend enum Name Directives
+     */
+    fn advance_enum_type_extension(&mut self) -> ParseResult<Token> {
+        // `extend enum` was already parsed
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
+        self.advance_enum_values_definition()?; // values
+        Ok(self.current)
+    }
+
+    /**
      * EnumValuesDefinition : { EnumValueDefinition+ }
      */
     fn parse_enum_values_definition(&mut self) -> ParseResult<Option<List<EnumValueDefinition>>> {
@@ -701,6 +946,17 @@ impl<'a> Parser<'a> {
             TokenKind::OpenBrace,
             TokenKind::CloseBrace,
             Self::parse_enum_value_definition,
+        )
+    }
+
+    /**
+     * EnumValuesDefinition : { EnumValueDefinition+ }
+     */
+    fn advance_enum_values_definition(&mut self) -> ParseResult<Token> {
+        self.advance_optional_delimited_nonempty_list(
+            TokenKind::OpenBrace,
+            TokenKind::CloseBrace,
+            Self::advance_enum_value_definition,
         )
     }
 
@@ -721,6 +977,18 @@ impl<'a> Parser<'a> {
             directives,
             span,
         })
+    }
+
+    /**
+     * EnumValueDefinition : Description? EnumValue Directives?
+     *
+     * EnumValue : Name
+     */
+    fn advance_enum_value_definition(&mut self) -> ParseResult<Token> {
+        self.advance_optional_description();
+        self.advance_identifier()?;
+        self.advance_constant_directives()?;
+        Ok(self.current)
     }
 
     /**
@@ -755,6 +1023,21 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * ObjectTypeExtension :
+     *  - extend type Name ImplementsInterfaces? DirectivesConst? FieldsDefinition
+     *  - extend type Name ImplementsInterfaces? DirectivesConst
+     *  - extend type Name ImplementsInterfaces
+     */
+    fn advance_object_type_extension(&mut self) -> ParseResult<Token> {
+        // `extend type` was parsed before
+        self.advance_identifier()?; // name
+        self.advance_implements_interfaces()?; // interfaces
+        self.advance_constant_directives()?; // directives
+        self.advance_fields_definition()?; // fields
+        Ok(self.current)
+    }
+
+    /**
      * InterfaceTypeExtension :
      *   - extend interface Name ImplementsInterfaces? DirectivesConst? FieldsDefinition
      *   - extend interface Name ImplementsInterfaces? DirectivesConst
@@ -786,6 +1069,21 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * InterfaceTypeExtension :
+     *   - extend interface Name ImplementsInterfaces? DirectivesConst? FieldsDefinition
+     *   - extend interface Name ImplementsInterfaces? DirectivesConst
+     *   - extend interface Name ImplementsInterfaces
+     */
+    fn advance_interface_type_extension(&mut self) -> ParseResult<Token> {
+        // `extend interface` was parsed before
+        self.advance_identifier()?; // name
+        self.advance_implements_interfaces()?; // interfaces
+        self.advance_constant_directives()?; // directives
+        self.advance_fields_definition()?; // fields
+        Ok(self.current)
+    }
+
+    /**
      * ScalarTypeDefinition : Description? scalar Name Directives?
      */
     fn parse_scalar_type_definition(&mut self) -> ParseResult<ScalarTypeDefinition> {
@@ -800,6 +1098,16 @@ impl<'a> Parser<'a> {
             directives,
             span,
         })
+    }
+
+    /**
+     * ScalarTypeDefinition : Description? scalar Name Directives?
+     */
+    fn advance_scalar_type_definition(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("scalar")?;
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
+        Ok(self.current)
     }
 
     /**
@@ -821,6 +1129,17 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * ScalarTypeExtension :
+     *   - extend scalar Name Directives
+     */
+    fn advance_scalar_type_extension(&mut self) -> ParseResult<Token> {
+        // `extend scalar` was parsed before
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
+        Ok(self.current)
+    }
+
+    /**
      * InputObjectTypeDefinition :
      *   - Description? input Name Directives? InputFieldsDefinition?
      */
@@ -838,6 +1157,18 @@ impl<'a> Parser<'a> {
             fields,
             span,
         })
+    }
+
+    /**
+     * InputObjectTypeDefinition :
+     *   - Description? input Name Directives? InputFieldsDefinition?
+     */
+    fn advance_input_object_type_definition(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("input")?;
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
+        self.advance_input_fields_definition()?; // fields
+        Ok(self.current)
     }
 
     /**
@@ -862,6 +1193,19 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * InputObjectTypeExtension :
+     *   - extend input Name Directives? InputFieldsDefinition
+     *   - extend input Name Directives
+     */
+    fn advance_input_object_type_extension(&mut self) -> ParseResult<Token> {
+        // `extend input` was parsed already here
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
+        self.advance_input_fields_definition()?; // fields
+        Ok(self.current)
+    }
+
+    /**
      * InputFieldsDefinition : { InputValueDefinition+ }
      */
     fn parse_input_fields_definition(&mut self) -> ParseResult<Option<List<InputValueDefinition>>> {
@@ -869,6 +1213,17 @@ impl<'a> Parser<'a> {
             TokenKind::OpenBrace,
             TokenKind::CloseBrace,
             Self::parse_input_value_def,
+        )
+    }
+
+    /**
+     * InputFieldsDefinition : { InputValueDefinition+ }
+     */
+    fn advance_input_fields_definition(&mut self) -> ParseResult<Token> {
+        self.advance_optional_delimited_nonempty_list(
+            TokenKind::OpenBrace,
+            TokenKind::CloseBrace,
+            Self::advance_input_value_def,
         )
     }
 
@@ -907,6 +1262,25 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * DirectiveDefinition :
+     *   - Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
+     */
+    fn advance_directive_definition(&mut self) -> ParseResult<Token> {
+        self.advance_keyword("directive")?;
+        self.advance_kind(TokenKind::At)?;
+        self.advance_identifier()?; // name
+        self.advance_argument_defs()?; // arguments
+
+        let repeatable = self.peek_keyword("repeatable");
+        if repeatable {
+            self.advance_token();
+        }
+        self.advance_keyword("on")?;
+        self.advance_directive_locations()?; // locations
+        Ok(self.current)
+    }
+
+    /**
      * DirectiveLocations :
      *   - `|`? DirectiveLocation
      *   - DirectiveLocations | DirectiveLocation
@@ -919,6 +1293,20 @@ impl<'a> Parser<'a> {
             locations.push(self.parse_directive_location()?);
         }
         Ok(locations)
+    }
+
+    /**
+     * DirectiveLocations :
+     *   - `|`? DirectiveLocation
+     *   - DirectiveLocations | DirectiveLocation
+     */
+    fn advance_directive_locations(&mut self) -> ParseResult<Token> {
+        self.advance_optional_kind(TokenKind::Pipe);
+        self.advance_directive_location()?;
+        while self.advance_optional_kind(TokenKind::Pipe).is_some() {
+            self.advance_directive_location()?;
+        }
+        Ok(self.current)
     }
 
     /*
@@ -981,6 +1369,10 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn advance_directive_location(&mut self) -> ParseResult<Token> {
+        self.advance_kind(TokenKind::Identifier)
+    }
+
     /**
      * Description : StringValue
      */
@@ -998,6 +1390,17 @@ impl<'a> Parser<'a> {
                 let value = clean_block_string_literal(source).intern();
                 Some(StringNode { token, value })
             }
+            _ => None,
+        }
+    }
+
+    /**
+     * Description : StringValue
+     */
+    fn advance_optional_description(&mut self) -> Option<Token> {
+        match self.peek_token_kind() {
+            TokenKind::StringLiteral => Some(self.parse_token()),
+            TokenKind::BlockStringLiteral => Some(self.parse_token()),
             _ => None,
         }
     }
@@ -1024,6 +1427,17 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * hack_source : StringValue
+     */
+    fn advance_optional_hack_source(&mut self) -> Option<Token> {
+        match self.peek_token_kind() {
+            TokenKind::StringLiteral => Some(self.parse_token()),
+            TokenKind::BlockStringLiteral => Some(self.parse_token()),
+            _ => None,
+        }
+    }
+
+    /**
      * FieldsDefinition : { FieldDefinition+ }
      */
     fn parse_fields_definition(&mut self) -> ParseResult<Option<List<FieldDefinition>>> {
@@ -1031,6 +1445,17 @@ impl<'a> Parser<'a> {
             TokenKind::OpenBrace,
             TokenKind::CloseBrace,
             Self::parse_field_definition_impl,
+        )
+    }
+
+    /**
+     * FieldsDefinition : { FieldDefinition+ }
+     */
+    fn advance_fields_definition(&mut self) -> ParseResult<Token> {
+        self.advance_optional_delimited_nonempty_list(
+            TokenKind::OpenBrace,
+            TokenKind::CloseBrace,
+            Self::advance_field_definition_impl,
         )
     }
 
@@ -1060,6 +1485,21 @@ impl<'a> Parser<'a> {
         })
     }
 
+    /**
+     * FieldDefinition :
+     *   - Description? Name ArgumentsDefinition? : Type Directives?
+     */
+    fn advance_field_definition_impl(&mut self) -> ParseResult<Token> {
+        self.advance_optional_description(); // description
+        self.advance_optional_hack_source(); // hack_source
+        self.advance_identifier()?; // name
+        self.advance_argument_defs()?; // arguments
+        self.advance_kind(TokenKind::Colon)?;
+        self.advance_type_annotation()?; // type_
+        self.advance_constant_directives()?; // directives
+        Ok(self.current)
+    }
+
     fn parse_field_definition_stub_impl(&mut self) -> ParseResult<FieldDefinitionStub> {
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
@@ -1074,6 +1514,17 @@ impl<'a> Parser<'a> {
             TokenKind::OpenParen,
             TokenKind::CloseParen,
             Self::parse_input_value_def,
+        )
+    }
+
+    /**
+     * ArgumentsDefinition : ( InputValueDefinition+ )
+     */
+    fn advance_argument_defs(&mut self) -> ParseResult<Token> {
+        self.advance_optional_delimited_nonempty_list(
+            TokenKind::OpenParen,
+            TokenKind::CloseParen,
+            Self::advance_input_value_def,
         )
     }
 
@@ -1105,6 +1556,22 @@ impl<'a> Parser<'a> {
     }
 
     /**
+     * InputValueDefinition :
+     *   - Description? Name : Type DefaultValue? Directives?
+     */
+    fn advance_input_value_def(&mut self) -> ParseResult<Token> {
+        self.advance_optional_description();
+        self.advance_identifier()?; // name
+        self.advance_kind(TokenKind::Colon)?;
+        self.advance_type_annotation()?; // type_
+        if self.peek_token_kind() == TokenKind::Equals {
+            self.advance_default_value()?; // default_value
+        }
+        self.advance_constant_directives()?; // directives
+        Ok(self.current)
+    }
+
+    /**
      * ImplementsInterfaces :
      *   - implements `&`? NamedType
      *   - ImplementsInterfaces & NamedType
@@ -1120,6 +1587,23 @@ impl<'a> Parser<'a> {
             }
         }
         Ok(interfaces)
+    }
+
+    /**
+     * ImplementsInterfaces :
+     *   - implements `&`? NamedType
+     *   - ImplementsInterfaces & NamedType
+     */
+    fn advance_implements_interfaces(&mut self) -> ParseResult<Token> {
+        if self.peek_keyword("implements") {
+            self.advance_token();
+            self.advance_optional_kind(TokenKind::Ampersand);
+            self.advance_identifier()?;
+            while self.advance_optional_kind(TokenKind::Ampersand).is_some() {
+                self.advance_identifier()?;
+            }
+        }
+        Ok(self.current)
     }
 
     /// FragmentDefinition : fragment FragmentName TypeCondition Directives? SelectionSet
@@ -1249,6 +1733,13 @@ impl<'a> Parser<'a> {
         })
     }
 
+    /// DefaultValue : = Value[Const]
+    fn advance_default_value(&mut self) -> ParseResult<Token> {
+        self.advance_kind(TokenKind::Equals)?; // equals
+        self.advance_constant_value()?; // value
+        Ok(self.current)
+    }
+
     /// Type :
     ///     NamedType
     ///     ListType
@@ -1292,6 +1783,37 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Type :
+    ///     NamedType
+    ///     ListType
+    ///     NonNullType
+    fn advance_type_annotation(&mut self) -> ParseResult<Token> {
+        let token = self.peek();
+        match token.kind {
+            TokenKind::Identifier => {
+                self.advance_identifier()?;
+                ()
+            }
+            TokenKind::OpenBracket => {
+                self.advance_kind(TokenKind::OpenBracket)?; // open
+                self.advance_type_annotation()?; // type_
+                self.advance_kind(TokenKind::CloseBracket)?; // close
+            }
+            _ => {
+                let error = Diagnostic::error(
+                    SyntaxError::ExpectedTypeAnnotation,
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                return Err(());
+            }
+        };
+        if self.peek_token_kind() == TokenKind::Exclamation {
+            self.advance_kind(TokenKind::Exclamation)?; // exclamation
+        }
+        Ok(self.current)
+    }
+
     /// Directives[Const] : Directive[?Const]+
     fn parse_directives(&mut self) -> ParseResult<Vec<Directive>> {
         self.parse_list(|s| s.peek_kind(TokenKind::At), |s| s.parse_directive_impl())
@@ -1305,6 +1827,17 @@ impl<'a> Parser<'a> {
             )
         } else {
             Ok(vec![])
+        }
+    }
+
+    fn advance_constant_directives(&mut self) -> ParseResult<Token> {
+        if self.peek_token_kind() == TokenKind::At {
+            self.advance_list(
+                |s| s.peek_kind(TokenKind::At),
+                |s| s.advance_constant_directive(),
+            )
+        } else {
+            Ok(self.current)
         }
     }
 
@@ -1334,6 +1867,13 @@ impl<'a> Parser<'a> {
             name,
             arguments,
         })
+    }
+
+    fn advance_constant_directive(&mut self) -> ParseResult<Token> {
+        self.advance_kind(TokenKind::At)?; // at
+        self.advance_identifier()?; // name
+        self.advance_optional_constant_arguments()?; // arguments
+        Ok(self.current)
     }
 
     /// TypeCondition : on NamedType
@@ -1663,6 +2203,14 @@ impl<'a> Parser<'a> {
         )
     }
 
+    fn advance_optional_constant_arguments(&mut self) -> ParseResult<Token> {
+        self.advance_optional_delimited_nonempty_list(
+            TokenKind::OpenParen,
+            TokenKind::CloseParen,
+            Self::parse_constant_argument,
+        )
+    }
+
     /// Argument[Const] : Name : Value[?Const]
     fn parse_argument(&mut self) -> ParseResult<Argument> {
         let start = self.index();
@@ -1677,6 +2225,7 @@ impl<'a> Parser<'a> {
             value,
         })
     }
+
     /// Argument[Const=true] : Name : Value[Const=true]
     fn parse_constant_argument(&mut self) -> ParseResult<ConstantArgument> {
         let start = self.index();
@@ -1690,6 +2239,14 @@ impl<'a> Parser<'a> {
             colon,
             value,
         })
+    }
+
+    /// Argument[Const=true] : Name : Value[Const=true]
+    fn advance_constant_argument(&mut self) -> ParseResult<Token> {
+        self.advance_identifier()?; // name
+        self.advance_kind(TokenKind::Colon)?; // colon
+        self.advance_constant_value()?; // value
+        Ok(self.current)
     }
 
     /// Value[?Const] :
@@ -1792,6 +2349,31 @@ impl<'a> Parser<'a> {
                 |s| s.parse_constant_argument(),
             )?)),
             _ => self.parse_literal_value(),
+        }
+    }
+
+    /// Value[Const=true] :
+    ///     IntValue
+    ///     FloatValue
+    ///     StringValue
+    ///     BooleanValue
+    ///     NullValue
+    ///     EnumValue
+    ///     ListValue[Const=true]
+    ///     ObjectValue[Const=true]
+    fn advance_constant_value(&mut self) -> ParseResult<Token> {
+        match self.peek_token_kind() {
+            TokenKind::OpenBracket => {
+                self.advance_delimited_list(TokenKind::OpenBracket, TokenKind::CloseBracket, |s| {
+                    s.advance_constant_value()
+                })
+            }
+            TokenKind::OpenBrace => {
+                self.advance_delimited_list(TokenKind::OpenBrace, TokenKind::CloseBrace, |s| {
+                    s.advance_constant_argument()
+                })
+            }
+            _ => self.advance_literal_value(),
         }
     }
 
@@ -1915,6 +2497,16 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// IntValue
+    /// FloatValue
+    /// StringValue
+    /// BooleanValue
+    /// NullValue
+    /// EnumValue
+    fn advance_literal_value(&mut self) -> ParseResult<Token> {
+        Ok(self.advance_token())
+    }
+
     /// Variable : $ Name
     fn parse_variable_identifier(&mut self) -> ParseResult<VariableIdentifier> {
         let start = self.index();
@@ -1967,6 +2559,22 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Name :: /[_A-Za-z][_0-9A-Za-z]*/
+    fn advance_identifier(&mut self) -> ParseResult<Token> {
+        let token = self.parse_token();
+        match token.kind {
+            TokenKind::Identifier => Ok(token),
+            _ => {
+                let error = Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::Identifier),
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Err(())
+            }
+        }
+    }
+
     fn parse_identifier_with_error_recovery(&mut self) -> Identifier {
         match self.peek_token_kind() {
             TokenKind::Identifier => {
@@ -2005,6 +2613,18 @@ impl<'a> Parser<'a> {
         Ok(items)
     }
 
+    /// <item>*
+    fn advance_list<F1, F2>(&mut self, peek: F1, advance: F2) -> ParseResult<Token>
+    where
+        F1: Fn(&mut Self) -> bool,
+        F2: Fn(&mut Self) -> ParseResult<Token>,
+    {
+        while peek(self) {
+            advance(self)?;
+        }
+        Ok(self.current)
+    }
+
     /// Parse delimited items into a `List`
     /// <start> <item>* <end>
     fn parse_delimited_list<T, F>(
@@ -2030,6 +2650,26 @@ impl<'a> Parser<'a> {
             items,
             end,
         })
+    }
+
+    /// Advance delimited items of a `List`
+    /// <start> <item>* <end>
+    fn advance_delimited_list<T, F>(
+        &mut self,
+        start_kind: TokenKind,
+        end_kind: TokenKind,
+        advance: F,
+    ) -> ParseResult<Token>
+    where
+        F: Fn(&mut Self) -> ParseResult<T>,
+    {
+        self.advance_kind(start_kind)?;
+        while !self.peek_kind(end_kind) {
+            advance(self)?;
+        }
+        self.advance_kind(end_kind)?;
+
+        Ok(self.current)
     }
 
     /// Parse delimited items into a `List`
@@ -2083,6 +2723,47 @@ impl<'a> Parser<'a> {
         })
     }
 
+    /// Advance to last token of delimited items
+    /// <start> <item>+ <end>
+    fn advance_delimited_nonempty_list<T, F>(
+        &mut self,
+        start_kind: TokenKind,
+        end_kind: TokenKind,
+        advance: F,
+    ) -> ParseResult<Token>
+    where
+        F: Fn(&mut Self) -> ParseResult<T>,
+    {
+        if !self.peek_kind(start_kind) {
+            let error = Diagnostic::error(
+                SyntaxError::Expected(start_kind),
+                Location::new(
+                    self.source_location,
+                    Span::new(self.end_index, self.index()),
+                ),
+            );
+            self.record_error(error);
+            return Ok(self.empty_token());
+        }
+        let start = self.parse_token();
+        let mut has_items = false;
+        while !self.peek_kind(end_kind) {
+            has_items = true;
+            advance(self)?;
+        }
+        let end = self.advance_kind(end_kind)?;
+        let span = Span::new(start.span.start, end.span.end);
+
+        if !has_items {
+            self.record_error(Diagnostic::error(
+                SyntaxError::ExpectedNonEmptyList,
+                Location::new(self.source_location, span),
+            ));
+        }
+
+        Ok(end)
+    }
+
     /// (<start> <item>+ <end>)?
     fn parse_optional_delimited_nonempty_list<T, F>(
         &mut self,
@@ -2099,6 +2780,23 @@ impl<'a> Parser<'a> {
             )?))
         } else {
             Ok(None)
+        }
+    }
+
+    /// (<start> <item>+ <end>)?
+    fn advance_optional_delimited_nonempty_list<T, F>(
+        &mut self,
+        start_kind: TokenKind,
+        end_kind: TokenKind,
+        parse: F,
+    ) -> ParseResult<Token>
+    where
+        F: Fn(&mut Self) -> ParseResult<T>,
+    {
+        if self.peek_token_kind() == start_kind {
+            self.advance_delimited_nonempty_list(start_kind, end_kind, parse)
+        } else {
+            Ok(self.current)
         }
     }
 
@@ -2143,10 +2841,22 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn advance_kind(&mut self, expected: TokenKind) -> ParseResult<Token> {
+        self.parse_kind(expected)
+    }
+
     /// Parse the next token if it has the expected kind.
     fn parse_optional_kind(&mut self, expected: TokenKind) -> Option<Token> {
         if self.peek_kind(expected) {
             Some(self.parse_token())
+        } else {
+            None
+        }
+    }
+
+    fn advance_optional_kind(&mut self, expected: TokenKind) -> Option<Token> {
+        if self.peek_kind(expected) {
+            Some(self.advance_token())
         } else {
             None
         }
@@ -2171,6 +2881,10 @@ impl<'a> Parser<'a> {
             self.record_error(error);
             Err(())
         }
+    }
+
+    fn advance_keyword(&mut self, expected: &'static str) -> ParseResult<Token> {
+        self.parse_keyword(expected)
     }
 
     /// Get the byte offset of the *start* of the current token
@@ -2215,6 +2929,10 @@ impl<'a> Parser<'a> {
                 }
             }
         }
+    }
+
+    fn advance_token(&mut self) -> Token {
+        self.parse_token()
     }
 
     fn lexer_span(&self) -> Span {

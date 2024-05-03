@@ -33,7 +33,7 @@ export type ReaderInlineDataFragmentSpread = {
   +kind: 'InlineDataFragmentSpread',
   +name: string,
   +selections: $ReadOnlyArray<ReaderSelection>,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
   +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
 };
 
@@ -268,10 +268,10 @@ export type ResolverWeakModelNormalizationInfo = {
 
 export type ReaderRelayResolver = {
   +kind: 'RelayResolver',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +fragment: ?ReaderFragmentSpread,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +fragment?: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
   +normalizationInfo?: ResolverNormalizationInfo,
@@ -279,10 +279,10 @@ export type ReaderRelayResolver = {
 
 export type ReaderRelayLiveResolver = {
   +kind: 'RelayLiveResolver',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +fragment: ?ReaderFragmentSpread,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +fragment?: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
   +normalizationInfo?: ResolverNormalizationInfo,

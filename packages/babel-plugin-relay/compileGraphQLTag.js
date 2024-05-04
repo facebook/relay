@@ -19,13 +19,14 @@ import type {
 } from 'graphql';
 
 const crypto = require('crypto');
-const {print} = require('graphql');
 const {
   dirname,
   join: joinPath,
   relative: relativePath,
   resolve: resolvePath,
 } = require('path');
+
+const printGraphQL = require('./printGraphQL.js');
 
 const GENERATED = './__generated__/';
 
@@ -125,7 +126,7 @@ function createNode(
 
   const hash = crypto
     .createHash('md5')
-    .update(print(graphqlDefinition), 'utf8')
+    .update(printGraphQL(graphqlDefinition), 'utf8')
     .digest('hex');
 
   let topScope = path.scope;

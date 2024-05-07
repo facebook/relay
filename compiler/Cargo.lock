@@ -292,7 +292,7 @@ name = "common"
 version = "0.0.0"
 dependencies = [
  "colored",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "intern",
  "log",
  "lsp-types",
@@ -547,6 +547,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25cbce373ec4653f1a01a31e8a5e5ec0c622dc27ff9c4e6606eefef5cbbed4a5"
 
 [[package]]
+name = "fixedbitset"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
+
+[[package]]
 name = "fixture-tests"
 version = "0.0.0"
 dependencies = [
@@ -746,7 +752,7 @@ dependencies = [
  "fnv",
  "graphql-cli",
  "graphql-syntax",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "intern",
  "lazy_static",
  "once_cell",
@@ -846,7 +852,7 @@ dependencies = [
  "futures-sink",
  "futures-util",
  "http",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "slab",
  "tokio",
  "tokio-util 0.7.10",
@@ -1013,9 +1019,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.2.2"
+version = "2.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "824b2ae422412366ba479e8111fd301f7b5faece8149317bb81925979a53f520"
+checksum = "168fb715dda47215e360912c096649d23d58bf392ac62f73919e831745e40f26"
 dependencies = [
  "arbitrary",
  "equivalent",
@@ -1031,7 +1037,7 @@ dependencies = [
  "bincode",
  "fnv",
  "hashbrown 0.14.3",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "once_cell",
  "parking_lot",
  "rand",
@@ -1444,6 +1450,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "petgraph"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1d3afd2628e69da2be385eb6f2fd57c8ac7977ceeff6dc166ff1657b0e386a9"
+dependencies = [
+ "fixedbitset",
+ "indexmap 2.2.6",
+ "serde",
+ "serde_derive",
+]
+
+[[package]]
 name = "pin-project-lite"
 version = "0.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1541,9 +1559,9 @@ dependencies = [
 
 [[package]]
 name = "rayon"
-version = "1.8.1"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa7237101a77a10773db45d62004a272517633fbcc3df19d96455ede1122e051"
+checksum = "b418a60154510ca1a002a752ca9714984e21e4241e804d32555251faf8b78ffa"
 dependencies = [
  "either",
  "rayon-core",
@@ -1632,7 +1650,7 @@ dependencies = [
  "graphql-syntax",
  "graphql-test-helpers",
  "hex",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "intern",
  "lazy_static",
  "md-5",
@@ -1670,13 +1688,14 @@ dependencies = [
  "graphql-text-printer",
  "graphql-watchman",
  "hex",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "intern",
  "js-config-loader",
  "lazy_static",
  "log",
  "md-5",
  "persist-query",
+ "petgraph",
  "rayon",
  "regex",
  "relay-codegen",
@@ -1733,7 +1752,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "fnv",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "intern",
  "pathdiff",
  "regex",
@@ -1843,7 +1862,7 @@ dependencies = [
  "graphql-syntax",
  "graphql-test-helpers",
  "graphql-text-printer",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "intern",
  "itertools",
  "lazy_static",
@@ -1870,7 +1889,7 @@ dependencies = [
  "graphql-ir",
  "graphql-syntax",
  "graphql-test-helpers",
- "indexmap 2.2.2",
+ "indexmap 2.2.6",
  "intern",
  "itertools",
  "lazy_static",

@@ -1373,6 +1373,56 @@ fragment RelayMockPayloadGeneratorTest13Fragment on Viewer {
 }
 `;
 
+exports[`should generate data for @match with PlainUserNameRenderer_name and use defaults from mock resolvers 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest67Query {
+  node(id: "my-id") {
+    __typename
+    ...RelayMockPayloadGeneratorTest67Fragment
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest67Fragment on User {
+  id
+  nameRenderer {
+    __typename
+    ... on PlainUserNameRenderer {
+      ...RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name
+      __module_operation_RelayMockPayloadGeneratorTest67Fragment: js(module: "RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name$normalization.graphql", id: "RelayMockPayloadGeneratorTest67Fragment.nameRenderer")
+      __module_component_RelayMockPayloadGeneratorTest67Fragment: js(module: "PlainUserNameRenderer.react", id: "RelayMockPayloadGeneratorTest67Fragment.nameRenderer")
+    }
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "nameRenderer": {
+        "__typename": "PlainUserNameRenderer",
+        "__module_operation_RelayMockPayloadGeneratorTest67Fragment": "RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name$normalization",
+        "plaintext": "<mock-value-for-field-\\"plaintext\\">",
+        "data": {
+          "text": "hello world",
+          "id": "<PlainUserNameData-mock-id-2>"
+        }
+      }
+    }
+  }
+}
+`;
+
 exports[`should return \`null\` for selection if that is specified in default values 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest19Query {

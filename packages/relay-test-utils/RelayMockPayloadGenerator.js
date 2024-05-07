@@ -528,7 +528,7 @@ class RelayMockPayloadGenerator {
                 false,
                 path,
                 null,
-                null,
+                defaultValues,
               ),
             };
           }

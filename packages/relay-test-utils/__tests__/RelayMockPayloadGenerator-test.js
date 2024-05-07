@@ -1891,3 +1891,44 @@ test('generate mock for streamed fragments with if condition false', () => {
     {generateDeferredPayload: true},
   );
 });
+
+test('should generate data for @match with PlainUserNameRenderer_name and use defaults from mock resolvers', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest67Fragment on User {
+      id
+      nameRenderer {
+        ...RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+      }
+    }
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name on PlainUserNameRenderer {
+      plaintext
+      data {
+        text
+      }
+    }
+  `;
+
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest67Query @relay_test_operation {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest67Fragment
+        }
+      }
+    `,
+    {
+      UserNameRenderer() {
+        return {
+          __typename: 'PlainUserNameRenderer',
+          __module_operation: require('./__generated__/RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name$normalization.graphql'),
+          data: {
+            text: 'hello world',
+          },
+        };
+      },
+    },
+  );
+});

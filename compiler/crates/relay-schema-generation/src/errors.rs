@@ -55,4 +55,6 @@ pub enum SchemaGenerationError {
         export_type: JSImportType,
         module_name: StringKey,
     },
+    #[error("Not yet implemented")]
+    TODO,
 }

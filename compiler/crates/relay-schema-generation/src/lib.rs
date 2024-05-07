@@ -195,9 +195,13 @@ impl RelayResolverExtractor {
                             let name = resolver_value.field_value.unwrap_or(field_name);
 
                             // Heuristic to treat lowercase name as field definition, otherwise object definition
+                            // if there is a `.` in the name, it is the old resolver synatx, e.g. @RelayResolver Client.field,
+                            // we should treat it as a field definition
                             let is_field_definition = {
                                 let name_str = name.item.lookup();
-                                name_str.chars().next().unwrap().is_lowercase()
+                                let is_lowercase_initial =
+                                    name_str.chars().next().unwrap().is_lowercase();
+                                is_lowercase_initial || name_str.contains('.')
                             };
                             if is_field_definition {
                                 self.add_unresolved_field_definition(

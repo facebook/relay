@@ -10,7 +10,6 @@
 
 'use strict';
 
-const FIXTURE_TAG = require('./fixtureTag');
 const getOutputForFixture = require('./getOutputForFixture');
 const fs = require('fs');
 const path = require('path');
@@ -21,6 +20,7 @@ const path = require('path');
  * Extend Jest with a custom snapshot serializer to provide additional context
  * and reduce the amount of escaping that occurs.
  */
+const FIXTURE_TAG = Symbol.for('FIXTURE_TAG');
 expect.addSnapshotSerializer({
   serialize(value) {
     return Object.keys(value)

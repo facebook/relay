@@ -16,7 +16,7 @@ import type {Query, Variables} from 'relay-runtime';
 
 const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
 const {createOperationDescriptor, graphql} = require('relay-runtime');
-const {FIXTURE_TAG} = require('relay-test-utils-internal/node');
+const {FIXTURE_TAG} = require('relay-test-utils-internal');
 
 function testGeneratedData<TVariables: Variables, TData, TRawResponse>(
   query: Query<TVariables, TData, TRawResponse>,

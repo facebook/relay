@@ -193,6 +193,9 @@ impl Schema for InMemorySchema {
             if name == self.strongid_field_name {
                 return Some(self.strongid_field);
             }
+            if name == self.is_fulfilled_field_name {
+                return Some(self.is_fulfilled_field);
+            }
         }
 
         let fields = match parent_type {

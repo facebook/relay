@@ -78,7 +78,6 @@ use schema::Field;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use schema::TypeReference;
 
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
@@ -284,7 +283,6 @@ fn build_resolver_info(
     import_name: ModuleImportName,
 ) -> AstKey {
     ast_builder.intern(Ast::Object(object! {
-        is_nullable: Primitive::Bool(!matches!(field.type_, TypeReference::NonNull(_))),
         resolver_function: Primitive::JSModuleDependency(JSModuleDependency {
             path: project_config.js_module_import_identifier(
                 artifact_path,

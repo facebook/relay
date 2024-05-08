@@ -87,7 +87,6 @@ extend type Query {
           "storageKey": null,
           "isOutputType": true,
           "resolverInfo": {
-            "isNullable": true,
             "resolverFunction": require('ClientTypeResolver'),
             "rootFragment": null
           }

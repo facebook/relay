@@ -8,7 +8,6 @@
 use common::escalate_and_check;
 use common::CriticalDiagnostics;
 use common::DiagnosticsResult;
-use common::FeatureFlags;
 use common::StableDiagnostics;
 use common::WithDiagnostics;
 use errors::try_all;
@@ -34,7 +33,7 @@ use relay_transforms::validate_updatable_directive;
 use relay_transforms::validate_updatable_fragment_spread;
 
 pub type AdditionalValidations =
-    Box<dyn Fn(&Program, &FeatureFlags) -> DiagnosticsResult<()> + Sync + Send>;
+    Box<dyn Fn(&Program, &ProjectConfig) -> DiagnosticsResult<()> + Sync + Send>;
 
 pub fn validate(
     program: &Program,
@@ -55,7 +54,7 @@ pub fn validate(
         disallow_typename_on_root(program),
         validate_static_args(program),
         if let Some(ref validate) = additional_validations {
-            validate(program, &project_config.feature_flags)
+            validate(program, project_config)
         } else {
             Ok(())
         },

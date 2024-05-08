@@ -171,7 +171,7 @@ export type ResolverReference = {
 };
 
 export type ResolverInfo = {
-  +isNullable: boolean,
+  +isNullable?: boolean,
   +resolverFunction: ResolverFunction,
   +rootFragment?: ?NormalizationSplitOperation,
 };

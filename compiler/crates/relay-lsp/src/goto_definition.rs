@@ -79,12 +79,13 @@ pub fn on_goto_definition(
     let program = state.get_program(&project_name)?;
 
     let definition_description = match feature {
-        crate::Feature::GraphQLDocument(document) => {
+        crate::Feature::ExecutableDocument(document) => {
             get_graphql_definition_description(document, position_span, &schema)?
         }
         crate::Feature::DocblockIr(docblock_ir) => {
             get_docblock_definition_description(&docblock_ir, position_span)?
         }
+        crate::Feature::SchemaDocument(_) => Err(LSPRuntimeError::ExpectedError)?,
     };
 
     let extra_data_provider = state.get_extra_data_provider();

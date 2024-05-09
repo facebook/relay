@@ -26,7 +26,6 @@ pub mod status_reporter;
 mod utils;
 
 pub use artifact_map::ArtifactSourceKey;
-pub use build_project::add_to_mercurial;
 pub use build_project::artifact_writer::ArtifactDifferenceShardedWriter;
 pub use build_project::artifact_writer::ArtifactDifferenceWriter;
 pub use build_project::artifact_writer::ArtifactFileWriter;
@@ -40,6 +39,7 @@ pub use build_project::find_duplicates;
 pub use build_project::generate_artifacts;
 pub use build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 pub use build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
+pub use build_project::source_control_for_root;
 pub use build_project::transform_program;
 pub use build_project::validate;
 pub use build_project::validate_program;

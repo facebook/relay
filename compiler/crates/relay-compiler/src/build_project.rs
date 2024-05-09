@@ -67,7 +67,7 @@ use rustc_hash::FxHashSet;
 use schema::SDLSchema;
 use schema_diff::check::IncrementalBuildSchemaChange;
 use schema_diff::check::SchemaChangeSafety;
-pub use source_control::add_to_mercurial;
+pub use source_control::source_control_for_root;
 pub use validate::validate;
 pub use validate::AdditionalValidations;
 

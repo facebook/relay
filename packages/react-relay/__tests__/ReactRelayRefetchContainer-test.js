@@ -126,7 +126,10 @@ describe('ReactRelayRefetchContainer', () => {
       return <ContextGetter />;
     });
     variables = {};
-    TestComponent = render;
+    TestComponent = ({ref, ...props}) => {
+      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
+      return render(props);
+    };
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayRefetchContainer.createContainer(
       TestComponent,

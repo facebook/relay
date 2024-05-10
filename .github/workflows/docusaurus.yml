@@ -10,12 +10,15 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build-compiler-explorer:
     name: Build Compiler Explorer
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.73.0 # We hit an LLVM error building Wasm on 1.72
@@ -25,7 +28,7 @@ jobs:
       - name: "Build Compiler Playground Wasm NPM package"
         run: RUST_LOG=debug wasm-pack build --target web
         working-directory: ./compiler/crates/relay-compiler-playground
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: compiler-playground-package
           path: compiler/crates/relay-compiler-playground/pkg/
@@ -35,12 +38,12 @@ jobs:
     needs: [build-compiler-explorer]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
       - name: Download Compiler Explorer
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: compiler-playground-package
           path: tmp/compiler-playground-package
@@ -57,9 +60,8 @@ jobs:
         working-directory: website/
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: website/build
-          CLEAN: true
+          branch: gh-pages
+          folder: website/build
+          clean: true

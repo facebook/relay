@@ -67,9 +67,9 @@ TerseRelayResolver(
     TerseRelayResolverIr {
         field: FieldDefinition {
             name: Identifier {
-                span: 368:397,
+                span: 369:374,
                 token: Token {
-                    span: 368:397,
+                    span: 369:374,
                     kind: Identifier,
                 },
                 value: "first",
@@ -99,7 +99,7 @@ TerseRelayResolver(
             directives: [],
             description: None,
             hack_source: None,
-            span: 368:397,
+            span: 369:374,
         },
         type_: WithLocation {
             location: <generated>:357:365,
@@ -109,7 +109,7 @@ TerseRelayResolver(
         deprecated: None,
         semantic_non_null: None,
         live: None,
-        location: module.js:368:397,
+        location: module.js:369:374,
         fragment_arguments: None,
         source_hash: ResolverSourceHash(
             "47aa9b99e97b427fbcade6680ebf096d",
@@ -125,9 +125,9 @@ TerseRelayResolver(
     TerseRelayResolverIr {
         field: FieldDefinition {
             name: Identifier {
-                span: 368:397,
+                span: 384:388,
                 token: Token {
-                    span: 368:397,
+                    span: 384:388,
                     kind: Identifier,
                 },
                 value: "last",
@@ -157,7 +157,7 @@ TerseRelayResolver(
             directives: [],
             description: None,
             hack_source: None,
-            span: 368:397,
+            span: 384:388,
         },
         type_: WithLocation {
             location: <generated>:357:365,
@@ -167,7 +167,7 @@ TerseRelayResolver(
         deprecated: None,
         semantic_non_null: None,
         live: None,
-        location: module.js:368:397,
+        location: module.js:384:388,
         fragment_arguments: None,
         source_hash: ResolverSourceHash(
             "47aa9b99e97b427fbcade6680ebf096d",

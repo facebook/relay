@@ -21,22 +21,48 @@ Strong(
             location: primitives.js:211:213,
             item: "id",
         },
-        return_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: primitives.js:227:229,
-                    item: "ID",
+        return_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "ID",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 227,
+                            end: 229,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 227,
+                    end: 229,
                 },
-                optional: false,
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: primitives.js:220:224,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 220,
+                            end: 224,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 220,
+                    end: 224,
                 },
-                optional: false,
             },
         ),
         is_live: None,
@@ -49,22 +75,35 @@ Strong(
             location: primitives.js:253:259,
             item: "number",
         },
-        return_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: primitives.js:273:279,
-                    item: "Float",
+        return_type: NumberTypeAnnotation(
+            NumberTypeAnnotation {
+                loc: None,
+                range: SourceRange {
+                    start: 273,
+                    end: 279,
                 },
-                optional: false,
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: primitives.js:266:270,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 266,
+                            end: 270,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 266,
+                    end: 270,
                 },
-                optional: false,
             },
         ),
         is_live: None,
@@ -77,22 +116,35 @@ Strong(
             location: primitives.js:303:309,
             item: "string",
         },
-        return_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: primitives.js:323:329,
-                    item: "String",
+        return_type: StringTypeAnnotation(
+            StringTypeAnnotation {
+                loc: None,
+                range: SourceRange {
+                    start: 323,
+                    end: 329,
                 },
-                optional: false,
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: primitives.js:316:320,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 316,
+                            end: 320,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 316,
+                    end: 320,
                 },
-                optional: false,
             },
         ),
         is_live: None,

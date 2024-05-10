@@ -82,10 +82,10 @@ TerseRelayResolver(
             },
             type_: NonNull(
                 NonNullTypeAnnotation {
-                    span: 205:212,
+                    span: 199:213,
                     type_: List(
                         ListTypeAnnotation {
-                            span: 205:212,
+                            span: 199:213,
                             open: Token {
                                 span: 0:0,
                                 kind: Empty,

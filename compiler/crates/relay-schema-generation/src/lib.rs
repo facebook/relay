@@ -41,6 +41,7 @@ use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
 use hermes_comments::find_nodes_after_comments;
 use hermes_estree::Declaration;
+use hermes_estree::FlowTypeAnnotation;
 use hermes_estree::ImportDeclarationSpecifier;
 use hermes_estree::Node;
 use hermes_estree::Range;
@@ -58,8 +59,6 @@ use relay_docblock::UnpopulatedIrField;
 use relay_docblock::WeakObjectIr;
 use rustc_hash::FxHashMap;
 use schema_extractor::FieldData;
-use schema_extractor::FlowType;
-use schema_extractor::ObjectType;
 use schema_extractor::ResolverFlowData;
 use schema_extractor::SchemaExtractor;
 use schema_extractor::WeakObjectData;
@@ -110,7 +109,7 @@ struct ModuleResolutionKey {
 struct UnresolvedFieldDefinition {
     entity_name: WithLocation<StringKey>,
     field_name: WithLocation<StringKey>,
-    return_type: FlowType,
+    return_type: FlowTypeAnnotation,
     source_hash: ResolverSourceHash,
     is_live: Option<Location>,
 }
@@ -208,11 +207,37 @@ impl RelayResolverExtractor {
                             };
                             if is_field_definition {
                                 let entity_name = match entity_type {
-                                    FlowType::NamedType(named_type) => named_type.identifier,
+                                    FlowTypeAnnotation::NumberTypeAnnotation(annot) => {
+                                        WithLocation {
+                                            item: intern!("Float"),
+                                            location: self.to_location(annot.as_ref()),
+                                        }
+                                    }
+                                    FlowTypeAnnotation::StringTypeAnnotation(annot) => {
+                                        WithLocation {
+                                            item: intern!("String"),
+                                            location: self.to_location(annot.as_ref()),
+                                        }
+                                    }
+                                    FlowTypeAnnotation::GenericTypeAnnotation(annot) => {
+                                        let id = schema_extractor::get_identifier_for_flow_generic(
+                                            WithLocation {
+                                                item: &annot,
+                                                location: self.to_location(annot.as_ref()),
+                                            },
+                                        )?;
+                                        if annot.type_parameters.is_some() {
+                                            return Err(vec![Diagnostic::error(
+                                                SchemaGenerationError::GenericNotSupported,
+                                                self.to_location(annot.as_ref()),
+                                            )]);
+                                        }
+                                        id
+                                    }
                                     _ => {
                                         return Err(vec![Diagnostic::error(
                                             SchemaGenerationError::GenericNotSupported,
-                                            entity_type.location(),
+                                            self.to_location(&entity_type),
                                         )]);
                                     }
                                 };
@@ -267,7 +292,10 @@ impl RelayResolverExtractor {
                     {
                         let field_definition = FieldDefinition {
                             name: string_key_to_identifier(field.field_name),
-                            type_: return_type_to_type_annotation(field.return_type)?,
+                            type_: return_type_to_type_annotation(
+                                self.current_location,
+                                &field.return_type,
+                            )?,
                             arguments: None,
                             directives: vec![],
                             description: None,
@@ -344,7 +372,7 @@ impl RelayResolverExtractor {
     ) -> DiagnosticsResult<()> {
         let field_definition = FieldDefinition {
             name: string_key_to_identifier(field.field_name),
-            type_: return_type_to_type_annotation(field.return_type)?,
+            type_: return_type_to_type_annotation(self.current_location, &field.return_type)?,
             arguments: None,
             directives: vec![],
             description: None,
@@ -414,7 +442,7 @@ impl RelayResolverExtractor {
         &mut self,
         imports: &FxHashMap<StringKey, (ModuleResolutionKey, Location)>,
         name: WithLocation<StringKey>,
-        return_type: FlowType,
+        return_type: FlowTypeAnnotation,
         source_hash: ResolverSourceHash,
         is_live: Option<Location>,
     ) -> DiagnosticsResult<()> {
@@ -436,46 +464,50 @@ impl RelayResolverExtractor {
         // For now, we assume the flow type for the strong object is always imported
         // from a separate file
         match return_type {
-            FlowType::NamedType(type_) => {
-                let name = type_.identifier.item;
-                let (key, import_location) = imports.get(&name).ok_or_else(|| {
+            FlowTypeAnnotation::GenericTypeAnnotation(generic_type) => {
+                let name = schema_extractor::get_identifier_for_flow_generic(WithLocation {
+                    item: generic_type.as_ref(),
+                    location: self.to_location(generic_type.as_ref()),
+                })?;
+                if generic_type.type_parameters.is_some() {
+                    return Err(vec![Diagnostic::error(
+                        SchemaGenerationError::GenericNotSupported,
+                        name.location,
+                    )]);
+                }
+
+                let (key, import_location) = imports.get(&name.item).ok_or_else(|| {
                     Diagnostic::error(
-                        SchemaGenerationError::ExpectedFlowImportForType { name },
-                        type_.identifier.location,
+                        SchemaGenerationError::ExpectedFlowImportForType { name: name.item },
+                        name.location,
                     )
                 })?;
                 if let JSImportType::Namespace = key.import_type {
                     return Err(vec![
                         Diagnostic::error(
                             SchemaGenerationError::UseNamedOrDefaultImport,
-                            type_.identifier.location,
+                            name.location,
                         )
-                        .annotate(format!("{} is imported from", name), *import_location),
+                        .annotate(format!("{} is imported from", name.item), *import_location),
                     ]);
                 };
                 self.type_definitions
                     .insert(key.clone(), DocblockIr::StrongObjectResolver(strong_object));
+
                 Ok(())
             }
-            FlowType::GenericType(node) => Err(vec![Diagnostic::error(
-                SchemaGenerationError::GenericNotSupported,
-                node.identifier.location,
-            )]),
-            FlowType::PluralType(node) => Err(vec![Diagnostic::error(
-                SchemaGenerationError::PluralNotSupported,
-                node.location,
-            )]),
-            FlowType::ObjectType(node) => Err(vec![Diagnostic::error(
+            FlowTypeAnnotation::ObjectTypeAnnotation(object_type) => Err(vec![Diagnostic::error(
                 SchemaGenerationError::ObjectNotSupported,
-                node.location,
+                self.to_location(object_type.as_ref()),
             )]),
+            _ => self.error_result(SchemaGenerationError::UnsupportedType, &return_type),
         }
     }
 
     fn add_weak_type_definition(
         &mut self,
         name: WithLocation<StringKey>,
-        type_alias: FlowType,
+        type_alias: FlowTypeAnnotation,
         source_hash: ResolverSourceHash,
         source_module_path: &str,
     ) -> DiagnosticsResult<()> {
@@ -499,16 +531,13 @@ impl RelayResolverExtractor {
             import_type: JSImportType::Named(name.item),
         };
         // Add fields
-        if let FlowType::ObjectType(ObjectType {
-            field_map,
-            location,
-        }) = type_alias
-        {
+        if let FlowTypeAnnotation::ObjectTypeAnnotation(object_node) = type_alias {
+            let field_map = self.get_object_fields(&object_node)?;
             if !field_map.is_empty() {
                 try_all(field_map.into_iter().map(|(field_name, field_type)| {
                     let field_definition = FieldDefinition {
                         name: string_key_to_identifier(field_name),
-                        type_: return_type_to_type_annotation(field_type)?,
+                        type_: return_type_to_type_annotation(self.current_location, field_type)?,
                         arguments: None,
                         directives: vec![],
                         description: None,
@@ -536,6 +565,7 @@ impl RelayResolverExtractor {
                     .insert(key.clone(), DocblockIr::WeakObjectType(weak_object));
                 Ok(())
             } else {
+                let location = self.to_location(object_node.as_ref());
                 Err(vec![Diagnostic::error(
                     SchemaGenerationError::ExpectedWeakObjectToHaveFields,
                     location,
@@ -544,7 +574,7 @@ impl RelayResolverExtractor {
         } else {
             Err(vec![Diagnostic::error(
                 SchemaGenerationError::ExpectedTypeAliasToBeObject,
-                type_alias.location(),
+                self.to_location(&type_alias),
             )])
         }
     }
@@ -682,46 +712,78 @@ fn string_key_to_identifier(name: WithLocation<StringKey>) -> Identifier {
     }
 }
 
-fn return_type_to_type_annotation(return_type: FlowType) -> DiagnosticsResult<TypeAnnotation> {
-    match return_type {
-        FlowType::NamedType(type_) => {
-            let mut result = TypeAnnotation::Named(NamedTypeAnnotation {
-                name: string_key_to_identifier(type_.identifier),
-            });
-            if !type_.optional {
-                result = TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
-                    span: type_.identifier.location.span(),
-                    type_: result,
-                    exclamation: generated_token(),
-                }));
+fn return_type_to_type_annotation(
+    source_location: SourceLocationKey,
+    return_type: &FlowTypeAnnotation,
+) -> DiagnosticsResult<TypeAnnotation> {
+    let (return_type, is_optional) = schema_extractor::unwrap_nullable_type(return_type);
+    let location = to_location(source_location, return_type);
+    let type_annotation = match return_type {
+        FlowTypeAnnotation::GenericTypeAnnotation(node) => {
+            let identifier = schema_extractor::get_identifier_for_flow_generic(WithLocation {
+                item: node,
+                location: to_location(source_location, node.as_ref()),
+            })?;
+            match &node.type_parameters {
+                None => TypeAnnotation::Named(NamedTypeAnnotation {
+                    name: string_key_to_identifier(identifier),
+                }),
+                Some(type_parameters)
+                    if (identifier.item == intern!("Array")
+                        || identifier.item == intern!("$ReadOnlyArray"))
+                        && type_parameters.params.len() == 1 =>
+                {
+                    let param = &type_parameters.params[0];
+                    TypeAnnotation::List(Box::new(ListTypeAnnotation {
+                        span: location.span(),
+                        open: generated_token(),
+                        type_: return_type_to_type_annotation(source_location, param)?,
+                        close: generated_token(),
+                    }))
+                }
+                _ => {
+                    return Err(vec![Diagnostic::error(
+                        SchemaGenerationError::TODO,
+                        location,
+                    )]);
+                }
             }
-            Ok(result)
         }
-        FlowType::PluralType(type_) => {
-            let mut result = TypeAnnotation::List(Box::new(ListTypeAnnotation {
-                span: type_.location.span(),
-                open: generated_token(),
-                type_: return_type_to_type_annotation(*type_.inner)?,
-                close: generated_token(),
-            }));
-            if !type_.optional {
-                result = TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
-                    span: type_.location.span(),
-                    type_: result,
-                    exclamation: generated_token(),
-                }));
-            }
-            Ok(result)
+        FlowTypeAnnotation::StringTypeAnnotation(node) => {
+            let identifier = WithLocation {
+                item: intern!("String"),
+                location: to_location(source_location, node.as_ref()),
+            };
+            TypeAnnotation::Named(NamedTypeAnnotation {
+                name: string_key_to_identifier(identifier),
+            })
         }
-        FlowType::GenericType(_) => Err(vec![Diagnostic::error(
-            SchemaGenerationError::TODO,
-            return_type.location(),
-        )]),
+        FlowTypeAnnotation::NumberTypeAnnotation(node) => {
+            let identifier = WithLocation {
+                item: intern!("Float"),
+                location: to_location(source_location, node.as_ref()),
+            };
+            TypeAnnotation::Named(NamedTypeAnnotation {
+                name: string_key_to_identifier(identifier),
+            })
+        }
+        _ => {
+            return Err(vec![Diagnostic::error(
+                SchemaGenerationError::TODO,
+                location,
+            )]);
+        }
+    };
 
-        FlowType::ObjectType(_) => Err(vec![Diagnostic::error(
-            SchemaGenerationError::TODO,
-            return_type.location(),
-        )]), // Do we want to allow this?
+    if !is_optional {
+        let non_null_annotation = TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
+            span: location.span(),
+            type_: type_annotation,
+            exclamation: generated_token(),
+        }));
+        Ok(non_null_annotation)
+    } else {
+        Ok(type_annotation)
     }
 }
 

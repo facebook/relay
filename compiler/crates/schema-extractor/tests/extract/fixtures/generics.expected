@@ -21,22 +21,48 @@ Strong(
             location: generics.js:211:220,
             item: "live_user",
         },
-        return_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: generics.js:244:248,
-                    item: "User",
+        return_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 244,
+                            end: 248,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 244,
+                    end: 248,
                 },
-                optional: false,
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: generics.js:227:231,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 227,
+                            end: 231,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 227,
+                    end: 231,
                 },
-                optional: false,
             },
         ),
         is_live: Some(
@@ -51,32 +77,80 @@ Strong(
             location: generics.js:273:290,
             item: "live_generic_user",
         },
-        return_type: GenericType(
-            GenericType {
-                identifier: WithLocation {
-                    location: generics.js:314:327,
-                    item: "Generic",
-                },
-                parameter: NamedType(
-                    NamedType {
-                        identifier: WithLocation {
-                            location: generics.js:322:326,
-                            item: "User",
+        return_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "Generic",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 314,
+                            end: 321,
                         },
-                        optional: false,
                     },
                 ),
-                optional: false,
-                location: generics.js:322:326,
+                type_parameters: Some(
+                    TypeParameterInstantiation {
+                        params: [
+                            GenericTypeAnnotation(
+                                GenericTypeAnnotation {
+                                    id: Identifier(
+                                        Identifier {
+                                            name: "User",
+                                            binding: None,
+                                            type_annotation: None,
+                                            loc: None,
+                                            range: SourceRange {
+                                                start: 322,
+                                                end: 326,
+                                            },
+                                        },
+                                    ),
+                                    type_parameters: None,
+                                    loc: None,
+                                    range: SourceRange {
+                                        start: 322,
+                                        end: 326,
+                                    },
+                                },
+                            ),
+                        ],
+                        loc: None,
+                        range: SourceRange {
+                            start: 321,
+                            end: 327,
+                        },
+                    },
+                ),
+                loc: None,
+                range: SourceRange {
+                    start: 314,
+                    end: 327,
+                },
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: generics.js:297:301,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 297,
+                            end: 301,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 297,
+                    end: 301,
                 },
-                optional: false,
             },
         ),
         is_live: Some(
@@ -91,38 +165,121 @@ Strong(
             location: generics.js:352:383,
             item: "live_array_generic_optinal_user",
         },
-        return_type: PluralType(
-            PluralType {
-                inner: GenericType(
-                    GenericType {
-                        identifier: WithLocation {
-                            location: generics.js:413:427,
-                            item: "Generic",
+        return_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "Array",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 407,
+                            end: 412,
                         },
-                        parameter: NamedType(
-                            NamedType {
-                                identifier: WithLocation {
-                                    location: generics.js:422:426,
-                                    item: "User",
-                                },
-                                optional: true,
-                            },
-                        ),
-                        optional: false,
-                        location: generics.js:421:426,
                     },
                 ),
-                optional: false,
-                location: generics.js:413:427,
+                type_parameters: Some(
+                    TypeParameterInstantiation {
+                        params: [
+                            GenericTypeAnnotation(
+                                GenericTypeAnnotation {
+                                    id: Identifier(
+                                        Identifier {
+                                            name: "Generic",
+                                            binding: None,
+                                            type_annotation: None,
+                                            loc: None,
+                                            range: SourceRange {
+                                                start: 413,
+                                                end: 420,
+                                            },
+                                        },
+                                    ),
+                                    type_parameters: Some(
+                                        TypeParameterInstantiation {
+                                            params: [
+                                                NullableTypeAnnotation(
+                                                    NullableTypeAnnotation {
+                                                        type_annotation: GenericTypeAnnotation(
+                                                            GenericTypeAnnotation {
+                                                                id: Identifier(
+                                                                    Identifier {
+                                                                        name: "User",
+                                                                        binding: None,
+                                                                        type_annotation: None,
+                                                                        loc: None,
+                                                                        range: SourceRange {
+                                                                            start: 422,
+                                                                            end: 426,
+                                                                        },
+                                                                    },
+                                                                ),
+                                                                type_parameters: None,
+                                                                loc: None,
+                                                                range: SourceRange {
+                                                                    start: 422,
+                                                                    end: 426,
+                                                                },
+                                                            },
+                                                        ),
+                                                        loc: None,
+                                                        range: SourceRange {
+                                                            start: 421,
+                                                            end: 426,
+                                                        },
+                                                    },
+                                                ),
+                                            ],
+                                            loc: None,
+                                            range: SourceRange {
+                                                start: 420,
+                                                end: 427,
+                                            },
+                                        },
+                                    ),
+                                    loc: None,
+                                    range: SourceRange {
+                                        start: 413,
+                                        end: 427,
+                                    },
+                                },
+                            ),
+                        ],
+                        loc: None,
+                        range: SourceRange {
+                            start: 412,
+                            end: 428,
+                        },
+                    },
+                ),
+                loc: None,
+                range: SourceRange {
+                    start: 407,
+                    end: 428,
+                },
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: generics.js:390:394,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 390,
+                            end: 394,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 390,
+                    end: 394,
                 },
-                optional: false,
             },
         ),
         is_live: Some(

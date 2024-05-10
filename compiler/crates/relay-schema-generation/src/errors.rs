@@ -31,10 +31,10 @@ pub enum SchemaGenerationError {
     ExpectedStringLiteralSource,
     #[error("Generic types not supported")]
     GenericNotSupported,
-    #[error("Plural types not supported")]
-    PluralNotSupported,
     #[error("Object types not supported")]
     ObjectNotSupported,
+    #[error("This type is not supported")]
+    UnsupportedType,
     #[error("Type aliases in Relay resolvers are expected to be object types")]
     ExpectedTypeAliasToBeObject,
     #[error("Expected object definition to include fields")]

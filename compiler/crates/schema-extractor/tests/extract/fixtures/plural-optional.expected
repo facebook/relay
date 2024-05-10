@@ -25,28 +25,67 @@ Strong(
             location: plural-optional.js:212:225,
             item: "plural_string",
         },
-        return_type: PluralType(
-            PluralType {
-                inner: NamedType(
-                    NamedType {
-                        identifier: WithLocation {
-                            location: plural-optional.js:245:251,
-                            item: "String",
+        return_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "Array",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 239,
+                            end: 244,
                         },
-                        optional: false,
                     },
                 ),
-                optional: false,
-                location: plural-optional.js:245:251,
+                type_parameters: Some(
+                    TypeParameterInstantiation {
+                        params: [
+                            StringTypeAnnotation(
+                                StringTypeAnnotation {
+                                    loc: None,
+                                    range: SourceRange {
+                                        start: 245,
+                                        end: 251,
+                                    },
+                                },
+                            ),
+                        ],
+                        loc: None,
+                        range: SourceRange {
+                            start: 244,
+                            end: 252,
+                        },
+                    },
+                ),
+                loc: None,
+                range: SourceRange {
+                    start: 239,
+                    end: 252,
+                },
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: plural-optional.js:232:236,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 232,
+                            end: 236,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 232,
+                    end: 236,
                 },
-                optional: false,
             },
         ),
         is_live: None,
@@ -59,28 +98,76 @@ Strong(
             location: plural-optional.js:276:298,
             item: "plural_optional_string",
         },
-        return_type: PluralType(
-            PluralType {
-                inner: NamedType(
-                    NamedType {
-                        identifier: WithLocation {
-                            location: plural-optional.js:319:325,
-                            item: "String",
+        return_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "Array",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 312,
+                            end: 317,
                         },
-                        optional: true,
                     },
                 ),
-                optional: false,
-                location: plural-optional.js:318:325,
+                type_parameters: Some(
+                    TypeParameterInstantiation {
+                        params: [
+                            NullableTypeAnnotation(
+                                NullableTypeAnnotation {
+                                    type_annotation: StringTypeAnnotation(
+                                        StringTypeAnnotation {
+                                            loc: None,
+                                            range: SourceRange {
+                                                start: 319,
+                                                end: 325,
+                                            },
+                                        },
+                                    ),
+                                    loc: None,
+                                    range: SourceRange {
+                                        start: 318,
+                                        end: 325,
+                                    },
+                                },
+                            ),
+                        ],
+                        loc: None,
+                        range: SourceRange {
+                            start: 317,
+                            end: 326,
+                        },
+                    },
+                ),
+                loc: None,
+                range: SourceRange {
+                    start: 312,
+                    end: 326,
+                },
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: plural-optional.js:305:309,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 305,
+                            end: 309,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 305,
+                    end: 309,
                 },
-                optional: false,
             },
         ),
         is_live: None,
@@ -93,28 +180,76 @@ Strong(
             location: plural-optional.js:350:372,
             item: "optional_plural_string",
         },
-        return_type: PluralType(
-            PluralType {
-                inner: NamedType(
-                    NamedType {
-                        identifier: WithLocation {
-                            location: plural-optional.js:393:399,
-                            item: "String",
+        return_type: NullableTypeAnnotation(
+            NullableTypeAnnotation {
+                type_annotation: GenericTypeAnnotation(
+                    GenericTypeAnnotation {
+                        id: Identifier(
+                            Identifier {
+                                name: "Array",
+                                binding: None,
+                                type_annotation: None,
+                                loc: None,
+                                range: SourceRange {
+                                    start: 387,
+                                    end: 392,
+                                },
+                            },
+                        ),
+                        type_parameters: Some(
+                            TypeParameterInstantiation {
+                                params: [
+                                    StringTypeAnnotation(
+                                        StringTypeAnnotation {
+                                            loc: None,
+                                            range: SourceRange {
+                                                start: 393,
+                                                end: 399,
+                                            },
+                                        },
+                                    ),
+                                ],
+                                loc: None,
+                                range: SourceRange {
+                                    start: 392,
+                                    end: 400,
+                                },
+                            },
+                        ),
+                        loc: None,
+                        range: SourceRange {
+                            start: 387,
+                            end: 400,
                         },
-                        optional: false,
                     },
                 ),
-                optional: true,
-                location: plural-optional.js:393:399,
+                loc: None,
+                range: SourceRange {
+                    start: 386,
+                    end: 400,
+                },
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: plural-optional.js:379:383,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 379,
+                            end: 383,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 379,
+                    end: 383,
                 },
-                optional: false,
             },
         ),
         is_live: None,
@@ -127,28 +262,85 @@ Strong(
             location: plural-optional.js:424:455,
             item: "optional_plural_optional_string",
         },
-        return_type: PluralType(
-            PluralType {
-                inner: NamedType(
-                    NamedType {
-                        identifier: WithLocation {
-                            location: plural-optional.js:477:483,
-                            item: "String",
+        return_type: NullableTypeAnnotation(
+            NullableTypeAnnotation {
+                type_annotation: GenericTypeAnnotation(
+                    GenericTypeAnnotation {
+                        id: Identifier(
+                            Identifier {
+                                name: "Array",
+                                binding: None,
+                                type_annotation: None,
+                                loc: None,
+                                range: SourceRange {
+                                    start: 470,
+                                    end: 475,
+                                },
+                            },
+                        ),
+                        type_parameters: Some(
+                            TypeParameterInstantiation {
+                                params: [
+                                    NullableTypeAnnotation(
+                                        NullableTypeAnnotation {
+                                            type_annotation: StringTypeAnnotation(
+                                                StringTypeAnnotation {
+                                                    loc: None,
+                                                    range: SourceRange {
+                                                        start: 477,
+                                                        end: 483,
+                                                    },
+                                                },
+                                            ),
+                                            loc: None,
+                                            range: SourceRange {
+                                                start: 476,
+                                                end: 483,
+                                            },
+                                        },
+                                    ),
+                                ],
+                                loc: None,
+                                range: SourceRange {
+                                    start: 475,
+                                    end: 484,
+                                },
+                            },
+                        ),
+                        loc: None,
+                        range: SourceRange {
+                            start: 470,
+                            end: 484,
                         },
-                        optional: true,
                     },
                 ),
-                optional: true,
-                location: plural-optional.js:476:483,
+                loc: None,
+                range: SourceRange {
+                    start: 469,
+                    end: 484,
+                },
             },
         ),
-        entity_type: NamedType(
-            NamedType {
-                identifier: WithLocation {
-                    location: plural-optional.js:462:466,
-                    item: "User",
+        entity_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "User",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 462,
+                            end: 466,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 462,
+                    end: 466,
                 },
-                optional: false,
             },
         ),
         is_live: None,

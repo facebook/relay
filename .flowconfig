@@ -17,7 +17,6 @@ module.system.haste.paths.excludes=.*/__mocks__/.*
 module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 munge_underscores=true
-experimental.global_find_ref=true
 ; https://fburl.com/code/h2jnts20 - to match internval value
 
 suppress_type=$FlowIssue

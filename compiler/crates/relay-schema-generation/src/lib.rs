@@ -29,6 +29,7 @@ use docblock_shared::ResolverSourceHash;
 use docblock_syntax::parse_docblock;
 use errors::SchemaGenerationError;
 use graphql_ir::FragmentDefinitionName;
+use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::ListTypeAnnotation;
@@ -134,6 +135,7 @@ impl RelayResolverExtractor {
         &mut self,
         text: &str,
         source_module_path: &str,
+        fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
     ) -> DiagnosticsResult<()> {
         // Assume the caller knows the text contains at least one RelayResolver decorator
 
@@ -204,14 +206,26 @@ impl RelayResolverExtractor {
                                 is_lowercase_initial || name_str.contains('.')
                             };
                             if is_field_definition {
-                                self.add_unresolved_field_definition(
+                                let entity_name = match entity_type {
+                                    FlowType::NamedType(named_type) => named_type.identifier,
+                                    _ => {
+                                        return Err(vec![Diagnostic::error(
+                                            SchemaGenerationError::GenericNotSupported,
+                                            entity_type.location(),
+                                        )]);
+                                    }
+                                };
+                                self.add_field_definition(
                                     &imports,
-                                    name,
-                                    entity_type,
-                                    return_type,
-                                    source_hash,
-                                    is_live,
-                                )
+                                    fragment_definitions,
+                                    UnresolvedFieldDefinition {
+                                        entity_name,
+                                        field_name: name,
+                                        return_type,
+                                        source_hash,
+                                        is_live,
+                                    },
+                                )?
                             } else {
                                 self.add_type_definition(
                                     &imports,
@@ -219,7 +233,7 @@ impl RelayResolverExtractor {
                                     return_type,
                                     source_hash,
                                     is_live,
-                                )
+                                )?
                             }
                         }
                         ResolverFlowData::Weak(WeakObjectData {
@@ -232,9 +246,10 @@ impl RelayResolverExtractor {
                                 type_alias,
                                 source_hash,
                                 source_module_path,
-                            )
+                            )?
                         }
                     }
+                    Ok(())
                 }),
         )?;
         Ok(())
@@ -293,47 +308,40 @@ impl RelayResolverExtractor {
         ))
     }
 
-    fn add_unresolved_field_definition(
+    fn add_field_definition(
         &mut self,
         imports: &FxHashMap<StringKey, (ModuleResolutionKey, Location)>,
-        field_name: WithLocation<StringKey>,
-        entity_type: FlowType,
-        return_type: FlowType,
-        source_hash: ResolverSourceHash,
-        is_live: Option<Location>,
+        fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
+        field_definition: UnresolvedFieldDefinition,
     ) -> DiagnosticsResult<()> {
-        let entity_name = match entity_type {
-            FlowType::NamedType(named_type) => named_type.identifier,
-            _ => {
-                return Err(vec![Diagnostic::error(
-                    SchemaGenerationError::GenericNotSupported,
-                    entity_type.location(),
-                )]);
-            }
-        };
-
-        let (key, _): &(ModuleResolutionKey, Location) =
-            imports.get(&entity_name.item).ok_or_else(|| {
+        let (key, _): &(ModuleResolutionKey, Location) = imports
+            .get(&field_definition.entity_name.item)
+            .ok_or_else(|| {
                 Diagnostic::error(
                     SchemaGenerationError::ExpectedFlowImportForType {
-                        name: entity_name.item,
+                        name: field_definition.entity_name.item,
                     },
-                    entity_name.location,
+                    field_definition.entity_name.location,
                 )
             })?;
 
-        self.unresolved_field_definitions.push((
-            key.clone(),
-            UnresolvedFieldDefinition {
-                entity_name,
-                field_name,
-                return_type,
-                source_hash,
-                is_live,
-            },
-        ));
-
+        if key.module_name.lookup().ends_with(".graphql")
+            && field_definition.entity_name.item.lookup().ends_with("$key")
+        {
+            self.add_fragment_field_definition(fragment_definitions, field_definition)
+        } else {
+            self.unresolved_field_definitions
+                .push((key.clone(), field_definition));
+        }
         Ok(())
+    }
+
+    fn add_fragment_field_definition(
+        &mut self,
+        _fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
+        _field_definition: UnresolvedFieldDefinition,
+    ) {
+        // TODO
     }
 
     fn add_type_definition(

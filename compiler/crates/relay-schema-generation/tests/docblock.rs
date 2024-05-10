@@ -31,7 +31,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let project_fixture = ProjectFixture::deserialize(fixture.content);
 
     project_fixture.files().iter().for_each(|(path, content)| {
-        if let Err(err) = extractor.parse_document(content, path.to_string_lossy().as_ref()) {
+        if let Err(err) = extractor.parse_document(content, path.to_string_lossy().as_ref(), &None)
+        {
             errors.extend(err);
         }
     });

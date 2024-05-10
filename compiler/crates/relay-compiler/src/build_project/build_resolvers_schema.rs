@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
+
 use common::DiagnosticsResult;
 use common::Span;
 use docblock_syntax::DocblockAST;
@@ -26,6 +28,7 @@ use relay_config::ProjectName;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::DocblockIr;
 use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
+use rustc_hash::FxHashMap;
 use schema::SDLSchema;
 
 use crate::compiler_state::CompilerState;
@@ -54,9 +57,11 @@ pub(crate) fn extend_schema_with_resolvers(
 
     let (types_ir, fields_ir) = {
         match &config.custom_extract_relay_resolvers {
-            Some(custom_extract_relay_resolvers) => {
-                custom_extract_relay_resolvers(project_config.name, compiler_state)?
-            }
+            Some(custom_extract_relay_resolvers) => custom_extract_relay_resolvers(
+                project_config.name,
+                compiler_state,
+                &field_asts_and_definitions.0,
+            )?,
             None => (vec![], vec![]),
         }
     };
@@ -86,9 +91,11 @@ pub(crate) fn extend_schema_with_resolvers(
 
         let (types_ir, fields_ir) = {
             match &config.custom_extract_relay_resolvers {
-                Some(custom_extract_relay_resolvers) => {
-                    custom_extract_relay_resolvers(base_project_name, compiler_state)?
-                }
+                Some(custom_extract_relay_resolvers) => custom_extract_relay_resolvers(
+                    base_project_name,
+                    compiler_state,
+                    &field_asts_and_definitions.0,
+                )?,
                 None => (vec![], vec![]),
             }
         };
@@ -153,7 +160,7 @@ fn extend_schema_with_fields(
     is_base_project: bool,
 ) -> DiagnosticsResult<()> {
     let field_definitions = try_all(field_asts_and_definitions.0.into_iter().map(
-        |(asts, definitions)| {
+        |(_, (asts, definitions))| {
             build_schema_documents_from_docblocks(&asts, project_config, schema, definitions)
         },
     ))?;
@@ -196,7 +203,9 @@ struct ResolverSchemaDocuments<'a> {
     field_asts_and_definitions: FieldAstsAndDefinitions<'a>,
 }
 struct TypeAsts(Vec<DocblockAST>);
-struct FieldAstsAndDefinitions<'a>(Vec<(Vec<DocblockAST>, Option<&'a Vec<ExecutableDefinition>>)>);
+struct FieldAstsAndDefinitions<'a>(
+    FxHashMap<&'a PathBuf, (Vec<DocblockAST>, Option<&'a Vec<ExecutableDefinition>>)>,
+);
 
 fn extract_schema_documents_for_resolvers<'a>(
     project_name: &'a ProjectName,
@@ -209,10 +218,10 @@ fn extract_schema_documents_for_resolvers<'a>(
     );
     let mut errors = vec![];
     let mut type_asts = vec![];
-    let mut field_asts_and_definitions = vec![];
+    let mut field_asts_and_definitions = FxHashMap::default();
 
     if let (Some(docblocks), Some(graphql_asts)) = docblock_ast_sources {
-        for (file_path, docblock_sources) in &docblocks.get_all() {
+        for (file_path, docblock_sources) in docblocks.get_all() {
             match parse_docblock_asts_from_sources(file_path, docblock_sources) {
                 Ok(result) => {
                     // Type resolvers should not rely on any fragments
@@ -225,10 +234,13 @@ fn extract_schema_documents_for_resolvers<'a>(
                     // And here we're reading GraphQL asts for the file,
                     // and keeping them together with Docblock ASTs
                     if !result.fields.is_empty() {
-                        field_asts_and_definitions.push((
-                            result.fields,
-                            graphql_asts.get_executable_definitions_for_file(file_path),
-                        ));
+                        field_asts_and_definitions.insert(
+                            file_path,
+                            (
+                                result.fields,
+                                graphql_asts.get_executable_definitions_for_file(file_path),
+                            ),
+                        );
                     }
                 }
                 Err(err) => errors.extend(err),

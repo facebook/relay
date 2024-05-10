@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<259c085b2741cc09797b460375d7d146>>
+ * @generated SignedSource<<efdfc991713e0b8adfedec168c7a62ca>>
  */
 
 mod docblock;
@@ -59,6 +59,13 @@ async fn plural_optional() {
     let input = include_str!("docblock/fixtures/plural-optional.input");
     let expected = include_str!("docblock/fixtures/plural-optional.expected");
     test_fixture(transform_fixture, file!(), "plural-optional.input", "docblock/fixtures/plural-optional.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn root_fragment() {
+    let input = include_str!("docblock/fixtures/root-fragment.input");
+    let expected = include_str!("docblock/fixtures/root-fragment.expected");
+    test_fixture(transform_fixture, file!(), "root-fragment.input", "docblock/fixtures/root-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

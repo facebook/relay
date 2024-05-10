@@ -264,12 +264,14 @@ pub fn build_resolvers_schema(
             }
         }
         if !fields.is_empty() {
+            fields.sort_by_key(|field| field.key);
             map.push(ObjectEntry {
                 key: object.name.item.0,
                 value: Primitive::Key(ast_builder.intern(Ast::Object(fields))),
             })
         }
     }
+    map.sort_by_key(|field| field.key);
 
     ast_builder.intern(Ast::Object(map))
 }

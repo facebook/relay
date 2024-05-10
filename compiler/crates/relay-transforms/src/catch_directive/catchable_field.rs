@@ -27,6 +27,7 @@ pub struct CatchMetadata {
     pub to_location: Location,
 }
 
+#[allow(dead_code)]
 pub trait CatchableField {
     fn directives(&self) -> &Vec<Directive>;
     fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey>;

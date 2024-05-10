@@ -31,6 +31,7 @@ use errors::SchemaGenerationError;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinition;
+use graphql_syntax::FragmentDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::ListTypeAnnotation;
 use graphql_syntax::NamedTypeAnnotation;
@@ -328,7 +329,7 @@ impl RelayResolverExtractor {
         if key.module_name.lookup().ends_with(".graphql")
             && field_definition.entity_name.item.lookup().ends_with("$key")
         {
-            self.add_fragment_field_definition(fragment_definitions, field_definition)
+            self.add_fragment_field_definition(fragment_definitions, field_definition)?
         } else {
             self.unresolved_field_definitions
                 .push((key.clone(), field_definition));
@@ -338,10 +339,75 @@ impl RelayResolverExtractor {
 
     fn add_fragment_field_definition(
         &mut self,
-        _fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
-        _field_definition: UnresolvedFieldDefinition,
-    ) {
-        // TODO
+        fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
+        field: UnresolvedFieldDefinition,
+    ) -> DiagnosticsResult<()> {
+        let field_definition = FieldDefinition {
+            name: string_key_to_identifier(field.field_name),
+            type_: return_type_to_type_annotation(field.return_type)?,
+            arguments: None,
+            directives: vec![],
+            description: None,
+            hack_source: None,
+            span: field.field_name.location.span(),
+        };
+        let fragment_definition =
+            self.parse_fragment_definition(&field.entity_name, fragment_definitions)?;
+        let fragment_type_condition = WithLocation::from_span(
+            fragment_definition.location.source_location(),
+            fragment_definition.type_condition.span,
+            fragment_definition.type_condition.type_.value,
+        );
+        let live = field
+            .is_live
+            .map(|loc| UnpopulatedIrField { key_location: loc });
+        self.resolved_field_definitions.push(TerseRelayResolverIr {
+            field: field_definition,
+            type_: fragment_type_condition,
+            root_fragment: Some(field.entity_name.map(FragmentDefinitionName)), // this includes the $key
+            location: field.field_name.location,
+            deprecated: None,
+            live,
+            fragment_arguments: None, // We don't support arguments right now
+            source_hash: field.source_hash,
+            semantic_non_null: None,
+        });
+        Ok(())
+    }
+
+    // Most of this code is copied from docblock.ir
+    // find a way to share it?
+    fn parse_fragment_definition<'a>(
+        &self,
+        fragment_key: &WithLocation<StringKey>,
+        definitions: &Option<&'a Vec<ExecutableDefinition>>,
+    ) -> DiagnosticsResult<&'a FragmentDefinition> {
+        let fragment_name = fragment_key.item.lookup().strip_suffix("$key").unwrap();
+        let fragment_definition = definitions.and_then(|defs| {
+            defs.iter().find(|item| {
+                if let ExecutableDefinition::Fragment(fragment) = item {
+                    fragment.name.value.lookup() == fragment_name
+                } else {
+                    false
+                }
+            })
+        });
+
+        if let Some(ExecutableDefinition::Fragment(fragment_definition)) = fragment_definition {
+            Ok(fragment_definition)
+        } else {
+            let suggestions = definitions
+                .map(|defs| defs.iter().filter_map(|def| def.name()).collect::<Vec<_>>())
+                .unwrap_or_default();
+
+            Err(vec![Diagnostic::error(
+                SchemaGenerationError::FragmentNotFound {
+                    fragment_name: fragment_key.item,
+                    suggestions,
+                },
+                fragment_key.location,
+            )])
+        }
     }
 
     fn add_type_definition(

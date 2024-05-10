@@ -7,10 +7,18 @@
 
 //- module.js
 
+import type Cat from 'Cat.js';
+import type {CatIsHungryFragment$key} from 'CatIsHungryFragment.graphql';
+
 import {graphql} from 'relay-runtime';
 import {readFragment} from 'relay-runtime/store/ResolverFragments';
 
-import type {CatIsHungryFragment$key} from 'CatIsHungryFragment.graphql';
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): Cat {
+  return {}
+}
 
 /**
  * @RelayResolver

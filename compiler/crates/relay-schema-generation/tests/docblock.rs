@@ -11,8 +11,10 @@ use std::sync::Arc;
 use common::Diagnostic;
 use common::SourceLocationKey;
 use common::TextSource;
+use extract_graphql::JavaScriptSourceFeature;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
+use graphql_syntax::ExecutableDefinition;
 use graphql_test_helpers::ProjectFixture;
 use intern::Lookup;
 use relay_config::ProjectName;
@@ -31,8 +33,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let project_fixture = ProjectFixture::deserialize(fixture.content);
 
     project_fixture.files().iter().for_each(|(path, content)| {
-        if let Err(err) = extractor.parse_document(content, path.to_string_lossy().as_ref(), &None)
-        {
+        let gql_operations = parse_document_definitions(content, path);
+        if let Err(err) = extractor.parse_document(
+            content,
+            path.to_string_lossy().as_ref(),
+            &Some(&gql_operations),
+        ) {
             errors.extend(err);
         }
     });
@@ -84,6 +90,28 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
     out.sort();
     Ok(out.join("\n\n") + "\n\n" + &err)
+}
+
+fn parse_document_definitions(content: &str, path: &Path) -> Vec<ExecutableDefinition> {
+    let features = extract_graphql::extract(content);
+    features
+        .into_iter()
+        .filter_map(|feature| {
+            if let JavaScriptSourceFeature::GraphQL(graphql_source) = feature {
+                Some(graphql_source.to_text_source().text)
+            } else {
+                None
+            }
+        })
+        .flat_map(|query_text| {
+            graphql_syntax::parse_executable(
+                &query_text,
+                SourceLocationKey::standalone(path.to_str().unwrap()),
+            )
+            .unwrap()
+            .definitions
+        })
+        .collect()
 }
 
 fn diagnostics_to_sorted_string(fixtures: &ProjectFixture, diagnostics: &[Diagnostic]) -> String {

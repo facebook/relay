@@ -42,6 +42,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: website/yarn.lock
+
+      - name: Set up Docusaurus Build Cache
+        id: cache-docusaurus
+        uses: actions/cache@v4
+        with:
+          path: |
+            website/node_modules/.cache
+            website/.docusaurus
+          key: "docusaurus-build-${{ hashFiles('website/yarn.lock') }}"
+
       - name: Download Compiler Explorer
         uses: actions/download-artifact@v4
         with:

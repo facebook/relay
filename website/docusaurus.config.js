@@ -208,14 +208,8 @@ module.exports = {
       require.resolve('docusaurus-plugin-internaldocs-fb/docusaurus-preset'),
       {
         docs: {
-          showLastUpdateAuthor: fbContent({
-            internal: false,
-            external: true,
-          }),
-          showLastUpdateTime: fbContent({
-            internal: false,
-            external: true,
-          }),
+          showLastUpdateAuthor: false,
+          showLastUpdateTime: false,
           editUrl: fbContent({
             internal:
               'https://www.internalfb.com/intern/diffusion/FBS/browse/master/xplat/js/RKJSModules/Libraries/Relay/oss/__github__/website/',

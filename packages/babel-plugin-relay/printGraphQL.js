@@ -27,7 +27,7 @@ const printDocASTReducer: any = {
 
   // Document
 
-  Document: (node) => join(node.definitions, '\n\n') + '\n',
+  Document: (node) => join(node.definitions, '\n') + '\n',
 
   OperationDefinition(node) {
     const op = node.operation;

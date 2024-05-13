@@ -22,7 +22,7 @@ function optional_plural_optional_string(user: User): ?Array<?string> {}
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: plural-optional.js:212:225,
+            location: <generated>:212:225,
             item: "plural_string",
         },
         return_type: GenericTypeAnnotation(
@@ -95,7 +95,7 @@ Strong(
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: plural-optional.js:276:298,
+            location: <generated>:276:298,
             item: "plural_optional_string",
         },
         return_type: GenericTypeAnnotation(
@@ -177,7 +177,7 @@ Strong(
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: plural-optional.js:350:372,
+            location: <generated>:350:372,
             item: "optional_plural_string",
         },
         return_type: NullableTypeAnnotation(
@@ -259,7 +259,7 @@ Strong(
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: plural-optional.js:424:455,
+            location: <generated>:424:455,
             item: "optional_plural_optional_string",
         },
         return_type: NullableTypeAnnotation(

@@ -39,6 +39,7 @@ crates/relay-docblock/tests/to_schema
 crates/relay-lsp/tests/find_field_usages
 crates/relay-lsp/tests/hover
 crates/relay-schema-generation/tests/docblock
+crates/relay-schema-generation/tests/extract
 crates/relay-transforms/tests/apply_fragment_arguments
 crates/relay-transforms/tests/assignable_directive
 crates/relay-transforms/tests/assignable_fragment_spread
@@ -98,5 +99,4 @@ crates/relay-typegen/tests/generate_flow_with_custom_id
 crates/relay-typegen/tests/generate_typescript
 crates/schema-print/tests/print_schema
 crates/schema-validate/tests/validate_schema
-crates/schema-extractor/tests/extract
 crates/schema/tests/build_schema

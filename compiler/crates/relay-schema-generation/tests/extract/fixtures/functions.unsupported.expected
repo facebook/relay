@@ -21,7 +21,7 @@ function name(user: User): Genric<boolean, string> {
 ==================================== OUTPUT ===================================
 ✖︎ Expected to have at least one function parameter
 
-  functions.unsupported.js:10:1
+  <generated>:10:1
     8 │ 
     9 │ //extract
    10 │ function name(): string {
@@ -33,16 +33,16 @@ function name(user: User): Genric<boolean, string> {
 
 ✖︎ Unsupported type
 
-  functions.unsupported.js:14:28
+  <generated>:14:28
    13 │ //extract
    14 │ function name(user: User): User.Name {
       │                            ^^^^^^^^^
    15 │ }
 
 
-✖︎ Unsupported type
+✖︎ This type is not supported
 
-  functions.unsupported.js:18:28
+  <generated>:18:28
    17 │ //extract
    18 │ function name(user: User): Genric<boolean, string> {
       │                            ^^^^^^^^^^^^^^^^^^^^^^^

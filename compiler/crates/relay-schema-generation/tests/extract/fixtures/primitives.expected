@@ -18,7 +18,7 @@ function string(user: User): string {}
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: primitives.js:211:213,
+            location: <generated>:211:213,
             item: "id",
         },
         return_type: GenericTypeAnnotation(
@@ -72,7 +72,7 @@ Strong(
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: primitives.js:253:259,
+            location: <generated>:253:259,
             item: "number",
         },
         return_type: NumberTypeAnnotation(
@@ -113,7 +113,7 @@ Strong(
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: primitives.js:303:309,
+            location: <generated>:303:309,
             item: "string",
         },
         return_type: StringTypeAnnotation(

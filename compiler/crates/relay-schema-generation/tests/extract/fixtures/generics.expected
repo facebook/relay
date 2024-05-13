@@ -18,7 +18,7 @@ function live_array_generic_optinal_user(user: User): LiveState<Array<Generic<?U
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: generics.js:211:220,
+            location: <generated>:211:220,
             item: "live_user",
         },
         return_type: GenericTypeAnnotation(
@@ -66,7 +66,7 @@ Strong(
             },
         ),
         is_live: Some(
-            generics.js:234:249,
+            <generated>:234:249,
         ),
     },
 )
@@ -74,7 +74,7 @@ Strong(
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: generics.js:273:290,
+            location: <generated>:273:290,
             item: "live_generic_user",
         },
         return_type: GenericTypeAnnotation(
@@ -154,7 +154,7 @@ Strong(
             },
         ),
         is_live: Some(
-            generics.js:304:328,
+            <generated>:304:328,
         ),
     },
 )
@@ -162,7 +162,7 @@ Strong(
 Strong(
     FieldData {
         field_name: WithLocation {
-            location: generics.js:352:383,
+            location: <generated>:352:383,
             item: "live_array_generic_optinal_user",
         },
         return_type: GenericTypeAnnotation(
@@ -283,7 +283,7 @@ Strong(
             },
         ),
         is_live: Some(
-            generics.js:397:429,
+            <generated>:397:429,
         ),
     },
 )

@@ -42,10 +42,14 @@ use graphql_syntax::TypeAnnotation;
 use hermes_comments::find_nodes_after_comments;
 use hermes_estree::Declaration;
 use hermes_estree::FlowTypeAnnotation;
+use hermes_estree::Function;
 use hermes_estree::ImportDeclarationSpecifier;
 use hermes_estree::Node;
+use hermes_estree::Pattern;
 use hermes_estree::Range;
 use hermes_estree::SourceRange;
+use hermes_estree::TypeAlias;
+use hermes_estree::TypeAnnotationEnum;
 use hermes_estree::Visitor;
 use hermes_estree::_Literal;
 use hermes_parser::parse;
@@ -58,10 +62,33 @@ use relay_docblock::TerseRelayResolverIr;
 use relay_docblock::UnpopulatedIrField;
 use relay_docblock::WeakObjectIr;
 use rustc_hash::FxHashMap;
-use schema_extractor::FieldData;
-use schema_extractor::ResolverFlowData;
 use schema_extractor::SchemaExtractor;
-use schema_extractor::WeakObjectData;
+
+pub static LIVE_FLOW_TYPE_NAME: &str = "LiveState";
+
+/**
+ * Reprensents a subset of supported Flow type definitions
+ */
+#[derive(Debug)]
+pub enum ResolverFlowData {
+    Strong(FieldData), // strong object or field on an object
+    Weak(WeakObjectData),
+}
+
+#[derive(Debug)]
+pub struct FieldData {
+    pub field_name: WithLocation<StringKey>,
+    pub return_type: FlowTypeAnnotation,
+    pub entity_type: FlowTypeAnnotation,
+    pub is_live: Option<Location>,
+    // TODO: args
+}
+
+#[derive(Debug)]
+pub struct WeakObjectData {
+    pub field_name: WithLocation<StringKey>,
+    pub type_alias: FlowTypeAnnotation,
+}
 
 pub struct RelayResolverExtractor {
     /// Cross module states
@@ -577,6 +604,110 @@ impl RelayResolverExtractor {
                 self.to_location(&type_alias),
             )])
         }
+    }
+
+    pub fn extract_function(&self, node: &Function) -> DiagnosticsResult<ResolverFlowData> {
+        let ident = node.id.as_ref().ok_or_else(|| {
+            Diagnostic::error(
+                SchemaGenerationError::MissingFunctionName,
+                self.to_location(node),
+            )
+        })?;
+        let field_name = WithLocation {
+            item: (&ident.name).intern(),
+            location: self.to_location(ident),
+        };
+
+        let return_type_annotation = node.return_type.as_ref().ok_or_else(|| {
+            Diagnostic::error(
+                SchemaGenerationError::MissingReturnType,
+                self.to_location(node),
+            )
+        })?;
+        let flow_return_type = self.unwrap_annotation_enum(return_type_annotation)?;
+        let (return_type_with_live, is_optional) =
+            schema_extractor::unwrap_nullable_type(flow_return_type);
+
+        // unwrap is_live from the return type
+        let (return_type, is_live) = match return_type_with_live {
+            FlowTypeAnnotation::GenericTypeAnnotation(type_node) => {
+                let name = schema_extractor::get_identifier_for_flow_generic(WithLocation {
+                    item: type_node,
+                    location: self.to_location(type_node.as_ref()),
+                })?;
+                if let Some(type_param) = &type_node.type_parameters {
+                    match type_param.params.as_slice() {
+                        [param] => {
+                            if name.item.lookup() == LIVE_FLOW_TYPE_NAME {
+                                if is_optional {
+                                    return Err(vec![Diagnostic::error(
+                                        SchemaGenerationError::NoOptionalLiveType,
+                                        name.location,
+                                    )]);
+                                }
+                                (param, Some(name.location))
+                            } else {
+                                (flow_return_type, None)
+                            }
+                        }
+                        _ => {
+                            // Does not support multiple type params for now
+                            return self.error_result(
+                                SchemaGenerationError::UnsupportedType,
+                                type_node.as_ref(),
+                            );
+                        }
+                    }
+                } else {
+                    (flow_return_type, None)
+                }
+            }
+            FlowTypeAnnotation::StringTypeAnnotation(_) => (flow_return_type, None),
+            FlowTypeAnnotation::NumberTypeAnnotation(_) => (flow_return_type, None),
+            _ => {
+                // Only support named types in function returns
+                return self.error_result(SchemaGenerationError::UnsupportedType, flow_return_type);
+            }
+        };
+
+        if node.params.is_empty() {
+            return self.error_result(SchemaGenerationError::MissingFunctionParam, node);
+        }
+        let param = &node.params[0];
+        let entity_type = if let Pattern::Identifier(identifier) = param {
+            let type_annotation = identifier.type_annotation.as_ref().ok_or_else(|| {
+                Diagnostic::error(
+                    SchemaGenerationError::MissingParamType,
+                    self.to_location(param),
+                )
+            })?;
+            if let TypeAnnotationEnum::FlowTypeAnnotation(type_) = &type_annotation.type_annotation
+            {
+                type_
+            } else {
+                return self.error_result(SchemaGenerationError::UnsupportedType, param);
+            }
+        } else {
+            return self.error_result(SchemaGenerationError::UnsupportedType, param);
+        };
+
+        Ok(ResolverFlowData::Strong(FieldData {
+            field_name,
+            return_type: return_type.clone(),
+            entity_type: entity_type.clone(),
+            is_live,
+        }))
+    }
+
+    fn extract_type_alias(&self, node: &TypeAlias) -> DiagnosticsResult<WeakObjectData> {
+        let field_name = WithLocation {
+            item: (&node.id.name).intern(),
+            location: self.to_location(&node.id),
+        };
+        Ok(WeakObjectData {
+            field_name,
+            type_alias: node.right.clone(),
+        })
     }
 
     fn extract_graphql_types(

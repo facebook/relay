@@ -8,7 +8,6 @@
 use std::sync::Arc;
 
 use common::ConsoleLogger;
-use common::DiagnosticsResult;
 use common::FeatureFlag;
 use common::FeatureFlags;
 use common::ScalarName;
@@ -28,44 +27,20 @@ use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
-use relay_schema::build_schema_with_extensions;
-use relay_test_schema::TEST_SCHEMA_DATA;
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
-use schema::transform_semantic_non_null::transform_semantic_non_null;
-use schema::SDLSchema;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
-        [source, extensions] => {
-            let mut schema = build_schema_with_extensions(
-                &[(TEST_SCHEMA_DATA, SourceLocationKey::generated())],
-                &[(extensions, SourceLocationKey::generated())],
-            )
-            .expect("Expected test schema (and extensions) to be valid");
-
-            maybe_transform_semantic_non_null(&mut schema, fixture)
-                .expect("Expected to be able to transform semantic non-null to non-null");
-
-            (source, Arc::new(schema))
-        }
-        [source] => {
-            let mut schema = build_schema_with_extensions::<_, &str>(
-                &[(TEST_SCHEMA_DATA, SourceLocationKey::generated())],
-                &[],
-            )
-            .expect("Expected test schema (and extensions) to be valid");
-
-            maybe_transform_semantic_non_null(&mut schema, fixture)
-                .expect("Expected to be able to transform semantic non-null to non-null");
-
-            (source, Arc::new(schema))
-        }
+        [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
+        [source] => (source, get_test_schema()),
         _ => panic!(),
     };
 
@@ -165,17 +140,4 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     result.extend(fragment_strings);
     Ok(result
         .join("-------------------------------------------------------------------------------\n"))
-}
-
-fn maybe_transform_semantic_non_null(
-    schema: &mut SDLSchema,
-    fixture: &Fixture<'_>,
-) -> DiagnosticsResult<()> {
-    if fixture
-        .content
-        .contains("# relay:experimental_emit_semantic_nullability_types")
-    {
-        transform_semantic_non_null(schema)?;
-    }
-    Ok(())
 }

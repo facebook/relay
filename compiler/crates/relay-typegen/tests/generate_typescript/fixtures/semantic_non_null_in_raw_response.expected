@@ -18,29 +18,29 @@ export type MyQuery$variables = Record<PropertyKey, never>;
 export type MyQuery$data = {
   readonly opera: {
     readonly cast: ReadonlyArray<{
-      readonly character: string;
+      readonly character: string | null | undefined;
       readonly singer: {
         readonly name: string | null | undefined;
-      };
-    }>;
+      } | null | undefined;
+    } | null | undefined> | null | undefined;
     readonly composer: {
       readonly name: string | null | undefined;
-    };
+    } | null | undefined;
   } | null | undefined;
 };
 export type MyQuery$rawResponse = {
   readonly opera?: {
     readonly cast: ReadonlyArray<{
-      readonly character: string;
+      readonly character: string | null | undefined;
       readonly singer: {
         readonly id: string;
         readonly name: string | null | undefined;
-      };
-    }>;
+      } | null | undefined;
+    } | null | undefined> | null | undefined;
     readonly composer: {
       readonly id: string;
       readonly name: string | null | undefined;
-    };
+    } | null | undefined;
   } | null | undefined;
 };
 export type MyQuery = {

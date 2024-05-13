@@ -33,7 +33,7 @@ import clientUserBestFriendResolverType from "bar";
 export type MyFragment$data = {
   readonly best_friend: {
     readonly name: string | null | undefined;
-  };
+  } | null | undefined;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

@@ -33,7 +33,7 @@ import clientUserBlobResolverType from "bar";
 export type MyFragment$data = {
   readonly blob: {
     readonly data: string | null | undefined;
-  };
+  } | null | undefined;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

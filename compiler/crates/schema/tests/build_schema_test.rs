@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e5c8ee2b66aebfae996ae9800a9a2786>>
+ * @generated SignedSource<<0cd59a6b663edc7d714c28b2f3a05b96>>
  */
 
 mod build_schema;
@@ -143,11 +143,4 @@ async fn kitchen_sink() {
     let input = include_str!("build_schema/fixtures/kitchen-sink.graphql");
     let expected = include_str!("build_schema/fixtures/kitchen-sink.expected");
     test_fixture(transform_fixture, file!(), "kitchen-sink.graphql", "build_schema/fixtures/kitchen-sink.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_fields() {
-    let input = include_str!("build_schema/fixtures/semantic-non-null-fields.graphql");
-    let expected = include_str!("build_schema/fixtures/semantic-non-null-fields.expected");
-    test_fixture(transform_fixture, file!(), "semantic-non-null-fields.graphql", "build_schema/fixtures/semantic-non-null-fields.expected", input, expected).await;
 }

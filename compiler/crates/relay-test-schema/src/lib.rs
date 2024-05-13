@@ -16,8 +16,8 @@ use lazy_static::lazy_static;
 use relay_schema::build_schema_with_extensions;
 use schema::SDLSchema;
 
-pub const TEST_SCHEMA_DATA: &str = include_str!("testschema.graphql");
-pub const TEST_SCHEMA_WITH_CUSTOM_ID_DATA: &str = include_str!("testschema_with_custom_id.graphql");
+const TEST_SCHEMA_DATA: &str = include_str!("testschema.graphql");
+const TEST_SCHEMA_WITH_CUSTOM_ID_DATA: &str = include_str!("testschema_with_custom_id.graphql");
 
 lazy_static! {
     pub static ref TEST_SCHEMA: Arc<SDLSchema> = Arc::new(

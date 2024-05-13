@@ -15,7 +15,6 @@ use graphql_cli::DiagnosticPrinter;
 use schema::build_schema_from_flat_buffer;
 use schema::build_schema_with_extensions;
 use schema::serialize_as_flatbuffer;
-use schema::transform_semantic_non_null::transform_semantic_non_null;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -46,16 +45,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     };
 
     result
-        .map(|mut schema| {
-            if fixture
-                .content
-                .contains("# relay:experimental_emit_semantic_nullability_types")
-            {
-                transform_semantic_non_null(&mut schema)
-                    .expect("Failed to transform semanticNonNull in schema");
-            }
-            print_schema_and_flat_buffer_schema(schema)
-        })
+        .map(print_schema_and_flat_buffer_schema)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }
 

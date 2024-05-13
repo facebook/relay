@@ -17,27 +17,27 @@ query MyQuery @raw_response_type {
 export type MyQuery$variables = {||};
 export type MyQuery$data = {|
   +opera: ?{|
-    +cast: $ReadOnlyArray<{|
-      +character: string,
-      +singer: {|
+    +cast: ?$ReadOnlyArray<?{|
+      +character: ?string,
+      +singer: ?{|
         +name: ?string,
       |},
     |}>,
-    +composer: {|
+    +composer: ?{|
       +name: ?string,
     |},
   |},
 |};
 export type MyQuery$rawResponse = {|
   +opera?: ?{|
-    +cast: $ReadOnlyArray<{|
-      +character: string,
-      +singer: {|
+    +cast: ?$ReadOnlyArray<?{|
+      +character: ?string,
+      +singer: ?{|
         +id: string,
         +name: ?string,
       |},
     |}>,
-    +composer: {|
+    +composer: ?{|
       +id: string,
       +name: ?string,
     |},

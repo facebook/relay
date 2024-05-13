@@ -12,7 +12,7 @@ type ClientUser {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type MyFragment$data = {
-  readonly favorite_numbers: ReadonlyArray<number>;
+  readonly favorite_numbers: ReadonlyArray<number | null | undefined> | null | undefined;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

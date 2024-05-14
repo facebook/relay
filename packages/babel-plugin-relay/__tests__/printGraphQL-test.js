@@ -7,12 +7,12 @@
 
 const print = require('../printGraphQL');
 
-const { parse } = require('graphql');
+const {parse} = require('graphql');
 const path = require('path');
 const fs = require('fs');
 
-type OutputFixture = { name: string, input: string, output: string };
-type ErrorFixture = { name: string, input: string, error: string };
+type OutputFixture = {name: string, input: string, output: string};
+type ErrorFixture = {name: string, input: string, error: string};
 type PrinterFixture = OutputFixture | ErrorFixture;
 
 describe('printGraphQL', () => {
@@ -21,9 +21,12 @@ describe('printGraphQL', () => {
     // object key format doesn't work
     .map(fixture => [fixture.name, fixture.input, fixture.output]);
 
-  it.each(outputFixtures)('tests printer idempotence: %s', (_name, input, expected) => {
-    expect(print(parse(input))).toEqual(expected);
-  });
+  it.each(outputFixtures)(
+    'tests printer idempotence: %s',
+    (_name, input, expected) => {
+      expect(print(parse(input))).toEqual(expected);
+    },
+  );
 });
 
 function loadPrinterFixtures(): PrinterFixture[] {
@@ -48,12 +51,16 @@ function loadPrinterFixtures(): PrinterFixture[] {
 }
 
 function parsePrintFixture(name: string, content: string): PrinterFixture {
-  const successPatttern = /^=+ INPUT =+\n(?<input>[\s\S]*)\n=+ OUTPUT =+\n(?<output>[\s\S]*)$/;
-  const failurePattern = /^=+ INPUT =+\n(?<input>[\s\S]*)\n=+ ERROR =+\n(?<error>[\s\S]*)$/;
+  const successPatttern =
+    /^=+ INPUT =+\n(?<input>[\s\S]*)\n=+ OUTPUT =+\n(?<output>[\s\S]*)$/;
+  const failurePattern =
+    /^=+ INPUT =+\n(?<input>[\s\S]*)\n=+ ERROR =+\n(?<error>[\s\S]*)$/;
 
   const match = content.match(successPatttern) ?? content.match(failurePattern);
   if (!match) {
-    throw new Error(`Failed to parse ${name}. Unknown fixture format from the graphql-text-printer crate!`);
+    throw new Error(
+      `Failed to parse ${name}. Unknown fixture format from the graphql-text-printer crate!`,
+    );
   }
-  return { name, ...match.groups } as PrinterFixture;
+  return {...match.groups as any, name} as PrinterFixture;
 }

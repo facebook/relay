@@ -6,7 +6,6 @@
  */
 
 use intern::string_key::StringKey;
-use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
 use crate::JSImportType;
@@ -57,11 +56,6 @@ pub enum SchemaGenerationError {
     },
     #[error("Not yet implemented")]
     TODO,
-    #[error("Fragment `{fragment_name}` not found.{suggestions}", suggestions = did_you_mean(suggestions))]
-    FragmentNotFound {
-        fragment_name: StringKey,
-        suggestions: Vec<StringKey>,
-    },
 
     #[error("Expected the function name to exist")]
     MissingFunctionName,

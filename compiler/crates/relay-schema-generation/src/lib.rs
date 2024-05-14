@@ -31,7 +31,6 @@ use errors::SchemaGenerationError;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinition;
-use graphql_syntax::FragmentDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::ListTypeAnnotation;
 use graphql_syntax::NamedTypeAnnotation;
@@ -406,8 +405,19 @@ impl RelayResolverExtractor {
             hack_source: None,
             span: field.field_name.location.span(),
         };
-        let fragment_definition =
-            self.parse_fragment_definition(&field.entity_name, fragment_definitions)?;
+        let fragment_name = field
+            .entity_name
+            .item
+            .lookup()
+            .strip_suffix("$key")
+            .unwrap();
+        let fragment_definition_result = relay_docblock::assert_fragment_definition(
+            field.entity_name,
+            fragment_name.intern(),
+            *fragment_definitions,
+        );
+        let fragment_definition = fragment_definition_result.map_err(|err| vec![err])?;
+
         let fragment_type_condition = WithLocation::from_span(
             fragment_definition.location.source_location(),
             fragment_definition.type_condition.span,
@@ -428,41 +438,6 @@ impl RelayResolverExtractor {
             semantic_non_null: None,
         });
         Ok(())
-    }
-
-    // Most of this code is copied from docblock.ir
-    // find a way to share it?
-    fn parse_fragment_definition<'a>(
-        &self,
-        fragment_key: &WithLocation<StringKey>,
-        definitions: &Option<&'a Vec<ExecutableDefinition>>,
-    ) -> DiagnosticsResult<&'a FragmentDefinition> {
-        let fragment_name = fragment_key.item.lookup().strip_suffix("$key").unwrap();
-        let fragment_definition = definitions.and_then(|defs| {
-            defs.iter().find(|item| {
-                if let ExecutableDefinition::Fragment(fragment) = item {
-                    fragment.name.value.lookup() == fragment_name
-                } else {
-                    false
-                }
-            })
-        });
-
-        if let Some(ExecutableDefinition::Fragment(fragment_definition)) = fragment_definition {
-            Ok(fragment_definition)
-        } else {
-            let suggestions = definitions
-                .map(|defs| defs.iter().filter_map(|def| def.name()).collect::<Vec<_>>())
-                .unwrap_or_default();
-
-            Err(vec![Diagnostic::error(
-                SchemaGenerationError::FragmentNotFound {
-                    fragment_name: fragment_key.item,
-                    suggestions,
-                },
-                fragment_key.location,
-            )])
-        }
     }
 
     fn add_type_definition(

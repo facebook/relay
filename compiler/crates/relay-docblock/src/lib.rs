@@ -14,6 +14,7 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
 use common::Location;
+pub use docblock_ir::assert_fragment_definition;
 use docblock_ir::parse_docblock_ir;
 use docblock_shared::DEPRECATED_FIELD;
 use docblock_shared::EDGE_TO_FIELD;

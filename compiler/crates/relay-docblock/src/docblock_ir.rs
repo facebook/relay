@@ -628,7 +628,13 @@ fn parse_fragment_definition(
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
 ) -> DiagnosticsResult<(Option<WithLocation<StringKey>>, Option<Vec<Argument>>)> {
     let fragment_definition = root_fragment
-        .map(|root_fragment| assert_fragment_definition(root_fragment.value, definitions_in_file))
+        .map(|root_fragment| {
+            assert_fragment_definition(
+                root_fragment.value,
+                root_fragment.value.item,
+                definitions_in_file,
+            )
+        })
         .transpose()?;
 
     let fragment_arguments = fragment_definition
@@ -667,14 +673,15 @@ fn parse_fragment_definition(
     Ok((fragment_type_condition, fragment_arguments))
 }
 
-fn assert_fragment_definition(
+pub fn assert_fragment_definition(
     root_fragment: WithLocation<StringKey>,
+    fragment_name: StringKey,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
 ) -> Result<FragmentDefinition, Diagnostic> {
     let fragment_definition = definitions_in_file.and_then(|defs| {
         defs.iter().find(|item| {
             if let ExecutableDefinition::Fragment(fragment) = item {
-                fragment.name.value == root_fragment.item
+                fragment.name.value == fragment_name
             } else {
                 false
             }
@@ -689,7 +696,7 @@ fn assert_fragment_definition(
 
         Err(Diagnostic::error(
             ErrorMessagesWithData::FragmentNotFound {
-                fragment_name: root_fragment.item,
+                fragment_name,
                 suggestions,
             },
             root_fragment.location,

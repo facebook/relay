@@ -10,6 +10,7 @@
 #![deny(clippy::all)]
 
 mod errors;
+mod find_resolver_imports;
 
 use std::fmt;
 use std::path::Path;
@@ -42,15 +43,12 @@ use hermes_comments::find_nodes_after_comments;
 use hermes_estree::Declaration;
 use hermes_estree::FlowTypeAnnotation;
 use hermes_estree::Function;
-use hermes_estree::ImportDeclarationSpecifier;
 use hermes_estree::Node;
 use hermes_estree::Pattern;
 use hermes_estree::Range;
 use hermes_estree::SourceRange;
 use hermes_estree::TypeAlias;
 use hermes_estree::TypeAnnotationEnum;
-use hermes_estree::Visitor;
-use hermes_estree::_Literal;
 use hermes_parser::parse;
 use hermes_parser::ParseResult;
 use hermes_parser::ParserDialect;
@@ -62,6 +60,8 @@ use relay_docblock::UnpopulatedIrField;
 use relay_docblock::WeakObjectIr;
 use rustc_hash::FxHashMap;
 use schema_extractor::SchemaExtractor;
+
+use crate::find_resolver_imports::ImportsVisitor;
 
 pub static LIVE_FLOW_TYPE_NAME: &str = "LiveState";
 
@@ -198,9 +198,8 @@ impl RelayResolverExtractor {
                 .collect::<Vec<_>>()
         })?;
 
-        let mut imports_visitor = ImportsVisitor::new(self.current_location);
-        imports_visitor.visit_program(&ast);
-        let imports = imports_visitor.get_imports()?;
+        let imports_visitor = ImportsVisitor::new(self.current_location);
+        let imports = imports_visitor.get_imports(&ast)?;
 
         let attached_comments = find_nodes_after_comments(&ast, &comments);
 
@@ -723,84 +722,6 @@ impl SchemaExtractor for RelayResolverExtractor {
         to_location(self.current_location, node)
     }
 }
-
-struct ImportsVisitor {
-    imports: FxHashMap<StringKey, (ModuleResolutionKey, Location)>,
-    errors: Vec<Diagnostic>,
-    location: SourceLocationKey,
-}
-
-impl ImportsVisitor {
-    fn new(location: SourceLocationKey) -> Self {
-        Self {
-            location,
-            imports: Default::default(),
-            errors: vec![],
-        }
-    }
-
-    /// Returns a map of local name => module key
-    fn get_imports(
-        self,
-    ) -> DiagnosticsResult<FxHashMap<StringKey, (ModuleResolutionKey, Location)>> {
-        if !self.errors.is_empty() {
-            Err(self.errors)
-        } else {
-            Ok(self.imports)
-        }
-    }
-}
-
-impl Visitor<'_> for ImportsVisitor {
-    fn visit_import_declaration(&mut self, ast: &'_ hermes_estree::ImportDeclaration) {
-        let location = to_location(self.location, &ast.source);
-        let source = match &ast.source {
-            _Literal::StringLiteral(node) => (&node.value).intern(),
-            _ => {
-                self.errors.push(Diagnostic::error(
-                    SchemaGenerationError::ExpectedStringLiteralSource,
-                    location,
-                ));
-                return;
-            }
-        };
-
-        self.imports
-            .extend(ast.specifiers.iter().map(|specifier| match specifier {
-                ImportDeclarationSpecifier::ImportDefaultSpecifier(node) => (
-                    (&node.local.name).intern(),
-                    (
-                        ModuleResolutionKey {
-                            module_name: source,
-                            import_type: JSImportType::Default,
-                        },
-                        to_location(self.location, &node.local),
-                    ),
-                ),
-                ImportDeclarationSpecifier::ImportSpecifier(node) => (
-                    (&node.local.name).intern(),
-                    (
-                        ModuleResolutionKey {
-                            module_name: source,
-                            import_type: JSImportType::Named((&node.imported.name).intern()),
-                        },
-                        to_location(self.location, &node.local),
-                    ),
-                ),
-                ImportDeclarationSpecifier::ImportNamespaceSpecifier(node) => (
-                    (&node.local.name).intern(),
-                    (
-                        ModuleResolutionKey {
-                            module_name: source,
-                            import_type: JSImportType::Namespace,
-                        },
-                        to_location(self.location, &node.local),
-                    ),
-                ),
-            }));
-    }
-}
-
 fn to_location<T: Range>(source_location: SourceLocationKey, node: &T) -> Location {
     let range = node.range();
     Location::new(source_location, Span::new(range.start, range.end.into()))

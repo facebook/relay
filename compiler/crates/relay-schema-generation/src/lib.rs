@@ -232,41 +232,7 @@ impl RelayResolverExtractor {
                                 is_lowercase_initial || name_str.contains('.')
                             };
                             if is_field_definition {
-                                let entity_name = match entity_type {
-                                    FlowTypeAnnotation::NumberTypeAnnotation(annot) => {
-                                        WithLocation {
-                                            item: intern!("Float"),
-                                            location: self.to_location(annot.as_ref()),
-                                        }
-                                    }
-                                    FlowTypeAnnotation::StringTypeAnnotation(annot) => {
-                                        WithLocation {
-                                            item: intern!("String"),
-                                            location: self.to_location(annot.as_ref()),
-                                        }
-                                    }
-                                    FlowTypeAnnotation::GenericTypeAnnotation(annot) => {
-                                        let id = schema_extractor::get_identifier_for_flow_generic(
-                                            WithLocation {
-                                                item: &annot,
-                                                location: self.to_location(annot.as_ref()),
-                                            },
-                                        )?;
-                                        if annot.type_parameters.is_some() {
-                                            return Err(vec![Diagnostic::error(
-                                                SchemaGenerationError::GenericNotSupported,
-                                                self.to_location(annot.as_ref()),
-                                            )]);
-                                        }
-                                        id
-                                    }
-                                    _ => {
-                                        return Err(vec![Diagnostic::error(
-                                            SchemaGenerationError::GenericNotSupported,
-                                            self.to_location(&entity_type),
-                                        )]);
-                                    }
-                                };
+                                let entity_name = self.extract_entity_name(entity_type)?;
                                 self.add_field_definition(
                                     &imports,
                                     fragment_definitions,
@@ -715,6 +681,39 @@ impl RelayResolverExtractor {
                     Span::new(range.start, range.end.into()),
                 ),
             )])
+        }
+    }
+
+    fn extract_entity_name(
+        &self,
+        entity_type: FlowTypeAnnotation,
+    ) -> DiagnosticsResult<WithLocation<StringKey>> {
+        match entity_type {
+            FlowTypeAnnotation::NumberTypeAnnotation(annot) => Ok(WithLocation {
+                item: intern!("Float"),
+                location: self.to_location(annot.as_ref()),
+            }),
+            FlowTypeAnnotation::StringTypeAnnotation(annot) => Ok(WithLocation {
+                item: intern!("String"),
+                location: self.to_location(annot.as_ref()),
+            }),
+            FlowTypeAnnotation::GenericTypeAnnotation(annot) => {
+                let id = schema_extractor::get_identifier_for_flow_generic(WithLocation {
+                    item: &annot,
+                    location: self.to_location(annot.as_ref()),
+                })?;
+                if annot.type_parameters.is_some() {
+                    return Err(vec![Diagnostic::error(
+                        SchemaGenerationError::GenericNotSupported,
+                        self.to_location(annot.as_ref()),
+                    )]);
+                }
+                Ok(id)
+            }
+            _ => Err(vec![Diagnostic::error(
+                SchemaGenerationError::UnsupportedType,
+                self.to_location(&entity_type),
+            )]),
         }
     }
 }

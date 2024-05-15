@@ -602,12 +602,7 @@ impl RelayResolverExtractor {
                     (flow_return_type, None)
                 }
             }
-            FlowTypeAnnotation::StringTypeAnnotation(_) => (flow_return_type, None),
-            FlowTypeAnnotation::NumberTypeAnnotation(_) => (flow_return_type, None),
-            _ => {
-                // Only support named types in function returns
-                return self.error_result(SchemaGenerationError::UnsupportedType, flow_return_type);
-            }
+            _ => (flow_return_type, None),
         };
 
         if node.params.is_empty() {
@@ -793,9 +788,27 @@ fn return_type_to_type_annotation(
                 name: string_key_to_identifier(identifier),
             })
         }
+        FlowTypeAnnotation::BooleanTypeAnnotation(node) => {
+            let identifier = WithLocation {
+                item: intern!("Boolean"),
+                location: to_location(source_location, node.as_ref()),
+            };
+            TypeAnnotation::Named(NamedTypeAnnotation {
+                name: string_key_to_identifier(identifier),
+            })
+        }
+        FlowTypeAnnotation::BooleanLiteralTypeAnnotation(node) => {
+            let identifier = WithLocation {
+                item: intern!("Boolean"),
+                location: to_location(source_location, node.as_ref()),
+            };
+            TypeAnnotation::Named(NamedTypeAnnotation {
+                name: string_key_to_identifier(identifier),
+            })
+        }
         _ => {
             return Err(vec![Diagnostic::error(
-                SchemaGenerationError::TODO,
+                SchemaGenerationError::UnsupportedType,
                 location,
             )]);
         }

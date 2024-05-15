@@ -43,53 +43,60 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         }
     });
 
-    let mut out = match extractor.resolve() {
+    let out = match extractor.resolve() {
         Ok((objects, fields)) => objects
             .into_iter()
             .chain(fields.into_iter().map(DocblockIr::TerseRelayResolver))
             .map(|ir| {
                 // Extend schema with the IR and print SDL
-                let schema_document = ir
-                    .clone()
-                    .to_graphql_schema_ast(
-                        project_name,
-                        &schema,
-                        &Default::default(),
-                        &Default::default(),
-                    )
-                    .unwrap();
+                let schema_document = ir.clone().to_graphql_schema_ast(
+                    project_name,
+                    &schema,
+                    &Default::default(),
+                    &Default::default(),
+                )?;
                 for definition in &schema_document.definitions {
                     extend_schema_with_resolver_type_system_definition(
                         definition.clone(),
                         Arc::get_mut(&mut schema)
                             .expect("Expected to be able to get mutable reference to schema"),
                         schema_document.location,
-                    )
-                    .unwrap();
+                    )?;
                 }
 
-                let sdl = ir
-                    .clone()
-                    .to_sdl_string(
-                        project_name,
-                        &schema,
-                        &Default::default(),
-                        &Default::default(),
-                    )
-                    .unwrap();
+                let sdl = ir.clone().to_sdl_string(
+                    project_name,
+                    &schema,
+                    &Default::default(),
+                    &Default::default(),
+                )?;
 
-                format!("{:#?}\n{}", &ir, sdl)
+                Ok(format!("{:#?}\n{}", &ir, sdl))
             })
-            .collect::<Vec<_>>(),
+            .collect::<Vec<Result<_, Vec<Diagnostic>>>>(),
         Err(err) => {
             errors.extend(err);
             Default::default()
         }
     };
+
+    let mut ok_out = vec![];
+
+    for o in out.into_iter() {
+        match o {
+            Err(errs) => {
+                errors.extend(errs);
+            }
+            Ok(o) => {
+                ok_out.push(o);
+            }
+        }
+    }
+
     let err = diagnostics_to_sorted_string(&project_fixture, &errors);
 
-    out.sort();
-    Ok(out.join("\n\n") + "\n\n" + &err)
+    ok_out.sort();
+    Ok(ok_out.join("\n\n") + "\n\n" + &err)
 }
 
 fn parse_document_definitions(content: &str, path: &Path) -> Vec<ExecutableDefinition> {

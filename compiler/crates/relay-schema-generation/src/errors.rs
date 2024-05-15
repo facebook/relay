@@ -67,4 +67,6 @@ pub enum SchemaGenerationError {
     MissingParamType,
     #[error("Cannot use a LiveState that is also optional")]
     NoOptionalLiveType,
+    #[error("Unsupported generic: `{name}`")]
+    UnSupportedGeneric { name: StringKey },
 }

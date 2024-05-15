@@ -749,18 +749,48 @@ fn return_type_to_type_annotation(
                 None => TypeAnnotation::Named(NamedTypeAnnotation {
                     name: string_key_to_identifier(identifier),
                 }),
-                Some(type_parameters)
-                    if (identifier.item == intern!("Array")
-                        || identifier.item == intern!("$ReadOnlyArray"))
-                        && type_parameters.params.len() == 1 =>
-                {
-                    let param = &type_parameters.params[0];
-                    TypeAnnotation::List(Box::new(ListTypeAnnotation {
-                        span: location.span(),
-                        open: generated_token(),
-                        type_: return_type_to_type_annotation(source_location, param)?,
-                        close: generated_token(),
-                    }))
+                Some(type_parameters) if type_parameters.params.len() == 1 => {
+                    let identifier_name = identifier.item.lookup();
+                    match identifier_name {
+                        "Array" | "$ReadOnlyArray" => {
+                            let param = &type_parameters.params[0];
+                            TypeAnnotation::List(Box::new(ListTypeAnnotation {
+                                span: location.span(),
+                                open: generated_token(),
+                                type_: return_type_to_type_annotation(source_location, param)?,
+                                close: generated_token(),
+                            }))
+                        }
+                        "IdOf" => {
+                            let param = &type_parameters.params[0];
+                            let location = to_location(source_location, param);
+                            if let FlowTypeAnnotation::StringLiteralTypeAnnotation(node) = param {
+                                TypeAnnotation::Named(NamedTypeAnnotation {
+                                    name: Identifier {
+                                        span: location.span(),
+                                        token: Token {
+                                            span: location.span(),
+                                            kind: TokenKind::Identifier,
+                                        },
+                                        value: (&node.value).intern(),
+                                    },
+                                })
+                            } else {
+                                return Err(vec![Diagnostic::error(
+                                    SchemaGenerationError::TODO,
+                                    location,
+                                )]);
+                            }
+                        }
+                        _ => {
+                            return Err(vec![Diagnostic::error(
+                                SchemaGenerationError::UnSupportedGeneric {
+                                    name: identifier.item,
+                                },
+                                location,
+                            )]);
+                        }
+                    }
                 }
                 _ => {
                     return Err(vec![Diagnostic::error(

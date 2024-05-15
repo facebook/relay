@@ -2599,6 +2599,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         || (!self.project_config.relativize_js_module_paths && provider.is_bare())
                     {
                         provider.module_name
+                    } else if provider.module_name.lookup().starts_with("@") {
+                        provider.module_name
                     } else {
                         // This will build a path from the operation artifact to the provider module
                         self.project_config.js_module_import_identifier(

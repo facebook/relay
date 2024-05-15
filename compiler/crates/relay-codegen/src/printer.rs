@@ -728,17 +728,19 @@ impl<'b> JSONPrinter<'b> {
                         .to_str()
                         .expect("could not convert `path_without_extension` to a str");
 
-                    return Cow::Owned(if should_relativize {
-                        format!("./{path_without_extension}")
+                    if path_without_extension.starts_with('@') {
+                        return Cow::Owned(format!("{}", path_without_extension));
+                    } else if should_relativize {
+                        return Cow::Owned(format!("./{}", path_without_extension));
                     } else {
-                        path_without_extension.to_string()
-                    });
+                        return Cow::Owned(path_without_extension.to_string());
+                    }
                 }
-                Cow::Owned(if should_relativize {
-                    format!("./{}", key.borrow())
+                if key.borrow().to_string().starts_with("@") {
+                    Cow::Owned(format!("{}", key.borrow()))
                 } else {
-                    key.borrow().to_string()
-                })
+                    Cow::Owned(format!("./{}", key.borrow()))
+                }
             }
             JsModuleFormat::Haste => Cow::Borrowed(key.lookup()),
         }

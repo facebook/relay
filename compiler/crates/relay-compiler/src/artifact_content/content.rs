@@ -111,12 +111,21 @@ pub fn generate_preloadable_query_parameters(
     // -- End Types Section --
 
     // -- Begin Query Node Section --
+    let mut top_level_statements = Default::default();
     let preloadable_request = printer.print_preloadable_request(
         schema,
         request_parameters,
         normalization_operation,
-        &mut Default::default(),
+        &mut top_level_statements,
     );
+
+    // -- Begin Top Level Statements Section --
+    let mut section: GenericSection = GenericSection::default();
+    write!(section, "{}", &top_level_statements)?;
+    content_sections.push(ContentSection::Generic(section));
+
+    // println!("top_level_statements {:?}", top_level_statements);
+    // -- End Top Level Statements Section --
     let mut section = GenericSection::default();
 
     let node_type = format!(

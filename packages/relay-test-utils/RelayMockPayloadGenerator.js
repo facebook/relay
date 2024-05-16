@@ -171,10 +171,10 @@ function createValueResolver(mockResolvers: ?MockResolvers): ValueResolver {
 
 function generateMockList<T>(
   placeholderArray: $ReadOnlyArray<mixed>,
-  generateListItem: (defaultValue: mixed) => T,
+  generateListItem: (defaultValue: mixed, index?: number) => T,
 ): $ReadOnlyArray<T> {
-  return placeholderArray.map(possibleDefaultValue =>
-    generateListItem(possibleDefaultValue),
+  return placeholderArray.map((possibleDefaultValue, index) =>
+    generateListItem(possibleDefaultValue, index),
   );
 }
 
@@ -734,7 +734,9 @@ class RelayMockPayloadGenerator {
     // values from `defaults`
     const selectionPath = [...path, applicationName];
     const typeFromSelection = this._selectionMetadata[
-      selectionPath.join('.')
+      // When selecting metadata, skip the number on plural fields so that every field in the array
+      // gets the same metadata.
+      selectionPath.filter(field => isNaN(parseInt(field, 10))).join('.')
     ] ?? {
       type: DEFAULT_MOCK_TYPENAME,
     };
@@ -769,13 +771,19 @@ class RelayMockPayloadGenerator {
     const isAbstractType =
       field.concreteType == null && typeName === typeFromSelection.type;
 
-    const generateDataForField = (possibleDefaultValue: mixed) => {
+    const generateDataForField = (
+      possibleDefaultValue: mixed,
+      index?: number,
+    ) => {
+      const fieldPath = field.plural
+        ? [...selectionPath, index?.toString(10) ?? '0']
+        : selectionPath;
       const fieldDefaultValue =
         this._getDefaultValuesForObject(
           field.concreteType ?? typeFromSelection.type,
           field.name,
           field.alias,
-          selectionPath,
+          fieldPath,
           args,
         ) ?? possibleDefaultValue;
 
@@ -791,7 +799,7 @@ class RelayMockPayloadGenerator {
           alias: field.alias,
           args,
         },
-        [...path, applicationName],
+        fieldPath,
         typeof data[applicationName] === 'object'
           ? // $FlowFixMe[incompatible-variance]
             data[applicationName]
@@ -905,7 +913,11 @@ class RelayMockPayloadGenerator {
     +nullable: boolean,
   } {
     return (
-      this._selectionMetadata[selectionPath.join('.')] ?? {
+      this._selectionMetadata[
+        // When selecting metadata, skip the number on plural fields so that every field in the array
+        // gets the same metadata.
+        selectionPath.filter(field => isNaN(parseInt(field, 10))).join('.')
+      ] ?? {
         type: field.name === 'id' ? 'ID' : 'String',
         plural: false,
         enumValues: null,

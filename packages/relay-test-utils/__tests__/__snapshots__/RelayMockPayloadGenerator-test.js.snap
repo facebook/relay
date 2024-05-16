@@ -186,6 +186,20 @@ query RelayMockPayloadGeneratorTest61Query {
 
 fragment RelayMockPayloadGeneratorTest61Fragment on User {
   name
+  id
+  friends {
+    edges {
+      node {
+        ...RelayMockPayloadGeneratorTest61SubFragment @defer(label: "RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment")
+        id
+      }
+    }
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest61SubFragment on User {
+  id
+  name
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -200,12 +214,112 @@ fragment RelayMockPayloadGeneratorTest61Fragment on User {
   },
   {
     "path": [
+      "node",
+      "friends",
+      "edges",
+      "0",
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment",
+    "data": {
+      "id": "<User-mock-id-3>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  },
+  {
+    "path": [
+      "node",
+      "friends",
+      "edges",
+      "1",
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment",
+    "data": {
+      "id": "<User-mock-id-5>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  },
+  {
+    "path": [
+      "node",
+      "friends",
+      "edges",
+      "2",
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment",
+    "data": {
+      "id": "<User-mock-id-7>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  },
+  {
+    "path": [
+      "node",
+      "friends",
+      "edges",
+      "3",
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment",
+    "data": {
+      "id": "<User-mock-id-9>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  },
+  {
+    "path": [
+      "node",
+      "friends",
+      "edges",
+      "4",
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment",
+    "data": {
+      "id": "<User-mock-id-11>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  },
+  {
+    "path": [
       "node"
     ],
     "label": "RelayMockPayloadGeneratorTest61Query$defer$RelayMockPayloadGeneratorTest61Fragment",
     "data": {
       "__typename": "User",
-      "name": "<mock-value-for-field-\\"name\\">"
+      "name": "<mock-value-for-field-\\"name\\">",
+      "id": "<User-mock-id-2>",
+      "friends": {
+        "edges": [
+          {
+            "node": {
+              "id": "<User-mock-id-4>"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-6>"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-8>"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-10>"
+            }
+          },
+          {
+            "node": {
+              "id": "<User-mock-id-12>"
+            }
+          }
+        ]
+      }
     }
   }
 ]
@@ -1305,7 +1419,7 @@ fragment RelayMockPayloadGeneratorTest12Fragment on Page {
                 "comment": {
                   "id": "<Comment-mock-id-4>",
                   "message": {
-                    "text": "Comment text: node>myTown>feedback>comments>edges>comment"
+                    "text": "Comment text: node>myTown>feedback>comments>edges>0>comment"
                   },
                   "likeSentence": {
                     "text": "<mock-value-for-field-\\"text\\">"

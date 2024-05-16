@@ -1742,8 +1742,25 @@ test('Query with @no_inline fragment spread with variable argument', () => {
 
 test('generate mock for deferred fragments', () => {
   graphql`
+    fragment RelayMockPayloadGeneratorTest61SubFragment on User {
+      id
+      name
+    }
+  `;
+
+  graphql`
     fragment RelayMockPayloadGeneratorTest61Fragment on User {
       name
+      ... on User {
+        id
+        friends {
+          edges {
+            node {
+              ...RelayMockPayloadGeneratorTest61SubFragment @defer
+            }
+          }
+        }
+      }
     }
   `;
   testGeneratedData(
@@ -1755,7 +1772,13 @@ test('generate mock for deferred fragments', () => {
         }
       }
     `,
-    null,
+    {
+      FriendsConnection() {
+        return {
+          edges: Array(5).fill(),
+        };
+      },
+    },
     {generateDeferredPayload: true},
   );
 });

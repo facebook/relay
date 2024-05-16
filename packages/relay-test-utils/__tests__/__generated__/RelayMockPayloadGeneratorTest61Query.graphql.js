@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<91892cb69e03d6b0d3a81581c91a2ec2>>
+ * @generated SignedSource<<d1ac2aa5f9e8debb4f73631ef7fee4a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -45,6 +45,13 @@ v1 = {
   "args": null,
   "kind": "ScalarField",
   "name": "id",
+  "storageKey": null
+},
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
   "storageKey": null
 };
 return {
@@ -110,11 +117,49 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
+                  (v2/*: any*/),
+                  (v1/*: any*/),
                   {
                     "alias": null,
                     "args": null,
-                    "kind": "ScalarField",
-                    "name": "name",
+                    "concreteType": "FriendsConnection",
+                    "kind": "LinkedField",
+                    "name": "friends",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "FriendsEdge",
+                        "kind": "LinkedField",
+                        "name": "edges",
+                        "plural": true,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "User",
+                            "kind": "LinkedField",
+                            "name": "node",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "if": null,
+                                "kind": "Defer",
+                                "label": "RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment",
+                                "selections": [
+                                  (v1/*: any*/),
+                                  (v2/*: any*/)
+                                ]
+                              },
+                              (v1/*: any*/)
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
                     "storageKey": null
                   }
                 ],
@@ -129,12 +174,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ed4399c32897d40564a0ec88514016e0",
+    "cacheID": "aafc055b85b18a9924f0cb18b78d581d",
     "id": null,
     "metadata": {},
     "name": "RelayMockPayloadGeneratorTest61Query",
     "operationKind": "query",
-    "text": "query RelayMockPayloadGeneratorTest61Query {\n  node(id: \"my-id\") {\n    __typename\n    id\n    ...RelayMockPayloadGeneratorTest61Fragment @defer(label: \"RelayMockPayloadGeneratorTest61Query$defer$RelayMockPayloadGeneratorTest61Fragment\")\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest61Fragment on User {\n  name\n}\n"
+    "text": "query RelayMockPayloadGeneratorTest61Query {\n  node(id: \"my-id\") {\n    __typename\n    id\n    ...RelayMockPayloadGeneratorTest61Fragment @defer(label: \"RelayMockPayloadGeneratorTest61Query$defer$RelayMockPayloadGeneratorTest61Fragment\")\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest61Fragment on User {\n  name\n  id\n  friends {\n    edges {\n      node {\n        ...RelayMockPayloadGeneratorTest61SubFragment @defer(label: \"RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment\")\n        id\n      }\n    }\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest61SubFragment on User {\n  id\n  name\n}\n"
   }
 };
 })();

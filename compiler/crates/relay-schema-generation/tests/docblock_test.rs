@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1e79fa3d0dbccd05eaf44698cd24bfeb>>
+ * @generated SignedSource<<f40165e1a1579e5bd4fc7ec78733e0f2>>
  */
 
 mod docblock;
@@ -87,6 +87,13 @@ async fn single_module() {
     let input = include_str!("docblock/fixtures/single-module.input");
     let expected = include_str!("docblock/fixtures/single-module.expected");
     test_fixture(transform_fixture, file!(), "single-module.input", "docblock/fixtures/single-module.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn strong_type_define_flow_within() {
+    let input = include_str!("docblock/fixtures/strong-type-define-flow-within.input");
+    let expected = include_str!("docblock/fixtures/strong-type-define-flow-within.expected");
+    test_fixture(transform_fixture, file!(), "strong-type-define-flow-within.input", "docblock/fixtures/strong-type-define-flow-within.expected", input, expected).await;
 }
 
 #[tokio::test]

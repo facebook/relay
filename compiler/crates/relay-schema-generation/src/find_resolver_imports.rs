@@ -14,54 +14,51 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
 use common::SourceLocationKey;
-use common::Span;
 use hermes_estree::ImportDeclarationSpecifier;
-use hermes_estree::Range;
 use hermes_estree::Visitor;
 use hermes_estree::_Literal;
 use rustc_hash::FxHashMap;
+use rustc_hash::FxHashSet;
 
+use crate::to_location;
 use crate::JSImportType;
 use crate::ModuleResolutionKey;
 use crate::SchemaGenerationError;
-
-pub struct ImportsVisitor {
-    imports: FxHashMap<StringKey, (ModuleResolutionKey, Location)>,
+pub type Imports = FxHashMap<StringKey, (ModuleResolutionKey, Location)>;
+pub struct ImportExportVisitor {
+    imports: Imports,
+    exports: FxHashSet<StringKey>,
     errors: Vec<Diagnostic>,
     location: SourceLocationKey,
 }
 
-impl ImportsVisitor {
+impl ImportExportVisitor {
     pub fn new(location: SourceLocationKey) -> Self {
         Self {
             location,
             imports: Default::default(),
+            exports: Default::default(),
             errors: vec![],
         }
     }
 
-    /// Returns a map of name => module key
-    pub fn get_imports(
+    /// Returns imports: a map of local name => module key, and exports: names
+    pub fn get_all(
         mut self,
         ast: &'_ hermes_estree::Program,
-    ) -> DiagnosticsResult<FxHashMap<StringKey, (ModuleResolutionKey, Location)>> {
-        self.visit_program(ast);
+    ) -> DiagnosticsResult<(Imports, FxHashSet<StringKey>)> {
+        self.visit_program(&ast);
         if !self.errors.is_empty() {
             Err(self.errors)
         } else {
-            Ok(self.imports)
+            Ok((self.imports, self.exports))
         }
-    }
-
-    fn to_location<T: Range>(&self, node: &T) -> Location {
-        let range = node.range();
-        Location::new(self.location, Span::new(range.start, range.end.into()))
     }
 }
 
-impl Visitor<'_> for ImportsVisitor {
+impl Visitor<'_> for ImportExportVisitor {
     fn visit_import_declaration(&mut self, ast: &'_ hermes_estree::ImportDeclaration) {
-        let location = self.to_location(&ast.source);
+        let location = to_location(self.location, &ast.source);
         let source = match &ast.source {
             _Literal::StringLiteral(node) => (&node.value).intern(),
             _ => {
@@ -72,45 +69,46 @@ impl Visitor<'_> for ImportsVisitor {
                 return;
             }
         };
-        for specifier in ast.specifiers.iter() {
-            match specifier {
-                ImportDeclarationSpecifier::ImportDefaultSpecifier(node) => {
-                    self.imports.insert(
-                        (&node.local.name).intern(),
-                        (
-                            ModuleResolutionKey {
-                                module_name: source,
-                                import_type: JSImportType::Default,
-                            },
-                            self.to_location(&node.local),
-                        ),
-                    );
-                }
-                ImportDeclarationSpecifier::ImportSpecifier(node) => {
-                    self.imports.insert(
-                        (&node.local.name).intern(),
-                        (
-                            ModuleResolutionKey {
-                                module_name: source,
-                                import_type: JSImportType::Named((&node.imported.name).intern()),
-                            },
-                            self.to_location(&node.local),
-                        ),
-                    );
-                }
-                ImportDeclarationSpecifier::ImportNamespaceSpecifier(node) => {
-                    self.imports.insert(
-                        (&node.local.name).intern(),
-                        (
-                            ModuleResolutionKey {
-                                module_name: source,
-                                import_type: JSImportType::Namespace,
-                            },
-                            self.to_location(&node.local),
-                        ),
-                    );
-                }
-            }
+
+        self.imports
+            .extend(ast.specifiers.iter().map(|specifier| match specifier {
+                ImportDeclarationSpecifier::ImportDefaultSpecifier(node) => (
+                    (&node.local.name).intern(),
+                    (
+                        ModuleResolutionKey {
+                            module_name: source,
+                            import_type: JSImportType::Default,
+                        },
+                        to_location(self.location, &node.local),
+                    ),
+                ),
+                ImportDeclarationSpecifier::ImportSpecifier(node) => (
+                    (&node.local.name).intern(),
+                    (
+                        ModuleResolutionKey {
+                            module_name: source,
+                            import_type: JSImportType::Named((&node.imported.name).intern()),
+                        },
+                        to_location(self.location, &node.local),
+                    ),
+                ),
+                ImportDeclarationSpecifier::ImportNamespaceSpecifier(node) => (
+                    (&node.local.name).intern(),
+                    (
+                        ModuleResolutionKey {
+                            module_name: source,
+                            import_type: JSImportType::Namespace,
+                        },
+                        to_location(self.location, &node.local),
+                    ),
+                ),
+            }));
+    }
+
+    fn visit_export_named_declaration(&mut self, ast: &'_ hermes_estree::ExportNamedDeclaration) {
+        if let Some(hermes_estree::Declaration::TypeAlias(node)) = &ast.declaration {
+            let name = (&node.id.name).intern();
+            self.exports.insert(name);
         }
     }
 }

@@ -23,9 +23,9 @@ use crate::JSImportType;
 )]
 pub enum SchemaGenerationError {
     #[error(
-        "Can't find type import for `{name}`, expected the type to be imported from another module"
+        "Can't find flow type definition for `{name}`. Expected the type to be imported from another module, or exported from the current module"
     )]
-    ExpectedFlowImportForType { name: StringKey },
+    ExpectedFlowDefinitionForType { name: StringKey },
     #[error("Expected import source to be a string literal")]
     ExpectedStringLiteralSource,
     #[error("Generic types not supported")]

@@ -752,7 +752,7 @@ An older version of Relay. This version of Relay had an API that was heavily foc
 
 Relay Resolvers is an experimental Relay feature which enables modeling derived state as client-only fields in Relay’s GraphQL graph.
 
-See also [the Relay Resolvers guide](../guides/relay-resolvers).
+See also [the Relay Resolvers Introduction](../guides/relay-resolvers/introduction.md).
 
 ## Release Buffer
 

@@ -229,4 +229,20 @@ graphql`
 `;
 ```
 
+## `@waterfall`
+
+With [Relay Resolvers](../../guides/relay-resolvers/introduction.md) it's possible to create client-defined edges in the graph which point to server types. When reading these edge fields, Relay is forced to lazily fetch the server data for the edge. This will force Relay to make a second request to the server to fetch the data for the edge.
+
+To highlight this tradeoff both in the editor and during code review, the Relay compiler expects all reads of these fields to be annotated as `@waterfall`.
+
+```graphql
+fragment EditPost on DraftPost {
+  author @waterfall {
+    name
+  }
+}
+```
+
+See the [Return Type](../../guides/relay-resolvers/return-types.md#server-types) portion of the Relay Resolvers guide for more information.
+
 <DocsRating />

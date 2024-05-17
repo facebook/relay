@@ -733,11 +733,7 @@ class RelayMockPayloadGenerator {
     // We will pass this data down to selection, so _mockScalar(...) can use
     // values from `defaults`
     const selectionPath = [...path, applicationName];
-    const typeFromSelection = this._selectionMetadata[
-      // When selecting metadata, skip the number on plural fields so that every field in the array
-      // gets the same metadata.
-      selectionPath.filter(field => isNaN(parseInt(field, 10))).join('.')
-    ] ?? {
+    const typeFromSelection = this._getTypeDetailsForPath(selectionPath) ?? {
       type: DEFAULT_MOCK_TYPENAME,
     };
 
@@ -913,17 +909,28 @@ class RelayMockPayloadGenerator {
     +nullable: boolean,
   } {
     return (
-      this._selectionMetadata[
-        // When selecting metadata, skip the number on plural fields so that every field in the array
-        // gets the same metadata.
-        selectionPath.filter(field => isNaN(parseInt(field, 10))).join('.')
-      ] ?? {
+      this._getTypeDetailsForPath(selectionPath) ?? {
         type: field.name === 'id' ? 'ID' : 'String',
         plural: false,
         enumValues: null,
         nullable: false,
       }
     );
+  }
+
+  /**
+   * When selecting metadata, skip the number on plural fields so that every field in the array
+   * gets the same metadata.
+   * @private
+   */
+  _getTypeDetailsForPath(
+    path: $ReadOnlyArray<string>,
+  ): $Values<SelectionMetadata> {
+    return this._selectionMetadata[
+      // When selecting metadata, skip the number on plural fields so that every field in the array
+      // gets the same metadata.
+      path.filter(field => isNaN(parseInt(field, 10))).join('.')
+    ];
   }
 }
 

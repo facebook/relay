@@ -662,8 +662,17 @@ impl CompilerState {
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
+        let zstd_level: i32 = env::var("RELAY_SAVED_STATE_ZSTD_LEVEL").map_or_else(
+            |_| 12,
+            |level| {
+                level.parse::<i32>().expect(
+                    "Expected RELAY_SAVED_STATE_ZSTD_LEVEL environment variable to be a number.",
+                )
+            },
+        );
+
         let writer = FsFile::create(path)
-            .and_then(|writer| ZstdEncoder::new(writer, 12))
+            .and_then(|writer| ZstdEncoder::new(writer, zstd_level))
             .map_err(|err| Error::WriteFileError {
                 file: path.clone(),
                 source: err,
@@ -689,13 +698,14 @@ impl CompilerState {
             reader,
         );
 
-        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT")
-            .map(|limit| {
+        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT").map_or_else(
+            |_| 10_u64.pow(10), /* 10GB */
+            |limit| {
                 limit.parse::<u64>().expect(
                     "Expected RELAY_SAVED_STATE_MEMORY_LIMIT environment variable to be a number.",
                 )
-            })
-            .unwrap_or_else(|_| 10_u64.pow(10) /* 10GB */);
+            },
+        );
 
         bincode::DefaultOptions::new()
             .with_fixint_encoding()

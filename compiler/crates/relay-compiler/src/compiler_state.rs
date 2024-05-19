@@ -27,6 +27,7 @@ use dashmap::DashSet;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
+use log::debug;
 use rayon::prelude::*;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
@@ -672,12 +673,25 @@ impl CompilerState {
         );
 
         let writer = FsFile::create(path)
-            .and_then(|writer| ZstdEncoder::new(writer, zstd_level))
+            .and_then(|writer| {
+                let mut encoder = ZstdEncoder::new(writer, zstd_level)?;
+                match u32::try_from(std::thread::available_parallelism()?.get()) {
+                    Ok(threads) => {
+                        debug!("Using {} zstd threads", threads);
+                        encoder.multithread(threads).ok();
+                    }
+                    Err(_) => {
+                        debug!("Using single-threaded zstd");
+                    }
+                }
+                Ok(encoder)
+            })
             .map_err(|err| Error::WriteFileError {
                 file: path.clone(),
                 source: err,
             })?
             .auto_finish();
+
         let writer =
             BufWriter::with_capacity(ZstdEncoder::<FsFile>::recommended_input_size(), writer);
         bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {

@@ -107,9 +107,12 @@ impl<'config> WatchmanFileSource<'config> {
             {
                 Ok(load_result) => {
                     perf_logger_event.stop(query_time);
+                    perf_logger_event.string("try_saved_state_result", "success".to_owned());
                     return load_result;
                 }
                 Err(saved_state_failure) => {
+                    perf_logger_event
+                        .string("try_saved_state_result", saved_state_failure.to_owned());
                     warn!(
                         "Unable to load saved state, falling back to full build: {}",
                         saved_state_failure

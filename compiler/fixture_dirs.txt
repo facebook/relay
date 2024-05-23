@@ -52,6 +52,7 @@ crates/relay-transforms/tests/declarative_connection
 crates/relay-transforms/tests/defer_stream
 crates/relay-transforms/tests/disallow_non_node_id_fields
 crates/relay-transforms/tests/disallow_readtime_features_in_mutations
+crates/relay-transforms/tests/disallow_required_on_non_null_field
 crates/relay-transforms/tests/disallow_reserved_aliases
 crates/relay-transforms/tests/disallow_typename_on_root
 crates/relay-transforms/tests/flatten

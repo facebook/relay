@@ -534,6 +534,21 @@ pub enum ValidationMessage {
     RequiredInMutation,
 
     #[error(
+        "Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive."
+    )]
+    RequiredOnNonNull,
+
+    #[error(
+        "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive."
+    )]
+    RequiredOnSemanticNonNull,
+
+    #[error(
+        "Unexpected `@throwOnFieldError` directive. The `@throwOnFieldError` directive is not supported unless experimental_emit_semantic_nullability_types is enabled."
+    )]
+    ThrowOnFieldErrorNotEnabled,
+
+    #[error(
         "Unexpected `@RelayResolver` field referenced in mutation response. Relay Resolver fields may not be read as part of a mutation response."
     )]
     ResolverInMutation,

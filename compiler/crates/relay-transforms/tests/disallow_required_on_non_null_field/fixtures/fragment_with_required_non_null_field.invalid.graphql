@@ -1,0 +1,10 @@
+# relay:disallow_required_on_non_null_fields
+# expected-to-throw
+fragment MyFragment on User {
+  some_field @required(action: THROW)
+}
+
+# %extensions%
+extend type User {
+  some_field: Int!
+}

@@ -259,6 +259,11 @@ pub enum ValidationMessageWithData {
         "Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
     )]
     RelayResolversUnexpectedWaterfall,
+
+    #[error(
+        "Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive."
+    )]
+    RequiredOnNonNull,
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -268,6 +273,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 vec![Box::new(format!("{} @waterfall", field_name,))]
             }
             ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
+                vec![Box::new("")]
+            }
+            ValidationMessageWithData::RequiredOnNonNull => {
                 vec![Box::new("")]
             }
         }

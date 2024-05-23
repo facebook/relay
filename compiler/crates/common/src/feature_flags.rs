@@ -108,6 +108,11 @@ pub struct FeatureFlags {
     /// extensions, Relay Resolvers) after its built.
     #[serde(default)]
     pub enable_experimental_schema_validation: bool,
+
+    /// Disallow the `@required` directive on fields that are already non-null
+    /// in the schema.
+    #[serde(default)]
+    pub disallow_required_on_non_null_fields: bool,
 }
 
 fn default_as_true() -> bool {

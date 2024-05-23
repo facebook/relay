@@ -253,26 +253,7 @@ impl Schema for SchemaWrapper {
 
     fn get_directive(&self, name: DirectiveName) -> Option<&Directive> {
         self.directives
-            .get(name, || {
-                match (
-                    name.0.lookup(),
-                    self.flatbuffer_schema().get_directive(name),
-                ) {
-                    ("defer", Some(mut directive)) | ("stream", Some(mut directive)) => {
-                        let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
-                        for arg in next_args.iter_mut() {
-                            if arg.name.item.0.lookup() == "label" {
-                                if let TypeReference::NonNull(of) = &arg.type_ {
-                                    arg.type_ = *of.clone()
-                                };
-                            }
-                        }
-                        directive.arguments = ArgumentDefinitions::new(next_args);
-                        Some(directive)
-                    }
-                    (_, result) => result,
-                }
-            })
+            .get(name, || self.flatbuffer_schema().get_directive(name))
             .as_ref()
     }
 

@@ -118,6 +118,7 @@ function handlePotentialSnapshotErrorsForState(
       state.snapshot.missingRequiredFields,
       state.snapshot.relayResolverErrors,
       state.snapshot.errorResponseFields,
+      state.snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
@@ -126,6 +127,7 @@ function handlePotentialSnapshotErrorsForState(
         snapshot.missingRequiredFields,
         snapshot.relayResolverErrors,
         snapshot.errorResponseFields,
+        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
     }
   }

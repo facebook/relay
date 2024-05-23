@@ -334,6 +334,7 @@ class SelectorResolver {
       this._missingRequiredFields,
       this._relayResolverErrors,
       this._errorResponseFields,
+      this._selector.node.metadata?.throwOnFieldError ?? false,
     );
     return this._data;
   }

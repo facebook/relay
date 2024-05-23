@@ -26,6 +26,7 @@ crates/relay-codegen/tests/client_extensions_abstract_types
 crates/relay-codegen/tests/connections
 crates/relay-codegen/tests/deduped_json_codegen
 crates/relay-codegen/tests/defer_stream
+crates/relay-codegen/tests/throw_on_field_error_directive_codegen
 crates/relay-codegen/tests/json_codegen
 crates/relay-codegen/tests/relay_actor_change
 crates/relay-codegen/tests/request_metadata

@@ -44,6 +44,7 @@ export type ReaderFragment = {
   +abstractKey?: ?string,
   +metadata?: ?{
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
+    +throwOnFieldError?: boolean,
     +hasClientEdges?: boolean,
     +mask?: boolean,
     +plural?: boolean,

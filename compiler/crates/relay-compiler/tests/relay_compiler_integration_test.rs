@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e7be12362ff4b175ffbe742350ee4fe9>>
+ * @generated SignedSource<<53f5be51ad456654aa4101ce051166a8>>
  */
 
 mod relay_compiler_integration;
@@ -59,6 +59,20 @@ async fn custom_scalar_variable_default_arg_non_strict() {
     let input = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.input");
     let expected = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected");
     test_fixture(transform_fixture, file!(), "custom_scalar_variable_default_arg_non_strict.input", "relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn error_handling_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/error_handling_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/error_handling_fragment.expected");
+    test_fixture(transform_fixture, file!(), "error_handling_fragment.input", "relay_compiler_integration/fixtures/error_handling_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn error_handling_query() {
+    let input = include_str!("relay_compiler_integration/fixtures/error_handling_query.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/error_handling_query.expected");
+    test_fixture(transform_fixture, file!(), "error_handling_query.input", "relay_compiler_integration/fixtures/error_handling_query.expected", input, expected).await;
 }
 
 #[tokio::test]

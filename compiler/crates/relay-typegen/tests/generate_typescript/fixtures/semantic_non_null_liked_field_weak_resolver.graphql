@@ -1,5 +1,5 @@
 # relay:experimental_emit_semantic_nullability_types
-fragment MyFragment on ClientUser {
+fragment MyFragment on ClientUser @throwOnFieldError {
   blob {
     data
   }

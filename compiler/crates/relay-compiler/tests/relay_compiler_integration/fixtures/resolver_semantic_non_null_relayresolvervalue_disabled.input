@@ -3,13 +3,30 @@
  * @RelayResolver User.foo: String @semanticNonNull
  * @rootFragment UserFooFragment
  */
-graphql`fragment UserFooFragment on User @throwOnFieldError {
+graphql`fragment UserFooFragment on User {
   bar
+  bar_live
+  bar_plural
+  bar_live_plural
 }`
 
 //- User_bar.js
 /**
- * @RelayResolver User.bar: String @semanticNonNull
+ * @RelayResolver User.bar: RelayResolverValue @semanticNonNull
+ */
+
+ /**
+ * @RelayResolver User.bar_live: RelayResolverValue @semanticNonNull
+ * @live
+ */
+
+/**
+ * @RelayResolver User.bar_plural: [RelayResolverValue] @semanticNonNull(levels: [0, 1])
+ */
+
+ /**
+ * @RelayResolver User.bar_live_plural: [RelayResolverValue] @semanticNonNull(levels: [0, 1])
+ * @live
  */
 
 //- relay.config.json
@@ -29,4 +46,5 @@ graphql`fragment UserFooFragment on User @throwOnFieldError {
 }
 
 //- schema.graphql
+
 type User { name: String }

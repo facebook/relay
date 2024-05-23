@@ -571,12 +571,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             };
             if let Some(identifier_info) = &refetch_metadata.identifier_info {
                 refetch_object.push(ObjectEntry {
-                     key: CODEGEN_CONSTANTS.identifier_info,
-                     value: Primitive::Key(self.object(object! {
-                         identifier_field:  Primitive::String(identifier_info.identifier_field),
-                         identifier_query_variable_name:  Primitive::String(identifier_info.identifier_query_variable_name),
-                     })),
-                 });
+                    key: CODEGEN_CONSTANTS.identifier_info,
+                    value: Primitive::Key(self.object(object! {
+                        identifier_field:  Primitive::String(identifier_info.identifier_field),
+                        identifier_query_variable_name:  Primitive::String(identifier_info.identifier_query_variable_name),
+                    })),
+                });
             }
 
             metadata.push(ObjectEntry {
@@ -1252,19 +1252,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         {
             let type_condition = fragment_alias_metadata.type_condition;
             Primitive::Key(self.object(object! {
-                 fragment: primitive,
-                 kind: Primitive::String(CODEGEN_CONSTANTS.aliased_fragment_spread),
-                 name: Primitive::String(fragment_alias_metadata.alias.item),
-                 type_: match type_condition {
-                     Some(_type) => Primitive::String(self.schema.get_type_name(_type)),
-                     None => Primitive::SkippableNull
-                 },
-                 abstract_key: type_condition.filter(|t| t.is_abstract_type()).map_or(Primitive::SkippableNull, |t| {
-                     Primitive::String(generate_abstract_type_refinement_key(
-                         self.schema,
-                         t,
-                     ))
-                 }),
+                fragment: primitive,
+                kind: Primitive::String(CODEGEN_CONSTANTS.aliased_fragment_spread),
+                name: Primitive::String(fragment_alias_metadata.alias.item),
+                type_: match type_condition {
+                    Some(_type) => Primitive::String(self.schema.get_type_name(_type)),
+                    None => Primitive::SkippableNull
+                },
+                abstract_key: type_condition.filter(|t| t.is_abstract_type()).map_or(Primitive::SkippableNull, |t| {
+                    Primitive::String(generate_abstract_type_refinement_key(
+                        self.schema,
+                        t,
+                    ))
+                }),
              }))
         } else if let Some(resolver_metadata) = RelayResolverMetadata::find(&frag_spread.directives)
         {

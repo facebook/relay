@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<53f5be51ad456654aa4101ce051166a8>>
+ * @generated SignedSource<<ab2f70586f663447512ae7144689a361>>
  */
 
 mod relay_compiler_integration;
@@ -255,6 +255,13 @@ async fn resolver_semantic_non_null_relayresolvervalue() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.expected");
     test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_relayresolvervalue.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_relayresolvervalue_disabled() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue_disabled.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue_disabled.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_relayresolvervalue_disabled.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue_disabled.expected", input, expected).await;
 }
 
 #[tokio::test]

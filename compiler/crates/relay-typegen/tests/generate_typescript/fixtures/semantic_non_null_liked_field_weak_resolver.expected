@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # relay:experimental_emit_semantic_nullability_types
-fragment MyFragment on ClientUser {
+fragment MyFragment on ClientUser @throwOnFieldError {
   blob {
     data
   }
@@ -33,7 +33,7 @@ import clientUserBlobResolverType from "bar";
 export type MyFragment$data = {
   readonly blob: {
     readonly data: string | null | undefined;
-  } | null | undefined;
+  };
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

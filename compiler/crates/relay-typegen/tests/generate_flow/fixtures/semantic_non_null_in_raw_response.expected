@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # relay:experimental_emit_semantic_nullability_types
-query MyQuery @raw_response_type {
+query MyQuery @raw_response_type @throwOnFieldError {
   opera {
     composer {
       name
@@ -17,13 +17,13 @@ query MyQuery @raw_response_type {
 export type MyQuery$variables = {||};
 export type MyQuery$data = {|
   +opera: ?{|
-    +cast: ?$ReadOnlyArray<?{|
-      +character: ?string,
-      +singer: ?{|
+    +cast: $ReadOnlyArray<{|
+      +character: string,
+      +singer: {|
         +name: ?string,
       |},
     |}>,
-    +composer: ?{|
+    +composer: {|
       +name: ?string,
     |},
   |},

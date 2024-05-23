@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3c050ca09443626e5c37c757025ed430>>
+ * @generated SignedSource<<fbad3b8f1e54b6a58a0190aff49f96bc>>
  */
 
 mod generate_flow;
@@ -783,17 +783,17 @@ async fn semantic_non_null_scalar_feature_disabled() {
 }
 
 #[tokio::test]
-async fn semantic_non_null_scalar_required() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_required.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_required.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_required.graphql", "generate_flow/fixtures/semantic_non_null_scalar_required.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn semantic_non_null_scalar_resolver() {
     let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_resolver.graphql");
     let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_resolver.expected");
     test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_resolver.graphql", "generate_flow/fixtures/semantic_non_null_scalar_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_null_required_throw_on_error() {
+    let input = include_str!("generate_flow/fixtures/semantic_null_required_throw_on_error.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_null_required_throw_on_error.expected");
+    test_fixture(transform_fixture, file!(), "semantic_null_required_throw_on_error.graphql", "generate_flow/fixtures/semantic_null_required_throw_on_error.expected", input, expected).await;
 }
 
 #[tokio::test]

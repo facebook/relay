@@ -13,6 +13,7 @@ use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use ::intern::Lookup;
+use common::DirectiveName;
 use common::InputObjectName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
@@ -22,6 +23,7 @@ use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use indexmap::IndexMap;
 use itertools::Itertools;
+use lazy_static::lazy_static;
 use relay_config::JsModuleFormat;
 use relay_config::TypegenLanguage;
 use relay_transforms::RefetchableDerivedFromMetadata;
@@ -74,6 +76,11 @@ use crate::VALIDATOR_EXPORT_NAME;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 
+lazy_static! {
+    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
+        DirectiveName("throwOnFieldError".intern());
+}
+
 pub(crate) fn write_operation_type_exports_section(
     typegen_context: &'_ TypegenContext<'_>,
     typegen_operation: &OperationDefinition,
@@ -90,6 +97,11 @@ pub(crate) fn write_operation_type_exports_section(
     let mut input_object_types = Default::default();
     let mut imported_raw_response_types = Default::default();
 
+    let is_throw_on_field_error = typegen_operation
+        .directives
+        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
+        .is_some();
+
     let type_selections = visit_selections(
         typegen_context,
         &typegen_operation.selections,
@@ -102,6 +114,7 @@ pub(crate) fn write_operation_type_exports_section(
         &mut custom_scalars,
         &mut runtime_imports,
         None,
+        is_throw_on_field_error,
     );
 
     let data_type = get_data_type(
@@ -132,6 +145,7 @@ pub(crate) fn write_operation_type_exports_section(
                 &mut runtime_imports,
                 &mut custom_scalars,
                 None,
+                is_throw_on_field_error,
             );
             Some((
                 raw_response_selections_to_babel(
@@ -217,8 +231,8 @@ pub(crate) fn write_operation_type_exports_section(
 
     if let Some(provided_variables_type) = expected_provided_variables_type {
         let actual_provided_variables_object = maybe_provided_variables_object.unwrap_or_else(|| {
-            panic!("Expected the provided variables object. If you see this error, it most likley a bug in the compiler.");
-    });
+             panic!("Expected the provided variables object. If you see this error, it most likley a bug in the compiler.");
+     });
 
         // Assert that expected type of provided variables matches
         // the flow/typescript types of functions with providers.
@@ -267,6 +281,11 @@ pub(crate) fn write_split_operation_type_exports_section(
     let mut runtime_imports = RuntimeImports::default();
     let mut custom_scalars = CustomScalarsImports::default();
 
+    let is_throw_on_field_error = typegen_operation
+        .directives
+        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
+        .is_some();
+
     let raw_response_selections = raw_response_visit_selections(
         typegen_context,
         &normalization_operation.selections,
@@ -277,6 +296,7 @@ pub(crate) fn write_split_operation_type_exports_section(
         &mut runtime_imports,
         &mut custom_scalars,
         None,
+        is_throw_on_field_error,
     );
     let raw_response_type = raw_response_selections_to_babel(
         typegen_context,
@@ -314,6 +334,11 @@ pub(crate) fn write_fragment_type_exports_section(
         .named(*ASSIGNABLE_DIRECTIVE)
         .is_some();
 
+    let is_throw_on_field_error = fragment_definition
+        .directives
+        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
+        .is_some();
+
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
@@ -338,6 +363,7 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut custom_scalars,
         &mut runtime_imports,
         None,
+        is_throw_on_field_error,
     );
     if !fragment_definition.type_condition.is_abstract_type() {
         let num_concrete_selections = type_selections

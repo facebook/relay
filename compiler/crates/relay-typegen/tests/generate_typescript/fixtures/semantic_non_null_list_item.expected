@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # relay:experimental_emit_semantic_nullability_types
-fragment MyFragment on ClientUser {
+fragment MyFragment on ClientUser @throwOnFieldError {
   favorite_numbers
 }
 
@@ -12,7 +12,7 @@ type ClientUser {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type MyFragment$data = {
-  readonly favorite_numbers: ReadonlyArray<number | null | undefined> | null | undefined;
+  readonly favorite_numbers: ReadonlyArray<number> | null | undefined;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

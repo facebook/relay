@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # relay:experimental_emit_semantic_nullability_types
-fragment MyFragment on ClientUser {
+fragment MyFragment on ClientUser @throwOnFieldError {
   name
 }
 
@@ -15,7 +15,7 @@ type ClientUser {
 import { FragmentRefs } from "relay-runtime";
 import clientUserNameResolverType from "bar";
 export type MyFragment$data = {
-  readonly name: ReturnType<typeof clientUserNameResolverType> | null | undefined;
+  readonly name: NonNullable<ReturnType<typeof clientUserNameResolverType>>;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

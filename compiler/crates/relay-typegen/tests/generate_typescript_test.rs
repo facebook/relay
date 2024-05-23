@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fd50a3d51a0a463eb51919b6c8aa53f8>>
+ * @generated SignedSource<<eb300cb32ed9687959138163e58e1663>>
  */
 
 mod generate_typescript;
@@ -458,13 +458,6 @@ async fn semantic_non_null_scalar_feature_disabled() {
     let input = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_feature_disabled.graphql");
     let expected = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_feature_disabled.expected");
     test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_feature_disabled.graphql", "generate_typescript/fixtures/semantic_non_null_scalar_feature_disabled.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_scalar_required() {
-    let input = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_required.graphql");
-    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_required.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_required.graphql", "generate_typescript/fixtures/semantic_non_null_scalar_required.expected", input, expected).await;
 }
 
 #[tokio::test]

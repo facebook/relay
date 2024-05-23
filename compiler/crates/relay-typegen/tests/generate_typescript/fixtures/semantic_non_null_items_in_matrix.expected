@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # relay:experimental_emit_semantic_nullability_types
-fragment MyFragment on Screen {
+fragment MyFragment on Screen @throwOnFieldError {
   pixels
 }
 
@@ -12,7 +12,7 @@ type Screen {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type MyFragment$data = {
-  readonly pixels: ReadonlyArray<ReadonlyArray<number | null | undefined> | null | undefined> | null | undefined;
+  readonly pixels: ReadonlyArray<ReadonlyArray<number> | null | undefined> | null | undefined;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

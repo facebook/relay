@@ -3,7 +3,7 @@
  * @RelayResolver User.foo: String @semanticNonNull
  * @rootFragment UserFooFragment
  */
-graphql`fragment UserFooFragment on User {
+graphql`fragment UserFooFragment on User @throwOnFieldError {
   bar
 }`
 

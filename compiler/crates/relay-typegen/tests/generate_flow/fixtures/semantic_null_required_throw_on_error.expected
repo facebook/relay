@@ -1,25 +1,26 @@
 ==================================== INPUT ====================================
 # relay:experimental_emit_semantic_nullability_types
 fragment MyFragment on ClientUser @throwOnFieldError {
-  name
+  nullable_name @required(action: LOG)
+  resolver_name @required(action: LOG)
 }
 
 %extensions%
 
 type ClientUser {
-  name: String @semanticNonNull @relay_resolver(
-      import_path: "./foo/bar.js"
-    )
+  nullable_name: String
+  resolver_name: RelayResolverValue @relay_resolver(import_path: "CatResolver")
 }
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
-import clientUserNameResolverType from "bar";
-// Type assertion validating that `clientUserNameResolverType` resolver is correctly implemented.
+import clientUserResolverNameResolverType from "CatResolver";
+// Type assertion validating that `clientUserResolverNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(clientUserNameResolverType: () => mixed);
+(clientUserResolverNameResolverType: () => ?mixed);
 declare export opaque type MyFragment$fragmentType: FragmentType;
-export type MyFragment$data = {|
-  +name: $NonMaybeType<ReturnType<typeof clientUserNameResolverType>>,
+export type MyFragment$data = ?{|
+  +nullable_name: string,
+  +resolver_name: $NonMaybeType<ReturnType<typeof clientUserResolverNameResolverType>>,
   +$fragmentType: MyFragment$fragmentType,
 |};
 export type MyFragment$key = {

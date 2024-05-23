@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # relay:experimental_emit_semantic_nullability_types
-fragment MyFragment on ClientUser {
+fragment MyFragment on ClientUser @throwOnFieldError {
   best_friend {
     name
   }
@@ -15,7 +15,7 @@ type ClientUser {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {|
-  +best_friend: ?{|
+  +best_friend: {|
     +name: ?string,
   |},
   +$fragmentType: MyFragment$fragmentType,

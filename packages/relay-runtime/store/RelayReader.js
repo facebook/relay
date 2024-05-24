@@ -462,9 +462,7 @@ class RelayReader {
               );
             }
           }
-
           break;
-
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;

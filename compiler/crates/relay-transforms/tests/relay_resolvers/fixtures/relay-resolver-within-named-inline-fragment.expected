@@ -19,10 +19,10 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on Node {
-  ... on User @__FragmentAliasMetadata
+  ... on User @alias(as: "aliased_fragment") @__FragmentAliasMetadata
   # FragmentAliasMetadata {
   #     alias: WithLocation {
-  #         location: relay-resolver-within-named-inline-fragment.graphql:49:51,
+  #         location: relay-resolver-within-named-inline-fragment.graphql:42:48,
   #         item: "aliased_fragment",
   #     },
   #     type_condition: Some(

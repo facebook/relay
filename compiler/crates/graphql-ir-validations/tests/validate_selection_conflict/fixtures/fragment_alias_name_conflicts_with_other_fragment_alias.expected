@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query RelayReaderNamedFragmentsTest2Query {
+  ... on Query @alias(as: "myAlias") {
+    __typename
+  }
+  ... on Query @alias(as: "myAlias") {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+✖︎ Fragment alias 'myAlias' is ambiguous. It conflicts with another named selection
+
+  fragment_alias_name_conflicts_with_other_fragment_alias.graphql:4:16
+    3 │ query RelayReaderNamedFragmentsTest2Query {
+    4 │   ... on Query @alias(as: "myAlias") {
+      │                ^^^^^^
+    5 │     __typename
+
+  ℹ︎ the other field
+
+  fragment_alias_name_conflicts_with_other_fragment_alias.graphql:7:16
+    6 │   }
+    7 │   ... on Query @alias(as: "myAlias") {
+      │                ^^^^^^
+    8 │     __typename

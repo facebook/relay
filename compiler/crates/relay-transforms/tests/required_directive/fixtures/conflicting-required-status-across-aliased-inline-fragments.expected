@@ -7,10 +7,10 @@ fragment Foo on Node {
 }
 ==================================== OUTPUT ===================================
 fragment Foo on Node @__childrenCanBubbleNull {
-  ... on MaybeNodeInterface @__FragmentAliasMetadata
+  ... on MaybeNodeInterface @alias(as: "aliased_fragment") @__FragmentAliasMetadata
   # FragmentAliasMetadata {
   #     alias: WithLocation {
-  #         location: conflicting-required-status-across-aliased-inline-fragments.graphql:60:62,
+  #         location: conflicting-required-status-across-aliased-inline-fragments.graphql:53:59,
   #         item: "aliased_fragment",
   #     },
   #     type_condition: Some(

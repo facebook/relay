@@ -103,7 +103,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
+        "The '{fragment_name}' is transformed to use @no_inline implicitly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective {
         fragment_name: FragmentDefinitionName,
@@ -150,14 +150,6 @@ pub enum ValidationMessage {
 
     #[error("Unexpected directive @alias. @alias is not currently enabled in this location.")]
     FragmentAliasDirectiveDisabled,
-
-    #[error("Expected the `as` argument of the @alias directive to be a static string.")]
-    FragmentAliasDirectiveDynamicNameArg,
-
-    #[error(
-        "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
-    )]
-    FragmentAliasDirectiveMissingAs,
 
     #[error(
         "Unexpected dynamic argument. {field_name}'s '{argument_name}' argument must be a constant value because it is read by the Relay compiler."

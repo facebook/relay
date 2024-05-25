@@ -227,17 +227,12 @@ impl Transformer for FragmentAliasTransform<'_> {
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
-        let type_condition = Some(
-            self.program
-                .fragment(spread.fragment.item)
-                .expect("I believe we have already validated that all fragments exist")
-                .type_condition,
-        );
-
         let fragment = self
             .program
             .fragment(spread.fragment.item)
             .expect("I believe we have already validated that all fragments exist");
+
+        let type_condition = Some(fragment.type_condition);
 
         match spread.alias() {
             Ok(Some(alias)) => {
@@ -277,7 +272,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                 })))
             }
             Ok(None) => {
-                if self.is_enforced && !self.will_always_match(Some(fragment.type_condition)) {
+                if self.is_enforced && !self.will_always_match(type_condition) {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::PotentiallyNotMatchingFragmentRequiresAlias,
                         spread.fragment.location,

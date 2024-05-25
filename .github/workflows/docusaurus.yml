@@ -26,7 +26,7 @@ jobs:
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: "Build Compiler Playground Wasm NPM package"
-        run: RUST_LOG=debug wasm-pack build --target web
+        run: wasm-pack build --target web
         working-directory: ./compiler/crates/relay-compiler-playground
       - uses: actions/upload-artifact@v4
         with:

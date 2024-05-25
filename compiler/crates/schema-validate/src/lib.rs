@@ -292,11 +292,11 @@ impl<'schema> ValidationContext<'schema> {
 
         for value in enum_.values.iter() {
             // Ensure valid name.
-            self.validate_name(value.value, context);
-            let value_name = value.value.lookup();
+            self.validate_name(value.value.item, context);
+            let value_name = value.value.item.lookup();
             if value_name == "true" || value_name == "false" || value_name == "null" {
                 self.report_error(
-                    SchemaValidationError::InvalidEnumValue(value.value),
+                    SchemaValidationError::InvalidEnumValue(value.value.item),
                     context,
                 );
             }

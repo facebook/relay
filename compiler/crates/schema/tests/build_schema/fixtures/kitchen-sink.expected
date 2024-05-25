@@ -227,7 +227,10 @@ Text Schema:Schema {
         is_extension: false,
         values: [
             EnumValue {
-                value: "DEAULT",
+                value: WithLocation {
+                    location: <generated>:353:359,
+                    item: "DEAULT",
+                },
                 directives: [
                     DirectiveValue {
                         name: DirectiveName(
@@ -253,11 +256,17 @@ Text Schema:Schema {
                 ],
             },
             EnumValue {
-                value: "PUBLIC",
+                value: WithLocation {
+                    location: <generated>:405:411,
+                    item: "PUBLIC",
+                },
                 directives: [],
             },
             EnumValue {
-                value: "PRIVATE",
+                value: WithLocation {
+                    location: <generated>:414:421,
+                    item: "PRIVATE",
+                },
                 directives: [],
             },
         ],
@@ -1174,7 +1183,10 @@ enums: [
         is_extension: false,
         values: [
             EnumValue {
-                value: "DEAULT",
+                value: WithLocation {
+                    location: <generated>:0:0,
+                    item: "DEAULT",
+                },
                 directives: [
                     DirectiveValue {
                         name: DirectiveName(
@@ -1200,11 +1212,17 @@ enums: [
                 ],
             },
             EnumValue {
-                value: "PUBLIC",
+                value: WithLocation {
+                    location: <generated>:0:0,
+                    item: "PUBLIC",
+                },
                 directives: [],
             },
             EnumValue {
-                value: "PRIVATE",
+                value: WithLocation {
+                    location: <generated>:0:0,
+                    item: "PRIVATE",
+                },
                 directives: [],
             },
         ],

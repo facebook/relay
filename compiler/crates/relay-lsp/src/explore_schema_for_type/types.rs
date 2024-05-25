@@ -193,7 +193,7 @@ fn get_schema_explorer_enum(enum_id: EnumID, schema: &SDLSchema) -> SchemaExplor
     let values = enum_
         .values
         .iter()
-        .map(|value| value.value.to_string())
+        .map(|value| value.value.item.to_string())
         .collect::<Vec<_>>();
     SchemaExplorerEnum {
         values,

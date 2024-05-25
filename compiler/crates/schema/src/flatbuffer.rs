@@ -332,7 +332,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_enum_value(&self, value: schema_flatbuffer::EnumValue<'fb>) -> Option<EnumValue> {
         let directives = self.parse_directive_values(value.directives()?)?;
         Some(EnumValue {
-            value: value.value()?.intern(),
+            value: WithLocation::generated(value.value()?.intern()),
             directives,
         })
     }

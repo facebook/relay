@@ -400,7 +400,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     ) -> WIPOffset<schema_flatbuffer::EnumValue<'fb>> {
         let directives = &self.serialize_directive_values(&value.directives);
         let args = schema_flatbuffer::EnumValueArgs {
-            value: Some(self.bldr.create_string(value.value.lookup())),
+            value: Some(self.bldr.create_string(value.value.item.lookup())),
             directives: Some(self.bldr.create_vector(directives)),
         };
         schema_flatbuffer::EnumValue::create(&mut self.bldr, &args)

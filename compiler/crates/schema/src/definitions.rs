@@ -580,7 +580,7 @@ pub struct DirectiveValue {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumValue {
-    pub value: StringKey,
+    pub value: WithLocation<StringKey>,
     pub directives: Vec<DirectiveValue>,
 }
 

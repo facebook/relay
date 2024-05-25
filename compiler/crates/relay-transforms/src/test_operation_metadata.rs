@@ -160,7 +160,7 @@ impl From<RelayTestOperationSelectionTypeInfo> for Vec<ConstantArgument> {
                     Some(enums) => ConstantValue::List(
                         enums
                             .iter()
-                            .map(|enum_| ConstantValue::String(enum_.value))
+                            .map(|enum_| ConstantValue::String(enum_.value.item))
                             .collect(),
                     ),
                     None => ConstantValue::Null(),

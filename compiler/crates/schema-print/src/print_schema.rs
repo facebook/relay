@@ -388,7 +388,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         write!(self.writer(), "{{")?;
         self.print_new_line()?;
         for value in values {
-            write!(self.writer(), "  {}", value.value,)?;
+            write!(self.writer(), "  {}", value.value.item,)?;
             self.print_directive_values(&value.directives)?;
             self.print_new_line()?;
         }

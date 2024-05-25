@@ -1818,7 +1818,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         if type_definition
             .values
             .iter()
-            .any(|enum_value| enum_value.value == value)
+            .any(|enum_value| enum_value.value.item == value)
         {
             Ok(ConstantValue::Enum(value))
         } else {

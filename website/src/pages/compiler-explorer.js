@@ -55,6 +55,7 @@ function CompilerExplorer() {
   const {
     state,
     setOutputType,
+    setInputWindow,
     setDocumentText,
     setSchemaText,
     setFeatureFlag,
@@ -64,12 +65,62 @@ function CompilerExplorer() {
   const output = results.Ok ?? '';
   const schemaDiagnostics = results.Err?.SchemaDiagnostics;
   const documentDiagnostics = results.Err?.DocumentDiagnostics;
+  const configError = results.Err?.ConfigError;
   const padding = 20;
   const Editor = useMemo(() => {
     // Loading the Editor component causes Docusaurus' build time pre-rendering to
     // crash, so we initializie it lazily.
     return require('../compiler-explorer/Editor').default;
   }, []);
+
+  const input = () => {
+    switch (state.inputWindow) {
+      case 'schema':
+        return (
+          <Editor
+            // Keys ensure state does not get shared between editors when we switch tabs
+            key="schema"
+            text={state.schemaText}
+            onDidChange={setSchemaText}
+            style={{flexGrow: 1}}
+            // We don't actually track spans when we parse the schema, so the
+            // locations here are bogus. :(
+            diagnostics={schemaDiagnostics}
+          />
+        );
+      case 'document':
+        return (
+          <Editor
+            // Keys ensure state does not get shared between editors when we switch tabs
+            key="document"
+            text={state.documentText}
+            onDidChange={setDocumentText}
+            style={{flexGrow: 3}}
+            diagnostics={documentDiagnostics}
+          />
+        );
+      case 'config':
+        return (
+          <div
+            style={{
+              display: 'flex',
+              padding,
+              flexGrow: 1,
+              flexDirection: 'column',
+              columnGap: padding,
+            }}>
+            <Config
+              setFeatureFlag={setFeatureFlag}
+              featureFlags={state.featureFlags}
+            />
+            <TypegenConfig
+              setLanguage={setLanguage}
+              language={state.language}
+            />
+          </div>
+        );
+    }
+  };
 
   return (
     <div
@@ -78,12 +129,18 @@ function CompilerExplorer() {
         display: 'flex',
         flexDirection: 'column',
         padding: padding,
-        rowGap: padding,
-        backgroundColor: 'var(--light-bg-color)',
       }}>
       <div style={{display: 'flex', columnGap: padding}}>
         <div style={{width: '50%', alignSelf: 'flex-end'}}>
-          <ExplorerHeading>Schema</ExplorerHeading>
+          <Tabs
+            values={[
+              {value: 'schema', label: 'Schema'},
+              {value: 'document', label: 'Document'},
+              {value: 'config', label: 'Config'},
+            ]}
+            selectedValue={state.inputWindow}
+            setSelectedValue={selected => setInputWindow(selected)}
+          />
         </div>
         <div style={{width: '50%'}}>
           <Tabs
@@ -102,31 +159,11 @@ function CompilerExplorer() {
       </div>
       <div style={{display: 'flex', flexGrow: 1, columnGap: padding}}>
         <div style={{width: '50%', display: 'flex', flexDirection: 'column'}}>
-          <Editor
-            text={state.schemaText}
-            onDidChange={setSchemaText}
-            style={{flexGrow: 1}}
-            // We don't actually track spans when we parse the schema, so the
-            // locations here are bogus. :(
-            diagnostics={schemaDiagnostics}
-          />
-          <ExplorerHeading>Document</ExplorerHeading>
-          <Editor
-            text={state.documentText}
-            onDidChange={setDocumentText}
-            style={{flexGrow: 3}}
-            diagnostics={documentDiagnostics}
-          />
-          <ExplorerHeading>Feature Flags</ExplorerHeading>
-          <Config
-            setFeatureFlag={setFeatureFlag}
-            featureFlags={state.featureFlags}
-          />
-          <TypegenConfig setLanguage={setLanguage} language={state.language} />
+          {input()}
         </div>
         <div style={{width: '50%', display: 'flex'}}>
           <div style={{flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
-            <Editor text={output} style={{flexGrow: 1}} />
+            <Editor text={configError ?? output} style={{flexGrow: 1}} />
           </div>
         </div>
       </div>

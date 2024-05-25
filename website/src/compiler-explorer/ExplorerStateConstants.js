@@ -56,11 +56,48 @@ export const FEATURE_FLAGS = [
     kind: 'enum',
     default: true,
   },
+  {
+    key: 'skip_printing_nulls',
+    label: 'Skip Printing Nulls',
+    kind: 'enum',
+    default: false,
+  },
+  {
+    key: 'compact_query_text',
+    label: 'Compact Query Text',
+    kind: 'enum',
+    default: false,
+  },
+  {
+    key: 'enable_fragment_argument_transform',
+    label: 'Fragment Arguments Syntax',
+    kind: 'bool',
+    default: false,
+  },
+  {
+    key: 'enable_fragment_aliases',
+    label: '@alias',
+    kind: 'enum',
+    default: true,
+  },
+  {
+    key: 'enable_catch_directive_transform',
+    label: '@catch',
+    kind: 'enum',
+    default: false,
+  },
+  {
+    key: 'disallow_required_on_non_null_fields',
+    label: 'Disallow Required on Non-Null Fields',
+    kind: 'bool',
+    default: false,
+  },
 ];
 
 export const DEFAULT_STATE = {
   schemaText: DEFAULT_SCHEMA,
   documentText: DEFAULT_DOCUMENT,
+  inputWindow: 'schema',
   outputType: 'operation',
   featureFlags: Object.fromEntries(FEATURE_FLAGS.map(f => [f.key, f.default])),
   language: 'typescript',

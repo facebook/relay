@@ -73,6 +73,140 @@ describe('Fragment Spreads', () => {
     });
   });
 
+  it('Reads an conditional aliased fragment as its own field (alias then skip)', () => {
+    const userTypeID = generateTypeID('User');
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+      },
+      [userTypeID]: {
+        __id: userTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+      },
+    });
+
+    graphql`
+      fragment RelayReaderAliasedFragmentsTestConditionalFragment on User {
+        name
+      }
+    `;
+    const FooQuery = graphql`
+      query RelayReaderAliasedFragmentsTestConditionalQuery(
+        $someCondition: Boolean!
+      ) {
+        me {
+          ...RelayReaderAliasedFragmentsTestConditionalFragment
+            @alias(as: "aliased_fragment")
+            @skip(if: $someCondition)
+        }
+      }
+    `;
+    const operationSkipped = createOperationDescriptor(FooQuery, {
+      someCondition: true,
+    });
+    const {data: dataSkipped, isMissingData: isMissingDataSkipped} = read(
+      source,
+      operationSkipped.fragment,
+    );
+    expect(isMissingDataSkipped).toBe(false);
+    expect(dataSkipped).toEqual({
+      me: {
+        // aliased_fragment is not added here
+      },
+    });
+
+    const operationNotSkipped = createOperationDescriptor(FooQuery, {
+      someCondition: false,
+    });
+    const {data, isMissingData} = read(source, operationNotSkipped.fragment);
+    expect(isMissingData).toBe(false);
+    expect(data).toEqual({
+      me: {
+        aliased_fragment: {
+          __id: '1',
+          __fragments: {
+            RelayReaderAliasedFragmentsTestConditionalFragment: {},
+          },
+          __fragmentOwner: operationNotSkipped.request,
+        },
+      },
+    });
+  });
+
+  it('Reads an conditional aliased fragment as its own field (skip then alias)', () => {
+    const userTypeID = generateTypeID('User');
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+      },
+      [userTypeID]: {
+        __id: userTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+      },
+    });
+
+    graphql`
+      fragment RelayReaderAliasedFragmentsTestConditional2Fragment on User {
+        name
+      }
+    `;
+    const FooQuery = graphql`
+      query RelayReaderAliasedFragmentsTestConditional2Query(
+        $someCondition: Boolean!
+      ) {
+        me {
+          ...RelayReaderAliasedFragmentsTestConditionalFragment
+            @skip(if: $someCondition)
+            @alias(as: "aliased_fragment")
+        }
+      }
+    `;
+    const operationSkipped = createOperationDescriptor(FooQuery, {
+      someCondition: true,
+    });
+    const {data: dataSkipped, isMissingData: isMissingDataSkipped} = read(
+      source,
+      operationSkipped.fragment,
+    );
+    expect(isMissingDataSkipped).toBe(false);
+    expect(dataSkipped).toEqual({
+      me: {
+        // aliased_fragment is not added here
+      },
+    });
+
+    const operationNotSkipped = createOperationDescriptor(FooQuery, {
+      someCondition: false,
+    });
+    const {data, isMissingData} = read(source, operationNotSkipped.fragment);
+    expect(isMissingData).toBe(false);
+    expect(data).toEqual({
+      me: {
+        aliased_fragment: {
+          __id: '1',
+          __fragments: {
+            RelayReaderAliasedFragmentsTestConditionalFragment: {},
+          },
+          __fragmentOwner: operationNotSkipped.request,
+        },
+      },
+    });
+  });
+
   it('Reads null if the fragment is on a concrete type that does not match the abstract parent selection.', () => {
     const userTypeID = generateTypeID('User');
     const source = RelayRecordSource.create({

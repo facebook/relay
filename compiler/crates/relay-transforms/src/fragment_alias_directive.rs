@@ -11,9 +11,11 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
-use common::FeatureFlag;
+use common::Location;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
+use graphql_ir::Condition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
@@ -22,6 +24,7 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -46,9 +49,10 @@ associated_data_impl!(FragmentAliasMetadata);
 
 pub fn fragment_alias_directive(
     program: &Program,
-    feature_flag: &FeatureFlag,
+    is_enabled: bool,
+    is_enforced: bool,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = FragmentAliasTransform::new(program, feature_flag);
+    let mut transform = FragmentAliasTransform::new(program, is_enabled, is_enforced);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -62,18 +66,22 @@ pub fn fragment_alias_directive(
 struct FragmentAliasTransform<'program> {
     program: &'program Program,
     is_enabled: bool,
+    is_enforced: bool,
     document_name: Option<StringKey>,
     parent_type: Option<Type>,
+    is_condition: Option<Location>,
     errors: Vec<Diagnostic>,
 }
 
 impl<'program> FragmentAliasTransform<'program> {
-    fn new(program: &'program Program, feature_flag: &'program FeatureFlag) -> Self {
+    fn new(program: &'program Program, enabled: bool, enforced: bool) -> Self {
         Self {
             program,
-            is_enabled: feature_flag.is_fully_enabled(),
+            is_enabled: enabled,
+            is_enforced: enforced,
             document_name: None,
             parent_type: None,
+            is_condition: None,
             errors: Vec::new(),
         }
     }
@@ -106,6 +114,37 @@ impl Transformer for FragmentAliasTransform<'_> {
         self.parent_type = None;
         self.document_name = None;
         transformed
+    }
+
+    fn transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
+        self.is_condition = Some(condition.location);
+        let selections = transform_list(&condition.selections, |selection| {
+            self.transform_selection(selection)
+        });
+        self.is_condition = None;
+        if let TransformedValue::Replace(selections) = &selections {
+            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
+                return Transformed::Delete;
+            }
+        }
+        let condition_value = self.transform_condition_value(&condition.value);
+        if selections.should_keep() && condition_value.should_keep() {
+            Transformed::Keep
+        } else {
+            Transformed::Replace(Selection::Condition(Arc::new(Condition {
+                value: condition_value.replace_or_else(|| condition.value.clone()),
+                selections: selections.replace_or_else(|| condition.selections.clone()),
+                ..condition.clone()
+            })))
+        }
+    }
+
+    fn transform_selections(
+        &mut self,
+        selections: &[Selection],
+    ) -> TransformedValue<Vec<Selection>> {
+        self.is_condition = None;
+        transform_list(selections, |selection| self.transform_selection(selection))
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
@@ -188,7 +227,37 @@ impl Transformer for FragmentAliasTransform<'_> {
                     directives,
                 })))
             }
-            Ok(None) => self.default_transform_fragment_spread(spread),
+            Ok(None) => {
+                let fragment = self
+                    .program
+                    .fragment(spread.fragment.item)
+                    .expect("I believe we have already validated that all fragments exist");
+
+                if self.is_enforced {
+                    if let Some(condition_location) = self.is_condition {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::FragmentAliasRequiredOnConditionalFragment,
+                            condition_location,
+                        ));
+                    }
+
+                    let parent_type = self
+                        .parent_type
+                        .expect("Selection should be within a parent type.");
+
+                    if !self
+                        .program
+                        .schema
+                        .is_named_type_subtype_of(parent_type, fragment.type_condition)
+                    {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::FragmentTypeMismatchRequiresAlias,
+                            fragment.name.location,
+                        ));
+                    }
+                }
+                self.default_transform_fragment_spread(spread)
+            }
             Err(diagnostics) => {
                 self.errors.extend(diagnostics);
                 self.default_transform_fragment_spread(spread)

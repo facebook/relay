@@ -56,6 +56,11 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_fragment_aliases: FeatureFlag,
 
+    /// Enforce that you must add `@alias` to a fragment if it may not match,
+    /// due to type mismatch or `@skip`/`@include`
+    #[serde(default)]
+    pub enforce_fragment_alias_where_ambiguous: FeatureFlag,
+
     /// Print queries in compact form
     #[serde(default)]
     pub compact_query_text: FeatureFlag,

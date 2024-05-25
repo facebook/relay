@@ -70,6 +70,7 @@ const Guides = fbContent({
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
     'guides/required-directive',
+    'guides/alias-directive',
     'guides/client-schema-extensions',
     'guides/type-emission',
     'guided-tour/rendering/error-states',
@@ -122,6 +123,7 @@ const Guides = fbContent({
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
     'guides/required-directive',
+    'guides/alias-directive',
     'guided-tour/rendering/error-states',
     GuidesRescuedFromOldTutorial,
     // TODO(T84797602) release incremental data delivery externally

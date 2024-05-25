@@ -148,8 +148,13 @@ pub enum ValidationMessage {
     #[error("Unexpected directive @catch. @catch is not yet implemented.")]
     CatchDirectiveNotImplemented,
 
-    #[error("Unexpected directive @alias. @alias is not currently enabled in this location.")]
+    #[error("Unexpected directive `@alias`. `@alias` is not currently enabled in this location.")]
     FragmentAliasDirectiveDisabled,
+
+    #[error(
+        "Unexpected `@alias` on spread of plural fragment. @alias may not be used on fragments marked as `@relay(plural: true)`."
+    )]
+    PluralFragmentAliasNotSupported,
 
     #[error(
         "Expected to find @alias directive. Fragments which might not be fetched due to type conditions or @skip/@include must use @alias."

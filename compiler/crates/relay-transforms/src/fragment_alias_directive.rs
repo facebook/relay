@@ -32,7 +32,8 @@ use lazy_static::lazy_static;
 use schema::Schema;
 use schema::Type;
 
-use crate::ValidationMessage;
+use crate::RelayDirective;
+use crate::ValidationMessage; // Import the Named trait
 
 lazy_static! {
     pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: DirectiveName = DirectiveName("alias".intern());
@@ -232,6 +233,12 @@ impl Transformer for FragmentAliasTransform<'_> {
                 .expect("I believe we have already validated that all fragments exist")
                 .type_condition,
         );
+
+        let fragment = self
+            .program
+            .fragment(spread.fragment.item)
+            .expect("I believe we have already validated that all fragments exist");
+
         match spread.alias() {
             Ok(Some(alias)) => {
                 if !self.is_enabled {
@@ -239,8 +246,18 @@ impl Transformer for FragmentAliasTransform<'_> {
                         ValidationMessage::FragmentAliasDirectiveDisabled,
                         alias.location,
                     ));
-                    self.default_transform_fragment_spread(spread);
                 }
+
+                let is_plural = RelayDirective::find(&fragment.directives)
+                    .map_or(false, |directive| directive.plural);
+
+                if is_plural {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::PluralFragmentAliasNotSupported,
+                        alias.location,
+                    ));
+                }
+
                 let alias_metadata = FragmentAliasMetadata {
                     alias,
                     type_condition,
@@ -260,11 +277,6 @@ impl Transformer for FragmentAliasTransform<'_> {
                 })))
             }
             Ok(None) => {
-                let fragment = self
-                    .program
-                    .fragment(spread.fragment.item)
-                    .expect("I believe we have already validated that all fragments exist");
-
                 if self.is_enforced && !self.will_always_match(Some(fragment.type_condition)) {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::PotentiallyNotMatchingFragmentRequiresAlias,

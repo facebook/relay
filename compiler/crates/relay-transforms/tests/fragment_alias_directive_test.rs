@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4153f0b84404faf17ff401c56c9fbc90>>
+ * @generated SignedSource<<7b4d24847bb79949a7454b68ef57bd2a>>
  */
 
 mod fragment_alias_directive;
@@ -24,6 +24,13 @@ async fn alias_on_named_fragment() {
     let input = include_str!("fragment_alias_directive/fixtures/alias_on_named_fragment.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/alias_on_named_fragment.expected");
     test_fixture(transform_fixture, file!(), "alias_on_named_fragment.graphql", "fragment_alias_directive/fixtures/alias_on_named_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn alias_on_spread_of_plural_fragment_invalid() {
+    let input = include_str!("fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment.invalid.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment.invalid.expected");
+    test_fixture(transform_fixture, file!(), "alias_on_spread_of_plural_fragment.invalid.graphql", "fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

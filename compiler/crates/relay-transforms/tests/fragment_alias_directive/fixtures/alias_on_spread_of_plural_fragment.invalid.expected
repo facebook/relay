@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment RelayReaderNamedFragmentsTest_user on User @relay(plural: true) {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  nodes {
+    ...RelayReaderNamedFragmentsTest_user @alias
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unexpected `@alias` on spread of plural fragment. @alias may not be used on fragments marked as `@relay(plural: true)`.
+
+  alias_on_spread_of_plural_fragment.invalid.graphql:8:43
+    7 │   nodes {
+    8 │     ...RelayReaderNamedFragmentsTest_user @alias
+      │                                           ^^^^^^
+    9 │   }

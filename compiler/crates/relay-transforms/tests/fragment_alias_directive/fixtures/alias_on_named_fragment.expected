@@ -14,7 +14,7 @@ query RelayReaderNamedFragmentsTest2Query {
     ...RelayReaderNamedFragmentsTest_user @alias(as: "aliased_fragment") @__FragmentAliasMetadata
     # FragmentAliasMetadata {
     #     alias: WithLocation {
-    #         location: alias_on_named_fragment.graphql:157:163,
+    #         location: alias_on_named_fragment.graphql:168:186,
     #         item: "aliased_fragment",
     #     },
     #     type_condition: Some(

@@ -22,7 +22,7 @@ fragment Foo_user on Node {
   ... on User @alias(as: "aliased_fragment") @__FragmentAliasMetadata
   # FragmentAliasMetadata {
   #     alias: WithLocation {
-  #         location: relay-resolver-within-named-inline-fragment.graphql:42:48,
+  #         location: relay-resolver-within-named-inline-fragment.graphql:53:71,
   #         item: "aliased_fragment",
   #     },
   #     type_condition: Some(

@@ -709,10 +709,16 @@ pub enum ConditionValue {
 fn alias_arg_as(alias_directive: &Directive) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
     match alias_directive.arguments.named(ArgumentName(intern!("as"))) {
         Some(arg) => match arg.value.item {
-            Value::Constant(ConstantValue::String(alias)) => Ok(Some(WithLocation::new(
-                alias_directive.name.location,
-                alias,
-            ))),
+            Value::Constant(ConstantValue::String(alias)) => {
+                if alias == intern!("") {
+                    Err(vec![Diagnostic::error(
+                        ValidationMessage::FragmentAliasIsEmptyString,
+                        arg.value.location,
+                    )])
+                } else {
+                    Ok(Some(WithLocation::new(arg.value.location, alias)))
+                }
+            }
             _ => Err(vec![Diagnostic::error(
                 ValidationMessage::FragmentAliasDirectiveDynamicNameArg,
                 alias_directive.name.location,

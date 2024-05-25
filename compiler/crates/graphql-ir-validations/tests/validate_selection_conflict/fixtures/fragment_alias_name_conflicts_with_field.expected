@@ -21,8 +21,8 @@ query RelayReaderNamedFragmentsTest2Query {
 
   ℹ︎ the other field
 
-  fragment_alias_name_conflicts_with_field.graphql:9:43
+  fragment_alias_name_conflicts_with_field.graphql:9:54
     8 │     name
     9 │     ...RelayReaderNamedFragmentsTest_user @alias(as: "name")
-      │                                           ^^^^^^
+      │                                                      ^^^^^^
    10 │   }

@@ -23,8 +23,8 @@ query RelayReaderNamedFragmentsTest2Query {
 
   ℹ︎ the other field
 
-  fragment_alias_name_conflicts_with_field_in_inline_fragment.graphql:11:43
+  fragment_alias_name_conflicts_with_field_in_inline_fragment.graphql:11:54
    10 │     }
    11 │     ...RelayReaderNamedFragmentsTest_user @alias(as: "name")
-      │                                           ^^^^^^
+      │                                                      ^^^^^^
    12 │   }

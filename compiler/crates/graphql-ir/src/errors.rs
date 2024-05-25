@@ -557,6 +557,11 @@ pub enum ValidationMessage {
     FragmentAliasDirectiveDynamicNameArg,
 
     #[error(
+        "Unexpected empty string supplied for `as` argument of the @alias directive. If provided, the `as` argument of the `@alias` directive must be a non-empty string literal."
+    )]
+    FragmentAliasIsEmptyString,
+
+    #[error(
         "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
     )]
     FragmentAliasDirectiveMissingAs,

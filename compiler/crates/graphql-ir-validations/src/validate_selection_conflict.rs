@@ -689,7 +689,6 @@ mod ignoring_type_and_location {
 )]
 #[serde(tag = "type")]
 enum ValidationMessage {
-    // FIXME: Improve message
     #[error(
         "Fragment alias '{response_key}' is ambiguous. It conflicts with another named selection"
     )]

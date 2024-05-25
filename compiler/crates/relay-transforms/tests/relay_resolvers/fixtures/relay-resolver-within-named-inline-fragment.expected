@@ -28,6 +28,7 @@ fragment Foo_user on Node {
   #     type_condition: Some(
   #         Object(70),
   #     ),
+  #     non_nullable: false,
   #     selection_type: Object(70),
   # }
    {

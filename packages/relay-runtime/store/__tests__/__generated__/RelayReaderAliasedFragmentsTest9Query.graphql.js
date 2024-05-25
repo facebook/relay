@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6185b9deb72156ede7d2f95b30fb449b>>
+ * @generated SignedSource<<0650afd49b207f54a8a03a07b6bb4d5e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type RelayReaderAliasedFragmentsTest9Query$variables = {|
 |};
 export type RelayReaderAliasedFragmentsTest9Query$data = {|
   +node: ?{|
-    +aliased_fragment: ?{|
+    +aliased_fragment: {|
       +name: ?string,
     |},
   |},

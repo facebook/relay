@@ -6,7 +6,7 @@ fragment Foo on Node {
     name
 }
 ==================================== OUTPUT ===================================
-fragment Foo on Node @__childrenCanBubbleNull {
+fragment Foo on Node {
   ... on MaybeNodeInterface @alias(as: "aliased_fragment") @__FragmentAliasMetadata
   # FragmentAliasMetadata {
   #     alias: WithLocation {
@@ -16,9 +16,10 @@ fragment Foo on Node @__childrenCanBubbleNull {
   #     type_condition: Some(
   #         Interface(0),
   #     ),
+  #     non_nullable: false,
   #     selection_type: Interface(0),
   # }
-   {
+   @__childrenCanBubbleNull {
     name @required(action: NONE) @__RequiredMetadataDirective
     # RequiredMetadataDirective {
     #     action: None,

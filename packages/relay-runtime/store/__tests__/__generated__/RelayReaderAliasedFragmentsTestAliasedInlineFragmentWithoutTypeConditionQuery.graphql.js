@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97ca643723e7497085fec14deaf89aba>>
+ * @generated SignedSource<<caddf3baeed0a3713db1ab8b2cb1ead8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,17 +18,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderAliasedFragmentsTest6Query$variables = {||};
-export type RelayReaderAliasedFragmentsTest6Query$data = {|
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables = {||};
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data = {|
   +me: ?{|
     +aliased_fragment: {|
       +name: string,
     |},
   |},
 |};
-export type RelayReaderAliasedFragmentsTest6Query = {|
-  response: RelayReaderAliasedFragmentsTest6Query$data,
-  variables: RelayReaderAliasedFragmentsTest6Query$variables,
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery = {|
+  response: RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data,
+  variables: RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables,
 |};
 */
 
@@ -45,7 +45,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "RelayReaderAliasedFragmentsTest6Query",
+    "name": "RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery",
     "selections": [
       {
         "alias": null,
@@ -66,7 +66,7 @@ return {
                   "path": "me.aliased_fragment.name"
                 }
               ],
-              "type": "User",
+              "type": null,
               "abstractKey": null
             },
             "kind": "AliasedInlineFragmentSpread",
@@ -83,7 +83,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayReaderAliasedFragmentsTest6Query",
+    "name": "RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery",
     "selections": [
       {
         "alias": null,
@@ -107,21 +107,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "0d138c98b2b7dad8231801706f76953f",
+    "cacheID": "4cc950c6ab6ecce0af2e58e9ebbe882a",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderAliasedFragmentsTest6Query",
+    "name": "RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery",
     "operationKind": "query",
-    "text": "query RelayReaderAliasedFragmentsTest6Query {\n  me {\n    name\n    id\n  }\n}\n"
+    "text": "query RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery {\n  me {\n    name\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "24fe7d5478a70415faf6e8ae31989c84";
+  (node/*: any*/).hash = "2e11b67dd1bbc6f668f878ea40e358e7";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  RelayReaderAliasedFragmentsTest6Query$variables,
-  RelayReaderAliasedFragmentsTest6Query$data,
+  RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables,
+  RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data,
 >*/);

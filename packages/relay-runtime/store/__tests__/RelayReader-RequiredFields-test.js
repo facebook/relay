@@ -55,6 +55,76 @@ describe('RelayReader @required', () => {
     expect(data).toEqual({me: null});
   });
 
+  it('bubbles @required(action: LOG) up to aliased inline fragment without type condition', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        backgroundImage: {__ref: 'client:2'},
+      },
+      'client:2': {
+        __id: 'client:2',
+        __typename: 'Image',
+        uri: null,
+      },
+    });
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery {
+        me {
+          ... @alias(as: "requiredFields") {
+            backgroundImage @required(action: LOG) {
+              uri @required(action: LOG)
+            }
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: {requiredFields: null}});
+  });
+
+  it('bubbles @required(action: LOG) up to aliased inline fragment _with_ type condition', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        backgroundImage: {__ref: 'client:2'},
+      },
+      'client:2': {
+        __id: 'client:2',
+        __typename: 'Image',
+        uri: null,
+      },
+    });
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery {
+        me {
+          ... on User @alias(as: "requiredFields") {
+            backgroundImage @required(action: LOG) {
+              uri @required(action: LOG)
+            }
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: {requiredFields: null}});
+  });
+
   it('if two @required(action: THROW) errors cascade, report the more deeply nested one', () => {
     const source = RelayRecordSource.create({
       'client:root': {

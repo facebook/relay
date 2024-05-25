@@ -152,14 +152,9 @@ pub enum ValidationMessage {
     FragmentAliasDirectiveDisabled,
 
     #[error(
-        "Expected to find @alias directive. Fragments which are conditionally fetched using @skip or @include must also use @alias."
+        "Expected to find @alias directive. Fragments which might not be fetched due to type conditions or @skip/@include must use @alias."
     )]
-    FragmentAliasRequiredOnConditionalFragment,
-
-    #[error(
-        "Expected to find @alias directive. Fragments whose types might not match must use @alias."
-    )]
-    FragmentTypeMismatchRequiresAlias,
+    PotentiallyNotMatchingFragmentRequiresAlias,
 
     #[error(
         "Unexpected dynamic argument. {field_name}'s '{argument_name}' argument must be a constant value because it is read by the Relay compiler."

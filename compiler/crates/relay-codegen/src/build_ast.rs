@@ -1903,6 +1903,21 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         kind: Primitive::String(CODEGEN_CONSTANTS.client_extension),
                         selections: selections,
                     }))
+                } else if let Some(fragment_alias_metadata) =
+                    FragmentAliasMetadata::find(&inline_frag.directives)
+                {
+                    let selections = self.build_selections(context, inline_frag.selections.iter());
+                    let primitive = Primitive::Key(self.object(object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.inline_fragment),
+                        selections: selections,
+                        type_: Primitive::SkippableNull,
+                        abstract_key: Primitive::SkippableNull,
+                    }));
+                    Primitive::Key(self.object(object! {
+                        fragment: primitive,
+                        kind: Primitive::String(CODEGEN_CONSTANTS.aliased_inline_fragment_spread),
+                        name: Primitive::String(fragment_alias_metadata.alias.item),
+                    }))
                 } else {
                     // TODO(T63559346): Handle anonymous inline fragments with no directives
                     panic!(

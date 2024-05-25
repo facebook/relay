@@ -11,10 +11,10 @@ query RelayReaderNamedFragmentsTest2Query($someCondition: Boolean!) {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected to find @alias directive. Fragments which are conditionally fetched using @skip or @include must also use @alias.
+✖︎ Expected to find @alias directive. Fragments which might not be fetched due to type conditions or @skip/@include must use @alias.
 
-  skip_fragment_spread_without_alias.invalid.graphql:9:43
+  skip_fragment_spread_without_alias.invalid.graphql:9:8
     8 │     # This might not match!
     9 │     ...RelayReaderNamedFragmentsTest_user @skip(if: $someCondition)
-      │                                           ^^^^^
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    10 │   }

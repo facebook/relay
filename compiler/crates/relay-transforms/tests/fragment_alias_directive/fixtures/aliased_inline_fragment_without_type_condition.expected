@@ -18,6 +18,7 @@ query RelayReaderNamedFragmentsTest2Query {
     #         item: "aliased_fragment",
     #     },
     #     type_condition: None,
+    #     non_nullable: true,
     #     selection_type: Object(70),
     # }
      {

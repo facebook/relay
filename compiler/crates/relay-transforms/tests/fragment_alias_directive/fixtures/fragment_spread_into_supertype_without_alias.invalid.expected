@@ -11,10 +11,10 @@ query RelayReaderNamedFragmentsTest2Query {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected to find @alias directive. Fragments whose types might not match must use @alias.
+✖︎ Expected to find @alias directive. Fragments which might not be fetched due to type conditions or @skip/@include must use @alias.
 
-  fragment_spread_into_supertype_without_alias.invalid.graphql:2:10
-    1 │ # expected-to-throw
-    2 │ fragment RelayReaderNamedFragmentsTest_user on User {
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │   name
+  fragment_spread_into_supertype_without_alias.invalid.graphql:9:8
+    8 │     # This might not match!
+    9 │     ...RelayReaderNamedFragmentsTest_user
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   }

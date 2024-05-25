@@ -43,6 +43,7 @@ lazy_static! {
 pub struct FragmentAliasMetadata {
     pub alias: WithLocation<StringKey>,
     pub type_condition: Option<Type>,
+    pub non_nullable: bool,
     pub selection_type: Type,
 }
 associated_data_impl!(FragmentAliasMetadata);
@@ -83,6 +84,32 @@ impl<'program> FragmentAliasTransform<'program> {
             parent_type: None,
             is_condition: None,
             errors: Vec::new(),
+        }
+    }
+
+    fn will_always_match(&self, type_condition: Option<Type>) -> bool {
+        if self.is_condition.is_some() {
+            return false;
+        }
+        match type_condition {
+            Some(type_condition) => {
+                let parent_type = self
+                    .parent_type
+                    .expect("Selection should be within a parent type.");
+
+                println!(
+                    "parent_type: {:?}",
+                    self.program.schema.get_type_name(parent_type)
+                );
+                println!(
+                    "type_condition: {:?}",
+                    self.program.schema.get_type_name(type_condition)
+                );
+                self.program
+                    .schema
+                    .is_named_type_subtype_of(parent_type, type_condition)
+            }
+            None => true,
         }
     }
 }
@@ -150,6 +177,9 @@ impl Transformer for FragmentAliasTransform<'_> {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         let previous_parent_type = self.parent_type;
 
+        // Note: This must be called before we set self.parent_type
+        let will_always_match = self.will_always_match(fragment.type_condition);
+
         if let Some(type_condition) = fragment.type_condition {
             self.parent_type = Some(type_condition);
         }
@@ -166,6 +196,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                 let alias_metadata = FragmentAliasMetadata {
                     alias,
                     type_condition: fragment.type_condition,
+                    non_nullable: will_always_match,
                     selection_type: self
                         .parent_type
                         .expect("Selection should be within a parent type."),
@@ -213,6 +244,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                 let alias_metadata = FragmentAliasMetadata {
                     alias,
                     type_condition,
+                    non_nullable: self.will_always_match(type_condition),
                     selection_type: self
                         .parent_type
                         .expect("Selection should be within a parent type."),
@@ -233,28 +265,11 @@ impl Transformer for FragmentAliasTransform<'_> {
                     .fragment(spread.fragment.item)
                     .expect("I believe we have already validated that all fragments exist");
 
-                if self.is_enforced {
-                    if let Some(condition_location) = self.is_condition {
-                        self.errors.push(Diagnostic::error(
-                            ValidationMessage::FragmentAliasRequiredOnConditionalFragment,
-                            condition_location,
-                        ));
-                    }
-
-                    let parent_type = self
-                        .parent_type
-                        .expect("Selection should be within a parent type.");
-
-                    if !self
-                        .program
-                        .schema
-                        .is_named_type_subtype_of(parent_type, fragment.type_condition)
-                    {
-                        self.errors.push(Diagnostic::error(
-                            ValidationMessage::FragmentTypeMismatchRequiresAlias,
-                            fragment.name.location,
-                        ));
-                    }
+                if self.is_enforced && !self.will_always_match(Some(fragment.type_condition)) {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::PotentiallyNotMatchingFragmentRequiresAlias,
+                        spread.fragment.location,
+                    ));
                 }
                 self.default_transform_fragment_spread(spread)
             }

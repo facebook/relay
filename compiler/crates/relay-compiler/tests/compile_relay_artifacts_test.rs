@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<032e96a9d849133e090c3591b21964db>>
+ * @generated SignedSource<<c51618c8e21c77032a8b852e20d53d6d>>
  */
 
 mod compile_relay_artifacts;
@@ -1445,6 +1445,13 @@ async fn required_bubbles_to_client_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected");
     test_fixture(transform_fixture, file!(), "required-bubbles-to-client-edge.graphql", "compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn required_bubbles_to_inline_aliased_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-inline-aliased-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-inline-aliased-fragment.expected");
+    test_fixture(transform_fixture, file!(), "required-bubbles-to-inline-aliased-fragment.graphql", "compile_relay_artifacts/fixtures/required-bubbles-to-inline-aliased-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

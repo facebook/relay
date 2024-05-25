@@ -98,14 +98,6 @@ impl<'program> FragmentAliasTransform<'program> {
                     .parent_type
                     .expect("Selection should be within a parent type.");
 
-                println!(
-                    "parent_type: {:?}",
-                    self.program.schema.get_type_name(parent_type)
-                );
-                println!(
-                    "type_condition: {:?}",
-                    self.program.schema.get_type_name(type_condition)
-                );
                 self.program
                     .schema
                     .is_named_type_subtype_of(parent_type, type_condition)

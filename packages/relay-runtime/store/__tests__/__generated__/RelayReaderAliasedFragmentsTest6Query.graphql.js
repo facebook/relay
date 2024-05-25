@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97ca643723e7497085fec14deaf89aba>>
+ * @generated SignedSource<<8cd4b49dacf4114a033ca198ab508029>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderAliasedFragmentsTest6Query$variables = {||};
 export type RelayReaderAliasedFragmentsTest6Query$data = {|
   +me: ?{|
-    +aliased_fragment: {|
+    +aliased_fragment: ?{|
       +name: string,
     |},
   |},

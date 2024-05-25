@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e520aee034d896770ab1b337e32f5944>>
+ * @generated SignedSource<<d1e4f63703d0feaf529c8de17e079d3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$variables = {||};
 export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$data = {|
   +me: ?{|
-    +requiredFields: {|
+    +requiredFields: ?{|
       +backgroundImage: {|
         +uri: string,
       |},

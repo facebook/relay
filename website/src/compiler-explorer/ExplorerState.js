@@ -59,8 +59,6 @@ function reducer(state, action) {
       return {...state, outputType: action.outputType};
     case 'UPDATE_INPUT_WINDOW':
       return {...state, inputWindow: action.inputWindow};
-    case 'SET_LANGUAGE':
-      return {...state, language: action.language};
     case 'SET_FEATURE_FLAG':
       const featureFlags = {
         ...state.featureFlags,

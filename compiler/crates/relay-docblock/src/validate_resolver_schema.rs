@@ -9,9 +9,10 @@ use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use errors::try2;
 use errors::try_all;
 use schema::Object;
+use schema::SDLSchema;
+use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use schema::{SDLSchema, Schema};
 
 use crate::errors::SchemaValidationErrorMessages;
 

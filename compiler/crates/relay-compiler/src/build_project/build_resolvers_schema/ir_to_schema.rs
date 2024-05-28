@@ -5,10 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::extract_docblock_ir::AllocatedDocblockIr;
-use super::mark_document_as_base::mark_document_as_base;
-use crate::config::Config;
-use crate::config::ProjectConfig;
 use common::DiagnosticsResult;
 use errors::try_all;
 use graphql_syntax::SchemaDocument;
@@ -16,6 +12,11 @@ use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::ResolverFieldDocblockIr;
 use relay_docblock::ResolverTypeDocblockIr;
 use schema::SDLSchema;
+
+use super::extract_docblock_ir::AllocatedDocblockIr;
+use super::mark_document_as_base::mark_document_as_base;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 // FIXME: Use the base project's schema config where needed
 /// FIXME: Move to relay-docblock crate

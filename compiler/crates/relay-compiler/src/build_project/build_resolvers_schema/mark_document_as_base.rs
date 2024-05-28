@@ -36,40 +36,40 @@ pub fn mark_document_as_base(document: SchemaDocument) -> SchemaDocument {
 
 fn mark_extension_as_base(definition: TypeSystemDefinition) -> TypeSystemDefinition {
     match definition {
-         TypeSystemDefinition::ObjectTypeDefinition(def) => {
-             TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-                 directives: merge_directives(
-                     &def.directives,
-                     &[belongs_to_base_schema_directive()],
-                 ),
-                 ..def
-             })
-         }
-         TypeSystemDefinition::ScalarTypeDefinition(def) => {
-             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
-                 directives: merge_directives(
-                     &def.directives,
-                     &[belongs_to_base_schema_directive()],
-                 ),
-                 ..def
-             })
-         }
-         TypeSystemDefinition::ObjectTypeExtension(def) => {
-             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
-                 fields: mark_fields_as_base(def.fields),
-                 ..def
-             })
-         }
-         TypeSystemDefinition::InterfaceTypeExtension(def) => {
-             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
-                 fields: mark_fields_as_base(def.fields),
-                 ..def
-             })
-         }
-         _ => panic!(
-             "Expected docblocks to only expose object and scalar definitions, and object and interface extensions."
-         ),
-     }
+        TypeSystemDefinition::ObjectTypeDefinition(def) => {
+            TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
+                directives: merge_directives(
+                    &def.directives,
+                    &[belongs_to_base_schema_directive()],
+                ),
+                ..def
+            })
+        }
+        TypeSystemDefinition::ScalarTypeDefinition(def) => {
+            TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
+                directives: merge_directives(
+                    &def.directives,
+                    &[belongs_to_base_schema_directive()],
+                ),
+                ..def
+            })
+        }
+        TypeSystemDefinition::ObjectTypeExtension(def) => {
+            TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
+                fields: mark_fields_as_base(def.fields),
+                ..def
+            })
+        }
+        TypeSystemDefinition::InterfaceTypeExtension(def) => {
+            TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
+                fields: mark_fields_as_base(def.fields),
+                ..def
+            })
+        }
+        _ => panic!(
+            "Expected docblocks to only expose object and scalar definitions, and object and interface extensions."
+        ),
+    }
 }
 
 /// Mark fields as base schema extension fields

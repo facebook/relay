@@ -69,6 +69,11 @@ pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
     build_schema_with_extensions::<_, &str>(&[(sdl, SourceLocationKey::generated())], &[])
 }
 
+pub struct SchemaAsts {
+    pub server: Vec<SchemaDocument>,
+    pub client: Vec<SchemaDocument>,
+}
+
 pub fn build_schema_with_extensions<
     T: AsRef<str> + std::marker::Sync,
     U: AsRef<str> + std::marker::Sync,
@@ -76,6 +81,20 @@ pub fn build_schema_with_extensions<
     server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
+    let SchemaAsts {
+        server: server_documents,
+        client: client_schema_documents,
+    } = parse_schema_with_extensions(server_sdls, extension_sdls)?;
+    SDLSchema::build(&server_documents, &client_schema_documents)
+}
+
+pub fn parse_schema_with_extensions<
+    T: AsRef<str> + std::marker::Sync,
+    U: AsRef<str> + std::marker::Sync,
+>(
+    server_sdls: &[(T, SourceLocationKey)],
+    extension_sdls: &[(U, SourceLocationKey)],
+) -> DiagnosticsResult<SchemaAsts> {
     let merged_server_sdls = match server_sdls {
         [(sdl, location)] => vec![(Cow::Borrowed(sdl.as_ref()), *location)],
         _ => {
@@ -132,7 +151,10 @@ pub fn build_schema_with_extensions<
     server_documents.extend(result.0?);
     let client_schema_documents = result.1?;
 
-    SDLSchema::build(&server_documents, &client_schema_documents)
+    Ok(SchemaAsts {
+        server: server_documents,
+        client: client_schema_documents,
+    })
 }
 
 pub fn build_schema_with_flat_buffer(bytes: Vec<u8>) -> SDLSchema {

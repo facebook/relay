@@ -35,35 +35,35 @@
 `
 ==================================== OUTPUT ===================================
 extend interface Node {
-  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "importantField") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
+  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", import_name: "importantField", fragment_name: "myRootFragment", has_output_type: true) @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
 }
 
 
 extend type Comment {
-  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "importantField") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
+  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", import_name: "importantField", fragment_name: "myRootFragment", has_output_type: true) @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
 }
 
 
 extend type Feedback {
-  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "importantField") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
+  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", import_name: "importantField", fragment_name: "myRootFragment", has_output_type: true) @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
 }
 
 
 extend type Page {
-  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "importantField") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
+  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", import_name: "importantField", fragment_name: "myRootFragment", has_output_type: true) @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
 }
 
 
 extend type PhotoStory {
-  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "importantField") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
+  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", import_name: "importantField", fragment_name: "myRootFragment", has_output_type: true) @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
 }
 
 
 extend type Story {
-  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "importantField") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
+  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", import_name: "importantField", fragment_name: "myRootFragment", has_output_type: true) @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
 }
 
 
 extend type User {
-  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "importantField") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
+  importantField: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", import_name: "importantField", fragment_name: "myRootFragment", has_output_type: true) @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
 }

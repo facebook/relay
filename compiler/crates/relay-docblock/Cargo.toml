@@ -23,6 +23,7 @@ docblock-syntax = { path = "../docblock-syntax" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
+errors = { path = "../errors" }
 lazy_static = "1.4"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }

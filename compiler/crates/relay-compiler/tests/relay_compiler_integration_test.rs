@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ab2f70586f663447512ae7144689a361>>
+ * @generated SignedSource<<8942afc04f952e4e897cd06cc95a36f6>>
  */
 
 mod relay_compiler_integration;
@@ -45,6 +45,13 @@ async fn client_mutation_resolver_invalid_nonscalar() {
     let input = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.input");
     let expected = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.expected");
     test_fixture(transform_fixture, file!(), "client_mutation_resolver_invalid_nonscalar.input", "relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_schema_extension_interface_uses_resolver_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.expected");
+    test_fixture(transform_fixture, file!(), "client_schema_extension_interface_uses_resolver_type.input", "relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.expected", input, expected).await;
 }
 
 #[tokio::test]

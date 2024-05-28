@@ -1768,6 +1768,7 @@ dependencies = [
  "common",
  "docblock-shared",
  "docblock-syntax",
+ "errors",
  "extract-graphql",
  "fixture-tests",
  "graphql-cli",
@@ -1831,6 +1832,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "docblock-shared",
+ "graphql-syntax",
  "intern",
  "lazy_static",
  "schema",

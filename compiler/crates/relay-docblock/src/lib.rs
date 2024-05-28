@@ -9,6 +9,7 @@ mod docblock_ir;
 mod errors;
 mod ir;
 mod untyped_representation;
+mod validate_resolver_schema;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -36,6 +37,7 @@ pub use ir::*;
 use relay_config::ProjectName;
 use schema::SDLSchema;
 use untyped_representation::parse_untyped_docblock_representation;
+pub use validate_resolver_schema::validate_resolver_schema;
 
 pub struct ParseOptions<'a> {
     pub allow_legacy_verbose_syntax: &'a FeatureFlag,
@@ -44,10 +46,10 @@ pub struct ParseOptions<'a> {
 }
 
 pub fn parse_docblock_ast(
-    project_name: ProjectName,
+    project_name: &ProjectName,
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
-    parse_options: ParseOptions<'_>,
+    parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     let untyped_representation = parse_untyped_docblock_representation(ast)?;
     parse_docblock_ir(

@@ -295,10 +295,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             let text = &text_source.text;
             let result = parse_docblock(text, source_location_key).and_then(|ast| {
                 parse_docblock_ast(
-                    project_config.name,
+                    &project_config.name,
                     &ast,
                     Some(&executable_definitions),
-                    ParseOptions {
+                    &ParseOptions {
                         allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
                         enable_interface_output_type: &project_config
                             .feature_flags

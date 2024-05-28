@@ -28,5 +28,5 @@ type MyType @__RelayResolverModel {
 
 
 extend type MyType {
-  my_field: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-with-root-fragment-on-model.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "my_field") @resolver_source_hash(value: "c8ed0d9035e933a3b6544323724f5323")
+  my_field: String @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-with-root-fragment-on-model.js", import_name: "my_field", fragment_name: "myRootFragment", has_output_type: true) @resolver_source_hash(value: "c8ed0d9035e933a3b6544323724f5323")
 }

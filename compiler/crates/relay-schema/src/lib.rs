@@ -19,6 +19,7 @@ use common::ArgumentName;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::SourceLocationKey;
+use graphql_syntax::SchemaDocument;
 use intern::intern;
 use lazy_static::lazy_static;
 use schema::ArgumentDefinitions;
@@ -53,6 +54,37 @@ pub fn build_schema_with_extensions<
             .collect();
 
     let mut schema = schema::build_schema_with_extensions(server_sdls, &extensions)?;
+
+    // Remove label arg from @defer and @stream directives since the compiler
+    // adds these arguments.
+    for directive_name in &[*DEFER, *STREAM] {
+        if let Some(directive) = schema.get_directive_mut(*directive_name) {
+            let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
+            for arg in next_args.iter_mut() {
+                if arg.name.item == *LABEL {
+                    if let TypeReference::NonNull(of) = &arg.type_ {
+                        arg.type_ = *of.clone()
+                    };
+                }
+            }
+            directive.arguments = ArgumentDefinitions::new(next_args);
+        }
+    }
+    Ok(schema)
+}
+
+pub fn build_schema_with_extensions_from_asts(
+    server_sdls: Vec<SchemaDocument>,
+    extension_sdls: Vec<SchemaDocument>,
+) -> DiagnosticsResult<SDLSchema> {
+    let relay_extensions_ast =
+        graphql_syntax::parse_schema_document(RELAY_EXTENSIONS, SourceLocationKey::generated())?;
+
+    let mut extensions = Vec::with_capacity(extension_sdls.len() + 1);
+    extensions.push(relay_extensions_ast);
+    extensions.extend(extension_sdls);
+
+    let mut schema = SDLSchema::build(&server_sdls, &extensions)?;
 
     // Remove label arg from @defer and @stream directives since the compiler
     // adds these arguments.

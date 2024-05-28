@@ -24,5 +24,5 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend type User {
-  greeting(salutation: String!): RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-with-field-args.js", fragment_name: "myRootFragment", import_name: "greeting") @resolver_source_hash(value: "74022d4ca184b7d99e312af76420f20f")
+  greeting(salutation: String!): RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-with-field-args.js", import_name: "greeting", fragment_name: "myRootFragment") @resolver_source_hash(value: "74022d4ca184b7d99e312af76420f20f")
 }

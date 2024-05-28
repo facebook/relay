@@ -1594,8 +1594,15 @@ impl InMemorySchema {
         match self.type_map.get(&name.value) {
             Some(Type::Interface(id)) => Ok(*id),
             Some(non_interface_type) => Err(vec![Diagnostic::error(
-                SchemaError::ExpectedInterfaceReference(name.value, *non_interface_type),
+                SchemaError::ExpectedInterfaceReference(
+                    name.value,
+                    non_interface_type.get_variant_name().to_string(),
+                ),
                 Location::new(*location_key, name.span),
+            )
+            .annotate(
+                "the other type is defined here",
+                self.get_type_location(*non_interface_type),
             )]),
             None => Err(vec![Diagnostic::error(
                 SchemaError::UndefinedType(name.value),
@@ -1663,10 +1670,11 @@ impl InMemorySchema {
                 let field_name = field_def.name.value;
                 let field_location = Location::new(source_location_key, field_def.name.span);
                 if let Some(prev_location) = existing_fields.insert(field_name, field_location) {
-                    return Err(vec![
-                        Diagnostic::error(SchemaError::DuplicateField(field_name), field_location)
-                            .annotate("previously defined here", prev_location),
-                    ]);
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::DuplicateField(field_name),
+                        field_location,
+                    )
+                    .annotate("previously defined here", prev_location)]);
                 }
                 let arguments = self.build_arguments(&field_def.arguments, source_location_key)?;
                 let directives = self.build_directive_values(&field_def.directives);
@@ -1801,6 +1809,16 @@ impl InMemorySchema {
                 }
             })
             .collect()
+    }
+    fn get_type_location(&self, type_: Type) -> Location {
+        match type_ {
+            Type::InputObject(id) => self.input_objects[id.as_usize()].name.location,
+            Type::Enum(id) => self.enums[id.as_usize()].name.location,
+            Type::Interface(id) => self.interfaces[id.as_usize()].name.location,
+            Type::Object(id) => self.objects[id.as_usize()].name.location,
+            Type::Scalar(id) => self.scalars[id.as_usize()].name.location,
+            Type::Union(id) => self.unions[id.as_usize()].name.location,
+        }
     }
 }
 

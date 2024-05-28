@@ -28,8 +28,8 @@ pub enum SchemaError {
     #[error("Expected an object type for name '{0}', got '{1:?}'.")]
     ExpectedObjectReference(StringKey, Type),
 
-    #[error("Expected an interface type for name '{0}', got '{1:?}'.")]
-    ExpectedInterfaceReference(StringKey, Type),
+    #[error("Expected an interface type for name '{0}', got {1}.")]
+    ExpectedInterfaceReference(StringKey, String),
 
     #[error("Reference to undefined type '{0}'.")]
     UndefinedType(StringKey),

@@ -22,46 +22,48 @@ graphql`
   }
 `
 ==================================== OUTPUT ===================================
-LegacyVerboseResolver(
-    LegacyVerboseResolverIr {
-        field: FieldDefinitionStub {
-            name: Identifier {
-                span: 53:61,
-                token: Token {
+Field(
+    LegacyVerboseResolver(
+        LegacyVerboseResolverIr {
+            field: FieldDefinitionStub {
+                name: Identifier {
                     span: 53:61,
-                    kind: Identifier,
+                    token: Token {
+                        span: 53:61,
+                        kind: Identifier,
+                    },
+                    value: "my_field",
                 },
-                value: "my_field",
+                arguments: None,
             },
-            arguments: None,
+            on: Type(
+                PopulatedIrField {
+                    key_location: /path/to/test/fixture/relay-resolver-with-fragment.js:27:33,
+                    value: WithLocation {
+                        location: /path/to/test/fixture/relay-resolver-with-fragment.js:34:38,
+                        item: "User",
+                    },
+                },
+            ),
+            root_fragment: Some(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-with-fragment.js:79:93,
+                    item: FragmentDefinitionName(
+                        "myRootFragment",
+                    ),
+                },
+            ),
+            output_type: None,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: /path/to/test/fixture/relay-resolver-with-fragment.js:0:94,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "04fa2c09e68fca302832f1acfb74e2d3",
+            ),
         },
-        on: Type(
-            PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver-with-fragment.js:27:33,
-                value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-with-fragment.js:34:38,
-                    item: "User",
-                },
-            },
-        ),
-        root_fragment: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver-with-fragment.js:79:93,
-                item: FragmentDefinitionName(
-                    "myRootFragment",
-                ),
-            },
-        ),
-        output_type: None,
-        description: None,
-        hack_source: None,
-        deprecated: None,
-        semantic_non_null: None,
-        live: None,
-        location: /path/to/test/fixture/relay-resolver-with-fragment.js:0:94,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "04fa2c09e68fca302832f1acfb74e2d3",
-        ),
-    },
+    ),
 )

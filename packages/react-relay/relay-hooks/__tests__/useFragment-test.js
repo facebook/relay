@@ -70,6 +70,7 @@ hook useFragment(
       >,
   fragmentRef: any,
 ) {
+  // $FlowFixMe[incompatible-call]
   const data = useFragmentImpl(fragmentNode, fragmentRef);
   renderSpy(data);
   return data;

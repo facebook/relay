@@ -32,11 +32,8 @@ In short, there are two steps that need to be performed **before rendering the c
 
 ```javascript
 const {RelayEnvironmentProvider} = require('react-relay');
-const { MockPayloadGenerator, createMockEnvironment } = require('relay-test-utils');
-const {render} = require('testing-library-react');
-// at the time of writing, act is not re-exported by our internal testing-library-react
-// but is re-exported by the "external" version
-const {act} = require('ReactTestUtils');
+const {MockPayloadGenerator, createMockEnvironment} = require('relay-test-utils');
+const {act, render} = require('@testing-library/react');
 test("...", () => {
   // arrange
   const environment = createMockEnvironment();

@@ -72,7 +72,9 @@ impl<'config> WatchmanFileSource<'config> {
                 CompilerState::deserialize_from_file(saved_state_path)
             })?;
             let query_timer = perf_logger_event.start("watchman_query_time");
-            let file_source_result = self.query_file_result(compiler_state.clock.clone()).await?;
+            let file_source_result = self
+                .query_file_result(compiler_state.clock.clone(), false)
+                .await?;
             perf_logger_event.stop(query_timer);
             compiler_state
                 .pending_file_source_changes
@@ -133,7 +135,7 @@ impl<'config> WatchmanFileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<CompilerState> {
-        let file_source_result = self.query_file_result(None).await?;
+        let file_source_result = self.query_file_result(None, false).await?;
         let compiler_state = perf_logger_event.time("from_file_source_changes", || {
             CompilerState::from_file_source_changes(
                 self.config,
@@ -157,7 +159,9 @@ impl<'config> WatchmanFileSource<'config> {
         let expression = get_watchman_expr(self.config);
 
         let query_timer = perf_logger_event.start("watchman_query_time_before_subscribe");
-        let file_source_result = self.query_file_result(compiler_state.clock.clone()).await?;
+        let file_source_result = self
+            .query_file_result(compiler_state.clock.clone(), true)
+            .await?;
         perf_logger_event.stop(query_timer);
 
         let query_timer = perf_logger_event.start("watchman_query_time_subscribe");
@@ -185,7 +189,11 @@ impl<'config> WatchmanFileSource<'config> {
 
     /// Internal method to issue a watchman query, returning a raw
     /// WatchmanFileSourceResult.
-    async fn query_file_result(&self, since_clock: Option<Clock>) -> Result<FileSourceResult> {
+    async fn query_file_result(
+        &self,
+        since_clock: Option<Clock>,
+        omit_changed_files: bool,
+    ) -> Result<FileSourceResult> {
         let expression = get_watchman_expr(self.config);
         debug!(
             "WatchmanFileSource::query_file_result(...) get_watchman_expr = {:?}",
@@ -197,6 +205,8 @@ impl<'config> WatchmanFileSource<'config> {
         // passed as the request params
         let request = if since_clock.is_some() {
             QueryRequestCommon {
+                omit_changed_files,
+                empty_on_fresh_instance: omit_changed_files,
                 expression: Some(expression),
                 since: since_clock,
                 ..Default::default()
@@ -207,6 +217,8 @@ impl<'config> WatchmanFileSource<'config> {
                 .map(PathGeneratorElement::RecursivePath)
                 .collect();
             QueryRequestCommon {
+                omit_changed_files,
+                empty_on_fresh_instance: omit_changed_files,
                 expression: Some(expression),
                 path: Some(query_roots),
                 ..Default::default()
@@ -257,7 +269,7 @@ impl<'config> WatchmanFileSource<'config> {
         );
         let query_timer = perf_logger_event.start("watchman_query_time_try_saved_state");
         let file_source_result = self
-            .query_file_result(Some(scm_since))
+            .query_file_result(Some(scm_since), false)
             .await
             .map_err(|_| "query failed")?;
         perf_logger_event.stop(query_timer);

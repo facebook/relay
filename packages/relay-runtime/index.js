@@ -239,6 +239,7 @@ export type {Local3DPayload} from './util/createPayloadFor3DField';
 export type {Direction} from './util/getPaginationVariables';
 export type {RequestIdentifier} from './util/getRequestIdentifier';
 export type {ResolverFunction} from './util/ReaderNode';
+export type {IdOf} from './experimental';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.

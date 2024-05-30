@@ -11,7 +11,12 @@
 
 'use strict';
 
+import type {DataID} from './util/RelayRuntimeTypes';
+
 const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
+
+// eslint-disable-next-line no-unused-vars
+export type IdOf<A> = DataID;
 
 module.exports = {
   resolverDataInjector,

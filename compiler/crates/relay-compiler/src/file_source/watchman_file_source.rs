@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::fs;
-use std::os::unix::fs::MetadataExt;
-
 use common::PerfLogEvent;
 use common::PerfLogger;
 use graphql_watchman::WatchmanFile;
@@ -294,16 +291,6 @@ impl<'config> WatchmanFileSource<'config> {
                 .load(saved_state_info, self.config)
                 .ok_or("unable to load")
         })?;
-        let saved_state_metadata =
-            fs::metadata(&saved_state_path).expect("unable to access saved state file");
-        perf_logger_event.number(
-            "saved_state_file_size",
-            saved_state_metadata
-                .size()
-                .try_into()
-                .expect("unable to convert file size to usize"),
-        );
-
         let mut compiler_state = perf_logger_event
             .time("deserialize_saved_state", || {
                 CompilerState::deserialize_from_file(&saved_state_path)

@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query circularFragmentQuery {
+  story {
+    feedback {
+      ...circularFragment_feedback
+    }
+  }
+}
+
+fragment circularFragment_feedback on Feedback {
+  feedback {
+    ...circularFragment_feedback
+  }
+}
+==================================== ERROR ====================================
+✖︎ Found a circular reference from fragment 'circularFragment_feedback'.
+
+  circular-fragment.graphql:13:8
+   12 │   feedback {
+   13 │     ...circularFragment_feedback
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^
+   14 │   }
+
+  ℹ︎ other member of the cycle
+
+  circular-fragment.graphql:6:10
+    5 │     feedback {
+    6 │       ...circularFragment_feedback
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │     }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<032e96a9d849133e090c3591b21964db>>
+ * @generated SignedSource<<6e033bf9f4de04e01e1d80d1a31f42a1>>
  */
 
 mod compile_relay_artifacts;
@@ -157,6 +157,13 @@ async fn auto_filled_argument_on_match() {
     let input = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected");
     test_fixture(transform_fixture, file!(), "auto-filled-argument-on-match.graphql", "compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn circular_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/circular-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/circular-fragment.expected");
+    test_fixture(transform_fixture, file!(), "circular-fragment.graphql", "compile_relay_artifacts/fixtures/circular-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

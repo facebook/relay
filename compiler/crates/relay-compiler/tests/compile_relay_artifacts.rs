@@ -125,6 +125,9 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         enable_resolver_normalization_ast: fixture
             .content
             .contains("# enable_resolver_normalization_ast"),
+        prefer_fetchable_in_refetch_queries: fixture
+            .content
+            .contains("# prefer_fetchable_in_refetch_queries"),
         ..Default::default()
     };
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6e033bf9f4de04e01e1d80d1a31f42a1>>
+ * @generated SignedSource<<7cad3627ea64e85444c6afa470611bf7>>
  */
 
 mod compile_relay_artifacts;
@@ -1116,6 +1116,20 @@ async fn refetchable_fragment_directives_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.invalid.expected");
     test_fixture(transform_fixture, file!(), "refetchable_fragment_directives.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable_fragment_directives.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_fragment_on_node_and_fetchable() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-fragment-on-node-and-fetchable.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_fragment_on_node_and_fetchable_no_flag() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-no-flag.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-no-flag.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-fragment-on-node-and-fetchable-no-flag.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-no-flag.expected", input, expected).await;
 }
 
 #[tokio::test]

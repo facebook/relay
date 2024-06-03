@@ -35,6 +35,7 @@ use graphql_syntax::OperationKind;
 use intern::string_key::StringKeyMap;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
+use relay_config::ProjectConfig;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use schema::Schema;
@@ -70,13 +71,13 @@ use crate::root_variables::VariableMap;
 ///    Fragment to Root IR nodes.
 pub fn transform_refetchable_fragment(
     program: &Program,
-    schema_config: &SchemaConfig,
+    project_config: &ProjectConfig,
     base_fragment_names: &'_ FragmentDefinitionNameSet,
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
 
-    let mut transformer = RefetchableFragment::new(program, schema_config, for_typegen);
+    let mut transformer = RefetchableFragment::new(program, project_config, for_typegen);
 
     for operation in program.operations() {
         next_program.insert_operation(Arc::clone(operation));
@@ -113,18 +114,18 @@ pub fn transform_refetchable_fragment(
 
 type ExistingRefetchOperations = StringKeyMap<WithLocation<FragmentDefinitionName>>;
 
-pub struct RefetchableFragment<'program, 'sc> {
+pub struct RefetchableFragment<'program, 'pc> {
     connection_constants: ConnectionConstants,
     existing_refetch_operations: ExistingRefetchOperations,
     for_typegen: bool,
     program: &'program Program,
-    schema_config: &'sc SchemaConfig,
+    project_config: &'pc ProjectConfig,
 }
 
-impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
+impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
     pub fn new(
         program: &'program Program,
-        schema_config: &'sc SchemaConfig,
+        project_config: &'pc ProjectConfig,
         for_typegen: bool,
     ) -> Self {
         RefetchableFragment {
@@ -132,7 +133,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
             existing_refetch_operations: Default::default(),
             for_typegen,
             program,
-            schema_config,
+            project_config,
         }
     }
 
@@ -170,10 +171,12 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         let variables_map =
             InferVariablesVisitor::new(self.program).infer_fragment_variables(fragment);
 
-        for generator in GENERATORS.iter() {
+        let generators = get_query_generators(self.project_config);
+
+        for generator in generators {
             if let Some(refetch_root) = (generator.build_refetch_operation)(
                 &self.program.schema,
-                self.schema_config,
+                &self.project_config.schema_config,
                 fragment,
                 refetchable_directive.query_name.item,
                 &variables_map,
@@ -185,7 +188,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
             }
         }
         let mut descriptions = String::new();
-        for generator in GENERATORS.iter() {
+        for generator in generators.iter() {
             writeln!(descriptions, " - {}", generator.description).unwrap();
         }
         descriptions.pop();
@@ -366,6 +369,24 @@ const GENERATORS: [QueryGenerator; 4] = [
     NODE_QUERY_GENERATOR,
     FETCHABLE_QUERY_GENERATOR,
 ];
+
+const PREFER_FETCHABLE_GENERATORS: [QueryGenerator; 4] = [
+    VIEWER_QUERY_GENERATOR,
+    QUERY_QUERY_GENERATOR,
+    FETCHABLE_QUERY_GENERATOR,
+    NODE_QUERY_GENERATOR,
+];
+
+fn get_query_generators(project_config: &ProjectConfig) -> &'static [QueryGenerator; 4] {
+    if project_config
+        .feature_flags
+        .prefer_fetchable_in_refetch_queries
+    {
+        &PREFER_FETCHABLE_GENERATORS
+    } else {
+        &GENERATORS
+    }
+}
 
 pub struct RefetchRoot {
     pub fragment: Arc<FragmentDefinition>,

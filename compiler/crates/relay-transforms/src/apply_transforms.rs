@@ -184,12 +184,7 @@ fn apply_common_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(
-            &program,
-            &project_config.schema_config,
-            &base_fragment_names,
-            false,
-        )
+        transform_refetchable_fragment(&program, project_config, &base_fragment_names, false)
     })?;
 
     program = log_event.time("relay_actor_change_transform", || {
@@ -734,12 +729,7 @@ fn apply_typegen_transforms(
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(
-            &program,
-            &project_config.schema_config,
-            &base_fragment_names,
-            true,
-        )
+        transform_refetchable_fragment(&program, project_config, &base_fragment_names, true)
     })?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, &base_fragment_names)

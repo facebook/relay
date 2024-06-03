@@ -113,6 +113,11 @@ pub struct FeatureFlags {
     /// in the schema.
     #[serde(default)]
     pub disallow_required_on_non_null_fields: bool,
+
+    /// Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator
+    /// in @refetchable transform
+    #[serde(default)]
+    pub prefer_fetchable_in_refetch_queries: bool,
 }
 
 fn default_as_true() -> bool {

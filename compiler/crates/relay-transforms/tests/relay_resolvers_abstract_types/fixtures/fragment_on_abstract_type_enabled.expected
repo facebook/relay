@@ -31,7 +31,7 @@ fragment fragmentOnAbstractTypeEnabledFragment on Cat {
   ... on Tabby {
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(524),
+    #     field_id: FieldID(527),
     #     import_path: "TabbyResolver",
     #     import_name: None,
     #     field_alias: None,

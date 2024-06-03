@@ -19,7 +19,7 @@ fragment extendServerDefinedConcreteTypeFragment on FeedUnit {
   ... on PhotoStory {
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(523),
+    #     field_id: FieldID(526),
     #     import_path: "TabbyResolver",
     #     import_name: None,
     #     field_alias: None,

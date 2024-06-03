@@ -21,7 +21,7 @@ fragment TestFragment on User {
                     alias: None,
                     definition: WithLocation {
                         location: list-of-enums.graphql:34:40,
-                        item: FieldID(484),
+                        item: FieldID(485),
                     },
                     arguments: [],
                     directives: [],

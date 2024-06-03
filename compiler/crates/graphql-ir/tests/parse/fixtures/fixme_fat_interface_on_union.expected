@@ -33,7 +33,7 @@ query Test {
                             alias: None,
                             definition: WithLocation {
                                 location: fixme_fat_interface_on_union.graphql:51:53,
-                                item: FieldID(379),
+                                item: FieldID(380),
                             },
                             arguments: [],
                             directives: [

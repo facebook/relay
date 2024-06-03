@@ -37,7 +37,7 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(524),
+    #     field_id: FieldID(527),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,
@@ -46,7 +46,7 @@ fragment Foo_user on User {
     #     live: false,
     #     output_type_info: Composite(
     #         ResolverNormalizationInfo {
-    #             inner_type: Object(81),
+    #             inner_type: Object(82),
     #             plural: false,
     #             normalization_operation: WithLocation {
     #                 location: <generated>:59:70,

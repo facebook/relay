@@ -46,7 +46,7 @@ fragment conditionsOnNestedSelectionsOnInterfaceFragment on Cat {
   ... on Tabby @include(if: $has_owner) {
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(526),
+    #     field_id: FieldID(529),
     #     import_path: "TabbyResolver",
     #     import_name: None,
     #     field_alias: None,
@@ -65,7 +65,7 @@ fragment conditionsOnNestedSelectionsOnInterfaceFragment on Cat {
     ... on Yarn @include(if: $happy_cat) {
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(533),
+      #     field_id: FieldID(536),
       #     import_path: "YarnResolver",
       #     import_name: None,
       #     field_alias: None,

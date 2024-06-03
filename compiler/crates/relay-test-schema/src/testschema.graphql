@@ -60,6 +60,7 @@ type Query {
   _mutation: Mutation
   fetch__User(id: ID!): User
   fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
+  fetch__FetchableType(fetch_id: ID!): FetchableType
   nonNodeStory(id: ID!): NonNodeStory
   wrongViewer: WithWrongViewer
 }
@@ -1204,4 +1205,9 @@ type Opera {
 type Portrayal {
   singer: User @semanticNonNull
   character: String @semanticNonNull
+}
+
+type FetchableType implements Node @fetchable(field_name: "fetch_id") {
+  id: ID!
+  fetch_id: ID!
 }

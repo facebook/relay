@@ -27,7 +27,7 @@ mutation ArgumentWithDefault {
                     alias: None,
                     definition: WithLocation {
                         location: argument_with_default.graphql:33:47,
-                        item: FieldID(41),
+                        item: FieldID(42),
                     },
                     arguments: [
                         Argument {
@@ -68,7 +68,7 @@ mutation ArgumentWithDefault {
                             alias: None,
                             definition: WithLocation {
                                 location: argument_with_default.graphql:82:90,
-                                item: FieldID(168),
+                                item: FieldID(169),
                             },
                             arguments: [],
                             directives: [],
@@ -77,7 +77,7 @@ mutation ArgumentWithDefault {
                                     alias: None,
                                     definition: WithLocation {
                                         location: argument_with_default.graphql:99:103,
-                                        item: FieldID(138),
+                                        item: FieldID(139),
                                     },
                                     arguments: [],
                                     directives: [],
@@ -86,7 +86,7 @@ mutation ArgumentWithDefault {
                                             alias: None,
                                             definition: WithLocation {
                                                 location: argument_with_default.graphql:114:118,
-                                                item: FieldID(409),
+                                                item: FieldID(410),
                                             },
                                             arguments: [],
                                             directives: [],

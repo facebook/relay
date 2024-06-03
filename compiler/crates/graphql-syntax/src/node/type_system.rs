@@ -7,7 +7,9 @@
 
 use std::fmt;
 
+use common::Named;
 use common::Span;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
 
 use super::constant_directive::ConstantDirective;
@@ -167,6 +169,29 @@ impl fmt::Display for TypeSystemDefinition {
                 directives,
                 ..
             }) => write_scalar_type_definition_helper(f, &name.value, directives, true),
+        }
+    }
+}
+
+impl Named for TypeSystemDefinition {
+    type Name = StringKey;
+    fn name(&self) -> StringKey {
+        match self {
+            TypeSystemDefinition::SchemaDefinition(_definition) => "".intern(), // Not implemented
+            TypeSystemDefinition::SchemaExtension(_extension) => "".intern(),   // Not implemented
+            TypeSystemDefinition::ObjectTypeDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::ObjectTypeExtension(extension) => extension.name.value,
+            TypeSystemDefinition::InterfaceTypeDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::InterfaceTypeExtension(extension) => extension.name.value,
+            TypeSystemDefinition::UnionTypeDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.value,
+            TypeSystemDefinition::DirectiveDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::InputObjectTypeDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.value,
+            TypeSystemDefinition::EnumTypeDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::EnumTypeExtension(extension) => extension.name.value,
+            TypeSystemDefinition::ScalarTypeDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::ScalarTypeExtension(extension) => extension.name.value,
         }
     }
 }

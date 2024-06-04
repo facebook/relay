@@ -25,6 +25,7 @@ import type {
   OperationLoader,
   RecordSource,
   RequestDescriptor,
+  ResolverContext,
   Scheduler,
   SingularReaderSelector,
   Snapshot,
@@ -111,6 +112,7 @@ class LiveResolverStore implements Store {
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
   _shouldProcessClientComponents: boolean;
+  _resolverContext: ?ResolverContext;
 
   constructor(
     source: MutableRecordSource,
@@ -124,6 +126,7 @@ class LiveResolverStore implements Store {
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
       treatMissingFieldsAsNull?: ?boolean,
+      resolverContext?: ResolverContext,
     },
   ) {
     // Prevent mutation of a record from outside the store.
@@ -167,6 +170,7 @@ class LiveResolverStore implements Store {
     this._actorIdentifier = options?.actorIdentifier;
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents ?? false;
+    this._resolverContext = options?.resolverContext;
 
     initializeRecordSource(this._recordSource);
   }
@@ -343,7 +347,12 @@ class LiveResolverStore implements Store {
 
   lookup(selector: SingularReaderSelector): Snapshot {
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector, this._resolverCache);
+    const snapshot = RelayReader.read(
+      source,
+      selector,
+      this._resolverCache,
+      this._resolverContext,
+    );
     if (__DEV__) {
       deepFreeze(snapshot);
     }

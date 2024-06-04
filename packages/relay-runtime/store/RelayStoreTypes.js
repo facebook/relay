@@ -1329,3 +1329,7 @@ export type LiveState<+T> = {
    */
   subscribe(cb: () => void): () => void,
 };
+
+export type ResolverContext = {
+  [key: string]: mixed,
+};

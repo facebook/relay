@@ -253,7 +253,16 @@ fn apply_reader_transforms(
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
-            &project_config.feature_flags.enable_fragment_aliases,
+            project_config
+                .feature_flags
+                .enable_fragment_aliases
+                .is_fully_enabled(),
+            // NOTE: We purposefully don't run validation in this arm of the
+            // transform pipeline, and instead we expect it to run in the
+            // typegen arm. In this arm we've already run refetchable fragment
+            // transform which creates some synthentic fragment spreads that we
+            // don't want to report.
+            false,
         )
     })?;
 
@@ -659,7 +668,14 @@ fn apply_typegen_transforms(
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
-            &project_config.feature_flags.enable_fragment_aliases,
+            project_config
+                .feature_flags
+                .enable_fragment_aliases
+                .is_fully_enabled(),
+            project_config
+                .feature_flags
+                .enforce_fragment_alias_where_ambiguous
+                .is_fully_enabled(),
         )
     })?;
 

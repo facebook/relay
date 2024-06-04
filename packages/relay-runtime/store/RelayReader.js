@@ -462,9 +462,7 @@ class RelayReader {
               );
             }
           }
-
           break;
-
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;
@@ -1210,6 +1208,20 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?(SelectorData | false) {
+    if (inlineFragment.type == null) {
+      // Inline fragment without a type condition: always read data
+      // Usually this would get compiled away, but fragments with @alias
+      // and no type condition will get preserved.
+      const hasExpectedData = this._traverseSelections(
+        inlineFragment.selections,
+        record,
+        data,
+      );
+      if (hasExpectedData === false) {
+        return false;
+      }
+      return data;
+    }
     const {abstractKey} = inlineFragment;
     if (abstractKey == null) {
       // concrete type refinement: only read data if the type exactly matches

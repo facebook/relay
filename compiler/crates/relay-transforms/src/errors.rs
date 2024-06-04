@@ -103,7 +103,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
+        "The '{fragment_name}' is transformed to use @no_inline implicitly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective {
         fragment_name: FragmentDefinitionName,
@@ -148,16 +148,18 @@ pub enum ValidationMessage {
     #[error("Unexpected directive @catch. @catch is not yet implemented.")]
     CatchDirectiveNotImplemented,
 
-    #[error("Unexpected directive @alias. @alias is not currently enabled in this location.")]
+    #[error("Unexpected directive `@alias`. `@alias` is not currently enabled in this location.")]
     FragmentAliasDirectiveDisabled,
 
-    #[error("Expected the `as` argument of the @alias directive to be a static string.")]
-    FragmentAliasDirectiveDynamicNameArg,
+    #[error(
+        "Unexpected `@alias` on spread of plural fragment. @alias may not be used on fragments marked as `@relay(plural: true)`."
+    )]
+    PluralFragmentAliasNotSupported,
 
     #[error(
-        "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
+        "Expected to find @alias directive. Fragments which might not be fetched due to type conditions or @skip/@include must use @alias."
     )]
-    FragmentAliasDirectiveMissingAs,
+    PotentiallyNotMatchingFragmentRequiresAlias,
 
     #[error(
         "Unexpected dynamic argument. {field_name}'s '{argument_name}' argument must be a constant value because it is read by the Relay compiler."

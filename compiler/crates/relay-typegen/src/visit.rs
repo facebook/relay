@@ -307,12 +307,16 @@ fn visit_fragment_spread(
         let selection = if let Some(fragment_alias_metadata) =
             FragmentAliasMetadata::find(&fragment_spread.directives)
         {
+            // If/when @required is supported here, we would apply that to this type reference.
+            // TODO: What about plural fragments, is that just handled by the parent?
+            let mut node_type = TypeReference::Named(fragment_alias_metadata.selection_type);
+            if fragment_alias_metadata.non_nullable {
+                node_type = TypeReference::NonNull(Box::new(node_type));
+            }
             // We will model the types as a linked filed containing just the fragment spread.
             TypeSelection::LinkedField(TypeSelectionLinkedField {
                 field_name_or_alias: fragment_alias_metadata.alias.item,
-                // If/when @required is supported here, we would apply that to this type reference.
-                // TODO: What about plural fragments, is that just handled by the parent?
-                node_type: TypeReference::Named(fragment_alias_metadata.selection_type),
+                node_type,
                 node_selections: selections_to_map(vec![spread_selection].into_iter(), true),
                 conditional: false,
                 concrete_type: None,
@@ -901,20 +905,17 @@ fn visit_inline_fragment(
             FragmentAliasMetadata::find(&inline_fragment.directives)
         {
             // We will model the types as a linked filed containing just the fragment spread.
+            let mut node_type = TypeReference::Named(fragment_alias_metadata.selection_type);
+            if fragment_alias_metadata.non_nullable {
+                node_type = TypeReference::NonNull(Box::new(node_type));
+            }
+
+            // With @required, null might bubble up to this synthetic field, so we need to apply that nullability here.
+            node_type =
+                apply_required_directive_nullability(&node_type, &inline_fragment.directives);
             vec![TypeSelection::LinkedField(TypeSelectionLinkedField {
                 field_name_or_alias: fragment_alias_metadata.alias.item,
-                // We currently make inline fragment aliases always nullable
-                // because we want to be able to use them to be able to null
-                // them out in the case of missing data.  If we choose to
-                // change that decision, ane make them non-nullable in the
-                // case where the type condition will always match, we must
-                // be sure to update this logic to account for the
-                // possibility that a `@required` has bubbled up to this
-                // field.
-
-                // Additionally, if/when @required is supported _on_ aliased
-                // fragments, we would apply that to this type reference.
-                node_type: TypeReference::Named(fragment_alias_metadata.selection_type),
+                node_type,
                 node_selections: selections_to_map(inline_selections.into_iter(), true),
                 conditional: false,
                 concrete_type: None,

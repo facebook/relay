@@ -156,6 +156,22 @@ fragment TodoApp_app on App {
 
 See also [the @required guide](../../guides/required-directive/).
 
+## `@alias`
+
+`@alias` is a directive that allows you to give a fragment spread or inline fragment an alias, similar to a field alias. This is useful when you want to conditionally include a fragment and check if it was fetched, or otherwise group data together.
+
+For fragment spreads, the alias will default to the fragment name. For inline fragments, the alias will default to the type name. If you wish to supply your own name, or you have an inline fragment without any type condition, you can specify the alias using the `as` argument.
+
+```graphql
+fragment MyFragment on User {
+  ... on User @alias(as: "myGreatAlias") {
+    name
+  }
+}
+```
+
+See also [the @alias guide](../../guides/alias-directive/).
+
 ## `@inline`
 
 The hooks APIs that Relay exposes allow you to read data from the store only during the render phase. In order to read data from outside of the render phase (or from outside of React), Relay exposes the `@inline` directive. The data from a fragment annotated with `@inline` can be read using `readInlineData`.

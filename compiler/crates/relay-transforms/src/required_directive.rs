@@ -129,7 +129,7 @@ impl<'program> RequiredDirective<'program> {
         if self.within_abstract_inline_fragment {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::RequiredWithinAbstractInlineFragment,
-                // TODO(T70172661): Also referece the location of the inline fragment, once they have a location.
+                // TODO(T70172661): Also reference the location of the inline fragment, once they have a location.
                 directive_location,
             ))
         }
@@ -458,19 +458,48 @@ impl<'s> Transformer for RequiredDirective<'s> {
         let maybe_alias =
             FragmentAliasMetadata::find(&fragment.directives).map(|metadata| metadata.alias.item);
 
-        if let Some(alias) = maybe_alias {
-            self.path.push(alias.lookup())
-        } else if let Some(type_) = fragment.type_condition {
-            if type_.is_abstract_type() {
-                self.within_abstract_inline_fragment = true;
-            }
-        }
+        let next_fragment = if let Some(alias) = maybe_alias {
+            self.within_abstract_inline_fragment = false;
+            self.path.push(alias.lookup());
+            let path_name = self.path.join(".").intern();
 
-        let next_fragment = self.default_transform_inline_fragment(fragment);
+            // Once we've handled our own directive, take the parent's required
+            // children map, leaving behind an empty/default map which our children
+            // can populate.
+            let parent_node_required_children = mem::take(&mut self.current_node_required_children);
+            let next_selections = self.transform_selections(&fragment.selections);
 
-        if maybe_alias.is_some() {
+            let next_directives_with_metadata = maybe_add_children_can_bubble_metadata_directive(
+                &fragment.directives,
+                &self.current_node_required_children,
+            );
+            let required_children = mem::replace(
+                &mut self.current_node_required_children,
+                parent_node_required_children,
+            );
+
+            self.required_children_map
+                .insert(path_name, required_children);
             self.path.pop();
-        }
+
+            if next_selections.should_keep() && next_directives_with_metadata.should_keep() {
+                Transformed::Keep
+            } else {
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    directives: next_directives_with_metadata
+                        .replace_or_else(|| fragment.directives.clone()),
+                    selections: next_selections.replace_or_else(|| fragment.selections.clone()),
+                    ..fragment.clone()
+                })))
+            }
+        } else {
+            if let Some(type_) = fragment.type_condition {
+                if type_.is_abstract_type() {
+                    self.within_abstract_inline_fragment = true;
+                }
+            }
+            self.default_transform_inline_fragment(fragment)
+        };
 
         self.within_abstract_inline_fragment = previous;
         next_fragment

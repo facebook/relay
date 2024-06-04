@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node {
+    # This might not match!
+    ...RelayReaderNamedFragmentsTest_user
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected to find @alias directive. Fragments which might not be fetched due to type conditions or @skip/@include must use @alias.
+
+  fragment_spread_into_supertype_without_alias.invalid.graphql:9:8
+    8 │     # This might not match!
+    9 │     ...RelayReaderNamedFragmentsTest_user
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   }

@@ -141,7 +141,7 @@ export type ReaderRootArgument = {
 export type ReaderInlineFragment = {
   +kind: 'InlineFragment',
   +selections: $ReadOnlyArray<ReaderSelection>,
-  +type: string,
+  +type: ?string,
   +abstractKey?: ?string,
 };
 

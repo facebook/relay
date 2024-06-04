@@ -552,6 +552,19 @@ pub enum ValidationMessage {
         "Unexpected `@RelayResolver` field referenced in mutation response. Relay Resolver fields may not be read as part of a mutation response."
     )]
     ResolverInMutation,
+
+    #[error("Expected the `as` argument of the @alias directive to be a static string.")]
+    FragmentAliasDirectiveDynamicNameArg,
+
+    #[error(
+        "Unexpected empty string supplied for `as` argument of the @alias directive. If provided, the `as` argument of the `@alias` directive must be a non-empty string literal."
+    )]
+    FragmentAliasIsEmptyString,
+
+    #[error(
+        "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
+    )]
+    FragmentAliasDirectiveMissingAs,
 }
 
 #[derive(

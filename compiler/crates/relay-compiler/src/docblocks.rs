@@ -73,10 +73,10 @@ fn parse_source(
     definitions: Option<&Vec<ExecutableDefinition>>,
 ) -> DiagnosticsResult<Option<SchemaDocument>> {
     let maybe_ir = parse_docblock_ast(
-        project_config.name,
+        &project_config.name,
         ast,
         definitions,
-        ParseOptions {
+        &ParseOptions {
             allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
             enable_interface_output_type: &project_config
                 .feature_flags

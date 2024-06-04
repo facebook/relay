@@ -65,10 +65,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             },
         )?;
         let ir = parse_docblock_ast(
-            project_name,
+            &project_name,
             &ast,
             Some(&executable_documents),
-            ParseOptions {
+            &ParseOptions {
                 allow_legacy_verbose_syntax: if fixture
                     .content
                     .contains("// relay:allow_legacy_verbose_syntax")

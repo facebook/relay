@@ -200,10 +200,10 @@ pub fn extract_feature_from_text(
             let docblock_ir = parse_docblock(text, source_location_key)
                 .and_then(|ast| {
                     parse_docblock_ast(
-                        project_config.name,
+                        &project_config.name,
                         &ast,
                         Some(&executable_definitions_in_file),
-                        ParseOptions {
+                        &ParseOptions {
                             allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
                             enable_interface_output_type: &project_config
                                 .feature_flags

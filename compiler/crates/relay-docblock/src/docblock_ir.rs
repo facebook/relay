@@ -62,7 +62,7 @@ use crate::ResolverFieldDocblockIr;
 use crate::ResolverTypeDocblockIr;
 
 pub(crate) fn parse_docblock_ir(
-    project_name: ProjectName,
+    project_name: &ProjectName,
     untyped_representation: UntypedDocblockRepresentation,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     parse_options: &ParseOptions<'_>,
@@ -264,7 +264,7 @@ fn parse_relay_resolver_ir(
 }
 
 fn parse_strong_object_ir(
-    project_name: ProjectName,
+    project_name: &ProjectName,
     fields: &mut HashMap<AllowedFieldName, IrField>,
     description: Option<WithLocation<StringKey>>,
     location: Location,

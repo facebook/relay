@@ -1,0 +1,65 @@
+==================================== INPUT ====================================
+//- PersonComponent.js
+graphql`query PersonComponentQuery {
+  boss {
+    admin {
+      id
+    }
+  }
+}`
+
+//- Admin.js
+/**
+ * @RelayResolver Admin implements Worker
+ */
+export function
+
+/**
+ * @RelayResolver Admin.admin: Admin
+ */
+export function admin() {
+  return "123";
+}
+
+/**
+ * @RelayResolver Query.boss: Admin
+ */
+export function boss() {
+  return "123";
+}
+
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "enable_relay_resolver_transform": true,
+    "enable_experimental_schema_validation": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+
+# A resolver type will implement this
+interface Worker {
+  id: ID! # This field will be created by the making a model resolver
+  admin: Admin # Here we reference a type defined by resolvers
+}
+==================================== OUTPUT ===================================
+✖︎ Reference to undefined type 'Admin'.
+
+  schema-extensions/extension.graphql:5:10
+    4 │   id: ID! # This field will be created by the making a model resolver
+    5 │   admin: Admin # Here we reference a type defined by resolvers
+      │          ^^^^^
+    6 │ }

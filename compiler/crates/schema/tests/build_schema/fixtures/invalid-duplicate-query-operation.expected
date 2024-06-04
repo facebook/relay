@@ -14,7 +14,7 @@ type Query2 {
   s: String
 }
 ==================================== ERROR ====================================
-✖︎ Duplicate Query type definition, got 'Query2' and 'Query1'.
+✖︎ Duplicate query type definition, got 'Query2' and 'Query1'.
 
   <generated>:5:10
     4 │   query: Query1

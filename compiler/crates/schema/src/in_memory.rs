@@ -1169,7 +1169,7 @@ impl InMemorySchema {
                             if let Some(prev_query_type) = self.query_type {
                                 return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
-                                        *operation,
+                                        operation.to_string(),
                                         type_.value,
                                         expect_object_type_name(&self.type_map, prev_query_type),
                                     ),
@@ -1183,7 +1183,7 @@ impl InMemorySchema {
                             if let Some(prev_mutation_type) = self.mutation_type {
                                 return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
-                                        *operation,
+                                        operation.to_string(),
                                         type_.value,
                                         expect_object_type_name(&self.type_map, prev_mutation_type),
                                     ),
@@ -1197,7 +1197,7 @@ impl InMemorySchema {
                             if let Some(prev_subscription_type) = self.subscription_type {
                                 return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
-                                        *operation,
+                                        operation.to_string(),
                                         type_.value,
                                         expect_object_type_name(
                                             &self.type_map,
@@ -1579,9 +1579,10 @@ impl InMemorySchema {
     fn build_object_id(&mut self, name: StringKey) -> DiagnosticsResult<ObjectID> {
         match self.type_map.get(&name) {
             Some(Type::Object(id)) => Ok(*id),
-            Some(non_object_type) => {
-                todo_add_location(SchemaError::ExpectedObjectReference(name, *non_object_type))
-            }
+            Some(non_object_type) => todo_add_location(SchemaError::ExpectedObjectReference(
+                name,
+                non_object_type.get_variant_name().to_string(),
+            )),
             None => todo_add_location(SchemaError::UndefinedType(name)),
         }
     }
@@ -1593,10 +1594,19 @@ impl InMemorySchema {
     ) -> DiagnosticsResult<InterfaceID> {
         match self.type_map.get(&name.value) {
             Some(Type::Interface(id)) => Ok(*id),
-            Some(non_interface_type) => Err(vec![Diagnostic::error(
-                SchemaError::ExpectedInterfaceReference(name.value, *non_interface_type),
-                Location::new(*location_key, name.span),
-            )]),
+            Some(non_interface_type) => Err(vec![
+                Diagnostic::error(
+                    SchemaError::ExpectedInterfaceReference(
+                        name.value,
+                        non_interface_type.get_variant_name().to_string(),
+                    ),
+                    Location::new(*location_key, name.span),
+                )
+                .annotate(
+                    "the other type is defined here",
+                    self.get_type_location(*non_interface_type),
+                ),
+            ]),
             None => Err(vec![Diagnostic::error(
                 SchemaError::UndefinedType(name.value),
                 Location::new(*location_key, name.span),
@@ -1801,6 +1811,16 @@ impl InMemorySchema {
                 }
             })
             .collect()
+    }
+    fn get_type_location(&self, type_: Type) -> Location {
+        match type_ {
+            Type::InputObject(id) => self.input_objects[id.as_usize()].name.location,
+            Type::Enum(id) => self.enums[id.as_usize()].name.location,
+            Type::Interface(id) => self.interfaces[id.as_usize()].name.location,
+            Type::Object(id) => self.objects[id.as_usize()].name.location,
+            Type::Scalar(id) => self.scalars[id.as_usize()].name.location,
+            Type::Union(id) => self.unions[id.as_usize()].name.location,
+        }
     }
 }
 

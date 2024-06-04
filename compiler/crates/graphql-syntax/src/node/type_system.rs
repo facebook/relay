@@ -536,7 +536,7 @@ impl fmt::Display for DirectiveLocation {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
 pub struct InputValueDefinition {
     pub name: Identifier,
     pub type_: TypeAnnotation,

@@ -88,6 +88,7 @@ Strong(
                 },
             },
         ),
+        arguments: None,
         is_live: None,
     },
 )
@@ -170,6 +171,7 @@ Strong(
                 },
             },
         ),
+        arguments: None,
         is_live: None,
     },
 )
@@ -252,6 +254,7 @@ Strong(
                 },
             },
         ),
+        arguments: None,
         is_live: None,
     },
 )
@@ -343,6 +346,7 @@ Strong(
                 },
             },
         ),
+        arguments: None,
         is_live: None,
     },
 )

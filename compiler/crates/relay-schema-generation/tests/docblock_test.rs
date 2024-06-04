@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f40165e1a1579e5bd4fc7ec78733e0f2>>
+ * @generated SignedSource<<d594f4de3f486306369d27a7afc53eff>>
  */
 
 mod docblock;
 
 use docblock::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn arguments() {
+    let input = include_str!("docblock/fixtures/arguments.input");
+    let expected = include_str!("docblock/fixtures/arguments.expected");
+    test_fixture(transform_fixture, file!(), "arguments.input", "docblock/fixtures/arguments.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn idof() {

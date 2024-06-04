@@ -65,6 +65,7 @@ Strong(
                 },
             },
         ),
+        arguments: None,
         is_live: Some(
             <generated>:234:249,
         ),
@@ -153,6 +154,7 @@ Strong(
                 },
             },
         ),
+        arguments: None,
         is_live: Some(
             <generated>:304:328,
         ),
@@ -282,6 +284,7 @@ Strong(
                 },
             },
         ),
+        arguments: None,
         is_live: Some(
             <generated>:397:429,
         ),

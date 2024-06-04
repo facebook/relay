@@ -14,6 +14,7 @@ mod find_resolver_imports;
 
 use std::fmt;
 use std::path::Path;
+use std::str::FromStr;
 
 use ::errors::try_all;
 use ::intern::intern;
@@ -35,6 +36,8 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinition;
 use graphql_syntax::Identifier;
+use graphql_syntax::InputValueDefinition;
+use graphql_syntax::List;
 use graphql_syntax::ListTypeAnnotation;
 use graphql_syntax::NamedTypeAnnotation;
 use graphql_syntax::NonNullTypeAnnotation;
@@ -46,6 +49,8 @@ use hermes_estree::Declaration;
 use hermes_estree::FlowTypeAnnotation;
 use hermes_estree::Function;
 use hermes_estree::Node;
+use hermes_estree::ObjectTypePropertyKey;
+use hermes_estree::ObjectTypePropertyType;
 use hermes_estree::Pattern;
 use hermes_estree::Range;
 use hermes_estree::SourceRange;
@@ -81,8 +86,8 @@ pub struct FieldData {
     pub field_name: WithLocation<StringKey>,
     pub return_type: FlowTypeAnnotation,
     pub entity_type: FlowTypeAnnotation,
+    pub arguments: Option<FlowTypeAnnotation>,
     pub is_live: Option<Location>,
-    // TODO: args
 }
 
 #[derive(Debug)]
@@ -138,6 +143,7 @@ struct UnresolvedFieldDefinition {
     entity_name: WithLocation<StringKey>,
     field_name: WithLocation<StringKey>,
     return_type: FlowTypeAnnotation,
+    arguments: Option<FlowTypeAnnotation>,
     source_hash: ResolverSourceHash,
     is_live: Option<Location>,
 }
@@ -219,6 +225,7 @@ impl RelayResolverExtractor {
                             field_name,
                             return_type,
                             entity_type,
+                            arguments,
                             is_live,
                         }) => {
                             let name = resolver_value.field_value.unwrap_or(field_name);
@@ -243,6 +250,7 @@ impl RelayResolverExtractor {
                                         entity_name,
                                         field_name: name,
                                         return_type,
+                                        arguments,
                                         source_hash,
                                         is_live,
                                     },
@@ -288,13 +296,18 @@ impl RelayResolverExtractor {
                         object,
                     ))) = self.type_definitions.get(&key)
                     {
+                        let arguments = if let Some(args) = field.arguments {
+                            Some(flow_type_to_field_arguments(self.current_location, &args)?)
+                        } else {
+                            None
+                        };
                         let field_definition = FieldDefinition {
                             name: string_key_to_identifier(field.field_name),
                             type_: return_type_to_type_annotation(
                                 self.current_location,
                                 &field.return_type,
                             )?,
-                            arguments: None,
+                            arguments,
                             directives: vec![],
                             description: None,
                             hack_source: None,
@@ -377,10 +390,15 @@ impl RelayResolverExtractor {
         fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
         field: UnresolvedFieldDefinition,
     ) -> DiagnosticsResult<()> {
+        let arguments = if let Some(args) = field.arguments {
+            Some(flow_type_to_field_arguments(self.current_location, &args)?)
+        } else {
+            None
+        };
         let field_definition = FieldDefinition {
             name: string_key_to_identifier(field.field_name),
             type_: return_type_to_type_annotation(self.current_location, &field.return_type)?,
-            arguments: None,
+            arguments,
             directives: vec![],
             description: None,
             hack_source: None,
@@ -661,10 +679,41 @@ impl RelayResolverExtractor {
             return self.error_result(SchemaGenerationError::UnsupportedType, param);
         };
 
+        let arguments = if node.params.len() > 1 {
+            let arg_param = &node.params[1];
+            let args = if let Pattern::Identifier(identifier) = arg_param {
+                let type_annotation = identifier.type_annotation.as_ref().ok_or_else(|| {
+                    Diagnostic::error(
+                        SchemaGenerationError::MissingParamType,
+                        self.to_location(param),
+                    )
+                })?;
+                if let TypeAnnotationEnum::FlowTypeAnnotation(type_) =
+                    &type_annotation.type_annotation
+                {
+                    Some(type_)
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+            if args.is_none() {
+                return self.error_result(
+                    SchemaGenerationError::IncorrectArgumentsDefinition,
+                    arg_param,
+                );
+            }
+            args
+        } else {
+            None
+        };
+
         Ok(ResolverFlowData::Strong(FieldData {
             field_name,
             return_type: return_type.clone(),
             entity_type: entity_type.clone(),
+            arguments: arguments.cloned(),
             is_live,
         }))
     }
@@ -890,6 +939,79 @@ fn return_type_to_type_annotation(
     } else {
         Ok(type_annotation)
     }
+}
+
+fn flow_type_to_field_arguments(
+    source_location: SourceLocationKey,
+    args_type: &FlowTypeAnnotation,
+) -> DiagnosticsResult<List<InputValueDefinition>> {
+    let obj = if let FlowTypeAnnotation::ObjectTypeAnnotation(type_) = &args_type {
+        // unwrap the ref then the box, then re-add the ref
+        type_
+    } else {
+        return Err(vec![Diagnostic::error(
+            SchemaGenerationError::IncorrectArgumentsDefinition,
+            to_location(source_location, args_type),
+        )]);
+    };
+    let mut items = vec![];
+    for prop_type in obj.properties.iter() {
+        let prop_span = to_location(source_location, prop_type).span();
+        if let ObjectTypePropertyType::ObjectTypeProperty(prop) = prop_type {
+            let ident = if let ObjectTypePropertyKey::Identifier(ident) = &prop.key {
+                ident
+            } else {
+                return Err(vec![Diagnostic::error(
+                    SchemaGenerationError::IncorrectArgumentsDefinition,
+                    to_location(source_location, &prop.key),
+                )]);
+            };
+
+            let ident_node: &hermes_estree::Identifier = ident;
+            let name_span = to_location(source_location, ident_node).span();
+            let arg = InputValueDefinition {
+                name: graphql_syntax::Identifier {
+                    span: name_span,
+                    token: Token {
+                        span: name_span,
+                        kind: TokenKind::Identifier,
+                    },
+                    value: StringKey::from_str(&ident.name).map_err(|_| {
+                        vec![Diagnostic::error(
+                            SchemaGenerationError::IncorrectArgumentsDefinition,
+                            to_location(source_location, args_type),
+                        )]
+                    })?,
+                },
+                type_: return_type_to_type_annotation(source_location, &prop.value)?,
+                default_value: None,
+                directives: vec![],
+                span: prop_span,
+            };
+            items.push(arg);
+        }
+    }
+
+    let list_start: u32 = args_type.range().start;
+    let list_end: u32 = args_type.range().end.into();
+    Ok(List {
+        items,
+        span: to_location(source_location, args_type).span(),
+        start: Token {
+            span: Span {
+                start: list_start,
+                end: list_start + 1,
+            },
+            kind: TokenKind::OpenBrace,
+        },
+        end: Token {
+            span: Span {
+                start: list_end - 1,
+                end: list_end,
+            },
+            kind: TokenKind::CloseBrace,
+        },
+    })
 }
 
 fn generated_token() -> Token {

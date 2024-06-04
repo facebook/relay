@@ -1,0 +1,285 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type Page from 'Page';
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {}
+
+/**
+ * @RelayResolver
+ */
+export function favorite_page(cat: CatFlowType, args: {id: ID}): Page {}
+
+/**
+ * @RelayResolver
+ */
+export function all_pages(cat: CatFlowType, args: {limit: ?number}): Array<Page> {}
+==================================== OUTPUT ===================================
+StrongObjectResolver(
+    StrongObjectIr {
+        type_name: Identifier {
+            span: 302:305,
+            token: Token {
+                span: 302:305,
+                kind: Identifier,
+            },
+            value: "Cat",
+        },
+        rhs_location: module.js:302:305,
+        root_fragment: WithLocation {
+            location: module.js:302:305,
+            item: FragmentDefinitionName(
+                "Cat__id",
+            ),
+        },
+        description: None,
+        deprecated: None,
+        live: None,
+        semantic_non_null: None,
+        location: module.js:302:305,
+        implements_interfaces: [],
+        source_hash: ResolverSourceHash(
+            "e641f1651df716303d2bc5e2ac33e799",
+        ),
+    },
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "e641f1651df716303d2bc5e2ac33e799") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+TerseRelayResolver(
+    TerseRelayResolverIr {
+        field: FieldDefinition {
+            name: Identifier {
+                span: 377:390,
+                token: Token {
+                    span: 377:390,
+                    kind: Identifier,
+                },
+                value: "favorite_page",
+            },
+            type_: NonNull(
+                NonNullTypeAnnotation {
+                    span: 426:430,
+                    type_: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 426:430,
+                                token: Token {
+                                    span: 426:430,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
+                            },
+                        },
+                    ),
+                    exclamation: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                },
+            ),
+            arguments: Some(
+                List {
+                    span: 415:423,
+                    start: Token {
+                        span: 415:416,
+                        kind: OpenBrace,
+                    },
+                    items: [
+                        InputValueDefinition {
+                            name: Identifier {
+                                span: 416:418,
+                                token: Token {
+                                    span: 416:418,
+                                    kind: Identifier,
+                                },
+                                value: "id",
+                            },
+                            type_: NonNull(
+                                NonNullTypeAnnotation {
+                                    span: 420:422,
+                                    type_: Named(
+                                        NamedTypeAnnotation {
+                                            name: Identifier {
+                                                span: 420:422,
+                                                token: Token {
+                                                    span: 420:422,
+                                                    kind: Identifier,
+                                                },
+                                                value: "ID",
+                                            },
+                                        },
+                                    ),
+                                    exclamation: Token {
+                                        span: 0:0,
+                                        kind: Empty,
+                                    },
+                                },
+                            ),
+                            default_value: None,
+                            directives: [],
+                            span: 416:422,
+                        },
+                    ],
+                    end: Token {
+                        span: 422:423,
+                        kind: CloseBrace,
+                    },
+                },
+            ),
+            directives: [],
+            description: None,
+            hack_source: None,
+            span: 377:390,
+        },
+        type_: WithLocation {
+            location: <generated>:302:305,
+            item: "Cat",
+        },
+        root_fragment: None,
+        deprecated: None,
+        semantic_non_null: None,
+        live: None,
+        location: module.js:377:390,
+        fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "e641f1651df716303d2bc5e2ac33e799",
+        ),
+    },
+)
+extend type Cat {
+  favorite_page(id: ID!): Page! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "favorite_page") @resolver_source_hash(value: "e641f1651df716303d2bc5e2ac33e799")
+}
+
+
+TerseRelayResolver(
+    TerseRelayResolverIr {
+        field: FieldDefinition {
+            name: Identifier {
+                span: 477:486,
+                token: Token {
+                    span: 477:486,
+                    kind: Identifier,
+                },
+                value: "all_pages",
+            },
+            type_: NonNull(
+                NonNullTypeAnnotation {
+                    span: 530:541,
+                    type_: List(
+                        ListTypeAnnotation {
+                            span: 530:541,
+                            open: Token {
+                                span: 0:0,
+                                kind: Empty,
+                            },
+                            type_: NonNull(
+                                NonNullTypeAnnotation {
+                                    span: 536:540,
+                                    type_: Named(
+                                        NamedTypeAnnotation {
+                                            name: Identifier {
+                                                span: 536:540,
+                                                token: Token {
+                                                    span: 536:540,
+                                                    kind: Identifier,
+                                                },
+                                                value: "Page",
+                                            },
+                                        },
+                                    ),
+                                    exclamation: Token {
+                                        span: 0:0,
+                                        kind: Empty,
+                                    },
+                                },
+                            ),
+                            close: Token {
+                                span: 0:0,
+                                kind: Empty,
+                            },
+                        },
+                    ),
+                    exclamation: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                },
+            ),
+            arguments: Some(
+                List {
+                    span: 511:527,
+                    start: Token {
+                        span: 511:512,
+                        kind: OpenBrace,
+                    },
+                    items: [
+                        InputValueDefinition {
+                            name: Identifier {
+                                span: 512:517,
+                                token: Token {
+                                    span: 512:517,
+                                    kind: Identifier,
+                                },
+                                value: "limit",
+                            },
+                            type_: Named(
+                                NamedTypeAnnotation {
+                                    name: Identifier {
+                                        span: 520:526,
+                                        token: Token {
+                                            span: 520:526,
+                                            kind: Identifier,
+                                        },
+                                        value: "Float",
+                                    },
+                                },
+                            ),
+                            default_value: None,
+                            directives: [],
+                            span: 512:526,
+                        },
+                    ],
+                    end: Token {
+                        span: 526:527,
+                        kind: CloseBrace,
+                    },
+                },
+            ),
+            directives: [],
+            description: None,
+            hack_source: None,
+            span: 477:486,
+        },
+        type_: WithLocation {
+            location: <generated>:302:305,
+            item: "Cat",
+        },
+        root_fragment: None,
+        deprecated: None,
+        semantic_non_null: None,
+        live: None,
+        location: module.js:477:486,
+        fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "e641f1651df716303d2bc5e2ac33e799",
+        ),
+    },
+)
+extend type Cat {
+  all_pages(limit: Float): [Page!]! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "all_pages") @resolver_source_hash(value: "e641f1651df716303d2bc5e2ac33e799")
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<39d7900ffa33ff834b34da21de3059d6>>
+ * @generated SignedSource<<ee697e38a115cc46d32bcb602a082d67>>
  */
 
 mod parse;
@@ -262,6 +262,13 @@ async fn terse_relay_resolver() {
     let input = include_str!("parse/fixtures/terse-relay-resolver.js");
     let expected = include_str!("parse/fixtures/terse-relay-resolver.expected");
     test_fixture(transform_fixture, file!(), "terse-relay-resolver.js", "parse/fixtures/terse-relay-resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn terse_relay_resolver_args() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-args.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-args.expected");
+    test_fixture(transform_fixture, file!(), "terse-relay-resolver-args.js", "parse/fixtures/terse-relay-resolver-args.expected", input, expected).await;
 }
 
 #[tokio::test]

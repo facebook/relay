@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<46c23490ec527b18cef84988d9ff263f>>
+ * @generated SignedSource<<caafbf6cc546eaff56e3bf378a475e26>>
  */
 
 mod extract;
 
 use extract::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn arguments() {
+    let input = include_str!("extract/fixtures/arguments.js");
+    let expected = include_str!("extract/fixtures/arguments.expected");
+    test_fixture(transform_fixture, file!(), "arguments.js", "extract/fixtures/arguments.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn functions_unsupported() {

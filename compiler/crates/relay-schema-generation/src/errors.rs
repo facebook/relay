@@ -69,4 +69,8 @@ pub enum SchemaGenerationError {
     NoOptionalLiveType,
     #[error("Unsupported generic: `{name}`")]
     UnSupportedGeneric { name: StringKey },
+    #[error(
+        "Expected resolver arguments to be in the second function argument and in format of `args: {{field1: value1, field2: value2}}`"
+    )]
+    IncorrectArgumentsDefinition,
 }

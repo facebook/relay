@@ -23,16 +23,16 @@ interface IFoo {
 ==================================== ERROR ====================================
 ✖︎ Expected interface `IFoo` to define an `id: ID!` field.
 
-  /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-no-id.invalid.js:2:19
-    1 │ *
-    2 │  * @RelayResolver ClientUser implements IFoo
-      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │  
-
-  ℹ︎ Defined here
-
   <generated>:2:11
     1 │ *
     2 │  * @RelayResolver ClientUser implements IFoo
       │           ^^^^
+    3 │  
+
+  ℹ︎ required because the interface is implemented by a Relay Resolver type here
+
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-no-id.invalid.js:2:19
+    1 │ *
+    2 │  * @RelayResolver ClientUser implements IFoo
+      │                   ^^^^^^^^^^
     3 │

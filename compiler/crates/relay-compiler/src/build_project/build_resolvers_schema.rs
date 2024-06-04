@@ -114,12 +114,7 @@ fn extend_schema_with_types(
         build_schema_documents_from_docblocks(&type_asts.0, project_config, schema, None)?;
 
     let new_type_defintions = try_all(types_ir.into_iter().map(|ir| {
-        ir.to_graphql_schema_ast(
-            project_config.name,
-            schema,
-            &project_config.schema_config,
-            &project_config.feature_flags,
-        )
+        ir.to_graphql_schema_ast(project_config.name, schema, &project_config.schema_config)
     }))?;
 
     for schema_document in type_definitions
@@ -156,12 +151,7 @@ fn extend_schema_with_fields(
     ))?;
 
     let new_field_defintions = try_all(fields_ir.into_iter().map(|ir| {
-        ir.to_graphql_schema_ast(
-            project_config.name,
-            schema,
-            &project_config.schema_config,
-            &project_config.feature_flags,
-        )
+        ir.to_graphql_schema_ast(project_config.name, schema, &project_config.schema_config)
     }))?;
 
     try_all(

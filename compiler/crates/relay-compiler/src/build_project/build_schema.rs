@@ -13,6 +13,7 @@ use common::Location;
 use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
+use relay_docblock::validate_resolver_schema;
 use schema::SDLSchema;
 use schema_validate_lib::validate;
 use schema_validate_lib::SchemaValidationOptions;
@@ -69,6 +70,10 @@ pub fn build_schema(
                     )
                 })?;
             }
+
+            // Now that the schema has been fully extended to include all Resolver types
+            // and fields we can apply resolver-specific validations.
+            validate_resolver_schema(&schema, &project_config.feature_flags)?;
 
             if project_config
                 .feature_flags

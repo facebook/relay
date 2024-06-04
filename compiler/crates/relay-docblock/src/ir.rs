@@ -11,7 +11,6 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
-use common::FeatureFlags;
 use common::InterfaceName;
 use common::Location;
 use common::Named;
@@ -26,7 +25,6 @@ use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
 use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
 use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
-use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
@@ -73,7 +71,6 @@ use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use schema::TypeReference;
 
 use crate::errors::ErrorMessagesWithData;
 use crate::errors::SchemaValidationErrorMessages;
@@ -140,10 +137,9 @@ impl DocblockIr {
         project_name: ProjectName,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
-        feature_flags: &FeatureFlags,
     ) -> DiagnosticsResult<String> {
         Ok(self
-            .to_graphql_schema_ast(project_name, schema, schema_config, feature_flags)?
+            .to_graphql_schema_ast(project_name, schema, schema_config)?
             .definitions
             .iter()
             .map(|definition| format!("{}", definition))
@@ -173,15 +169,12 @@ impl DocblockIr {
         project_name: ProjectName,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
-        feature_flags: &FeatureFlags,
     ) -> DiagnosticsResult<SchemaDocument> {
         let project_config = ResolverProjectConfig {
             project_name,
             schema,
             schema_config,
         };
-
-        let location = self.location();
 
         let schema_doc = match self {
             DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(relay_resolver)) => {
@@ -198,98 +191,7 @@ impl DocblockIr {
             }
         }?;
 
-        for definition in &schema_doc.definitions {
-            ensure_valid_resolver_field_definition(
-                definition,
-                schema,
-                location,
-                feature_flags.enable_relay_resolver_mutations,
-            )?;
-        }
         Ok(schema_doc)
-    }
-}
-
-fn ensure_valid_resolver_field_definition(
-    definition: &TypeSystemDefinition,
-    schema: &SDLSchema,
-    ast_location: Location,
-    mutation_resolvers_enabled: bool,
-) -> DiagnosticsResult<()> {
-    validate_mutation_resolvers(definition, schema, ast_location, mutation_resolvers_enabled)?;
-    DiagnosticsResult::Ok(())
-}
-
-fn validate_mutation_resolvers(
-    definition: &TypeSystemDefinition,
-    schema: &SDLSchema,
-    ast_location: Location,
-    mutation_resolvers_enabled: bool,
-) -> DiagnosticsResult<()> {
-    if let Some(mutation_type) = schema.mutation_type() {
-        match definition {
-            TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
-                name: extended_type_name,
-                fields,
-                ..
-            }) => {
-                if let Some(extended_type) = schema.get_type(extended_type_name.value) {
-                    if extended_type == mutation_type {
-                        if !mutation_resolvers_enabled {
-                            return DiagnosticsResult::Err(vec![Diagnostic::error(
-                                SchemaValidationErrorMessages::DisallowedMutationResolvers {
-                                    mutation_type_name: extended_type_name.value.to_string(),
-                                },
-                                ast_location,
-                            )]);
-                        }
-                        if let Some(resolver_field) = get_relay_resolver_field(fields) {
-                            let field_type = &resolver_field.type_;
-                            if !is_valid_mutation_resolver_return_type(schema, field_type) {
-                                return DiagnosticsResult::Err(vec![Diagnostic::error(
-                                    SchemaValidationErrorMessages::MutationResolverNonScalarReturn {
-                                        resolver_field_name: resolver_field.name.value.to_string(),
-                                        actual_return_type: field_type.to_string(),
-                                    },
-                                    ast_location,
-                                )]);
-                            }
-                        }
-                    }
-                }
-            }
-            _ => (),
-        }
-    }
-
-    DiagnosticsResult::Ok(())
-}
-
-fn get_relay_resolver_field(fields: &Option<List<FieldDefinition>>) -> Option<&FieldDefinition> {
-    fields.as_ref().map(|list| &list.items).and_then(|fields| {
-        fields.iter().find(|f| {
-            f.directives
-                .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
-                .is_some()
-        })
-    })
-}
-
-fn is_valid_mutation_resolver_return_type(schema: &SDLSchema, type_: &TypeAnnotation) -> bool {
-    match type_ {
-        TypeAnnotation::Named(named_type) => {
-            if let Some(actual_type) = schema.get_type(named_type.name.value) {
-                actual_type.is_scalar() || actual_type.is_enum()
-            } else {
-                false
-            }
-        }
-        TypeAnnotation::List(_) => false,
-        TypeAnnotation::NonNull(non_null_type) => {
-            // note: this should be unreachable since we already disallow relay resolvers to return non-nullable types
-            // - implement this anyway in case that changes in the future
-            return is_valid_mutation_resolver_return_type(schema, &non_null_type.as_ref().type_);
-        }
     }
 }
 
@@ -1142,140 +1044,12 @@ pub struct StrongObjectIr {
     pub source_hash: ResolverSourceHash,
 }
 
-impl StrongObjectIr {
-    /// Validate that each interface that the StrongObjectIr object implements is client
-    /// defined and contains an id: ID! field.
-    ///
-    /// We are implicitly assuming that the only types that implement this interface are
-    /// defined in strong resolvers! But, it is possible to implement a client interface
-    /// for types defined in schema extensions and for server types. This is bad, and we
-    /// should disallow it.
-    pub(crate) fn validate_implements_interfaces_against_schema(
-        &self,
-        schema: &SDLSchema,
-    ) -> DiagnosticsResult<()> {
-        let location = self.rhs_location;
-        let mut errors = vec![];
-
-        let id_type = schema
-            .field(schema.clientid_field())
-            .type_
-            .inner()
-            .get_scalar_id()
-            .expect("Expected __id field to be a scalar");
-        let non_null_id_type =
-            TypeReference::NonNull(Box::new(TypeReference::Named(Type::Scalar(id_type))));
-
-        for interface in &self.implements_interfaces {
-            let interface = match schema.get_type(interface.value) {
-                Some(Type::Interface(id)) => schema.interface(id),
-                None => {
-                    let suggester = GraphQLSuggestions::new(schema);
-                    errors.push(Diagnostic::error_with_data(
-                        ErrorMessagesWithData::TypeNotFound {
-                            type_name: interface.value,
-                            suggestions: suggester.interface_type_suggestions(interface.value),
-                        },
-                        location,
-                    ));
-                    continue;
-                }
-                Some(t) => {
-                    errors.push(
-                        Diagnostic::error(
-                            SchemaValidationErrorMessages::UnexpectedNonInterface {
-                                non_interface_name: interface.value,
-                                variant_name: t.get_variant_name(),
-                            },
-                            location,
-                        )
-                        .annotate_if_location_exists(
-                            "Defined here",
-                            match t {
-                                Type::Enum(enum_id) => schema.enum_(enum_id).name.location,
-                                Type::InputObject(input_object_id) => {
-                                    schema.input_object(input_object_id).name.location
-                                }
-                                Type::Object(object_id) => schema.object(object_id).name.location,
-                                Type::Scalar(scalar_id) => schema.scalar(scalar_id).name.location,
-                                Type::Union(union_id) => schema.union(union_id).name.location,
-                                Type::Interface(_) => {
-                                    panic!("Just checked this isn't an interface.")
-                                }
-                            },
-                        ),
-                    );
-                    continue;
-                }
-            };
-
-            if !interface.is_extension {
-                errors.push(
-                    Diagnostic::error(
-                        SchemaValidationErrorMessages::UnexpectedServerInterface {
-                            interface_name: interface.name.item,
-                        },
-                        location,
-                    )
-                    .annotate_if_location_exists("Defined here", interface.name.location),
-                );
-            } else {
-                let found_id_field = interface.fields.iter().find_map(|field_id| {
-                    let field = schema.field(*field_id);
-                    if field.name.item == *KEY_RESOLVER_ID_FIELD {
-                        Some(field)
-                    } else {
-                        None
-                    }
-                });
-                match found_id_field {
-                    Some(id_field) => {
-                        if id_field.type_ != non_null_id_type {
-                            let mut invalid_type_string = String::new();
-                            schema
-                                .write_type_string(&mut invalid_type_string, &id_field.type_)
-                                .expect("Failed to write type to string.");
-
-                            errors.push(
-                                Diagnostic::error(
-                                    SchemaValidationErrorMessages::InterfaceWithWrongIdField {
-                                        interface_name: interface.name.item,
-                                        invalid_type_string,
-                                    },
-                                    location,
-                                )
-                                .annotate("Defined here", interface.name.location),
-                            )
-                        }
-                    }
-                    None => errors.push(
-                        Diagnostic::error(
-                            SchemaValidationErrorMessages::InterfaceWithNoIdField {
-                                interface_name: interface.name.item,
-                            },
-                            location,
-                        )
-                        .annotate("Defined here", interface.name.location),
-                    ),
-                };
-            }
-        }
-        if errors.is_empty() {
-            Ok(())
-        } else {
-            Err(errors)
-        }
-    }
-}
-
 impl ResolverIr for StrongObjectIr {
     fn definitions(
         self,
         project_config: ResolverProjectConfig<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let span = Span::empty();
-
-        self.validate_implements_interfaces_against_schema(project_config.schema)?;
 
         let fields = vec![
             FieldDefinition {

@@ -474,6 +474,7 @@ trait ResolverIr: Sized {
                 WithLocation::new(self.location(), name),
             ));
         }
+        arguments.sort();
         ConstantDirective {
             span,
             at: dummy_token(span),

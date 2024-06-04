@@ -98,7 +98,7 @@ Field(
     ),
 )
 extend type Cat {
-  full_name: String! @relay_resolver(import_path: "module.js", fragment_name: "CatIsHungryFragment$key", has_output_type: true, import_name: "full_name") @resolver_source_hash(value: "97c71c89ad8ccb1e0ff10de8887a25e0")
+  full_name: String! @relay_resolver(has_output_type: true, import_name: "full_name", import_path: "module.js", fragment_name: "CatIsHungryFragment$key") @resolver_source_hash(value: "97c71c89ad8ccb1e0ff10de8887a25e0")
 }
 
 
@@ -134,5 +134,5 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "97c71c89ad8ccb1e0ff10de8887a25e0") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "97c71c89ad8ccb1e0ff10de8887a25e0") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

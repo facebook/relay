@@ -89,7 +89,7 @@ Field(
     ),
 )
 extend type Cat {
-  is_hungry: Float! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "is_hungry") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47")
+  is_hungry: Float! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "is_hungry", import_path: "module.js") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47")
 }
 
 
@@ -149,7 +149,7 @@ Field(
     ),
 )
 extend type Cat {
-  name: String! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47")
+  name: String! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name", import_path: "module.js") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47")
 }
 
 
@@ -185,5 +185,5 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

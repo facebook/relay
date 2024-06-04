@@ -104,7 +104,7 @@ Field(
     ),
 )
 extend type Cat {
-  friend: Cat! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "friend") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6")
+  friend: Cat! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "friend", import_path: "module.js") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6")
 }
 
 
@@ -164,7 +164,7 @@ Field(
     ),
 )
 extend type Cat {
-  neighbor: Dog! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "neighbor") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6")
+  neighbor: Dog! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "neighbor", import_path: "module.js") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6")
 }
 
 
@@ -200,7 +200,7 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
@@ -236,7 +236,7 @@ Type(
 )
 type Dog @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Dog__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Dog") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Dog__id", import_name: "Dog", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 

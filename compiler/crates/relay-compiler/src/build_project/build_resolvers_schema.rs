@@ -5,32 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod mark_document_as_base;
+
 use std::path::PathBuf;
 
 use common::DiagnosticsResult;
-use common::Span;
 use docblock_syntax::DocblockAST;
 use errors::try_all;
 use fnv::FnvHashMap;
-use graphql_syntax::ConstantDirective;
 use graphql_syntax::ExecutableDefinition;
-use graphql_syntax::FieldDefinition;
-use graphql_syntax::Identifier;
-use graphql_syntax::InterfaceTypeExtension;
-use graphql_syntax::List;
-use graphql_syntax::ObjectTypeDefinition;
-use graphql_syntax::ObjectTypeExtension;
-use graphql_syntax::ScalarTypeDefinition;
-use graphql_syntax::Token;
-use graphql_syntax::TokenKind;
-use graphql_syntax::TypeSystemDefinition;
 use relay_config::ProjectName;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::DocblockIr;
-use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use rustc_hash::FxHashMap;
 use schema::SDLSchema;
 
+use self::mark_document_as_base::mark_extension_as_base;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::ProjectConfig;
@@ -257,95 +247,5 @@ fn extract_schema_documents_for_resolvers<'a>(
         })
     } else {
         Err(errors)
-    }
-}
-
-/// Mark extension as base schema extension (add speical directive to the type/field)
-fn mark_extension_as_base(definition: TypeSystemDefinition) -> TypeSystemDefinition {
-    match definition {
-        TypeSystemDefinition::ObjectTypeDefinition(def) => {
-            TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-                directives: merge_directives(
-                    &def.directives,
-                    &[belongs_to_base_schema_directive()],
-                ),
-                ..def
-            })
-        }
-        TypeSystemDefinition::ScalarTypeDefinition(def) => {
-            TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
-                directives: merge_directives(
-                    &def.directives,
-                    &[belongs_to_base_schema_directive()],
-                ),
-                ..def
-            })
-        }
-        TypeSystemDefinition::ObjectTypeExtension(def) => {
-            TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
-                fields: mark_fields_as_base(def.fields),
-                ..def
-            })
-        }
-        TypeSystemDefinition::InterfaceTypeExtension(def) => {
-            TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
-                fields: mark_fields_as_base(def.fields),
-                ..def
-            })
-        }
-        _ => panic!(
-            "Expected docblocks to only expose object and scalar definitions, and object and interface extensions."
-        ),
-    }
-}
-
-/// Mark fields as base schema extension fields
-fn mark_fields_as_base(fields: Option<List<FieldDefinition>>) -> Option<List<FieldDefinition>> {
-    fields.map(|list| List {
-        items: list
-            .items
-            .iter()
-            .map(|item| FieldDefinition {
-                directives: merge_directives(
-                    &item.directives,
-                    &[belongs_to_base_schema_directive()],
-                ),
-                ..item.clone()
-            })
-            .collect(),
-        ..list
-    })
-}
-
-/// Merge two lists of directives
-fn merge_directives(a: &[ConstantDirective], b: &[ConstantDirective]) -> Vec<ConstantDirective> {
-    if a.is_empty() {
-        b.to_vec()
-    } else if b.is_empty() {
-        a.to_vec()
-    } else {
-        let mut directives = a.to_vec();
-        directives.extend(b.iter().cloned());
-        directives
-    }
-}
-
-/// Create special directive to mark types/fields as belonging to base schema
-fn belongs_to_base_schema_directive() -> ConstantDirective {
-    ConstantDirective {
-        name: Identifier {
-            value: RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE.0,
-            span: Span::empty(),
-            token: Token {
-                span: Span::empty(),
-                kind: TokenKind::Empty,
-            },
-        },
-        arguments: None,
-        span: Span::empty(),
-        at: Token {
-            span: Span::empty(),
-            kind: TokenKind::Empty,
-        },
     }
 }

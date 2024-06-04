@@ -56,6 +56,7 @@ use hermes_parser::ParseResult;
 use hermes_parser::ParserDialect;
 use hermes_parser::ParserFlags;
 use relay_docblock::DocblockIr;
+use relay_docblock::ResolverTypeDocblockIr;
 use relay_docblock::StrongObjectIr;
 use relay_docblock::TerseRelayResolverIr;
 use relay_docblock::UnpopulatedIrField;
@@ -283,8 +284,9 @@ impl RelayResolverExtractor {
             self.unresolved_field_definitions
                 .into_iter()
                 .map(|(key, field)| {
-                    if let Some(DocblockIr::StrongObjectResolver(object)) =
-                        self.type_definitions.get(&key)
+                    if let Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
+                        object,
+                    ))) = self.type_definitions.get(&key)
                     {
                         let field_definition = FieldDefinition {
                             name: string_key_to_identifier(field.field_name),
@@ -487,8 +489,10 @@ impl RelayResolverExtractor {
                     )]);
                 };
 
-                self.type_definitions
-                    .insert(key.clone(), DocblockIr::StrongObjectResolver(strong_object));
+                self.type_definitions.insert(
+                    key.clone(),
+                    DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(strong_object)),
+                );
 
                 Ok(())
             }
@@ -557,8 +561,10 @@ impl RelayResolverExtractor {
                     Ok(())
                 }))?;
 
-                self.type_definitions
-                    .insert(key.clone(), DocblockIr::WeakObjectType(weak_object));
+                self.type_definitions.insert(
+                    key.clone(),
+                    DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(weak_object)),
+                );
                 Ok(())
             } else {
                 let location = self.to_location(object_node.as_ref());

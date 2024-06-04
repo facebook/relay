@@ -37,151 +37,157 @@ export function age(cat: CatFlowType): number {
   return 2;
 }
 ==================================== OUTPUT ===================================
-StrongObjectResolver(
-    StrongObjectIr {
-        type_name: Identifier {
-            span: 275:278,
-            token: Token {
-                span: 275:278,
-                kind: Identifier,
-            },
-            value: "Cat",
-        },
-        rhs_location: Cat.js:275:278,
-        root_fragment: WithLocation {
-            location: Cat.js:275:278,
-            item: FragmentDefinitionName(
-                "Cat__id",
-            ),
-        },
-        description: None,
-        deprecated: None,
-        live: None,
-        semantic_non_null: None,
-        location: Cat.js:275:278,
-        implements_interfaces: [],
-        source_hash: ResolverSourceHash(
-            "3df3c8ffe9e77951c10886db6f829fc8",
-        ),
-    },
-)
-type Cat @__RelayResolverModel {
-  id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "Cat.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "3df3c8ffe9e77951c10886db6f829fc8") @unselectable(reason: "This field is intended only for Relay's internal use")
-}
-
-
-TerseRelayResolver(
-    TerseRelayResolverIr {
-        field: FieldDefinition {
-            name: Identifier {
-                span: 365:369,
-                token: Token {
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
                     span: 365:369,
-                    kind: Identifier,
-                },
-                value: "name",
-            },
-            type_: NonNull(
-                NonNullTypeAnnotation {
-                    span: 389:395,
-                    type_: Named(
-                        NamedTypeAnnotation {
-                            name: Identifier {
-                                span: 389:395,
-                                token: Token {
-                                    span: 389:395,
-                                    kind: Identifier,
-                                },
-                                value: "String",
-                            },
-                        },
-                    ),
-                    exclamation: Token {
-                        span: 0:0,
-                        kind: Empty,
+                    token: Token {
+                        span: 365:369,
+                        kind: Identifier,
                     },
+                    value: "name",
                 },
+                type_: NonNull(
+                    NonNullTypeAnnotation {
+                        span: 389:395,
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 389:395,
+                                    token: Token {
+                                        span: 389:395,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        exclamation: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 365:369,
+            },
+            type_: WithLocation {
+                location: <generated>:275:278,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat.js:365:369,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "3df3c8ffe9e77951c10886db6f829fc8",
             ),
-            arguments: None,
-            directives: [],
-            description: None,
-            hack_source: None,
-            span: 365:369,
         },
-        type_: WithLocation {
-            location: <generated>:275:278,
-            item: "Cat",
-        },
-        root_fragment: None,
-        deprecated: None,
-        semantic_non_null: None,
-        live: None,
-        location: Cat.js:365:369,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "3df3c8ffe9e77951c10886db6f829fc8",
-        ),
-    },
+    ),
 )
 extend type Cat {
   name: String! @relay_resolver(import_path: "Cat.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name") @resolver_source_hash(value: "3df3c8ffe9e77951c10886db6f829fc8")
 }
 
 
-TerseRelayResolver(
-    TerseRelayResolverIr {
-        field: FieldDefinition {
-            name: Identifier {
-                span: 82:85,
-                token: Token {
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
                     span: 82:85,
-                    kind: Identifier,
-                },
-                value: "age",
-            },
-            type_: NonNull(
-                NonNullTypeAnnotation {
-                    span: 105:111,
-                    type_: Named(
-                        NamedTypeAnnotation {
-                            name: Identifier {
-                                span: 105:111,
-                                token: Token {
-                                    span: 105:111,
-                                    kind: Identifier,
-                                },
-                                value: "Float",
-                            },
-                        },
-                    ),
-                    exclamation: Token {
-                        span: 0:0,
-                        kind: Empty,
+                    token: Token {
+                        span: 82:85,
+                        kind: Identifier,
                     },
+                    value: "age",
                 },
+                type_: NonNull(
+                    NonNullTypeAnnotation {
+                        span: 105:111,
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 105:111,
+                                    token: Token {
+                                        span: 105:111,
+                                        kind: Identifier,
+                                    },
+                                    value: "Float",
+                                },
+                            },
+                        ),
+                        exclamation: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 82:85,
+            },
+            type_: WithLocation {
+                location: <generated>:275:278,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat-fields.js:82:85,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "51df4151c38bd1df6bb8ad577a47490b",
             ),
-            arguments: None,
-            directives: [],
-            description: None,
-            hack_source: None,
-            span: 82:85,
         },
-        type_: WithLocation {
-            location: <generated>:275:278,
-            item: "Cat",
-        },
-        root_fragment: None,
-        deprecated: None,
-        semantic_non_null: None,
-        live: None,
-        location: Cat-fields.js:82:85,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "51df4151c38bd1df6bb8ad577a47490b",
-        ),
-    },
+    ),
 )
 extend type Cat {
   age: Float! @relay_resolver(import_path: "Cat-fields.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "age") @resolver_source_hash(value: "51df4151c38bd1df6bb8ad577a47490b")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 275:278,
+                token: Token {
+                    span: 275:278,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: Cat.js:275:278,
+            root_fragment: WithLocation {
+                location: Cat.js:275:278,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: Cat.js:275:278,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "3df3c8ffe9e77951c10886db6f829fc8",
+            ),
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "Cat.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "3df3c8ffe9e77951c10886db6f829fc8") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

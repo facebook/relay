@@ -93,21 +93,37 @@ lazy_static! {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DocblockIr {
-    LegacyVerboseResolver(LegacyVerboseResolverIr),
-    TerseRelayResolver(TerseRelayResolverIr),
-    StrongObjectResolver(StrongObjectIr),
-    WeakObjectType(WeakObjectIr),
+    Type(ResolverTypeDocblockIr),
+    Field(ResolverFieldDocblockIr),
 }
 
 impl DocblockIr {
     pub(crate) fn get_variant_name(&self) -> &'static str {
         match self {
-            DocblockIr::LegacyVerboseResolver(_) => "legacy resolver declaration",
-            DocblockIr::TerseRelayResolver(_) => "terse resolver declaration",
-            DocblockIr::StrongObjectResolver(_) => "strong object type declaration",
-            DocblockIr::WeakObjectType(_) => "weak object type declaration",
+            Self::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(_)) => {
+                "legacy resolver declaration"
+            }
+            Self::Field(ResolverFieldDocblockIr::TerseRelayResolver(_)) => {
+                "terse resolver declaration"
+            }
+            Self::Type(ResolverTypeDocblockIr::StrongObjectResolver(_)) => {
+                "strong object type declaration"
+            }
+            Self::Type(ResolverTypeDocblockIr::WeakObjectType(_)) => "weak object type declaration",
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ResolverTypeDocblockIr {
+    StrongObjectResolver(StrongObjectIr),
+    WeakObjectType(WeakObjectIr),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ResolverFieldDocblockIr {
+    LegacyVerboseResolver(LegacyVerboseResolverIr),
+    TerseRelayResolver(TerseRelayResolverIr),
 }
 
 /// Wrapper over all schema-related values
@@ -137,10 +153,18 @@ impl DocblockIr {
 
     pub fn location(&self) -> Location {
         match self {
-            DocblockIr::LegacyVerboseResolver(relay_resolver) => relay_resolver.location(),
-            DocblockIr::TerseRelayResolver(relay_resolver) => relay_resolver.location(),
-            DocblockIr::StrongObjectResolver(strong_object) => strong_object.location(),
-            DocblockIr::WeakObjectType(weak_object) => weak_object.location(),
+            DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(relay_resolver)) => {
+                relay_resolver.location()
+            }
+            DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(relay_resolver)) => {
+                relay_resolver.location()
+            }
+            DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(strong_object)) => {
+                strong_object.location()
+            }
+            DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(weak_object)) => {
+                weak_object.location()
+            }
         }
     }
 
@@ -160,16 +184,16 @@ impl DocblockIr {
         let location = self.location();
 
         let schema_doc = match self {
-            DocblockIr::LegacyVerboseResolver(relay_resolver) => {
+            DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(relay_resolver)) => {
                 relay_resolver.to_graphql_schema_ast(project_config)
             }
-            DocblockIr::TerseRelayResolver(relay_resolver) => {
+            DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(relay_resolver)) => {
                 relay_resolver.to_graphql_schema_ast(project_config)
             }
-            DocblockIr::StrongObjectResolver(strong_object) => {
+            DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(strong_object)) => {
                 strong_object.to_graphql_schema_ast(project_config)
             }
-            DocblockIr::WeakObjectType(weak_object) => {
+            DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(weak_object)) => {
                 weak_object.to_graphql_schema_ast(project_config)
             }
         }?;

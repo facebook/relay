@@ -33,151 +33,157 @@ export function hungry(cat: CatFlowType): number {
   return 5;
 }
 ==================================== OUTPUT ===================================
-StrongObjectResolver(
-    StrongObjectIr {
-        type_name: Identifier {
-            span: 272:275,
-            token: Token {
-                span: 272:275,
-                kind: Identifier,
-            },
-            value: "Cat",
-        },
-        rhs_location: module.js:272:275,
-        root_fragment: WithLocation {
-            location: module.js:272:275,
-            item: FragmentDefinitionName(
-                "Cat__id",
-            ),
-        },
-        description: None,
-        deprecated: None,
-        live: None,
-        semantic_non_null: None,
-        location: module.js:272:275,
-        implements_interfaces: [],
-        source_hash: ResolverSourceHash(
-            "09dcae06200cddceb5b4fde5706f8a47",
-        ),
-    },
-)
-type Cat @__RelayResolverModel {
-  id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47") @unselectable(reason: "This field is intended only for Relay's internal use")
-}
-
-
-TerseRelayResolver(
-    TerseRelayResolverIr {
-        field: FieldDefinition {
-            name: Identifier {
-                span: 20:29,
-                token: Token {
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
                     span: 20:29,
-                    kind: Identifier,
-                },
-                value: "is_hungry",
-            },
-            type_: NonNull(
-                NonNullTypeAnnotation {
-                    span: 493:499,
-                    type_: Named(
-                        NamedTypeAnnotation {
-                            name: Identifier {
-                                span: 493:499,
-                                token: Token {
-                                    span: 493:499,
-                                    kind: Identifier,
-                                },
-                                value: "Float",
-                            },
-                        },
-                    ),
-                    exclamation: Token {
-                        span: 0:0,
-                        kind: Empty,
+                    token: Token {
+                        span: 20:29,
+                        kind: Identifier,
                     },
+                    value: "is_hungry",
                 },
+                type_: NonNull(
+                    NonNullTypeAnnotation {
+                        span: 493:499,
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 493:499,
+                                    token: Token {
+                                        span: 493:499,
+                                        kind: Identifier,
+                                    },
+                                    value: "Float",
+                                },
+                            },
+                        ),
+                        exclamation: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 20:29,
+            },
+            type_: WithLocation {
+                location: <generated>:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: module.js:20:29,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "09dcae06200cddceb5b4fde5706f8a47",
             ),
-            arguments: None,
-            directives: [],
-            description: None,
-            hack_source: None,
-            span: 20:29,
         },
-        type_: WithLocation {
-            location: <generated>:272:275,
-            item: "Cat",
-        },
-        root_fragment: None,
-        deprecated: None,
-        semantic_non_null: None,
-        live: None,
-        location: module.js:20:29,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "09dcae06200cddceb5b4fde5706f8a47",
-        ),
-    },
+    ),
 )
 extend type Cat {
   is_hungry: Float! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "is_hungry") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47")
 }
 
 
-TerseRelayResolver(
-    TerseRelayResolverIr {
-        field: FieldDefinition {
-            name: Identifier {
-                span: 362:366,
-                token: Token {
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
                     span: 362:366,
-                    kind: Identifier,
-                },
-                value: "name",
-            },
-            type_: NonNull(
-                NonNullTypeAnnotation {
-                    span: 386:392,
-                    type_: Named(
-                        NamedTypeAnnotation {
-                            name: Identifier {
-                                span: 386:392,
-                                token: Token {
-                                    span: 386:392,
-                                    kind: Identifier,
-                                },
-                                value: "String",
-                            },
-                        },
-                    ),
-                    exclamation: Token {
-                        span: 0:0,
-                        kind: Empty,
+                    token: Token {
+                        span: 362:366,
+                        kind: Identifier,
                     },
+                    value: "name",
                 },
+                type_: NonNull(
+                    NonNullTypeAnnotation {
+                        span: 386:392,
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 386:392,
+                                    token: Token {
+                                        span: 386:392,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        exclamation: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 362:366,
+            },
+            type_: WithLocation {
+                location: <generated>:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: module.js:362:366,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "09dcae06200cddceb5b4fde5706f8a47",
             ),
-            arguments: None,
-            directives: [],
-            description: None,
-            hack_source: None,
-            span: 362:366,
         },
-        type_: WithLocation {
-            location: <generated>:272:275,
-            item: "Cat",
-        },
-        root_fragment: None,
-        deprecated: None,
-        semantic_non_null: None,
-        live: None,
-        location: module.js:362:366,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "09dcae06200cddceb5b4fde5706f8a47",
-        ),
-    },
+    ),
 )
 extend type Cat {
   name: String! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 272:275,
+                token: Token {
+                    span: 272:275,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:272:275,
+            root_fragment: WithLocation {
+                location: module.js:272:275,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:272:275,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "09dcae06200cddceb5b4fde5706f8a47",
+            ),
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "09dcae06200cddceb5b4fde5706f8a47") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

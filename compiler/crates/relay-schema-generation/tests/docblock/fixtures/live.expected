@@ -30,97 +30,101 @@ export function mood(cat: CatFlowType): LiveState<string> {
   };
 }
 ==================================== OUTPUT ===================================
-StrongObjectResolver(
-    StrongObjectIr {
-        type_name: Identifier {
-            span: 320:323,
-            token: Token {
-                span: 320:323,
-                kind: Identifier,
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 409:413,
+                    token: Token {
+                        span: 409:413,
+                        kind: Identifier,
+                    },
+                    value: "mood",
+                },
+                type_: NonNull(
+                    NonNullTypeAnnotation {
+                        span: 443:449,
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 443:449,
+                                    token: Token {
+                                        span: 443:449,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        exclamation: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 409:413,
             },
-            value: "Cat",
-        },
-        rhs_location: module.js:320:323,
-        root_fragment: WithLocation {
-            location: module.js:320:323,
-            item: FragmentDefinitionName(
-                "Cat__id",
+            type_: WithLocation {
+                location: <generated>:320:323,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: Some(
+                UnpopulatedIrField {
+                    key_location: module.js:433:450,
+                },
+            ),
+            location: module.js:409:413,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "9f3118df130187c7be17ebe0dc65e441",
             ),
         },
-        description: None,
-        deprecated: None,
-        live: None,
-        semantic_non_null: None,
-        location: module.js:320:323,
-        implements_interfaces: [],
-        source_hash: ResolverSourceHash(
-            "9f3118df130187c7be17ebe0dc65e441",
-        ),
-    },
+    ),
+)
+extend type Cat {
+  mood: String! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", live: true, has_output_type: true, import_name: "mood") @resolver_source_hash(value: "9f3118df130187c7be17ebe0dc65e441")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 320:323,
+                token: Token {
+                    span: 320:323,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:320:323,
+            root_fragment: WithLocation {
+                location: module.js:320:323,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:320:323,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "9f3118df130187c7be17ebe0dc65e441",
+            ),
+        },
+    ),
 )
 type Cat @__RelayResolverModel {
   id: ID!
   __relay_model_instance: RelayResolverValue! @relay_resolver(import_path: "module.js", fragment_name: "Cat__id", generated_fragment: true, inject_fragment_data: "id", import_name: "Cat") @resolver_source_hash(value: "9f3118df130187c7be17ebe0dc65e441") @unselectable(reason: "This field is intended only for Relay's internal use")
-}
-
-
-TerseRelayResolver(
-    TerseRelayResolverIr {
-        field: FieldDefinition {
-            name: Identifier {
-                span: 409:413,
-                token: Token {
-                    span: 409:413,
-                    kind: Identifier,
-                },
-                value: "mood",
-            },
-            type_: NonNull(
-                NonNullTypeAnnotation {
-                    span: 443:449,
-                    type_: Named(
-                        NamedTypeAnnotation {
-                            name: Identifier {
-                                span: 443:449,
-                                token: Token {
-                                    span: 443:449,
-                                    kind: Identifier,
-                                },
-                                value: "String",
-                            },
-                        },
-                    ),
-                    exclamation: Token {
-                        span: 0:0,
-                        kind: Empty,
-                    },
-                },
-            ),
-            arguments: None,
-            directives: [],
-            description: None,
-            hack_source: None,
-            span: 409:413,
-        },
-        type_: WithLocation {
-            location: <generated>:320:323,
-            item: "Cat",
-        },
-        root_fragment: None,
-        deprecated: None,
-        semantic_non_null: None,
-        live: Some(
-            UnpopulatedIrField {
-                key_location: module.js:433:450,
-            },
-        ),
-        location: module.js:409:413,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "9f3118df130187c7be17ebe0dc65e441",
-        ),
-    },
-)
-extend type Cat {
-  mood: String! @relay_resolver(import_path: "module.js", fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", live: true, has_output_type: true, import_name: "mood") @resolver_source_hash(value: "9f3118df130187c7be17ebe0dc65e441")
 }

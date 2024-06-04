@@ -20,6 +20,8 @@ use lsp_types::request::Request;
 use lsp_types::Location as LSPLocation;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
+use relay_docblock::ResolverFieldDocblockIr;
+use relay_docblock::ResolverTypeDocblockIr;
 use schema::Schema;
 
 use crate::docblock_resolution_info::DocblockResolutionInfo;
@@ -76,16 +78,20 @@ fn get_references_response(
         FeatureResolutionInfo::DocblockNode(docblock_node) => {
             if let DocblockResolutionInfo::FieldName(field_name) = docblock_node.resolution_info {
                 let type_name = match docblock_node.ir {
-                    DocblockIr::LegacyVerboseResolver(relay_resolver) => match relay_resolver.on {
+                    DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(
+                        relay_resolver,
+                    )) => match relay_resolver.on {
                         On::Type(type_) => type_.value.item,
                         On::Interface(interface) => interface.value.item,
                     },
-                    DocblockIr::TerseRelayResolver(terse_resolver) => terse_resolver.type_.item,
-                    DocblockIr::StrongObjectResolver(_) => {
+                    DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(
+                        terse_resolver,
+                    )) => terse_resolver.type_.item,
+                    DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(_)) => {
                         // TODO: Implement support for strong object.
                         return Err(LSPRuntimeError::ExpectedError);
                     }
-                    DocblockIr::WeakObjectType(_) => {
+                    DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(_)) => {
                         // TODO: Implement support for weak object.
                         return Err(LSPRuntimeError::ExpectedError);
                     }

@@ -171,7 +171,7 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
         let variables_map =
             InferVariablesVisitor::new(self.program).infer_fragment_variables(fragment);
 
-        let generators = get_query_generators(self.project_config);
+        let generators = get_query_generators(&refetchable_directive, self.project_config);
 
         for generator in generators {
             if let Some(refetch_root) = (generator.build_refetch_operation)(
@@ -377,10 +377,14 @@ const PREFER_FETCHABLE_GENERATORS: [QueryGenerator; 4] = [
     NODE_QUERY_GENERATOR,
 ];
 
-fn get_query_generators(project_config: &ProjectConfig) -> &'static [QueryGenerator; 4] {
-    if project_config
-        .feature_flags
-        .prefer_fetchable_in_refetch_queries
+fn get_query_generators(
+    directive: &RefetchableDirective,
+    project_config: &ProjectConfig,
+) -> &'static [QueryGenerator; 4] {
+    if directive.prefer_fetchable
+        || project_config
+            .feature_flags
+            .prefer_fetchable_in_refetch_queries
     {
         &PREFER_FETCHABLE_GENERATORS
     } else {

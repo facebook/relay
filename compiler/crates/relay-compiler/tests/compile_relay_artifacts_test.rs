@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<497c76f65771b139566b508739a60b35>>
+ * @generated SignedSource<<742eb57a3eb061bcf247ff05572ac49d>>
  */
 
 mod compile_relay_artifacts;
@@ -1123,6 +1123,13 @@ async fn refetchable_fragment_on_node_and_fetchable() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.expected");
     test_fixture(transform_fixture, file!(), "refetchable-fragment-on-node-and-fetchable.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_fragment_on_node_and_fetchable_arg() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-arg.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-arg.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-fragment-on-node-and-fetchable-arg.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-arg.expected", input, expected).await;
 }
 
 #[tokio::test]

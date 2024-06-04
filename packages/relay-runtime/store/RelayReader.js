@@ -47,6 +47,7 @@ import type {
 } from './RelayStoreTypes';
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
+import type {ResolverContext} from './ResolverFragments';
 
 const {
   ACTOR_CHANGE,
@@ -101,11 +102,13 @@ function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
   resolverCache?: ResolverCache,
+  resolverContext?: mixed,
 ): Snapshot {
   const reader = new RelayReader(
     recordSource,
     selector,
     resolverCache ?? new NoopResolverCache(),
+    resolverContext,
   );
   return reader.read();
 }
@@ -130,11 +133,13 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
+  _resolverContext: mixed;
 
   constructor(
     recordSource: RecordSource,
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
+    resolverContext: mixed,
   ) {
     this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
       ? [...selector.clientEdgeTraversalPath]
@@ -154,6 +159,7 @@ class RelayReader {
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
+    this._resolverContext = resolverContext;
   }
 
   read(): Snapshot {
@@ -700,7 +706,10 @@ class RelayReader {
               : {},
           },
         };
-        const resolverContext = {getDataForResolverFragment};
+        const resolverContext: ResolverContext<mixed> = {
+          getDataForResolverFragment,
+          resolverContext: this._resolverContext,
+        };
         return withResolverContext(resolverContext, () => {
           const [resolverResult, resolverError] = getResolverValue(
             field,
@@ -708,6 +717,19 @@ class RelayReader {
             key,
           );
           return {resolverResult, snapshot, error: resolverError};
+        });
+      } else if (this._resolverContext !== undefined) {
+        const resolverContext: ResolverContext<mixed> = {
+          resolverContext: this._resolverContext,
+          getDataForResolverFragment,
+        };
+        return withResolverContext(resolverContext, () => {
+          const [resolverResult, resolverError] = getResolverValue(
+            field,
+            this._variables,
+            null,
+          );
+          return {resolverResult, snapshot: undefined, error: resolverError};
         });
       } else {
         const [resolverResult, resolverError] = getResolverValue(

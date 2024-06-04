@@ -24,6 +24,7 @@ import type {
   OperationLoader,
   RecordSource,
   RequestDescriptor,
+  ResolverContext,
   Scheduler,
   SingularReaderSelector,
   Snapshot,
@@ -105,6 +106,7 @@ class RelayModernStore implements Store {
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
   _shouldProcessClientComponents: ?boolean;
+  _resolverContext: ?ResolverContext;
 
   constructor(
     source: MutableRecordSource,
@@ -116,6 +118,7 @@ class RelayModernStore implements Store {
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
+      resolverContext?: ResolverContext,
     },
   ) {
     // Prevent mutation of a record from outside the store.
@@ -156,6 +159,7 @@ class RelayModernStore implements Store {
     this._updatedRecordIDs = new Set();
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents;
+    this._resolverContext = options?.resolverContext;
 
     initializeRecordSource(this._recordSource);
   }
@@ -296,7 +300,12 @@ class RelayModernStore implements Store {
 
   lookup(selector: SingularReaderSelector): Snapshot {
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector, this._resolverCache);
+    const snapshot = RelayReader.read(
+      source,
+      selector,
+      this._resolverCache,
+      this._resolverContext,
+    );
     if (__DEV__) {
       deepFreeze(snapshot);
     }

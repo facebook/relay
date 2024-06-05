@@ -602,6 +602,11 @@ pub enum ValidationMessageWithData {
         argument_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
+    #[error(
+        "The directive `@dangerously_unaliased_fixme` is unsafe and should be replaced with `@alias`."
+    )]
+    DeprecatedDangerouslyUnaliasedDirective,
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -616,6 +621,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 .collect::<_>(),
             ValidationMessageWithData::ExpectedSelectionsOnObjectField { field_name, .. } => {
                 vec![Box::new(format!("{} {{ }}", field_name))]
+            }
+            ValidationMessageWithData::DeprecatedDangerouslyUnaliasedDirective => {
+                vec![Box::new("@alias".to_string())]
             }
         }
     }

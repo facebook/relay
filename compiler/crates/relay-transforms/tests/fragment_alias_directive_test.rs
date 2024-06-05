@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aacec839bf547ed4230bb377480457a2>>
+ * @generated SignedSource<<36d896c88d8f613a56a4df3c63de84a4>>
  */
 
 mod fragment_alias_directive;
@@ -83,6 +83,13 @@ async fn fragment_spread_into_supertype_without_alias_invalid() {
 }
 
 #[tokio::test]
+async fn fragment_spread_into_supertype_without_alias_suppressed() {
+    let input = include_str!("fragment_alias_directive/fixtures/fragment_spread_into_supertype_without_alias_suppressed.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/fragment_spread_into_supertype_without_alias_suppressed.expected");
+    test_fixture(transform_fixture, file!(), "fragment_spread_into_supertype_without_alias_suppressed.graphql", "fragment_alias_directive/fixtures/fragment_spread_into_supertype_without_alias_suppressed.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn inline_fragment_spread_into_supertype_without_alias() {
     let input = include_str!("fragment_alias_directive/fixtures/inline_fragment_spread_into_supertype_without_alias.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/inline_fragment_spread_into_supertype_without_alias.expected");
@@ -94,6 +101,13 @@ async fn skip_fragment_spread_without_alias_invalid() {
     let input = include_str!("fragment_alias_directive/fixtures/skip_fragment_spread_without_alias.invalid.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/skip_fragment_spread_without_alias.invalid.expected");
     test_fixture(transform_fixture, file!(), "skip_fragment_spread_without_alias.invalid.graphql", "fragment_alias_directive/fixtures/skip_fragment_spread_without_alias.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn skip_fragment_spread_without_alias_suppressed() {
+    let input = include_str!("fragment_alias_directive/fixtures/skip_fragment_spread_without_alias_suppressed.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/skip_fragment_spread_without_alias_suppressed.expected");
+    test_fixture(transform_fixture, file!(), "skip_fragment_spread_without_alias_suppressed.graphql", "fragment_alias_directive/fixtures/skip_fragment_spread_without_alias_suppressed.expected", input, expected).await;
 }
 
 #[tokio::test]

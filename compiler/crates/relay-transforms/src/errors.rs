@@ -157,11 +157,6 @@ pub enum ValidationMessage {
     PluralFragmentAliasNotSupported,
 
     #[error(
-        "Expected to find @alias directive. Fragments which might not be fetched due to type conditions or @skip/@include must use @alias."
-    )]
-    PotentiallyNotMatchingFragmentRequiresAlias,
-
-    #[error(
         "Unexpected dynamic argument. {field_name}'s '{argument_name}' argument must be a constant value because it is read by the Relay compiler."
     )]
     InvalidStaticArgument {
@@ -271,6 +266,20 @@ pub enum ValidationMessageWithData {
         "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive."
     )]
     RequiredOnSemanticNonNull,
+
+    #[error(
+        "Expected `@alias` directive. `{fragment_name}` is defined on `{fragment_type_name}` which might not match this selection type of `{selection_type_name}`. Add `@alias` to this spread to expose the fragment data as a nullable property."
+    )]
+    ExpectedAliasOnNonSubtypeSpread {
+        fragment_name: FragmentDefinitionName,
+        fragment_type_name: StringKey,
+        selection_type_name: StringKey,
+    },
+
+    #[error(
+        "Expected `@alias` directive. Fragment spreads with `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment as a nullable property."
+    )]
+    ExpectedAliasOnConditionalFragmentSpread { condition_name: String },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -287,6 +296,23 @@ impl WithDiagnosticData for ValidationMessageWithData {
             }
             ValidationMessageWithData::RequiredOnSemanticNonNull => {
                 vec![Box::new("")]
+            }
+            ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpread {
+                fragment_name, ..
+            } => {
+                vec![
+                    Box::new(format!("{fragment_name} @alias")),
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                ]
+            }
+            ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
+                condition_name,
+                ..
+            } => {
+                vec![
+                    Box::new(format!("@alias @{condition_name}")),
+                    Box::new(format!("@dangerously_unaliased_fixme @{condition_name}")),
+                ]
             }
         }
     }

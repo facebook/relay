@@ -11,7 +11,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
-use common::Location;
+use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::transform_list;
@@ -33,10 +33,13 @@ use schema::Schema;
 use schema::Type;
 
 use crate::RelayDirective;
-use crate::ValidationMessage; // Import the Named trait
+use crate::ValidationMessage;
+use crate::ValidationMessageWithData;
 
 lazy_static! {
     pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: DirectiveName = DirectiveName("alias".intern());
+    pub static ref FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("dangerously_unaliased_fixme".intern());
     pub static ref FRAGMENT_ALIAS_ARGUMENT_NAME: ArgumentName = ArgumentName("as".intern());
 }
 
@@ -71,7 +74,7 @@ struct FragmentAliasTransform<'program> {
     is_enforced: bool,
     document_name: Option<StringKey>,
     parent_type: Option<Type>,
-    is_condition: Option<Location>,
+    maybe_condition: Option<Condition>,
     errors: Vec<Diagnostic>,
 }
 
@@ -83,13 +86,13 @@ impl<'program> FragmentAliasTransform<'program> {
             is_enforced: enforced,
             document_name: None,
             parent_type: None,
-            is_condition: None,
+            maybe_condition: None,
             errors: Vec::new(),
         }
     }
 
     fn will_always_match(&self, type_condition: Option<Type>) -> bool {
-        if self.is_condition.is_some() {
+        if self.maybe_condition.is_some() {
             return false;
         }
         match type_condition {
@@ -103,6 +106,56 @@ impl<'program> FragmentAliasTransform<'program> {
                     .is_named_type_subtype_of(parent_type, type_condition)
             }
             None => true,
+        }
+    }
+
+    fn validate_unaliased_fragment_spread(
+        &mut self,
+        type_condition: Option<Type>,
+        spread: &FragmentSpread,
+    ) {
+        if !self.is_enforced {
+            return;
+        }
+        if spread
+            .directives
+            .named(*FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME)
+            .is_some()
+        {
+            // We allow users to add `@dangerously_unaliaed_fixme` to suppress
+            // this error as a migration strategy.
+            return;
+        }
+        if let Some(condition) = &self.maybe_condition {
+            self.errors.push(Diagnostic::error_with_data(
+                ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
+                    condition_name: condition.directive_name().to_string(),
+                },
+                condition.location,
+            ));
+            return;
+        }
+        if let Some(type_condition) = type_condition {
+            let parent_type = self
+                .parent_type
+                .expect("Selection should be within a parent type.");
+
+            if !self
+                .program
+                .schema
+                .is_named_type_subtype_of(parent_type, type_condition)
+            {
+                let fragment_type_name = self.program.schema.get_type_name(type_condition);
+                let selection_type_name = self.program.schema.get_type_name(parent_type);
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpread {
+                        fragment_name: spread.fragment.item,
+                        fragment_type_name,
+                        selection_type_name,
+                    },
+                    spread.fragment.location,
+                ))
+            }
         }
     }
 }
@@ -137,11 +190,11 @@ impl Transformer for FragmentAliasTransform<'_> {
     }
 
     fn transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
-        self.is_condition = Some(condition.location);
+        self.maybe_condition = Some(condition.clone());
         let selections = transform_list(&condition.selections, |selection| {
             self.transform_selection(selection)
         });
-        self.is_condition = None;
+        self.maybe_condition = None;
         if let TransformedValue::Replace(selections) = &selections {
             if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
                 return Transformed::Delete;
@@ -163,7 +216,7 @@ impl Transformer for FragmentAliasTransform<'_> {
         &mut self,
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
-        self.is_condition = None;
+        self.maybe_condition = None;
         transform_list(selections, |selection| self.transform_selection(selection))
     }
 
@@ -264,12 +317,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                 })))
             }
             Ok(None) => {
-                if self.is_enforced && !self.will_always_match(type_condition) {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::PotentiallyNotMatchingFragmentRequiresAlias,
-                        spread.fragment.location,
-                    ));
-                }
+                self.validate_unaliased_fragment_spread(type_condition, spread);
                 self.default_transform_fragment_spread(spread)
             }
             Err(diagnostics) => {

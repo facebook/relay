@@ -128,6 +128,23 @@ impl Diagnostic {
         Diagnostic::with_severity(DiagnosticSeverity::HINT, message, location, tags)
     }
 
+    pub fn hint_with_data<T: 'static + DiagnosticDisplay + WithDiagnosticData>(
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
+        let data = message.get_data();
+        Self(Box::new(DiagnosticData {
+            message: Box::new(message),
+            location,
+            tags,
+            severity: DiagnosticSeverity::HINT,
+            related_information: Vec::new(),
+            data,
+            machine_readable: BTreeMap::new(),
+        }))
+    }
+
     /// Annotates this error with an additional location and associated message.
     pub fn annotate<T: 'static + DiagnosticDisplay>(
         mut self,

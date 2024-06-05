@@ -11,7 +11,7 @@ query RelayReaderNamedFragmentsTest2Query {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected to find @alias directive. Fragments which might not be fetched due to type conditions or @skip/@include must use @alias.
+✖︎ Expected `@alias` directive. `RelayReaderNamedFragmentsTest_user` is defined on `User` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment data as a nullable property.
 
   fragment_spread_into_supertype_without_alias.invalid.graphql:9:8
     8 │     # This might not match!

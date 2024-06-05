@@ -290,7 +290,7 @@ directive @RelayOutputType on OBJECT
 
 Marks a given query or fragment as updatable.
 
-[Read More](https://fb.quip.com/4FZaADvkQPPl)
+[Read More](https://relay.dev/docs/next/guided-tour/updating-data/imperatively-modifying-linked-fields/)
 """
 directive @updatable on QUERY | FRAGMENT_DEFINITION
 
@@ -299,7 +299,7 @@ directive @updatable on QUERY | FRAGMENT_DEFINITION
 
 Marks a given fragment as assignable.
 
-[Read More](https://fb.quip.com/4FZaADvkQPPl)
+[Read More](https://relay.dev/docs/next/guided-tour/updating-data/imperatively-modifying-linked-fields/)
 """
 directive @assignable on FRAGMENT_DEFINITION
 
@@ -308,8 +308,23 @@ directive @assignable on FRAGMENT_DEFINITION
 
 Exposes a fragment's data as a new field which can be null checked to ensure it
 matches the parent selection.
+
+[Read More](https://relay.dev/docs/next/guides/alias-directive/)
 """
 directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+(Relay Only)
+
+This directive allows users to opt out of validation which enforces that @alias
+be used on all fragment spreads which might not match. It is intended as an
+escape hatch for incremental adoption of enforcing `@alias`.
+
+DO NOT ADD NEW USES OF THIS DIRECTIVE.
+
+[Read More](https://relay.dev/docs/next/guides/alias-directive/)
+"""
+directive @dangerously_unaliased_fixme on FRAGMENT_SPREAD
 
 """
 (Relay Only)

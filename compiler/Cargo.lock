@@ -1786,6 +1786,7 @@ dependencies = [
  "common",
  "docblock-shared",
  "docblock-syntax",
+ "errors",
  "extract-graphql",
  "fixture-tests",
  "graphql-cli",

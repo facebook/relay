@@ -14,6 +14,7 @@ use graphql_syntax::List;
 use graphql_syntax::ObjectTypeDefinition;
 use graphql_syntax::ObjectTypeExtension;
 use graphql_syntax::ScalarTypeDefinition;
+use graphql_syntax::SchemaDocument;
 use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
@@ -22,7 +23,18 @@ use schema::TypeSystemDefinition;
 /// Mark schema definitions as base schema extension (add special directive to the type/field)
 /// This directive is used by other stages of Relay to know if artifacts for these types have
 /// already been generated.
-pub fn mark_extension_as_base(definition: TypeSystemDefinition) -> TypeSystemDefinition {
+pub fn mark_document_as_base(document: SchemaDocument) -> SchemaDocument {
+    SchemaDocument {
+        definitions: document
+            .definitions
+            .into_iter()
+            .map(mark_extension_as_base)
+            .collect(),
+        ..document
+    }
+}
+
+fn mark_extension_as_base(definition: TypeSystemDefinition) -> TypeSystemDefinition {
     match definition {
         TypeSystemDefinition::ObjectTypeDefinition(def) => {
             TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {

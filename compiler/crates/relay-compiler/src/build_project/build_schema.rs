@@ -14,11 +14,16 @@ use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
 use relay_docblock::validate_resolver_schema;
+use schema::parse_schema_with_extensions;
 use schema::SDLSchema;
+use schema::SchemaDocuments;
 use schema_validate_lib::validate;
 use schema_validate_lib::SchemaValidationOptions;
 
-use super::build_resolvers_schema::extend_schema_with_resolvers;
+use super::build_resolvers_schema::build_resolver_types_schema_documents;
+use super::build_resolvers_schema::extend_schema_with_field_ir;
+use super::build_resolvers_schema::extract_docblock_ir;
+use super::build_resolvers_schema::ExtractedDocblockIr;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::ProjectConfig;
@@ -55,21 +60,47 @@ fn build_schema_impl(
     let schema_sources = get_schema_sources(compiler_state, project_config);
     let extensions = get_extension_sources(compiler_state, project_config);
 
-    let mut schema = log_event.time("build_schema_with_extension_time", || {
-        relay_schema::build_schema_with_extensions(&schema_sources, &extensions)
+    // Parse the server and extension schema text
+    let SchemaDocuments {
+        server: server_asts,
+        extensions: mut extension_asts,
+    } = log_event.time("parse_schema_time", || {
+        parse_schema_with_extensions(&schema_sources, &extensions)
     })?;
 
-    if project_config.feature_flags.enable_relay_resolver_transform {
-        log_event.time("extend_schema_with_resolvers_time", || {
-            extend_schema_with_resolvers(
-                &mut schema,
-                config,
-                compiler_state,
-                project_config,
-                graphql_asts_map,
-            )
-        })?;
-    }
+    // Collect Relay Resolver schema IR
+    let resolver_schema_data = log_event.time("collect_resolver_schema_time", || {
+        if project_config.feature_flags.enable_relay_resolver_transform {
+            extract_docblock_ir(config, compiler_state, project_config, graphql_asts_map)
+        } else {
+            Ok(ExtractedDocblockIr::default())
+        }
+    })?;
+
+    // Convert resolver schema to AST and append it to extension ASTs
+    log_event.time("build_resolver_types_schema_time", || {
+        extension_asts.extend(build_resolver_types_schema_documents(
+            &resolver_schema_data.type_irs,
+            config,
+            project_config,
+        ));
+    });
+
+    // Now that all the named types have been collected, we can build
+    // the normalized schema. All names should be able to be resolved.
+    let mut schema = log_event.time("build_schema_time", || {
+        relay_schema::build_schema_with_extensions_from_asts(server_asts, extension_asts)
+    })?;
+
+    // Now that the normalized schema has been built we can add fields to existing types by name.
+    log_event.time("extend_schema_with_resolver_fields_time", || {
+        extend_schema_with_field_ir(
+            resolver_schema_data.field_irs,
+            &mut schema,
+            config,
+            project_config,
+        )
+    })?;
 
     // Now that the schema has been fully extended to include all Resolver types
     // and fields we can apply resolver-specific validations.

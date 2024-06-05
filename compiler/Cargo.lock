@@ -1850,6 +1850,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "docblock-shared",
+ "graphql-syntax",
  "intern",
  "lazy_static",
  "schema",

@@ -21,7 +21,6 @@ use lsp_types::Location as LSPLocation;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 use relay_docblock::ResolverFieldDocblockIr;
-use relay_docblock::ResolverTypeDocblockIr;
 use schema::Schema;
 
 use crate::docblock_resolution_info::DocblockResolutionInfo;
@@ -87,12 +86,8 @@ fn get_references_response(
                     DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(
                         terse_resolver,
                     )) => terse_resolver.type_.item,
-                    DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(_)) => {
-                        // TODO: Implement support for strong object.
-                        return Err(LSPRuntimeError::ExpectedError);
-                    }
-                    DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(_)) => {
-                        // TODO: Implement support for weak object.
+                    DocblockIr::Type(_) => {
+                        // TODO: Implement support for types.
                         return Err(LSPRuntimeError::ExpectedError);
                     }
                 };

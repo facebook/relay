@@ -29,6 +29,8 @@ use common::Span;
 use common::WithLocation;
 use docblock_shared::ResolverSourceHash;
 use docblock_syntax::parse_docblock;
+use docblock_syntax::DocblockAST;
+use docblock_syntax::DocblockSection;
 use errors::SchemaGenerationError;
 use find_resolver_imports::ImportExportVisitor;
 use find_resolver_imports::Imports;
@@ -41,6 +43,7 @@ use graphql_syntax::List;
 use graphql_syntax::ListTypeAnnotation;
 use graphql_syntax::NamedTypeAnnotation;
 use graphql_syntax::NonNullTypeAnnotation;
+use graphql_syntax::StringNode;
 use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
@@ -146,6 +149,7 @@ struct UnresolvedFieldDefinition {
     arguments: Option<FlowTypeAnnotation>,
     source_hash: ResolverSourceHash,
     is_live: Option<Location>,
+    description: Option<WithLocation<StringKey>>,
 }
 
 impl Default for RelayResolverExtractor {
@@ -214,11 +218,12 @@ impl RelayResolverExtractor {
         try_all(
             attached_comments
                 .into_iter()
-                .filter(|(comment, _, _)| comment.contains("@RelayResolver"))
-                .map(|(comment, node, range)| {
+                .filter(|(comment, _, _, _)| comment.contains("@RelayResolver"))
+                .map(|(comment, comment_range, node, range)| {
                     // TODO: Handle unwraps
                     let docblock = parse_docblock(comment, self.current_location)?;
                     let resolver_value = docblock.find_field(intern!("RelayResolver")).unwrap();
+                    let description = get_description(&docblock, comment_range)?;
 
                     match self.extract_graphql_types(&node, range)? {
                         ResolverFlowData::Strong(FieldData {
@@ -253,6 +258,7 @@ impl RelayResolverExtractor {
                                         arguments,
                                         source_hash,
                                         is_live,
+                                        description,
                                     },
                                 )?
                             } else {
@@ -264,6 +270,7 @@ impl RelayResolverExtractor {
                                     return_type,
                                     source_hash,
                                     is_live,
+                                    description,
                                 )?
                             }
                         }
@@ -277,6 +284,7 @@ impl RelayResolverExtractor {
                                 type_alias,
                                 source_hash,
                                 source_module_path,
+                                description,
                             )?
                         }
                     }
@@ -301,6 +309,13 @@ impl RelayResolverExtractor {
                         } else {
                             None
                         };
+                        let description_node = field.description.map(|desc| StringNode {
+                            token: Token {
+                                span: desc.location.span(),
+                                kind: TokenKind::Empty,
+                            },
+                            value: desc.item,
+                        });
                         let field_definition = FieldDefinition {
                             name: string_key_to_identifier(field.field_name),
                             type_: return_type_to_type_annotation(
@@ -309,7 +324,7 @@ impl RelayResolverExtractor {
                             )?,
                             arguments,
                             directives: vec![],
-                            description: None,
+                            description: description_node,
                             hack_source: None,
                             span: field.field_name.location.span(),
                         };
@@ -395,12 +410,19 @@ impl RelayResolverExtractor {
         } else {
             None
         };
+        let description_node = field.description.map(|desc| StringNode {
+            token: Token {
+                span: desc.location.span(),
+                kind: TokenKind::Empty,
+            },
+            value: desc.item,
+        });
         let field_definition = FieldDefinition {
             name: string_key_to_identifier(field.field_name),
             type_: return_type_to_type_annotation(self.current_location, &field.return_type)?,
             arguments,
             directives: vec![],
-            description: None,
+            description: description_node,
             hack_source: None,
             span: field.field_name.location.span(),
         };
@@ -448,6 +470,7 @@ impl RelayResolverExtractor {
         return_type: FlowTypeAnnotation,
         source_hash: ResolverSourceHash,
         is_live: Option<Location>,
+        description: Option<WithLocation<StringKey>>,
     ) -> DiagnosticsResult<()> {
         let strong_object = StrongObjectIr {
             type_name: string_key_to_identifier(name),
@@ -456,7 +479,7 @@ impl RelayResolverExtractor {
                 name.location,
                 FragmentDefinitionName(format!("{}__id", name.item).intern()),
             ),
-            description: None,
+            description,
             deprecated: None,
             live: is_live.map(|loc| UnpopulatedIrField { key_location: loc }),
             location: name.location,
@@ -532,11 +555,12 @@ impl RelayResolverExtractor {
         type_alias: FlowTypeAnnotation,
         source_hash: ResolverSourceHash,
         source_module_path: &str,
+        description: Option<WithLocation<StringKey>>,
     ) -> DiagnosticsResult<()> {
         let weak_object = WeakObjectIr {
             type_name: string_key_to_identifier(name),
             rhs_location: name.location,
-            description: None,
+            description,
             hack_source: None,
             deprecated: None,
             location: name.location,
@@ -1030,6 +1054,36 @@ fn flow_type_to_field_arguments(
             kind: TokenKind::CloseBrace,
         },
     })
+}
+
+fn get_description(
+    docblock: &DocblockAST,
+    range: SourceRange,
+) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+    let mut description = None;
+    for section in docblock.sections.iter() {
+        match section {
+            DocblockSection::Field(_) => (),
+            DocblockSection::FreeText(text) => {
+                let location = Location::new(
+                    text.location.source_location(),
+                    Span::new(range.start, range.end.get()),
+                );
+                if description.is_none() {
+                    description = Some(WithLocation {
+                        location,
+                        item: text.item,
+                    })
+                } else {
+                    return Err(vec![Diagnostic::error(
+                        SchemaGenerationError::MultipleDocblockDescriptions,
+                        location,
+                    )]);
+                }
+            }
+        }
+    }
+    Ok(description)
 }
 
 fn generated_token() -> Token {

@@ -1,0 +1,41 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {}
+
+/**
+ * @RelayResolver
+ *
+ * This is the age of the cat
+ * in years
+ */
+export function age(cat: CatFlowType): number {}
+
+/**
+ * @RelayResolver fullname
+ *
+ * This is the fullname of the cat
+ */
+export function name(cat: CatFlowType): string {}
+
+/**
+ * @RelayResolver
+ *
+ * This is the length of the cat.
+ *
+ * @dummyField
+ *
+ * This extra descriptive line should error.
+ */
+export function length(cat: CatFlowType): number {}

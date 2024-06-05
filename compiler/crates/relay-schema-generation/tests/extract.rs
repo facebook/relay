@@ -38,7 +38,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
     let output = attached_comments
         .into_iter()
-        .filter_map(|(comment, node, _)| {
+        .filter_map(|(comment, _, node, _)| {
             let comment = comment.trim();
             match comment {
                 "extract" => match node {

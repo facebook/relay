@@ -15,8 +15,13 @@ import type {DataID} from './util/RelayRuntimeTypes';
 
 const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
 
+// Annotates a strong object return type, where `A` is the GraphQL typename
 // eslint-disable-next-line no-unused-vars
 export type IdOf<A> = DataID;
+
+// Annotates a `RelayResolverValue` GraphQL return type
+// eslint-disable-next-line no-unused-vars
+export type RelayResolverValue<A> = A;
 
 module.exports = {
   resolverDataInjector,

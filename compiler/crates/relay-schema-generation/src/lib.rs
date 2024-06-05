@@ -826,7 +826,7 @@ fn return_type_to_type_annotation(
     source_location: SourceLocationKey,
     return_type: &FlowTypeAnnotation,
 ) -> DiagnosticsResult<TypeAnnotation> {
-    let (return_type, is_optional) = schema_extractor::unwrap_nullable_type(return_type);
+    let (return_type, mut is_optional) = schema_extractor::unwrap_nullable_type(return_type);
     let location = to_location(source_location, return_type);
     let type_annotation = match return_type {
         FlowTypeAnnotation::GenericTypeAnnotation(node) => {
@@ -870,6 +870,20 @@ fn return_type_to_type_annotation(
                                     location,
                                 )]);
                             }
+                        }
+                        "RelayResolverValue" => {
+                            // Special case for `RelayResolverValue`, it is always optional
+                            is_optional = true;
+                            TypeAnnotation::Named(NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: location.span(),
+                                    token: Token {
+                                        span: location.span(),
+                                        kind: TokenKind::Identifier,
+                                    },
+                                    value: intern!("RelayResolverValue"),
+                                },
+                            })
                         }
                         _ => {
                             return Err(vec![Diagnostic::error(

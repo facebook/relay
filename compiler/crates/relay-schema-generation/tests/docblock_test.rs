@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8ea8d4359f6e14415e193be12974b772>>
+ * @generated SignedSource<<4de8fcba1c45e8cec09648c0767a6efe>>
  */
 
 mod docblock;
@@ -101,6 +101,13 @@ async fn return_optional_weak_object() {
     let input = include_str!("docblock/fixtures/return-optional-weak-object.input");
     let expected = include_str!("docblock/fixtures/return-optional-weak-object.expected");
     test_fixture(transform_fixture, file!(), "return-optional-weak-object.input", "docblock/fixtures/return-optional-weak-object.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn return_relay_resolver_value() {
+    let input = include_str!("docblock/fixtures/return-relay-resolver-value.input");
+    let expected = include_str!("docblock/fixtures/return-relay-resolver-value.expected");
+    test_fixture(transform_fixture, file!(), "return-relay-resolver-value.input", "docblock/fixtures/return-relay-resolver-value.expected", input, expected).await;
 }
 
 #[tokio::test]

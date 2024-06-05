@@ -101,7 +101,7 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
         {
             // @required on a semantically-non-null field is an error.
             return Err(vec![Diagnostic::error(
-                ValidationMessage::RequiredOnSemanticNonNull,
+                ValidationMessageWithData::RequiredOnSemanticNonNull,
                 field
                     .directives()
                     .named(*REQUIRED_DIRECTIVE_NAME)
@@ -121,7 +121,8 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
     ) -> DiagnosticsResult<()> {
         selections.iter().try_for_each(|selection| match selection {
             Selection::LinkedField(linked_field) => {
-                self.validate_required_field(linked_field, is_throw_on_field_error)
+                self.validate_required_field(linked_field, is_throw_on_field_error)?;
+                self.validate_selection_fields(&linked_field.selections, is_throw_on_field_error)
             }
             Selection::ScalarField(scalar_field) => {
                 self.validate_required_field(scalar_field, is_throw_on_field_error)

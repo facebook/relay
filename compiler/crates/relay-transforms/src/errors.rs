@@ -266,6 +266,11 @@ pub enum ValidationMessageWithData {
         "Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive."
     )]
     RequiredOnNonNull,
+
+    #[error(
+        "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive."
+    )]
+    RequiredOnSemanticNonNull,
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -278,6 +283,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 vec![Box::new("")]
             }
             ValidationMessageWithData::RequiredOnNonNull => {
+                vec![Box::new("")]
+            }
+            ValidationMessageWithData::RequiredOnSemanticNonNull => {
                 vec![Box::new("")]
             }
         }

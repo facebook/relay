@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9f4ff752a03d4a35c29efe1b34d1f693>>
+ * @generated SignedSource<<15d8112fa196877ae75bb477cbacb0bd>>
  */
 
 mod disallow_required_on_non_null_field;
@@ -31,6 +31,13 @@ async fn fragment_with_required_semantic_field_no_explicit_errors() {
     let input = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_no_explicit_errors.graphql");
     let expected = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_no_explicit_errors.expected");
     test_fixture(transform_fixture, file!(), "fragment_with_required_semantic_field_no_explicit_errors.graphql", "disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_no_explicit_errors.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_with_required_semantic_field_via_linked_invalid() {
+    let input = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_via_linked.invalid.graphql");
+    let expected = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_via_linked.invalid.expected");
+    test_fixture(transform_fixture, file!(), "fragment_with_required_semantic_field_via_linked.invalid.graphql", "disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_via_linked.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

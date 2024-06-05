@@ -18,6 +18,7 @@ use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
 use common::InterfaceName;
+use common::Location;
 use common::Named;
 use common::NamedItem;
 use common::ObjectName;
@@ -627,6 +628,7 @@ impl IntoIterator for ArgumentDefinitions {
 pub trait TypeWithFields {
     fn fields(&self) -> &Vec<FieldID>;
     fn interfaces(&self) -> &Vec<InterfaceID>;
+    fn location(&self) -> &Location;
 }
 
 impl TypeWithFields for Interface {
@@ -637,6 +639,10 @@ impl TypeWithFields for Interface {
     fn interfaces(&self) -> &Vec<InterfaceID> {
         &self.interfaces
     }
+
+    fn location(&self) -> &Location {
+        &self.name.location
+    }
 }
 
 impl TypeWithFields for Object {
@@ -646,6 +652,10 @@ impl TypeWithFields for Object {
 
     fn interfaces(&self) -> &Vec<InterfaceID> {
         &self.interfaces
+    }
+
+    fn location(&self) -> &Location {
+        &self.name.location
     }
 }
 

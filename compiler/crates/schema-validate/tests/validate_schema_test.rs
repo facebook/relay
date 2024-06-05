@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5eb916d4ea81c5d7dd1c342770b1389e>>
+ * @generated SignedSource<<1199c76ea90111f17b3d287e313d627c>>
  */
 
 mod validate_schema;
@@ -45,6 +45,13 @@ async fn validate_root_types() {
     let input = include_str!("validate_schema/fixtures/validate_root_types.graphql");
     let expected = include_str!("validate_schema/fixtures/validate_root_types.expected");
     test_fixture(transform_fixture, file!(), "validate_root_types.graphql", "validate_schema/fixtures/validate_root_types.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn validate_root_types_kind() {
+    let input = include_str!("validate_schema/fixtures/validate_root_types_kind.graphql");
+    let expected = include_str!("validate_schema/fixtures/validate_root_types_kind.expected");
+    test_fixture(transform_fixture, file!(), "validate_root_types_kind.graphql", "validate_schema/fixtures/validate_root_types_kind.expected", input, expected).await;
 }
 
 #[tokio::test]

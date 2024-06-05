@@ -7,9 +7,7 @@
 
 use std::sync::Arc;
 
-use common::Diagnostic;
 use common::DiagnosticsResult;
-use common::Location;
 use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
@@ -56,7 +54,7 @@ fn build_schema_impl(
     log_event: &impl PerfLogEvent,
     config: &Config,
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
-) -> Result<Arc<SDLSchema>, Vec<Diagnostic>> {
+) -> DiagnosticsResult<Arc<SDLSchema>> {
     let schema_sources = get_schema_sources(compiler_state, project_config);
     let extensions = get_extension_sources(compiler_state, project_config);
 
@@ -152,20 +150,11 @@ fn maybe_validate_schema(
     {
         return Ok(());
     }
-    let validation_context = validate(
-        schema,
+
+    validate(
+        &schema,
         SchemaValidationOptions {
             allow_introspection_names: true,
         },
-    );
-    if !validation_context.errors.is_empty() {
-        // TODO: Before removing this feature flag, we should update schema validation
-        // to be able to return a list of Diagnostics with locations.
-        Err(vec![Diagnostic::error(
-            validation_context.print_errors(),
-            Location::generated(),
-        )])
-    } else {
-        Ok(())
-    }
+    )
 }

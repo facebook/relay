@@ -7,12 +7,13 @@
 
 mod errors;
 
-use std::fmt::Write;
-use std::time::Instant;
-
-use common::DirectiveName;
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
 use common::InterfaceName;
+use common::Location;
 use common::Named;
+use common::WithLocation;
 use errors::*;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
@@ -20,7 +21,6 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use lazy_static::lazy_static;
-use log::info;
 use regex::Regex;
 use schema::EnumID;
 use schema::Field;
@@ -33,8 +33,6 @@ use schema::Type;
 use schema::TypeReference;
 use schema::TypeWithFields;
 use schema::UnionID;
-use schema_print::print_directive;
-use schema_print::print_type;
 
 lazy_static! {
     static ref INTROSPECTION_TYPES: FnvHashSet<StringKey> = vec![
@@ -59,33 +57,23 @@ pub struct SchemaValidationOptions {
     pub allow_introspection_names: bool,
 }
 
-pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions) -> ValidationContext<'_> {
+pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions) -> DiagnosticsResult<()> {
     let mut validation_context = ValidationContext::new(schema, options);
     validation_context.validate();
-    validation_context
-}
-
-#[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum ValidationContextType {
-    TypeNode(StringKey),
-    DirectiveNode(StringKey),
-    None,
-}
-
-impl ValidationContextType {
-    pub fn type_name(self) -> String {
-        match self {
-            ValidationContextType::DirectiveNode(type_name)
-            | ValidationContextType::TypeNode(type_name) => type_name.lookup().to_string(),
-            _ => "None".to_string(),
-        }
+    if validation_context.diagnostics.is_empty() {
+        Ok(())
+    } else {
+        validation_context
+            .diagnostics
+            .sort_by_key(|diagnostic| diagnostic.location());
+        Err(validation_context.diagnostics)
     }
 }
 
 pub struct ValidationContext<'schema> {
-    pub schema: &'schema SDLSchema,
-    pub options: SchemaValidationOptions,
-    pub errors: FnvHashMap<ValidationContextType, Vec<SchemaValidationError>>,
+    schema: &'schema SDLSchema,
+    options: SchemaValidationOptions,
+    diagnostics: Vec<Diagnostic>,
 }
 
 impl<'schema> ValidationContext<'schema> {
@@ -93,17 +81,14 @@ impl<'schema> ValidationContext<'schema> {
         Self {
             schema,
             options,
-            errors: FnvHashMap::default(),
+            diagnostics: Default::default(),
         }
     }
 
     fn validate(&mut self) {
-        let now = Instant::now();
         self.validate_root_types();
         self.validate_directives();
         self.validate_types();
-        info!("Validated Schema in {}ms", now.elapsed().as_millis());
-        info!("Found {} validation errors", self.errors.len())
     }
 
     fn validate_root_types(&mut self) {
@@ -115,36 +100,44 @@ impl<'schema> ValidationContext<'schema> {
     fn validate_root_type(&mut self, root_type: Option<Type>, type_name: StringKey) {
         if let Some(type_) = root_type {
             if !type_.is_object() {
-                self.report_error(
-                    SchemaValidationError::InvalidRootType(type_name, type_),
-                    ValidationContextType::TypeNode(type_name),
-                );
+                self.report_diagnostic(Diagnostic::error(
+                    SchemaValidationError::InvalidRootType(
+                        type_name,
+                        type_.get_variant_name().to_string(),
+                    ),
+                    self.get_type_definition_location(type_),
+                ));
             }
         } else if type_name == *QUERY {
-            self.add_error(SchemaValidationError::MissingRootType(type_name));
+            self.diagnostics.push(Diagnostic::error(
+                SchemaValidationError::MissingRootType(type_name),
+                Location::generated(),
+            ));
         }
     }
 
     fn validate_directives(&mut self) {
         for directive in self.schema.get_directives() {
-            let context = ValidationContextType::DirectiveNode(directive.name.item.0);
-            self.validate_name(directive.name.item.0, context);
-            let mut arg_names = FnvHashSet::default();
+            self.validate_name(directive.name.item.0, directive.name.location);
+            let mut arg_names: FnvHashMap<ArgumentName, Location> = FnvHashMap::default();
             for argument in directive.arguments.iter() {
-                self.validate_name(argument.name.item.0, context);
+                self.validate_name(argument.name.item.0, argument.name.location);
 
                 // Ensure unique arguments per directive.
-                if arg_names.contains(&argument.name.item) {
-                    self.report_error(
-                        SchemaValidationError::DuplicateArgument(
-                            argument.name.item,
-                            directive.name.item.0,
-                        ),
-                        context,
+                if let Some(prev_loc) = arg_names.get(&argument.name.item) {
+                    self.report_diagnostic(
+                        Diagnostic::error(
+                            SchemaValidationError::DuplicateArgument(
+                                argument.name.item,
+                                directive.name.item.0,
+                            ),
+                            argument.name.location,
+                        )
+                        .annotate("Previously defined here:", *prev_loc),
                     );
                     continue;
                 }
-                arg_names.insert(argument.name.item);
+                arg_names.insert(argument.name.item, argument.name.location);
             }
         }
     }
@@ -154,7 +147,7 @@ impl<'schema> ValidationContext<'schema> {
         for (type_name, type_) in types {
             // Ensure it is named correctly (excluding introspection types).
             if !is_introspection_type(type_, *type_name) {
-                self.validate_name(*type_name, ValidationContextType::TypeNode(*type_name));
+                self.validate_name(*type_name, self.get_type_definition_location(*type_));
             }
             match type_ {
                 Type::Enum(id) => {
@@ -194,69 +187,77 @@ impl<'schema> ValidationContext<'schema> {
     }
 
     fn validate_fields(&mut self, type_name: StringKey, fields: &[FieldID]) {
-        let context = ValidationContextType::TypeNode(type_name);
         // Must define one or more fields.
         if fields.is_empty() {
-            self.report_error(SchemaValidationError::TypeWithNoFields, context)
+            self.report_diagnostic(Diagnostic::error(
+                SchemaValidationError::TypeWithNoFields,
+                self.get_type_definition_location(self.schema.get_type(type_name).unwrap()),
+            ));
         }
 
-        let mut field_names = FnvHashSet::default();
+        let mut field_names: FnvHashMap<StringKey, Location> = FnvHashMap::default();
         for field_id in fields {
             let field = self.schema.field(*field_id);
-            if field_names.contains(&field.name.item) {
-                self.report_error(
-                    SchemaValidationError::DuplicateField(field.name.item),
-                    context,
+            if let Some(field_loc) = field_names.get(&field.name.item) {
+                self.report_diagnostic(
+                    Diagnostic::error(
+                        SchemaValidationError::DuplicateField(field.name.item),
+                        field.name.location,
+                    )
+                    .annotate("Previously defined here:", field_loc.clone()),
                 );
                 continue;
             }
-            field_names.insert(field.name.item);
+            field_names.insert(field.name.item, field.name.location);
 
             // Ensure they are named correctly.
-            self.validate_name(field.name.item, context);
+            self.validate_name(field.name.item, field.name.location);
 
             // Ensure the type is an output type
             if !is_output_type(&field.type_) {
-                self.report_error(
+                self.report_diagnostic(Diagnostic::error(
                     SchemaValidationError::InvalidFieldType(
                         type_name,
                         field.name.item,
-                        field.type_.clone(),
+                        field.type_.inner().get_variant_name().to_string(),
                     ),
-                    context,
-                )
+                    field.name.location,
+                ))
             }
 
-            let mut arg_names = FnvHashSet::default();
+            let mut arg_names: FnvHashMap<ArgumentName, Location> = FnvHashMap::default();
             for argument in field.arguments.iter() {
                 // Ensure they are named correctly.
-                self.validate_name(argument.name.item.0, context);
+                self.validate_name(argument.name.item.0, argument.name.location);
 
                 // Ensure they are unique per field.
                 // Ensure unique arguments per directive.
-                if arg_names.contains(&argument.name.item) {
-                    self.report_error(
-                        SchemaValidationError::DuplicateArgument(
-                            argument.name.item,
-                            field.name.item,
-                        ),
-                        context,
+                if let Some(previous_loc) = arg_names.get(&argument.name.item) {
+                    self.report_diagnostic(
+                        Diagnostic::error(
+                            SchemaValidationError::DuplicateArgument(
+                                argument.name.item,
+                                field.name.item,
+                            ),
+                            field.name.location,
+                        )
+                        .annotate("Previously defined here:", *previous_loc),
                     );
                     continue;
                 }
-                arg_names.insert(argument.name.item);
+                arg_names.insert(argument.name.item, argument.name.location);
 
                 // Ensure the type is an input type
                 if !is_input_type(&argument.type_) {
-                    self.report_error(
+                    self.report_diagnostic(Diagnostic::error(
                         SchemaValidationError::InvalidArgumentType(
                             type_name,
                             field.name.item,
                             argument.name.item,
-                            argument.type_.clone(),
+                            argument.type_.inner().get_variant_name().to_string(),
                         ),
-                        context,
-                    );
+                        argument.name.location, // Note: Schema does not retain location information for argument type reference
+                    ));
                 }
             }
         }
@@ -264,88 +265,97 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_union_members(&mut self, id: UnionID) {
         let union = self.schema.union(id);
-        let context = ValidationContextType::TypeNode(union.name.item.0);
         if union.members.is_empty() {
-            self.report_error(
+            self.report_diagnostic(Diagnostic::error(
                 SchemaValidationError::UnionWithNoMembers(union.name.item),
-                context,
-            );
+                union.name.location,
+            ));
         }
 
         let mut member_names = FnvHashSet::default();
         for member in union.members.iter() {
-            let member_name = self.schema.object(*member).name.item;
-            if member_names.contains(&member_name) {
-                self.report_error(SchemaValidationError::DuplicateMember(member_name), context);
+            let member_name = self.schema.object(*member).name;
+            if member_names.contains(&member_name.item) {
+                self.report_diagnostic(Diagnostic::error(
+                    SchemaValidationError::DuplicateMember(member_name.item),
+                    union.name.location, // Schema does not track location of union members
+                ));
                 continue;
             }
-            member_names.insert(member_name);
+            member_names.insert(member_name.item);
         }
     }
 
     fn validate_enum_type(&mut self, id: EnumID) {
         let enum_ = self.schema.enum_(id);
-        let context = ValidationContextType::TypeNode(enum_.name.item.0);
         if enum_.values.is_empty() {
-            self.report_error(SchemaValidationError::EnumWithNoValues, context);
+            self.report_diagnostic(Diagnostic::error(
+                SchemaValidationError::EnumWithNoValues,
+                enum_.name.location,
+            ))
         }
 
         for value in enum_.values.iter() {
             // Ensure valid name.
-            self.validate_name(value.value, context);
+            self.validate_name(value.value, enum_.name.location); // Note: Schema does not have location for enum value
             let value_name = value.value.lookup();
             if value_name == "true" || value_name == "false" || value_name == "null" {
-                self.report_error(
+                self.report_diagnostic(Diagnostic::error(
                     SchemaValidationError::InvalidEnumValue(value.value),
-                    context,
-                );
+                    enum_.name.location, // Schema does not track location information for individual enum values
+                ));
             }
         }
     }
 
     fn validate_input_object_fields(&mut self, id: InputObjectID) {
         let input_object = self.schema.input_object(id);
-        let context = ValidationContextType::TypeNode(input_object.name.item.0);
         if input_object.fields.is_empty() {
-            self.report_error(SchemaValidationError::TypeWithNoFields, context);
+            self.report_diagnostic(Diagnostic::error(
+                SchemaValidationError::TypeWithNoFields,
+                input_object.name.location,
+            ));
         }
 
         // Ensure the arguments are valid
         for field in input_object.fields.iter() {
             // Ensure they are named correctly.
-            self.validate_name(field.name.item.0, context);
+            self.validate_name(field.name.item.0, field.name.location);
 
             // Ensure the type is an input type
             if !is_input_type(&field.type_) {
-                self.report_error(
+                self.report_diagnostic(Diagnostic::error(
                     SchemaValidationError::InvalidArgumentType(
                         input_object.name.item.0,
                         field.name.item.0,
                         field.name.item,
-                        field.type_.clone(),
+                        field.type_.inner().get_variant_name().to_string(),
                     ),
-                    context,
-                );
+                    field.name.location,
+                ));
             }
         }
     }
 
     fn validate_type_with_interfaces<T: TypeWithFields + Named>(&mut self, type_: &T) {
         let typename = type_.name().lookup().intern();
-        let mut interface_names = FnvHashSet::default();
+        let mut interface_names: FnvHashMap<InterfaceName, Location> = FnvHashMap::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
-            if interface_names.contains(&interface.name) {
-                self.report_error(
-                    SchemaValidationError::DuplicateInterfaceImplementation(
-                        typename,
-                        interface.name.item,
-                    ),
-                    ValidationContextType::TypeNode(typename),
+            if let Some(prev_loc) = interface_names.get(&interface.name.item) {
+                self.report_diagnostic(
+                    Diagnostic::error(
+                        SchemaValidationError::DuplicateInterfaceImplementation(
+                            typename,
+                            interface.name.item,
+                        ),
+                        interface.name.location,
+                    )
+                    .annotate("Previously defined here:", *prev_loc),
                 );
                 continue;
             }
-            interface_names.insert(interface.name);
+            interface_names.insert(interface.name.item, interface.name.location);
             self.validate_type_implements_interface(type_, interface);
         }
     }
@@ -358,19 +368,24 @@ impl<'schema> ValidationContext<'schema> {
         let typename = type_.name().lookup().intern();
         let object_field_map = self.field_map(type_.fields());
         let interface_field_map = self.field_map(&interface.fields);
-        let context = ValidationContextType::TypeNode(typename);
 
         // Assert each interface field is implemented.
         for (field_name, interface_field) in interface_field_map {
             // Assert interface field exists on object.
             if !object_field_map.contains_key(&field_name) {
-                self.report_error(
-                    SchemaValidationError::InterfaceFieldNotProvided(
-                        interface.name.item,
-                        field_name,
-                        typename,
+                self.report_diagnostic(
+                    Diagnostic::error(
+                        SchemaValidationError::InterfaceFieldNotProvided(
+                            interface.name.item,
+                            field_name,
+                            typename,
+                        ),
+                        *type_.location(),
+                    )
+                    .annotate(
+                        "The interface field is defined here:",
+                        interface_field.name.location,
                     ),
-                    context,
                 );
                 continue;
             }
@@ -382,15 +397,21 @@ impl<'schema> ValidationContext<'schema> {
                 .schema
                 .is_type_subtype_of(&object_field.type_, &interface_field.type_)
             {
-                self.report_error(
-                    SchemaValidationError::NotASubType(
-                        interface.name.item,
-                        field_name,
-                        self.schema.get_type_name(interface_field.type_.inner()),
-                        typename,
-                        self.schema.get_type_name(object_field.type_.inner()),
+                self.report_diagnostic(
+                    Diagnostic::error(
+                        SchemaValidationError::NotASubType(
+                            interface.name.item,
+                            field_name,
+                            self.schema.get_type_name(interface_field.type_.inner()),
+                            typename,
+                            self.schema.get_type_name(object_field.type_.inner()),
+                        ),
+                        object_field.name.location,
+                    )
+                    .annotate(
+                        "The interface field is defined here:",
+                        interface_field.name.location,
                     ),
-                    context,
                 );
             }
 
@@ -403,14 +424,20 @@ impl<'schema> ValidationContext<'schema> {
 
                 // Assert interface field arg exists on object field.
                 if object_argument.is_none() {
-                    self.report_error(
-                        SchemaValidationError::InterfaceFieldArgumentNotProvided(
-                            interface.name.item,
-                            field_name,
-                            interface_argument.name.item,
-                            typename,
+                    self.report_diagnostic(
+                        Diagnostic::error(
+                            SchemaValidationError::InterfaceFieldArgumentNotProvided(
+                                interface.name.item,
+                                field_name,
+                                interface_argument.name.item,
+                                typename,
+                            ),
+                            object_field.name.location,
+                        )
+                        .annotate(
+                            "The interface field argument is defined here:",
+                            interface_argument.name.location,
                         ),
-                        context,
                     );
                     continue;
                 }
@@ -420,16 +447,22 @@ impl<'schema> ValidationContext<'schema> {
                 // (invariant)
                 // TODO: change to contravariant?
                 if interface_argument.type_ != object_argument.type_ {
-                    self.report_error(
-                        SchemaValidationError::NotEqualType(
-                            interface.name.item,
-                            field_name,
-                            interface_argument.name.item,
-                            self.schema.get_type_name(interface_argument.type_.inner()),
-                            typename,
-                            self.schema.get_type_name(object_argument.type_.inner()),
+                    self.report_diagnostic(
+                        Diagnostic::error(
+                            SchemaValidationError::NotEqualType(
+                                interface.name.item,
+                                field_name,
+                                interface_argument.name.item,
+                                self.schema.get_type_name(interface_argument.type_.inner()),
+                                typename,
+                                self.schema.get_type_name(object_argument.type_.inner()),
+                            ),
+                            object_argument.name.location,
+                        )
+                        .annotate(
+                            "The interface field argument is defined here:",
+                            interface_argument.name.location,
                         ),
-                        context,
                     );
                 }
                 // TODO: validate default values?
@@ -442,14 +475,20 @@ impl<'schema> ValidationContext<'schema> {
                     .contains(object_argument.name.item.0)
                     && object_argument.type_.is_non_null()
                 {
-                    self.report_error(
-                        SchemaValidationError::MissingRequiredArgument(
-                            typename,
-                            field_name,
-                            object_argument.name.item,
-                            interface.name.item,
+                    self.report_diagnostic(
+                        Diagnostic::error(
+                            SchemaValidationError::MissingRequiredArgument(
+                                typename,
+                                field_name,
+                                object_argument.name.item,
+                                interface.name.item,
+                            ),
+                            object_argument.name.location,
+                        )
+                        .annotate(
+                            "The interface field is define here:",
+                            interface_field.name.location,
                         ),
-                        context,
                     );
                 }
             }
@@ -466,17 +505,22 @@ impl<'schema> ValidationContext<'schema> {
                 &mut path,
                 &mut visited,
             ) {
-                self.report_error(
+                let mut diagnostic = Diagnostic::error(
                     SchemaValidationError::CyclicInterfaceInheritance(format!(
                         "{}->{}",
                         path.iter()
-                            .map(|name| name.lookup())
+                            .map(|name| name.item.lookup())
                             .collect::<Vec<_>>()
                             .join("->"),
                         interface.name.item
                     )),
-                    ValidationContextType::TypeNode(interface.name.item.0),
+                    interface.name.location,
                 );
+
+                for name in path.iter().rev() {
+                    diagnostic = diagnostic.annotate("->", name.location);
+                }
+                self.report_diagnostic(diagnostic);
                 return true;
             }
         }
@@ -487,7 +531,7 @@ impl<'schema> ValidationContext<'schema> {
         &self,
         root: &Interface,
         target: InterfaceName,
-        path: &mut Vec<StringKey>,
+        path: &mut Vec<WithLocation<InterfaceName>>,
         visited: &mut FnvHashSet<StringKey>,
     ) -> bool {
         if visited.contains(&root.name.item.0) {
@@ -498,7 +542,7 @@ impl<'schema> ValidationContext<'schema> {
             return true;
         }
 
-        path.push(root.name.item.0);
+        path.push(root.name);
         visited.insert(root.name.item.0);
         for id in root.interfaces() {
             if self.has_path(self.schema.interface(*id), target, path, visited) {
@@ -509,24 +553,24 @@ impl<'schema> ValidationContext<'schema> {
         false
     }
 
-    fn validate_name(&mut self, name: StringKey, context: ValidationContextType) {
+    fn validate_name(&mut self, name: StringKey, location: Location) {
         let name = name.lookup();
 
         if !self.options.allow_introspection_names {
             let mut chars = name.chars();
             if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
-                self.report_error(
+                self.report_diagnostic(Diagnostic::error(
                     SchemaValidationError::InvalidNamePrefix(name.to_string()),
-                    context,
-                );
+                    location,
+                ));
             }
         }
 
         if !TYPE_NAME_REGEX.is_match(name) {
-            self.report_error(
+            self.report_diagnostic(Diagnostic::error(
                 SchemaValidationError::InvalidName(name.to_string()),
-                context,
-            );
+                location,
+            ));
         }
     }
 
@@ -538,57 +582,19 @@ impl<'schema> ValidationContext<'schema> {
             .collect::<FnvHashMap<_, _>>()
     }
 
-    fn report_error(&mut self, error: SchemaValidationError, context: ValidationContextType) {
-        self.errors
-            .entry(context)
-            .or_insert_with(Vec::new)
-            .push(error);
+    fn report_diagnostic(&mut self, diagnostic: Diagnostic) {
+        self.diagnostics.push(diagnostic);
     }
 
-    fn add_error(&mut self, error: SchemaValidationError) {
-        self.report_error(error, ValidationContextType::None);
-    }
-
-    pub fn print_errors(&self) -> String {
-        let mut builder: String = String::new();
-        let mut contexts: Vec<_> = self.errors.keys().collect();
-        contexts.sort_by_key(|context| context.type_name());
-        for context in contexts {
-            match context {
-                ValidationContextType::None => writeln!(builder, "Errors:").unwrap(),
-                ValidationContextType::TypeNode(type_name) => writeln!(
-                    builder,
-                    "Type {} with definition:\n\t{}\nhad errors:",
-                    type_name,
-                    print_type(self.schema, self.schema.get_type(*type_name).unwrap()).trim_end()
-                )
-                .unwrap(),
-                ValidationContextType::DirectiveNode(directive_name) => writeln!(
-                    builder,
-                    "Directive {} with definition:\n\t{}\nhad errors:",
-                    directive_name,
-                    print_directive(
-                        self.schema,
-                        self.schema
-                            .get_directive(DirectiveName(*directive_name))
-                            .unwrap()
-                    )
-                    .trim_end()
-                )
-                .unwrap(),
-            }
-            let mut error_strings = self
-                .errors
-                .get(context)
-                .unwrap()
-                .iter()
-                .map(|error| format!("\t* {}", error))
-                .collect::<Vec<_>>();
-            error_strings.sort();
-            writeln!(builder, "{}", error_strings.join("\n")).unwrap();
-            writeln!(builder).unwrap();
+    fn get_type_definition_location(&self, type_: Type) -> Location {
+        match type_ {
+            Type::Enum(id) => self.schema.enum_(id).name.location,
+            Type::InputObject(id) => self.schema.input_object(id).name.location,
+            Type::Interface(id) => self.schema.interface(id).name.location,
+            Type::Object(id) => self.schema.object(id).name.location,
+            Type::Scalar(id) => self.schema.scalar(id).name.location,
+            Type::Union(id) => self.schema.union(id).name.location,
         }
-        builder
     }
 }
 

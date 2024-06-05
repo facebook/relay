@@ -105,9 +105,11 @@ function MyUser({userKey}) {
 
 ## Enforced Safety
 
-We've outlined two different ways that fragments can be unsafe in Relay today with out `@alias`. To help prevent runtime issues resulting from these unsafe edge cases, Relay may soon require that all conditionally fetched fragments be aliased.
+We've outlined two different ways that fragments can be unsafe in Relay today without `@alias`. To help prevent runtime issues resulting from these unsafe edge cases, Relay will soon require that all conditionally fetched fragments be aliased.
 
-To experiment with enabling this feature in your project today, you can enable the experimental `enforce_fragment_alias_where_ambiguous` compiler feature flag for your project.
+To experiment with this validation in your project today, you can enable the experimental `enforce_fragment_alias_where_ambiguous` compiler feature flag for your project. To enable incremental adoption of this enforcement, Relay exposes a directive `@dangerously_unaliased_fixme` which will suppress these enforcement errors. This will allow you to enable the enforcement for all new spreads without first needing to migrate all existing issues.
+
+The [Relay VSCode extension](../editor-support.md) offers quick fixes to add either `@alias` or `@dangerously_unaliased_fixme` to unsafe fragments.
 
 ## Use with @required
 

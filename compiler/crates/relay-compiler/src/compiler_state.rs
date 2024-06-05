@@ -207,20 +207,22 @@ impl<V: Source + Clone> IncrementalSources<V> {
     }
 
     pub fn get_all_non_empty(&self) -> Vec<(&PathBuf, &V)> {
-        let mut sources: Vec<_> =
-            if self.pending.is_empty() {
-                self.processed
-                    .iter()
-                    .filter(|(_, value)| !value.is_empty())
-                    .collect()
-            } else {
-                self.pending
-                    .iter()
-                    .chain(self.processed.iter().filter(|(key, value)| {
-                        !self.pending.contains_key(*key) && !value.is_empty()
-                    }))
-                    .collect()
-            };
+        let mut sources: Vec<_> = if self.pending.is_empty() {
+            self.processed
+                .iter()
+                .filter(|(_, value)| !value.is_empty())
+                .collect()
+        } else {
+            self.pending
+                .iter()
+                .chain(
+                    self.processed
+                        .iter()
+                        .filter(|(key, _)| !self.pending.contains_key(*key)),
+                )
+                .filter(|(_, value)| !value.is_empty())
+                .collect()
+        };
         sources.sort_by_key(|file_content| file_content.0);
         sources
     }

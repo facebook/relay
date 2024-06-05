@@ -518,6 +518,10 @@ impl RelayResolverExtractor {
                 SchemaGenerationError::ObjectNotSupported,
                 self.to_location(object_type.as_ref()),
             )]),
+            FlowTypeAnnotation::NullableTypeAnnotation(type_) => Err(vec![Diagnostic::error(
+                SchemaGenerationError::UnSupportedNullableStrongType,
+                self.to_location(type_.as_ref()),
+            )]),
             _ => self.error_result(SchemaGenerationError::UnsupportedType, &return_type),
         }
     }

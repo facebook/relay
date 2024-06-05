@@ -73,4 +73,8 @@ pub enum SchemaGenerationError {
         "Expected resolver arguments to be in the second function argument and in format of `args: {{field1: value1, field2: value2}}`"
     )]
     IncorrectArgumentsDefinition,
+    #[error(
+        "A nullable return type is not supported for defining a strong object, try move the nullable mark to the flow type definition itself."
+    )]
+    UnSupportedNullableStrongType,
 }

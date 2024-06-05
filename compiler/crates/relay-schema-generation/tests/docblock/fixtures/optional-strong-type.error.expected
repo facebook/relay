@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+export type CatFlowType = {id: string}
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): ?CatFlowType {
+  return {};
+}
+==================================== OUTPUT ===================================
+
+
+✖︎ A nullable return type is not supported for defining a strong object, try move the nullable mark to the flow type definition itself.
+
+  Cat.js:14:34
+   13 │  */
+   14 │ export function Cat(id: DataID): ?CatFlowType {
+      │                                  ^^^^^^^^^^^^
+   15 │   return {};

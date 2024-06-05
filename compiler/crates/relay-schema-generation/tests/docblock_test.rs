@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d594f4de3f486306369d27a7afc53eff>>
+ * @generated SignedSource<<aa63e1a166a7db02dc0f4d15bf70b5ef>>
  */
 
 mod docblock;
@@ -80,6 +80,20 @@ async fn primitive_types() {
     let input = include_str!("docblock/fixtures/primitive-types.input");
     let expected = include_str!("docblock/fixtures/primitive-types.expected");
     test_fixture(transform_fixture, file!(), "primitive-types.input", "docblock/fixtures/primitive-types.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn return_optional_strong_object() {
+    let input = include_str!("docblock/fixtures/return-optional-strong-object.input");
+    let expected = include_str!("docblock/fixtures/return-optional-strong-object.expected");
+    test_fixture(transform_fixture, file!(), "return-optional-strong-object.input", "docblock/fixtures/return-optional-strong-object.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn return_optional_weak_object() {
+    let input = include_str!("docblock/fixtures/return-optional-weak-object.input");
+    let expected = include_str!("docblock/fixtures/return-optional-weak-object.expected");
+    test_fixture(transform_fixture, file!(), "return-optional-weak-object.input", "docblock/fixtures/return-optional-weak-object.expected", input, expected).await;
 }
 
 #[tokio::test]

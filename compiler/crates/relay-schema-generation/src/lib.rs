@@ -1035,7 +1035,7 @@ fn flow_type_to_field_arguments(
     }
 
     let list_start: u32 = args_type.range().start;
-    let list_end: u32 = args_type.range().end.into();
+    let list_end: u32 = args_type.range().end;
     Ok(List {
         items,
         span: to_location(source_location, args_type).span(),
@@ -1067,7 +1067,7 @@ fn get_description(
             DocblockSection::FreeText(text) => {
                 let location = Location::new(
                     text.location.source_location(),
-                    Span::new(range.start, range.end.get()),
+                    Span::new(range.start, range.end),
                 );
                 if description.is_none() {
                     description = Some(WithLocation {

@@ -7,7 +7,6 @@
 
 use std::path::PathBuf;
 
-use common::FeatureFlag;
 use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
@@ -204,7 +203,6 @@ pub fn extract_feature_from_text(
                         &ast,
                         Some(&executable_definitions_in_file),
                         &ParseOptions {
-                            allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
                             enable_interface_output_type: &project_config
                                 .feature_flags
                                 .relay_resolver_enable_interface_output_type,

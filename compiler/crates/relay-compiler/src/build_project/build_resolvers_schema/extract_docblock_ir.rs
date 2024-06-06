@@ -9,7 +9,6 @@ use std::path::PathBuf;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
-use common::FeatureFlag;
 use docblock_syntax::DocblockAST;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
@@ -77,7 +76,6 @@ fn extract_docblock_ir_for_project(
     is_base: bool,
 ) -> DiagnosticsResult<ExtractedDocblockIr> {
     let parse_options = ParseOptions {
-        allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
         enable_interface_output_type: &project_config
             .feature_flags
             .relay_resolver_enable_interface_output_type,

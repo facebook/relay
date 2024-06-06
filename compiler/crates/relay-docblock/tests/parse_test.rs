@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ee697e38a115cc46d32bcb602a082d67>>
+ * @generated SignedSource<<15998457fc663de32a7f93c6a8f510e2>>
  */
 
 mod parse;
@@ -125,13 +125,6 @@ async fn relay_resolver_on_interface_no_value_invalid() {
 }
 
 #[tokio::test]
-async fn relay_resolver_on_interface_not_allowed_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-on-interface-not-allowed.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-on-interface-not-allowed.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-interface-not-allowed.invalid.js", "parse/fixtures/relay-resolver-on-interface-not-allowed.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn relay_resolver_on_type_and_on_interface_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.expected");
@@ -150,13 +143,6 @@ async fn relay_resolver_on_type_no_value_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-on-type-no-value.invalid.js", "parse/fixtures/relay-resolver-on-type-no-value.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_type_not_allowed_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-on-type-not-allowed.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-on-type-not-allowed.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-type-not-allowed.invalid.js", "parse/fixtures/relay-resolver-on-type-not-allowed.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

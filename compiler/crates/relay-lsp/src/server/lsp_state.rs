@@ -8,7 +8,6 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use common::FeatureFlag;
 use common::PerfLogger;
 use common::SourceLocationKey;
 use common::Span;
@@ -299,7 +298,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     &ast,
                     Some(&executable_definitions),
                     &ParseOptions {
-                        allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
                         enable_interface_output_type: &project_config
                             .feature_flags
                             .relay_resolver_enable_interface_output_type,

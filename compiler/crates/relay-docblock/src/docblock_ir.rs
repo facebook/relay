@@ -109,32 +109,6 @@ pub(crate) fn parse_docblock_ir(
                 source_hash,
             )?;
 
-            let field_name = format!(
-                "{}.{}",
-                legacy_verbose_resolver.on.type_name(),
-                legacy_verbose_resolver.field.name.value
-            )
-            .intern();
-
-            if !parse_options
-                .allow_legacy_verbose_syntax
-                .is_enabled_for(field_name)
-            {
-                match legacy_verbose_resolver.on {
-                    On::Type(field) => {
-                        return Err(vec![Diagnostic::error(
-                            IrParsingErrorMessages::UnexpectedOnType { field_name },
-                            field.key_location,
-                        )]);
-                    }
-                    On::Interface(field) => {
-                        return Err(vec![Diagnostic::error(
-                            IrParsingErrorMessages::UnexpectedOnInterface { field_name },
-                            field.key_location,
-                        )]);
-                    }
-                }
-            }
             DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(
                 legacy_verbose_resolver,
             ))

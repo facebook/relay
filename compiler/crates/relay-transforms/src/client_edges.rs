@@ -379,41 +379,14 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                         field.alias_or_name_location(),
                     ));
                 }
-                let mut model_resolvers: Vec<ClientEdgeModelResolver> = implementing_objects
-                    .iter()
-                    .filter_map(|object_id| {
-                        let model_resolver = self.get_client_edge_model_resolver_for_object(*object_id);
-                        model_resolver.or_else(|| {
-                            let object = Type::Object(*object_id);
-                            let schema = self.program.schema.as_ref();
-                            if !object.is_weak_resolver_object(schema) && object.is_resolver_object(schema) {
-                                let model_name = self.program.schema.object(*object_id).name;
-                                self.errors.push(Diagnostic::error(
-                                    ValidationMessage::ClientEdgeToClientInterfaceImplementingObjectMissingModelResolver {
-                                        interface_name: interface.name.item,
-                                        type_name: model_name.item,
-                                    },
-                                    model_name.location,
-                                ));
-                            }
-                            None
-                        })
-                    })
-                    .collect();
-                model_resolvers.sort();
-                Some(ClientEdgeMetadataDirective::ClientObject {
-                    type_name: None,
-                    model_resolvers,
-                    unique_id: self.get_key(),
-                })
+                self.get_client_object_for_abstract_type(
+                    implementing_objects.iter(),
+                    interface.name.item.0,
+                )
             }
-            Type::Union(_) => {
-                self.errors.push(Diagnostic::error(
-                    ValidationMessage::ClientEdgeToClientUnion,
-                    field.alias_or_name_location(),
-                ));
-                // TODO model resolvers for ClientEdgeToClientUnion
-                None
+            Type::Union(union) => {
+                let union = self.program.schema.union(union);
+                self.get_client_object_for_abstract_type(union.members.iter(), union.name.item.0)
             }
             Type::Object(object_id) => {
                 let type_name = self.program.schema.object(object_id).name.item;
@@ -429,6 +402,50 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             _ => {
                 panic!("Expected a linked field to reference either an Object, Interface, or Union")
             }
+        }
+    }
+
+    fn get_client_object_for_abstract_type<'a>(
+        &mut self,
+        members: impl Iterator<Item = &'a ObjectID>,
+        abstract_type_name: StringKey,
+    ) -> Option<ClientEdgeMetadataDirective> {
+        let mut model_resolvers: Vec<ClientEdgeModelResolver> = members
+            .filter_map(|object_id| {
+                let model_resolver = self.get_client_edge_model_resolver_for_object(*object_id);
+                model_resolver.or_else(|| {
+                    self.maybe_report_error_for_missing_model_resolver(
+                        object_id,
+                        abstract_type_name,
+                    );
+                    None
+                })
+            })
+            .collect();
+        model_resolvers.sort();
+        Some(ClientEdgeMetadataDirective::ClientObject {
+            type_name: None,
+            model_resolvers,
+            unique_id: self.get_key(),
+        })
+    }
+
+    fn maybe_report_error_for_missing_model_resolver(
+        &mut self,
+        object_id: &ObjectID,
+        abstract_type_name: StringKey,
+    ) {
+        let object = Type::Object(*object_id);
+        let schema = self.program.schema.as_ref();
+        if !object.is_weak_resolver_object(schema) && object.is_resolver_object(schema) {
+            let model_name = self.program.schema.object(*object_id).name;
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ClientEdgeImplementingObjectMissingModelResolver {
+                    name: abstract_type_name,
+                    type_name: model_name.item,
+                },
+                model_name.location,
+            ));
         }
     }
 
@@ -596,7 +613,7 @@ fn create_inline_fragment_for_client_edge(
         type_condition: None,
         directives: inline_fragment_directives,
         selections: vec![
-            Selection::LinkedField(transformed_field.clone()),
+            Selection::LinkedField(Arc::clone(&transformed_field)),
             Selection::LinkedField(transformed_field),
         ],
         spread_location: Location::generated(),

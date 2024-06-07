@@ -18,103 +18,121 @@ const { visit } = require('graphql');
  * formatting rules.
  */
 function print(ast: any): string {
-  return visit(ast, { leave: printDocASTReducer });
-}
+  return visit(ast, {
+    Name: { leave: (node) => node.value },
+    Variable: { leave: (node) => '$' + node.name },
 
-const printDocASTReducer: any = {
-  Name: (node) => node.value,
-  Variable: (node) => '$' + node.name,
+    // Document
 
-  // Document
+    Document: { leave: (node) => join(node.definitions, '\n') + '\n' },
 
-  Document: (node) => join(node.definitions, '\n') + '\n',
+    OperationDefinition: {
+      leave: (node) => {
+        const op = node.operation;
+        const name = node.name;
+        const varDefs = wrap('(', join(node.variableDefinitions, ', '), ')');
+        const directives = join(node.directives, ' ');
+        const selectionSet = node.selectionSet;
+        // Anonymous queries with no directives or variable definitions can use
+        // the query short form.
+        return !name && !directives && !varDefs && op === 'query'
+          ? selectionSet
+          : join([op, join([name, varDefs]), directives, selectionSet], ' ');
+      },
+    },
 
-  OperationDefinition(node) {
-    const op = node.operation;
-    const name = node.name;
-    const varDefs = wrap('(', join(node.variableDefinitions, ', '), ')');
-    const directives = join(node.directives, ' ');
-    const selectionSet = node.selectionSet;
-    // Anonymous queries with no directives or variable definitions can use
-    // the query short form.
-    return !name && !directives && !varDefs && op === 'query'
-      ? selectionSet
-      : join([op, join([name, varDefs]), directives, selectionSet], ' ');
-  },
+    VariableDefinition: {
+      leave: ({ variable, type, defaultValue, directives }) =>
+        variable +
+        ': ' +
+        type +
+        wrap(' = ', defaultValue) +
+        wrap(' ', join(directives, ' ')),
+    },
+    SelectionSet: {
+      leave: ({ selections }) => block(selections),
+    },
 
-  VariableDefinition: ({ variable, type, defaultValue, directives }) =>
-    variable +
-    ': ' +
-    type +
-    wrap(' = ', defaultValue) +
-    wrap(' ', join(directives, ' ')),
-  SelectionSet: ({ selections }) => block(selections),
+    Field: {
+      leave: ({ alias, name, arguments: args, directives, selectionSet }) =>
+        join(
+          [
+            wrap('', alias, ': ') + name + wrap('(', join(args, ', '), ')'),
+            join(directives, ' '),
+            selectionSet,
+          ],
+          ' ',
+        ),
+    },
 
-  Field: ({ alias, name, arguments: args, directives, selectionSet }) =>
-    join(
-      [
-        wrap('', alias, ': ') + name + wrap('(', join(args, ', '), ')'),
-        join(directives, ' '),
+    Argument: {
+      leave: ({ name, value }) => name + ': ' + value,
+    },
+
+    // Fragments
+
+    FragmentSpread: {
+      leave: ({ name, directives }) =>
+        '...' + name + wrap(' ', join(directives, ' ')),
+    },
+
+    InlineFragment: {
+      leave: ({ typeCondition, directives, selectionSet }) =>
+        join(
+          ['...', wrap('on ', typeCondition), join(directives, ' '), selectionSet],
+          ' ',
+        ),
+    },
+
+    FragmentDefinition: {
+      leave: ({
+        name,
+        typeCondition,
+        variableDefinitions,
+        directives,
         selectionSet,
-      ],
-      ' ',
-    ),
+      }) =>
+        // Note: fragment variable definitions are experimental and may be changed
+        // or removed in the future.
+        `fragment ${name}${wrap('(', join(variableDefinitions, ', '), ')')} ` +
+        `on ${typeCondition} ${wrap('', join(directives, ' '), ' ')}` +
+        selectionSet,
+    },
 
-  Argument: ({ name, value }) => name + ': ' + value,
+    // Value
 
-  // Fragments
+    IntValue: { leave: ({ value }) => value },
+    FloatValue: { leave: ({ value }) => value },
+    StringValue: {
+      leave: ({ value, block: isBlockString }, key) =>
+        isBlockString
+          ? printBlockString(value, key === 'description' ? '' : '  ')
+          : JSON.stringify(value),
+    },
+    BooleanValue: { leave: ({ value }) => (value ? 'true' : 'false') },
+    NullValue: { leave: () => 'null' },
+    EnumValue: { leave: ({ value }) => value },
+    ListValue: { leave: ({ values }) => '[' + join(values, ', ') + ']' },
+    ObjectValue: { leave: ({ fields }) => '{' + join(fields, ', ') + '}' },
+    ObjectField: { leave: ({ name, value }) => name + ': ' + value },
 
-  FragmentSpread: ({ name, directives }) =>
-    '...' + name + wrap(' ', join(directives, ' ')),
+    // Directive
 
-  InlineFragment: ({ typeCondition, directives, selectionSet }) =>
-    join(
-      ['...', wrap('on ', typeCondition), join(directives, ' '), selectionSet],
-      ' ',
-    ),
+    Directive: {
+      leave: ({ name, arguments: args }) =>
+        '@' + name + wrap('(', join(args, ', '), ')'),
+    },
 
-  FragmentDefinition: ({
-    name,
-    typeCondition,
-    variableDefinitions,
-    directives,
-    selectionSet,
-  }) =>
-    // Note: fragment variable definitions are experimental and may be changed
-    // or removed in the future.
-    `fragment ${name}${wrap('(', join(variableDefinitions, ', '), ')')} ` +
-    `on ${typeCondition} ${wrap('', join(directives, ' '), ' ')}` +
-    selectionSet,
+    // Type
 
-  // Value
+    NamedType: { leave: ({ name }) => name },
+    ListType: { leave: ({ type }) => '[' + type + ']' },
+    NonNullType: { leave: ({ type }) => type + '!' },
 
-  IntValue: ({ value }) => value,
-  FloatValue: ({ value }) => value,
-  StringValue: ({ value, block: isBlockString }, key) =>
-    isBlockString
-      ? printBlockString(value, key === 'description' ? '' : '  ')
-      : JSON.stringify(value),
-  BooleanValue: ({ value }) => (value ? 'true' : 'false'),
-  NullValue: () => 'null',
-  EnumValue: ({ value }) => value,
-  ListValue: ({ values }) => '[' + join(values, ', ') + ']',
-  ObjectValue: ({ fields }) => '{' + join(fields, ', ') + '}',
-  ObjectField: ({ name, value }) => name + ': ' + value,
-
-  // Directive
-
-  Directive: ({ name, arguments: args }) =>
-    '@' + name + wrap('(', join(args, ', '), ')'),
-
-  // Type
-
-  NamedType: ({ name }) => name,
-  ListType: ({ type }) => '[' + type + ']',
-  NonNullType: ({ type }) => type + '!',
-
-  // Type System Definitions
-  // Removed since that never included in the Relay documents
-};
+    // Type System Definitions
+    // Removed since that never included in the Relay documents
+  });
+}
 
 /**
  * Given maybeArray, print an empty string if it is null or empty, otherwise

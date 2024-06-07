@@ -6,10 +6,9 @@
 'use strict';
 
 const print = require('../printGraphQL');
-
+const fs = require('fs');
 const {parse} = require('graphql');
 const path = require('path');
-const fs = require('fs');
 
 type OutputFixture = {name: string, input: string, output: string};
 type ErrorFixture = {name: string, input: string, error: string};

@@ -18,6 +18,7 @@ import type {
   OperationDefinitionNode,
 } from 'graphql';
 
+const printGraphQL = require('./printGraphQL.js');
 const crypto = require('crypto');
 const {
   dirname,
@@ -25,8 +26,6 @@ const {
   relative: relativePath,
   resolve: resolvePath,
 } = require('path');
-
-const printGraphQL = require('./printGraphQL.js');
 
 const GENERATED = './__generated__/';
 

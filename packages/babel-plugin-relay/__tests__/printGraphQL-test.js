@@ -61,5 +61,5 @@ function parsePrintFixture(name: string, content: string): PrinterFixture {
       `Failed to parse ${name}. Unknown fixture format from the graphql-text-printer crate!`,
     );
   }
-  return {...match.groups as any, name} as PrinterFixture;
+  return {...(match.groups as any), name} as PrinterFixture;
 }

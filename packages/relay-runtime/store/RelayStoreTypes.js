@@ -983,10 +983,10 @@ export type DataIDSet = Set<DataID>;
  * A function that updates a store (via a proxy) given the results of a "handle"
  * field payload.
  */
-export type Handler = {
+export type Handler = $ReadOnly<{
   update: (store: RecordSourceProxy, fieldPayload: HandleFieldPayload) => void,
   ...
-};
+}>;
 
 /**
  * A payload that is used to initialize or update a "handle" field with

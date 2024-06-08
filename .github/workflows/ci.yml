@@ -42,9 +42,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --ignore-engines --frozen-lockfile
       - name: Run tests
-        run: yarn run jest
+        run: yarn run --ignore-engines jest
 
   js-lint:
     name: JS Lint

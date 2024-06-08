@@ -10,6 +10,7 @@ import {
   StaticFeature,
   InitializeParams,
   RequestType,
+  FeatureState,
 } from 'vscode-languageclient';
 import {RelayExtensionContext} from './context';
 
@@ -131,6 +132,14 @@ export class LSPStatusBarFeature implements StaticFeature {
 
   constructor(context: RelayExtensionContext) {
     this.context = context;
+  }
+
+  getState(): FeatureState {
+    return {kind: 'static'};
+  }
+
+  clear(): void {
+    //
   }
 
   fillInitializeParams?: ((params: InitializeParams) => void) | undefined;

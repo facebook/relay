@@ -17,6 +17,7 @@ pub mod find_field_usages;
 pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;
+mod inlay_hints;
 pub mod location;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;

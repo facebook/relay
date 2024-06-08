@@ -33,7 +33,7 @@ use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::Feature;
 
-pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
+pub fn is_file_uri_in_dir(root_dir: &PathBuf, file_uri: &Url) -> bool {
     let file_path_result = file_uri.to_file_path();
 
     match file_path_result {
@@ -62,7 +62,7 @@ pub fn extract_executable_definitions_from_text_document(
         .flat_map(|graphql_source| {
             let document = parse_executable_with_error_recovery_and_parser_features(
                 &graphql_source.text_source().text,
-                SourceLocationKey::standalone(text_document_uri.as_ref()),
+                SourceLocationKey::embedded(text_document_uri.path(), 1),
                 parser_features,
             )
             .item;

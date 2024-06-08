@@ -33,6 +33,7 @@ module.exports = {
           'error',
           {functions: false},
         ],
+        'class-methods-use-this': 'off',
       },
     },
   ],

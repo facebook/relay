@@ -47,7 +47,7 @@ pub(crate) fn on_code_action(
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
 
-    if !is_file_uri_in_dir(state.root_dir(), &uri) {
+    if !is_file_uri_in_dir(&state.root_dir(), &uri) {
         return Err(LSPRuntimeError::ExpectedError);
     }
 

@@ -15,11 +15,11 @@ jobs:
       run:
         working-directory: ./vscode-extension
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16.x
-          cache: 'yarn'
+          node-version: 20
+          cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: ESLint
@@ -34,13 +34,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x, 16.x]
+        node-version: [14, 16]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Run tests
@@ -50,11 +50,11 @@ jobs:
     name: JS Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16.x
-          cache: 'yarn'
+          node-version: 20
+          cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Test dependencies
@@ -68,11 +68,11 @@ jobs:
     name: Flow Typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16.x
-          cache: 'yarn'
+          node-version: 20
+          cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Flow
@@ -92,11 +92,8 @@ jobs:
             os: windows-latest
     runs-on: ${{ matrix.target.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.72.0
-          override: true
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.72
       - name: "Run tests"
         run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
 
@@ -115,11 +112,8 @@ jobs:
           #   os: windows-latest
     runs-on: ${{ matrix.target.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.72.0
-          override: true
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.72
       - name: "Update fixture tests"
         run: ./scripts/update-fixtures.sh
       - name: "Build test project"
@@ -133,11 +127,9 @@ jobs:
     name: Rust Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly-2023-11-11
-          override: true
           components: rustfmt
       - name: "rustfmt"
         run: grep -r --include "*.rs" --files-without-match "@generated" crates | xargs rustfmt --check --config="skip_children=true"
@@ -174,17 +166,15 @@ jobs:
             artifact-name: relay-bin-win-x64
     runs-on: ${{ matrix.target.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.72
         with:
-          toolchain: 1.72.0
-          override: true
           target: ${{ matrix.target.target }}
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
         with:
-          node-version: 16.x
-          cache: 'yarn'
+          node-version: 20
+          cache: yarn
       - name: Install dependencies
         if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
         run: yarn install --frozen-lockfile --ignore-scripts
@@ -198,10 +188,7 @@ jobs:
         run: sudo apt install ${{ matrix.target.packages }} -y
       - name: Install cross
         if: matrix.target.cross
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cross
+        run: cargo install cross
       # Current published version of cross only works correctly if run from compiler directory
       # See related issue https://github.com/cross-rs/cross/issues/615
       # actions-rs/cargo@v1 does not support this option https://github.com/actions-rs/cargo/pull/59
@@ -209,7 +196,7 @@ jobs:
       - name: Build project
         working-directory: compiler
         run: ${{ matrix.target.cross && 'cross' || 'cargo' }} build --release --target ${{ matrix.target.target }} ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target.artifact-name }}
           path: compiler/target/${{ matrix.target.target }}/release/${{ matrix.target.build-name }}
@@ -220,12 +207,12 @@ jobs:
     if: github.event_name == 'push' && github.repository == 'facebook/relay'
     needs: [js-tests, js-lint, typecheck, build-tests, build-compiler]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 14.x
+          node-version: 20
           registry-url: https://registry.npmjs.org/
-          cache: 'yarn'
+          cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Download artifact relay-bin-linux-x64

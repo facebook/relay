@@ -26,7 +26,7 @@ use schema::Schema;
 use crate::docblock_resolution_info::DocblockResolutionInfo;
 use crate::find_field_usages::find_field_locations;
 use crate::find_field_usages::get_usages;
-use crate::location::transform_relay_location_to_lsp_location;
+use crate::location::transform_relay_location_on_disk_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::NodeKind;
@@ -46,7 +46,7 @@ fn get_references_response(
                         ReferenceFinder::get_references_to_fragment(program, fragment.name.value)
                             .into_iter()
                             .map(|location| {
-                                transform_relay_location_to_lsp_location(root_dir, location)
+                                transform_relay_location_on_disk_to_lsp_location(root_dir, location)
                             })
                             .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
@@ -66,7 +66,7 @@ fn get_references_response(
                         get_usages(program, &program.schema, type_name, field_name)?
                             .into_iter()
                             .map(|(_, ir_location)| {
-                                transform_relay_location_to_lsp_location(root_dir, ir_location)
+                                transform_relay_location_on_disk_to_lsp_location(root_dir, ir_location)
                             })
                             .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
                     Ok(lsp_locations)
@@ -95,7 +95,7 @@ fn get_references_response(
                 let references = find_field_locations(program, field_name, type_name)
                     .ok_or(LSPRuntimeError::ExpectedError)?
                     .into_iter()
-                    .map(|location| transform_relay_location_to_lsp_location(root_dir, location))
+                    .map(|location| transform_relay_location_on_disk_to_lsp_location(root_dir, location))
                     .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
                 Ok(references)

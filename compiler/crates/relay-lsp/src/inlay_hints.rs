@@ -5,19 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::path::PathBuf;
-
 use common::Location;
-use common::SourceLocationKey;
 use common::Span;
 use graphql_ir::Argument;
-use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
-use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Visitor;
-use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lsp_types::request::InlayHintRequest;
 use lsp_types::request::Request;
@@ -27,8 +21,8 @@ use lsp_types::InlayHintTooltip;
 use lsp_types::MarkupContent;
 use schema::Schema;
 
-use crate::location::transform_relay_location_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::build_ir_for_lsp;
 use crate::server::GlobalState;
 use crate::utils::is_file_uri_in_dir;
 use crate::LSPRuntimeError;
@@ -44,89 +38,93 @@ pub fn on_inlay_hint_request(
         return Err(LSPRuntimeError::ExpectedError);
     }
 
-    let absolute_file_path = uri.to_file_path().map_err(|_| {
-        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", uri))
-    })?;
-
-    let file_path = absolute_file_path.strip_prefix(&root_dir).map_err(|_e| {
-        LSPRuntimeError::UnexpectedError(format!(
-            "Failed to strip prefix {:?} from {:?}",
-            root_dir, absolute_file_path
-        ))
-    })?;
-
     let project_name = state.extract_project_name_from_url(&uri)?;
     let program = state.get_program(&project_name)?;
-    let path = file_path.to_string_lossy().intern();
+    let asts = state.resolve_executable_definitions(&uri)?;
+    let irs =
+        build_ir_for_lsp(&program.schema, &asts).map_err(|_| LSPRuntimeError::ExpectedError)?;
+    let mut visitor = InlayHintVisitor::new(&program);
+    for executable_definition in irs {
+        visitor.visit_executable_definition(&executable_definition);
+    }
 
-    let mut visitor = InlayHintVisitor::new(path, &root_dir, &program);
-    visitor.visit_program(&program);
+    if visitor.inlay_hints.is_empty() {
+        return Ok(None);
+    }
 
-    Ok(Some(visitor.inlay_hints))
+    let inlay_hints = visitor
+        .inlay_hints
+        .into_iter()
+        .filter_map(|hint| hint.into_inlay_hint(state).ok())
+        .collect();
+
+    Ok(Some(inlay_hints))
+}
+
+// Simplified version of the InlayHint struct that uses Relay location. Assumes
+// the following:
+// 1. The hint will be placed at the start of the location
+// 2. Padding right should be added
+// 3. Tooltips are rendered as markdown
+struct Hint {
+    location: Location,
+    label: String,
+    tooltip: Option<String>,
+}
+
+impl Hint {
+    // Resolve Relay location to LSP location and create an InlayHint
+    fn into_inlay_hint(self, state: &impl GlobalState) -> LSPRuntimeResult<InlayHint> {
+        let lsp_location =
+            state.transform_relay_location_in_editor_to_lsp_location(self.location)?;
+        Ok(InlayHint {
+            position: lsp_location.range.start,
+            label: InlayHintLabel::String(self.label),
+            kind: None,
+            text_edits: None,
+            tooltip: self.tooltip.map(|tooltip| {
+                InlayHintTooltip::MarkupContent(MarkupContent {
+                    kind: lsp_types::MarkupKind::Markdown,
+                    value: tooltip,
+                })
+            }),
+            padding_left: None,
+            padding_right: Some(true),
+            data: None,
+        })
+    }
 }
 
 struct InlayHintVisitor<'a> {
-    file_path: StringKey,
-    root_dir: &'a PathBuf,
     program: &'a Program,
-    inlay_hints: Vec<InlayHint>,
+    inlay_hints: Vec<Hint>,
 }
 
 impl<'a> InlayHintVisitor<'a> {
-    fn new(file_path: StringKey, root_dir: &'a PathBuf, program: &'a Program) -> Self {
+    fn new(program: &'a Program) -> Self {
         Self {
-            file_path,
-            root_dir,
             program,
             inlay_hints: vec![],
         }
     }
 
-    fn location_is_in_file(&self, location: &Location) -> bool {
-        match location.source_location() {
-            SourceLocationKey::Standalone { path } => path == self.file_path,
-            SourceLocationKey::Embedded { path, .. } => path == self.file_path,
-            _ => false,
-        }
-    }
-
     fn add_alias_hint(&mut self, alias: StringKey, location: Location) {
-        if let Ok(lsp_location) = transform_relay_location_to_lsp_location(&self.root_dir, location)
-        {
-            self.inlay_hints.push(InlayHint {
-                position: lsp_location.range.start,
-                label: InlayHintLabel::String(format!("{}:", alias)),
-                kind: None,
-                text_edits: None,
-                tooltip: Some(InlayHintTooltip::MarkupContent(MarkupContent {
-                    kind: lsp_types::MarkupKind::Markdown,
-                    value: "Fragment alias from the attached `@alias` directive. [Read More](https://relay.dev/docs/next/guides/alias-directive/).".to_string(),
-                })),
-                padding_left: None,
-                padding_right: Some(true),
-                data: None,
-            })
-        }
+        self.inlay_hints.push(Hint {
+                location,
+                label: format!("{}:", alias),
+                tooltip: Some("Fragment alias from the attached `@alias` directive. [Read More](https://relay.dev/docs/next/guides/alias-directive/).".to_string()),
+            });
     }
 
     fn add_field_argument_hints(&mut self, field_def: &schema::Field, arguments: &[Argument]) {
         for arg in arguments {
             if let Some(arg_def) = field_def.arguments.named(arg.name.item) {
-                if let Ok(lsp_location) =
-                    transform_relay_location_to_lsp_location(&self.root_dir, arg.value.location)
-                {
-                    let arg_type = self.program.schema.get_type_string(&arg_def.type_);
-                    self.inlay_hints.push(InlayHint {
-                        position: lsp_location.range.start,
-                        label: InlayHintLabel::String(arg_type),
-                        kind: None,
-                        text_edits: None,
-                        tooltip: None,
-                        padding_left: None,
-                        padding_right: Some(true),
-                        data: None,
-                    });
-                }
+                let arg_type = self.program.schema.get_type_string(&arg_def.type_);
+                self.inlay_hints.push(Hint {
+                    location: arg.value.location,
+                    label: arg_type,
+                    tooltip: None,
+                });
             }
         }
     }
@@ -138,18 +136,6 @@ impl Visitor for InlayHintVisitor<'_> {
     const VISIT_ARGUMENTS: bool = false;
 
     const VISIT_DIRECTIVES: bool = false;
-
-    fn visit_operation(&mut self, operation: &OperationDefinition) {
-        if self.location_is_in_file(&operation.name.location) {
-            self.default_visit_operation(operation);
-        }
-    }
-
-    fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
-        if self.location_is_in_file(&fragment.name.location) {
-            self.default_visit_fragment(fragment);
-        }
-    }
 
     fn visit_scalar_field(&mut self, field: &graphql_ir::ScalarField) {
         let field_def = self.program.schema.field(field.definition.item);

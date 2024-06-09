@@ -53,16 +53,19 @@ pub fn extract_executable_definitions_from_text_document(
         // the source has no graphql documents.
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
+    let path = text_document_uri.path();
+
     let definitions = source_features
         .iter()
-        .filter_map(|feature| match feature {
+        .enumerate()
+        .filter_map(|(i, feature)| match feature {
             JavaScriptSourceFeature::Docblock(_) => None,
-            JavaScriptSourceFeature::GraphQL(graphql_source) => Some(graphql_source),
+            JavaScriptSourceFeature::GraphQL(graphql_source) => Some((i, graphql_source)),
         })
-        .flat_map(|graphql_source| {
+        .flat_map(|(i, graphql_source)| {
             let document = parse_executable_with_error_recovery_and_parser_features(
                 &graphql_source.text_source().text,
-                SourceLocationKey::embedded(text_document_uri.path(), 1),
+                SourceLocationKey::embedded(path, i),
                 parser_features,
             )
             .item;

@@ -31,7 +31,7 @@ use serde::Serialize;
 
 use self::goto_docblock_definition::get_docblock_definition_description;
 use self::goto_graphql_definition::get_graphql_definition_description;
-use crate::location::transform_relay_location_to_lsp_location;
+use crate::location::transform_relay_location_on_disk_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
@@ -158,7 +158,7 @@ fn locate_fragment_definition(
         ))
     })?;
     Ok(GotoDefinitionResponse::Scalar(
-        transform_relay_location_to_lsp_location(root_dir, fragment.name.location)?,
+        transform_relay_location_on_disk_to_lsp_location(root_dir, fragment.name.location)?,
     ))
 }
 
@@ -172,7 +172,7 @@ fn locate_directive_definition(
     directive
         .map(|directive| directive.name.location)
         .map(|schema_location| {
-            transform_relay_location_to_lsp_location(root_dir, schema_location)
+            transform_relay_location_on_disk_to_lsp_location(root_dir, schema_location)
                 .map(GotoDefinitionResponse::Scalar)
         })
         .ok_or(LSPRuntimeError::ExpectedError)?
@@ -223,7 +223,7 @@ fn locate_type_definition(
                     Type::Object(object_id) => schema.object(object_id).name.location,
                 })
                 .map(|schema_location| {
-                    transform_relay_location_to_lsp_location(root_dir, schema_location)
+                    transform_relay_location_on_disk_to_lsp_location(root_dir, schema_location)
                         .map(GotoDefinitionResponse::Scalar)
                 })
                 .ok_or(LSPRuntimeError::ExpectedError)?
@@ -253,7 +253,7 @@ fn locate_field_argument_definition(
             ))
         })?;
 
-    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
+    transform_relay_location_on_disk_to_lsp_location(root_dir, argument.name.location)
         .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
 }
 
@@ -282,7 +282,7 @@ fn locate_directive_argument_definition(
             ))
         })?;
 
-    transform_relay_location_to_lsp_location(root_dir, argument.name.location)
+    transform_relay_location_on_disk_to_lsp_location(root_dir, argument.name.location)
         .map(|location| Ok(GotoDefinitionResponse::Scalar(location)))?
 }
 
@@ -335,7 +335,7 @@ fn locate_field_definition(
         }
     }
 
-    transform_relay_location_to_lsp_location(root_dir, field.name.location)
+    transform_relay_location_on_disk_to_lsp_location(root_dir, field.name.location)
         .map(GotoDefinitionResponse::Scalar)
         // If the field does not exist in the schema, that's fine
         .map_err(|_| LSPRuntimeError::ExpectedError)

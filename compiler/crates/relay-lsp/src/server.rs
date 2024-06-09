@@ -30,6 +30,7 @@ use lsp_server::Message;
 use lsp_server::Notification;
 use lsp_server::Response as ServerResponse;
 use lsp_server::ResponseError;
+pub use lsp_state::build_ir_for_lsp;
 pub use lsp_state::GlobalState;
 pub use lsp_state::LSPState;
 pub use lsp_state::Schemas;

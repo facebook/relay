@@ -13,6 +13,7 @@ use common::SourceLocationKey;
 use common::TextSource;
 use dashmap::DashMap;
 use extract_graphql::JavaScriptSourceFeature;
+use graphql_syntax::GraphQLSource;
 use intern::Lookup;
 use lsp_types::Range;
 use lsp_types::Url;
@@ -26,30 +27,42 @@ pub fn transform_relay_location_on_disk_to_lsp_location(
     root_dir: &Path,
     location: Location,
 ) -> LSPRuntimeResult<lsp_types::Location> {
-    transform_relay_location_to_lsp_location_with_cache(root_dir, location, None)
+    transform_relay_location_to_lsp_location_with_cache(root_dir, location, None, None)
 }
 
 pub fn transform_relay_location_to_lsp_location_with_cache(
     root_dir: &Path,
     location: Location,
     source_feature_cache: Option<&DashMap<Url, Vec<JavaScriptSourceFeature>>>,
+    synced_schema_sources: Option<&DashMap<Url, GraphQLSource>>,
 ) -> LSPRuntimeResult<lsp_types::Location> {
     match location.source_location() {
         SourceLocationKey::Standalone { path } => {
-            let abspath = root_dir.join(PathBuf::from(path.lookup()));
+            let absolute_path = root_dir.join(PathBuf::from(path.lookup()));
+            let uri = get_uri(&absolute_path)?;
 
-            let file_contents = get_file_contents(&abspath)?;
+            // Standalone locations might be `.graphql` files, so we'll look in the synced
+            // schema sources cache first.
+            let range = match synced_schema_sources.and_then(|cache| {
+                cache
+                    .get(&uri)
+                    .map(|source| source.text_source().to_span_range(location.span()))
+            }) {
+                Some(range) => range,
+                None => {
+                    let file_contents = get_file_contents(&absolute_path)?;
+                    TextSource::from_whole_document(file_contents).to_span_range(location.span())
+                }
+            };
 
-            let uri = get_uri(&abspath)?;
-
-            let range =
-                TextSource::from_whole_document(file_contents).to_span_range(location.span());
             Ok(lsp_types::Location { uri, range })
         }
         SourceLocationKey::Embedded { path, index } => {
             let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
             let uri = get_uri(&path_to_fragment)?;
 
+            // Embedded locations are always `.js` files, so we'll look in the
+            // source feature cache first.
             let range = match source_feature_cache.and_then(|cache| cache.get(&uri)) {
                 Some(response) => feature_location_to_range(&response, index, location),
                 None => {

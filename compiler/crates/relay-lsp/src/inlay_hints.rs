@@ -34,7 +34,7 @@ pub fn on_inlay_hint_request(
     let uri = params.text_document.uri.clone();
     let root_dir = state.root_dir();
 
-    if !is_file_uri_in_dir(&root_dir, &uri) {
+    if !is_file_uri_in_dir(root_dir, &uri) {
         return Err(LSPRuntimeError::ExpectedError);
     }
 

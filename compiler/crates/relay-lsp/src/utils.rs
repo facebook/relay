@@ -33,7 +33,7 @@ use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::Feature;
 
-pub fn is_file_uri_in_dir(root_dir: &PathBuf, file_uri: &Url) -> bool {
+pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
     let file_path_result = file_uri.to_file_path();
 
     match file_path_result {

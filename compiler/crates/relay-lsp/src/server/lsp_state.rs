@@ -599,6 +599,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             &self.root_dir(),
             location,
             Some(&self.synced_javascript_sources),
+            Some(&self.synced_schema_sources),
         )
     }
 }

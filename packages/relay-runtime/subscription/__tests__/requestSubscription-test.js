@@ -380,10 +380,13 @@ describe('requestSubscription-test', () => {
         config: {
           name: 'Mark',
           __id: expect.any(String),
-          __fragments: {requestSubscriptionTestExtraFragment: {}},
+          __fragments: {
+            requestSubscriptionTestExtraFragment: {
+              // TODO T96653810: Correctly detect reading from root of mutation/subscription
+              $isWithinUnmatchedTypeRefinement: true, // should be false
+            },
+          },
           __fragmentOwner: expect.any(Object),
-          // TODO T96653810: Correctly detect reading from root of mutation/subscription
-          __isWithinUnmatchedTypeRefinement: true, // should be false
         },
       },
     });
@@ -421,9 +424,12 @@ describe('requestSubscription-test', () => {
         config: {
           name: 'Zuck',
           __id: expect.any(String),
-          __fragments: {requestSubscriptionTestExtraFragment: {}},
+          __fragments: {
+            requestSubscriptionTestExtraFragment: {
+              $isWithinUnmatchedTypeRefinement: true,
+            },
+          },
           __fragmentOwner: expect.any(Object),
-          __isWithinUnmatchedTypeRefinement: true,
         },
       },
     });

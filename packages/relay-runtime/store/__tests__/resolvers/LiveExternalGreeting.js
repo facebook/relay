@@ -12,12 +12,9 @@
 'use strict';
 
 import type {LiveExternalGreetingFragment$key} from './__generated__/LiveExternalGreetingFragment.graphql';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
-const {graphql} = require('relay-runtime');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const {graphql, suspenseSentinel} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**

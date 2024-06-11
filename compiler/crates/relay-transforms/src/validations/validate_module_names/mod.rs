@@ -80,7 +80,8 @@ impl Validator for ValidateModuleNames {
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 pub enum ValidationMessage {
     #[error(
         "{pluralized_string} in graphql tags must start with the module name ('{module_name}') and end with '{operation_type_suffix}'. Got '{operation_name}' instead."

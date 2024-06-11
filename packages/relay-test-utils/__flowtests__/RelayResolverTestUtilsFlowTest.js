@@ -30,14 +30,13 @@ function myTestResolver(rootKey: RelayResolverTestUtilsFlowTest$key): string {
   return `Hello ${user.name ?? 'stranger'}!`;
 }
 
-testResolver(myTestResolver, {name: 'Elizabeth', $fragmentType: (null: any)});
+testResolver(myTestResolver, {name: 'Elizabeth'});
 
 // $FlowExpectedError foo is an unexpected key
 testResolver(myTestResolver, {
   name: 'Elizabeth',
   foo: 'bar',
-  $fragmentType: (null: any),
 });
 
 // $FlowExpectedError Object is not a string
-testResolver(myTestResolver, {name: {}, $fragmentType: (null: any)});
+testResolver(myTestResolver, {name: {}});

@@ -38,9 +38,10 @@ import type {
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
+const useRefetchableFragmentInternal_EXPERIMENTAL = require('../experimental/useRefetchableFragmentInternal_EXPERIMENTAL');
+const useRefetchableFragmentNode_LEGACY = require('../legacy/useRefetchableFragmentNode');
 const {useTrackLoadQueryInRender} = require('../loadQuery');
-const useRefetchableFragmentInternal_REACT_CACHE = require('../react-cache/useRefetchableFragmentInternal_REACT_CACHE');
-const useRefetchableFragmentNode_LEGACY = require('../useRefetchableFragmentNode');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -51,7 +52,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   Observable,
-  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -64,24 +64,14 @@ const Scheduler = require('scheduler');
 const {useMemo, useState, useEffect} = React;
 
 describe.each([
-  ['React Cache', useRefetchableFragmentInternal_REACT_CACHE],
+  ['Experimental', useRefetchableFragmentInternal_EXPERIMENTAL],
   ['Legacy', useRefetchableFragmentNode_LEGACY],
 ])(
   'useRefetchableFragmentNode (%s)',
   (_hookName, useRefetchableFragmentNodeOriginal) => {
-    let isUsingReactCacheImplementation;
-    let originalReactCacheFeatureFlag;
-    beforeEach(() => {
-      isUsingReactCacheImplementation =
-        useRefetchableFragmentNodeOriginal ===
-        useRefetchableFragmentInternal_REACT_CACHE;
-      originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-      RelayFeatureFlags.USE_REACT_CACHE = isUsingReactCacheImplementation;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-    });
-
+    const isUsingReactCacheImplementation =
+      useRefetchableFragmentNodeOriginal ===
+      useRefetchableFragmentInternal_EXPERIMENTAL;
     let environment;
     let gqlQuery:
       | Query<
@@ -192,7 +182,6 @@ describe.each([
           [fragmentName]: {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -200,9 +189,7 @@ describe.each([
       // Set up mocks
       jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
       jest.mock('warning');
-      jest.mock('scheduler', () =>
-        jest.requireActual('scheduler/unstable_mock'),
-      );
+      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
       /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
        * enabling Flow LTI mode */
       commitSpy = jest.fn<_, mixed>();
@@ -356,7 +343,6 @@ describe.each([
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
           }),
           [owner, fragment.name],
         );
@@ -396,7 +382,7 @@ describe.each([
 
       const Fallback = () => {
         useEffect(() => {
-          Scheduler.unstable_yieldValue('Fallback');
+          Scheduler.log('Fallback');
         });
 
         return 'Fallback';
@@ -1397,7 +1383,7 @@ describe.each([
         ]);
       });
 
-      it('warns if data retured has different __typename', () => {
+      it('warns if data returned has different __typename', () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
@@ -1463,12 +1449,13 @@ describe.each([
         const warningCalls = warning.mock.calls.filter(
           call => call[0] === false,
         );
-        expect(warningCalls.length).toEqual(2); // the other warnings are from FragmentResource.js
         expect(
-          warningCalls[1][1].includes(
-            'Relay: Call to `refetch` returned data with a different __typename:',
+          warningCalls.some(([_condition, format, ..._args]) =>
+            format.includes(
+              'Relay: Call to `refetch` returned data with a different __typename:',
+            ),
           ),
-        ).toEqual(true);
+        ).toBe(true);
       });
 
       it('warns if a different id is returned', () => {
@@ -1988,7 +1975,7 @@ describe.each([
             {force: true},
           );
 
-          // Assert we suspend on intial refetch request
+          // Assert we suspend on initial refetch request
           expectFragmentIsRefetching(renderer, {
             refetchQuery: refetchQuery1,
             refetchVariables: refetchVariables1,
@@ -2156,6 +2143,75 @@ describe.each([
           expect(renderer.toJSON()).toEqual('Fallback');
 
           expect(fetchSpy).toBeCalledTimes(4);
+        });
+
+        it('preserves referential equality after refetch if data & variables have not changed', async () => {
+          let refetchCount = 0;
+          const ComponentWithUseEffectRefetch = (props: {
+            fragmentKey: any,
+          }): null => {
+            const {fragmentData, refetch} = useRefetchableFragmentNode(
+              graphql`
+                fragment useRefetchableFragmentNodeTestIdentityTestFragment on User
+                @refetchable(
+                  queryName: "useRefetchableFragmentNodeTestIdentityTestFragmentRefetchQuery"
+                ) {
+                  id
+                  name
+                  profile_picture(scale: $scale) {
+                    uri
+                  }
+                }
+              `,
+              props.fragmentKey,
+            );
+            if (refetchCount > 2) {
+              throw new Error('Detected refetch loop.');
+            }
+            useEffect(() => {
+              refetchCount++;
+              refetch(fragmentData.id);
+            }, [fragmentData, refetch]);
+
+            return null;
+          };
+          const variables = {id: '1', scale: 16};
+          const query = createOperationDescriptor(
+            gqlRefetchQuery,
+            variables,
+            {},
+          );
+          environment.commitPayload(query, {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              profile_picture: null,
+            },
+          });
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
+                <React.Suspense fallback={'Loading'}>
+                  <RelayEnvironmentProvider environment={environment}>
+                    <ComponentWithUseEffectRefetch
+                      fragmentKey={createFragmentRef(
+                        '1',
+                        query,
+                        'useRefetchableFragmentNodeTestIdentityTestFragment',
+                      )}
+                    />
+                  </RelayEnvironmentProvider>
+                </React.Suspense>
+              </ErrorBoundary>,
+              // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+              {unstable_isConcurrent: true},
+            );
+            jest.runAllImmediates();
+          });
+          expect(refetchCount).toBe(2);
+          expect(renderer?.toJSON()).toBe(null);
         });
       });
 

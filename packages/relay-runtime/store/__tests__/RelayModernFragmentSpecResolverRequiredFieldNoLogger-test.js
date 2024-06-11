@@ -88,7 +88,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       true /* rootIsQueryRenderer */,
     );
     expect(() => resolver.resolve()).toThrow(
-      'Relay Environment Configuration Error (dev only): `@required(action: LOG)` requires that the Relay Environment be configured with a `requiredFieldLogger`',
+      'Relay Environment Configuration Error (dev only): `@required(action: LOG)` requires that the Relay Environment be configured with a `relayFieldLogger`',
     );
   });
 

@@ -168,7 +168,8 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, serde::Serialize)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
     CircularFragmentReference {

@@ -141,6 +141,8 @@ beforeEach(() => {
         queries: {
           prefetched: {
             parameters: params,
+            /* $FlowFixMe[prop-missing] Error revealed after improved builtin
+             * React utility types */
             variables: {id: entryPointParams.id},
           },
         },
@@ -523,6 +525,8 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
               actorID: '5',
             },
             parameters: params,
+            /* $FlowFixMe[prop-missing] Error revealed after improved builtin
+             * React utility types */
             variables: {id: entryPointParams.id},
           },
         },

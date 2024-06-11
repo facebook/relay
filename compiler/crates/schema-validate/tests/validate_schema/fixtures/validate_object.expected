@@ -66,7 +66,7 @@ type Fur {
 Type EmptyFurType with definition:
 	union EmptyFurType
 had errors:
-	* Union type must define one or more member types.
+	* Union type EmptyFurType must define one or more member types.
 
 Type Human with definition:
 	type Human implements Hominid @fetchable(field_name: "id") {

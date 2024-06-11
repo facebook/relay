@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9772158c21f86b0aae601fcb550cc634>>
+ * @generated SignedSource<<fbbce9e1241862ddae562dff8818c589>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,8 +19,7 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoModel__id$data } from "./TodoModel__id.graphql";
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { FragmentType } from "relay-runtime";
+import type { LiveState, FragmentType } from "relay-runtime";
 import {TodoModel as todoModelRelayModelInstanceResolverType} from "../TodoModel.js";
 // Type assertion validating that `todoModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -29,7 +28,7 @@ import {TodoModel as todoModelRelayModelInstanceResolverType} from "../TodoModel
 ) => LiveState<mixed>);
 declare export opaque type TodoModel____relay_model_instance$fragmentType: FragmentType;
 export type TodoModel____relay_model_instance$data = {|
-  +__relay_model_instance: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof todoModelRelayModelInstanceResolverType>["read"]>,
+  +__relay_model_instance: ?ReturnType<ReturnType<typeof todoModelRelayModelInstanceResolverType>["read"]>,
   +$fragmentType: TodoModel____relay_model_instance$fragmentType,
 |};
 export type TodoModel____relay_model_instance$key = {

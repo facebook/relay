@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a569afede10e2153160c585fce5ca6e8>>
+ * @generated SignedSource<<fc7a351eda1b45bd44066f6e4832d7a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,12 +25,12 @@ import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
   args: {|
     world: string,
   |},
-) => mixed);
+) => ?mixed);
 export type ResolverGCTestNoFragmentDynamicArgsQuery$variables = {|
   world: string,
 |};
 export type ResolverGCTestNoFragmentDynamicArgsQuery$data = {|
-  +hello: ?$Call<<R>((...empty[]) => R) => R, typeof queryHelloResolverType>,
+  +hello: ?ReturnType<typeof queryHelloResolverType>,
 |};
 export type ResolverGCTestNoFragmentDynamicArgsQuery = {|
   response: ResolverGCTestNoFragmentDynamicArgsQuery$data,

@@ -72,7 +72,7 @@ pub(crate) fn on_search_schema_items(
         &filter,
     );
     let unions = filter_and_transform_items(
-        schema.unions().map(|u| u.name.item),
+        schema.unions().map(|u| u.name.item.0),
         &schema_documentation,
         &filter,
     );

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8b4c425eb635d0959a7f528f7ed305c5>>
+ * @generated SignedSource<<0d6ec96dbc33423bb574c16adb4e3be9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,9 +59,7 @@ v2 = [
   {
     "kind": "Literal",
     "name": "supported",
-    "value": [
-      "MarkdownUserNameRenderer"
-    ]
+    "value": "2aTHRe"
   }
 ],
 v3 = {
@@ -113,7 +111,7 @@ return {
                 "selections": [
                   (v3/*: any*/)
                 ],
-                "storageKey": "nameRenderer(supported:[\"MarkdownUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"2aTHRe\")"
               }
             ],
             "type": "User",
@@ -155,7 +153,7 @@ return {
                   (v4/*: any*/),
                   (v3/*: any*/)
                 ],
-                "storageKey": "nameRenderer(supported:[\"MarkdownUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"2aTHRe\")"
               }
             ],
             "type": "User",

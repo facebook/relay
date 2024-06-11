@@ -12,6 +12,7 @@
 'use strict';
 
 import type {IEnvironment} from 'relay-runtime';
+import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 
 const React = require('react');
@@ -19,10 +20,9 @@ const {
   RelayEnvironmentProvider,
   useClientQuery,
   useFragment: useFragment_LEGACY,
-  useLazyLoadQuery: useLazyLoadQuery_LEGACY,
+  useLazyLoadQuery,
 } = require('react-relay');
-const useFragment_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useFragment_REACT_CACHE');
-const useLazyLoadQuery_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useLazyLoadQuery_REACT_CACHE');
+const useFragment_EXPERIMENTAL = require('react-relay/relay-hooks/experimental/useFragment_EXPERIMENTAL');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -43,7 +43,6 @@ const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  expectToWarn,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -61,24 +60,9 @@ afterEach(() => {
 });
 
 describe.each([
-  ['React Cache', useLazyLoadQuery_REACT_CACHE, useFragment_REACT_CACHE],
-  ['Legacy', useLazyLoadQuery_LEGACY, useFragment_LEGACY],
-])('Hook implementation: %s', (_hookName, useLazyLoadQuery, useFragment) => {
-  const usingReactCache = useLazyLoadQuery === useLazyLoadQuery_REACT_CACHE;
-  // Our open-source build is still on React 17, so we need to skip these tests there:
-  if (usingReactCache) {
-    // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
-    if (React.unstable_getCacheForType === undefined) {
-      return;
-    }
-  }
-  beforeEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = usingReactCache;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = false;
-  });
-
+  ['Experimental', useFragment_EXPERIMENTAL],
+  ['Legacy', useFragment_LEGACY],
+])('Hook implementation: %s', (_hookName, useFragment) => {
   test('Can read an external state resolver directly', () => {
     const source = RelayRecordSource.create({
       'client:root': {
@@ -925,25 +909,15 @@ describe.each([
         </RelayEnvironmentProvider>
       );
     }
-    const requiredFieldLogger = jest.fn<
-      | $FlowFixMe
-      | [
-          | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
-          | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
-          | {
-              +error: Error,
-              +fieldPath: string,
-              +kind: 'relay_resolver.error',
-              +owner: string,
-            },
-        ],
+    const relayFieldLogger = jest.fn<
+      $FlowFixMe | [RelayFieldLoggerEvent],
       void,
     >();
     function createEnvironment(source: MutableRecordSource) {
       return new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
         store: new LiveResolverStore(source),
-        requiredFieldLogger,
+        relayFieldLogger,
       });
     }
 
@@ -977,7 +951,7 @@ describe.each([
     }).toThrow(
       "Relay: Missing @required value at path 'username' in 'ResolverThatThrows'.",
     );
-    expect(requiredFieldLogger.mock.calls).toEqual([
+    expect(relayFieldLogger.mock.calls).toEqual([
       [
         {
           kind: 'missing_field.throw',
@@ -986,15 +960,36 @@ describe.each([
         },
       ],
     ]);
-    requiredFieldLogger.mockReset();
+    relayFieldLogger.mockReset();
 
     // Render with complete data
-    expect(() => {
-      TestRenderer.create(<TestComponent environment={environment} id="2" />);
-    }).toThrow(
-      'The resolver should throw earlier. It should have missing data.',
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <TestComponent environment={environment} id="2" />,
+      );
+    });
+
+    if (renderer == null) {
+      throw new Error('Renderer is expected to be defined.');
+    }
+
+    expect(relayFieldLogger.mock.calls).toEqual([
+      [
+        {
+          error: new Error(
+            'The resolver should throw earlier. It should have missing data.',
+          ),
+          fieldPath: 'node.resolver_that_throws',
+          kind: 'relay_resolver.error',
+          owner: 'LiveResolversTest8Query',
+        },
+      ],
+    ]);
+
+    expect(renderer.toJSON()).toEqual(
+      'Bob: Unknown resolver_that_throws value',
     );
-    expect(requiredFieldLogger.mock.calls).toEqual([]);
   });
 
   test('apply optimistic updates to live resolver field', () => {
@@ -1471,7 +1466,7 @@ describe.each([
       expect(() => {
         GLOBAL_STORE.dispatch({type: 'INCREMENT'});
       }).toThrowError(
-        'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true,"__resolverError":null}`',
+        'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
       );
       expect(renderer.toJSON()).toEqual('Loading...');
     });
@@ -1543,10 +1538,19 @@ describe.each([
       ),
     );
 
+    const subscriptionsCountBeforeGCRun = GLOBAL_STORE.getSubscriptionsCount();
+
     // Go-go-go! Clean the store!
     store.scheduleGC();
     jest.runAllImmediates();
-    // This will clean the store, but won't unsubscribe from the external states
+    // This will clean the store, and unsubscribe from the external states
+
+    const subscriptionsCountAfterGCRun = GLOBAL_STORE.getSubscriptionsCount();
+
+    // this will verify that we unsubscribed from the external store
+    expect(subscriptionsCountAfterGCRun).toEqual(
+      subscriptionsCountBeforeGCRun - 1,
+    );
 
     // Re-reading resolvers will create new records for them (but) the
     // `live_counter_with_possible_missing_fragment_data` will have missing required data at this
@@ -1554,13 +1558,8 @@ describe.each([
     // from the external state.
     environment.lookup(operation.fragment);
 
-    // this will dispatch an action from the extenrnal store and the callback that was created before GC
-    expectToWarn(
-      'Unexpected callback for a incomplete live resolver record',
-      () => {
-        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-      },
-    );
+    // this will dispatch an action from the external store and the callback that was created before GC
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
 
     // The data for the live resolver is missing (it has missing dependecies)
     snapshot = environment.lookup(operation.fragment);

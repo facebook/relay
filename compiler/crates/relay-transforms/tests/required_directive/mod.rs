@@ -17,6 +17,6 @@ fn transform(program: &Program) -> DiagnosticsResult<Program> {
     required_directive(&fragment_alias_directive(program, &FeatureFlag::Enabled)?)
 }
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, transform)
 }

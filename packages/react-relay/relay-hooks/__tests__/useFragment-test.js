@@ -21,7 +21,7 @@ import type {
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useFragmentOriginal_REACT_CACHE = require('../react-cache/useFragment_REACT_CACHE');
+const useFragmentOriginal_EXPERIMENTAL = require('../experimental/useFragment_EXPERIMENTAL');
 const useFragmentOriginal_LEGACY = require('../useFragment');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -30,7 +30,6 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -44,19 +43,9 @@ disallowWarnings();
 disallowConsoleErrors();
 
 describe.each([
-  ['React Cache', useFragmentOriginal_REACT_CACHE],
+  ['Experimental', useFragmentOriginal_EXPERIMENTAL],
   ['Legacy', useFragmentOriginal_LEGACY],
 ])('useFragment (%s)', (_hookName, useFragmentOriginal) => {
-  let originalReactCacheFeatureFlag;
-  beforeEach(() => {
-    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-    RelayFeatureFlags.USE_REACT_CACHE =
-      useFragmentOriginal === useFragmentOriginal_REACT_CACHE;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-  });
-
   let environment;
   let gqlSingularQuery;
   let gqlSingularFragment;
@@ -106,7 +95,6 @@ describe.each([
         useFragmentTestNestedUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 

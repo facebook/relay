@@ -1,0 +1,76 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  pop_star_name(field_arg: 2)
+  big_pop_star_name: pop_star_name(field_arg: 3)
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(field_arg: Int): String @relay_resolver(import_path: "PopStarNameResolver")
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  __id @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_id: FieldID(518),
+  #     import_path: "PopStarNameResolver",
+  #     import_name: None,
+  #     field_alias: None,
+  #     field_path: "pop_star_name",
+  #     field_arguments: [
+  #         Argument {
+  #             name: WithLocation {
+  #                 location: relay-resolver-scalar-field-arguments-with-alias.graphql:44:53,
+  #                 item: ArgumentName(
+  #                     "field_arg",
+  #                 ),
+  #             },
+  #             value: WithLocation {
+  #                 location: relay-resolver-scalar-field-arguments-with-alias.graphql:55:56,
+  #                 item: Constant(
+  #                     Int(
+  #                         2,
+  #                     ),
+  #                 ),
+  #             },
+  #         },
+  #     ],
+  #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
+  # }
+  
+  __id @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_id: FieldID(518),
+  #     import_path: "PopStarNameResolver",
+  #     import_name: None,
+  #     field_alias: Some(
+  #         "big_pop_star_name",
+  #     ),
+  #     field_path: "big_pop_star_name",
+  #     field_arguments: [
+  #         Argument {
+  #             name: WithLocation {
+  #                 location: relay-resolver-scalar-field-arguments-with-alias.graphql:93:102,
+  #                 item: ArgumentName(
+  #                     "field_arg",
+  #                 ),
+  #             },
+  #             value: WithLocation {
+  #                 location: relay-resolver-scalar-field-arguments-with-alias.graphql:104:105,
+  #                 item: Constant(
+  #                     Int(
+  #                         3,
+  #                     ),
+  #                 ),
+  #             },
+  #         },
+  #     ],
+  #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
+  # }
+  
+}

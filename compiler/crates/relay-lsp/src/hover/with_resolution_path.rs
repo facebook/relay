@@ -484,6 +484,7 @@ fn get_hover_contents<'a>(
             fragment_spread_path,
             schema,
             schema_name,
+            schema_documentation,
             program,
             content_consumer_type,
         ),
@@ -492,6 +493,7 @@ fn get_hover_contents<'a>(
             fragment_definition,
             schema,
             schema_name,
+            schema_documentation,
             content_consumer_type,
         ),
 
@@ -678,17 +680,25 @@ fn get_scalar_or_linked_field_hover_content(
 
     type_path.push(field_type_name);
 
-    hover_contents.push(MarkedString::String(format!(
-        "Type: **{}**",
-        content_consumer_type.render_text_with_params(
-            &schema.get_type_string(&field.type_),
-            &GraphQLSchemaExplorerParams {
-                path: type_path,
-                schema_name: schema_name.lookup(),
-                filter: None,
-            }
-        )
-    )));
+    let type_name = content_consumer_type.render_text_with_params(
+        &schema.get_type_string(&field.type_),
+        &GraphQLSchemaExplorerParams {
+            path: type_path,
+            schema_name: schema_name.lookup(),
+            filter: None,
+        },
+    );
+
+    if let Some(field_type_hack_source) = schema_documentation.get_hack_source(field_type_name) {
+        hover_contents.push(MarkedString::String(format!(
+            "Type: [**{}**]({})",
+            type_name,
+            codex_url_for_symbol(field_type_hack_source),
+        )));
+    } else {
+        hover_contents.push(MarkedString::String(format!("Type: **{}**", type_name,)));
+    }
+
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }
@@ -743,6 +753,17 @@ fn get_scalar_or_linked_field_hover_content(
         };
         hover_contents.push(MarkedString::String(msg.to_string()))
     }
+
+    if let Some(field_hack_source) =
+        schema_documentation.get_field_hack_source(parent_type_name, field.name.item.lookup())
+    {
+        hover_contents.push(MarkedString::String(format!(
+            "View [**{}**]({}) in Codex",
+            field_hack_source,
+            codex_url_for_symbol(field_hack_source),
+        )));
+    }
+
     Some(hover_contents)
 }
 
@@ -797,20 +818,29 @@ fn on_hover_inline_fragment(
         )
     ));
 
+    let mut hover_contents: Vec<MarkedString> = vec![first_line];
+
     if let Some(description) = description {
-        Some(HoverContents::Array(vec![
-            first_line,
-            MarkedString::String(description.to_string()),
-        ]))
-    } else {
-        Some(HoverContents::Scalar(first_line))
+        hover_contents.push(MarkedString::String(description.to_string()));
     }
+
+    if let Some(hack_source) = schema_documentation.get_hack_source(inline_fragment_condition) {
+        let codex_link = MarkedString::String(format!(
+            "View [**{}**]({}) in Codex",
+            hack_source,
+            codex_url_for_symbol(hack_source),
+        ));
+        hover_contents.push(codex_link);
+    }
+
+    Some(HoverContents::Array(hover_contents))
 }
 
 fn on_hover_fragment_spread<'a>(
     fragment_spread_path: &'a FragmentSpreadPath<'a>,
     schema: &SDLSchema,
     schema_name: StringKey,
+    schema_documentation: &impl SchemaDocumentation,
     program: &Program,
     content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
@@ -831,17 +861,19 @@ fn on_hover_fragment_spread<'a>(
         .get_type_name(fragment_definition.type_condition)
         .lookup();
 
+    let rendered_fragment_type_name = content_consumer_type.render_text_with_params(
+        fragment_type_name,
+        &GraphQLSchemaExplorerParams {
+            path: vec![fragment_type_name],
+            schema_name: schema_name.lookup(),
+            filter: None,
+        },
+    );
+
     hover_contents.push(MarkedString::String(format!(
         "fragment {} on {}",
         fragment_spread.name.value.lookup(),
-        content_consumer_type.render_text_with_params(
-            fragment_type_name,
-            &GraphQLSchemaExplorerParams {
-                path: vec![fragment_type_name],
-                schema_name: schema_name.lookup(),
-                filter: None
-            }
-        )
+        rendered_fragment_type_name,
     )));
 
     if !fragment_definition.variable_definitions.is_empty() {
@@ -899,6 +931,23 @@ For example:
         ));
     }
 
+    if let Some(type_description) = schema_documentation.get_type_description(fragment_type_name) {
+        if let Some(hack_source) = schema_documentation.get_hack_source(fragment_type_name) {
+            hover_contents.push(MarkedString::String(format!(
+                "Type Condition: on [**{}**]({})",
+                rendered_fragment_type_name,
+                codex_url_for_symbol(hack_source),
+            )));
+        } else {
+            hover_contents.push(MarkedString::String(format!(
+                "Type Condition: on **{}**",
+                rendered_fragment_type_name,
+            )));
+        }
+
+        hover_contents.push(MarkedString::String(type_description.to_string()));
+    }
+
     Some(HoverContents::Array(hover_contents))
 }
 
@@ -943,6 +992,7 @@ fn on_hover_fragment_definition(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     schema_name: StringKey,
+    schema_documentation: &impl SchemaDocumentation,
     content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     let fragment_name = fragment_definition.name.value;
@@ -951,35 +1001,56 @@ fn on_hover_fragment_definition(
 
     let type_name = schema.get_type_name(fragment_type);
 
+    let rendered_parent_type_name = content_consumer_type.render_text_with_params(
+        type_name.lookup(),
+        &GraphQLSchemaExplorerParams {
+            path: vec![type_name.lookup()],
+            schema_name: schema_name.lookup(),
+            filter: None,
+        },
+    );
+
     let title = MarkedString::from_markdown(format!(
         "fragment {} on {}",
-        fragment_name,
-        content_consumer_type.render_text_with_params(
-            type_name.lookup(),
-            &GraphQLSchemaExplorerParams {
-                path: vec![type_name.lookup()],
-                schema_name: schema_name.lookup(),
-                filter: None
-            }
-        )
+        fragment_name, rendered_parent_type_name
     ));
 
-    let hover_contents = if matches!(content_consumer_type, ContentConsumerType::Relay) {
-        HoverContents::Array(vec![
-            title,
-            MarkedString::String(
-                r#"Fragments let you select fields,
+    let mut hover_contents: Vec<MarkedString> = vec![title];
+
+    if matches!(content_consumer_type, ContentConsumerType::Relay) {
+        hover_contents.push(MarkedString::String(
+            r#"Fragments let you select fields,
     and then include them in queries where you need to.
 
     ---
     @see: https://graphql.org/learn/queries/#fragments
     "#
-                .to_string(),
-            ),
-        ])
-    } else {
-        HoverContents::Scalar(title)
+            .to_string(),
+        ))
     };
 
-    Some(hover_contents)
+    if let Some(type_description) = schema_documentation.get_type_description(type_name.lookup()) {
+        if let Some(hack_source) = schema_documentation.get_hack_source(type_name.lookup()) {
+            hover_contents.push(MarkedString::String(format!(
+                "Type Condition: on [**{}**]({})",
+                rendered_parent_type_name,
+                codex_url_for_symbol(hack_source),
+            )));
+        } else {
+            hover_contents.push(MarkedString::String(format!(
+                "Type Condition: on **{}**",
+                rendered_parent_type_name
+            )));
+        }
+
+        hover_contents.push(MarkedString::String(type_description.to_string()));
+    }
+
+    Some(HoverContents::Array(hover_contents))
+}
+
+fn codex_url_for_symbol(symbol: &str) -> String {
+    // sanitize the symbol first by replacing instances of "::" with "/" to avoid breaking codex links
+    let sanitized_symbol = str::replace(symbol, "::", "/");
+    format!("https://www.internalfb.com/code/symbol/www/php/{sanitized_symbol}")
 }

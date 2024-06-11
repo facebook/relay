@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4595575dd8109cc00a23aa8ffb50f49b>>
+ * @generated SignedSource<<49200f09692d2c499f661848b5e7c445>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {complete as todoCompleteResolverType} from "../../../relay-runtime/store
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoCompleteResolverType: (
   rootKey: TodoCompleteResolverFragment$key,
-) => mixed);
+) => ?mixed);
 declare export opaque type RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType: FragmentType;
 export type RelayResolversWithOutputTypeTestTodoCompleteFragment$data = {|
-  +complete: ?$Call<<R>((...empty[]) => R) => R, typeof todoCompleteResolverType>,
+  +complete: ?ReturnType<typeof todoCompleteResolverType>,
   +$fragmentType: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
 |};
 export type RelayResolversWithOutputTypeTestTodoCompleteFragment$key = {

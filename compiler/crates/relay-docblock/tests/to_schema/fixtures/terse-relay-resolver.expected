@@ -23,5 +23,5 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend type User {
-  favorite_page: Page @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver.js", fragment_name: "myRootFragment", import_name: "favorite_page")
+  favorite_page: Page @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver.js", fragment_name: "myRootFragment", import_name: "favorite_page") @resolver_source_hash(value: "0a9950ad1f952f5777b27604738fcf91")
 }

@@ -339,7 +339,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let union = self.schema.union(id);
         let name = union.name;
         let idx = self.unions.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Union, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Union, name.item.0);
         self.unions.push(schema_flatbuffer::Union::create(
             &mut self.bldr,
             &schema_flatbuffer::UnionArgs::default(),

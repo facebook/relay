@@ -61,6 +61,7 @@ use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use crate::no_inline::PARENT_DOCUMENTS_ARG;
 use crate::util::get_normalization_operation_name;
 use crate::RawResponseGenerationMode;
+use crate::RelayResolverMetadata;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -300,7 +301,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 }));
                 // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
                 // type of the object matches the fragment's type condition. Rather than reimplement type refinement
-                // for fragment spreads, we wrap the fragment spread in an inlinefragment (which may be inlined away)
+                // for fragment spreads, we wrap the fragment spread in an inline fragment (which may be inlined away)
                 // that ensures it will go through type-refinement at runtime.
                 return if fragment.type_condition.is_abstract_type() {
                     Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
@@ -336,6 +337,24 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         transform_list_multi(selections, |selection| {
             self.transform_selection_multi(selection)
         })
+    }
+
+    fn transform_directive(&mut self, directive: &Directive) -> Transformed<Directive> {
+        if directive.name.item == RelayResolverMetadata::directive_name() {
+            if let Some(resolver_metadata) = RelayResolverMetadata::from(directive) {
+                return self
+                    .transform_arguments(&resolver_metadata.field_arguments)
+                    .map(|new_args| {
+                        RelayResolverMetadata {
+                            field_arguments: new_args,
+                            ..resolver_metadata.clone()
+                        }
+                        .into()
+                    })
+                    .into();
+            }
+        }
+        self.default_transform_directive(directive)
     }
 
     fn transform_value(&mut self, value: &Value) -> TransformedValue<Value> {
@@ -695,7 +714,8 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
     scope
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
     CircularFragmentReference {

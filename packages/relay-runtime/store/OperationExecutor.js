@@ -16,7 +16,6 @@ import type {
   GraphQLResponse,
   GraphQLResponseWithData,
   GraphQLSingularResponse,
-  ReactFlightServerTree,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
@@ -27,16 +26,12 @@ import type {
   LogFunction,
   ModuleImportPayload,
   MutationParameters,
-  NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
   OperationTracker,
   OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
-  ReactFlightClientResponse,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
   RequestDescriptor,
@@ -54,7 +49,7 @@ import type {
 } from '../util/NormalizationNode';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
-import type {NormalizationOptions} from './RelayResponseNormalizer';
+import type {NormalizeResponseFunction} from './RelayStoreTypes';
 
 const RelayObservable = require('../network/RelayObservable');
 const generateID = require('../util/generateID');
@@ -71,7 +66,6 @@ const {
   createReaderSelector,
 } = require('./RelayModernSelector');
 const RelayRecordSource = require('./RelayRecordSource');
-const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -81,14 +75,13 @@ export type ExecuteConfig<TMutation: MutationParameters> = {
   +getDataID: GetDataID,
   +getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
   +getStore: (actorIdentifier: ActorIdentifier) => Store,
+  +normalizeResponse: NormalizeResponseFunction,
   +isClientPayload?: boolean,
   +operation: OperationDescriptor,
   +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
   +operationTracker: OperationTracker,
   +optimisticConfig: ?OptimisticResponseConfig<TMutation>,
-  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
-  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +scheduler?: ?TaskScheduler,
   +shouldProcessClientComponents?: ?boolean,
   +sink: Sink<GraphQLResponse>,
@@ -146,8 +139,6 @@ class Executor<TMutation: MutationParameters> {
   _optimisticUpdates: null | Array<OptimisticUpdate<TMutation>>;
   _pendingModulePayloadsCount: number;
   +_getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
-  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
-  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _shouldProcessClientComponents: ?boolean;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
@@ -165,6 +156,7 @@ class Executor<TMutation: MutationParameters> {
   +_isClientPayload: boolean;
   +_isSubscriptionOperation: boolean;
   +_seenActors: Set<ActorIdentifier>;
+  _normalizeResponse: NormalizeResponseFunction;
 
   constructor({
     actorIdentifier,
@@ -177,8 +169,6 @@ class Executor<TMutation: MutationParameters> {
     operationLoader,
     operationTracker,
     optimisticConfig,
-    reactFlightPayloadDeserializer,
-    reactFlightServerErrorHandler,
     scheduler,
     shouldProcessClientComponents,
     sink,
@@ -186,6 +176,7 @@ class Executor<TMutation: MutationParameters> {
     treatMissingFieldsAsNull,
     updater,
     log,
+    normalizeResponse,
   }: ExecuteConfig<TMutation>): void {
     this._actorIdentifier = actorIdentifier;
     this._getDataID = getDataID;
@@ -211,14 +202,13 @@ class Executor<TMutation: MutationParameters> {
     this._subscriptions = new Map();
     this._updater = updater;
     this._isClientPayload = isClientPayload === true;
-    this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
-    this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
     this._isSubscriptionOperation =
       this._operation.request.node.params.operationKind === 'subscription';
     this._shouldProcessClientComponents = shouldProcessClientComponents;
     this._retainDisposables = new Map();
     this._seenActors = new Set();
     this._completeFns = [];
+    this._normalizeResponse = normalizeResponse;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -284,26 +274,6 @@ class Executor<TMutation: MutationParameters> {
     this._completeOperationTracker();
     this._disposeRetainedData();
   }
-
-  _deserializeReactFlightPayloadWithLogging = (
-    tree: ReactFlightServerTree,
-  ): ReactFlightClientResponse => {
-    const reactFlightPayloadDeserializer = this._reactFlightPayloadDeserializer;
-    invariant(
-      typeof reactFlightPayloadDeserializer === 'function',
-      'OperationExecutor: Expected reactFlightPayloadDeserializer to be available when calling _deserializeReactFlightPayloadWithLogging.',
-    );
-    const [duration, result] = withDuration(() => {
-      return reactFlightPayloadDeserializer(tree);
-    });
-    this._log({
-      name: 'execute.flight.payload_deserialize',
-      executeId: this._executeId,
-      operationName: this._operation.request.node.params.name,
-      duration,
-    });
-    return result;
-  };
 
   _updateActiveState(): void {
     let activeState;
@@ -607,7 +577,7 @@ class Executor<TMutation: MutationParameters> {
     }
     const optimisticUpdates: Array<OptimisticUpdate<TMutation>> = [];
     if (response) {
-      const payload = normalizeResponse(
+      const payload = this._normalizeResponse(
         response,
         this._operation.root,
         ROOT_TYPE,
@@ -615,11 +585,6 @@ class Executor<TMutation: MutationParameters> {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer:
-            this._reactFlightPayloadDeserializer != null
-              ? this._deserializeReactFlightPayloadWithLogging
-              : null,
-          reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
         },
@@ -651,7 +616,10 @@ class Executor<TMutation: MutationParameters> {
     );
     // OK: only called on construction and when receiving an optimistic payload from network,
     // which doesn't fall-through to the regular next() handling
-    this._runPublishQueue();
+    const updatedOwners = this._runPublishQueue();
+    if (RelayFeatureFlags.ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES) {
+      this._updateOperationTracker(updatedOwners);
+    }
   }
 
   _processOptimisticFollowups(
@@ -718,7 +686,7 @@ class Executor<TMutation: MutationParameters> {
       followupPayload.dataID,
       variables,
     );
-    return normalizeResponse(
+    return this._normalizeResponse(
       {data: followupPayload.data},
       selector,
       followupPayload.typeName,
@@ -726,11 +694,6 @@ class Executor<TMutation: MutationParameters> {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: followupPayload.path,
-        reactFlightPayloadDeserializer:
-          this._reactFlightPayloadDeserializer != null
-            ? this._deserializeReactFlightPayloadWithLogging
-            : null,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
@@ -801,7 +764,7 @@ class Executor<TMutation: MutationParameters> {
     this._incrementalResults.clear();
     this._source.clear();
     return responses.map(payloadPart => {
-      const relayPayload = normalizeResponse(
+      const relayPayload = this._normalizeResponse(
         payloadPart,
         this._operation.root,
         ROOT_TYPE,
@@ -809,11 +772,6 @@ class Executor<TMutation: MutationParameters> {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer:
-            this._reactFlightPayloadDeserializer != null
-              ? this._deserializeReactFlightPayloadWithLogging
-              : null,
-          reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
@@ -1259,7 +1217,7 @@ class Executor<TMutation: MutationParameters> {
     const prevActorIdentifier = this._actorIdentifier;
     this._actorIdentifier =
       placeholder.actorIdentifier ?? this._actorIdentifier;
-    const relayPayload = normalizeResponse(
+    const relayPayload = this._normalizeResponse(
       response,
       placeholder.selector,
       placeholder.typeName,
@@ -1267,11 +1225,6 @@ class Executor<TMutation: MutationParameters> {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: placeholder.path,
-        reactFlightPayloadDeserializer:
-          this._reactFlightPayloadDeserializer != null
-            ? this._deserializeReactFlightPayloadWithLogging
-            : null,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
@@ -1495,15 +1448,10 @@ class Executor<TMutation: MutationParameters> {
       record: nextParentRecord,
       fieldPayloads,
     });
-    const relayPayload = normalizeResponse(response, selector, typeName, {
+    const relayPayload = this._normalizeResponse(response, selector, typeName, {
       actorIdentifier: this._actorIdentifier,
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
-      reactFlightPayloadDeserializer:
-        this._reactFlightPayloadDeserializer != null
-          ? this._deserializeReactFlightPayloadWithLogging
-          : null,
-      reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
     });
@@ -1634,29 +1582,6 @@ function partitionGraphQLResponses(
     }
   });
   return [nonIncrementalResponses, incrementalResponses];
-}
-
-function normalizeResponse(
-  response: GraphQLResponseWithData,
-  selector: NormalizationSelector,
-  typeName: string,
-  options: NormalizationOptions,
-): RelayResponsePayload {
-  const {data, errors} = response;
-  const source = RelayRecordSource.create();
-  const record = RelayModernRecord.create(selector.dataID, typeName);
-  source.set(selector.dataID, record);
-  const relayPayload = RelayResponseNormalizer.normalize(
-    source,
-    selector,
-    data,
-    options,
-  );
-  return {
-    ...relayPayload,
-    errors,
-    isFinal: response.extensions?.is_final === true,
-  };
 }
 
 function stableStringify(value: mixed): string {

@@ -1,5 +1,61 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Query with @no_inline fragment spread with literal argument 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest58Query {
+  node(id: "4") {
+    __typename
+    ...RelayMockPayloadGeneratorTest_fragment59_22eGLd
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest_fragment59_22eGLd on User {
+  id
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+}
+`;
+
+exports[`Query with @no_inline fragment spread with variable argument 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest60Query(
+  $cond: Boolean!
+) {
+  node(id: "4") {
+    __typename
+    ...RelayMockPayloadGeneratorTest_fragment61_yuQoQ
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest_fragment61_yuQoQ on User {
+  id
+  name @include(if: $cond)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+}
+`;
+
 exports[`check context in the mock resolver 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest11Query {
@@ -116,6 +172,43 @@ fragment RelayMockPayloadGeneratorTest14Fragment on User {
     }
   }
 }
+`;
+
+exports[`generate mock for deferred fragments 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest61Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ...RelayMockPayloadGeneratorTest61Fragment @defer(label: "RelayMockPayloadGeneratorTest61Query$defer$RelayMockPayloadGeneratorTest61Fragment")
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest61Fragment on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "data": {
+      "node": {
+        "__typename": "__MockObject",
+        "id": "<mock-id-1>"
+      }
+    }
+  },
+  {
+    "path": [
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest61Query$defer$RelayMockPayloadGeneratorTest61Fragment",
+    "data": {
+      "__typename": "User",
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+]
 `;
 
 exports[`generate mock for fragment with @argumentsDefinition 1`] = `

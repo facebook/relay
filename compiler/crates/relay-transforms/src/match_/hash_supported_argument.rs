@@ -9,8 +9,6 @@ use std::sync::Arc;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
-use common::FeatureFlag;
-use common::FeatureFlags;
 use common::NamedItem;
 use graphql_ir::ConstantValue;
 use graphql_ir::LinkedField;
@@ -29,13 +27,9 @@ use thiserror::Error;
 use super::MATCH_CONSTANTS;
 use crate::murmurhash::murmurhash;
 
-pub fn hash_supported_argument(
-    program: &Program,
-    feature_flags: &FeatureFlags,
-) -> DiagnosticsResult<Program> {
+pub fn hash_supported_argument(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = HashSupportedArgumentTransform {
         schema: &program.schema,
-        hash_supported_argument: &feature_flags.hash_supported_argument,
         errors: Default::default(),
     };
     let next_program = transformer.transform_program(program);
@@ -48,7 +42,6 @@ pub fn hash_supported_argument(
 
 struct HashSupportedArgumentTransform<'a> {
     schema: &'a SDLSchema,
-    hash_supported_argument: &'a FeatureFlag,
     errors: Vec<Diagnostic>,
 }
 
@@ -135,14 +128,6 @@ impl<'a> HashSupportedArgumentTransform<'a> {
             .named(MATCH_CONSTANTS.supported_arg)
             .expect("field has supported arg, but missing from the schema");
 
-        let field_type_name = {
-            let field_type = self.schema.field(field.definition.item).type_.inner();
-            self.schema.get_type_name(field_type)
-        };
-        if !self.hash_supported_argument.is_enabled_for(field_type_name) {
-            return false;
-        }
-
         if let TypeReference::List(item_type) = supported_arg_def.type_.nullable_type() {
             if let TypeReference::Named(item_type_name) = item_type.nullable_type() {
                 return self.schema.is_string(*item_type_name);
@@ -152,7 +137,8 @@ impl<'a> HashSupportedArgumentTransform<'a> {
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 pub enum HashSupportedArgumentError {
     #[error(
         "Variables cannot be passed to the `supported` argument for data driven dependency fields, please use literal values like `\"ExampleValue\"`."

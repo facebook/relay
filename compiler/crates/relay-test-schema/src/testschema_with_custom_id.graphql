@@ -25,9 +25,9 @@ directive @defer(
 
 directive @stream(
   label: String!
-  initial_count: Int!
+  initialCount: Int!
   if: Boolean = true
-  use_customized_batch: Boolean = false
+  useCustomizedBatch: Boolean = false
 ) on FIELD
 
 directive @fetchable(field_name: String!) on OBJECT
@@ -63,16 +63,6 @@ interface MaybeNodeInterface {
 }
 
 scalar JSON
-
-directive @react_flight(
-  components: [String!]!
-) on QUERY | MUTATION | SUBSCRIPTION
-
-scalar ReactFlightComponent
-
-scalar ReactFlightProps
-
-directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
 
 union MaybeNode = Story | FakeNode | NonNode
 
@@ -790,7 +780,6 @@ type PhotoStory implements FeedUnit & Node {
 
 type Story implements FeedUnit & Node & MaybeNodeInterface {
   attachments: [StoryAttachment]
-  flight(component: String!, props: ReactFlightProps): ReactFlightComponent
 
   # FeedUnit
   canViewerDelete: Boolean

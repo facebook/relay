@@ -28,7 +28,7 @@ extend type User {
 fragment Foo_user on User {
   ...HobbitNameResolverFragment_name @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_id: FieldID(518),
+  #     field_id: FieldID(519),
   #     import_path: "HobbitNameResolver",
   #     import_name: None,
   #     field_alias: None,
@@ -45,7 +45,7 @@ fragment HobbitNameResolverFragment_name on User {
   name
   ...PopStarNameResolverFragment_name @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_id: FieldID(517),
+  #     field_id: FieldID(518),
   #     import_path: "PopStarNameResolver",
   #     import_name: None,
   #     field_alias: None,

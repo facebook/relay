@@ -19,7 +19,7 @@ use relay_codegen::print_operation;
 use relay_config::ProjectConfig;
 use relay_test_schema::TEST_SCHEMA;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),

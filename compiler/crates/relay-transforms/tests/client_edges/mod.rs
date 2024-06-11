@@ -7,6 +7,8 @@
 
 use std::sync::Arc;
 
+use common::FeatureFlag;
+use common::FeatureFlags;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
@@ -16,11 +18,13 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
+use relay_config::ProjectConfig;
+use relay_config::ProjectName;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::client_edges;
 use relay_transforms::relay_resolvers;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -28,11 +32,26 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         let schema = get_test_schema_with_extensions(extensions);
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-
-        let mut next_program = client_edges(&program, &Default::default())
+        let relay_resolver_enable_interface_output_type = if fixture
+            .content
+            .contains("# relay-resolver-enable-interface-output-type")
+        {
+            FeatureFlag::Enabled
+        } else {
+            FeatureFlag::Disabled
+        };
+        let feature_flags = Arc::new(FeatureFlags {
+            relay_resolver_enable_interface_output_type,
+            ..Default::default()
+        });
+        let project_config: ProjectConfig = ProjectConfig {
+            feature_flags,
+            ..Default::default()
+        };
+        let mut next_program = client_edges(&program, &project_config, &Default::default())
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-        next_program = relay_resolvers(&next_program, true)
+        next_program = relay_resolvers(ProjectName::default(), &next_program, true)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         let printer_options = PrinterOptions {

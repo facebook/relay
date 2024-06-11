@@ -42,7 +42,7 @@ describe('useLazyLoadQueryNode', () => {
 
   const variables = {
     input: {
-      commentId: '<id>',
+      feedbackId: '<id>',
     },
   };
   beforeEach(() => {
@@ -82,9 +82,7 @@ describe('useLazyLoadQueryNode', () => {
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     let commit;
     const V1 = function (props: {}) {
-      const [commitFn, isMutationInFlight] = useMutation<any>(
-        CommentCreateMutation,
-      );
+      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     };
@@ -118,9 +116,7 @@ describe('useLazyLoadQueryNode', () => {
 
     // Trigger a fast fresh
     function V2(props: any) {
-      const [commitFn, isMutationInFlight] = useMutation<any>(
-        CommentCreateMutation,
-      );
+      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     }

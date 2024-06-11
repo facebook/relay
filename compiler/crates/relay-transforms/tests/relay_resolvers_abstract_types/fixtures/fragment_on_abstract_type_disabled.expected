@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+fragment fragmentOnAbstractTypeDisabledFragment on Cat {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+}
+
+type Persian implements Cat {
+    description: String
+}
+==================================== OUTPUT ===================================
+fragment fragmentOnAbstractTypeDisabledFragment on Cat {
+  description
+}

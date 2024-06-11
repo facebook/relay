@@ -15,6 +15,7 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use md5::Digest;
 use md5::Md5;
+use relay_transforms::annotate_resolver_root_fragments;
 use schema::SDLSchema;
 
 use super::ProjectAsts;
@@ -49,14 +50,17 @@ impl SourceHashes {
 }
 
 pub fn build_ir(
-    _project_config: &ProjectConfig,
+    project_config: &ProjectConfig,
     project_asts: ProjectAsts,
     schema: &SDLSchema,
     is_incremental_build: bool,
 ) -> Result<BuildIRResult, Vec<Diagnostic>> {
     let asts = project_asts.definitions;
     let source_hashes = SourceHashes::from_definitions(&asts);
-    let ir = graphql_ir::build_ir_in_relay_mode(schema, &asts)?;
+    let mut ir = graphql_ir::build_ir_in_relay_mode(schema, &asts, &project_config.feature_flags)?;
+    if project_config.resolvers_schema_module.is_some() {
+        ir = annotate_resolver_root_fragments(schema, ir);
+    }
     if is_incremental_build {
         let affected_ir = get_reachable_ir(
             ir,

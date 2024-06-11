@@ -13,7 +13,7 @@
 import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
 import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
-const useFragmentNodeOriginal = require('../useFragmentNode');
+const useFragmentNodeOriginal = require('../legacy/useFragmentNode');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -40,7 +40,6 @@ function useFragmentNode(
       useFragmentNodeRequiredTestUserFragment: $TEMPORARY$object<{...}>,
     }>,
     __id: any,
-    __isWithinUnmatchedTypeRefinement: boolean,
   }>,
 ) {
   const result = useFragmentNodeOriginal<any>(
@@ -108,7 +107,6 @@ beforeEach(() => {
         useFragmentNodeRequiredTestUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: singularQuery.request,
-      __isWithinUnmatchedTypeRefinement: false,
     };
 
     useFragmentNode(gqlSingularFragment, userRef);

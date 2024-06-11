@@ -14,7 +14,7 @@ use graphql_syntax::parse_document_with_features;
 use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     parse_document_with_features(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),

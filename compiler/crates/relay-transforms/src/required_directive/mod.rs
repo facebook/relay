@@ -50,7 +50,7 @@ lazy_static! {
     pub static ref ACTION_ARGUMENT: ArgumentName = ArgumentName("action".intern());
     pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: DirectiveName =
         DirectiveName("__childrenCanBubbleNull".intern());
-    static ref THROW_ACTION: StringKey = "THROW".intern();
+    pub static ref THROW_ACTION: StringKey = "THROW".intern();
     static ref LOG_ACTION: StringKey = "LOG".intern();
     static ref NONE_ACTION: StringKey = "NONE".intern();
     static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());

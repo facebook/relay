@@ -14,7 +14,7 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::get_test_schema;
 use relay_transforms::disallow_typename_on_root;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let schema = get_test_schema();
     let ast = parse_executable(fixture.content, source_location).unwrap();

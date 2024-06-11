@@ -27,6 +27,7 @@ const deepFreeze = require('../util/deepFreeze');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
+const hasSignificantOverlappingIDs = require('./hasSignificantOverlappingIDs');
 const RelayReader = require('./RelayReader');
 
 type Subscription = {
@@ -95,6 +96,8 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       subscription.backup = null;
       if (backup) {
         if (backup.data !== subscription.snapshot.data) {
+          // This subscription's data changed in the optimistic state. We will
+          // need to re-read.
           subscription.stale = true;
         }
         subscription.snapshot = {
@@ -106,8 +109,11 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
           relayResolverErrors: backup.relayResolverErrors,
+          errorResponseFields: backup.errorResponseFields,
         };
       } else {
+        // This subscription was created during the optimisitic state. We should
+        // re-read.
         subscription.stale = true;
       }
     });
@@ -170,6 +176,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,
       relayResolverErrors: nextSnapshot.relayResolverErrors,
+      errorResponseFields: nextSnapshot.errorResponseFields,
     }: Snapshot);
     if (__DEV__) {
       deepFreeze(nextSnapshot);
@@ -186,6 +193,16 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         });
       }
       callback(nextSnapshot);
+      return snapshot.selector.owner;
+    }
+    // While there were some overlapping IDs that affected this subscription,
+    // none of the read fields were actually affected.
+    if (
+      RelayFeatureFlags.ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION &&
+      (stale ||
+        hasSignificantOverlappingIDs(snapshot.seenRecords, updatedRecordIDs))
+    ) {
+      // With loose attribution enabled, we'll attribute this anyway.
       return snapshot.selector.owner;
     }
   }

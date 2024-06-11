@@ -24,7 +24,7 @@ use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use resolution_path::ResolvePosition;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extension%").collect();
     let (schema, document) = if let [document, extension] = parts.as_slice() {
         (get_test_schema_with_extensions(extension), *document)

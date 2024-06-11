@@ -453,7 +453,6 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             user: {
               innerRenderer: {
                 __fragmentOwner: operation.request,
-                __isWithinUnmatchedTypeRefinement: false,
                 __fragmentPropName: 'name',
                 __fragments: {
                   RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name:

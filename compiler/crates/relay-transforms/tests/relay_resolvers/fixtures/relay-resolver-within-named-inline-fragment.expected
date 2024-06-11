@@ -26,14 +26,14 @@ fragment Foo_user on Node {
   #         item: "aliased_fragment",
   #     },
   #     type_condition: Some(
-  #         Object(69),
+  #         Object(70),
   #     ),
-  #     selection_type: Object(69),
+  #     selection_type: Object(70),
   # }
    {
     ...PopStarNameResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(517),
+    #     field_id: FieldID(518),
     #     import_path: "PopStarNameResolver",
     #     import_name: None,
     #     field_alias: None,

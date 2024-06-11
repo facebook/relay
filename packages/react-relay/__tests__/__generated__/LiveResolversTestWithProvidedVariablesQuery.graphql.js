@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8d6c5ac2a09022435358e381b8fde2ae>>
+ * @generated SignedSource<<400f1ebe4cb8a6eb66854479669fefdf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,25 +24,23 @@ import {hello_world_with_provided_variable as queryHelloWorldWithProvidedVariabl
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloWorldWithProvidedVariableResolverType: (
   rootKey: HelloWorldResolverWithProvidedVariable$key,
-) => mixed);
+) => ?mixed);
 export type LiveResolversTestWithProvidedVariablesQuery$variables = {||};
 export type LiveResolversTestWithProvidedVariablesQuery$data = {|
-  +hello_world_with_provided_variable: ?$Call<<R>((...empty[]) => R) => R, typeof queryHelloWorldWithProvidedVariableResolverType>,
+  +hello_world_with_provided_variable: ?ReturnType<typeof queryHelloWorldWithProvidedVariableResolverType>,
 |};
 export type LiveResolversTestWithProvidedVariablesQuery = {|
   response: LiveResolversTestWithProvidedVariablesQuery$data,
   variables: LiveResolversTestWithProvidedVariablesQuery$variables,
 |};
-type ProvidedVariablesType = {|
+({
+  "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
+}: {|
   +__relay_internal__pv__HelloWorldProviderjs: {|
     +get: () => string,
   |},
-|};
+|});
 */
-
-var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
-};
 
 var node/*: ClientRequest*/ = {
   "fragment": {
@@ -122,7 +120,9 @@ var node/*: ClientRequest*/ = {
     "name": "LiveResolversTestWithProvidedVariablesQuery",
     "operationKind": "query",
     "text": null,
-    "providedVariables": providedVariablesDefinition
+    "providedVariables": {
+      "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
+    }
   }
 };
 

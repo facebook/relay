@@ -130,6 +130,29 @@ The object that `useLazyLoadQuery` returns has the same shape as the query. For 
 
 Notice that each field selected by the GraphQL query corresponds to a property in the JSON response.
 
+To see the result, we first need to address an error that TypeScript reports with this code as we’ve written it:
+
+```
+const story = data.topStory;
+                   ^^^^^^^^
+Property 'topStory' does not exist on type 'unknown'
+```
+
+To fix this, we need to annotate the call to `useLazyLoadQuery` with types that Relay generates. That way, TypeScript will know what type `data` should have based on the fields we’ve selected in our query. Add the following:
+
+```
+// change-line
+import type {NewsfeedQuery as NewsfeedQueryType} from './__generated__/NewsfeedQuery.graphql';
+
+function Newsfeed({}) {
+  const data = useLazyLoadQuery
+  // change-line
+  <NewsfeedQueryType>
+  (NewsfeedQuery, {});
+  ...
+}
+```
+
 At this point, you should see a story fetched from the server:
 
 ![Screenshot](/img/docs/tutorial/queries-basic-screenshot.png)
@@ -141,7 +164,6 @@ The server's responses are artifically slowed down to make loading states percep
 The `useLazyLoadQuery` hook fetches the data when the component is first rendered. Relay also has APIs for pre-fetching the data before your app has even loaded — these are covered later. In any case, Relay uses Suspense to show a loading indicator until the data is available.
 
 This is Relay in its most basic form: fetching the results of a GraphQL query when a component is rendered. As the tutorial progresses, we’ll see how Relay’s features fit together to make your app more maintainable — starting with a look at how Relay generates TypeScript types corresponding to each query.
-
 <details>
 <summary>Deep dive: Suspense for Data Loading</summary>
 
@@ -197,34 +219,12 @@ along with various other properties and information. These data structures are c
 
 </details>
 
-* * *
+<details>
+<summary>Deep dive: Relay and the Type System</summary>
 
-## Relay and the Type System
+To fix the TypeScript error we had to import a file that we did not create ourselves: `__generated__/NewsfeedQuery.graphql`. What's in this file?
 
-You might notice that TypeScript reports an error with this code as we’ve written it:
-
-```
-const story = data.topStory;
-                   ^^^^^^^^
-Property 'topStory' does not exist on type 'unknown'
-```
-
-To fix this, we need to annotate the call to `useLazyLoadQuery` with types that Relay generates. That way, TypeScript will know what type `data` should have based on the fields we’ve selected in our query. Add the following:
-
-```
-// change-line
-import type {NewsfeedQuery as NewsfeedQueryType} from './__generated__/NewsfeedQuery.graphql';
-
-function Newsfeed({}) {
-  const data = useLazyLoadQuery
-  // change-line
-  <NewsfeedQueryType>
-  (NewsfeedQuery, {});
-  ...
-}
-```
-
-If we look inside `__generated__/NewsfeedQuery.graphql` we’ll see the following type definition — with the annotation we’ve just added, TypeScript knows that `data` should have this type:
+If we look inside it, we’ll see the following type definition — with the annotation we’ve just added, TypeScript knows that `data` should have this type:
 
 ```
 export type NewsfeedQuery$data = {
@@ -248,7 +248,8 @@ export type NewsfeedQuery$data = {
 
 Using Relay’s generated types makes your app safer and more maintainable. In addition to TypeScript, Relay supports the Flow type system if you want to use that instead. When using Flow, the extra annotation on `useLazyLoadQuery` is not needed, because Flow directly understands the contents of the <code>graphql``</code> tagged literal.
 
-We’ll revisit types throughout this tutorial. But next, we'll look at an even more important way that Relay helps us with maintainability.
+We’ll revisit types throughout this tutorial.
+</details>
 
 * * *
 

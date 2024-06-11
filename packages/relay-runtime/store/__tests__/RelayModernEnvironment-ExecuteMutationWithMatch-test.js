@@ -312,14 +312,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               actor: {
                 name: 'actor-name',
                 nameRenderer: {
-                  __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                  __id: 'client:4:nameRenderer(supported:"34hjiS")',
                   __fragmentPropName: 'name',
                   __fragments: {
                     RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
                       {},
                   },
                   __fragmentOwner: operation.request,
-                  __isWithinUnmatchedTypeRefinement: false,
                   __module_component: 'MarkdownUserNameRenderer.react',
                 },
               },
@@ -616,14 +615,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'optimistic-actor-name',
                   nameRenderer: {
-                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
                     __fragmentPropName: 'name',
                     __fragments: {
                       RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
                         {},
                     },
                     __fragmentOwner: operation.request,
-                    __isWithinUnmatchedTypeRefinement: false,
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },
@@ -676,14 +674,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'optimistic-actor-name',
                   nameRenderer: {
-                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
                     __fragmentPropName: 'name',
                     __fragments: {
                       RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
                         {},
                     },
                     __fragmentOwner: operation.request,
-                    __isWithinUnmatchedTypeRefinement: false,
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },
@@ -765,14 +762,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'actor-name',
                   nameRenderer: {
-                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
                     __fragmentPropName: 'name',
                     __fragments: {
                       RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
                         {},
                     },
                     __fragmentOwner: operation.request,
-                    __isWithinUnmatchedTypeRefinement: false,
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },

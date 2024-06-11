@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment Foo_user on User {
+  best_friend {
+    id
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+interface ClientOnlyInterface implements Node {
+  id: ID!
+}
+
+# Add a concrete type so that we don't trigger an unrelated compiler error.
+type BestFriend implements ClientOnlyInterface {
+  id: ID!
+}
+
+extend type User {
+  best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+fragment Foo_user on User {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: None,
+  #     location: client-edge-to-client-interface.graphql:77:88,
+  #     has_model_instance_field: false,
+  #     is_model_live: false,
+  #     unique_id: 0,
+  # }
+   {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(520),
+    #     import_path: "BestFriendResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: EdgeTo,
+    #     fragment_data_injection_mode: None,
+    # }
+    
+    best_friend {
+      id
+    }
+  }
+}

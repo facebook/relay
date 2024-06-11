@@ -15,6 +15,7 @@ import type {OperationDescriptor} from '../RelayStoreTypes';
 import type {Variables} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -120,6 +121,7 @@ describe('RelayModernSelector', () => {
       size: null,
       cond: false,
     };
+    RelayFeatureFlags.ENABLE_STRICT_EQUAL_SELECTORS = true;
   });
 
   describe('getSingularSelector()', () => {
@@ -132,7 +134,7 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an object, got ' +
           '`[{"__fragments":{"RelayModernSelectorTestUserFragment":{},"RelayModernSelectorTestUsersFragment":{}},"__id":"4","__fragmentOwner":' +
           JSON.stringify(operationDescriptor.request) +
-          ',"__isWithinUnmatchedTypeRefinement":false}]`.',
+          '}]`.',
       );
     });
 
@@ -681,6 +683,107 @@ describe('RelayModernSelector', () => {
     it('returns false for equivalent selectors but with different owners', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
+      const newOwner = createOperationDescriptor(queryNode, {
+        ...operationVariables,
+        size: '16',
+      });
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+      );
+      // When the owner is different, areEqualSelectors should return false
+      // even if the 2 selectors represent the same selection
+      const differentOwner = {
+        ...selector,
+        owner: newOwner.request,
+      };
+      expect(areEqualSelectors(selector, differentOwner)).toBe(false);
+    });
+
+    it('returns false for equivalent selectors but with different isWithinUnmatchedTypeRefinement', () => {
+      const queryNode = UserQuery;
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      const selector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+      );
+      const differentOwner = {
+        ...selector,
+        isWithinUnmatchedTypeRefinement: true,
+      };
+      expect(areEqualSelectors(selector, differentOwner)).toBe(false);
+    });
+
+    it('returns false for equivalent selectors but with different clientEdgeTraversalPath', () => {
+      const queryNode = UserQuery;
+      owner = createOperationDescriptor(queryNode, operationVariables);
+      /*$FlowFixMe[unclear-type]*/
+      const fakeAstNode: Object = {};
+      const clientEdgeTraversalInfoA = {
+        readerClientEdge: fakeAstNode,
+        clientEdgeDestinationID: 'a',
+      };
+      const clientEdgeTraversalInfoB = {
+        readerClientEdge: fakeAstNode,
+        clientEdgeDestinationID: 'b',
+      };
+      const clientEdgeTraversalInfoANewNode = {
+        /*$FlowFixMe[unclear-type]*/
+        readerClientEdge: ({}: Object),
+        clientEdgeDestinationID: 'a',
+      };
+      const baseSelector = createReaderSelector(
+        UserFragment,
+        '4',
+        variables,
+        owner.request,
+        false,
+        null,
+      );
+      const selectors = [
+        baseSelector,
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [clientEdgeTraversalInfoA],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [clientEdgeTraversalInfoB],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [
+            clientEdgeTraversalInfoANewNode,
+            clientEdgeTraversalInfoANewNode,
+          ],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [clientEdgeTraversalInfoANewNode],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [null],
+        },
+        {
+          ...baseSelector,
+          clientEdgeTraversalPath: [null, clientEdgeTraversalInfoA],
+        },
+      ];
+      for (let i = 0; i < selectors.length - 1; i++) {
+        for (let j = i + 1; j < selectors.length; j++) {
+          expect(areEqualSelectors(selectors[i], selectors[j])).toBe(false);
+        }
+      }
+    });
+
+    it('returns true for equivalent selectors and equivalent owners', () => {
+      const queryNode = UserQuery;
+      owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = createReaderSelector(
         UserFragment,
         '4',
@@ -693,7 +796,7 @@ describe('RelayModernSelector', () => {
         ...selector,
         owner: {...owner.request},
       };
-      expect(areEqualSelectors(selector, differentOwner)).toBe(false);
+      expect(areEqualSelectors(selector, differentOwner)).toBe(true);
     });
 
     it('returns true for equivalent selectors with same owners', () => {
@@ -744,6 +847,10 @@ describe('RelayModernSelector', () => {
     it('returns false for different selectors with owners', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
+      const newOwner = createOperationDescriptor(queryNode, {
+        ...operationVariables,
+        size: '16',
+      });
       const selector = createReaderSelector(
         UserFragment,
         '4',
@@ -764,7 +871,7 @@ describe('RelayModernSelector', () => {
       };
       const differentOwner = {
         ...selector,
-        owner: {...owner.request},
+        owner: newOwner.request,
       };
       expect(areEqualSelectors(selector, differentID)).toBe(false);
       expect(areEqualSelectors(selector, differentNode)).toBe(false);

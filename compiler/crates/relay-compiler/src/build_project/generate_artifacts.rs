@@ -11,13 +11,15 @@ use std::sync::Arc;
 use common::NamedItem;
 use common::SourceLocationKey;
 use fnv::FnvHashMap;
-use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use relay_codegen::QueryID;
+use relay_config::ResolversSchemaModuleConfig;
+use relay_transforms::ArtifactSourceKeyData;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::Programs;
 use relay_transforms::RawResponseGenerationMode;
@@ -27,12 +29,14 @@ use relay_transforms::UPDATABLE_DIRECTIVE;
 
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
-use crate::config::Config;
+use crate::artifact_map::ArtifactSourceKey;
 use crate::config::ProjectConfig;
 
 /// Represents a generated output artifact.
 pub struct Artifact {
-    pub source_definition_names: Vec<ExecutableDefinitionName>,
+    /// List of source definitions that this artifact is generated from.
+    /// It may be the name of the query/fragment or relay resolver hash.
+    pub artifact_source_keys: Vec<ArtifactSourceKey>,
     pub path: PathBuf,
     pub content: ArtifactContent,
     /// The source file responsible for generating this file.
@@ -41,7 +45,6 @@ pub struct Artifact {
 }
 
 pub fn generate_artifacts(
-    _config: &Config,
     project_config: &ProjectConfig,
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
@@ -68,10 +71,19 @@ pub fn generate_artifacts(
                         None
                     };
 
+                    let artifact_source_keys = if let Some(artifact_source) = ArtifactSourceKeyData::find(&normalization.directives) {
+                        vec![
+                            ArtifactSourceKey::ResolverHash(artifact_source.0)
+                        ]
+                    } else {
+                        // TODO: refactor `parent_documents` to include ArtifactSource and not ExecutableDefinition
+                       metadata.parent_documents.iter().copied().map(ArtifactSourceKey::ExecutableDefinition).collect()
+                    };
+
                     return Artifact {
-                        source_definition_names: metadata.parent_documents.iter().copied().collect(),
+                        artifact_source_keys,
                         path: project_config
-                            .path_for_artifact(source_file, normalization.name.item.0),
+                            .artifact_path_for_definition(normalization.name),
                         content: ArtifactContent::SplitOperation {
                             normalization_operation: Arc::clone(normalization),
                             typegen_operation,
@@ -84,36 +96,26 @@ pub fn generate_artifacts(
                     RefetchableDerivedFromMetadata::find(&normalization.directives)
                 {
                     let source_name = derived_from_metadata.0;
-                    let source_fragment = programs
-                        .source
-                        .fragment(source_name)
-                        .expect("Expected the source document for the SplitOperation to exist.");
                     let source_hash = source_hashes.get(&source_name.into()).cloned().unwrap();
 
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        source_name.into(),
+                        ArtifactSourceKey::ExecutableDefinition(source_name.into()),
                         project_config,
                         &operations,
                         source_hash,
-                        source_fragment.name.location.source_location(),
                     )
                 } else if let Some(client_edges_directive) =
                     ClientEdgeGeneratedQueryMetadataDirective::find(&normalization.directives)
                 {
                     let source_name = client_edges_directive.source_name.item;
-                    let source_file = client_edges_directive
-                        .source_name
-                        .location
-                        .source_location();
                     let source_hash = source_hashes.get(&source_name).cloned().unwrap();
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        source_name,
+                        ArtifactSourceKey::ExecutableDefinition(source_name),
                         project_config,
                         &operations,
                         source_hash,
-                        source_file,
                     )
                 } else {
                     let source_hash = source_hashes
@@ -122,11 +124,10 @@ pub fn generate_artifacts(
                         .unwrap();
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        normalization.name.item.into(),
+                        ArtifactSourceKey::ExecutableDefinition(normalization.name.item.into()),
                         project_config,
                         &operations,
                         source_hash,
-                        normalization.name.location.source_location(),
                     )
                 }
             } else if let Some(reader) = operations.reader {
@@ -142,11 +143,10 @@ pub fn generate_artifacts(
                         .cloned()
                         .unwrap();
                     return generate_updatable_query_artifact(
-                        reader.name.item.into(),
+                        ArtifactSourceKey::ExecutableDefinition(reader.name.item.into()),
                         project_config,
                         &operations,
                         source_hash,
-                        reader.name.location.source_location(),
                     )
                 }
             }
@@ -160,27 +160,51 @@ pub fn generate_artifacts(
             } else {
                 reader_fragment.name.item.into()
             };
-
+            // If the fragment is generated for the RelayResolver model (id, or model instance)
+            // we need to update the source definition to include the original text of the resolver.
             let source_hash = source_hashes.get(&source_name).cloned();
-            let source_definition_names = vec![source_name];
+
+            // We need this `if/else` here because of the way the compiler is handling the aritfacts
+            // deletion (see commit_project in compiler.rs).
+            // To remove the artifact, the artifact map should not contain any document/source that may
+            // generate the artifact. If we merge these sources (fragment name and resolver hash)
+            // then the removal of the source hash won't trigger the removal of the artifact, because
+            // there will be anothe key (fragment name) in the artifacts map that will point to the
+            // same generate artifact.
+            let artifact_source_keys = if let Some(artifact_source) = ArtifactSourceKeyData::find(&reader_fragment.directives) {
+                vec![
+                    ArtifactSourceKey::ResolverHash(artifact_source.0)
+                ]
+            } else {
+                vec![ArtifactSourceKey::ExecutableDefinition(source_name)]
+            };
+
             generate_reader_artifact(
                 project_config,
                 programs,
                 reader_fragment,
                 source_hash,
-                source_definition_names,
+                artifact_source_keys,
             )
         }))
+        .chain(
+            match project_config.resolvers_schema_module {
+                Some(ResolversSchemaModuleConfig { ref path , .. }) =>
+                vec![
+                    generate_resolvers_schema_module_artifact(path.clone())
+                ],
+                _ => vec![],
+            }
+        )
         .collect();
 }
 
 fn generate_normalization_artifact(
     operation_printer: &mut OperationPrinter<'_>,
-    source_definition_name: ExecutableDefinitionName,
+    artifact_source: ArtifactSourceKey,
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
-    source_file: SourceLocationKey,
 ) -> Artifact {
     let text = operations
         .operation_text
@@ -191,8 +215,8 @@ fn generate_normalization_artifact(
         .expect("Operations must have a normalization entry.");
 
     Artifact {
-        source_definition_names: vec![source_definition_name],
-        path: project_config.path_for_artifact(source_file, normalization.name.item.0),
+        artifact_source_keys: vec![artifact_source],
+        path: project_config.artifact_path_for_definition(normalization.name),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(normalization),
             reader_operation: operations.expect_reader(),
@@ -205,20 +229,43 @@ fn generate_normalization_artifact(
     }
 }
 
+pub fn generate_preloadable_query_parameters_artifact(
+    project_config: &ProjectConfig,
+    normalization: &Arc<OperationDefinition>,
+    id_and_text_hash: &Option<QueryID>,
+    source_keys: Vec<ArtifactSourceKey>,
+    source_file: SourceLocationKey,
+) -> Artifact {
+    let query_id = id_and_text_hash
+        .clone()
+        .expect("Expected operation artifact to have an `id`. Ensure a `persistConfig` is setup for the current project.");
+
+    let artifact_name = normalization.name.item.0.to_string() + "$parameters";
+
+    Artifact {
+        artifact_source_keys: source_keys,
+        path: project_config.path_for_language_specific_artifact(source_file, artifact_name),
+        content: ArtifactContent::PreloadableQueryParameters {
+            normalization_operation: Arc::clone(normalization),
+            query_id,
+        },
+        source_file,
+    }
+}
+
 fn generate_updatable_query_artifact(
-    source_definition_name: ExecutableDefinitionName,
+    artifact_source: ArtifactSourceKey,
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
-    source_file: SourceLocationKey,
 ) -> Artifact {
     let reader = operations
         .reader
         .expect("Updatable operations must have a reader entry.");
 
     Artifact {
-        source_definition_names: vec![source_definition_name],
-        path: project_config.path_for_artifact(source_file, reader.name.item.0),
+        artifact_source_keys: vec![artifact_source],
+        path: project_config.artifact_path_for_definition(reader.name),
         content: ArtifactContent::UpdatableQuery {
             reader_operation: operations.expect_reader(),
             typegen_operation: operations.expect_typegen(),
@@ -233,7 +280,7 @@ fn generate_reader_artifact(
     programs: &Programs,
     reader_fragment: &Arc<FragmentDefinition>,
     source_hash: Option<String>,
-    source_definition_names: Vec<ExecutableDefinitionName>,
+    artifact_source_keys: Vec<ArtifactSourceKey>,
 ) -> Artifact {
     let name = reader_fragment.name.item;
     let typegen_fragment = programs
@@ -241,9 +288,8 @@ fn generate_reader_artifact(
         .fragment(name)
         .expect("a type fragment should be generated for this fragment");
     Artifact {
-        source_definition_names,
-        path: project_config
-            .path_for_artifact(reader_fragment.name.location.source_location(), name.0),
+        artifact_source_keys,
+        path: project_config.artifact_path_for_definition(reader_fragment.name),
         content: ArtifactContent::Fragment {
             reader_fragment: Arc::clone(reader_fragment),
             typegen_fragment: Arc::clone(typegen_fragment),
@@ -335,4 +381,13 @@ fn group_operations(programs: &Programs) -> FnvHashMap<StringKey, OperationGroup
     }
 
     grouped_operations
+}
+
+fn generate_resolvers_schema_module_artifact(path: PathBuf) -> Artifact {
+    Artifact {
+        artifact_source_keys: vec![ArtifactSourceKey::Schema()],
+        path,
+        content: ArtifactContent::ResolversSchema,
+        source_file: SourceLocationKey::generated(),
+    }
 }

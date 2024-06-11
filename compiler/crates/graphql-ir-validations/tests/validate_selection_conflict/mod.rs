@@ -31,7 +31,7 @@ impl LocationAgnosticBehavior for LocationAgnosticBehaviorForTestOnly {
     }
 }
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     let ast = parse_executable(fixture.content, source_location).unwrap();

@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  node(id: 4) {
+    ... on User {
+      __typename
+      parents {
+        ...Assignable_user
+      }
+    }
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
+export type UpdatableQuery$data = {
+  get node(): {
+    readonly __typename: "User";
+    get parents(): ReadonlyArray<Record<PropertyKey, never>>;
+    set parents(value: ReadonlyArray<{
+      readonly __typename: "User";
+      readonly __id: string;
+      readonly " $fragmentSpreads": FragmentRefs<"Assignable_user">;
+    }>);
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
+  } | null | undefined;
+  set node(value: null | undefined);
+};
+export type UpdatableQuery = {
+  response: UpdatableQuery$data;
+  variables: UpdatableQuery$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";

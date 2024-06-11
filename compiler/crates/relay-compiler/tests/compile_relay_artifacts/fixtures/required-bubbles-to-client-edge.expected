@@ -1,0 +1,68 @@
+==================================== INPUT ====================================
+fragment requiredBubblesToClientEdge_user on User {
+  best_friend {
+    # This will bubble nullability to the parent which is a client edge.
+    # Under the hood that adds a metadata directive to that node, which
+    # this test is designed to assert is allowed.
+    name @required(action: NONE)
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  best_friend: ClientUser @relay_resolver(import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "hasClientEdges": true
+  },
+  "name": "requiredBubblesToClientEdge_user",
+  "selections": [
+    {
+      "kind": "ClientEdgeToClientObject",
+      "concreteType": "ClientUser",
+      "backingField": {
+        "alias": null,
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "name": "best_friend",
+        "resolverModule": require('BestFriendResolver'),
+        "path": "best_friend"
+      },
+      "linkedField": {
+        "alias": null,
+        "args": null,
+        "concreteType": "ClientUser",
+        "kind": "LinkedField",
+        "name": "best_friend",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "RequiredField",
+            "field": {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "name",
+              "storageKey": null
+            },
+            "action": "NONE",
+            "path": "best_friend.name"
+          }
+        ],
+        "storageKey": null
+      }
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

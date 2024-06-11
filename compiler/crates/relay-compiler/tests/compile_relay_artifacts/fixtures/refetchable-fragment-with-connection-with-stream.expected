@@ -306,7 +306,7 @@ fragment refetchableFragmentWithConnectionWithStream_PaginationFragment_1G22uz o
   ... on User {
     name
     friends(after: $cursor, first: $count) {
-      edges @stream(label: "refetchableFragmentWithConnectionWithStream_PaginationFragment$stream$PaginationFragment_friends", initial_count: 1) {
+      edges @stream(label: "refetchableFragmentWithConnectionWithStream_PaginationFragment$stream$PaginationFragment_friends", initialCount: 1) {
         node {
           id
           __typename
@@ -365,7 +365,10 @@ fragment refetchableFragmentWithConnectionWithStream_PaginationFragment_1G22uz o
         "node"
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
-      "identifierField": "id"
+      "identifierInfo": {
+        "identifierField": "id",
+        "identifierQueryVariableName": "id"
+      }
     }
   },
   "name": "refetchableFragmentWithConnectionWithStream_PaginationFragment",

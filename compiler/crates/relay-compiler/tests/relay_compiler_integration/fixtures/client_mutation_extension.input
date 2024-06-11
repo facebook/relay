@@ -1,0 +1,28 @@
+//- bar.js
+graphql`mutation barMutation {
+   foo_mutation
+}`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "eagerEsModules": true,
+   "featureFlags": {
+      "enable_relay_resolver_transform": true
+   },
+   "schemaExtensions": [
+      "./extensions.graphql"
+   ]
+}
+
+//- schema.graphql
+
+type Mutation
+
+
+//- extensions.graphql
+
+extend type Mutation {
+   foo_mutation: Boolean
+}

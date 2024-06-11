@@ -26,8 +26,11 @@ fragment RefetchableFragment on AllConcreteTypesImplementNode @refetchable(query
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
 # }
  {

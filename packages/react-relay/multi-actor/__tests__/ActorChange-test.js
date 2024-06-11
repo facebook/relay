@@ -131,7 +131,7 @@ type Props = $ReadOnly<{
 
 function ActorMessage(props: Props) {
   const data = useFragment(fragment, props.myFragment);
-  const [commit] = useMutation<$FlowFixMe>(mutation);
+  const [commit] = useMutation(mutation);
 
   // We're calling this hook only to verify that it won't throw.
   // `useRelayActorEnvironment` should be able to have access to `getEnvironmentForActor` function
@@ -146,7 +146,9 @@ function ActorMessage(props: Props) {
         onClick={() =>
           commit({
             variables: {
-              feedbackID: 'feedback:1234',
+              input: {
+                feedbackId: 'feedback:1234',
+              },
             },
           })
         }
@@ -170,7 +172,7 @@ describe('ActorChange', () => {
       createNetworkForActor: actorIdentifier =>
         Network.create((...args) => fetchFnForActor(actorIdentifier, ...args)),
       logFn: jest.fn(),
-      requiredFieldLogger: jest.fn(),
+      relayFieldLogger: jest.fn(),
     });
     environment = multiActorEnvironment.forActor(
       getActorIdentifier('actor:1234'),

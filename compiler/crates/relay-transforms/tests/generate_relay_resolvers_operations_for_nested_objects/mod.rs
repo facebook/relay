@@ -7,11 +7,16 @@
 
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_transforms::generate_relay_resolvers_operations_for_nested_objects;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        generate_relay_resolvers_operations_for_nested_objects(program, &SchemaConfig::default())
+        generate_relay_resolvers_operations_for_nested_objects(
+            ProjectName::default(),
+            program,
+            &SchemaConfig::default(),
+        )
     })
 }

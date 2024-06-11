@@ -59,7 +59,7 @@ const operationDescriptor = createOperationDescriptor(FooQuery, {
 
 const payload: FooQueryRawResponse = {...};
 
-environment.commitPayload(operation, payload);
+environment.commitPayload(operationDescriptor, payload);
 ```
 
 * An `OperationDescriptor` can be created by `createOperationDescriptor`; it takes the query and the query variables.

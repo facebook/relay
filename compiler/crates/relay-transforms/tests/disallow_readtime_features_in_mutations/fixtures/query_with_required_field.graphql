@@ -1,0 +1,7 @@
+query MyQuery {
+  me {
+    name @required(action: THROW)
+  }
+}
+
+# %extensions%

@@ -14,7 +14,7 @@ import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMo
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
+const useRefetchableFragmentNodeOriginal = require('../legacy/useRefetchableFragmentNode');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -72,14 +72,14 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       };
 
       useLayoutEffect(() => {
-        Scheduler.unstable_yieldValue({data, isPending});
+        Scheduler.log({data, isPending});
       });
 
       return {data, ...result};
     }
 
     function assertYieldsWereCleared() {
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       if (actualYields.length !== 0) {
         throw new Error(
           'Log of yielded values is not empty. ' +
@@ -104,7 +104,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     ) {
       assertYieldsWereCleared();
       Scheduler.unstable_flushAllWithoutAsserting();
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       expect(actualYields.length).toEqual(expectedYields.length);
       expectedYields.forEach((expected, idx) =>
         assertYield(expected, actualYields[idx]),
@@ -114,7 +114,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     function expectNoYields() {
       assertYieldsWereCleared();
       Scheduler.unstable_flushAllWithoutAsserting();
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       expect(actualYields.length).toEqual(0);
     }
 
@@ -172,7 +172,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -180,9 +179,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       // Set up mocks
       jest.resetModules();
       jest.mock('warning');
-      jest.mock('scheduler', () => {
-        return jest.requireActual('scheduler/unstable_mock');
-      });
+      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
 
       // Supress `act` warnings since we are intentionally not
       // using it for most tests here. `act` currently always
@@ -266,7 +263,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
-            __isWithinUnmatchedTypeRefinement: false,
           }),
           [owner, fragment.name],
         );
@@ -295,7 +291,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
       const Fallback = () => {
         useLayoutEffect(() => {
-          Scheduler.unstable_yieldValue('Fallback');
+          Scheduler.log('Fallback');
         });
 
         return 'Fallback';

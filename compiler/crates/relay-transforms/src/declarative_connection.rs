@@ -340,7 +340,8 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error(
         "Unsupported use of @{directive_name} on field '${field_name}', 'edgeTypeName' argument must be provided."

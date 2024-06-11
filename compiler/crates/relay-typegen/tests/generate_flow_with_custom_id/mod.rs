@@ -21,8 +21,10 @@ use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
+use relay_codegen::print_provided_variables;
 use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema_with_custom_id;
 use relay_test_schema::get_test_schema_with_custom_id_with_extensions;
@@ -33,7 +35,7 @@ use relay_typegen::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (
@@ -57,9 +59,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         actor_change_support: FeatureFlag::Enabled,
         ..Default::default()
     };
-    let ir = build_ir_in_relay_mode(&schema, &ast.definitions).unwrap_or_else(|e| {
-        panic!("Encountered error building IR {:?}", e);
-    });
+    let ir =
+        build_ir_in_relay_mode(&schema, &ast.definitions, &feature_flags).unwrap_or_else(|e| {
+            panic!("Encountered error building IR {:?}", e);
+        });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let mut custom_scalar_types = FnvIndexMap::default();
@@ -68,7 +71,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         relay_config::CustomScalarType::Name("CustomBoolean".intern()),
     );
     let project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         js_module_format: JsModuleFormat::Haste,
         feature_flags: Arc::new(feature_flags),
         schema_config: SchemaConfig {
@@ -78,7 +81,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         typegen_config: TypegenConfig {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
-            flow_typegen: Default::default(),
             ..Default::default()
         },
         ..Default::default()
@@ -108,6 +110,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             &schema,
             &project_config,
             &fragment_locations,
+            print_provided_variables(&schema, normalization_operation, &project_config),
         )
     });
 

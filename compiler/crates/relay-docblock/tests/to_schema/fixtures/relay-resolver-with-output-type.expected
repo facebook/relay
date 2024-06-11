@@ -7,6 +7,7 @@
  */
 
 // relay:enable_output_type
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -37,5 +38,5 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend type User {
-  favorite_page: ClientPage @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-with-output-type.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "favorite_page")
+  favorite_page: ClientPage @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-with-output-type.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "favorite_page") @resolver_source_hash(value: "88293c3a51d22c37485f8fb1444eed2b")
 }

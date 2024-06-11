@@ -16,6 +16,7 @@ use super::constant_value::StringNode;
 use super::executable::OperationKind;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
+use crate::TokenKind;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum TypeSystemDefinition {
@@ -83,16 +84,16 @@ impl fmt::Display for TypeSystemDefinition {
             }) => write_object_helper(f, &name.value, interfaces, fields, directives, true),
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
                 name,
+                interfaces,
                 fields,
                 directives,
-                ..
-            }) => write_interface_helper(f, &name.value, fields, directives, false),
+            }) => write_interface_helper(f, &name.value, interfaces, fields, directives, false),
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
                 name,
-                interfaces: _,
+                interfaces,
                 fields,
                 directives,
-            }) => write_interface_helper(f, &name.value, fields, directives, true),
+            }) => write_interface_helper(f, &name.value, interfaces, fields, directives, true),
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
                 name,
                 directives,
@@ -109,6 +110,7 @@ impl fmt::Display for TypeSystemDefinition {
                 repeatable,
                 locations,
                 description,
+                hack_source,
             }) => write_directive_definition_helper(
                 f,
                 &name.value,
@@ -116,6 +118,7 @@ impl fmt::Display for TypeSystemDefinition {
                 repeatable,
                 locations,
                 description,
+                hack_source,
             ),
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                 name,
@@ -152,6 +155,18 @@ impl fmt::Display for TypeSystemDefinition {
     }
 }
 
+/// This trait provides a *single* known into method, so we don't need
+/// to type method usages that utilize this trait and call into_definition().
+/// It may be useful in the future to define a DefinitionIntoExtension trait
+/// that does the inverse, but we haven't needed it yet (add it when we do!).
+pub trait ExtensionIntoDefinition: Sized {
+    type DefinitionType: From<Self>;
+
+    fn into_definition(self) -> Self::DefinitionType {
+        self.into()
+    }
+}
+
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct SchemaDefinition {
     pub directives: Vec<ConstantDirective>,
@@ -162,6 +177,28 @@ pub struct SchemaDefinition {
 pub struct SchemaExtension {
     pub directives: Vec<ConstantDirective>,
     pub operation_types: Option<List<OperationTypeDefinition>>,
+}
+impl From<SchemaExtension> for SchemaDefinition {
+    fn from(ext: SchemaExtension) -> Self {
+        Self {
+            directives: ext.directives,
+            operation_types: ext.operation_types.unwrap_or(List {
+                span: Span::empty(),
+                start: Token {
+                    span: Span::empty(),
+                    kind: TokenKind::OpenBrace,
+                },
+                items: Vec::new(),
+                end: Token {
+                    span: Span::empty(),
+                    kind: TokenKind::CloseBrace,
+                },
+            }),
+        }
+    }
+}
+impl ExtensionIntoDefinition for SchemaExtension {
+    type DefinitionType = SchemaDefinition;
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -176,7 +213,7 @@ impl fmt::Display for OperationTypeDefinition {
     }
 }
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Copy, Clone)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Copy, Clone, serde::Serialize)]
 pub enum OperationType {
     Query,
     Mutation,
@@ -208,6 +245,19 @@ pub struct ObjectTypeExtension {
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
 }
+impl From<ObjectTypeExtension> for ObjectTypeDefinition {
+    fn from(ext: ObjectTypeExtension) -> Self {
+        Self {
+            name: ext.name,
+            interfaces: ext.interfaces,
+            directives: ext.directives,
+            fields: ext.fields,
+        }
+    }
+}
+impl ExtensionIntoDefinition for ObjectTypeExtension {
+    type DefinitionType = ObjectTypeDefinition;
+}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InterfaceTypeDefinition {
@@ -224,6 +274,19 @@ pub struct InterfaceTypeExtension {
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
 }
+impl From<InterfaceTypeExtension> for InterfaceTypeDefinition {
+    fn from(ext: InterfaceTypeExtension) -> Self {
+        Self {
+            name: ext.name,
+            interfaces: ext.interfaces,
+            directives: ext.directives,
+            fields: ext.fields,
+        }
+    }
+}
+impl ExtensionIntoDefinition for InterfaceTypeExtension {
+    type DefinitionType = InterfaceTypeDefinition;
+}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct UnionTypeDefinition {
@@ -238,6 +301,18 @@ pub struct UnionTypeExtension {
     pub directives: Vec<ConstantDirective>,
     pub members: Vec<Identifier>,
 }
+impl From<UnionTypeExtension> for UnionTypeDefinition {
+    fn from(ext: UnionTypeExtension) -> Self {
+        Self {
+            name: ext.name,
+            directives: ext.directives,
+            members: ext.members,
+        }
+    }
+}
+impl ExtensionIntoDefinition for UnionTypeExtension {
+    type DefinitionType = UnionTypeDefinition;
+}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct ScalarTypeDefinition {
@@ -249,6 +324,17 @@ pub struct ScalarTypeDefinition {
 pub struct ScalarTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
+}
+impl From<ScalarTypeExtension> for ScalarTypeDefinition {
+    fn from(ext: ScalarTypeExtension) -> Self {
+        Self {
+            name: ext.name,
+            directives: ext.directives,
+        }
+    }
+}
+impl ExtensionIntoDefinition for ScalarTypeExtension {
+    type DefinitionType = ScalarTypeDefinition;
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -264,6 +350,18 @@ pub struct EnumTypeExtension {
     pub directives: Vec<ConstantDirective>,
     pub values: Option<List<EnumValueDefinition>>,
 }
+impl From<EnumTypeExtension> for EnumTypeDefinition {
+    fn from(ext: EnumTypeExtension) -> Self {
+        Self {
+            name: ext.name,
+            directives: ext.directives,
+            values: ext.values,
+        }
+    }
+}
+impl ExtensionIntoDefinition for EnumTypeExtension {
+    type DefinitionType = EnumTypeDefinition;
+}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InputObjectTypeDefinition {
@@ -277,6 +375,18 @@ pub struct InputObjectTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<InputValueDefinition>>,
+}
+impl From<InputObjectTypeExtension> for InputObjectTypeDefinition {
+    fn from(ext: InputObjectTypeExtension) -> Self {
+        Self {
+            name: ext.name,
+            directives: ext.directives,
+            fields: ext.fields,
+        }
+    }
+}
+impl ExtensionIntoDefinition for InputObjectTypeExtension {
+    type DefinitionType = InputObjectTypeDefinition;
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -299,6 +409,7 @@ pub struct DirectiveDefinition {
     pub repeatable: bool,
     pub locations: Vec<DirectiveLocation>,
     pub description: Option<StringNode>,
+    pub hack_source: Option<StringNode>,
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -399,6 +510,7 @@ pub struct FieldDefinition {
     pub arguments: Option<List<InputValueDefinition>>,
     pub directives: Vec<ConstantDirective>,
     pub description: Option<StringNode>,
+    pub hack_source: Option<StringNode>,
 }
 
 impl fmt::Display for FieldDefinition {
@@ -505,6 +617,7 @@ fn write_object_helper(
 fn write_interface_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
+    interfaces: &[Identifier],
     fields: &Option<List<FieldDefinition>>,
     directives: &[ConstantDirective],
     is_extension: bool,
@@ -514,6 +627,10 @@ fn write_interface_helper(
     }
 
     write!(f, "interface {}", name)?;
+    if !interfaces.is_empty() {
+        write!(f, " implements ")?;
+        write_list(f, interfaces, " & ")?;
+    }
     write_directives(f, directives)?;
     if let Some(fields) = fields.as_ref() {
         write_fields(f, &fields.items)?;
@@ -548,6 +665,7 @@ fn write_directive_definition_helper(
     _repeatable: &bool,
     locations: &[DirectiveLocation],
     _description: &Option<StringNode>,
+    _hack_source: &Option<StringNode>,
 ) -> fmt::Result {
     write!(f, "directive @{}", name)?;
     if let Some(arguments) = arguments.as_ref() {

@@ -31,10 +31,14 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 const stableCopy = require('../util/stableCopy');
 const invariant = require('invariant');
 
-export type Arguments = {+[string]: mixed};
+export type Arguments = {
+  +FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
+  +[string]: mixed,
+};
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
 
+const ERRORS_KEY: '__errors' = '__errors';
 const MODULE_COMPONENT_KEY_PREFIX = '__module_component_';
 const MODULE_OPERATION_KEY_PREFIX = '__module_operation_';
 
@@ -68,13 +72,24 @@ function getArgumentValue(
  * names. Guaranteed to return a result with stable ordered nested values.
  */
 function getArgumentValues(
-  args: $ReadOnlyArray<NormalizationArgument | ReaderArgument>,
+  args?: ?$ReadOnlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
+  isWithinUnmatchedTypeRefinement?: boolean,
 ): Arguments {
-  const values: {[string]: mixed} = {};
-  args.forEach(arg => {
-    values[arg.name] = getArgumentValue(arg, variables);
-  });
+  const values: {
+    FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
+    [string]: mixed,
+  } = {};
+  if (isWithinUnmatchedTypeRefinement) {
+    values[
+      RelayStoreUtils.FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
+    ] = true;
+  }
+  if (args) {
+    args.forEach(arg => {
+      values[arg.name] = getArgumentValue(arg, variables);
+    });
+  }
   return values;
 }
 
@@ -239,8 +254,11 @@ const RelayStoreUtils = {
   CLIENT_EDGE_TRAVERSAL_PATH: '__clientEdgeTraversalPath',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
+  FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT:
+    '$isWithinUnmatchedTypeRefinement',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',
   MODULE_COMPONENT_KEY: '__module_component', // alias returned by Reader
+  ERRORS_KEY,
   ID_KEY: '__id',
   REF_KEY: '__ref',
   REFS_KEY: '__refs',
@@ -248,7 +266,6 @@ const RelayStoreUtils = {
   ROOT_TYPE: '__Root',
   TYPENAME_KEY: '__typename',
   INVALIDATED_AT_KEY: '__invalidated_at',
-  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT: '__isWithinUnmatchedTypeRefinement',
   RELAY_RESOLVER_VALUE_KEY: '__resolverValue',
   RELAY_RESOLVER_INVALIDATION_KEY: '__resolverValueMayBeInvalid',
   RELAY_RESOLVER_SNAPSHOT_KEY: '__resolverSnapshot',

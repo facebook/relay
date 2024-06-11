@@ -6,18 +6,18 @@ query MyQuery @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type MyQuery$variables = {};
+export type MyQuery$variables = Record<PropertyKey, never>;
 export type MyQuery$data = {
   readonly me: {
     readonly id: string;
     readonly name: string;
   };
-} | null;
+} | null | undefined;
 export type MyQuery$rawResponse = {
   readonly me: {
     readonly id: string;
-    readonly name: string | null;
-  } | null;
+    readonly name: string | null | undefined;
+  } | null | undefined;
 };
 export type MyQuery = {
   rawResponse: MyQuery$rawResponse;

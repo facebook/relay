@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 

@@ -272,7 +272,8 @@ class RelayObservable<+T> implements Subscribable<T> {
   ifEmpty<U>(alternate: RelayObservable<U>): RelayObservable<T | U> {
     return RelayObservable.create(sink => {
       let hasValue = false;
-      let current: Subscription = this.subscribe({
+      let current: ?Subscription;
+      current = this.subscribe({
         next(value) {
           hasValue = true;
           sink.next(value);
@@ -287,7 +288,7 @@ class RelayObservable<+T> implements Subscribable<T> {
         },
       });
       return () => {
-        current.unsubscribe();
+        current && current.unsubscribe();
       };
     });
   }
@@ -446,6 +447,7 @@ class RelayObservable<+T> implements Subscribable<T> {
 }
 
 // Use declarations to teach Flow how to check isObservable.
+// $FlowFixMe[deprecated-type]
 declare function isObservable(p: mixed): boolean %checks(p instanceof
   RelayObservable);
 

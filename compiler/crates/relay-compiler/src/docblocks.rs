@@ -72,15 +72,29 @@ fn parse_source(
     definitions: Option<&Vec<ExecutableDefinition>>,
 ) -> DiagnosticsResult<Option<SchemaDocument>> {
     let maybe_ir = parse_docblock_ast(
-        &ast,
+        project_config.name,
+        ast,
         definitions,
         ParseOptions {
             enable_output_type: &project_config
                 .feature_flags
                 .relay_resolver_enable_output_type,
+            enable_strict_resolver_flavors: &project_config
+                .feature_flags
+                .relay_resolvers_enable_strict_resolver_flavors,
+            allow_legacy_verbose_syntax: &project_config
+                .feature_flags
+                .relay_resolvers_allow_legacy_verbose_syntax,
         },
     )?;
     maybe_ir
-        .map(|ir| ir.to_graphql_schema_ast(schema, &project_config.schema_config))
+        .map(|ir| {
+            ir.to_graphql_schema_ast(
+                project_config.name,
+                schema,
+                &project_config.schema_config,
+                &project_config.feature_flags,
+            )
+        })
         .transpose()
 }

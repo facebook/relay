@@ -46,7 +46,16 @@ TerseRelayResolver(
             ),
             arguments: None,
             directives: [],
-            description: None,
+            description: Some(
+                StringNode {
+                    token: Token {
+                        span: 79:370,
+                        kind: Empty,
+                    },
+                    value: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+                },
+            ),
+            hack_source: None,
         },
         type_: WithLocation {
             location: /path/to/test/fixture/terse-relay-resolver.js:20:24,
@@ -64,5 +73,8 @@ TerseRelayResolver(
         live: None,
         location: /path/to/test/fixture/terse-relay-resolver.js:0:371,
         fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "0a9950ad1f952f5777b27604738fcf91",
+        ),
     },
 )

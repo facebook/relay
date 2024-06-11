@@ -1,0 +1,96 @@
+==================================== INPUT ====================================
+fragment Foo_user on ClientUser {
+  bff: best_friend {
+    bffs_bff: best_friend {
+      id
+    }
+  }
+}
+
+fragment BestFriendFragment on ClientUser {
+  id
+}
+
+# %extensions%
+
+type ClientUser {
+  id: ID
+}
+
+extend type ClientUser {
+  best_friend: ClientUser
+    @relay_resolver(
+      fragment_name: "BestFriendFragment"
+      import_path: "BestFriendResolver"
+    )
+}
+==================================== OUTPUT ===================================
+fragment BestFriendFragment on ClientUser {
+  id
+}
+
+fragment Foo_user on ClientUser {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: Some(
+  #         ObjectName(
+  #             "ClientUser",
+  #         ),
+  #     ),
+  #     location: <generated>:7:17,
+  #     has_model_instance_field: false,
+  #     is_model_live: false,
+  #     unique_id: 1,
+  # }
+   {
+    ...BestFriendFragment @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(519),
+    #     import_path: "BestFriendResolver",
+    #     import_name: None,
+    #     field_alias: Some(
+    #         "bff",
+    #     ),
+    #     field_path: "bff",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: EdgeTo,
+    #     fragment_data_injection_mode: None,
+    # }
+    
+    bff: best_friend {
+      ... @__ClientEdgeMetadataDirective
+      # ClientObject {
+      #     type_name: Some(
+      #         ObjectName(
+      #             "ClientUser",
+      #         ),
+      #     ),
+      #     location: <generated>:7:17,
+      #     has_model_instance_field: false,
+      #     is_model_live: false,
+      #     unique_id: 0,
+      # }
+       {
+        ...BestFriendFragment @__RelayResolverMetadata
+        # RelayResolverMetadata {
+        #     field_id: FieldID(519),
+        #     import_path: "BestFriendResolver",
+        #     import_name: None,
+        #     field_alias: Some(
+        #         "bffs_bff",
+        #     ),
+        #     field_path: "bff.bffs_bff",
+        #     field_arguments: [],
+        #     live: false,
+        #     output_type_info: EdgeTo,
+        #     fragment_data_injection_mode: None,
+        # }
+        
+        bffs_bff: best_friend {
+          id
+        }
+      }
+    }
+  }
+}

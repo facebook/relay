@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<738f0bb0bc84818c73d75e001c580e88>>
+ * @generated SignedSource<<b380bae485e1b8d5ee8b0af58513e620>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,20 +30,18 @@ export type withProvidedVariablesTest4Query = {|
   response: withProvidedVariablesTest4Query$data,
   variables: withProvidedVariablesTest4Query$variables,
 |};
-type ProvidedVariablesType = {|
+({
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
+  "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
+}: {|
   +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
     +get: () => boolean,
   |},
   +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
   |},
-|};
+|});
 */
-
-var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
-  "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
-};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [
@@ -207,7 +205,10 @@ return {
     "name": "withProvidedVariablesTest4Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest4Query(\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n  $__relay_internal__pv__provideIncludeUserNamesrelayprovider: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest4Fragment1\n    ...withProvidedVariablesTest4Fragment2\n    id\n  }\n}\n\nfragment withProvidedVariablesTest4Fragment1 on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count\n    edges {\n      node {\n        name @include(if: $__relay_internal__pv__provideIncludeUserNamesrelayprovider)\n        id\n      }\n    }\n  }\n}\n\nfragment withProvidedVariablesTest4Fragment2 on User {\n  name @include(if: $__relay_internal__pv__provideIncludeUserNamesrelayprovider)\n}\n",
-    "providedVariables": providedVariablesDefinition
+    "providedVariables": {
+      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
+      "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
+    }
   }
 };
 })();

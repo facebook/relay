@@ -192,6 +192,12 @@ module.exports = {
         infoLink: 'https://www.atlassian.com/',
         pinned: false,
       },
+      {
+        caption: 'Réa',
+        image: '/img/logos/rea.png',
+        infoLink: 'https://www.rea-app.fr/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',
@@ -248,10 +254,10 @@ module.exports = {
           ],
         },
         gtag: {
-          trackingID: 'UA-44373548-50',
+          trackingID: 'G-DCSC7FDGL5',
         },
         googleAnalytics: {
-          trackingID: 'UA-44373548-50',
+          trackingID: 'G-DCSC7FDGL5',
         },
       },
     ],

@@ -14,7 +14,7 @@ use relay_codegen::Printer;
 use relay_config::ProjectConfig;
 use relay_test_schema::TEST_SCHEMA;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_config = ProjectConfig {
         js_module_format: JsModuleFormat::Haste,
         ..Default::default()

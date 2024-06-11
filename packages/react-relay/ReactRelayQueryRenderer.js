@@ -27,7 +27,6 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
 const areEqual = require('areEqual');
 const React = require('react');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {
   createOperationDescriptor,
   deepFreeze,
@@ -37,11 +36,7 @@ const {
 type RetryCallbacks = {
   handleDataChange:
     | null
-    | (({
-        error?: Error,
-        snapshot?: Snapshot,
-        ...
-      }) => void),
+    | (({error?: Error, snapshot?: Snapshot, ...}) => void),
   handleRetryAfterError: null | ((error: Error) => void),
 };
 
@@ -66,14 +61,14 @@ const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-export type Props = {
+export type Props = $ReadOnly<{
   cacheConfig?: ?CacheConfig,
   fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps<Object>) => React.Node,
   variables: Variables,
-};
+}>;
 
 type State = {
   error: Error | null,
@@ -131,6 +126,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
     this._maybeHiddenOrFastRefresh = false;
 
+    // $FlowFixMe[incompatible-type]
     this.state = {
       prevPropsEnvironment: props.environment,
       prevPropsVariables: props.variables,
@@ -149,7 +145,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   static getDerivedStateFromProps(
     nextProps: Props,
     prevState: State,
-  ): $Shape<State> | null {
+  ): Partial<State> | null {
     if (
       prevState.prevQuery !== nextProps.query ||
       prevState.prevPropsEnvironment !== nextProps.environment ||
@@ -174,31 +170,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         const newState = resetQueryStateForUpdate(this.props, prevState);
         const {requestCacheKey, queryFetcher} = newState;
         if (requestCacheKey != null && requestCache[requestCacheKey] != null) {
-          if (RelayFeatureFlags.ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION) {
-            const fetchResult = queryFetcher.getFetchResult();
-            if (fetchResult != null) {
-              const snapshot = fetchResult.snapshot ?? null;
-              const error = fetchResult.error ?? null;
-
-              const {requestCacheKey: prevRequestCacheKey} = prevState;
-              if (prevRequestCacheKey != null) {
-                delete requestCache[prevRequestCacheKey];
-              }
-
-              newState.renderProps = getRenderProps(
-                error,
-                snapshot,
-                queryFetcher,
-                prevState.retryCallbacks,
-              );
-              newState.snapshot = snapshot;
-              newState.requestCacheKey = null;
-            } else {
-              queryFetcher.setOnDataChange(this._handleDataChange);
-            }
-          } else {
-            queryFetcher.setOnDataChange(this._handleDataChange);
-          }
+          // $FlowFixMe[incompatible-use]
+          queryFetcher.setOnDataChange(this._handleDataChange);
         }
         return newState;
       });
@@ -366,7 +339,7 @@ function getRequestCacheKey(
 function resetQueryStateForUpdate(
   props: Props,
   prevState: State,
-): $Shape<State> {
+): Partial<State> {
   const {query} = props;
 
   const prevSelectionReferences =
@@ -403,7 +376,7 @@ function fetchQueryAndComputeStateFromProps(
   queryFetcher: ReactRelayQueryFetcher,
   retryCallbacks: RetryCallbacks,
   requestCacheKey: ?string,
-): $Shape<State> {
+): Partial<State> {
   const {environment, query, variables, cacheConfig} = props;
   const genericEnvironment = (environment: IEnvironment);
   if (query) {

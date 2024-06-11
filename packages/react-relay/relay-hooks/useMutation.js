@@ -12,15 +12,16 @@
 'use strict';
 
 import type {
+  CommitMutationConfig,
   DeclarativeMutationConfig,
   Disposable,
-  GraphQLTaggedNode,
   IEnvironment,
-  MutationConfig,
+  Mutation,
   MutationParameters,
   PayloadError,
   SelectorStoreUpdater,
   UploadableMap,
+  Variables,
 } from 'relay-runtime';
 
 const useIsMountedRef = require('./useIsMountedRef');
@@ -50,13 +51,29 @@ export type UseMutationConfig<TMutation: MutationParameters> = {
   variables: TMutation['variables'],
 };
 
-function useMutation<TMutation: MutationParameters>(
-  mutation: GraphQLTaggedNode,
+type UseMutationConfigInternal<TVariables, TData, TRawResponse> = {
+  configs?: Array<DeclarativeMutationConfig>,
+  onError?: ?(error: Error) => void,
+  onCompleted?: ?(response: TData, errors: ?Array<PayloadError>) => void,
+  onNext?: ?() => void,
+  onUnsubscribe?: ?() => void,
+  optimisticResponse?: TRawResponse,
+  optimisticUpdater?: ?SelectorStoreUpdater<TData>,
+  updater?: ?SelectorStoreUpdater<TData>,
+  uploadables?: UploadableMap,
+  variables: TVariables,
+};
+
+function useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
+  mutation: Mutation<TVariables, TData, TRawResponse>,
   commitMutationFn?: (
     environment: IEnvironment,
-    config: MutationConfig<TMutation>,
+    config: CommitMutationConfig<TVariables, TData, TRawResponse>,
   ) => Disposable = defaultCommitMutation,
-): [(UseMutationConfig<TMutation>) => Disposable, boolean] {
+): [
+  (UseMutationConfigInternal<TVariables, TData, TRawResponse>) => Disposable,
+  boolean,
+] {
   const environment = useRelayEnvironment();
   const isMountedRef = useIsMountedRef();
   const environmentRef = useRef(environment);
@@ -94,18 +111,18 @@ function useMutation<TMutation: MutationParameters>(
   }, [environment, isMountedRef, mutation]);
 
   const commit = useCallback(
-    (config: UseMutationConfig<TMutation>) => {
+    (config: UseMutationConfigInternal<TVariables, TData, TRawResponse>) => {
       if (isMountedRef.current) {
         setMutationInFlight(true);
       }
       const disposable: Disposable = commitMutationFn(environment, {
         ...config,
         mutation,
-        onCompleted: (response, errors) => {
+        onCompleted: (response: TData, errors: ?Array<PayloadError>) => {
           cleanup(disposable);
           config.onCompleted?.(response, errors);
         },
-        onError: error => {
+        onError: (error: Error) => {
           cleanup(disposable);
           config.onError?.(error);
         },

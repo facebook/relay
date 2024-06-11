@@ -18,9 +18,9 @@ query RelayReaderNamedFragmentsTest2Query {
     #         item: "RelayReaderNamedFragmentsTest_user",
     #     },
     #     type_condition: Some(
-    #         Object(69),
+    #         Object(70),
     #     ),
-    #     selection_type: Object(69),
+    #     selection_type: Object(70),
     # }
     
   }

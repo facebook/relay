@@ -26,9 +26,24 @@
         "OpaqueScalarType": {"name": "OpaqueScalarType", "path": "../OpaqueScalarType"}
       },
       "jsModuleFormat": "commonjs",
+      "schemaConfig": {
+        "nonNodeIdFields": {
+          "allowedIdTypes": {
+            "IDFieldTests": "IDFieldIsID",
+            "NonNode": "NonNodeID"
+          }
+        },
+        "deferStreamInterface": {
+          "deferName": "defer",
+          "streamName": "stream",
+          "ifArg": "if",
+          "labelArg": "label",
+          "initialCountArg": "initial_count",
+          "useCustomizedBatchArg": "use_customized_batch"
+        }
+      },
       "featureFlags": {
         "enable_relay_resolver_transform": true,
-        "enable_flight_transform": true,
         "no_inline": {
           "kind": "enabled"
         },
@@ -49,6 +64,9 @@
             "blocked_by",
             "text"
           ]
+        },
+        "relay_resolvers_allow_legacy_verbose_syntax": {
+          "kind": "enabled"
         }
       },
       "language": "flow"

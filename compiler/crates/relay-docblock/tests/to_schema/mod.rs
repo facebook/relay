@@ -18,13 +18,14 @@ use graphql_syntax::parse_executable;
 use graphql_syntax::ExecutableDefinition;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use intern::string_key::Intern;
+use relay_config::ProjectName;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
 use relay_test_schema::get_test_schema_with_extensions;
 use schema::SDLSchema;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let (base, mut schema) = match parts.as_slice() {
         [base, extensions] => (base, extract_schema_from_js(extensions)),
@@ -33,6 +34,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     };
 
     let js_features = extract_graphql::extract(base);
+    let project_name = ProjectName::default();
 
     let executable_documents = js_features
         .iter()
@@ -62,10 +64,27 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             },
         )?;
         let ir = parse_docblock_ast(
+            project_name,
             &ast,
             Some(&executable_documents),
             ParseOptions {
                 enable_output_type: if fixture.content.contains("// relay:enable_output_type") {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
+                enable_strict_resolver_flavors: if fixture
+                    .content
+                    .contains("// relay:enable_strict_resolver_flavors")
+                {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
+                allow_legacy_verbose_syntax: if fixture
+                    .content
+                    .contains("// relay:allow_legacy_verbose_syntax")
+                {
                     &FeatureFlag::Enabled
                 } else {
                     &FeatureFlag::Disabled
@@ -77,9 +96,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         // In non-tests, this function (correctly) consumes TypeSystemDefinition when modifying the
         // schema.
         // In tests, we need to clone, because we **also** want to print the schema changes.
-        let schema_document = ir
-            .clone()
-            .to_graphql_schema_ast(&schema, &Default::default())?;
+        let schema_document = ir.clone().to_graphql_schema_ast(
+            project_name,
+            &schema,
+            &Default::default(),
+            &Default::default(),
+        )?;
         for definition in &schema_document.definitions {
             extend_schema_with_resolver_type_system_definition(
                 definition.clone(),
@@ -89,7 +111,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             )?;
         }
 
-        ir.to_sdl_string(&schema, &Default::default())
+        ir.to_sdl_string(
+            project_name,
+            &schema,
+            &Default::default(),
+            &Default::default(),
+        )
     };
 
     let schema_strings = js_features

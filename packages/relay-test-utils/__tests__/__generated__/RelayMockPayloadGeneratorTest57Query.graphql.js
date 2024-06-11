@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d6db75848959f5880f1e508c5d0255e>>
+ * @generated SignedSource<<c07c90412074aed445e1ca25330d1255>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ import {name_passthrough as userNamePassthroughResolverType} from "../../../rela
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userNamePassthroughResolverType: (
   rootKey: UserNamePassthroughResolver$key,
-) => mixed);
+) => ?mixed);
 export type RelayMockPayloadGeneratorTest57Query$variables = {||};
 export type RelayMockPayloadGeneratorTest57Query$data = {|
   +me: ?{|
-    +name_passthrough: ?$Call<<R>((...empty[]) => R) => R, typeof userNamePassthroughResolverType>,
+    +name_passthrough: ?ReturnType<typeof userNamePassthroughResolverType>,
   |},
 |};
 export type RelayMockPayloadGeneratorTest57Query = {|

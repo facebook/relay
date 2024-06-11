@@ -5,14 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-mod content;
-mod content_section;
+pub mod content;
+pub mod content_section;
 
 use std::sync::Arc;
 
 use common::SourceLocationKey;
 use content::generate_fragment;
 use content::generate_operation;
+use content::generate_resolvers_schema_module_content;
 use content::generate_split_operation;
 use content::generate_updatable_query;
 use graphql_ir::FragmentDefinition;
@@ -22,6 +23,7 @@ use relay_codegen::QueryID;
 use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
 
+use self::content::generate_preloadable_query_parameters;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
@@ -40,6 +42,10 @@ pub enum ArtifactContent {
         typegen_operation: Arc<OperationDefinition>,
         source_hash: String,
     },
+    PreloadableQueryParameters {
+        normalization_operation: Arc<OperationDefinition>,
+        query_id: QueryID,
+    },
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
         typegen_fragment: Arc<FragmentDefinition>,
@@ -51,6 +57,7 @@ pub enum ArtifactContent {
         source_hash: Option<String>,
         no_optional_fields_in_raw_response_type: bool,
     },
+    ResolversSchema,
     Generic {
         content: Vec<u8>,
     },
@@ -66,10 +73,12 @@ impl ArtifactContent {
         source_file: SourceLocationKey,
         fragment_locations: &FragmentLocations,
     ) -> Vec<u8> {
-        let skip_types = project_config
-            .skip_types_for_artifact
-            .as_ref()
-            .map_or(false, |skip_types_fn| skip_types_fn(source_file));
+        let skip_types =
+            if let Some(extra_artifacts_config) = &project_config.extra_artifacts_config {
+                (extra_artifacts_config.skip_types_for_artifact)(source_file)
+            } else {
+                false
+            };
         match self {
             ArtifactContent::Operation {
                 normalization_operation,
@@ -109,6 +118,18 @@ impl ArtifactContent {
                 fragment_locations,
             )
             .unwrap(),
+            ArtifactContent::PreloadableQueryParameters {
+                normalization_operation,
+                query_id,
+            } => generate_preloadable_query_parameters(
+                config,
+                project_config,
+                printer,
+                schema,
+                normalization_operation,
+                query_id,
+            )
+            .unwrap(),
             ArtifactContent::SplitOperation {
                 normalization_operation,
                 typegen_operation,
@@ -142,6 +163,10 @@ impl ArtifactContent {
                 fragment_locations,
             )
             .unwrap(),
+            ArtifactContent::ResolversSchema => {
+                generate_resolvers_schema_module_content(config, project_config, printer, schema)
+                    .unwrap()
+            }
             ArtifactContent::Generic { content } => content.clone(),
         }
     }

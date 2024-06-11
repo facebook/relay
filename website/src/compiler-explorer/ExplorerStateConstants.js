@@ -37,18 +37,6 @@ fragment AgeFragment on User {
  `.trim();
 
 export const FEATURE_FLAGS = [
-  {
-    key: 'enable_flight_transform',
-    label: 'Flight Transforms',
-    kind: 'bool',
-    default: true,
-  },
-  {
-    key: 'hash_supported_argument',
-    label: 'Hash Supported Argument',
-    kind: 'enum',
-    default: true,
-  },
   {key: 'no_inline', label: '@no_inline', kind: 'enum', default: true},
   {
     key: 'enable_3d_branch_arg_generation',
@@ -65,12 +53,6 @@ export const FEATURE_FLAGS = [
   {
     key: 'text_artifacts',
     label: 'Text Artifacts',
-    kind: 'enum',
-    default: true,
-  },
-  {
-    key: 'enable_client_edges',
-    label: 'Client Edges',
     kind: 'enum',
     default: true,
   },

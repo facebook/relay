@@ -11,9 +11,9 @@
 
 'use strict';
 
+import type {Options} from './legacy/useRefetchableFragmentNode';
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFn} from './useRefetchableFragment';
-import type {Options} from './useRefetchableFragmentNode';
 import type {
   FragmentType,
   GraphQLResponse,
@@ -23,8 +23,8 @@ import type {
 } from 'relay-runtime';
 
 const HooksImplementation = require('./HooksImplementation');
+const useRefetchableFragmentNode = require('./legacy/useRefetchableFragmentNode');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useCallback, useDebugValue, useState} = require('react');
 const {
@@ -62,12 +62,8 @@ function usePaginationFragment_LEGACY<
   );
   const componentDisplayName = 'usePaginationFragment()';
 
-  const {
-    connectionPathInFragmentData,
-    paginationRequest,
-    paginationMetadata,
-    identifierField,
-  } = getPaginationMetadata(fragmentNode, componentDisplayName);
+  const {connectionPathInFragmentData, paginationRequest, paginationMetadata} =
+    getPaginationMetadata(fragmentNode, componentDisplayName);
 
   const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentNode<
     $FlowFixMe,
@@ -85,7 +81,6 @@ function usePaginationFragment_LEGACY<
       fragmentIdentifier,
       fragmentNode,
       fragmentRef,
-      identifierField,
       paginationMetadata,
       paginationRequest,
     });
@@ -100,7 +95,6 @@ function usePaginationFragment_LEGACY<
       fragmentIdentifier,
       fragmentNode,
       fragmentRef,
-      identifierField,
       paginationMetadata,
       paginationRequest,
     });
@@ -163,15 +157,12 @@ function useLoadMore<TVariables: Variables>(
 }
 
 export type ReturnType<TVariables, TData, TKey> = {
-  // NOTE: This $Call ensures that the type of the returned data is either:
+  // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  // prettier-ignore
-  data: $Call<
-    & (<TFragmentType>( { +$fragmentSpreads: TFragmentType, ... }) =>  TData)
-    & (<TFragmentType>(?{ +$fragmentSpreads: TFragmentType, ... }) => ?TData),
-    TKey,
-  >,
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+    ? TData
+    : ?TData,
   loadNext: LoadMoreFn<TVariables>,
   loadPrevious: LoadMoreFn<TVariables>,
   hasNext: boolean,
@@ -192,6 +183,7 @@ function usePaginationFragment<
 ): ReturnType<TVariables, TData, TKey> {
   const impl = HooksImplementation.get();
   if (impl) {
+    // $FlowExpectedError[incompatible-return] Flow cannot prove that two conditional type satisfy each other
     return impl.usePaginationFragment<TFragmentType, TVariables, TData, TKey>(
       fragmentInput,
       parentFragmentRef,

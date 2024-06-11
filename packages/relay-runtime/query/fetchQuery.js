@@ -140,6 +140,7 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
       environment,
       snapshot.missingRequiredFields,
       snapshot.relayResolverErrors,
+      snapshot.errorResponseFields,
     );
     /* $FlowFixMe[incompatible-return] we assume readData returns the right
      * data just having written it from network or checked availability. */

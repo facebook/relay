@@ -8,6 +8,7 @@
 use common::ArgumentName;
 use common::InterfaceName;
 use common::ObjectName;
+use common::UnionName;
 use intern::string_key::StringKey;
 use schema::Type;
 use schema::TypeReference;
@@ -73,8 +74,8 @@ pub enum SchemaValidationError {
     )]
     MissingRequiredArgument(StringKey, StringKey, ArgumentName, InterfaceName),
 
-    #[error("Union type must define one or more member types.")]
-    UnionWithNoMembers(StringKey),
+    #[error("Union type {0} must define one or more member types.")]
+    UnionWithNoMembers(UnionName),
 
     #[error("Union can only include member {0} once.")]
     DuplicateMember(ObjectName),

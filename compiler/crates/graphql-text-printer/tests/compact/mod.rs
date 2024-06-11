@@ -19,7 +19,7 @@ use graphql_text_printer::PrinterOptions;
 use relay_test_schema::TEST_SCHEMA;
 use relay_transforms::RelayLocationAgnosticBehavior;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let initial_ast = parse_executable(fixture.content, source_location).unwrap();
     let initial_ir = build(&TEST_SCHEMA, &initial_ast.definitions).unwrap();

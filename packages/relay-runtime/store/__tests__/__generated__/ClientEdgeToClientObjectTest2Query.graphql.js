@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9dbe872665053dd2d1154ff50a74046d>>
+ * @generated SignedSource<<8e9153525279695aaad2bbfe01d80b6f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+) => ?mixed);
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -38,7 +38,7 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 export type ClientEdgeToClientObjectTest2Query$variables = {||};
 export type ClientEdgeToClientObjectTest2Query$data = {|
   +all_astrological_signs: ?$ReadOnlyArray<?{|
-    +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+    +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
   |}>,
 |};
 export type ClientEdgeToClientObjectTest2Query = {|
@@ -99,7 +99,7 @@ return {
               "kind": "RelayResolver",
               "name": "name",
               "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
-              "path": "name"
+              "path": "all_astrological_signs.name"
             }
           ],
           "storageKey": null

@@ -37,13 +37,14 @@ use relay_compiler::validate;
 use relay_compiler::ConfigFileProject;
 use relay_compiler::ProjectConfig;
 use relay_config::NonNodeIdFieldsConfig;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     if fixture.content.contains("%TODO%") {
@@ -52,7 +53,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         }
         return Ok("TODO".to_string());
     }
-    let hash_supported_argument_allowlist = vec!["UserNameRenderer".intern()];
     let no_inline_allowlist = vec![
         "autoFilledArgumentOnMatchPlainUserNameRenderer_name".intern(),
         "autoFilledArgumentOnMatchMarkdownUserNameRenderer_name".intern(),
@@ -101,10 +101,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     ];
 
     let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
-        hash_supported_argument: FeatureFlag::Limited {
-            allowlist: hash_supported_argument_allowlist.into_iter().collect(),
-        },
         // test SplitOperations that do not use @no-inline D28460294
         no_inline: FeatureFlag::Limited {
             allowlist: no_inline_allowlist.into_iter().collect(),
@@ -113,16 +109,25 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
-        enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
         emit_normalization_nodes_for_client_edges: true,
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
+        relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
+        enable_resolver_normalization_ast: fixture
+            .content
+            .contains("# enable_resolver_normalization_ast"),
+        relay_resolvers_enable_strict_resolver_flavors: FeatureFlag::Disabled,
+        relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag::Disabled,
+        enable_relay_resolver_mutations: false,
+        enable_strict_custom_scalars: false,
+        allow_required_in_mutation_response: FeatureFlag::Disabled,
+        allow_resolvers_in_mutation_response: FeatureFlag::Disabled,
     };
 
     let default_project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         feature_flags: Arc::new(feature_flags),
         js_module_format: JsModuleFormat::Haste,
         schema_config: SchemaConfig {
@@ -190,6 +195,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
+            allow_custom_scalar_literals: true, // for compatibility
         },
     );
     let ir = ir_result

@@ -3,6 +3,7 @@ directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
 directive @extern_type(schema: String, name: String) on INTERFACE
 directive @fetchable(field_name: String) on OBJECT
+directive @fbid on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
 schema {
   query: Query
@@ -77,8 +78,24 @@ interface Image implements Resource & Node {
   url: String
   thumbnail: String
 }
+
+input UserRequest {
+  user_id: ID! @fbid
+  other_user_ids: [ID!] = [] @fbid
+}
+
+type UserResponse {
+  user_id: ID! @fbid
+  name: String
+}
+
+type UsernameQuery {
+  fetch_user_name(user_id: ID @fbid): String
+}
 ==================================== OUTPUT ===================================
 directive @extern_type(schema: String, name: String) on INTERFACE
+
+directive @fbid on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
 directive @fetchable(field_name: String) on OBJECT
 
@@ -91,6 +108,8 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 
 directive @extern_type(schema: String, name: String) on INTERFACE
+
+directive @fbid on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
 directive @fetchable(field_name: String) on OBJECT
 
@@ -138,6 +157,15 @@ type User implements XIGHuman @fetchable(field_name: "id") {
   story(story: XIGStoryInput = {id: 123, name: "instagram_story"}): XIGStory
 }
 
+type UserResponse {
+  user_id: ID! @fbid
+  name: String
+}
+
+type UsernameQuery {
+  fetch_user_name(user_id: ID @fbid): String
+}
+
 interface XIGHuman @source(schema: "instagram", name: "Human") {
   name: String
 }
@@ -166,6 +194,11 @@ interface Resource implements Node {
   id: ID!
   name: String!
   url: String
+}
+
+input UserRequest {
+  user_id: ID! @fbid
+  other_user_ids: [ID!] = [] @fbid
 }
 
 type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "Story") {

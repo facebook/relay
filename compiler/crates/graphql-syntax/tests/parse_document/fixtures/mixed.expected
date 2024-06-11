@@ -84,6 +84,7 @@ Document {
                                     arguments: None,
                                     directives: [],
                                     description: None,
+                                    hack_source: None,
                                 },
                             ],
                             end: Token {

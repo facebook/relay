@@ -6,11 +6,13 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 const isLiveStateValue = require('./isLiveStateValue');
+const {isSuspenseSentinel} = require('./LiveResolverSuspenseSentinel');
 const invariant = require('invariant');
 
 /**
@@ -52,6 +54,9 @@ function weakObjectWrapper<TKey, TArgs>(
 ): (key: TKey, args?: TArgs) => mixed {
   return (...args) => {
     const data = resolverFn.apply(null, args);
+    if (data == null || isSuspenseSentinel(data)) {
+      return data;
+    }
     if (isPlural) {
       invariant(
         Array.isArray(data),

@@ -31,7 +31,7 @@ use schema::Type;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::location::transform_relay_location_to_lsp_location;
+use crate::location::transform_relay_location_on_disk_to_lsp_location;
 use crate::server::GlobalState;
 use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
@@ -86,7 +86,8 @@ pub fn on_find_field_usages(
     let lsp_locations = ir_locations
         .into_iter()
         .map(|(label, ir_location)| {
-            let lsp_location = transform_relay_location_to_lsp_location(root_dir, ir_location)?;
+            let lsp_location =
+                transform_relay_location_on_disk_to_lsp_location(root_dir, ir_location)?;
             Ok(FindFieldUsageResultItem {
                 location_uri: lsp_location.uri.to_string(),
                 location_range: lsp_location.range,

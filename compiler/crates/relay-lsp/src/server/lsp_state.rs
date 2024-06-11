@@ -8,6 +8,8 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use common::DiagnosticsResult;
+use common::Location;
 use common::PerfLogger;
 use common::SourceLocationKey;
 use common::Span;
@@ -53,6 +55,7 @@ use super::task_queue::TaskScheduler;
 use crate::diagnostic_reporter::DiagnosticReporter;
 use crate::docblock_resolution_info::create_docblock_resolution_info;
 use crate::graphql_tools::get_query_text;
+use crate::location::transform_relay_location_to_lsp_location_with_cache;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::create_node_resolution_info;
 use crate::utils::extract_executable_definitions_from_text_document;
@@ -136,6 +139,17 @@ pub trait GlobalState {
     /// we may need to know who's our current consumer.
     /// This is mostly for hover handler (where we render markup)
     fn get_content_consumer_type(&self) -> ContentConsumerType;
+
+    /// Transform Relay location to LSP location. This involves converting
+    /// character offsets to line/column numbers which means we need access to
+    /// the text of the file.
+    ///
+    /// This variant should be used when the Relay location was derived from an
+    /// open file which might not have been written to disk.
+    fn transform_relay_location_in_editor_to_lsp_location(
+        &self,
+        location: Location,
+    ) -> LSPRuntimeResult<lsp_types::Location>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -233,10 +247,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let mut docblock_sources = vec![];
 
         for (index, feature) in javascript_features.iter().enumerate() {
-            let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
-
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
+                    let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
                     let result = parse_executable_with_error_recovery_and_parser_features(
                         &graphql_source.text_source().text,
                         source_location_key,
@@ -258,22 +271,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         }
                         Ok(warnings)
                     };
-                    let compiler_diagnostics = match build_ir_with_extra_features(
-                        &schema,
-                        &result.item.definitions,
-                        &BuilderOptions {
-                            allow_undefined_fragment_spreads: true,
-                            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                            relay_mode: Some(RelayMode),
-                            default_anonymous_operation_name: None,
-                            allow_custom_scalar_literals: true, // for compatibility
-                        },
-                    )
-                    .and_then(get_errors_or_warnings)
-                    {
-                        Ok(warnings) => warnings,
-                        Err(errors) => errors,
-                    };
+                    let compiler_diagnostics =
+                        match build_ir_for_lsp(&schema, &result.item.definitions)
+                            .and_then(get_errors_or_warnings)
+                        {
+                            Ok(warnings) => warnings,
+                            Err(errors) => errors,
+                        };
 
                     diagnostics.extend(compiler_diagnostics.iter().map(|diagnostic| {
                         self.diagnostic_reporter
@@ -586,6 +590,35 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn get_content_consumer_type(&self) -> ContentConsumerType {
         ContentConsumerType::Relay
     }
+
+    fn transform_relay_location_in_editor_to_lsp_location(
+        &self,
+        location: Location,
+    ) -> LSPRuntimeResult<lsp_types::Location> {
+        transform_relay_location_to_lsp_location_with_cache(
+            &self.root_dir(),
+            location,
+            Some(&self.synced_javascript_sources),
+            Some(&self.synced_schema_sources),
+        )
+    }
+}
+
+pub fn build_ir_for_lsp(
+    schema: &SDLSchema,
+    definitions: &[ExecutableDefinition],
+) -> DiagnosticsResult<Vec<graphql_ir::ExecutableDefinition>> {
+    build_ir_with_extra_features(
+        schema,
+        definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: true,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: Some(RelayMode),
+            default_anonymous_operation_name: None,
+            allow_custom_scalar_literals: true, // for compatibility
+        },
+    )
 }
 
 #[derive(Debug)]

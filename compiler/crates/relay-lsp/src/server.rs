@@ -30,6 +30,7 @@ use lsp_server::Message;
 use lsp_server::Notification;
 use lsp_server::Response as ServerResponse;
 use lsp_server::ResponseError;
+pub use lsp_state::build_ir_for_lsp;
 pub use lsp_state::GlobalState;
 pub use lsp_state::LSPState;
 pub use lsp_state::Schemas;
@@ -43,6 +44,7 @@ use lsp_types::request::CodeActionRequest;
 use lsp_types::request::Completion;
 use lsp_types::request::GotoDefinition;
 use lsp_types::request::HoverRequest;
+use lsp_types::request::InlayHintRequest;
 use lsp_types::request::References;
 use lsp_types::request::ResolveCompletionItem;
 use lsp_types::request::Shutdown;
@@ -72,6 +74,7 @@ use crate::goto_definition::GetSourceLocationOfTypeDefinition;
 use crate::graphql_tools::on_graphql_execute_query;
 use crate::graphql_tools::GraphQLExecuteQuery;
 use crate::hover::on_hover;
+use crate::inlay_hints::on_inlay_hint_request;
 use crate::lsp_process_error::LSPProcessResult;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::references::on_references;
@@ -112,6 +115,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
         definition_provider: Some(lsp_types::OneOf::Left(true)),
         references_provider: Some(lsp_types::OneOf::Left(true)),
         code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+        inlay_hint_provider: Some(lsp_types::OneOf::Left(true)),
         ..Default::default()
     };
 
@@ -138,10 +142,7 @@ pub async fn run<
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
-) -> LSPProcessResult<()>
-where
-    TPerfLogger: PerfLogger + 'static,
-{
+) -> LSPProcessResult<()> {
     debug!(
         "Running language server with config root {:?}",
         config.root_dir
@@ -242,6 +243,7 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .on_request_sync::<GraphQLExecuteQuery>(on_graphql_execute_query)?
             .on_request_sync::<HeartbeatRequest>(on_heartbeat)?
             .on_request_sync::<FindFieldUsages>(on_find_field_usages)?
+            .on_request_sync::<InlayHintRequest>(on_inlay_hint_request)?
             .request();
 
         // If we have gotten here, we have not handled the request

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<36d896c88d8f613a56a4df3c63de84a4>>
+ * @generated SignedSource<<9999601a445e2154561da251e0ca30b4>>
  */
 
 mod fragment_alias_directive;
@@ -17,6 +17,20 @@ async fn alias_as_empty_string_invalid() {
     let input = include_str!("fragment_alias_directive/fixtures/alias_as_empty_string.invalid.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/alias_as_empty_string.invalid.expected");
     test_fixture(transform_fixture, file!(), "alias_as_empty_string.invalid.graphql", "fragment_alias_directive/fixtures/alias_as_empty_string.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn alias_not_required_on_module_fragments() {
+    let input = include_str!("fragment_alias_directive/fixtures/alias_not_required_on_module_fragments.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/alias_not_required_on_module_fragments.expected");
+    test_fixture(transform_fixture, file!(), "alias_not_required_on_module_fragments.graphql", "fragment_alias_directive/fixtures/alias_not_required_on_module_fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn alias_not_required_within_aliased_refined_inline_fragment() {
+    let input = include_str!("fragment_alias_directive/fixtures/alias_not_required_within_aliased_refined_inline_fragment.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/alias_not_required_within_aliased_refined_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "alias_not_required_within_aliased_refined_inline_fragment.graphql", "fragment_alias_directive/fixtures/alias_not_required_within_aliased_refined_inline_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -38,6 +52,13 @@ async fn alias_on_spread_of_plural_fragment_invalid() {
     let input = include_str!("fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment.invalid.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment.invalid.expected");
     test_fixture(transform_fixture, file!(), "alias_on_spread_of_plural_fragment.invalid.graphql", "fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn alias_required_within_refined_inline_fragment_invalid() {
+    let input = include_str!("fragment_alias_directive/fixtures/alias_required_within_refined_inline_fragment.invalid.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/alias_required_within_refined_inline_fragment.invalid.expected");
+    test_fixture(transform_fixture, file!(), "alias_required_within_refined_inline_fragment.invalid.graphql", "fragment_alias_directive/fixtures/alias_required_within_refined_inline_fragment.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -262,7 +262,7 @@ pub enum ValidationMessageWithData {
     RequiredOnSemanticNonNull,
 
     #[error(
-        "Expected `@alias` directive. `{fragment_name}` is defined on `{fragment_type_name}` which might not match this selection type of `{selection_type_name}`. Add `@alias` to this spread to expose the fragment data as a nullable property."
+        "Expected `@alias` directive. `{fragment_name}` is defined on `{fragment_type_name}` which might not match this selection type of `{selection_type_name}`. Add `@alias` to this spread to expose the fragment reference as a nullable property."
     )]
     ExpectedAliasOnNonSubtypeSpread {
         fragment_name: FragmentDefinitionName,
@@ -271,7 +271,16 @@ pub enum ValidationMessageWithData {
     },
 
     #[error(
-        "Expected `@alias` directive. Fragment spreads with `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment as a nullable property."
+        "Expected `@alias` directive. `{fragment_name}` is defined on `{fragment_type_name}` which might not match this selection type of `{selection_type_name}`. Add `@alias` to this spread to expose the fragment reference as a nullable property. NOTE: The selection type inferred here does not include inline fragments because Relay does not always model inline fragment type refinements in its generated types."
+    )]
+    ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
+        fragment_name: FragmentDefinitionName,
+        fragment_type_name: StringKey,
+        selection_type_name: StringKey,
+    },
+
+    #[error(
+        "Expected `@alias` directive. Fragment spreads with `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment reference as a nullable property."
     )]
     ExpectedAliasOnConditionalFragmentSpread { condition_name: String },
 }
@@ -292,6 +301,14 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 vec![Box::new("")]
             }
             ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpread {
+                fragment_name, ..
+            } => {
+                vec![
+                    Box::new(format!("{fragment_name} @alias")),
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                ]
+            }
+            ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
                 fragment_name, ..
             } => {
                 vec![

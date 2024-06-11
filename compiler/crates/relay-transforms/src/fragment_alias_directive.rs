@@ -35,6 +35,7 @@ use schema::Type;
 use crate::RelayDirective;
 use crate::ValidationMessage;
 use crate::ValidationMessageWithData;
+use crate::MATCH_CONSTANTS;
 
 lazy_static! {
     pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: DirectiveName = DirectiveName("alias".intern());
@@ -74,6 +75,7 @@ struct FragmentAliasTransform<'program> {
     is_enforced: bool,
     document_name: Option<StringKey>,
     parent_type: Option<Type>,
+    within_inline_fragment_type_condition: bool,
     maybe_condition: Option<Condition>,
     errors: Vec<Diagnostic>,
 }
@@ -86,6 +88,7 @@ impl<'program> FragmentAliasTransform<'program> {
             is_enforced: enforced,
             document_name: None,
             parent_type: None,
+            within_inline_fragment_type_condition: false,
             maybe_condition: None,
             errors: Vec::new(),
         }
@@ -126,6 +129,16 @@ impl<'program> FragmentAliasTransform<'program> {
             // this error as a migration strategy.
             return;
         }
+        if spread
+            .directives
+            .named(MATCH_CONSTANTS.module_directive_name)
+            .is_some()
+        {
+            // Fragments that have `@module` are likely going to be accessed with a
+            // MatchContainer which should handle the possibility that this fragment
+            // will not match.
+            return;
+        }
         if let Some(condition) = &self.maybe_condition {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
@@ -147,12 +160,21 @@ impl<'program> FragmentAliasTransform<'program> {
             {
                 let fragment_type_name = self.program.schema.get_type_name(type_condition);
                 let selection_type_name = self.program.schema.get_type_name(parent_type);
-                self.errors.push(Diagnostic::error_with_data(
+                let diagnostic = if self.within_inline_fragment_type_condition {
+                    ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
+                        fragment_name: spread.fragment.item,
+                        fragment_type_name,
+                        selection_type_name,
+                    }
+                } else {
                     ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpread {
                         fragment_name: spread.fragment.item,
                         fragment_type_name,
                         selection_type_name,
-                    },
+                    }
+                };
+                self.errors.push(Diagnostic::error_with_data(
+                    diagnostic,
                     spread.fragment.location,
                 ))
             }
@@ -222,13 +244,10 @@ impl Transformer for FragmentAliasTransform<'_> {
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         let previous_parent_type = self.parent_type;
+        let previous_within_inline_fragment_type_condition =
+            self.within_inline_fragment_type_condition;
 
-        // Note: This must be called before we set self.parent_type
-        let will_always_match = self.will_always_match(fragment.type_condition);
-
-        if let Some(type_condition) = fragment.type_condition {
-            self.parent_type = Some(type_condition);
-        }
+        self.within_inline_fragment_type_condition = fragment.type_condition.is_some();
 
         let transformed = match fragment.alias(&self.program.schema) {
             Ok(Some(alias)) => {
@@ -239,6 +258,14 @@ impl Transformer for FragmentAliasTransform<'_> {
                     ));
                     self.default_transform_inline_fragment(fragment);
                 }
+
+                // Note: This must be called before we set self.parent_type
+                let will_always_match = self.will_always_match(fragment.type_condition);
+
+                if let Some(type_condition) = fragment.type_condition {
+                    self.parent_type = Some(type_condition);
+                }
+
                 let alias_metadata = FragmentAliasMetadata {
                     alias,
                     type_condition: fragment.type_condition,
@@ -260,7 +287,19 @@ impl Transformer for FragmentAliasTransform<'_> {
                     spread_location: fragment.spread_location,
                 })))
             }
-            Ok(None) => self.default_transform_inline_fragment(fragment),
+            Ok(None) => {
+                // Note: We intentionally don't set self.parent_type here, even if we
+                // have at type conditions. This is because Relay does not always accurately model
+                // inline fragment type refinements as discriminated unions in its
+                // Flow/TypeScript types. This means the inline fragment might not actually result
+                // in a spread that can only be accessed when the type condition has
+                // been set.
+                //
+                // By leaving the parent selection's parent type we will require
+                // `@alias` on any spread that could fail to match with its top level
+                // selection set type.
+                self.default_transform_inline_fragment(fragment)
+            }
             Err(diagnostics) => {
                 self.errors.extend(diagnostics);
                 self.default_transform_inline_fragment(fragment)
@@ -268,6 +307,7 @@ impl Transformer for FragmentAliasTransform<'_> {
         };
 
         self.parent_type = previous_parent_type;
+        self.within_inline_fragment_type_condition = previous_within_inline_fragment_type_condition;
         transformed
     }
 

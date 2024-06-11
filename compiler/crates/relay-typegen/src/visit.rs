@@ -1477,7 +1477,7 @@ fn get_discriminated_union_ast(
 ///
 /// If base fields is not empty
 ///   * if we have a type refinement to a concrete type
-///   * and all fields are outside of type refinements are __typename selections
+///   * and all fields outside of type refinements are __typename selections
 ///
 /// If this condition passes, we emit a discriminated union
 fn should_emit_discriminated_union(

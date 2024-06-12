@@ -413,9 +413,9 @@ impl<'schema> ValidationContext<'schema> {
                         SchemaValidationError::NotASubType(
                             interface.name.item,
                             field_name,
-                            self.schema.get_type_name(interface_field.type_.inner()),
+                            self.schema.get_type_string(&interface_field.type_),
                             typename,
-                            self.schema.get_type_name(object_field.type_.inner()),
+                            self.schema.get_type_string(&object_field.type_),
                         ),
                         object_field.name.location,
                     )
@@ -464,9 +464,9 @@ impl<'schema> ValidationContext<'schema> {
                                 interface.name.item,
                                 field_name,
                                 interface_argument.name.item,
-                                self.schema.get_type_name(interface_argument.type_.inner()),
+                                self.schema.get_type_string(&interface_argument.type_),
                                 typename,
-                                self.schema.get_type_name(object_argument.type_.inner()),
+                                self.schema.get_type_string(&object_argument.type_),
                             ),
                             object_argument.name.location,
                         )

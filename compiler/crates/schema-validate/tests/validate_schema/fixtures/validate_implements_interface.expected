@@ -11,7 +11,7 @@ type Query {
   node: Node
 }
 ==================================== OUTPUT ===================================
-✖︎ Interface field 'Node.id' expects type 'ID' but 'Pet.id' is of type 'ID'.
+✖︎ Interface field 'Node.id' expects type 'ID!' but 'Pet.id' is of type 'ID'.
 
   validate_implements_interface.graphql:6:3
     5 │ type Pet implements Node {

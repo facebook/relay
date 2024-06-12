@@ -48,7 +48,7 @@ pub enum SchemaValidationError {
     InterfaceFieldNotProvided(InterfaceName, StringKey, StringKey),
 
     #[error("Interface field '{0}.{1}' expects type '{2}' but '{3}.{1}' is of type '{4}'.")]
-    NotASubType(InterfaceName, StringKey, StringKey, StringKey, StringKey),
+    NotASubType(InterfaceName, StringKey, String, StringKey, String),
 
     #[error(
         "Interface field argument '{0}.{1}({2}:)' expected but '{3}.{1}' does not provide it."
@@ -62,9 +62,9 @@ pub enum SchemaValidationError {
         InterfaceName,
         StringKey,
         ArgumentName,
+        String,
         StringKey,
-        StringKey,
-        StringKey,
+        String,
     ),
 
     #[error(

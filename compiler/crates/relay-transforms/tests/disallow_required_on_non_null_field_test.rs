@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<15d8112fa196877ae75bb477cbacb0bd>>
+ * @generated SignedSource<<5746353336950e077c65f751091a962a>>
  */
 
 mod disallow_required_on_non_null_field;
 
 use disallow_required_on_non_null_field::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn fragment_with_multiple_required_non_null_fields_invalid() {
+    let input = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_multiple_required_non_null_fields.invalid.graphql");
+    let expected = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_multiple_required_non_null_fields.invalid.expected");
+    test_fixture(transform_fixture, file!(), "fragment_with_multiple_required_non_null_fields.invalid.graphql", "disallow_required_on_non_null_field/fixtures/fragment_with_multiple_required_non_null_fields.invalid.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn fragment_with_required_non_null_field_invalid() {

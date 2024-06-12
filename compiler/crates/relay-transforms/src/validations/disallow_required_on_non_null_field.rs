@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use ::errors::try_all;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -119,7 +120,7 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
         selections: &[Selection],
         is_throw_on_field_error: bool,
     ) -> DiagnosticsResult<()> {
-        selections.iter().try_for_each(|selection| match selection {
+        try_all(selections.iter().map(|selection| match selection {
             Selection::LinkedField(linked_field) => {
                 self.validate_required_field(linked_field, is_throw_on_field_error)?;
                 self.validate_selection_fields(&linked_field.selections, is_throw_on_field_error)
@@ -128,10 +129,10 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
                 self.validate_required_field(scalar_field, is_throw_on_field_error)
             }
             _ => Ok(()),
-        })
+        }))?;
+        Ok(())
     }
 }
-
 impl Validator for DisallowRequiredOnNonNullField<'_> {
     const NAME: &'static str = "disallow_required_on_non_null_field";
     const VALIDATE_ARGUMENTS: bool = false;

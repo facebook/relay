@@ -40,7 +40,7 @@ pub enum TypeSystemDefinition {
 }
 
 impl TypeSystemDefinition {
-    pub fn location(&self) -> Span {
+    pub fn span(&self) -> Span {
         match self {
             TypeSystemDefinition::SchemaDefinition(_extension) => Span::empty(), // Not implemented
             TypeSystemDefinition::SchemaExtension(_extension) => Span::empty(),  // Not implemented

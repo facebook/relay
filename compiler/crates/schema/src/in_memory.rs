@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::hash_map::Entry;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
@@ -726,14 +727,24 @@ impl InMemorySchema {
         schema_documents: Vec<(Vec<&'a TypeSystemDefinition>, Location)>,
         client_schema_documents: Vec<(Vec<&'a TypeSystemDefinition>, Location)>,
     ) -> DiagnosticsResult<Self> {
-        let schema_definitions: Vec<&TypeSystemDefinition> = schema_documents
+        let schema_definitions: Vec<(&TypeSystemDefinition, Location)> = schema_documents
             .iter()
-            .flat_map(|document| document.0.to_vec())
+            .flat_map(|document| {
+                document
+                    .0
+                    .iter()
+                    .map(|definition| (definition.clone(), document.1))
+            })
             .collect();
 
-        let client_definitions: Vec<&TypeSystemDefinition> = client_schema_documents
+        let client_definitions: Vec<(&TypeSystemDefinition, Location)> = client_schema_documents
             .iter()
-            .flat_map(|document| document.0.to_vec())
+            .flat_map(|document| {
+                document
+                    .0
+                    .iter()
+                    .map(|definition| (definition.clone(), document.1))
+            })
             .collect();
 
         // Step 1: build the type_map from type names to type keys
@@ -748,7 +759,23 @@ impl InMemorySchema {
         let mut field_count = 0;
         let mut directive_count = 0;
 
-        for definition in schema_definitions.iter().chain(&client_definitions) {
+        let mut diagnostics: Vec<Diagnostic> = Vec::new();
+
+        for (definition, location) in schema_definitions.iter().chain(&client_definitions) {
+            let mut insert_into_type_map = |name: StringKey, type_: Type| {
+                match type_map.entry(name) {
+                    Entry::Occupied(_) => {
+                        diagnostics.push(Diagnostic::error(
+                            SchemaError::DuplicateType(name),
+                            location.with_span(definition.span()),
+                        ));
+                    }
+                    Entry::Vacant(vacant) => {
+                        vacant.insert(type_);
+                    }
+                };
+            };
+
             match definition {
                 TypeSystemDefinition::SchemaDefinition { .. } => {}
                 TypeSystemDefinition::DirectiveDefinition { .. } => {
@@ -759,7 +786,7 @@ impl InMemorySchema {
                     fields,
                     ..
                 }) => {
-                    type_map.insert(name.value, Type::Object(ObjectID(next_object_id)));
+                    insert_into_type_map(name.value, Type::Object(ObjectID(next_object_id)));
                     field_count += len_of_option_list(fields);
                     next_object_id += 1;
                 }
@@ -768,31 +795,35 @@ impl InMemorySchema {
                     fields,
                     ..
                 }) => {
-                    type_map.insert(name.value, Type::Interface(InterfaceID(next_interface_id)));
+                    insert_into_type_map(
+                        name.value,
+                        Type::Interface(InterfaceID(next_interface_id)),
+                    );
                     field_count += len_of_option_list(fields);
                     next_interface_id += 1;
                 }
                 TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition { name, .. }) => {
-                    type_map.insert(name.value, Type::Union(UnionID(next_union_id)));
+                    insert_into_type_map(name.value, Type::Union(UnionID(next_union_id)));
                     next_union_id += 1;
                 }
                 TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                     name,
                     ..
                 }) => {
-                    type_map.insert(
+                    insert_into_type_map(
                         name.value,
                         Type::InputObject(InputObjectID(next_input_object_id)),
                     );
                     next_input_object_id += 1;
                 }
                 TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition { name, .. }) => {
-                    type_map.insert(name.value, Type::Enum(EnumID(next_enum_id)));
+                    insert_into_type_map(name.value, Type::Enum(EnumID(next_enum_id)));
                     next_enum_id += 1;
                 }
                 TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                     name, ..
                 }) => {
+                    // We allow duplicate scalar definitions
                     type_map.insert(name.value, Type::Scalar(ScalarID(next_scalar_id)));
                     next_scalar_id += 1;
                 }
@@ -812,6 +843,10 @@ impl InMemorySchema {
                     todo!("ScalarTypeExtension not implemented: {}", definition)
                 }
             }
+        }
+
+        if !diagnostics.is_empty() {
+            return Err(diagnostics);
         }
 
         // Step 2: define operation types, directives, and types

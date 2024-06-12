@@ -25,6 +25,8 @@ use graphql_syntax::*;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 
 use crate::definitions::Argument;
 use crate::definitions::Directive;
@@ -332,6 +334,10 @@ impl InMemorySchema {
 
     pub fn get_type_map(&self) -> impl Iterator<Item = (&StringKey, &Type)> {
         self.type_map.iter()
+    }
+
+    pub fn get_type_map_par_iter(&self) -> impl ParallelIterator<Item = (&StringKey, &Type)> {
+        self.type_map.par_iter()
     }
 
     pub fn get_directives(&self) -> impl Iterator<Item = &Directive> {

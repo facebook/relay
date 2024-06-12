@@ -21,6 +21,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use lazy_static::lazy_static;
+use rayon::prelude::*;
 use regex::Regex;
 use schema::EnumID;
 use schema::Field;
@@ -58,7 +59,7 @@ pub struct SchemaValidationOptions {
 }
 
 pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions) -> DiagnosticsResult<()> {
-    let mut validation_context = ValidationContext::new(schema, options);
+    let mut validation_context = ValidationContext::new(schema, &options);
     validation_context.validate();
     if validation_context.diagnostics.is_empty() {
         Ok(())
@@ -72,12 +73,12 @@ pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions) -> Diagnos
 
 pub struct ValidationContext<'schema> {
     schema: &'schema SDLSchema,
-    options: SchemaValidationOptions,
+    options: &'schema SchemaValidationOptions,
     diagnostics: Vec<Diagnostic>,
 }
 
 impl<'schema> ValidationContext<'schema> {
-    pub fn new(schema: &'schema SDLSchema, options: SchemaValidationOptions) -> Self {
+    pub fn new(schema: &'schema SDLSchema, options: &'schema SchemaValidationOptions) -> Self {
         Self {
             schema,
             options,
@@ -143,47 +144,57 @@ impl<'schema> ValidationContext<'schema> {
     }
 
     fn validate_types(&mut self) {
-        let types = self.schema.get_type_map();
-        for (type_name, type_) in types {
-            // Ensure it is named correctly (excluding introspection types).
-            if !is_introspection_type(type_, *type_name) {
-                self.validate_name(*type_name, self.get_type_definition_location(*type_));
-            }
-            match type_ {
-                Type::Enum(id) => {
-                    // Ensure Enums have valid values.
-                    self.validate_enum_type(*id);
-                }
-                Type::InputObject(id) => {
-                    // Ensure Input Object fields are valid.
-                    self.validate_input_object_fields(*id);
-                }
-                Type::Interface(id) => {
-                    let interface = self.schema.interface(*id);
-                    // Ensure fields are valid
-                    self.validate_fields(*type_name, &interface.fields);
+        let diagnostics = self
+            .schema
+            .get_type_map_par_iter()
+            .flat_map(|(type_name, type_)| {
+                let mut child_visitor = Self::new(self.schema, self.options);
+                child_visitor.validate_type(*type_name, type_);
+                child_visitor.diagnostics
+            })
+            .collect::<Vec<Diagnostic>>();
+        self.diagnostics.extend(diagnostics);
+    }
 
-                    // Validate cyclic references
-                    if !self.validate_cyclic_implements_reference(interface) {
-                        // Ensure interface implement the interfaces they claim to.
-                        self.validate_type_with_interfaces(interface);
-                    }
-                }
-                Type::Object(id) => {
-                    let object = self.schema.object(*id);
-                    // Ensure fields are valid
-                    self.validate_fields(*type_name, &object.fields);
-
-                    // Ensure objects implement the interfaces they claim to.
-                    self.validate_type_with_interfaces(object);
-                }
-                Type::Union(id) => {
-                    // Ensure Unions include valid member types.
-                    self.validate_union_members(*id);
-                }
-                Type::Scalar(_id) => {}
-            };
+    fn validate_type(&mut self, type_name: StringKey, type_: &Type) {
+        // Ensure it is named correctly (excluding introspection types).
+        if !is_introspection_type(type_, type_name) {
+            self.validate_name(type_name, self.get_type_definition_location(*type_));
         }
+        match type_ {
+            Type::Enum(id) => {
+                // Ensure Enums have valid values.
+                self.validate_enum_type(*id);
+            }
+            Type::InputObject(id) => {
+                // Ensure Input Object fields are valid.
+                self.validate_input_object_fields(*id);
+            }
+            Type::Interface(id) => {
+                let interface = self.schema.interface(*id);
+                // Ensure fields are valid
+                self.validate_fields(type_name, &interface.fields);
+
+                // Validate cyclic references
+                if !self.validate_cyclic_implements_reference(interface) {
+                    // Ensure interface implement the interfaces they claim to.
+                    self.validate_type_with_interfaces(interface);
+                }
+            }
+            Type::Object(id) => {
+                let object = self.schema.object(*id);
+                // Ensure fields are valid
+                self.validate_fields(type_name, &object.fields);
+
+                // Ensure objects implement the interfaces they claim to.
+                self.validate_type_with_interfaces(object);
+            }
+            Type::Union(id) => {
+                // Ensure Unions include valid member types.
+                self.validate_union_members(*id);
+            }
+            Type::Scalar(_id) => {}
+        };
     }
 
     fn validate_fields(&mut self, type_name: StringKey, fields: &[FieldID]) {

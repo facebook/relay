@@ -191,14 +191,17 @@ pub fn extract_feature_from_text(
             Ok((Feature::ExecutableDocument(document), position_span))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
+            let text_source = &docblock_source.text_source();
+            let text = &text_source.text;
+            if text.contains("relay:enable-new-relay-resolver") {
+                return Err(LSPRuntimeError::ExpectedError);
+            }
+
             let executable_definitions_in_file = extract_executable_definitions_from_text_document(
                 uri,
                 js_source_feature_cache,
                 parser_features,
             )?;
-
-            let text_source = &docblock_source.text_source();
-            let text = &text_source.text;
             let docblock_ir = parse_docblock(text, source_location_key)
                 .and_then(|ast| {
                     parse_docblock_ast(

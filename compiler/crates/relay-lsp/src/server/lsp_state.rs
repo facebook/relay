@@ -545,7 +545,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(())
             }
             FileGroup::Source { project_set: _ } => {
-                let embedded_sources = extract_graphql::extract(text);
+                let mut embedded_sources = extract_graphql::extract(text);
+                if text.contains("relay:enable-new-relay-resolver") {
+                    embedded_sources
+                        .retain(|source| !matches!(source, JavaScriptSourceFeature::Docblock(_)));
+                }
 
                 if !embedded_sources.is_empty() {
                     self.initialize_lsp_state_resources(project_name);

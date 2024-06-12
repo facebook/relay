@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+interface Node {
+  id: ID!
+}
+
+type Pet implements Node {
+  id: ID # <--- Missing !
+}
+
+type Query {
+  node: Node
+}
+==================================== OUTPUT ===================================
+✖︎ Interface field 'Node.id' expects type 'ID' but 'Pet.id' is of type 'ID'.
+
+  validate_implements_interface.graphql:6:3
+    5 │ type Pet implements Node {
+    6 │   id: ID # <--- Missing !
+      │   ^^
+    7 │ }
+
+  ℹ︎ The interface field is defined here:
+
+  validate_implements_interface.graphql:2:3
+    1 │ interface Node {
+    2 │   id: ID!
+      │   ^^
+    3 │ }

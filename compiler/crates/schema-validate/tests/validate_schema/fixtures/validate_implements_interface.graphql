@@ -1,0 +1,11 @@
+interface Node {
+  id: ID!
+}
+
+type Pet implements Node {
+  id: ID # <--- Missing !
+}
+
+type Query {
+  node: Node
+}

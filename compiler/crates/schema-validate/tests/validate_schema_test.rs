@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1199c76ea90111f17b3d287e313d627c>>
+ * @generated SignedSource<<c45f484f189a81dd662ba1d407352177>>
  */
 
 mod validate_schema;
@@ -24,6 +24,13 @@ async fn validate_enum() {
     let input = include_str!("validate_schema/fixtures/validate_enum.graphql");
     let expected = include_str!("validate_schema/fixtures/validate_enum.expected");
     test_fixture(transform_fixture, file!(), "validate_enum.graphql", "validate_schema/fixtures/validate_enum.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn validate_implements_interface() {
+    let input = include_str!("validate_schema/fixtures/validate_implements_interface.graphql");
+    let expected = include_str!("validate_schema/fixtures/validate_implements_interface.expected");
+    test_fixture(transform_fixture, file!(), "validate_implements_interface.graphql", "validate_schema/fixtures/validate_implements_interface.expected", input, expected).await;
 }
 
 #[tokio::test]

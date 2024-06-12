@@ -35,7 +35,9 @@ graphql`fragment SomeComponentFragment on User {
 }
 
 //- schema.graphql
-# Empty server schema
+type Query {
+  greeting: String
+}
 
 //- schema-extensions/extension.graphql
 enum Status {

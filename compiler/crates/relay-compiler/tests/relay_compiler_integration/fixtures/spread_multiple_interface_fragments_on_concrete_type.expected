@@ -51,6 +51,9 @@ graphql`fragment SpreadInterfaceFragmentOnConcreteTypeComponentFragment on User 
 }
 
 //- schema.graphql
+type Query {
+  greeting: String
+}
 
 //- schema-extensions/extension.graphql
 

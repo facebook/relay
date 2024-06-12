@@ -46,5 +46,8 @@ graphql`fragment UserFooFragment on User @throwOnFieldError {
 }
 
 //- schema.graphql
+type Query {
+  greeting: String
+}
 
 type User { name: String }

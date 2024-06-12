@@ -12,7 +12,7 @@ graphql`query PersonComponentQuery {
 /**
  * @RelayResolver Admin implements Worker
  */
-export function 
+export function
 
 /**
  * @RelayResolver Admin.admin: Admin

@@ -54,7 +54,9 @@ export type SomeComplexObjectFlowType {
 }
 
 //- schema.graphql
-# Empty server schema
+type Query {
+  greeting: String
+}
 
 //- schema-extensions/extension.graphql
 scalar SomeComplexObject

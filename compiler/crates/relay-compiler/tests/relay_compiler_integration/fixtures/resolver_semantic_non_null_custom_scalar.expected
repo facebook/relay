@@ -60,6 +60,9 @@ graphql`fragment UserFooFragment on User @throwOnFieldError {
 scalar CustomScalarType
 
 //- schema.graphql
+type Query {
+  greeting: String
+}
 
 type User { name: String }
 ==================================== OUTPUT ===================================

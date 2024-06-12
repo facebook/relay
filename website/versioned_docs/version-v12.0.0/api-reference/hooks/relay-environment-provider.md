@@ -15,9 +15,9 @@ import DocsRating from '@site/src/core/DocsRating';
 This component is used to set a Relay environment in React Context. Usually, a *single* instance of this component should be rendered at the very root of the application, in order to set the Relay environment for the whole application:
 
 ```js
-const React = require('React');
+import React from 'react';
 
-const {RelayEnvironmentProvider} = require('react-relay');
+import { RelayEnvironmentProvider } from 'react-relay/hooks';
 
 const Environment = createNewEnvironment();
 

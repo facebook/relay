@@ -144,10 +144,7 @@ fn maybe_validate_schema(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
 ) -> DiagnosticsResult<()> {
-    if !project_config
-        .feature_flags
-        .enable_experimental_schema_validation
-    {
+    if project_config.feature_flags.disable_schema_validation {
         return Ok(());
     }
 

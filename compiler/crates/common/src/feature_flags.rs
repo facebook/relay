@@ -109,10 +109,10 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub allow_resolver_non_nullable_return_type: FeatureFlag,
 
-    /// Enable validating the composite schema (server, client schema
+    /// Disable validating the composite schema (server, client schema
     /// extensions, Relay Resolvers) after its built.
     #[serde(default)]
-    pub enable_experimental_schema_validation: bool,
+    pub disable_schema_validation: bool,
 
     /// Disallow the `@required` directive on fields that are already non-null
     /// in the schema.

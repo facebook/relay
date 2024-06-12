@@ -37,8 +37,7 @@ export function boss() {
     "schema-extensions"
   ],
   "featureFlags": {
-    "enable_relay_resolver_transform": true,
-    "enable_experimental_schema_validation": true
+    "enable_relay_resolver_transform": true
   }
 }
 

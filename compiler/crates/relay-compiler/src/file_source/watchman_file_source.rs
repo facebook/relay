@@ -103,7 +103,6 @@ impl<'config> WatchmanFileSource<'config> {
                     saved_state_config.clone(),
                     saved_state_loader.as_ref(),
                     saved_state_version,
-                    self.config,
                 )
                 .await
             {
@@ -257,7 +256,6 @@ impl<'config> WatchmanFileSource<'config> {
         saved_state_config: ScmAwareClockData,
         saved_state_loader: &'_ (dyn SavedStateLoader + Send + Sync),
         saved_state_version: &str,
-        config: &Config,
     ) -> std::result::Result<Result<CompilerState>, &'static str> {
         let scm_since = Clock::ScmAware(FatClockData {
             clock: ClockSpec::null(),
@@ -315,9 +313,9 @@ impl<'config> WatchmanFileSource<'config> {
             .push(file_source_result);
 
         if let Some(update_compiler_state_from_saved_state) =
-            &config.update_compiler_state_from_saved_state
+            &self.config.update_compiler_state_from_saved_state
         {
-            update_compiler_state_from_saved_state(&mut compiler_state, config);
+            update_compiler_state_from_saved_state(&mut compiler_state, self.config);
         }
 
         if let Err(parse_error) = perf_logger_event.time("merge_file_source_changes", || {

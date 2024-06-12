@@ -40,7 +40,7 @@ function name(user: User): Genric<boolean, string> {
    15 │ }
 
 
-✖︎ This type is not supported
+✖︎ Multiple type params is not supported
 
   <generated>:18:28
    17 │ //extract

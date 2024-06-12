@@ -32,8 +32,8 @@ pub enum SchemaGenerationError {
     GenericNotSupported,
     #[error("Object types not supported")]
     ObjectNotSupported,
-    #[error("This type is not supported")]
-    UnsupportedType,
+    #[error("{name} is not supported")]
+    UnsupportedType { name: &'static str },
     #[error("Type aliases in Relay resolvers are expected to be object types")]
     ExpectedTypeAliasToBeObject,
     #[error("Expected object definition to include fields")]

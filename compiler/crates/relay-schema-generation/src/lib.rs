@@ -51,6 +51,7 @@ use hermes_comments::find_nodes_after_comments;
 use hermes_estree::Declaration;
 use hermes_estree::FlowTypeAnnotation;
 use hermes_estree::Function;
+use hermes_estree::Introspection;
 use hermes_estree::Node;
 use hermes_estree::ObjectTypePropertyKey;
 use hermes_estree::ObjectTypePropertyType;
@@ -549,7 +550,12 @@ impl RelayResolverExtractor {
                 SchemaGenerationError::ObjectNotSupported,
                 self.to_location(object_type.as_ref()),
             )]),
-            _ => self.error_result(SchemaGenerationError::UnsupportedType, &return_type),
+            _ => self.error_result(
+                SchemaGenerationError::UnsupportedType {
+                    name: return_type.name(),
+                },
+                &return_type,
+            ),
         }
     }
 
@@ -678,7 +684,9 @@ impl RelayResolverExtractor {
                         _ => {
                             // Does not support multiple type params for now
                             return self.error_result(
-                                SchemaGenerationError::UnsupportedType,
+                                SchemaGenerationError::UnsupportedType {
+                                    name: "Multiple type params",
+                                },
                                 type_node.as_ref(),
                             );
                         }
@@ -705,10 +713,16 @@ impl RelayResolverExtractor {
             {
                 type_
             } else {
-                return self.error_result(SchemaGenerationError::UnsupportedType, param);
+                return self.error_result(
+                    SchemaGenerationError::UnsupportedType { name: param.name() },
+                    param,
+                );
             }
         } else {
-            return self.error_result(SchemaGenerationError::UnsupportedType, param);
+            return self.error_result(
+                SchemaGenerationError::UnsupportedType { name: param.name() },
+                param,
+            );
         };
 
         let arguments = if node.params.len() > 1 {
@@ -825,7 +839,9 @@ impl RelayResolverExtractor {
                 self.to_location(annot.as_ref()),
             )]),
             _ => Err(vec![Diagnostic::error(
-                SchemaGenerationError::UnsupportedType,
+                SchemaGenerationError::UnsupportedType {
+                    name: entity_type.name(),
+                },
                 self.to_location(&entity_type),
             )]),
         }
@@ -973,7 +989,9 @@ fn return_type_to_type_annotation(
         }
         _ => {
             return Err(vec![Diagnostic::error(
-                SchemaGenerationError::UnsupportedType,
+                SchemaGenerationError::UnsupportedType {
+                    name: return_type.name(),
+                },
                 location,
             )]);
         }

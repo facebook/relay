@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<16887999d3a71b3c23c28230463c5ea9>>
+ * @generated SignedSource<<5cfb80274dfee8eacdb2dea9d271da19>>
  */
 
 mod docblock;
@@ -69,10 +69,10 @@ async fn multiple_modules() {
 }
 
 #[tokio::test]
-async fn optional_strong_type_error() {
-    let input = include_str!("docblock/fixtures/optional-strong-type.error.input");
-    let expected = include_str!("docblock/fixtures/optional-strong-type.error.expected");
-    test_fixture(transform_fixture, file!(), "optional-strong-type.error.input", "docblock/fixtures/optional-strong-type.error.expected", input, expected).await;
+async fn optional_strong_type() {
+    let input = include_str!("docblock/fixtures/optional-strong-type.input");
+    let expected = include_str!("docblock/fixtures/optional-strong-type.expected");
+    test_fixture(transform_fixture, file!(), "optional-strong-type.input", "docblock/fixtures/optional-strong-type.expected", input, expected).await;
 }
 
 #[tokio::test]

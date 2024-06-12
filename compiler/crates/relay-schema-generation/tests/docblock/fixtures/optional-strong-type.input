@@ -15,3 +15,11 @@ export type CatFlowType = {id: string}
 export function Cat(id: DataID): ?CatFlowType {
   return {};
 }
+
+
+/**
+ * @RelayResolver
+ */
+export function name(cat: ?CatFlowType): string {
+  return "cat";
+}

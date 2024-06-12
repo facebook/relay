@@ -74,11 +74,11 @@ pub enum SchemaGenerationError {
     )]
     IncorrectArgumentsDefinition,
     #[error(
-        "A nullable return type is not supported for defining a strong object, try move the nullable mark to the flow type definition itself."
-    )]
-    UnSupportedNullableStrongType,
-    #[error(
         "Multiple docblock descriptions found for this @RelayResolver. Please only include one description (a comment in the docblock uninterrupted by a resolver \"@<field>\")"
     )]
     MultipleDocblockDescriptions,
+    #[error(
+        "A nullable strong type is provided, please make the type non-nullable. The type can't be nullable in the runtime."
+    )]
+    UnexpectedNullableStrongType,
 }

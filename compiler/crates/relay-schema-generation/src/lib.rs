@@ -467,7 +467,7 @@ impl RelayResolverExtractor {
         exports: &FxHashSet<StringKey>,
         source_module_path: &str,
         name: WithLocation<StringKey>,
-        return_type: FlowTypeAnnotation,
+        mut return_type: FlowTypeAnnotation,
         source_hash: ResolverSourceHash,
         is_live: Option<Location>,
         description: Option<WithLocation<StringKey>>,
@@ -486,6 +486,14 @@ impl RelayResolverExtractor {
             implements_interfaces: vec![],
             source_hash,
             semantic_non_null: None,
+        };
+
+        // We ignore nullable annotation since both nullable and non-nullable types are okay for
+        // defining a strong object
+        return_type = if let FlowTypeAnnotation::NullableTypeAnnotation(return_type) = return_type {
+            return_type.type_annotation
+        } else {
+            return_type
         };
         // For now, we assume the flow type for the strong object is always imported
         // from a separate file
@@ -540,10 +548,6 @@ impl RelayResolverExtractor {
             FlowTypeAnnotation::ObjectTypeAnnotation(object_type) => Err(vec![Diagnostic::error(
                 SchemaGenerationError::ObjectNotSupported,
                 self.to_location(object_type.as_ref()),
-            )]),
-            FlowTypeAnnotation::NullableTypeAnnotation(type_) => Err(vec![Diagnostic::error(
-                SchemaGenerationError::UnSupportedNullableStrongType,
-                self.to_location(type_.as_ref()),
             )]),
             _ => self.error_result(SchemaGenerationError::UnsupportedType, &return_type),
         }
@@ -816,6 +820,10 @@ impl RelayResolverExtractor {
                 }
                 Ok(id)
             }
+            FlowTypeAnnotation::NullableTypeAnnotation(annot) => Err(vec![Diagnostic::error(
+                SchemaGenerationError::UnexpectedNullableStrongType,
+                self.to_location(annot.as_ref()),
+            )]),
             _ => Err(vec![Diagnostic::error(
                 SchemaGenerationError::UnsupportedType,
                 self.to_location(&entity_type),

@@ -759,16 +759,14 @@ impl InMemorySchema {
         let mut field_count = 0;
         let mut directive_count = 0;
 
-        let mut diagnostics: Vec<Diagnostic> = Vec::new();
+        let mut duplicate_definitions: Vec<(Type, Location)> = Vec::new();
 
         for (definition, location) in schema_definitions.iter().chain(&client_definitions) {
             let mut insert_into_type_map = |name: StringKey, type_: Type| {
                 match type_map.entry(name) {
-                    Entry::Occupied(_) => {
-                        diagnostics.push(Diagnostic::error(
-                            SchemaError::DuplicateType(name),
-                            location.with_span(definition.span()),
-                        ));
+                    Entry::Occupied(existing_entry) => {
+                        duplicate_definitions
+                            .push((*existing_entry.get(), location.with_span(definition.span())));
                     }
                     Entry::Vacant(vacant) => {
                         vacant.insert(type_);
@@ -845,10 +843,6 @@ impl InMemorySchema {
             }
         }
 
-        if !diagnostics.is_empty() {
-            return Err(diagnostics);
-        }
-
         // Step 2: define operation types, directives, and types
         let string_type = type_map
             .get(&"String".intern())
@@ -905,6 +899,20 @@ impl InMemorySchema {
             for definition in document.0.iter() {
                 schema.add_definition(definition, &document.1.source_location(), true)?;
             }
+        }
+
+        if !duplicate_definitions.is_empty() {
+            return Err(duplicate_definitions
+                .into_iter()
+                .map(|(type_, location)| {
+                    let name = schema.get_type_name(type_);
+                    let previous_location = schema.get_type_location(type_);
+                    Diagnostic::error(SchemaError::DuplicateType(name), location).annotate(
+                        format!("`{}` was previously defined here:", name),
+                        previous_location,
+                    )
+                })
+                .collect());
         }
 
         for document in schema_documents
@@ -1853,6 +1861,7 @@ impl InMemorySchema {
             })
             .collect()
     }
+
     fn get_type_location(&self, type_: Type) -> Location {
         match type_ {
             Type::InputObject(id) => self.input_objects[id.as_usize()].name.location,

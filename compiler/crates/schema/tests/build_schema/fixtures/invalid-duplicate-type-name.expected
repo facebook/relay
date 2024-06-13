@@ -16,3 +16,11 @@ interface Foo {
     7 │ interface Foo {
       │           ^^^
     8 │   name: String
+
+  ℹ︎ `Foo` was previously defined here:
+
+  invalid-duplicate-type-name.graphql:3:6
+    2 │ 
+    3 │ type Foo {
+      │      ^^^
+    4 │   name: String

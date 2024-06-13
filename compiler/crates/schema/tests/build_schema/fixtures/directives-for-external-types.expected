@@ -54,7 +54,7 @@ Text Schema:Schema {
   directives: [
     Directive {
         name: WithLocation {
-            location: <generated>:179:190,
+            location: directives-for-external-types.graphql:179:190,
             item: DirectiveName(
                 "extern_type",
             ),
@@ -62,7 +62,7 @@ Text Schema:Schema {
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:191:197,
+                    location: directives-for-external-types.graphql:191:197,
                     item: ArgumentName(
                         "schema",
                     ),
@@ -76,7 +76,7 @@ Text Schema:Schema {
             },
             Argument {
                 name: WithLocation {
-                    location: <generated>:207:211,
+                    location: directives-for-external-types.graphql:207:211,
                     item: ArgumentName(
                         "name",
                     ),
@@ -99,7 +99,7 @@ Text Schema:Schema {
     },
     Directive {
         name: WithLocation {
-            location: <generated>:245:254,
+            location: directives-for-external-types.graphql:245:254,
             item: DirectiveName(
                 "fetchable",
             ),
@@ -107,7 +107,7 @@ Text Schema:Schema {
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:255:265,
+                    location: directives-for-external-types.graphql:255:265,
                     item: ArgumentName(
                         "field_name",
                     ),
@@ -165,7 +165,7 @@ Text Schema:Schema {
     },
     Directive {
         name: WithLocation {
-            location: <generated>:109:117,
+            location: directives-for-external-types.graphql:109:117,
             item: DirectiveName(
                 "ref_type",
             ),
@@ -173,7 +173,7 @@ Text Schema:Schema {
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:118:124,
+                    location: directives-for-external-types.graphql:118:124,
                     item: ArgumentName(
                         "schema",
                     ),
@@ -187,7 +187,7 @@ Text Schema:Schema {
             },
             Argument {
                 name: WithLocation {
-                    location: <generated>:134:138,
+                    location: directives-for-external-types.graphql:134:138,
                     item: ArgumentName(
                         "name",
                     ),
@@ -245,7 +245,7 @@ Text Schema:Schema {
     },
     Directive {
         name: WithLocation {
-            location: <generated>:11:17,
+            location: directives-for-external-types.graphql:11:17,
             item: DirectiveName(
                 "source",
             ),
@@ -253,7 +253,7 @@ Text Schema:Schema {
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:21:25,
+                    location: directives-for-external-types.graphql:21:25,
                     item: ArgumentName(
                         "name",
                     ),
@@ -300,14 +300,14 @@ Text Schema:Schema {
   fields: [
     Field {
         name: WithLocation {
-            location: <generated>:352:363,
+            location: directives-for-external-types.graphql:352:363,
             item: "fetch__User",
         },
         is_extension: false,
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:364:366,
+                    location: directives-for-external-types.graphql:364:366,
                     item: ArgumentName(
                         "id",
                     ),
@@ -332,14 +332,14 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:380:395,
+            location: directives-for-external-types.graphql:380:395,
             item: "fetch__XIGStory",
         },
         is_extension: false,
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:396:398,
+                    location: directives-for-external-types.graphql:396:398,
                     item: ArgumentName(
                         "id",
                     ),
@@ -364,7 +364,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:484:488,
+            location: directives-for-external-types.graphql:484:488,
             item: "name",
         },
         is_extension: false,
@@ -381,7 +381,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:563:565,
+            location: directives-for-external-types.graphql:563:565,
             item: "id",
         },
         is_extension: false,
@@ -398,7 +398,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:572:577,
+            location: directives-for-external-types.graphql:572:577,
             item: "story",
         },
         is_extension: false,
@@ -451,14 +451,14 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:636:659,
+            location: directives-for-external-types.graphql:636:659,
             item: "default_mailing_address",
         },
         is_extension: false,
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:660:667,
+                    location: directives-for-external-types.graphql:660:667,
                     item: ArgumentName(
                         "country",
                     ),
@@ -483,7 +483,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:721:723,
+            location: directives-for-external-types.graphql:721:723,
             item: "id",
         },
         is_extension: false,
@@ -500,7 +500,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:730:740,
+            location: directives-for-external-types.graphql:730:740,
             item: "is_default",
         },
         is_extension: false,
@@ -517,7 +517,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:752:757,
+            location: directives-for-external-types.graphql:752:757,
             item: "label",
         },
         is_extension: false,
@@ -534,7 +534,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:962:964,
+            location: directives-for-external-types.graphql:962:964,
             item: "id",
         },
         is_extension: false,
@@ -551,7 +551,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:971:975,
+            location: directives-for-external-types.graphql:971:975,
             item: "name",
         },
         is_extension: false,
@@ -674,7 +674,7 @@ Text Schema:Schema {
   input_objects: [
     InputObject {
         name: WithLocation {
-            location: <generated>:775:782,
+            location: directives-for-external-types.graphql:775:782,
             item: InputObjectName(
                 "Country",
             ),
@@ -682,7 +682,7 @@ Text Schema:Schema {
         fields: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:833:837,
+                    location: directives-for-external-types.graphql:833:837,
                     item: ArgumentName(
                         "name",
                     ),
@@ -741,7 +741,7 @@ Text Schema:Schema {
   interfaces: [
     Interface {
         name: WithLocation {
-            location: <generated>:427:435,
+            location: directives-for-external-types.graphql:427:435,
             item: InterfaceName(
                 "XIGHuman",
             ),
@@ -799,7 +799,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: <generated>:342:347,
+            location: directives-for-external-types.graphql:342:347,
             item: ObjectName(
                 "Query",
             ),
@@ -816,7 +816,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: <generated>:505:509,
+            location: directives-for-external-types.graphql:505:509,
             item: ObjectName(
                 "User",
             ),
@@ -858,7 +858,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: <generated>:702:716,
+            location: directives-for-external-types.graphql:702:716,
             item: ObjectName(
                 "MailingAddress",
             ),
@@ -876,7 +876,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: <generated>:872:880,
+            location: directives-for-external-types.graphql:872:880,
             item: ObjectName(
                 "XIGStory",
             ),
@@ -1012,7 +1012,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:293:295,
+            location: directives-for-external-types.graphql:293:295,
             item: ScalarName(
                 "ID",
             ),
@@ -1062,7 +1062,7 @@ Text Schema:Schema {
   unions: [
     Union {
         name: WithLocation {
-            location: <generated>:993:1000,
+            location: directives-for-external-types.graphql:993:1000,
             item: UnionName(
                 "Address",
             ),

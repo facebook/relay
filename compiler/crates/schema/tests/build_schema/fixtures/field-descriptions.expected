@@ -126,7 +126,7 @@ Text Schema:Schema {
   fields: [
     Field {
         name: WithLocation {
-            location: <generated>:42:45,
+            location: field-descriptions.graphql:42:45,
             item: "foo",
         },
         is_extension: false,
@@ -143,7 +143,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:101:105,
+            location: field-descriptions.graphql:101:105,
             item: "line",
         },
         is_extension: false,
@@ -162,7 +162,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:154:159,
+            location: field-descriptions.graphql:154:159,
             item: "block",
         },
         is_extension: false,
@@ -181,7 +181,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:271:286,
+            location: field-descriptions.graphql:271:286,
             item: "multiline_block",
         },
         is_extension: false,
@@ -200,7 +200,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:361:374,
+            location: field-descriptions.graphql:361:374,
             item: "extended_line",
         },
         is_extension: true,
@@ -219,7 +219,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:423:437,
+            location: field-descriptions.graphql:423:437,
             item: "extended_block",
         },
         is_extension: true,
@@ -238,7 +238,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:549:573,
+            location: field-descriptions.graphql:549:573,
             item: "extended_multiline_block",
         },
         is_extension: true,
@@ -365,7 +365,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: <generated>:32:37,
+            location: field-descriptions.graphql:32:37,
             item: ObjectName(
                 "Query",
             ),
@@ -381,7 +381,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: <generated>:59:62,
+            location: field-descriptions.graphql:59:62,
             item: ObjectName(
                 "Foo",
             ),

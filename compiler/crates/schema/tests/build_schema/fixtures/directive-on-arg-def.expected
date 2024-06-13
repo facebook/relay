@@ -57,7 +57,7 @@ Text Schema:Schema {
     },
     Directive {
         name: WithLocation {
-            location: <generated>:62:70,
+            location: directive-on-arg-def.graphql:62:70,
             item: DirectiveName(
                 "required",
             ),
@@ -65,7 +65,7 @@ Text Schema:Schema {
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:71:77,
+                    location: directive-on-arg-def.graphql:71:77,
                     item: ArgumentName(
                         "action",
                     ),
@@ -132,7 +132,7 @@ Text Schema:Schema {
     },
     Directive {
         name: WithLocation {
-            location: <generated>:130:136,
+            location: directive-on-arg-def.graphql:130:136,
             item: DirectiveName(
                 "static",
             ),
@@ -159,7 +159,7 @@ Text Schema:Schema {
   enums: [
     Enum {
         name: WithLocation {
-            location: <generated>:5:24,
+            location: directive-on-arg-def.graphql:5:24,
             item: EnumName(
                 "RequiredFieldAction",
             ),
@@ -187,7 +187,7 @@ Text Schema:Schema {
   fields: [
     Field {
         name: WithLocation {
-            location: <generated>:176:179,
+            location: directive-on-arg-def.graphql:176:179,
             item: "foo",
         },
         is_extension: false,
@@ -312,7 +312,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: <generated>:166:171,
+            location: directive-on-arg-def.graphql:166:171,
             item: ObjectName(
                 "Query",
             ),

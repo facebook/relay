@@ -19,7 +19,7 @@ extend type User implements Foo {
 ==================================== ERROR ====================================
 ✖︎ Expected an interface type for name 'Foo', got an object.
 
-  <generated>:14:29
+  invalid-extension-implements-noninterface.graphql:14:29
    13 │ }
    14 │ extend type User implements Foo {
       │                             ^^^
@@ -27,7 +27,7 @@ extend type User implements Foo {
 
   ℹ︎ the other type is defined here
 
-  <generated>:7:6
+  invalid-extension-implements-noninterface.graphql:7:6
     6 │ 
     7 │ type Foo {
       │      ^^^

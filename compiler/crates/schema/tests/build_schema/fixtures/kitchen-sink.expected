@@ -146,7 +146,7 @@ Text Schema:Schema {
     },
     Directive {
         name: WithLocation {
-            location: <generated>:11:17,
+            location: kitchen-sink.graphql:11:17,
             item: DirectiveName(
                 "source",
             ),
@@ -154,7 +154,7 @@ Text Schema:Schema {
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:18:24,
+                    location: kitchen-sink.graphql:18:24,
                     item: ArgumentName(
                         "schema",
                     ),
@@ -170,7 +170,7 @@ Text Schema:Schema {
             },
             Argument {
                 name: WithLocation {
-                    location: <generated>:35:39,
+                    location: kitchen-sink.graphql:35:39,
                     item: ArgumentName(
                         "name",
                     ),
@@ -219,7 +219,7 @@ Text Schema:Schema {
   enums: [
     Enum {
         name: WithLocation {
-            location: <generated>:340:348,
+            location: kitchen-sink.graphql:340:348,
             item: EnumName(
                 "PageType",
             ),
@@ -269,14 +269,14 @@ Text Schema:Schema {
   fields: [
     Field {
         name: WithLocation {
-            location: <generated>:154:158,
+            location: kitchen-sink.graphql:154:158,
             item: "node",
         },
         is_extension: false,
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:159:161,
+                    location: kitchen-sink.graphql:159:161,
                     item: ArgumentName(
                         "id",
                     ),
@@ -303,14 +303,14 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:176:181,
+            location: kitchen-sink.graphql:176:181,
             item: "nodes",
         },
         is_extension: false,
         arguments: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:182:185,
+                    location: kitchen-sink.graphql:182:185,
                     item: ArgumentName(
                         "ids",
                     ),
@@ -347,7 +347,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:227:229,
+            location: kitchen-sink.graphql:227:229,
             item: "id",
         },
         is_extension: false,
@@ -366,7 +366,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:268:270,
+            location: kitchen-sink.graphql:268:270,
             item: "id",
         },
         is_extension: false,
@@ -385,7 +385,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:278:282,
+            location: kitchen-sink.graphql:278:282,
             item: "name",
         },
         is_extension: false,
@@ -402,7 +402,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:308:310,
+            location: kitchen-sink.graphql:308:310,
             item: "id",
         },
         is_extension: false,
@@ -419,7 +419,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: <generated>:317:321,
+            location: kitchen-sink.graphql:317:321,
             item: "type",
         },
         is_extension: false,
@@ -627,7 +627,7 @@ Text Schema:Schema {
   input_objects: [
     InputObject {
         name: WithLocation {
-            location: <generated>:510:518,
+            location: kitchen-sink.graphql:510:518,
             item: InputObjectName(
                 "Location",
             ),
@@ -635,7 +635,7 @@ Text Schema:Schema {
         fields: [
             Argument {
                 name: WithLocation {
-                    location: <generated>:569:572,
+                    location: kitchen-sink.graphql:569:572,
                     item: ArgumentName(
                         "lat",
                     ),
@@ -651,7 +651,7 @@ Text Schema:Schema {
             },
             Argument {
                 name: WithLocation {
-                    location: <generated>:583:586,
+                    location: kitchen-sink.graphql:583:586,
                     item: ArgumentName(
                         "lon",
                     ),
@@ -667,7 +667,7 @@ Text Schema:Schema {
             },
             Argument {
                 name: WithLocation {
-                    location: <generated>:597:601,
+                    location: kitchen-sink.graphql:597:601,
                     item: ArgumentName(
                         "city",
                     ),
@@ -681,7 +681,7 @@ Text Schema:Schema {
             },
             Argument {
                 name: WithLocation {
-                    location: <generated>:612:615,
+                    location: kitchen-sink.graphql:612:615,
                     item: ArgumentName(
                         "zip",
                     ),
@@ -695,7 +695,7 @@ Text Schema:Schema {
             },
             Argument {
                 name: WithLocation {
-                    location: <generated>:623:638,
+                    location: kitchen-sink.graphql:623:638,
                     item: ArgumentName(
                         "previous_cities",
                     ),
@@ -756,7 +756,7 @@ Text Schema:Schema {
   interfaces: [
     Interface {
         name: WithLocation {
-            location: <generated>:218:222,
+            location: kitchen-sink.graphql:218:222,
             item: InterfaceName(
                 "Node",
             ),
@@ -799,7 +799,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: <generated>:144:149,
+            location: kitchen-sink.graphql:144:149,
             item: ObjectName(
                 "Query",
             ),
@@ -816,7 +816,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: <generated>:243:247,
+            location: kitchen-sink.graphql:243:247,
             item: ObjectName(
                 "User",
             ),
@@ -838,7 +838,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: <generated>:299:303,
+            location: kitchen-sink.graphql:299:303,
             item: ObjectName(
                 "Page",
             ),
@@ -933,7 +933,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:459:462,
+            location: kitchen-sink.graphql:459:462,
             item: ScalarName(
                 "URL",
             ),
@@ -981,7 +981,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:660:665,
+            location: kitchen-sink.graphql:660:665,
             item: ScalarName(
                 "Float",
             ),
@@ -993,7 +993,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:674:677,
+            location: kitchen-sink.graphql:674:677,
             item: ScalarName(
                 "Int",
             ),
@@ -1005,7 +1005,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:686:692,
+            location: kitchen-sink.graphql:686:692,
             item: ScalarName(
                 "String",
             ),
@@ -1019,7 +1019,7 @@ Text Schema:Schema {
   unions: [
     Union {
         name: WithLocation {
-            location: <generated>:431:436,
+            location: kitchen-sink.graphql:431:436,
             item: UnionName(
                 "Actor",
             ),

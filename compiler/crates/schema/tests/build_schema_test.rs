@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0cd59a6b663edc7d714c28b2f3a05b96>>
+ * @generated SignedSource<<0a030b4a01ee463bfd4bd071a0aa1930>>
  */
 
 mod build_schema;
@@ -66,6 +66,13 @@ async fn invalid_duplicate_query_operation() {
     let input = include_str!("build_schema/fixtures/invalid-duplicate-query-operation.graphql");
     let expected = include_str!("build_schema/fixtures/invalid-duplicate-query-operation.expected");
     test_fixture(transform_fixture, file!(), "invalid-duplicate-query-operation.graphql", "build_schema/fixtures/invalid-duplicate-query-operation.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn invalid_duplicate_type_name() {
+    let input = include_str!("build_schema/fixtures/invalid-duplicate-type-name.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-duplicate-type-name.expected");
+    test_fixture(transform_fixture, file!(), "invalid-duplicate-type-name.graphql", "build_schema/fixtures/invalid-duplicate-type-name.expected", input, expected).await;
 }
 
 #[tokio::test]

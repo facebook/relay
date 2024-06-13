@@ -17,6 +17,7 @@ mod watchman_file_source;
 mod watchman_query_builder;
 
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use common::PerfLogEvent;
 use common::PerfLogger;
@@ -51,25 +52,27 @@ use crate::config::FileSourceKind;
 use crate::errors::Error;
 use crate::errors::Result;
 
-pub enum FileSource<'config> {
-    Watchman(WatchmanFileSource<'config>),
-    External(ExternalFileSource<'config>),
-    WalkDir(WalkDirFileSource<'config>),
+pub enum FileSource {
+    Watchman(WatchmanFileSource),
+    External(ExternalFileSource),
+    WalkDir(WalkDirFileSource),
 }
 
-impl<'config> FileSource<'config> {
+impl FileSource {
     pub async fn connect(
-        config: &'config Config,
+        config: &Arc<Config>,
         perf_logger_event: &impl PerfLogEvent,
-    ) -> Result<FileSource<'config>> {
+    ) -> Result<FileSource> {
         match &config.file_source_config {
             FileSourceKind::Watchman => Ok(Self::Watchman(
                 WatchmanFileSource::connect(config, perf_logger_event).await?,
             )),
             FileSourceKind::External(changed_files_list) => Ok(Self::External(
-                ExternalFileSource::new(changed_files_list.to_path_buf(), config),
+                ExternalFileSource::new(changed_files_list.to_path_buf(), Arc::clone(config)),
             )),
-            FileSourceKind::WalkDir => Ok(Self::WalkDir(WalkDirFileSource::new(config))),
+            FileSourceKind::WalkDir => {
+                Ok(Self::WalkDir(WalkDirFileSource::new(Arc::clone(config))))
+            }
         }
     }
 
@@ -92,7 +95,7 @@ impl<'config> FileSource<'config> {
                         err
                     );
                     let watchman_file_source =
-                        WatchmanFileSource::connect(file_source.config, perf_logger_event).await?;
+                        WatchmanFileSource::connect(&file_source.config, perf_logger_event).await?;
                     watchman_file_source
                         .full_query(perf_logger_event, perf_logger)
                         .await

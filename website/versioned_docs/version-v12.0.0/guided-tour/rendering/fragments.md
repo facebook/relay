@@ -343,7 +343,7 @@ function App({appQueryRef}) {
 
 Note that:
 
-* The *fragment reference* that  `UserComponent` expects is is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `usePreloadedQuery` also serves as the fragment reference for any child fragments included in that query.
+* The *fragment reference* that  `UserComponent` expects is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `usePreloadedQuery` also serves as the fragment reference for any child fragments included in that query.
 * As mentioned previously, *all fragments must belong to a query when they are rendered,* which means that all fragment components *must* be descendants of a query. This guarantees that you will always be able to provide a fragment reference for `useFragment`, by starting from the result of reading a root query with `usePreloadedQuery`.
 
 <DocsRating />

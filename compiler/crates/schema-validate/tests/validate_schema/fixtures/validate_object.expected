@@ -95,7 +95,7 @@ type Fur {
       │           ^^^^^^^
     4 │   pet: Canine
 
-✖︎ Interface field 'Canine.name' expected but 'Pet' does not provide it.
+✖︎ Interface field 'Canine.name' expected but type 'Pet' does not provide it.
 
   validate_object.graphql:13:6
    12 │ 

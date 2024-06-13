@@ -12,6 +12,7 @@ use std::fmt;
 use std::hash::Hash;
 use std::slice::Iter;
 
+use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::DirectiveName;
@@ -28,7 +29,7 @@ use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
 pub use interface::*;
-use intern::string_key::Intern;
+use intern::intern;
 use lazy_static::lazy_static;
 
 use crate::Schema;
@@ -626,12 +627,17 @@ impl IntoIterator for ArgumentDefinitions {
 }
 
 pub trait TypeWithFields {
+    fn type_kind(&self) -> StringKey;
     fn fields(&self) -> &Vec<FieldID>;
     fn interfaces(&self) -> &Vec<InterfaceID>;
     fn location(&self) -> &Location;
 }
 
 impl TypeWithFields for Interface {
+    fn type_kind(&self) -> StringKey {
+        intern!("interface")
+    }
+
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
     }
@@ -646,6 +652,9 @@ impl TypeWithFields for Interface {
 }
 
 impl TypeWithFields for Object {
+    fn type_kind(&self) -> StringKey {
+        intern!("type")
+    }
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
     }

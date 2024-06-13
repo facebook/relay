@@ -44,8 +44,8 @@ pub enum SchemaValidationError {
     #[error("Type '{0}' can only implement '{1}' once.")]
     DuplicateInterfaceImplementation(StringKey, InterfaceName),
 
-    #[error("Interface field '{0}.{1}' expected but '{2}' does not provide it.")]
-    InterfaceFieldNotProvided(InterfaceName, StringKey, StringKey),
+    #[error("Interface field '{0}.{1}' expected but {2} '{3}' does not provide it.")]
+    InterfaceFieldNotProvided(InterfaceName, StringKey, StringKey, StringKey),
 
     #[error("Interface field '{0}.{1}' expects type '{2}' but '{3}.{1}' is of type '{4}'.")]
     NotASubType(InterfaceName, StringKey, String, StringKey, String),

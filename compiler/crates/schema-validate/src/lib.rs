@@ -389,6 +389,7 @@ impl<'schema> ValidationContext<'schema> {
                         SchemaValidationError::InterfaceFieldNotProvided(
                             interface.name.item,
                             field_name,
+                            type_.type_kind(),
                             typename,
                         ),
                         *type_.location(),

@@ -46,7 +46,7 @@ interface IPerson {
   name: String
 }
 ==================================== OUTPUT ===================================
-✖︎ Interface field 'IPerson.name' expected but 'Admin' does not provide it.
+✖︎ Interface field 'IPerson.name' expected but type 'Admin' does not provide it.
 
   AdminTypeResolvers.js:2:19
     1 │ *

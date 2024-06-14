@@ -2077,6 +2077,7 @@ dependencies = [
  "graphql-cli",
  "intern",
  "lazy_static",
+ "rayon",
  "regex",
  "schema",
  "serde",

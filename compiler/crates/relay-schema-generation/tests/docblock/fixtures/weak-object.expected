@@ -22,6 +22,21 @@ export function Cat(id: DataID): CatFlowType {
  */
 export type FullName = {first: string, last: string};
 
+
+/**
+ * @RelayResolver
+ */
+export function first(name: FullName): string {
+  return name.first;
+}
+
+/**
+ * @RelayResolver
+ */
+export function last(name: FullName): string {
+  return name.last;
+}
+
 /**
  * @RelayResolver
  */
@@ -34,22 +49,22 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 369:374,
+                    span: 443:448,
                     token: Token {
-                        span: 369:374,
+                        span: 443:448,
                         kind: Identifier,
                     },
                     value: "first",
                 },
                 type_: NonNull(
                     NonNullTypeAnnotation {
-                        span: 376:382,
+                        span: 466:472,
                         type_: Named(
                             NamedTypeAnnotation {
                                 name: Identifier {
-                                    span: 376:382,
+                                    span: 466:472,
                                     token: Token {
-                                        span: 376:382,
+                                        span: 466:472,
                                         kind: Identifier,
                                     },
                                     value: "String",
@@ -66,7 +81,7 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 369:374,
+                span: 443:448,
             },
             type_: WithLocation {
                 location: <generated>:357:365,
@@ -76,16 +91,16 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: module.js:369:374,
+            location: module.js:443:448,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "47aa9b99e97b427fbcade6680ebf096d",
+                "cbee4c20757f831a7a766d841ecacc1e",
             ),
         },
     ),
 )
 extend type FullName {
-  first: String! @relay_resolver(fragment_name: "FullName____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "first", import_path: "module.js") @resolver_source_hash(value: "47aa9b99e97b427fbcade6680ebf096d")
+  first: String! @relay_resolver(fragment_name: "FullName____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "first", import_path: "module.js") @resolver_source_hash(value: "cbee4c20757f831a7a766d841ecacc1e")
 }
 
 
@@ -94,22 +109,22 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 384:388,
+                    span: 541:545,
                     token: Token {
-                        span: 384:388,
+                        span: 541:545,
                         kind: Identifier,
                     },
                     value: "last",
                 },
                 type_: NonNull(
                     NonNullTypeAnnotation {
-                        span: 390:396,
+                        span: 563:569,
                         type_: Named(
                             NamedTypeAnnotation {
                                 name: Identifier {
-                                    span: 390:396,
+                                    span: 563:569,
                                     token: Token {
-                                        span: 390:396,
+                                        span: 563:569,
                                         kind: Identifier,
                                     },
                                     value: "String",
@@ -126,7 +141,7 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 384:388,
+                span: 541:545,
             },
             type_: WithLocation {
                 location: <generated>:357:365,
@@ -136,16 +151,16 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: module.js:384:388,
+            location: module.js:541:545,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "47aa9b99e97b427fbcade6680ebf096d",
+                "cbee4c20757f831a7a766d841ecacc1e",
             ),
         },
     ),
 )
 extend type FullName {
-  last: String! @relay_resolver(fragment_name: "FullName____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "last", import_path: "module.js") @resolver_source_hash(value: "47aa9b99e97b427fbcade6680ebf096d")
+  last: String! @relay_resolver(fragment_name: "FullName____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "last", import_path: "module.js") @resolver_source_hash(value: "cbee4c20757f831a7a766d841ecacc1e")
 }
 
 
@@ -154,22 +169,22 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 442:450,
+                    span: 637:645,
                     token: Token {
-                        span: 442:450,
+                        span: 637:645,
                         kind: Identifier,
                     },
                     value: "fullName",
                 },
                 type_: NonNull(
                     NonNullTypeAnnotation {
-                        span: 470:478,
+                        span: 665:673,
                         type_: Named(
                             NamedTypeAnnotation {
                                 name: Identifier {
-                                    span: 470:478,
+                                    span: 665:673,
                                     token: Token {
-                                        span: 470:478,
+                                        span: 665:673,
                                         kind: Identifier,
                                     },
                                     value: "FullName",
@@ -186,7 +201,7 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 442:450,
+                span: 637:645,
             },
             type_: WithLocation {
                 location: <generated>:272:275,
@@ -196,16 +211,16 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: module.js:442:450,
+            location: module.js:637:645,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "47aa9b99e97b427fbcade6680ebf096d",
+                "cbee4c20757f831a7a766d841ecacc1e",
             ),
         },
     ),
 )
 extend type Cat {
-  fullName: FullName! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "47aa9b99e97b427fbcade6680ebf096d")
+  fullName: FullName! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "cbee4c20757f831a7a766d841ecacc1e")
 }
 
 
@@ -234,14 +249,14 @@ Type(
             location: module.js:272:275,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "47aa9b99e97b427fbcade6680ebf096d",
+                "cbee4c20757f831a7a766d841ecacc1e",
             ),
         },
     ),
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "47aa9b99e97b427fbcade6680ebf096d") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "cbee4c20757f831a7a766d841ecacc1e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
@@ -263,7 +278,7 @@ Type(
             location: module.js:357:365,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "47aa9b99e97b427fbcade6680ebf096d",
+                "cbee4c20757f831a7a766d841ecacc1e",
             ),
         },
     ),
@@ -272,5 +287,5 @@ scalar FullNameModel @__RelayCustomScalar(path: "module.js", export_name: "FullN
 
 
 type FullName @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
-  __relay_model_instance: FullNameModel! @resolver_source_hash(value: "47aa9b99e97b427fbcade6680ebf096d") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: FullNameModel! @resolver_source_hash(value: "cbee4c20757f831a7a766d841ecacc1e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

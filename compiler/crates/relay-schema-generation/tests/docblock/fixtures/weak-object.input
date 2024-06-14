@@ -21,6 +21,21 @@ export function Cat(id: DataID): CatFlowType {
  */
 export type FullName = {first: string, last: string};
 
+
+/**
+ * @RelayResolver
+ */
+export function first(name: FullName): string {
+  return name.first;
+}
+
+/**
+ * @RelayResolver
+ */
+export function last(name: FullName): string {
+  return name.last;
+}
+
 /**
  * @RelayResolver
  */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9accc2fd2f37ff6320681c4e9f8918bb>>
+ * @generated SignedSource<<7f0997fb1dbf297de82340a1c311a2b0>>
  */
 
 mod docblock;
@@ -150,18 +150,4 @@ async fn weak_object() {
     let input = include_str!("docblock/fixtures/weak-object.input");
     let expected = include_str!("docblock/fixtures/weak-object.expected");
     test_fixture(transform_fixture, file!(), "weak-object.input", "docblock/fixtures/weak-object.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn weak_object_no_fields() {
-    let input = include_str!("docblock/fixtures/weak-object-no-fields.input");
-    let expected = include_str!("docblock/fixtures/weak-object-no-fields.expected");
-    test_fixture(transform_fixture, file!(), "weak-object-no-fields.input", "docblock/fixtures/weak-object-no-fields.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn weak_type_error() {
-    let input = include_str!("docblock/fixtures/weak-type-error.input");
-    let expected = include_str!("docblock/fixtures/weak-type-error.expected");
-    test_fixture(transform_fixture, file!(), "weak-type-error.input", "docblock/fixtures/weak-type-error.expected", input, expected).await;
 }

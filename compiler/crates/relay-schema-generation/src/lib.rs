@@ -124,8 +124,10 @@ pub struct RelayResolverExtractor {
 )]
 pub enum JSImportType {
     Default,
-    Namespace,
     Named(StringKey),
+    // Note that namespace imports cannot be used for resolver types. Anything namespace
+    // imported should be a "Named" import instead
+    Namespace,
 }
 impl fmt::Display for JSImportType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -286,6 +288,7 @@ impl RelayResolverExtractor {
                                 source_hash,
                                 source_module_path,
                                 description,
+                                false,
                             )?
                         }
                     }
@@ -301,61 +304,65 @@ impl RelayResolverExtractor {
             self.unresolved_field_definitions
                 .into_iter()
                 .map(|(key, field)| {
-                    if let Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
-                        object,
-                    ))) = self.type_definitions.get(&key)
-                    {
-                        let arguments = if let Some(args) = field.arguments {
-                            Some(flow_type_to_field_arguments(self.current_location, &args)?)
-                        } else {
-                            None
-                        };
-                        let description_node = field.description.map(|desc| StringNode {
-                            token: Token {
-                                span: desc.location.span(),
-                                kind: TokenKind::Empty,
-                            },
-                            value: desc.item,
-                        });
-                        let field_definition = FieldDefinition {
-                            name: string_key_to_identifier(field.field_name),
-                            type_: return_type_to_type_annotation(
-                                self.current_location,
-                                &field.return_type,
-                            )?,
-                            arguments,
-                            directives: vec![],
-                            description: description_node,
-                            hack_source: None,
-                            span: field.field_name.location.span(),
-                        };
-                        let live = field
-                            .is_live
-                            .map(|loc| UnpopulatedIrField { key_location: loc });
-                        self.resolved_field_definitions.push(TerseRelayResolverIr {
-                            field: field_definition,
-                            type_: object
+                    let entity = match self.type_definitions.get(&key) {
+                        Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
+                            object,
+                        ))) => Ok(object
+                            .type_name
+                            .name_with_location(SourceLocationKey::Generated)),
+                        Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(object))) => {
+                            Ok(object
                                 .type_name
-                                .name_with_location(SourceLocationKey::Generated),
-                            root_fragment: None,
-                            location: field.field_name.location,
-                            deprecated: None,
-                            live,
-                            fragment_arguments: None,
-                            source_hash: field.source_hash,
-                            semantic_non_null: None,
-                        });
-                        Ok(())
-                    } else {
-                        Err(vec![Diagnostic::error(
+                                .name_with_location(SourceLocationKey::Generated))
+                        }
+                        _ => Err(vec![Diagnostic::error(
                             SchemaGenerationError::ModuleNotFound {
                                 entity_name: field.entity_name.item,
                                 export_type: key.import_type,
                                 module_name: key.module_name,
                             },
                             field.entity_name.location,
-                        )])
-                    }
+                        )]),
+                    }?;
+                    let arguments = if let Some(args) = field.arguments {
+                        Some(flow_type_to_field_arguments(self.current_location, &args)?)
+                    } else {
+                        None
+                    };
+                    let description_node = field.description.map(|desc| StringNode {
+                        token: Token {
+                            span: desc.location.span(),
+                            kind: TokenKind::Empty,
+                        },
+                        value: desc.item,
+                    });
+                    let field_definition = FieldDefinition {
+                        name: string_key_to_identifier(field.field_name),
+                        type_: return_type_to_type_annotation(
+                            self.current_location,
+                            &field.return_type,
+                        )?,
+                        arguments,
+                        directives: vec![],
+                        description: description_node,
+                        hack_source: None,
+                        span: field.field_name.location.span(),
+                    };
+                    let live = field
+                        .is_live
+                        .map(|loc| UnpopulatedIrField { key_location: loc });
+                    self.resolved_field_definitions.push(TerseRelayResolverIr {
+                        field: field_definition,
+                        type_: entity,
+                        root_fragment: None,
+                        location: field.field_name.location,
+                        deprecated: None,
+                        live,
+                        fragment_arguments: None,
+                        source_hash: field.source_hash,
+                        semantic_non_null: None,
+                    });
+                    Ok(())
                 }),
         )?;
         Ok((
@@ -566,6 +573,7 @@ impl RelayResolverExtractor {
         source_hash: ResolverSourceHash,
         source_module_path: &str,
         description: Option<WithLocation<StringKey>>,
+        should_generate_fields: bool,
     ) -> DiagnosticsResult<()> {
         let weak_object = WeakObjectIr {
             type_name: string_key_to_identifier(name),
@@ -586,55 +594,62 @@ impl RelayResolverExtractor {
             module_name: haste_module_name.intern(),
             import_type: JSImportType::Named(name.item),
         };
-        // Add fields
-        if let FlowTypeAnnotation::ObjectTypeAnnotation(object_node) = type_alias {
-            let field_map = self.get_object_fields(&object_node)?;
-            if !field_map.is_empty() {
-                try_all(field_map.into_iter().map(|(field_name, field_type)| {
-                    let field_definition = FieldDefinition {
-                        name: string_key_to_identifier(field_name),
-                        type_: return_type_to_type_annotation(self.current_location, field_type)?,
-                        arguments: None,
-                        directives: vec![],
-                        description: None,
-                        hack_source: None,
-                        span: field_name.location.span(),
-                    };
 
-                    self.resolved_field_definitions.push(TerseRelayResolverIr {
-                        field: field_definition,
-                        type_: weak_object
-                            .type_name
-                            .name_with_location(SourceLocationKey::Generated),
-                        root_fragment: None,
-                        location: field_name.location,
-                        deprecated: None,
-                        live: None,
-                        fragment_arguments: None,
-                        source_hash,
-                        semantic_non_null: None,
-                    });
-                    Ok(())
-                }))?;
+        // TODO: this generates the IR but not the runtime JS
+        if should_generate_fields {
+            if let FlowTypeAnnotation::ObjectTypeAnnotation(object_node) = type_alias {
+                let field_map = self.get_object_fields(&object_node)?;
+                if !field_map.is_empty() {
+                    try_all(field_map.into_iter().map(|(field_name, field_type)| {
+                        let field_definition = FieldDefinition {
+                            name: string_key_to_identifier(field_name),
+                            type_: return_type_to_type_annotation(
+                                self.current_location,
+                                field_type,
+                            )?,
+                            arguments: None,
+                            directives: vec![],
+                            description: None,
+                            hack_source: None,
+                            span: field_name.location.span(),
+                        };
 
-                self.type_definitions.insert(
-                    key.clone(),
-                    DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(weak_object)),
-                );
-                Ok(())
+                        self.resolved_field_definitions.push(TerseRelayResolverIr {
+                            field: field_definition,
+                            type_: weak_object
+                                .type_name
+                                .name_with_location(SourceLocationKey::Generated),
+                            root_fragment: None,
+                            location: field_name.location,
+                            deprecated: None,
+                            live: None,
+                            fragment_arguments: None,
+                            source_hash,
+                            semantic_non_null: None,
+                        });
+                        Ok(())
+                    }))?;
+                } else {
+                    let location = self.to_location(object_node.as_ref());
+                    return Err(vec![Diagnostic::error(
+                        SchemaGenerationError::ExpectedWeakObjectToHaveFields,
+                        location,
+                    )]);
+                }
             } else {
-                let location = self.to_location(object_node.as_ref());
-                Err(vec![Diagnostic::error(
-                    SchemaGenerationError::ExpectedWeakObjectToHaveFields,
-                    location,
-                )])
+                return Err(vec![Diagnostic::error(
+                    SchemaGenerationError::ExpectedTypeAliasToBeObject,
+                    self.to_location(&type_alias),
+                )]);
             }
-        } else {
-            Err(vec![Diagnostic::error(
-                SchemaGenerationError::ExpectedTypeAliasToBeObject,
-                self.to_location(&type_alias),
-            )])
         }
+
+        // Add weak object
+        self.type_definitions.insert(
+            key.clone(),
+            DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(weak_object)),
+        );
+        Ok(())
     }
 
     pub fn extract_function(&self, node: &Function) -> DiagnosticsResult<ResolverFlowData> {
@@ -791,19 +806,13 @@ impl RelayResolverExtractor {
                 }
                 _ => Err(vec![Diagnostic::error(
                     SchemaGenerationError::ExpectedFunctionOrTypeAlias,
-                    Location::new(
-                        self.current_location,
-                        Span::new(range.start, range.end.into()),
-                    ),
+                    Location::new(self.current_location, Span::new(range.start, range.end)),
                 )]),
             }
         } else {
             Err(vec![Diagnostic::error(
                 SchemaGenerationError::ExpectedNamedExport,
-                Location::new(
-                    self.current_location,
-                    Span::new(range.start, range.end.into()),
-                ),
+                Location::new(self.current_location, Span::new(range.start, range.end)),
             )])
         }
     }
@@ -856,7 +865,7 @@ impl SchemaExtractor for RelayResolverExtractor {
 
 fn to_location<T: Range>(source_location: SourceLocationKey, node: &T) -> Location {
     let range = node.range();
-    Location::new(source_location, Span::new(range.start, range.end.into()))
+    Location::new(source_location, Span::new(range.start, range.end))
 }
 
 fn string_key_to_identifier(name: WithLocation<StringKey>) -> Identifier {

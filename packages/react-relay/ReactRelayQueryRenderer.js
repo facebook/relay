@@ -116,7 +116,11 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       const {query} = props;
 
       const request = getRequest(query);
-      requestCacheKey = getRequestCacheKey(request.params, props.variables);
+      requestCacheKey = getRequestCacheKey(
+        request.params,
+        props.variables,
+        props.environment?.configName,
+      );
       queryFetcher = requestCache[requestCacheKey]
         ? requestCache[requestCacheKey].queryFetcher
         : new ReactRelayQueryFetcher();
@@ -329,9 +333,11 @@ function getRenderProps(
 function getRequestCacheKey(
   request: RequestParameters,
   variables: Variables,
+  configName: ?string,
 ): string {
   return JSON.stringify({
     id: request.cacheID ? request.cacheID : request.id,
+    configName: configName || null,
     variables,
   });
 }
@@ -349,7 +355,11 @@ function resetQueryStateForUpdate(
   let queryFetcher;
   if (query) {
     const request = getRequest(query);
-    const requestCacheKey = getRequestCacheKey(request.params, props.variables);
+    const requestCacheKey = getRequestCacheKey(
+      request.params,
+      props.variables,
+      props.environment?.configName,
+    );
     queryFetcher = requestCache[requestCacheKey]
       ? requestCache[requestCacheKey].queryFetcher
       : new ReactRelayQueryFetcher(prevSelectionReferences);
@@ -436,7 +446,12 @@ function fetchQueryAndComputeStateFromProps(
 
       // cache the request to avoid duplicate requests
       requestCacheKey =
-        requestCacheKey || getRequestCacheKey(request.params, props.variables);
+        requestCacheKey ||
+        getRequestCacheKey(
+          request.params,
+          props.variables,
+          props.environment?.configName,
+        );
       requestCache[requestCacheKey] = {queryFetcher, snapshot};
 
       if (!snapshot) {

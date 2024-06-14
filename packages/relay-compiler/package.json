@@ -1,7 +1,7 @@
 {
   "name": "relay-compiler",
   "description": "A compiler tool for building GraphQL-driven applications.",
-  "version": "16.2.0",
+  "version": "17.0.0",
   "keywords": [
     "graphql",
     "relay"

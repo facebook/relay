@@ -2,7 +2,7 @@
 
 [package]
 name = "relay"
-version = "16.2.0"
+version = "17.0.0"
 authors = ["Facebook"]
 edition = "2021"
 repository = "https://github.com/facebook/relay"

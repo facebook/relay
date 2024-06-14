@@ -392,6 +392,7 @@ fn apply_operation_transforms(
         transform_declarative_connection(
             &program,
             &project_config.schema_config.connection_interface,
+            &project_config.feature_flags,
         )
     })?;
 

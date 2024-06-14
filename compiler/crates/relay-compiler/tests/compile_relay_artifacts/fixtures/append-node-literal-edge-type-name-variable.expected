@@ -1,11 +1,12 @@
 ==================================== INPUT ====================================
-mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
+mutation appendNodeLiteralEdgeTypeNameVariableMutation(
   $connections: [ID!]!
   $input: CommentCreateInput
+  $edgeTypeName: String!
 ) {
   commentCreate(input: $input) {
     comment
-      @appendNode(connections: $connections, edgeTypeName: "CommentsEdge") {
+      @appendNode(connections: $connections, edgeTypeName: $edgeTypeName) {
       id
     }
   }
@@ -22,12 +23,17 @@ mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
       {
         "defaultValue": null,
         "kind": "LocalArgument",
+        "name": "edgeTypeName"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
         "name": "input"
       }
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "appendNodeLiteralEdgeTypeNameCommentCreateMutation",
+    "name": "appendNodeLiteralEdgeTypeNameVariableMutation",
     "selections": [
       {
         "alias": null,
@@ -80,10 +86,15 @@ mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
         "defaultValue": null,
         "kind": "LocalArgument",
         "name": "input"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "edgeTypeName"
       }
     ],
     "kind": "Operation",
-    "name": "appendNodeLiteralEdgeTypeNameCommentCreateMutation",
+    "name": "appendNodeLiteralEdgeTypeNameVariableMutation",
     "selections": [
       {
         "alias": null,
@@ -132,9 +143,9 @@ mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
                 "variableName": "connections"
               },
               {
-                "kind": "Literal",
+                "kind": "Variable",
                 "name": "edgeTypeName",
-                "value": "CommentsEdge"
+                "variableName": "edgeTypeName"
               }
             ]
           }
@@ -144,10 +155,10 @@ mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
     ]
   },
   "params": {
-    "cacheID": "d2d9e98d8b7fd733fbf453da2a57c3f6",
+    "cacheID": "c6c4a56d7ea1db74c1935491b7a2e10a",
     "id": null,
     "metadata": {},
-    "name": "appendNodeLiteralEdgeTypeNameCommentCreateMutation",
+    "name": "appendNodeLiteralEdgeTypeNameVariableMutation",
     "operationKind": "mutation",
     "text": null
   }
@@ -155,7 +166,7 @@ mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
 
 QUERY:
 
-mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
+mutation appendNodeLiteralEdgeTypeNameVariableMutation(
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {

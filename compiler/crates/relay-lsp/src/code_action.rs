@@ -29,6 +29,7 @@ use lsp_types::TextDocumentPositionParams;
 use lsp_types::TextEdit;
 use lsp_types::Url;
 use lsp_types::WorkspaceEdit;
+use resolution_path::FragmentDefinitionPath;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
 use resolution_path::OperationDefinitionPath;
@@ -36,6 +37,8 @@ use resolution_path::ResolutionPath;
 use resolution_path::ResolvePosition;
 use serde_json::Value;
 
+use self::create_name_suggestion::create_default_fragment_name;
+use self::create_name_suggestion::create_default_fragment_name_with_index;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
@@ -104,7 +107,7 @@ fn get_code_actions_from_diagnostics(
 
 struct FragmentAndOperationNames {
     operation_names: HashSet<String>,
-    _fragment_names: HashSet<String>,
+    fragment_names: HashSet<String>,
 }
 
 fn get_definition_names(definitions: &[ExecutableDefinition]) -> FragmentAndOperationNames {
@@ -125,7 +128,7 @@ fn get_definition_names(definitions: &[ExecutableDefinition]) -> FragmentAndOper
 
     FragmentAndOperationNames {
         operation_names,
-        _fragment_names: fragment_names,
+        fragment_names,
     }
 }
 
@@ -157,11 +160,26 @@ fn get_code_actions(
             };
 
             let code_action_range = get_code_action_range(range, operation_name.span);
-            Some(create_code_actions(
-                "Rename Operation",
+            Some(create_rename_operation_code_actions(
                 operation_name.value.lookup(),
                 used_definition_names.operation_names,
                 suffix,
+                &url,
+                code_action_range,
+            ))
+        }
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::FragmentDefinitionName(FragmentDefinitionPath {
+                    inner: fragment_definition,
+                    parent: _,
+                }),
+        }) => {
+            let code_action_range = get_code_action_range(range, fragment_definition.name.span);
+            Some(create_rename_fragment_code_actions(
+                fragment_definition.name.value.lookup(),
+                used_definition_names.fragment_names,
                 &url,
                 code_action_range,
             ))
@@ -170,8 +188,41 @@ fn get_code_actions(
     }
 }
 
-fn create_code_actions(
-    title: &str,
+fn create_rename_fragment_code_actions(
+    _original_name: &str,
+    used_names: HashSet<String>,
+    url: &Url,
+    range: Range,
+) -> Vec<CodeActionOrCommand> {
+    let mut suggested_names = Vec::with_capacity(2);
+    suggested_names.push(create_default_fragment_name(url.path()));
+    suggested_names.push(create_default_fragment_name_with_index(
+        url.path(),
+        &used_names,
+    ));
+
+    suggested_names
+        .iter()
+        .filter_map(|suggested_name| {
+            if let Some(name) = suggested_name {
+                if used_names.contains(name) {
+                    return None;
+                }
+
+                Some(create_code_action(
+                    "Rename Fragment",
+                    name.clone(),
+                    url,
+                    range,
+                ))
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>()
+}
+
+fn create_rename_operation_code_actions(
     original_name: &str,
     used_names: HashSet<String>,
     suffix: DefinitionNameSuffix,
@@ -195,7 +246,12 @@ fn create_code_actions(
                     return None;
                 }
 
-                Some(create_code_action(title, name.clone(), url, range))
+                Some(create_code_action(
+                    "Rename Operation",
+                    name.clone(),
+                    url,
+                    range,
+                ))
             } else {
                 None
             }

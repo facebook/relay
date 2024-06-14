@@ -43,11 +43,11 @@ module.exports = {
         description: 'Used on artsy.net, and the React Native iOS app, Eigen.',
       },
       {
-        caption: 'Entria',
-        image: '/img/logos/entria.png',
-        infoLink: 'https://github.com/entria',
+        caption: 'Woovi',
+        image: '/img/logos/woovi.png',
+        infoLink: 'http://woovi.com/',
         pinned: true,
-        description: 'Powers feedback.house',
+        description: 'Used on woovi.com',
       },
       {
         caption: 'Facebook',

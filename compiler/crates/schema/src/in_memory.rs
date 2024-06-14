@@ -733,7 +733,7 @@ impl InMemorySchema {
                 document
                     .0
                     .iter()
-                    .map(|definition| (definition.clone(), document.1))
+                    .map(|definition| (*definition, document.1))
             })
             .collect();
 
@@ -743,7 +743,7 @@ impl InMemorySchema {
                 document
                     .0
                     .iter()
-                    .map(|definition| (definition.clone(), document.1))
+                    .map(|definition| (*definition, document.1))
             })
             .collect();
 

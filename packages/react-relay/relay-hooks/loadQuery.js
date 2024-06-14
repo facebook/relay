@@ -111,8 +111,8 @@ function loadQuery<
 
   const fetchPolicy = options?.fetchPolicy ?? 'store-or-network';
   const networkCacheConfig = {
-    ...options?.networkCacheConfig,
     force: true,
+    ...options?.networkCacheConfig,
   };
 
   // executeWithNetworkSource will retain and execute an operation

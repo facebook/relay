@@ -123,10 +123,6 @@ pub struct FeatureFlags {
     /// in @refetchable transform
     #[serde(default)]
     pub prefer_fetchable_in_refetch_queries: bool,
-
-    /// Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.
-    #[serde(default)]
-    pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
 }
 
 fn default_as_true() -> bool {

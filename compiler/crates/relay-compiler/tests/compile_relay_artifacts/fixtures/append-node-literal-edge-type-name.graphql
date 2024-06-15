@@ -4,7 +4,7 @@ mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
 ) {
   commentCreate(input: $input) {
     comment
-      @appendNode(connections: $connections, edgeTypeName: "CommentsEdge") {
+      @appendNode(connections: $connections, edgeTypeName: "CommentEdge") {
       id
     }
   }

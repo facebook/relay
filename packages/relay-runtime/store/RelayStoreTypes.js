@@ -657,6 +657,8 @@ export type ExecuteNextLogEvent = {
   +executeId: number,
   +response: GraphQLResponse,
   +duration: number,
+  +start: number,
+  +operation: OperationDescriptor,
 };
 
 export type ExecuteAsyncModuleLogEvent = {

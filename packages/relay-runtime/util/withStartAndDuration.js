@@ -22,10 +22,10 @@ function currentTimestamp(): number {
   return Date.now();
 }
 
-function withDuration<T>(cb: () => T): [number, T] {
+function withStartAndDuration<T>(cb: () => T): [number, number, T] {
   const startTime = currentTimestamp();
   const result = cb();
-  return [currentTimestamp() - startTime, result];
+  return [startTime, currentTimestamp() - startTime, result];
 }
 
-module.exports = withDuration;
+module.exports = withStartAndDuration;

@@ -452,13 +452,18 @@ impl RelayResolverExtractor {
             fragment_definition.type_condition.span,
             fragment_definition.type_condition.type_.value,
         );
+        let root_fragment = Some(WithLocation::from_span(
+            fragment_definition.location.source_location(),
+            fragment_definition.name.span,
+            FragmentDefinitionName(fragment_definition.name.value),
+        ));
         let live = field
             .is_live
             .map(|loc| UnpopulatedIrField { key_location: loc });
         self.resolved_field_definitions.push(TerseRelayResolverIr {
             field: field_definition,
             type_: fragment_type_condition,
-            root_fragment: Some(field.entity_name.map(FragmentDefinitionName)), // this includes the $key
+            root_fragment,
             location: field.field_name.location,
             deprecated: None,
             live,

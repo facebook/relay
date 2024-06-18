@@ -207,6 +207,41 @@ describe('Fragment Spreads', () => {
     });
   });
 
+  it('Reads unconditional fragment on Query.', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+      },
+    });
+
+    graphql`
+      fragment RelayReaderAliasedFragmentsTest_query on Query {
+        me {
+          name
+        }
+      }
+    `;
+
+    const FooQuery = graphql`
+      query RelayReaderAliasedFragmentsTestFragmentOnQueryQuery {
+        ...RelayReaderAliasedFragmentsTest_query @alias
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, isMissingData} = read(source, operation.fragment);
+    expect(isMissingData).toBe(false);
+    expect(data).toEqual({
+      RelayReaderAliasedFragmentsTest_query: {
+        __id: 'client:root',
+        __fragments: {
+          RelayReaderAliasedFragmentsTest_query: {},
+        },
+        __fragmentOwner: operation.request,
+      },
+    });
+  });
+
   it('Reads null if the fragment is on a concrete type that does not match the abstract parent selection.', () => {
     const userTypeID = generateTypeID('User');
     const source = RelayRecordSource.create({
@@ -372,6 +407,47 @@ describe('Inline Fragments', () => {
     expect(data).toEqual({
       me: {
         aliased_fragment: {
+          name: 'Chelsea',
+        },
+      },
+    });
+  });
+
+  it('Reads an aliased inline fragment on Query', () => {
+    const userTypeID = generateTypeID('User');
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        name: 'Chelsea',
+      },
+      [userTypeID]: {
+        __id: userTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderAliasedFragmentsTestInlineOnQueryQuery {
+        ... on Query @alias(as: "aliased_fragment") {
+          me {
+            name @required(action: NONE)
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, isMissingData} = read(source, operation.fragment);
+    expect(isMissingData).toBe(false);
+    expect(data).toEqual({
+      aliased_fragment: {
+        me: {
           name: 'Chelsea',
         },
       },

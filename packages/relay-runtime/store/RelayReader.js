@@ -176,19 +176,7 @@ class RelayReader {
     // If this is a concrete fragment and the concrete type of the record does not
     // match, then no data is expected to be present.
     if (isDataExpectedToBePresent && abstractKey == null && record != null) {
-      const recordType = RelayModernRecord.getType(record);
-      if (
-        recordType !== node.type &&
-        // The root record type is a special `__Root` type and may not match the
-        // type on the ast, so ignore type mismatches at the root.
-        // We currently detect whether we're at the root by checking against ROOT_ID,
-        // but this does not work for mutations/subscriptions which generate unique
-        // root ids. This is acceptable in practice as we don't read data for mutations/
-        // subscriptions in a situation where we would use isMissingData to decide whether
-        // to suspend or not.
-        // TODO T96653810: Correctly detect reading from root of mutation/subscription
-        dataID !== ROOT_ID
-      ) {
+      if (!this._recordMatchesTypeCondition(record, node.type)) {
         isDataExpectedToBePresent = false;
       }
     }
@@ -1168,8 +1156,7 @@ class RelayReader {
     const {abstractKey} = namedFragmentSpread;
     if (abstractKey == null) {
       // concrete type refinement: only read data if the type exactly matches
-      const typeName = RelayModernRecord.getType(record);
-      if (typeName == null || typeName !== namedFragmentSpread.type) {
+      if (!this._recordMatchesTypeCondition(record, namedFragmentSpread.type)) {
         // This selection does not match the fragment spread. Do nothing.
         return null;
       }
@@ -1225,8 +1212,7 @@ class RelayReader {
     const {abstractKey} = inlineFragment;
     if (abstractKey == null) {
       // concrete type refinement: only read data if the type exactly matches
-      const typeName = RelayModernRecord.getType(record);
-      if (typeName == null || typeName !== inlineFragment.type) {
+      if (!this._recordMatchesTypeCondition(record, inlineFragment.type)) {
         // This selection does not match the fragment spread. Do nothing.
         return null;
       } else {
@@ -1273,6 +1259,22 @@ class RelayReader {
       }
     }
     return data;
+  }
+
+  _recordMatchesTypeCondition(record: Record, type: string): boolean {
+    const typeName = RelayModernRecord.getType(record);
+    return (
+      (typeName != null && typeName === type) ||
+      // The root record type is a special `__Root` type and may not match the
+      // type on the ast, so ignore type mismatches at the root.  We currently
+      // detect whether we're at the root by checking against ROOT_ID, but this
+      // does not work for mutations/subscriptions which generate unique root
+      // ids. This is acceptable in practice as we don't read data for
+      // mutations/subscriptions in a situation where we would use
+      // isMissingData to decide whether to suspend or not.
+      // TODO T96653810: Correctly detect reading from root of mutation/subscription
+      RelayModernRecord.getDataID(record) === ROOT_ID
+    );
   }
 
   _createFragmentPointer(

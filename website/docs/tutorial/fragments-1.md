@@ -33,7 +33,9 @@ const NewsfeedQuery = graphql`
 `;
 ```
 
-Now go to `Story.tsx` and modify it to display the date:
+Now we've updated the query, we need to run the relay compiler so that it knows about the updated Graphql query by running `npm run relay`.
+
+Next, go to `Story.tsx` and modify it to display the date:
 
 ```
 // change-line

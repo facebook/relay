@@ -1251,11 +1251,11 @@ class RelayReader {
       if (implementsInterface === false) {
         // Type known to not implement the interface, no data expected
         this._isMissingData = parentIsMissingData;
-        return undefined;
+        return null;
       } else if (implementsInterface == null) {
         // Don't know if the type implements the interface or not
         this._markDataAsMissing();
-        return null;
+        return undefined;
       }
     }
     return data;

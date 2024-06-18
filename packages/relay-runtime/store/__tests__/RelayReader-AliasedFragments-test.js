@@ -570,12 +570,12 @@ describe('Inline Fragments', () => {
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
-        aliased_fragment: undefined,
+        aliased_fragment: null,
       },
     });
   });
 
-  it("Reads null and marks data as missing if the fragment is on an abstract type and we don't know if it conforms to the parent selection's abstract type.", () => {
+  it("Reads undefined and marks data as missing if the fragment is on an abstract type and we don't know if it conforms to the parent selection's abstract type.", () => {
     const commentTypeID = generateTypeID('Comment');
     const source = RelayRecordSource.create({
       'client:root': {
@@ -616,7 +616,7 @@ describe('Inline Fragments', () => {
     expect(isMissingData).toBe(true);
     expect(data).toEqual({
       node: {
-        aliased_fragment: null,
+        aliased_fragment: undefined,
       },
     });
   });

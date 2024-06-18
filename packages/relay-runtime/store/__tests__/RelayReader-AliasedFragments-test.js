@@ -575,6 +575,53 @@ describe('Inline Fragments', () => {
     });
   });
 
+  it('Does not throw on missing @required fields within inline fragment on abstract type that does not match', () => {
+    const commentTypeID = generateTypeID('Comment');
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'Comment',
+      },
+      [commentTypeID]: {
+        __id: commentTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+        __isMaybeNodeInterface: false,
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          # Story implements both Node and MaybeNodeInterface
+          # so technically we are allowed to spread this here,
+          # but our store says this ID points to a Comment,
+          # so it should not match.
+          ... on MaybeNodeInterface @alias(as: "aliased_fragment") {
+            name @required(action: THROW)
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const snapshot = read(source, operation.fragment);
+    const {data, isMissingData, missingRequiredFields} = snapshot;
+    expect(missingRequiredFields).toBe(null);
+    expect(isMissingData).toBe(false);
+    expect(data).toEqual({
+      node: {
+        aliased_fragment: null,
+      },
+    });
+  });
+
   it("Reads undefined and marks data as missing if the fragment is on an abstract type and we don't know if it conforms to the parent selection's abstract type.", () => {
     const commentTypeID = generateTypeID('Comment');
     const source = RelayRecordSource.create({

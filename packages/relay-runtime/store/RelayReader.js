@@ -474,7 +474,14 @@ class RelayReader {
           }
           break;
         case INLINE_FRAGMENT: {
-          if (this._readInlineFragment(selection, record, data) === false) {
+          const hasExpectedData = this._readInlineFragment(
+            selection,
+            record,
+            data,
+            false,
+          );
+          if (hasExpectedData === false) {
+            // We are missing @required data, so we bubble up.
             return false;
           }
           break;
@@ -501,6 +508,7 @@ class RelayReader {
             selection.fragment,
             record,
             {},
+            true,
           );
           if (fieldValue === false) {
             fieldValue = null;
@@ -1185,10 +1193,15 @@ class RelayReader {
   // * undefined: We are missing data
   // * false: The selection contained missing @required fields
   // * data: The successfully populated SelectorData object
+  //
+  // The `skipUnmatchedAbstractTypes` flag is used to signal if we should skip
+  // reading the contents of an inline fragment on an abstract type if we _know_
+  // the type condition does not match.
   _readInlineFragment(
     inlineFragment: ReaderInlineFragment,
     record: Record,
     data: SelectorData,
+    skipUnmatchedAbstractTypes: boolean,
   ): ?(SelectorData | false) {
     if (inlineFragment.type == null) {
       // Inline fragment without a type condition: always read data
@@ -1226,6 +1239,10 @@ class RelayReader {
         record,
         abstractKey,
       );
+
+      if (implementsInterface === false && skipUnmatchedAbstractTypes) {
+        return null;
+      }
 
       // store flags to reset after reading
       const parentIsMissingData = this._isMissingData;

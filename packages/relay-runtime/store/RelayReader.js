@@ -193,9 +193,6 @@ class RelayReader {
       if (implementsInterface === false) {
         // Type known to not implement the interface
         isDataExpectedToBePresent = false;
-      } else if (implementsInterface == null) {
-        // Don't know if the type implements the interface or not
-        this._isMissingData = true;
       }
     }
 
@@ -1170,8 +1167,6 @@ class RelayReader {
         // Type known to not implement the interface, no data expected
         return null;
       } else if (implementsInterface == null) {
-        // Don't know if the type implements the interface or not
-        this._markDataAsMissing();
         // Judgement call here. In some cases this will cause us to hide data that is actually valid.
         return undefined;
       }
@@ -1254,7 +1249,6 @@ class RelayReader {
         return null;
       } else if (implementsInterface == null) {
         // Don't know if the type implements the interface or not
-        this._markDataAsMissing();
         return undefined;
       }
     }
@@ -1392,6 +1386,14 @@ class RelayReader {
       typeRecord != null
         ? RelayModernRecord.getValue(typeRecord, abstractKey)
         : null;
+
+    if (implementsInterface == null) {
+      // In some cases, like a graph relationship change, we might have never
+      // fetched the `__is[AbstractType]` flag for this concrete type. In this
+      // case we need to report that we are missing data, in case that field is
+      // still in flight.
+      this._markDataAsMissing();
+    }
     // $FlowFixMe Casting record value
     return implementsInterface;
   }

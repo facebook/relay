@@ -2422,10 +2422,11 @@ fn apply_directive_nullability(
     field: &Field,
     schema_field_directives: &[Directive],
 ) -> TypeReference<Type> {
-    match field.directives.named(*SEMANTIC_NON_NULL_DIRECTIVE) {
+    let field_type = match field.directives.named(*SEMANTIC_NON_NULL_DIRECTIVE) {
         Some(_) => field.semantic_type(),
-        None => apply_required_directive_nullability(&field.type_, schema_field_directives),
-    }
+        None => field.type_.clone(),
+    };
+    apply_required_directive_nullability(&field_type, schema_field_directives)
 }
 
 fn apply_required_directive_nullability(

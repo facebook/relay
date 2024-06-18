@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<748d236bdfe163a6942c2efcf0cafcab>>
+ * @generated SignedSource<<399f84b890051cc63ed0d860bf73cd5e>>
  */
 
 mod relay_compiler_integration;
@@ -311,6 +311,13 @@ async fn resolvers_schema_module_apply_to_normalization_ast() {
     let input = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.expected");
     test_fixture(transform_fixture, file!(), "resolvers_schema_module_apply_to_normalization_ast.input", "relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_null_require_bubbling() {
+    let input = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubbling.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubbling.expected");
+    test_fixture(transform_fixture, file!(), "semantic_null_require_bubbling.input", "relay_compiler_integration/fixtures/semantic_null_require_bubbling.expected", input, expected).await;
 }
 
 #[tokio::test]

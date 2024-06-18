@@ -660,4 +660,116 @@ describe('Inline Fragments', () => {
       },
     });
   });
+
+  it('@required bubbles up to an aliased inline fragment on abstract type that matches', () => {
+    const storyTypeID = generateTypeID('Story');
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'Story',
+        // name is missing
+      },
+      [storyTypeID]: {
+        __id: storyTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+        __isMaybeNodeInterface: true,
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ... on MaybeNodeInterface @alias(as: "aliased_fragment") {
+            name @required(action: LOG)
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, isMissingData, missingRequiredFields} = read(
+      source,
+      operation.fragment,
+    );
+    expect(missingRequiredFields).toEqual({
+      action: 'LOG',
+      fields: [
+        {
+          owner:
+            'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
+          path: 'node.aliased_fragment.name',
+        },
+      ],
+    });
+    expect(isMissingData).toBe(true);
+    expect(data).toEqual({
+      node: {
+        aliased_fragment: null,
+      },
+    });
+  });
+
+  it("@required bubbles up to an aliased inline fragment on abstract type but we are missing type info so we don't know if it matches", () => {
+    const storyTypeID = generateTypeID('Story');
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'Story',
+        name: null,
+      },
+      [storyTypeID]: {
+        __id: storyTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+        // Oops! We don't know if Story implements MaybeNodeInterface
+        // __isMaybeNodeInterface: true,
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ... on MaybeNodeInterface @alias(as: "aliased_fragment") {
+            name @required(action: LOG)
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, isMissingData, missingRequiredFields} = read(
+      source,
+      operation.fragment,
+    );
+    expect(missingRequiredFields).toEqual({
+      action: 'LOG',
+      fields: [
+        {
+          owner:
+            'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
+          path: 'node.aliased_fragment.name',
+        },
+      ],
+    });
+    expect(isMissingData).toBe(true);
+    expect(data).toEqual({
+      node: {
+        // Undefined here indicates we were missing data
+        aliased_fragment: undefined,
+      },
+    });
+  });
 });

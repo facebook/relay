@@ -1235,9 +1235,14 @@ class RelayReader {
       this._isWithinUnmatchedTypeRefinement =
         parentIsWithinUnmatchedTypeRefinement || implementsInterface === false;
 
-      // @required is not allowed within inline fragments on abstract types, so
-      // we can ignore the `hasMissingData` result of `_traverseSelections`.
-      this._traverseSelections(inlineFragment.selections, record, data);
+      // @required is allowed within inline fragments on abstract types if they
+      // have @alias. So we must bubble up null if we have a missing @required
+      // field.
+      const hasMissingData = this._traverseSelections(
+        inlineFragment.selections,
+        record,
+        data,
+      );
 
       // Reset
       this._isWithinUnmatchedTypeRefinement =
@@ -1250,6 +1255,9 @@ class RelayReader {
       } else if (implementsInterface == null) {
         // Don't know if the type implements the interface or not
         return undefined;
+      } else if (hasMissingData === false) {
+        // Bubble up null due to a missing @required field
+        return false;
       }
     }
     return data;

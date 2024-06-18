@@ -1955,3 +1955,74 @@ test('should generate data for @match with PlainUserNameRenderer_name and use de
     },
   );
 });
+
+describe('allows skipping abstract inline fragment for @alias', () => {
+  const query = graphql`
+    query RelayMockPayloadGeneratorTest68Query {
+      node(id: "my-id") {
+        id
+        ... on Named @alias(as: "named") {
+          name
+        }
+        ... on FeedUnit @alias(as: "feed_unit") {
+          actorCount
+        }
+      }
+    }
+  `;
+
+  test('all data mocked', () => {
+    testGeneratedData(query);
+  });
+
+  test('not Named', () => {
+    testGeneratedData(query, {
+      Query: () => ({
+        node: {
+          __isNamed: false,
+        },
+      }),
+    });
+  });
+
+  test('not Named, using null', () => {
+    testGeneratedData(query, {
+      Query: () => ({
+        node: {
+          __isNamed: null,
+        },
+      }),
+    });
+  });
+
+  test('not FeedUnit', () => {
+    testGeneratedData(query, {
+      Query: () => ({
+        node: {
+          __isFeedUnit: false,
+        },
+      }),
+    });
+  });
+
+  test('not Named nor FeedUnit', () => {
+    testGeneratedData(query, {
+      Query: () => ({
+        node: {
+          __isNamed: false,
+          __isFeedUnit: false,
+        },
+      }),
+    });
+  });
+
+  test('string for __isNamed still includes it', () => {
+    testGeneratedData(query, {
+      Query: () => ({
+        node: {
+          __isNamed: 'SomeNode',
+        },
+      }),
+    });
+  });
+});

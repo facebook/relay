@@ -101,7 +101,7 @@ function getData() {
   const commits = listOfCommits.split('\n').map((commitMessage, index) => {
     const [hash, date, name, _email] = commitMessage.split('|');
     return {
-      hash,
+      hash: hash.slice(0, 6),
       summary: summary[index],
       message: body[index],
       author: name,

@@ -17,7 +17,7 @@ import type {
   GraphQLSingularResponse,
 } from './RelayNetworkTypes';
 
-const stableCopy = require('../util/stableCopy');
+const {stableCopy} = require('../util/stableCopy');
 const invariant = require('invariant');
 
 type Response = {

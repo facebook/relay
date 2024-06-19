@@ -31,4 +31,32 @@ function stableCopy<T: mixed>(value: T): T {
   return (stable: any);
 }
 
-module.exports = stableCopy;
+// Detect if a data structure contains cycles. The logic here mirrors
+// `stableCopy` above and is intended to detect cycles early before they get
+// passed to `stableCopy` which would result in a stack overflow.
+function hasCycle<T: mixed>(value: T): boolean {
+  const seenObjects = new Set<mixed>();
+
+  function hasCycleImpl(value: mixed): boolean {
+    // $FlowFixMe[sketchy-null-mixed]
+    if (!value || typeof value !== 'object') {
+      return false;
+    }
+    if (seenObjects.has(value)) {
+      return true;
+    }
+    seenObjects.add(value);
+
+    if (Array.isArray(value)) {
+      return value.some(hasCycleImpl);
+    }
+    return Object.values(value).some(hasCycleImpl);
+  }
+
+  return hasCycleImpl(value);
+}
+
+module.exports = {
+  stableCopy,
+  hasCycle,
+};

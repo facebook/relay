@@ -1,0 +1,7 @@
+fragment Parent on User @argumentDefinitions(returnFirstname: {type: "Boolean!"}) {
+  ...Child @arguments(returnFirstname: $returnF|irstname)
+}
+
+fragment Child on User @argumentDefinitions(returnFirstname: {type: "Boolean!"}) {
+  firstName(if: $if)
+}

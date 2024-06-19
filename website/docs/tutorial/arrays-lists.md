@@ -111,7 +111,7 @@ export default function Newsfeed({}) {
           key={story.id}
           story={story}
         />
-      )}
+      ))}
     </div>
   );
 }

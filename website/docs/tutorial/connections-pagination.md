@@ -267,7 +267,7 @@ function StoryCommentsSection({story}) {
         />
       )}
       // change-line
-      {isPending && <CommentsLoadingSpinner />}
+      {isPending && <Small Spinner />}
     </>
   );
 }
@@ -327,15 +327,15 @@ We need to modify the Newsfeed component to map over the edges and render each n
 
 ```
 function Newsfeed() {
-  const data = useLazyLoadQuery(NewsfeedQuery, {});
+  const data = useLazyLoadQuery<NewsfeedQueryType>(NewsfeedQuery, {});
   // change-line
   const storyEdges = data.viewer.newsfeedStories.edges;
   return (
-    <>
+    <div className="newsfeed">
       {storyEdges.map(storyEdge =>
         <Story key={storyEdge.node.id} story={storyEdge.node} />
       )}
-    </>
+    </div>
   );
 }
 ```
@@ -374,12 +374,17 @@ This is a good time to mention that every GraphQL schema contains a type called 
 Within `Newsfeed`, we can call both `useLazyLoadQuery` and `useFragment`, though in real life these would generally be in different components:
 
 ```
+import type {NewsfeedQuery as NewsfeedQueryType} from './__generated__/NewsfeedQuery.graphql';
+import { NewsfeedContentsFragment$key } from "./__generated__/NewsfeedContentsFragment.graphql";
+
+...
+
 export default function Newsfeed() {
   // change-line
-  const queryData = useLazyLoadQuery(NewsfeedQuery, {});
+  const queryData = useLazyLoadQuery<NewsfeedQueryType>(NewsfeedQuery, {});
   // change-line
-  const data = useFragment(NewsfeedContentsFragment, queryData);
-  const storyEdges = data.newsfeedStories.edges;
+  const data = useFragment<NewsfeedContentsFragment$key>(NewsfeedContentsFragment, queryData);
+  const storyEdges = data.viewer.newsfeedStories.edges;
   ...
 }
 ```
@@ -422,19 +427,20 @@ const NewsfeedContentsFragment = graphql`
 
 ### Step 5 — Call usePaginationFragment
 
-Now we need to modify the `NewsfeedContents` component to call `usePaginationFragment:`
+Now we need to modify the `Newsfeed` component to call `usePaginationFragment:`
 
 ```
-function NewsfeedContents({viewer}) {
+export default function Newsfeed({}) {
+  const queryData = useLazyLoadQuery<NewsfeedQueryType>(NewsfeedQuery, {});
   // change-line
-  const {data, loadNext} = usePaginationFragment(NewsfeedFragment, viewer);
-  const storyEdges = data.newsfeedStories.edges;
+  const {data, loadNext} = usePaginationFragment<OperationType, NewsfeedContentsFragment$key>(NewsfeedContentsFragment, queryData);
+  const storyEdges = data.viewer.newsfeedStories.edges;
   return (
-    <>
+    <div className="newsfeed">
       {storyEdges.map(storyEdge =>
         <Story key={storyEdge.node.id} story={storyEdge.node} />
       )}
-    </>
+    </div>
   );
 }
 ```
@@ -444,7 +450,8 @@ function NewsfeedContents({viewer}) {
 We’ve prepared a component called `InfiniteScrollTrigger` that detects when the bottom of the page is reached — we can use this to call `loadNext` at the appropriate time. It needs to know whether more pages exist and whether we’re currently loading the next page — we can retrieve these from the return value of `usePaginationFragment`:
 
 ```
-function NewsfeedContents({query}) {
+export default function Newsfeed({}) {
+  const queryData = useLazyLoadQuery<NewsfeedQueryType>(NewsfeedQuery, {});
   const {
     data,
     loadNext,
@@ -452,7 +459,7 @@ function NewsfeedContents({query}) {
     hasNext,
     // change-line
     isLoadingNext,
-  } = usePaginationFragment(NewsfeedContentsFragment, query);
+  } = usePaginationFragment<OperationType, NewsfeedContentsFragment$key>(NewsfeedContentsFragment, queryData);
   // change
   function onEndReached() {
     loadNext(3);
@@ -460,7 +467,7 @@ function NewsfeedContents({query}) {
   // end-change
   const storyEdges = data.viewer.newsfeedStories.edges;
   return (
-    <>
+    <div className="newsfeed">
       {storyEdges.map(storyEdge =>
         <Story key={storyEdge.node.id} story={storyEdge.node} />
       )}
@@ -471,7 +478,7 @@ function NewsfeedContents({query}) {
         isLoadingNext={isLoadingNext}
       />
       // end-change
-    </>
+    </div>
   );
 }
 ```

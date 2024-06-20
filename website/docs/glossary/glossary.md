@@ -186,7 +186,7 @@ See the [Thinking in Relay guide](../principles-and-architecture/thinking-in-rel
 A directive which can be added to a fragment spread or inline fragment to avoid blocking on that fragment's data.
 
 <FbInternalOnly>
-See the [documentation](https://www.internalfb.com/intern/wiki/Relay/Web/incremental-data-delivery-defer-stream/#defer).
+See [Incremental Data Delivery](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/incremental-data-delivery/).
 </FbInternalOnly>
 
 ## Definition

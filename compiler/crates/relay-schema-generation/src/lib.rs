@@ -103,7 +103,11 @@ pub struct WeakObjectData {
 pub struct RelayResolverExtractor {
     /// Cross module states
     type_definitions: FxHashMap<ModuleResolutionKey, DocblockIr>,
-    unresolved_field_definitions: Vec<(ModuleResolutionKey, UnresolvedFieldDefinition)>,
+    unresolved_field_definitions: Vec<(
+        ModuleResolutionKey,
+        UnresolvedFieldDefinition,
+        SourceLocationKey,
+    )>,
     resolved_field_definitions: Vec<TerseRelayResolverIr>,
 
     // Needs to keep track of source location because hermes_parser currently
@@ -300,71 +304,66 @@ impl RelayResolverExtractor {
 
     /// Second pass to resolve all field definitions
     pub fn resolve(mut self) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<TerseRelayResolverIr>)> {
-        try_all(
-            self.unresolved_field_definitions
-                .into_iter()
-                .map(|(key, field)| {
-                    let entity = match self.type_definitions.get(&key) {
-                        Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
-                            object,
-                        ))) => Ok(object
+        try_all(self.unresolved_field_definitions.into_iter().map(
+            |(key, field, source_location)| {
+                let entity = match self.type_definitions.get(&key) {
+                    Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
+                        object,
+                    ))) => Ok(object
+                        .type_name
+                        .name_with_location(SourceLocationKey::Generated)),
+                    Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(object))) => {
+                        Ok(object
                             .type_name
-                            .name_with_location(SourceLocationKey::Generated)),
-                        Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(object))) => {
-                            Ok(object
-                                .type_name
-                                .name_with_location(SourceLocationKey::Generated))
-                        }
-                        _ => Err(vec![Diagnostic::error(
-                            SchemaGenerationError::ModuleNotFound {
-                                entity_name: field.entity_name.item,
-                                export_type: key.import_type,
-                                module_name: key.module_name,
-                            },
-                            field.entity_name.location,
-                        )]),
-                    }?;
-                    let arguments = if let Some(args) = field.arguments {
-                        Some(flow_type_to_field_arguments(self.current_location, &args)?)
-                    } else {
-                        None
-                    };
-                    let description_node = field.description.map(|desc| StringNode {
-                        token: Token {
-                            span: desc.location.span(),
-                            kind: TokenKind::Empty,
+                            .name_with_location(SourceLocationKey::Generated))
+                    }
+                    _ => Err(vec![Diagnostic::error(
+                        SchemaGenerationError::ModuleNotFound {
+                            entity_name: field.entity_name.item,
+                            export_type: key.import_type,
+                            module_name: key.module_name,
                         },
-                        value: desc.item,
-                    });
-                    let field_definition = FieldDefinition {
-                        name: string_key_to_identifier(field.field_name),
-                        type_: return_type_to_type_annotation(
-                            self.current_location,
-                            &field.return_type,
-                        )?,
-                        arguments,
-                        directives: vec![],
-                        description: description_node,
-                        hack_source: None,
-                        span: field.field_name.location.span(),
-                    };
-                    let live = field
-                        .is_live
-                        .map(|loc| UnpopulatedIrField { key_location: loc });
-                    self.resolved_field_definitions.push(TerseRelayResolverIr {
-                        field: field_definition,
-                        type_: entity,
-                        root_fragment: None,
-                        location: field.field_name.location,
-                        deprecated: None,
-                        live,
-                        fragment_arguments: None,
-                        source_hash: field.source_hash,
-                        semantic_non_null: None,
-                    });
-                    Ok(())
-                }),
-        )?;
+                        field.entity_name.location,
+                    )]),
+                }?;
+                let arguments = if let Some(args) = field.arguments {
+                    Some(flow_type_to_field_arguments(source_location, &args)?)
+                } else {
+                    None
+                };
+                let description_node = field.description.map(|desc| StringNode {
+                    token: Token {
+                        span: desc.location.span(),
+                        kind: TokenKind::Empty,
+                    },
+                    value: desc.item,
+                });
+                let field_definition = FieldDefinition {
+                    name: string_key_to_identifier(field.field_name),
+                    type_: return_type_to_type_annotation(source_location, &field.return_type)?,
+                    arguments,
+                    directives: vec![],
+                    description: description_node,
+                    hack_source: None,
+                    span: field.field_name.location.span(),
+                };
+                let live = field
+                    .is_live
+                    .map(|loc| UnpopulatedIrField { key_location: loc });
+                self.resolved_field_definitions.push(TerseRelayResolverIr {
+                    field: field_definition,
+                    type_: entity,
+                    root_fragment: None,
+                    location: field.field_name.location,
+                    deprecated: None,
+                    live,
+                    fragment_arguments: None,
+                    source_hash: field.source_hash,
+                    semantic_non_null: None,
+                });
+                Ok(())
+            },
+        ))?;
         Ok((
             self.type_definitions.into_values().collect(),
             self.resolved_field_definitions,
@@ -403,7 +402,7 @@ impl RelayResolverExtractor {
             self.add_fragment_field_definition(fragment_definitions, field_definition)?
         } else {
             self.unresolved_field_definitions
-                .push((key, field_definition));
+                .push((key, field_definition, self.current_location));
         }
         Ok(())
     }

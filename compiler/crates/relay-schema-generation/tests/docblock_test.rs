@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7f0997fb1dbf297de82340a1c311a2b0>>
+ * @generated SignedSource<<170a37e605a9d28292120e9ac783689b>>
  */
 
 mod docblock;
@@ -94,6 +94,13 @@ async fn primitive_types() {
     let input = include_str!("docblock/fixtures/primitive-types.input");
     let expected = include_str!("docblock/fixtures/primitive-types.expected");
     test_fixture(transform_fixture, file!(), "primitive-types.input", "docblock/fixtures/primitive-types.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn return_an_object() {
+    let input = include_str!("docblock/fixtures/return-an-object.input");
+    let expected = include_str!("docblock/fixtures/return-an-object.expected");
+    test_fixture(transform_fixture, file!(), "return-an-object.input", "docblock/fixtures/return-an-object.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -23,6 +23,7 @@ use lazy_static::lazy_static;
 use schema::Schema;
 
 use crate::ValidationMessageWithData;
+use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
@@ -122,7 +123,14 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
     ) -> DiagnosticsResult<()> {
         try_all(selections.iter().map(|selection| match selection {
             Selection::LinkedField(linked_field) => {
-                self.validate_required_field(linked_field, is_throw_on_field_error)?;
+                if linked_field
+                    .directives()
+                    .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+                    .is_none()
+                {
+                    self.validate_required_field(linked_field, is_throw_on_field_error)?;
+                }
+
                 self.validate_selection_fields(&linked_field.selections, is_throw_on_field_error)
             }
             Selection::ScalarField(scalar_field) => {

@@ -176,7 +176,7 @@ impl RelayResolverExtractor {
         &mut self,
         text: &str,
         source_module_path: &str,
-        fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
+        fragment_definitions: Option<&Vec<ExecutableDefinition>>,
     ) -> DiagnosticsResult<()> {
         // Assume the caller knows the text contains at least one RelayResolver decorator
 
@@ -376,7 +376,7 @@ impl RelayResolverExtractor {
         imports: &Imports,
         exports: &FxHashSet<StringKey>,
         source_module_path: &str,
-        fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
+        fragment_definitions: Option<&Vec<ExecutableDefinition>>,
         field_definition: UnresolvedFieldDefinition,
     ) -> DiagnosticsResult<()> {
         let name = field_definition.entity_name.item;
@@ -410,7 +410,7 @@ impl RelayResolverExtractor {
 
     fn add_fragment_field_definition(
         &mut self,
-        fragment_definitions: &Option<&Vec<ExecutableDefinition>>,
+        fragment_definitions: Option<&Vec<ExecutableDefinition>>,
         field: UnresolvedFieldDefinition,
     ) -> DiagnosticsResult<()> {
         let arguments = if let Some(args) = field.arguments {
@@ -443,7 +443,7 @@ impl RelayResolverExtractor {
         let fragment_definition_result = relay_docblock::assert_fragment_definition(
             field.entity_name,
             fragment_name.intern(),
-            *fragment_definitions,
+            fragment_definitions,
         );
         let fragment_definition = fragment_definition_result.map_err(|err| vec![err])?;
 

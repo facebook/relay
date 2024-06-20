@@ -94,11 +94,9 @@ fn extract_docblock_ir_for_project(
     )?;
 
     if let Some(custom_extract_resolver) = &config.custom_extract_relay_resolvers {
-        let (extracted_types, extracted_fields) = custom_extract_resolver(
-            project_config.name,
-            compiler_state,
-            &project_schema_docs.field_asts_and_definitions.0,
-        )?;
+        let graphql_asts = graphql_asts_map.get(&project_config.name);
+        let (extracted_types, extracted_fields) =
+            custom_extract_resolver(project_config.name, compiler_state, graphql_asts)?;
         type_irs.extend(extracted_types);
         field_irs.extend(extracted_fields);
     }

@@ -17,13 +17,11 @@ use async_trait::async_trait;
 use common::DiagnosticsResult;
 use common::FeatureFlags;
 use common::Rollout;
-use docblock_syntax::DocblockAST;
 use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
-use graphql_syntax::ExecutableDefinition;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
@@ -47,7 +45,6 @@ use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
 use relay_docblock::DocblockIr;
 use relay_transforms::CustomTransformsConfig;
-use rustc_hash::FxHashMap;
 use serde::de::Error as DeError;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -71,6 +68,7 @@ use crate::saved_state::SavedStateLoader;
 use crate::source_control_for_root;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
+use crate::GraphQLAsts;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -178,7 +176,7 @@ pub struct Config {
             dyn Fn(
                     ProjectName,
                     &CompilerState,
-                    &FxHashMap<&PathBuf, (Vec<DocblockAST>, Option<&Vec<ExecutableDefinition>>)>,
+                    Option<&GraphQLAsts>,
                 ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>
                 // (Types, Fields)
                 + Send

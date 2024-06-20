@@ -38,7 +38,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         if let Err(err) = extractor.parse_document(
             content,
             path.to_string_lossy().as_ref(),
-            &Some(&gql_operations),
+            Some(&gql_operations),
         ) {
             errors.extend(err);
         }

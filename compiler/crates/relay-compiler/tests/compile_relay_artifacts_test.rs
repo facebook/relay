@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<742eb57a3eb061bcf247ff05572ac49d>>
+ * @generated SignedSource<<a462cf5b6b402f99514438fe2a6c56fe>>
  */
 
 mod compile_relay_artifacts;
@@ -143,6 +143,27 @@ async fn append_node_literal_edge_type_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.expected");
     test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn append_node_literal_edge_type_name_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.expected");
+    test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name-invalid.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn append_node_literal_edge_type_name_not_object_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-not-object-type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-not-object-type.expected");
+    test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name-not-object-type.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-not-object-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn append_node_literal_edge_type_name_variable() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-variable.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-variable.expected");
+    test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name-variable.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-variable.expected", input, expected).await;
 }
 
 #[tokio::test]

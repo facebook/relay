@@ -58,6 +58,7 @@ use crate::graphql_tools::get_query_text;
 use crate::location::transform_relay_location_to_lsp_location_with_cache;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::create_node_resolution_info;
+use crate::node_resolution_info::create_node_resolution_info_for_schema_document;
 use crate::utils::extract_executable_definitions_from_text_document;
 use crate::utils::extract_feature_from_text;
 use crate::utils::get_file_group_from_uri;
@@ -418,21 +419,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             1,
         )?;
 
-        match feature {
-            Feature::ExecutableDocument(executable_document) => {
-                Ok(FeatureResolutionInfo::GraphqlNode(
-                    create_node_resolution_info(executable_document, position_span)?,
-                ))
-            }
-            Feature::DocblockIr(docblock_ir) => {
-                Ok(FeatureResolutionInfo::DocblockNode(DocblockNode {
-                    resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
-                        .ok_or(LSPRuntimeError::ExpectedError)?,
-                    ir: docblock_ir,
-                }))
-            }
-            Feature::SchemaDocument(_) => Err(LSPRuntimeError::ExpectedError),
-        }
+        let info = match feature {
+            Feature::ExecutableDocument(executable_document) => FeatureResolutionInfo::GraphqlNode(
+                create_node_resolution_info(executable_document, position_span)?,
+            ),
+            Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
+                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                    .ok_or(LSPRuntimeError::ExpectedError)?,
+                ir: docblock_ir,
+            }),
+            Feature::SchemaDocument(schema_document) => FeatureResolutionInfo::GraphqlNode(
+                create_node_resolution_info_for_schema_document(schema_document, position_span)?,
+            ),
+        };
+        Ok(info)
     }
 
     /// Return a parsed executable document for this LSP request, only if the request occurs

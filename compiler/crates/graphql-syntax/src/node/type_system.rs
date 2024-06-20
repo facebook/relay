@@ -40,22 +40,45 @@ pub enum TypeSystemDefinition {
 }
 
 impl TypeSystemDefinition {
+    /// Returns the span for the entire type definition.
     pub fn span(&self) -> Span {
         match self {
-            TypeSystemDefinition::SchemaDefinition(_extension) => Span::empty(), // Not implemented
-            TypeSystemDefinition::SchemaExtension(_extension) => Span::empty(),  // Not implemented
+            TypeSystemDefinition::SchemaDefinition(definition) => definition.span,
+            TypeSystemDefinition::SchemaExtension(extension) => extension.span,
+            TypeSystemDefinition::ObjectTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::ObjectTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::InterfaceTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::InterfaceTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::UnionTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::UnionTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::DirectiveDefinition(definition) => definition.span,
+            TypeSystemDefinition::InputObjectTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::EnumTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::EnumTypeExtension(extension) => extension.span,
+            TypeSystemDefinition::ScalarTypeDefinition(definition) => definition.span,
+            TypeSystemDefinition::ScalarTypeExtension(extension) => extension.span,
+        }
+    }
+
+    /// Returns the span for the type definition name
+    /// or the span for the entire definition, if a name is non-existent.
+    pub fn name_span(&self) -> Span {
+        match self {
+            TypeSystemDefinition::SchemaDefinition(definition) => definition.span,
+            TypeSystemDefinition::SchemaExtension(extension) => extension.span,
+            TypeSystemDefinition::ObjectTypeDefinition(definition) => definition.name.span,
             TypeSystemDefinition::ObjectTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::ObjectTypeDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::InterfaceTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::InterfaceTypeDefinition(definition) => definition.name.span,
             TypeSystemDefinition::InterfaceTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::UnionTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::UnionTypeDefinition(definition) => definition.name.span,
             TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::DirectiveDefinition(extension) => extension.name.span,
-            TypeSystemDefinition::InputObjectTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::DirectiveDefinition(definition) => definition.name.span,
+            TypeSystemDefinition::InputObjectTypeDefinition(definition) => definition.name.span,
             TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::EnumTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::EnumTypeDefinition(definition) => definition.name.span,
             TypeSystemDefinition::EnumTypeExtension(extension) => extension.name.span,
-            TypeSystemDefinition::ScalarTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::ScalarTypeDefinition(definition) => definition.name.span,
             TypeSystemDefinition::ScalarTypeExtension(extension) => extension.name.span,
         }
     }

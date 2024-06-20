@@ -765,8 +765,10 @@ impl InMemorySchema {
             let mut insert_into_type_map = |name: StringKey, type_: Type| {
                 match type_map.entry(name) {
                     Entry::Occupied(existing_entry) => {
-                        duplicate_definitions
-                            .push((*existing_entry.get(), location.with_span(definition.span())));
+                        duplicate_definitions.push((
+                            *existing_entry.get(),
+                            location.with_span(definition.name_span()),
+                        ));
                     }
                     Entry::Vacant(vacant) => {
                         vacant.insert(type_);

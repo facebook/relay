@@ -26,8 +26,6 @@ pub(super) fn test_resolution(source: &str, sub_str: &str, cb: impl Fn(&Resoluti
     .unwrap();
 
     let pos = source.find(sub_str).unwrap() as u32;
-
-    // Select the `uri` field
     let position_span = Span {
         start: pos,
         end: pos,
@@ -47,8 +45,6 @@ pub(super) fn test_schema_resolution(
         parse_schema_document(source, SourceLocationKey::standalone("/test/file")).unwrap();
 
     let pos = source.find(sub_str).unwrap() as u32;
-
-    // Select the `uri` field
     let position_span = Span {
         start: pos,
         end: pos,

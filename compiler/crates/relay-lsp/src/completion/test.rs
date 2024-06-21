@@ -28,7 +28,7 @@ fn parse_and_resolve_completion_items(
     program: Option<Program>,
 ) -> Option<Vec<CompletionItem>> {
     let pos = source.find('|').unwrap() - 1;
-    let next_source = source.replace("|", "");
+    let next_source = source.replace('|', "");
     let document = parse_executable_with_error_recovery(
         &next_source,
         SourceLocationKey::standalone("/test/file"),
@@ -416,6 +416,7 @@ fn directive() {
             "deleteEdge",
             "__clientField",
             "appendEdge",
+            "catch",
             "required",
             "stream_connection",
             "match",
@@ -454,6 +455,7 @@ fn directive_on_scalar_field() {
             "deleteEdge",
             "__clientField",
             "appendEdge",
+            "catch",
             "required",
             "stream_connection",
             "match",
@@ -741,6 +743,7 @@ fn empty_directive() {
             "deleteEdge",
             "__clientField",
             "appendEdge",
+            "catch",
             "required",
             "stream_connection",
             "match",

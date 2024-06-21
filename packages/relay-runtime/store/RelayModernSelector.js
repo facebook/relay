@@ -414,13 +414,12 @@ function areEqualSingularSelectors(
     thisSelector.node === thatSelector.node &&
     areEqual(thisSelector.variables, thatSelector.variables) &&
     areEqualOwners(thisSelector.owner, thatSelector.owner) &&
-    (!RelayFeatureFlags.ENABLE_STRICT_EQUAL_SELECTORS ||
-      (thisSelector.isWithinUnmatchedTypeRefinement ===
-        thatSelector.isWithinUnmatchedTypeRefinement &&
-        areEqualClientEdgeTraversalPaths(
-          thisSelector.clientEdgeTraversalPath,
-          thatSelector.clientEdgeTraversalPath,
-        )))
+    thisSelector.isWithinUnmatchedTypeRefinement ===
+      thatSelector.isWithinUnmatchedTypeRefinement &&
+    areEqualClientEdgeTraversalPaths(
+      thisSelector.clientEdgeTraversalPath,
+      thatSelector.clientEdgeTraversalPath,
+    )
   );
 }
 

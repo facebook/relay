@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7e6fc749e15ff3be636ff1f6b838a03b>>
+ * @generated SignedSource<<eb300cb32ed9687959138163e58e1663>>
  */
 
 mod generate_typescript;
@@ -395,6 +395,76 @@ async fn scalar_field() {
     let input = include_str!("generate_typescript/fixtures/scalar-field.graphql");
     let expected = include_str!("generate_typescript/fixtures/scalar-field.expected");
     test_fixture(transform_fixture, file!(), "scalar-field.graphql", "generate_typescript/fixtures/scalar-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_in_raw_response() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_in_raw_response.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_in_raw_response.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_in_raw_response.graphql", "generate_typescript/fixtures/semantic_non_null_in_raw_response.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_items_in_matrix() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_items_in_matrix.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_items_in_matrix.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_items_in_matrix.graphql", "generate_typescript/fixtures/semantic_non_null_items_in_matrix.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_liked_field_resolver() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_liked_field_resolver.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_liked_field_resolver.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_liked_field_resolver.graphql", "generate_typescript/fixtures/semantic_non_null_liked_field_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_liked_field_weak_resolver() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_liked_field_weak_resolver.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_liked_field_weak_resolver.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_liked_field_weak_resolver.graphql", "generate_typescript/fixtures/semantic_non_null_liked_field_weak_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_linked_field() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_linked_field.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_linked_field.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_linked_field.graphql", "generate_typescript/fixtures/semantic_non_null_linked_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_list_and_list_item() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_list_and_list_item.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_list_and_list_item.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_list_and_list_item.graphql", "generate_typescript/fixtures/semantic_non_null_list_and_list_item.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_list_item() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_list_item.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_list_item.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_list_item.graphql", "generate_typescript/fixtures/semantic_non_null_list_item.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_scalar.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_scalar.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar.graphql", "generate_typescript/fixtures/semantic_non_null_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_feature_disabled() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_feature_disabled.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_feature_disabled.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_feature_disabled.graphql", "generate_typescript/fixtures/semantic_non_null_scalar_feature_disabled.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_resolver() {
+    let input = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_resolver.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_resolver.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_resolver.graphql", "generate_typescript/fixtures/semantic_non_null_scalar_resolver.expected", input, expected).await;
 }
 
 #[tokio::test]

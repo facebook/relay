@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2abe93441abdb20ba1d3753369ac19d3>>
+ * @generated SignedSource<<da501a17b91d1232af38c1d5588cf7b3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {live_external_greeting as queryLiveExternalGreetingResolverType} from ".
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolverType: (
   rootKey: LiveExternalGreetingFragment$key,
-) => LiveState<?mixed>);
+) => LiveState<?string>);
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -34,7 +34,7 @@ import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType}
 |}>);
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {|
-  +greeting: ?ReturnType<ReturnType<typeof queryLiveExternalGreetingResolverType>["read"]>,
+  +greeting: ?string,
   +user: ?{|
     +id: string,
   |},
@@ -131,7 +131,7 @@ return {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": false
+        "isOutputType": true
       }
     ]
   },

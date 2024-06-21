@@ -1,0 +1,46 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment pluralFragmentOnAbstractTypeFragment on Cat @relay(plural: true) {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    id: ID!
+    description: String
+}
+
+type Tabby implements Cat @__RelayResolverModel {
+    id: ID!
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "TabbyResolver", fragment_name: "Tabby__id", inject_fragment_data: "id")
+}
+
+type Persian implements Cat @__RelayResolverModel {
+    id: ID!
+    description: String
+    __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "PersianResolver", fragment_name: "Persian__id", inject_fragment_data: "id")
+}
+==================================== OUTPUT ===================================
+fragment pluralFragmentOnAbstractTypeFragment on Cat @relay(plural: true) {
+  ... on Tabby {
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(529),
+    #     import_path: "TabbyResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "description",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    # }
+    
+  }
+  ... on Persian {
+    description
+  }
+}

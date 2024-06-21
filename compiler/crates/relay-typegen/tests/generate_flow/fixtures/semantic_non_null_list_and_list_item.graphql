@@ -1,0 +1,10 @@
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on ClientUser @throwOnFieldError {
+  favorite_numbers
+}
+
+%extensions%
+
+type ClientUser {
+  favorite_numbers: [Int] @semanticNonNull(levels: [0, 1])
+}

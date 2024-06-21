@@ -13,7 +13,7 @@ extend type User {
 fragment Foo_user on User {
   __id @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_id: FieldID(518),
+  #     field_id: FieldID(526),
   #     import_path: "PopStarNameResolver",
   #     import_name: None,
   #     field_alias: None,
@@ -43,7 +43,7 @@ fragment Foo_user on User {
   
   __id @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_id: FieldID(518),
+  #     field_id: FieldID(526),
   #     import_path: "PopStarNameResolver",
   #     import_name: None,
   #     field_alias: Some(

@@ -24,8 +24,8 @@ import type {OperationDescriptor} from 'relay-runtime';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {act: internalAct} = require('../../jest-react');
-const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
 const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
+const useFragmentInternal = require('../useFragmentInternal');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -86,13 +86,13 @@ function expectSchedulerToFlushAndYieldThrough(expectedYields: any) {
 
 // The current tests are against useFragmentNode which as a different Flow signature
 // than the external API useFragment. I want to keep the more accurate types
-// for useFragmentInternal_EXPERIMENTAL, though, so this wrapper adapts it.
+// for useFragmentInternal, though, so this wrapper adapts it.
 type ReturnType<TFragmentData: mixed> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
-function useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
+hook useFragmentNode_NEW<TFragmentData: mixed>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -105,7 +105,7 @@ function useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
   key: any,
   displayName: string,
 ): ReturnType<TFragmentData> {
-  const data = useFragmentInternal_EXPERIMENTAL(fragment, key, displayName);
+  const data = useFragmentInternal(fragment, key, displayName);
   return {
     // $FlowFixMe[incompatible-return]
     data,
@@ -115,13 +115,13 @@ function useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
 }
 
 describe.each([
-  ['Experimental', useFragmentNode_EXPERIMENTAL],
+  ['New', useFragmentNode_NEW],
   ['Legacy', useFragmentNode_LEGACY],
 ])(
   'useFragmentNode / useFragment (%s)',
   (_hookName, useFragmentNodeOriginal) => {
-    const isUsingReactCacheImplementation =
-      useFragmentNodeOriginal === useFragmentNode_EXPERIMENTAL;
+    const isUsingNewImplementation =
+      useFragmentNodeOriginal === useFragmentNode_NEW;
     let environment;
     let disableStoreUpdates;
     let enableStoreUpdates;
@@ -731,7 +731,7 @@ describe.each([
         // Assert that ref now points to newQuery owner
         ...createFragmentRef('200', newQuery),
       };
-      if (isUsingReactCacheImplementation) {
+      if (isUsingNewImplementation) {
         // React Cache renders twice (because it has to update state for derived data),
         // but avoids rendering with stale data on the initial update
         assertRenderBatch([{data: expectedUser}, {data: expectedUser}]);
@@ -863,6 +863,16 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when fragment pointers change', () => {
+      // Requires the `allowConcurrentByDefault` feature flag. Only run if
+      // we detect support for `unstable_concurrentUpdatesByDefault`.
+      if (
+        !TestRenderer.create
+          .toString()
+          .includes('unstable_concurrentUpdatesByDefault')
+      ) {
+        return;
+      }
+
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
@@ -946,7 +956,7 @@ describe.each([
             ...createFragmentRef('200', newQuery),
           },
         };
-        if (isUsingReactCacheImplementation) {
+        if (isUsingNewImplementation) {
           // The new implementation simply finishes the render in progress.
           expectSchedulerToFlushAndYield([['with id ', '200', '!']]);
           assertFragmentResults([expectedData]);
@@ -992,6 +1002,16 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when fragment pointers change, but still handle updates to the new data', () => {
+      // Requires the `allowConcurrentByDefault` feature flag. Only run if
+      // we detect support for `unstable_concurrentUpdatesByDefault`.
+      if (
+        !TestRenderer.create
+          .toString()
+          .includes('unstable_concurrentUpdatesByDefault')
+      ) {
+        return;
+      }
+
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
@@ -1246,6 +1266,16 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when variables change', () => {
+      // Requires the `allowConcurrentByDefault` feature flag. Only run if
+      // we detect support for `unstable_concurrentUpdatesByDefault`.
+      if (
+        !TestRenderer.create
+          .toString()
+          .includes('unstable_concurrentUpdatesByDefault')
+      ) {
+        return;
+      }
+
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         Scheduler.log(props.children);
@@ -1335,7 +1365,7 @@ describe.each([
             ...createFragmentRef('1', newQuery),
           },
         };
-        if (isUsingReactCacheImplementation) {
+        if (isUsingNewImplementation) {
           // The new implementation simply finishes the render in progress.
           expectSchedulerToFlushAndYield([['with id ', '1', '!']]);
           assertFragmentResults([expectedData]);
@@ -1575,6 +1605,16 @@ describe.each([
     });
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
+      // Requires the `allowConcurrentByDefault` feature flag. Only run if
+      // we detect support for `unstable_concurrentUpdatesByDefault`.
+      if (
+        !TestRenderer.create
+          .toString()
+          .includes('unstable_concurrentUpdatesByDefault')
+      ) {
+        return;
+      }
+
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         Scheduler.log(props.children);

@@ -1,0 +1,6 @@
+# relay:experimental_emit_semantic_nullability_types
+
+fragment MyFragment on Node @throwOnFieldError {
+  id
+  name
+}

@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment RelayReaderNamedFragmentsTest_user on User @relay(plural: true) {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  nodes {
+    ...RelayReaderNamedFragmentsTest_user @alias
+  }
+}

@@ -140,7 +140,7 @@ pub struct SkipRedundantNodesTransform {
     defer_stream_interface: DeferStreamInterface,
 }
 
-impl<'s> SkipRedundantNodesTransform {
+impl SkipRedundantNodesTransform {
     fn new(program: &'_ Program, defer_stream_interface: DeferStreamInterface) -> Self {
         Self {
             schema: Arc::clone(&program.schema),

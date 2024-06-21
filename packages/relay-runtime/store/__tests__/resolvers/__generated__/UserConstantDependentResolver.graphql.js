@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b05f6fca2cf52729c4a01fbca5494bc8>>
+ * @generated SignedSource<<ac857b51eadd0ffd185799e5fab407a8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {constant as userConstantResolverType} from "../UserConstantResolver.js";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userConstantResolverType: (
   rootKey: UserConstantResolver$key,
-) => ?mixed);
+) => ?number);
 declare export opaque type UserConstantDependentResolver$fragmentType: FragmentType;
 export type UserConstantDependentResolver$data = {|
-  +constant: ?ReturnType<typeof userConstantResolverType>,
+  +constant: ?number,
   +$fragmentType: UserConstantDependentResolver$fragmentType,
 |};
 export type UserConstantDependentResolver$key = {

@@ -44,7 +44,7 @@ impl SchemaDocumentation for SDLSchema {
                 field
                     .arguments
                     .iter()
-                    .find(|argument| argument.name.0 == argument_name_string_key)
+                    .find(|argument| argument.name.item.0 == argument_name_string_key)
             })
             .and_then(|argument| argument.description)
             .map(|string_key| string_key.lookup())

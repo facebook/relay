@@ -174,9 +174,7 @@ class RecordResolverCache implements ResolverCache {
       linkedRecord = RelayModernRecord.create(linkedID, '__RELAY_RESOLVER__');
 
       const evaluationResult = evaluate();
-      if (RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES) {
-        shallowFreeze(evaluationResult.resolverResult);
-      }
+      shallowFreeze(evaluationResult.resolverResult);
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,
@@ -328,6 +326,22 @@ class RecordResolverCache implements ResolverCache {
     if (recycled !== originalInputs) {
       return true;
     }
+
+    if (RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD) {
+      // This record does not need to be recomputed, we can reuse the cached value.
+      // For subsequent reads we can mark this record as "clean" so that they will
+      // not need to re-read the fragment.
+      const nextRecord = RelayModernRecord.clone(record);
+      RelayModernRecord.setValue(
+        nextRecord,
+        RELAY_RESOLVER_INVALIDATION_KEY,
+        false,
+      );
+
+      const recordSource = this._getRecordSource();
+      recordSource.set(RelayModernRecord.getDataID(record), nextRecord);
+    }
+
     return false;
   }
 

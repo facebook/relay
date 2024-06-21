@@ -1,0 +1,9 @@
+# relay-resolver-enable-interface-output-type
+
+query selectionsOnNodeQuery {
+    node(id: 4) {
+        __typename
+    }
+}
+
+# %extensions%

@@ -26,7 +26,14 @@ pub fn get_docblock_definition_description(
             Ok(DefinitionDescription::Fragment { fragment_name })
         }
         DocblockResolutionInfo::FieldName(_) => {
-            // The field name _id_ the definition of the field.
+            // The field name _is_ the definition of the field.
+            Err(LSPRuntimeError::ExpectedError)
+        }
+        DocblockResolutionInfo::FieldArgumentName {
+            field_name: _,
+            argument_name: _,
+        } => {
+            // The argument name _is_ the definition of the argument.
             Err(LSPRuntimeError::ExpectedError)
         }
         DocblockResolutionInfo::Deprecated => {

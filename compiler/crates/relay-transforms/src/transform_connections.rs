@@ -343,9 +343,8 @@ impl<'s> ConnectionTransform<'s> {
         let mut next_directives = connection_field
             .directives
             .iter()
+            .filter(|&directive| directive != connection_directive)
             .cloned()
-            // Remove the original @connection directive
-            .filter(|directive| directive != connection_directive)
             .collect::<Vec<_>>();
 
         // Add an internal (untyped) directive to pass down the connection handle

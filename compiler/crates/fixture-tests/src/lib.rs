@@ -166,7 +166,13 @@ pub async fn test_fixture<T, U, V>(
                 .join(source_file_path)
                 .with_file_name(expected_file_name);
             File::create(&expected_file_path)
-                .unwrap_or_else(|_| panic!("Unable to create {}", expected_file_path.display(),))
+                .unwrap_or_else(|e| {
+                    panic!(
+                        "Unable to create {} due to error: {:?}",
+                        expected_file_path.display(),
+                        e
+                    )
+                })
                 .write_all(actual.as_bytes())
                 .unwrap();
         } else {
@@ -180,7 +186,7 @@ pub async fn test_fixture<T, U, V>(
 fn workspace_root() -> PathBuf {
     if let Ok(cargo) = std::env::var("CARGO") {
         let stdout = Command::new(cargo)
-            .args(&["locate-project", "--workspace", "--message-format=plain"])
+            .args(["locate-project", "--workspace", "--message-format=plain"])
             .output()
             .unwrap()
             .stdout;

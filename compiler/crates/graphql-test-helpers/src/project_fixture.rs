@@ -107,6 +107,11 @@ impl ProjectFixture {
             self.files.remove(other_file);
         }
     }
+
+    /// Return files map
+    pub fn files(&self) -> &FnvHashMap<PathBuf, String> {
+        &self.files
+    }
 }
 
 // Stringify a path such that it's stable across operating systems.

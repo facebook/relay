@@ -719,9 +719,11 @@ describe('check()', () => {
 
       loader = {
         get: jest.fn(
+          // $FlowFixMe[invalid-computed-prop]
           (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
         load: jest.fn((moduleName: mixed) =>
+          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -1169,9 +1171,11 @@ describe('check()', () => {
 
       loader = {
         get: jest.fn(
+          // $FlowFixMe[invalid-computed-prop]
           (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
         load: jest.fn((moduleName: mixed) =>
+          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -1957,22 +1961,22 @@ describe('check()', () => {
           updatedHometown === undefined
             ? {}
             : updatedHometown === null
-            ? {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  hometown: null,
-                },
-              }
-            : {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  hometown: {
-                    __ref: updatedHometown,
+              ? {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    hometown: null,
+                  },
+                }
+              : {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    hometown: {
+                      __ref: updatedHometown,
+                    },
                   },
                 },
-              },
         );
       },
     );
@@ -2117,22 +2121,22 @@ describe('check()', () => {
           updatedScreennames === undefined
             ? {}
             : updatedScreennames === null
-            ? {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  screennames: null,
-                },
-              }
-            : {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  screennames: {
-                    __refs: updatedScreennames,
+              ? {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    screennames: null,
+                  },
+                }
+              : {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    screennames: {
+                      __refs: updatedScreennames,
+                    },
                   },
                 },
-              },
         );
       },
     );

@@ -170,7 +170,7 @@ struct Printer<'schema, 'writer> {
     type_writers_index: Option<(StringKey, usize)>,
 }
 
-impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
+impl<'schema, 'writer> Printer<'schema, 'writer> {
     fn new(schema: &'schema SDLSchema, writers: &'writer mut Vec<String>) -> Self {
         Self {
             schema,
@@ -242,7 +242,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
     }
 
     fn print_directive(&mut self, directive: &Directive) -> FmtResult {
-        write!(self.writer(), "directive @{}", directive.name)?;
+        write!(self.writer(), "directive @{}", directive.name.item)?;
         self.print_args(&directive.arguments)?;
         write!(
             self.writer(),
@@ -372,7 +372,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
                 write!(self.writer(), ", ")?;
             }
             let type_string = self.schema.get_type_string(&arg.type_);
-            write!(self.writer(), "{}: {}", arg.name, type_string,)?;
+            write!(self.writer(), "{}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }
@@ -403,7 +403,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_new_line()?;
         for arg in args.iter() {
             let type_string = self.schema.get_type_string(&arg.type_);
-            write!(self.writer(), "  {}: {}", arg.name, type_string,)?;
+            write!(self.writer(), "  {}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }

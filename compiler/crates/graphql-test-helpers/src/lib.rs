@@ -47,7 +47,7 @@ where
         let extension_location = SourceLocationKey::embedded(fixture.file_name, 1);
         sources_map.insert(extension_location, extensions_text.to_string());
 
-        get_test_schema_with_located_extensions(*extensions_text, extension_location)
+        get_test_schema_with_located_extensions(extensions_text, extension_location)
     } else {
         get_test_schema()
     };

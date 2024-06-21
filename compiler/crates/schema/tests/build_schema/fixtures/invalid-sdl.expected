@@ -13,7 +13,7 @@ type Page implements User @source("") {
 ==================================== ERROR ====================================
 ✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
 
-  <generated>:9:35
+  invalid-sdl.graphql:9:35
     8 │ 
     9 │ type Page implements User @source("") {
       │                                   ^^

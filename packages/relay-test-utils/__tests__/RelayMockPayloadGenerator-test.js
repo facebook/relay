@@ -1742,8 +1742,25 @@ test('Query with @no_inline fragment spread with variable argument', () => {
 
 test('generate mock for deferred fragments', () => {
   graphql`
+    fragment RelayMockPayloadGeneratorTest61SubFragment on User {
+      id
+      name
+    }
+  `;
+
+  graphql`
     fragment RelayMockPayloadGeneratorTest61Fragment on User {
       name
+      ... on User {
+        id
+        friends {
+          edges {
+            node {
+              ...RelayMockPayloadGeneratorTest61SubFragment @defer
+            }
+          }
+        }
+      }
     }
   `;
   testGeneratedData(
@@ -1755,7 +1772,186 @@ test('generate mock for deferred fragments', () => {
         }
       }
     `,
+    {
+      FriendsConnection() {
+        return {
+          edges: Array(5).fill(),
+        };
+      },
+    },
+    {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for deferred fragments with if condition true', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest62Fragment on User {
+      name
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest62Query {
+        node(id: "my-id") {
+          id
+          ...RelayMockPayloadGeneratorTest62Fragment @defer(if: true)
+        }
+      }
+    `,
     null,
     {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for deferred fragments with if condition false', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest63Fragment on User {
+      name
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest63Query {
+        node(id: "my-id") {
+          id
+          ...RelayMockPayloadGeneratorTest63Fragment @defer(if: false)
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for streamed fragments', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest64Fragment on User {
+      id
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest64Query {
+        me {
+          ... on User {
+            friends(first: 10)
+              @stream_connection(initial_count: 4, key: "test-64__friends") {
+              edges {
+                node {
+                  ...RelayMockPayloadGeneratorTest64Fragment
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for streamed fragments with if condition true', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest65Fragment on User {
+      id
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest65Query {
+        me {
+          ... on User {
+            friends(first: 10)
+              @stream_connection(
+                initial_count: 4
+                key: "test-65__friends"
+                if: true
+              ) {
+              edges {
+                node {
+                  ...RelayMockPayloadGeneratorTest65Fragment
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});
+
+test('generate mock for streamed fragments with if condition false', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest66Fragment on User {
+      id
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest66Query {
+        me {
+          ... on User {
+            friends(first: 10)
+              @stream_connection(
+                initial_count: 4
+                key: "test-66__friends"
+                if: false
+              ) {
+              edges {
+                node {
+                  ...RelayMockPayloadGeneratorTest66Fragment
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    null,
+    {generateDeferredPayload: true},
+  );
+});
+
+test('should generate data for @match with PlainUserNameRenderer_name and use defaults from mock resolvers', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest67Fragment on User {
+      id
+      nameRenderer {
+        ...RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+      }
+    }
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name on PlainUserNameRenderer {
+      plaintext
+      data {
+        text
+      }
+    }
+  `;
+
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest67Query @relay_test_operation {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest67Fragment
+        }
+      }
+    `,
+    {
+      UserNameRenderer() {
+        return {
+          __typename: 'PlainUserNameRenderer',
+          __module_operation: require('./__generated__/RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name$normalization.graphql'),
+          data: {
+            text: 'hello world',
+          },
+        };
+      },
+    },
   );
 });

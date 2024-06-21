@@ -32,6 +32,7 @@ SchemaDocument {
                     },
                 ),
                 hack_source: None,
+                span: 21:54,
             },
         ),
     ],

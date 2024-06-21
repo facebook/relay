@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_interface_output_type
+
+/**
+ * @RelayResolver ClientUser implements Foo
+ * @weak
+ */
+==================================== OUTPUT ===================================
+Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 20:30,
+                token: Token {
+                    span: 20:30,
+                    kind: Identifier,
+                },
+                value: "ClientUser",
+            },
+            rhs_location: /path/to/test/fixture/relay-resolver-weak-object-with-implements.js:20:45,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: /path/to/test/fixture/relay-resolver-weak-object-with-implements.js:0:55,
+            implements_interfaces: [
+                Identifier {
+                    span: 42:45,
+                    token: Token {
+                        span: 42:45,
+                        kind: Identifier,
+                    },
+                    value: "Foo",
+                },
+            ],
+            source_hash: ResolverSourceHash(
+                "26ae5e285958dda3877b78aaf5a82b65",
+            ),
+        },
+    ),
+)

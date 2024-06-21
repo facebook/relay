@@ -11,4 +11,5 @@ graphql`
 }
 
 //- schema.graphql
+type Query { me: User }
 type User { name: String }

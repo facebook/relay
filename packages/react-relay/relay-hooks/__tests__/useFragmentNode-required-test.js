@@ -32,7 +32,7 @@ let singularQuery;
 let renderSingularFragment;
 let renderSpy;
 
-function useFragmentNode(
+hook useFragmentNode(
   fragmentNode: ReaderFragment,
   fragmentRef: $TEMPORARY$object<{
     __fragmentOwner: RequestDescriptor,

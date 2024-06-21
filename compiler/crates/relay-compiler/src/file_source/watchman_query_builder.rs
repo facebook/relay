@@ -7,48 +7,19 @@
 
 use std::path::PathBuf;
 
+use fnv::FnvBuildHasher;
+use indexmap::IndexMap;
 use relay_typegen::TypegenLanguage;
 use watchman_client::prelude::*;
 
+use crate::compiler_state::ProjectSet;
 use crate::config::Config;
 use crate::config::SchemaLocation;
 
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
+
 pub fn get_watchman_expr(config: &Config) -> Expr {
-    let mut sources_conditions = vec![expr_any(
-        config
-            .sources
-            .iter()
-            .flat_map(|(path, project_set)| {
-                project_set
-                    .iter()
-                    .map(|name| (path, &config.projects[name]))
-                    .collect::<Vec<_>>()
-            })
-            .map(|(path, project)| {
-                Expr::All(vec![
-                    // Ending in *.js(x) or *.ts(x) depending on the project language.
-                    Expr::Suffix(match &project.typegen_config.language {
-                        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-                            vec![PathBuf::from("js"), PathBuf::from("jsx")]
-                        }
-                        TypegenLanguage::TypeScript => {
-                            vec![
-                                PathBuf::from("js"),
-                                PathBuf::from("jsx"),
-                                PathBuf::from("ts"),
-                                PathBuf::from("tsx"),
-                            ]
-                        }
-                    }),
-                    // In the related source root.
-                    Expr::DirName(DirNameTerm {
-                        path: path.clone(),
-                        depth: None,
-                    }),
-                ])
-            })
-            .collect(),
-    )];
+    let mut sources_conditions = vec![expr_any(get_sources_dir_exprs(config, &config.sources))];
     // not excluded by any glob
     if !config.excludes.is_empty() {
         sources_conditions.push(Expr::Not(Box::new(expr_any(
@@ -68,6 +39,11 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
     let sources_expr = Expr::All(sources_conditions);
 
     let mut expressions = vec![sources_expr];
+
+    let generated_sources_dir_exprs = get_sources_dir_exprs(config, &config.generated_sources);
+    if !generated_sources_dir_exprs.is_empty() {
+        expressions.push(expr_any(generated_sources_dir_exprs));
+    }
 
     let output_dir_paths = get_output_dir_paths(config);
     if !output_dir_paths.is_empty() {
@@ -103,10 +79,54 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
     ])
 }
 
+fn get_sources_dir_exprs(
+    config: &Config,
+    paths_to_project: &FnvIndexMap<PathBuf, ProjectSet>,
+) -> Vec<Expr> {
+    paths_to_project
+        .iter()
+        .flat_map(|(path, project_set)| {
+            project_set
+                .iter()
+                .map(|name| (path, &config.projects[name]))
+                .collect::<Vec<_>>()
+        })
+        .map(|(path, project)| {
+            Expr::All(vec![
+                // In the related source root.
+                Expr::DirName(DirNameTerm {
+                    path: path.clone(),
+                    depth: None,
+                }),
+                // Match file extensions
+                get_project_file_ext_expr(project.typegen_config.language),
+            ])
+        })
+        .collect()
+}
+
+fn get_project_file_ext_expr(typegen_language: TypegenLanguage) -> Expr {
+    // Ending in *.js(x) or *.ts(x) depending on the project language.
+    Expr::Suffix(match &typegen_language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            vec![PathBuf::from("js"), PathBuf::from("jsx")]
+        }
+        TypegenLanguage::TypeScript => {
+            vec![
+                PathBuf::from("js"),
+                PathBuf::from("jsx"),
+                PathBuf::from("ts"),
+                PathBuf::from("tsx"),
+            ]
+        }
+    })
+}
+
 /// Compute all root paths that we need to query Watchman with. All files
 /// relevant to the compiler should be in these directories.
 pub fn get_all_roots(config: &Config) -> Vec<PathBuf> {
     let source_roots = get_source_roots(config);
+    let extra_sources_roots = get_generated_sources_roots(config);
     let output_roots = get_output_dir_paths(config);
     let extension_roots = get_extension_roots(config);
     let schema_file_roots = get_schema_file_roots(config);
@@ -114,6 +134,7 @@ pub fn get_all_roots(config: &Config) -> Vec<PathBuf> {
     unify_roots(
         source_roots
             .into_iter()
+            .chain(extra_sources_roots)
             .chain(output_roots)
             .chain(extension_roots)
             .chain(schema_file_roots)
@@ -125,6 +146,11 @@ pub fn get_all_roots(config: &Config) -> Vec<PathBuf> {
 /// Returns all root directories of JS source files for the config.
 fn get_source_roots(config: &Config) -> Vec<PathBuf> {
     config.sources.keys().cloned().collect()
+}
+
+/// Returns all root directories of JS source files for the config.
+fn get_generated_sources_roots(config: &Config) -> Vec<PathBuf> {
+    config.generated_sources.keys().cloned().collect()
 }
 
 /// Returns all root directories of GraphQL schema extension files for the
@@ -226,7 +252,7 @@ fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
     let mut roots = Vec::new();
     for path in paths {
         match roots.last() {
-            Some(prev) if path.starts_with(&prev) => {
+            Some(prev) if path.starts_with(prev) => {
                 // skip
             }
             _ => {

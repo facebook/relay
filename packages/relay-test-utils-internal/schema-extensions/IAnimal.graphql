@@ -1,0 +1,36 @@
+interface IAnimal {
+  id: ID!
+  legs: Int
+}
+
+input AnimalRequest {
+  """
+  Should be a valid GraphQL type that implements `IAnimal`.
+  """
+  ofType: String!
+  """
+  Tells the resolver to return an ID for which a model doees not exist.
+  """
+  returnValidID: Boolean!
+}
+
+type Chicken implements IAnimal {
+  id: ID!
+  legs: Int
+  greeting: String
+}
+
+extend type Query {
+  chicken: Chicken
+}
+
+interface IWeakAnimal {
+  color: String
+}
+
+input WeakAnimalRequest {
+  """
+  Should be a valid GraphQL type that implements `IWeakAnimal`.
+  """
+  ofType: String!
+}

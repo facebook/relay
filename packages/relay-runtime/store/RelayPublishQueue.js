@@ -61,8 +61,8 @@ const _global: typeof global | $FlowFixMe =
   typeof global !== 'undefined'
     ? global
     : typeof window !== 'undefined'
-    ? window
-    : undefined;
+      ? window
+      : undefined;
 
 const applyWithGuard =
   _global?.ErrorUtils?.applyWithGuard ??
@@ -210,6 +210,7 @@ class RelayPublishQueue implements PublishQueue {
     sourceOperation?: OperationDescriptor,
   ): $ReadOnlyArray<RequestDescriptor> {
     const runWillClearGcHold =
+      // $FlowFixMe[incompatible-type]
       this._appliedOptimisticUpdates === 0 && !!this._gcHold;
     const runIsANoop =
       // this._pendingBackupRebase is true if an applied optimistic

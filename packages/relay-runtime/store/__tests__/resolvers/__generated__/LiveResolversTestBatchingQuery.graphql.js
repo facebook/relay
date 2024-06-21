@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8d50d8d1c04f7dc1b82016f2d18e2a3c>>
+ * @generated SignedSource<<a47754ca4580d21fdc2e53ab685bb084>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { LiveState } from "relay-runtime";
 import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../LiveCounterNoFragment.js";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolverType: () => LiveState<?mixed>);
+(queryCounterNoFragmentResolverType: () => LiveState<?number>);
 import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverType} from "../LiveCounterNoFragmentWithArg.js";
 // Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -30,11 +30,11 @@ import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverTyp
   args: {|
     prefix: string,
   |},
-) => LiveState<?mixed>);
+) => LiveState<?string>);
 export type LiveResolversTestBatchingQuery$variables = {||};
 export type LiveResolversTestBatchingQuery$data = {|
-  +counter_no_fragment: ?ReturnType<ReturnType<typeof queryCounterNoFragmentResolverType>["read"]>,
-  +counter_no_fragment_with_arg: ?ReturnType<ReturnType<typeof queryCounterNoFragmentWithArgResolverType>["read"]>,
+  +counter_no_fragment: ?number,
+  +counter_no_fragment_with_arg: ?string,
 |};
 export type LiveResolversTestBatchingQuery = {|
   response: LiveResolversTestBatchingQuery$data,
@@ -99,7 +99,7 @@ return {
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "name": "counter_no_fragment_with_arg",
@@ -107,7 +107,7 @@ return {
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": "counter_no_fragment_with_arg(prefix:\"sup\")",
-            "isOutputType": false
+            "isOutputType": true
           }
         ]
       }

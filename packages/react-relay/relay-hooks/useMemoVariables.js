@@ -21,7 +21,7 @@ const {useState} = require('react');
  * This is useful when a `variables` object is used as a value in a depencency
  * array as it might often be constructed during render.
  */
-function useMemoVariables<TVariables: Variables | null>(
+hook useMemoVariables<TVariables: Variables | null>(
   variables: TVariables,
 ): TVariables {
   const [mirroredVariables, setMirroredVariables] = useState(variables);

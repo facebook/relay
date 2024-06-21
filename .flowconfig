@@ -5,8 +5,6 @@
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
 
 [options]
-exact_by_default=true
-
 module.system=haste
 module.system.haste.use_name_reducers=true
 # get basename
@@ -19,9 +17,7 @@ module.system.haste.paths.excludes=.*/__mocks__/.*
 module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 munge_underscores=true
-experimental.global_find_ref=true
 ; https://fburl.com/code/h2jnts20 - to match internval value
-casting_syntax=both
 
 suppress_type=$FlowIssue
 suppress_type=$FlowFixMe
@@ -44,4 +40,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.227.0
+^0.238.0

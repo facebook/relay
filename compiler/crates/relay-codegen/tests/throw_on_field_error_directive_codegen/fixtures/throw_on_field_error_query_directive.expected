@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+# relay:experimental_emit_semantic_nullability_types
+
+query MyQuery @throwOnFieldError {
+  me {
+    id
+    name
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "MyQuery",
+  "selections": [
+    {
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "name": "id"
+        },
+        {
+          "kind": "ScalarField",
+          "name": "name"
+        }
+      ]
+    }
+  ]
+}

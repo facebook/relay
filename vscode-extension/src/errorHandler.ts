@@ -41,7 +41,9 @@ export function createErrorHandler(
           }
         });
 
-      return CloseAction.DoNotRestart;
+      return {
+        action: CloseAction.DoNotRestart,
+      };
     },
     // This `error` callback should probably never happen. 🙏
     error() {
@@ -57,7 +59,9 @@ export function createErrorHandler(
           }
         });
 
-      return ErrorAction.Continue;
+      return {
+        action: ErrorAction.Continue,
+      };
     },
   };
 }

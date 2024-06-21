@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2fe6a2d3bc6b9c14578dc44ad440dd77>>
+ * @generated SignedSource<<de1623c63548f9082e2e54a2063d938f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,6 @@ import {first_name as weakModelFirstNameResolverType} from "../RelayResolverNull
 (weakModelFirstNameResolverType: (
   __relay_model_instance: WeakModel____relay_model_instance$data['__relay_model_instance'],
 ) => ?string);
-import type { Query__edge_to_null_weak_model$normalization } from "./Query__edge_to_null_weak_model$normalization.graphql";
 import type { WeakModel } from "../RelayResolverNullableModelClientEdge-test.js";
 export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data = {|
@@ -55,18 +54,19 @@ var node/*: ClientRequest*/ = {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "WeakModel",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_null_weak_model",
-          "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('./../RelayResolverNullableModelClientEdge-test').edge_to_null_weak_model, '__relay_model_instance', false),
+          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_null_weak_model,
           "path": "edge_to_null_weak_model",
           "normalizationInfo": {
+            "kind": "WeakModel",
             "concreteType": "WeakModel",
-            "plural": false,
-            "normalizationNode": require('./Query__edge_to_null_weak_model$normalization.graphql')
+            "plural": false
           }
         },
         "linkedField": {

@@ -24,8 +24,12 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
 use intern::string_key::Intern;
-use once_cell::sync::Lazy;
+use lazy_static::lazy_static;
 use thiserror::Error;
+
+lazy_static! {
+    pub static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());
+}
 
 pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = InlineDataFragmentsTransform::new(program);
@@ -39,9 +43,6 @@ pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
         Err(transform.errors)
     }
 }
-
-pub const INLINE_DIRECTIVE_NAME: Lazy<DirectiveName> =
-    Lazy::new(|| DirectiveName("inline".intern()));
 
 struct InlineDataFragmentsTransform<'s> {
     program: &'s Program,

@@ -13,7 +13,7 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
-Relay Resolvers is an experimental Relay feature which enables modeling derived state as client-only fields in Relay’s GraphQL graph. Similar to server [resolvers](https://graphql.org/learn/execution/), a Relay Resolver is a function which defines how to compute the value of a GraphQL field. However, unlike server resolvers, Relay Resolvers are evaluated reactively on the client. A Relay Resolver reads fields off of its parent object and returns a derived result. If any of those fields change, Relay will automatically reevaluate the resolver.
+Relay Resolvers are an experimental Relay feature which enables modeling derived state as client-only fields in Relay’s GraphQL graph. Similar to server [resolvers](https://graphql.org/learn/execution/), a Relay Resolver is a function which defines how to compute the value of a GraphQL field. However, unlike server resolvers, Relay Resolvers are evaluated reactively on the client. A Relay Resolver reads fields off of its parent object and returns a derived result. If any of those fields change, Relay will automatically reevaluate the resolver.
 
 Relay Resolvers are particularly valuable in apps which store client state in Relay via [client schema extensions](https://relay.dev/docs/guides/client-schema-extensions/), since they allow you to compose together client data, server data — and even other Relay Resolver fields — into fields which update reactively as the underlying data changes.
 
@@ -25,7 +25,7 @@ Concretely, Relay Resolvers are defined as functions annotated with a special do
 
 For Relay Resolvers we are using a special syntax to define a new field:
 
-The string after @RelayResolver is a GraphQL `TypeName` sperated by a dot the string with the field
+The string after @RelayResolver is a GraphQL `TypeName` separated by a dot from the GraphQL field
 defintion: https://spec.graphql.org/June2018/#FieldDefinition (Description and directives of the field are not supported).
 
 ```js
@@ -78,11 +78,11 @@ function MyGreeting({userKey}) {
 
 ## Docblock Fields
 
-The Relay compiler looks for the following fields in any docblocks that includes `@RelayResolver`:
+The Relay compiler looks for the following fields in any docblocks that include `@RelayResolver`:
 
 - `@RelayResolver` (required)
 - `@rootFragment` (optional) The name of the fragment read by `readFragment`
-- `@deprecated` (optional) Indicates that the field is [deprecated](https://spec.graphql.org/June2018/#sec--deprecated). May be optionally followed text giving the reason that the field is deprecated.
+- `@deprecated` (optional) Indicates that the field is [deprecated](https://spec.graphql.org/June2018/#sec--deprecated). May be optionally followed by text giving the reason that the field is deprecated.
 
 The docblock may also contain free text. This free text will be used as the field’s human-readable description, which will be surfaced in Relay’s editor support on hover and in autocomplete results.
 
@@ -90,7 +90,7 @@ The docblock may also contain free text. This free text will be used as the fiel
 
 In order for Relay to be able to call a Relay Resolver, it must conform to a set of conventions:
 
-1. The resolver function must use named export.
+1. The resolver function must use a named export.
 2. The resolver must read its fragment using the special `readFragment` function.
 3. The resolver function must be pure.
 4. The resolver’s return value must be immutable.
@@ -98,9 +98,11 @@ In order for Relay to be able to call a Relay Resolver, it must conform to a set
 Unlike server resolvers, Relay Resolvers may return any JavaScript value. This includes classes, functions and arrays. However, we generally encourage having Relay Resolvers return scalar values and only returning more complex JavaScript values (like functions) as an escape hatch.
 
 <FbInternalOnly>
+
 ## Lint Rule
 
 In many cases, the contents of the docblock can be derived from the javascript implementation. In those cases, the [`relay-resolvers`](https://www.internalfb.com/eslint/relay-resolvers) ESLint rule rule will offer auto-fixes to derive the docblock from the implementation and ensure that the two remain in sync. The lint rule also enforces a naming convention for resolver function and modules names.
+
 </FbInternalOnly>
 
 ## How They Work
@@ -111,7 +113,7 @@ When the field is first read by a component, Relay will evaluate the Relay Resol
 
 ## Error Handling
 
-In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolvers will be logged to your environment's configured `requiredFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolves you should be sure to configure your environment with a `requiredFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
+In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolvers will be logged to your environment's configured `requiredFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolvers you should be sure to configure your environment with a `requiredFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
 
 If your component requires a non-null value in order to render, and can’t provide a reasonable fallback experience, you can annotate the field access with `@required`.
 

@@ -55,7 +55,7 @@ impl<TPrimary: SchemaDocumentation, TSecondary: SchemaDocumentation> SchemaDocum
     }
 }
 
-impl<'a, TPrimary: SchemaDocumentation, TSecondary: SchemaDocumentation>
+impl<TPrimary: SchemaDocumentation, TSecondary: SchemaDocumentation>
     CombinedSchemaDocumentation<TPrimary, TSecondary>
 {
     pub fn new(primary: TPrimary, secondary: TSecondary) -> Self {

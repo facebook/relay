@@ -10,7 +10,7 @@ query RelayReaderNamedFragmentsTest2Query {
 ==================================== OUTPUT ===================================
 export type RelayReaderNamedFragmentsTest2Query$variables = {||};
 export type RelayReaderNamedFragmentsTest2Query$data = {|
-  +aliased_fragment: ?{|
+  +aliased_fragment: {|
     +me: ?{|
       +id: string,
       +name: ?string,

@@ -100,7 +100,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
                 self.is_for_codegen,
             ));
             if let TransformedValue::Replace(selections) = selections {
-                next_selections.extend(selections.into_iter())
+                next_selections.extend(selections)
             } else {
                 next_selections.extend(fragment.selections.iter().cloned())
             };
@@ -132,7 +132,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
                 directives: Default::default(),
             })));
             if let TransformedValue::Replace(selections) = selections {
-                next_selections.extend(selections.into_iter())
+                next_selections.extend(selections)
             } else {
                 next_selections.extend(field.selections.iter().cloned());
             }
@@ -187,7 +187,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
                 self.is_for_codegen,
             ));
             if let TransformedValue::Replace(selections) = selections {
-                next_selections.extend(selections.into_iter())
+                next_selections.extend(selections)
             } else {
                 next_selections.extend(fragment.selections.iter().cloned())
             };

@@ -46,7 +46,7 @@ const warning = require('warning');
 let RenderDispatcher = null;
 let fetchKey = 100001;
 
-function useTrackLoadQueryInRender() {
+hook useTrackLoadQueryInRender() {
   if (RenderDispatcher === null) {
     // Flow does not know of React internals (rightly so), but we need to
     // ensure here that this function isn't called inside render.
@@ -57,13 +57,14 @@ function useTrackLoadQueryInRender() {
   }
 }
 
-type QueryType<T> = T extends Query<infer V, infer D, infer RR>
-  ? {
-      variables: V,
-      response: D,
-      rawResponse?: $NonMaybeType<RR>,
-    } // $FlowFixMe[deprecated-type]
-  : $Call<<T>(PreloadableConcreteRequest<T>) => T, T>;
+type QueryType<T> =
+  T extends Query<infer V, infer D, infer RR>
+    ? {
+        variables: V,
+        response: D,
+        rawResponse?: $NonMaybeType<RR>,
+      } // $FlowFixMe[deprecated-type]
+    : $Call<<T>(PreloadableConcreteRequest<T>) => T, T>;
 
 declare function loadQuery<
   T,

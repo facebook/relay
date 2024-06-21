@@ -32,10 +32,10 @@ function getFragmentIdentifier(
     selector == null
       ? 'null'
       : selector.kind === 'SingularReaderSelector'
-      ? selector.owner.identifier
-      : '[' +
-        selector.selectors.map(sel => sel.owner.identifier).join(',') +
-        ']';
+        ? selector.owner.identifier
+        : '[' +
+          selector.selectors.map(sel => sel.owner.identifier).join(',') +
+          ']';
   const fragmentVariables = getVariablesFromFragment(fragmentNode, fragmentRef);
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
 
@@ -44,10 +44,10 @@ function getFragmentIdentifier(
       typeof dataIDs === 'undefined'
         ? 'missing'
         : dataIDs == null
-        ? 'null'
-        : Array.isArray(dataIDs)
-        ? '[' + dataIDs.join(',') + ']'
-        : dataIDs;
+          ? 'null'
+          : Array.isArray(dataIDs)
+            ? '[' + dataIDs.join(',') + ']'
+            : dataIDs;
     ids =
       RelayFeatureFlags.STRING_INTERN_LEVEL <= 1
         ? ids

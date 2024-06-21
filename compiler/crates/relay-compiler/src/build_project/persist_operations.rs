@@ -6,6 +6,7 @@
  */
 
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 
 use common::sync::ParallelIterator;
@@ -34,7 +35,7 @@ lazy_static! {
 
 pub async fn persist_operations(
     artifacts: &mut [Artifact],
-    root_dir: &PathBuf,
+    root_dir: &Path,
     config: &Config,
     project_config: &ProjectConfig,
     operation_persister: &'_ (dyn OperationPersister + Send + Sync),
@@ -48,6 +49,7 @@ pub async fn persist_operations(
                 ref text,
                 ref mut id_and_text_hash,
                 ref reader_operation,
+                ref normalization_operation,
                 ..
             } = artifact.content
             {
@@ -62,8 +64,17 @@ pub async fn persist_operations(
                     None
                 } else if let Some(text) = text {
                     let text_hash = md5(text);
-                    let artifact_path = root_dir.join(&artifact.path);
                     let relative_path = artifact.path.to_owned();
+                    let mut override_schema = None;
+                    if let Some(custom_override_schema_determinator) =
+                        config.custom_override_schema_determinator.as_ref()
+                    {
+                        override_schema = custom_override_schema_determinator(
+                            project_config,
+                            normalization_operation,
+                        );
+                    }
+                    let artifact_path = root_dir.join(&artifact.path);
                     let extracted_persist_id = if config.repersist_operations {
                         None
                     } else {
@@ -79,6 +90,7 @@ pub async fn persist_operations(
                                 .persist_artifact(ArtifactForPersister {
                                     text,
                                     relative_path,
+                                    override_schema,
                                 })
                                 .await
                                 .map(|id| {

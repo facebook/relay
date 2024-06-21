@@ -20,14 +20,15 @@ path = "tests/validate_schema_test.rs"
 clap = { version = "3.2.25", features = ["derive", "env", "regex", "unicode", "wrap_help"] }
 common = { path = "../common" }
 fnv = "1.0"
+graphql-cli = { path = "../graphql-cli" }
 intern = { path = "../intern" }
 lazy_static = "1.4"
-log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
+rayon = "1.9.0"
 regex = "1.9.2"
 schema = { path = "../schema" }
-schema-print = { path = "../schema-print" }
+serde = { version = "1.0.185", features = ["derive", "rc"] }
 thiserror = "1.0.49"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-tokio = { version = "1.29.1", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }

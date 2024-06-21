@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c4ef4d119c9e629e95a1e44ba3e5219>>
+ * @generated SignedSource<<70975cfa585217d068cfae8feccc3285>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {counter as queryCounterResolverType} from "../LiveCounterResolver.js";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolverType: (
   rootKey: LiveCounterResolver$key,
-) => LiveState<?mixed>);
+) => LiveState<?number>);
 declare export opaque type CounterPlusOneResolver$fragmentType: FragmentType;
 export type CounterPlusOneResolver$data = {|
-  +counter: $NonMaybeType<ReturnType<ReturnType<typeof queryCounterResolverType>["read"]>>,
+  +counter: $NonMaybeType<?number>,
   +$fragmentType: CounterPlusOneResolver$fragmentType,
 |};
 export type CounterPlusOneResolver$key = {

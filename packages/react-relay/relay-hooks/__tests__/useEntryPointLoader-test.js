@@ -78,6 +78,7 @@ beforeEach(() => {
   }) {
     renderCount = (renderCount || 0) + 1;
     [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
+      // $FlowFixMe[react-rule-hook]
       useEntryPointLoader<{...}, any, any, any, any, any, any>(
         environmentProvider,
         entryPoint,

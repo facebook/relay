@@ -534,9 +534,27 @@ pub enum ValidationMessage {
     RequiredInMutation,
 
     #[error(
+        "Unexpected `@throwOnFieldError` directive. The `@throwOnFieldError` directive is not supported unless experimental_emit_semantic_nullability_types is enabled."
+    )]
+    ThrowOnFieldErrorNotEnabled,
+
+    #[error(
         "Unexpected `@RelayResolver` field referenced in mutation response. Relay Resolver fields may not be read as part of a mutation response."
     )]
     ResolverInMutation,
+
+    #[error("Expected the `as` argument of the @alias directive to be a static string.")]
+    FragmentAliasDirectiveDynamicNameArg,
+
+    #[error(
+        "Unexpected empty string supplied for `as` argument of the @alias directive. If provided, the `as` argument of the `@alias` directive must be a non-empty string literal."
+    )]
+    FragmentAliasIsEmptyString,
+
+    #[error(
+        "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
+    )]
+    FragmentAliasDirectiveMissingAs,
 }
 
 #[derive(
@@ -584,6 +602,11 @@ pub enum ValidationMessageWithData {
         argument_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
+    #[error(
+        "The directive `@dangerously_unaliased_fixme` is unsafe and should be replaced with `@alias`."
+    )]
+    DeprecatedDangerouslyUnaliasedDirective,
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -598,6 +621,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 .collect::<_>(),
             ValidationMessageWithData::ExpectedSelectionsOnObjectField { field_name, .. } => {
                 vec![Box::new(format!("{} {{ }}", field_name))]
+            }
+            ValidationMessageWithData::DeprecatedDangerouslyUnaliasedDirective => {
+                vec![Box::new("@alias".to_string())]
             }
         }
     }

@@ -71,9 +71,7 @@ export interface Subscribable<+T> {
   subscribe(observer: Observer<T> | Sink<T>): Subscription;
 }
 
-// Note: This should accept Subscribable<T> instead of RelayObservable<T>,
-// however Flow cannot yet distinguish it from T.
-export type ObservableFromValue<+T> = RelayObservable<T> | Promise<T> | T;
+export type ObservableFromValue<+T> = Subscribable<T> | Promise<T> | T;
 
 let hostReportError:
   | ((Error, isUncaughtThrownError: boolean) => mixed)
@@ -144,11 +142,11 @@ class RelayObservable<+T> implements Subscribable<T> {
    * useful for accepting the result of a user-provided FetchFunction.
    */
   static from<V>(obj: ObservableFromValue<V>): RelayObservable<V> {
-    return isObservable(obj)
+    return isObservable<V>(obj)
       ? fromObservable(obj)
-      : isPromise(obj)
-      ? fromPromise(obj)
-      : fromValue(obj);
+      : isPromise<V>(obj)
+        ? fromPromise(obj)
+        : fromValue(obj);
   }
 
   /**
@@ -447,9 +445,7 @@ class RelayObservable<+T> implements Subscribable<T> {
 }
 
 // Use declarations to teach Flow how to check isObservable.
-// $FlowFixMe[deprecated-type]
-declare function isObservable(p: mixed): boolean %checks(p instanceof
-  RelayObservable);
+declare function isObservable<T>(obj: mixed): obj is Subscribable<T>;
 
 function isObservable(obj: mixed) {
   return (

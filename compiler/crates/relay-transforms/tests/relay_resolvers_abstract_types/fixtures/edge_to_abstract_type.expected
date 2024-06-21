@@ -14,7 +14,7 @@ interface Cat {
 }
 
 type Tabby implements Cat {
-    description: String
+    description: String @relay_resolver(import_path: "TabbyResolver")
 }
 
 type Persian implements Cat {
@@ -28,7 +28,19 @@ extend type Query {
 query edgeToAbstractTypeQuery {
   cat {
     ... on Tabby {
-      description
+      __id @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(527),
+      #     import_path: "TabbyResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "cat.description",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: Legacy,
+      #     fragment_data_injection_mode: None,
+      # }
+      
     }
     ... on Persian {
       description

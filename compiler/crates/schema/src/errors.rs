@@ -5,19 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_syntax::OperationType;
 use intern::string_key::StringKey;
 use thiserror::Error;
-
-use crate::definitions::Type;
 
 pub type Result<T> = std::result::Result<T, SchemaError>;
 
 #[derive(Debug, Error, serde::Serialize)]
 #[serde(tag = "type", content = "args")]
 pub enum SchemaError {
-    #[error("Duplicate {0:?} type definition, got '{1}' and '{2}'.")]
-    DuplicateOperationDefinition(OperationType, StringKey, StringKey),
+    #[error("Duplicate {0} type definition, got '{1}' and '{2}'.")]
+    DuplicateOperationDefinition(String, StringKey, StringKey),
 
     #[error("Duplicate directive definition '{0}'.")]
     DuplicateDirectiveDefinition(StringKey),
@@ -25,11 +22,11 @@ pub enum SchemaError {
     #[error("Cannot extend type '{0}', the type is not defined on the server schema.")]
     ExtendUndefinedType(StringKey),
 
-    #[error("Expected an object type for name '{0}', got '{1:?}'.")]
-    ExpectedObjectReference(StringKey, Type),
+    #[error("Expected an object type for name '{0}', got {1}.")]
+    ExpectedObjectReference(StringKey, String),
 
-    #[error("Expected an interface type for name '{0}', got '{1:?}'.")]
-    ExpectedInterfaceReference(StringKey, Type),
+    #[error("Expected an interface type for name '{0}', got {1}.")]
+    ExpectedInterfaceReference(StringKey, String),
 
     #[error("Reference to undefined type '{0}'.")]
     UndefinedType(StringKey),

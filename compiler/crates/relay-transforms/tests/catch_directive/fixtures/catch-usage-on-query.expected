@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query Foo {
+  me {
+    id
+    name @catch
+  }
+}
+==================================== OUTPUT ===================================
+query Foo {
+  me {
+    id
+    name @catch @__CatchMetadataDirective
+    # CatchMetadataDirective {
+    #     to: Result,
+    #     path: "me.name",
+    # }
+    
+  }
+}

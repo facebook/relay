@@ -1,0 +1,4 @@
+fragment refetchableFragmentOnNodeAndFetchableNoFlag_RefetchableFragment on FetchableType
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}

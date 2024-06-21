@@ -37,15 +37,13 @@ fragment Foo_user on ClientUser {
   #             "ClientUser",
   #         ),
   #     ),
-  #     location: <generated>:7:17,
-  #     has_model_instance_field: false,
-  #     is_model_live: false,
   #     unique_id: 1,
+  #     model_resolvers: [],
   # }
    {
     ...BestFriendFragment @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(519),
+    #     field_id: FieldID(527),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: Some(
@@ -66,15 +64,13 @@ fragment Foo_user on ClientUser {
       #             "ClientUser",
       #         ),
       #     ),
-      #     location: <generated>:7:17,
-      #     has_model_instance_field: false,
-      #     is_model_live: false,
       #     unique_id: 0,
+      #     model_resolvers: [],
       # }
        {
         ...BestFriendFragment @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(519),
+        #     field_id: FieldID(527),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: Some(

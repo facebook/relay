@@ -22,4 +22,4 @@ colored = "2.1.0"
 diff = "0.1"
 lazy_static = "1.4"
 signedsource = { path = "../signedsource" }
-tokio = { version = "1.29.1", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }

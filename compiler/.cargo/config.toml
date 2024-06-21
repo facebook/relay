@@ -6,10 +6,3 @@ rustflags = [
     "-Drust-2018-idioms",
     "-Dwarnings",
 ]
-
-# [registries]
-# domorexp = { index = "sparse+https://domoreexp.pkgs.visualstudio.com/_packaging/npm-mirror/Cargo/index/" }
-# [source.crates-io]
-# replace-with = "domorexp"
-# [unstable]
-# registry-auth = true

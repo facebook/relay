@@ -10,39 +10,42 @@
  * @RelayResolver ClientUser implements Foo
  */
 ==================================== OUTPUT ===================================
-StrongObjectResolver(
-    StrongObjectIr {
-        type_name: Identifier {
-            span: 20:30,
-            token: Token {
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
                 span: 20:30,
-                kind: Identifier,
-            },
-            value: "ClientUser",
-        },
-        rhs_location: /path/to/test/fixture/relay-resolver-strong-object-with-implements.js:20:45,
-        root_fragment: WithLocation {
-            location: <generated>:0:0,
-            item: FragmentDefinitionName(
-                "ClientUser__id",
-            ),
-        },
-        description: None,
-        deprecated: None,
-        live: None,
-        location: /path/to/test/fixture/relay-resolver-strong-object-with-implements.js:0:46,
-        implements_interfaces: [
-            Identifier {
-                span: 42:45,
                 token: Token {
-                    span: 42:45,
+                    span: 20:30,
                     kind: Identifier,
                 },
-                value: "Foo",
+                value: "ClientUser",
             },
-        ],
-        source_hash: ResolverSourceHash(
-            "cbb959799c8b4d36262edfc0c4e8ad7f",
-        ),
-    },
+            rhs_location: /path/to/test/fixture/relay-resolver-strong-object-with-implements.js:20:45,
+            root_fragment: WithLocation {
+                location: <generated>:0:0,
+                item: FragmentDefinitionName(
+                    "ClientUser__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: /path/to/test/fixture/relay-resolver-strong-object-with-implements.js:0:46,
+            implements_interfaces: [
+                Identifier {
+                    span: 42:45,
+                    token: Token {
+                        span: 42:45,
+                        kind: Identifier,
+                    },
+                    value: "Foo",
+                },
+            ],
+            source_hash: ResolverSourceHash(
+                "cbb959799c8b4d36262edfc0c4e8ad7f",
+            ),
+        },
+    ),
 )

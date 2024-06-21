@@ -14,18 +14,22 @@ use std::hash::Hash;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use ::intern::impl_lookup;
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use ::intern::BuildIdHasher;
+use ::intern::Lookup;
 use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::Named;
+use common::NamedItem;
 use common::WithLocation;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
-use intern::impl_lookup;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::BuildIdHasher;
-use intern::Lookup;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -35,6 +39,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::AssociatedData;
+use crate::ValidationMessage;
 // Definitions
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -402,6 +407,23 @@ pub struct FragmentSpread {
     pub directives: Vec<Directive>,
 }
 
+impl FragmentSpread {
+    // Get the alias of this fragment spread from the optional `@alias` directive.
+    // If the `as` argument is not specified, the fragment name is used as the fallback.
+    pub fn alias(&self) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            Ok(alias_arg_as(directive)?.or_else(|| {
+                Some(WithLocation::new(
+                    directive.name.location,
+                    self.fragment.item.0,
+                ))
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+}
+
 /// ... SelectionSet
 /// ... on Type SelectionSet
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -412,6 +434,34 @@ pub struct InlineFragment {
     /// Points to "..."
     pub spread_location: Location,
 }
+
+impl InlineFragment {
+    /// Get the alias of this inline fragment from the optional `@alias` directive.
+    /// If the `as` argument is not present, the type condition is used as the fallback.
+    /// Is is an error to omit the `as` argument if the inline fragment does not
+    /// have a type condition.
+    pub fn alias(&self, schema: &SDLSchema) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            if let Some(alias) = alias_arg_as(directive)? {
+                Ok(Some(alias))
+            } else {
+                match self.type_condition {
+                    Some(type_condition) => Ok(Some(WithLocation::new(
+                        directive.name.location,
+                        schema.get_type_name(type_condition),
+                    ))),
+                    None => Err(vec![Diagnostic::error(
+                        ValidationMessage::FragmentAliasDirectiveMissingAs,
+                        directive.name.location,
+                    )]),
+                }
+            }
+        } else {
+            Ok(None)
+        }
+    }
+}
+
 pub trait Field {
     fn alias(&self) -> Option<WithLocation<StringKey>>;
     fn definition(&self) -> WithLocation<FieldID>;
@@ -653,4 +703,27 @@ impl ConstantValue {
 pub enum ConditionValue {
     Constant(bool),
     Variable(Variable),
+}
+
+/// Extract the `as` argument from the `@alias` directive
+fn alias_arg_as(alias_directive: &Directive) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+    match alias_directive.arguments.named(ArgumentName(intern!("as"))) {
+        Some(arg) => match arg.value.item {
+            Value::Constant(ConstantValue::String(alias)) => {
+                if alias == intern!("") {
+                    Err(vec![Diagnostic::error(
+                        ValidationMessage::FragmentAliasIsEmptyString,
+                        arg.value.location,
+                    )])
+                } else {
+                    Ok(Some(WithLocation::new(arg.value.location, alias)))
+                }
+            }
+            _ => Err(vec![Diagnostic::error(
+                ValidationMessage::FragmentAliasDirectiveDynamicNameArg,
+                alias_directive.name.location,
+            )]),
+        },
+        None => Ok(None),
+    }
 }

@@ -8,13 +8,20 @@
 use common::Span;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
+use graphql_syntax::Identifier;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
+use relay_docblock::ResolverFieldDocblockIr;
+use relay_docblock::ResolverTypeDocblockIr;
 
 pub enum DocblockResolutionInfo {
     Type(StringKey),
     RootFragment(FragmentDefinitionName),
     FieldName(StringKey),
+    FieldArgumentName {
+        field_name: Identifier,
+        argument_name: Identifier,
+    },
     Deprecated,
 }
 
@@ -23,7 +30,7 @@ pub fn create_docblock_resolution_info(
     position_span: Span,
 ) -> Option<DocblockResolutionInfo> {
     match docblock_ir {
-        DocblockIr::LegacyVerboseResolver(resolver_ir) => {
+        DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(resolver_ir)) => {
             match resolver_ir.on {
                 On::Type(on_type) => {
                     if on_type.value.location.contains(position_span) {
@@ -51,6 +58,18 @@ pub fn create_docblock_resolution_info(
                 ));
             }
 
+            // Field arguments
+            if let Some(field_arguments) = &resolver_ir.field.arguments {
+                for field_argument in &field_arguments.items {
+                    if field_argument.name.span.contains(position_span) {
+                        return Some(DocblockResolutionInfo::FieldArgumentName {
+                            field_name: resolver_ir.field.name,
+                            argument_name: field_argument.name,
+                        });
+                    }
+                }
+            }
+
             // Return type
             if let Some(output_type) = &resolver_ir.output_type {
                 if output_type.inner().location.contains(position_span) {
@@ -69,7 +88,7 @@ pub fn create_docblock_resolution_info(
 
             None
         }
-        DocblockIr::TerseRelayResolver(resolver_ir) => {
+        DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(resolver_ir)) => {
             // Parent type
             if resolver_ir.type_.location.contains(position_span) {
                 return Some(DocblockResolutionInfo::Type(resolver_ir.type_.item));
@@ -100,6 +119,18 @@ pub fn create_docblock_resolution_info(
                 ));
             }
 
+            // Field arguments
+            if let Some(field_arguments) = &resolver_ir.field.arguments {
+                for field_argument in &field_arguments.items {
+                    if field_argument.name.span.contains(position_span) {
+                        return Some(DocblockResolutionInfo::FieldArgumentName {
+                            field_name: resolver_ir.field.name,
+                            argument_name: field_argument.name,
+                        });
+                    }
+                }
+            }
+
             // @deprecated key
             if let Some(deprecated) = resolver_ir.deprecated {
                 if deprecated.key_location().contains(position_span) {
@@ -109,7 +140,7 @@ pub fn create_docblock_resolution_info(
 
             None
         }
-        DocblockIr::StrongObjectResolver(strong_object) => {
+        DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(strong_object)) => {
             if strong_object.rhs_location.contains(position_span) {
                 return Some(DocblockResolutionInfo::Type(strong_object.type_name.value));
             }
@@ -121,7 +152,7 @@ pub fn create_docblock_resolution_info(
             }
             None
         }
-        DocblockIr::WeakObjectType(weak_type_ir) => {
+        DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(weak_type_ir)) => {
             if weak_type_ir.rhs_location.contains(position_span) {
                 return Some(DocblockResolutionInfo::Type(weak_type_ir.type_name.value));
             }

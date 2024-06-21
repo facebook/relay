@@ -21,10 +21,15 @@ interface IFoo {
 }
 `
 ==================================== ERROR ====================================
-✖︎ The type `User` is an object. Please use a client-defined interface instead.
+✖︎ Expected an interface type for name 'User', got an object.
 
-  /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-non-interface.js:2:19
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-non-interface.js:2:41
     1 │ *
     2 │  * @RelayResolver ClientUser implements User
-      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │
+      │                                         ^^^^
+    3 │  
+
+  ℹ︎ the other type is defined here
+
+  <generated>:1:1
+Internal error: Unable to print source, start index (19502) out of range.

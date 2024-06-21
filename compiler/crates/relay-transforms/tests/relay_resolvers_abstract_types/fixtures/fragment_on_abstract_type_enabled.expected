@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 # relay-resolver-enable-interface-output-type
 
-fragment fragmentOnAbstractTypeDisabledFragment on Cat {
+fragment fragmentOnAbstractTypeEnabledFragment on Cat {
     description
 }
 
@@ -12,7 +12,7 @@ interface Cat {
 }
 
 type Tabby implements Cat {
-    description: String
+    description: String @relay_resolver(import_path: "TabbyResolver")
 }
 
 type Persian implements Cat {
@@ -27,9 +27,21 @@ type Aegean implements Cat {
     description: String
 }
 ==================================== OUTPUT ===================================
-fragment fragmentOnAbstractTypeDisabledFragment on Cat {
+fragment fragmentOnAbstractTypeEnabledFragment on Cat {
   ... on Tabby {
-    description
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(527),
+    #     import_path: "TabbyResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "description",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    # }
+    
   }
   ... on Persian {
     description

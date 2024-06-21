@@ -103,7 +103,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
+        "The '{fragment_name}' is transformed to use @no_inline implicitly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective {
         fragment_name: FragmentDefinitionName,
@@ -130,23 +130,25 @@ pub enum ValidationMessage {
     ClientEdgeToClientInterface,
 
     #[error(
-        "Client Edges that reference client-defined union types are not currently supported in Relay."
+        "The client edge pointing to `{name}` with implementing object, `{type_name}`, is missing its corresponding model resolver. The concrete type `{type_name}` and its resolver fields should be defined with the newer dot notation resolver syntax. See https://relay.dev/docs/guides/relay-resolvers/."
     )]
-    ClientEdgeToClientUnion,
-
+    ClientEdgeImplementingObjectMissingModelResolver {
+        name: StringKey,
+        type_name: ObjectName,
+    },
     #[error("Invalid directive combination. @alias may not be combined with other directives.")]
     FragmentAliasIncompatibleDirective,
 
-    #[error("Unexpected directive @alias. @alias is not currently enabled in this location.")]
+    #[error("Unexpected directive @catch. @catch is not yet implemented.")]
+    CatchDirectiveNotImplemented,
+
+    #[error("Unexpected directive `@alias`. `@alias` is not currently enabled in this location.")]
     FragmentAliasDirectiveDisabled,
 
-    #[error("Expected the `as` argument of the @alias directive to be a static string.")]
-    FragmentAliasDirectiveDynamicNameArg,
-
     #[error(
-        "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
+        "Unexpected `@alias` on spread of plural fragment. @alias may not be used on fragments marked as `@relay(plural: true)`."
     )]
-    FragmentAliasDirectiveMissingAs,
+    PluralFragmentAliasNotSupported,
 
     #[error(
         "Unexpected dynamic argument. {field_name}'s '{argument_name}' argument must be a constant value because it is read by the Relay compiler."
@@ -248,6 +250,39 @@ pub enum ValidationMessageWithData {
         "Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
     )]
     RelayResolversUnexpectedWaterfall,
+
+    #[error(
+        "Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive."
+    )]
+    RequiredOnNonNull,
+
+    #[error(
+        "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive."
+    )]
+    RequiredOnSemanticNonNull,
+
+    #[error(
+        "Expected `@alias` directive. `{fragment_name}` is defined on `{fragment_type_name}` which might not match this selection type of `{selection_type_name}`. Add `@alias` to this spread to expose the fragment reference as a nullable property."
+    )]
+    ExpectedAliasOnNonSubtypeSpread {
+        fragment_name: FragmentDefinitionName,
+        fragment_type_name: StringKey,
+        selection_type_name: StringKey,
+    },
+
+    #[error(
+        "Expected `@alias` directive. `{fragment_name}` is defined on `{fragment_type_name}` which might not match this selection type of `{selection_type_name}`. Add `@alias` to this spread to expose the fragment reference as a nullable property. NOTE: The selection type inferred here does not include inline fragments because Relay does not always model inline fragment type refinements in its generated types."
+    )]
+    ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
+        fragment_name: FragmentDefinitionName,
+        fragment_type_name: StringKey,
+        selection_type_name: StringKey,
+    },
+
+    #[error(
+        "Expected `@alias` directive. Fragment spreads with `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment reference as a nullable property."
+    )]
+    ExpectedAliasOnConditionalFragmentSpread { condition_name: String },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -258,6 +293,37 @@ impl WithDiagnosticData for ValidationMessageWithData {
             }
             ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
                 vec![Box::new("")]
+            }
+            ValidationMessageWithData::RequiredOnNonNull => {
+                vec![Box::new("")]
+            }
+            ValidationMessageWithData::RequiredOnSemanticNonNull => {
+                vec![Box::new("")]
+            }
+            ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpread {
+                fragment_name, ..
+            } => {
+                vec![
+                    Box::new(format!("{fragment_name} @alias")),
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                ]
+            }
+            ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
+                fragment_name, ..
+            } => {
+                vec![
+                    Box::new(format!("{fragment_name} @alias")),
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                ]
+            }
+            ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
+                condition_name,
+                ..
+            } => {
+                vec![
+                    Box::new(format!("@alias @{condition_name}")),
+                    Box::new(format!("@dangerously_unaliased_fixme @{condition_name}")),
+                ]
             }
         }
     }

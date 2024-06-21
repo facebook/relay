@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df994860759bc227244ac62e44ffbe79>>
+ * @generated SignedSource<<9ae3d9fb138363a3b1b1424a3e460aec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
-import type { TodoModel__fancy_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
@@ -74,6 +73,7 @@ return {
     {
       "kind": "ClientEdgeToClientObject",
       "concreteType": "TodoDescription",
+      "modelResolvers": null,
       "backingField": {
         "alias": null,
         "args": null,
@@ -84,12 +84,12 @@ return {
         },
         "kind": "RelayResolver",
         "name": "fancy_description",
-        "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true), '__relay_model_instance', false),
+        "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true),
         "path": "fancy_description",
         "normalizationInfo": {
+          "kind": "WeakModel",
           "concreteType": "TodoDescription",
-          "plural": false,
-          "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql')
+          "plural": false
         }
       },
       "linkedField": {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<13024e4ead3ab1e7c80b92508c296a85>>
+ * @generated SignedSource<<ada9c7a822da13edd364e6619d2b290c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ import {greeting as userGreetingResolverType} from "../resolvers/UserGreetingRes
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
   rootKey: UserGreetingResolver$key,
-) => ?mixed);
+) => ?string);
 export type RelayReaderResolverTest10Query$variables = {||};
 export type RelayReaderResolverTest10Query$data = {|
   +me: ?{|
-    +greeting: ?ReturnType<typeof userGreetingResolverType>,
+    +greeting: ?string,
   |},
 |};
 export type RelayReaderResolverTest10Query = {|
@@ -105,7 +105,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "alias": null,

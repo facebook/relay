@@ -72,7 +72,7 @@ impl<'s> OperationPrinter<'s> {
     }
 }
 
-impl<'s, 'ir> Visitor for OperationPrinter<'s> {
+impl<'s> Visitor for OperationPrinter<'s> {
     const NAME: &'static str = "OperationPrinter";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

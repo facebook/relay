@@ -38,7 +38,7 @@ module.exports = {
       filename: filename,
       retainLines: true,
     });
-    return babel.transform(src, options).code;
+    return babel.transform(src, options);
   },
 
   getCacheKey: createCacheKeyFunction([

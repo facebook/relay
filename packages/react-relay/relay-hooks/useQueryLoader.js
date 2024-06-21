@@ -108,11 +108,7 @@ declare function useQueryLoader<TQuery: OperationType>(
   initialQueryReference?: ?PreloadedQuery<TQuery>,
 ): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;
 
-function useQueryLoader<
-  TVariables: Variables,
-  TData,
-  TRawResponse: ?{...} = void,
->(
+hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
@@ -172,6 +168,7 @@ function useQueryLoader<
     // necessary here
     // TODO(T78446637): Handle disposal of managed query references in
     // components that were never mounted after rendering
+    // $FlowFixMe[react-rule-unsafe-ref]
     undisposedQueryReferencesRef.current.add(initialQueryReferenceInternal);
     setPreviousInitialQueryReference(initialQueryReferenceInternal);
     setQueryReference(initialQueryReferenceInternal);

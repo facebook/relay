@@ -378,7 +378,7 @@ function fetchQueryAndComputeStateFromProps(
   requestCacheKey: ?string,
 ): Partial<State> {
   const {environment, query, variables, cacheConfig} = props;
-  const genericEnvironment = (environment: IEnvironment);
+  const genericEnvironment: IEnvironment = environment;
   if (query) {
     const request = getRequest(query);
     const operation = createOperationDescriptor(

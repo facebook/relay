@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e24c8fd2cb3df145cd6d92530df3d79>>
+ * @generated SignedSource<<9e26cc074469bf4718109c45af99d516>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -91,7 +91,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "alias": null,

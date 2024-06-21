@@ -206,11 +206,9 @@ class FragmentResourceImpl {
   constructor(environment: IEnvironment) {
     this._environment = environment;
     this._cache = LRUCache.create(CACHE_CAPACITY);
-    if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
-      this._clientEdgeQueryResultsCache = new ClientEdgeQueryResultsCache(
-        environment,
-      );
-    }
+    this._clientEdgeQueryResultsCache = new ClientEdgeQueryResultsCache(
+      environment,
+    );
   }
 
   /**
@@ -397,7 +395,6 @@ class FragmentResourceImpl {
     // First, initiate a query for any client edges that were missing data:
     let clientEdgeRequests: ?Array<RequestDescriptor> = null;
     if (
-      RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
       fragmentNode.metadata?.hasClientEdges === true &&
       hasMissingClientEdges(snapshot)
     ) {
@@ -432,7 +429,7 @@ class FragmentResourceImpl {
       );
     }
     let clientEdgePromises: Array<Promise<void>> = [];
-    if (RelayFeatureFlags.ENABLE_CLIENT_EDGES && clientEdgeRequests) {
+    if (clientEdgeRequests) {
       clientEdgePromises = clientEdgeRequests
         .map(request => getPromiseForActiveRequest(this._environment, request))
         .filter(Boolean);
@@ -567,6 +564,7 @@ class FragmentResourceImpl {
           s.missingRequiredFields,
           s.relayResolverErrors,
           s.errorResponseFields,
+          s.selector.node.metadata?.throwOnFieldError ?? false,
         );
       });
     } else {
@@ -575,6 +573,7 @@ class FragmentResourceImpl {
         snapshot.missingRequiredFields,
         snapshot.relayResolverErrors,
         snapshot.errorResponseFields,
+        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
     }
   }
@@ -672,15 +671,13 @@ class FragmentResourceImpl {
       );
     }
 
-    if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
-      const clientEdgeQueryResults =
-        this._clientEdgeQueryResultsCache?.get(cacheKey) ?? undefined;
-      if (clientEdgeQueryResults?.length) {
-        const queryResource = getQueryResourceForEnvironment(this._environment);
-        clientEdgeQueryResults.forEach(queryResult => {
-          disposables.push(queryResource.retain(queryResult));
-        });
-      }
+    const clientEdgeQueryResults =
+      this._clientEdgeQueryResultsCache?.get(cacheKey) ?? undefined;
+    if (clientEdgeQueryResults?.length) {
+      const queryResource = getQueryResourceForEnvironment(this._environment);
+      clientEdgeQueryResults.forEach(queryResult => {
+        disposables.push(queryResource.retain(queryResult));
+      });
     }
 
     return {

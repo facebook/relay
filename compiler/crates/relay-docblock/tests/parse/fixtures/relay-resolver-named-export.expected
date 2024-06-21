@@ -27,50 +27,53 @@ graphql`
   }
 `
 ==================================== OUTPUT ===================================
-LegacyVerboseResolver(
-    LegacyVerboseResolverIr {
-        field: FieldDefinitionStub {
-            name: Identifier {
-                span: 53:66,
-                token: Token {
+Field(
+    LegacyVerboseResolver(
+        LegacyVerboseResolverIr {
+            field: FieldDefinitionStub {
+                name: Identifier {
                     span: 53:66,
-                    kind: Identifier,
+                    token: Token {
+                        span: 53:66,
+                        kind: Identifier,
+                    },
+                    value: "favorite_page",
                 },
-                value: "favorite_page",
+                arguments: None,
             },
-            arguments: None,
+            on: Type(
+                PopulatedIrField {
+                    key_location: /path/to/test/fixture/relay-resolver-named-export.js:27:33,
+                    value: WithLocation {
+                        location: /path/to/test/fixture/relay-resolver-named-export.js:34:38,
+                        item: "User",
+                    },
+                },
+            ),
+            root_fragment: Some(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-named-export.js:84:98,
+                    item: FragmentDefinitionName(
+                        "myRootFragment",
+                    ),
+                },
+            ),
+            output_type: None,
+            description: Some(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-named-export.js:101:392,
+                    item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+                },
+            ),
+            hack_source: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: /path/to/test/fixture/relay-resolver-named-export.js:0:393,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "0a13488b7b321b8d7770f691a668ba44",
+            ),
         },
-        on: Type(
-            PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver-named-export.js:27:33,
-                value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-named-export.js:34:38,
-                    item: "User",
-                },
-            },
-        ),
-        root_fragment: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver-named-export.js:84:98,
-                item: FragmentDefinitionName(
-                    "myRootFragment",
-                ),
-            },
-        ),
-        output_type: None,
-        description: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver-named-export.js:101:392,
-                item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
-            },
-        ),
-        hack_source: None,
-        deprecated: None,
-        live: None,
-        location: /path/to/test/fixture/relay-resolver-named-export.js:0:393,
-        fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "0a13488b7b321b8d7770f691a668ba44",
-        ),
-    },
+    ),
 )

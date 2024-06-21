@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<389a4bbc5d675d03a80c8e0815b91668>>
+ * @generated SignedSource<<e611708b926d554b0ade476854044390>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,31 +19,51 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-import type { WeakModel } from "../RelayResolverNullableModelClientEdge-test.js";
-export type Query__edge_to_null_weak_model$normalization = {|
-  +__relay_model_instance: WeakModel,
+export type RelayMockPayloadGeneratorTest_fragment59$normalization = {|
+  +id: string,
+  +name: ?string,
 |};
 
 */
 
 var node/*: NormalizationSplitOperation*/ = {
+  "argumentDefinitions": [
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "RelayMockPayloadGeneratorTest_fragment59$cond"
+    }
+  ],
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "Query__edge_to_null_weak_model$normalization",
+  "name": "RelayMockPayloadGeneratorTest_fragment59$normalization",
   "selections": [
     {
-      "kind": "ClientExtension",
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "condition": "RelayMockPayloadGeneratorTest_fragment59$cond",
+      "kind": "Condition",
+      "passingValue": true,
       "selections": [
         {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "__relay_model_instance",
+          "name": "name",
           "storageKey": null
         }
       ]
     }
   ]
 };
+
+if (__DEV__) {
+  (node/*: any*/).hash = "efeafd8b46bc5e1d5e9deb6e69637ccc";
+}
 
 module.exports = node;

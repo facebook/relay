@@ -14,7 +14,6 @@
 import type {Disposable} from '../util/RelayRuntimeTypes';
 
 export type FeatureFlags = {
-  ENABLE_CLIENT_EDGES: boolean,
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
   ENABLE_RELAY_RESOLVERS: boolean,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean,
@@ -28,7 +27,6 @@ export type FeatureFlags = {
   STRING_INTERN_LEVEL: number,
   LOG_MISSING_RECORDS_IN_PROD: boolean,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: boolean,
-  ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES: boolean,
 
   // Configure RelayStoreSubscriptions to mark a subscription as affected by an
   // update if there are any overlapping IDs other than ROOT_ID or VIWER_ID,
@@ -45,13 +43,16 @@ export type FeatureFlags = {
   // @see https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
   ENABLE_FIELD_ERROR_HANDLING: boolean,
 
-  ENABLE_STRICT_EQUAL_SELECTORS: boolean,
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: boolean,
   ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: boolean,
+
+  PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: boolean,
+
+  // Temporary flag to enable a gradual rollout of the fix for T185969900
+  MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
-  ENABLE_CLIENT_EDGES: false,
   ENABLE_VARIABLE_CONNECTION_KEY: false,
   ENABLE_RELAY_RESOLVERS: false,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: false,
@@ -70,8 +71,8 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_FIELD_ERROR_HANDLING: false,
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: false,
   ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: false,
-  ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES: true,
-  ENABLE_STRICT_EQUAL_SELECTORS: false,
+  PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
+  MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
 };
 
 module.exports = RelayFeatureFlags;

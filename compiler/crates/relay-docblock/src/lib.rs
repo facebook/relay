@@ -9,11 +9,13 @@ mod docblock_ir;
 mod errors;
 mod ir;
 mod untyped_representation;
+mod validate_resolver_schema;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
 use common::Location;
+pub use docblock_ir::assert_fragment_definition;
 use docblock_ir::parse_docblock_ir;
 use docblock_shared::DEPRECATED_FIELD;
 use docblock_shared::EDGE_TO_FIELD;
@@ -25,36 +27,35 @@ use docblock_shared::ON_TYPE_FIELD;
 use docblock_shared::OUTPUT_TYPE_FIELD;
 use docblock_shared::RELAY_RESOLVER_FIELD;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
+use docblock_shared::SEMANTIC_NON_NULL_FIELD;
 use docblock_shared::WEAK_FIELD;
 use docblock_syntax::DocblockAST;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::TypeSystemDefinition;
 use intern::Lookup;
-pub use ir::DocblockIr;
-use ir::LegacyVerboseResolverIr;
-pub use ir::On;
+pub use ir::*;
 use relay_config::ProjectName;
 use schema::SDLSchema;
 use untyped_representation::parse_untyped_docblock_representation;
+pub use validate_resolver_schema::validate_resolver_schema;
 
 pub struct ParseOptions<'a> {
-    pub enable_output_type: &'a FeatureFlag,
-    pub enable_strict_resolver_flavors: &'a FeatureFlag,
-    pub allow_legacy_verbose_syntax: &'a FeatureFlag,
+    pub enable_interface_output_type: &'a FeatureFlag,
+    pub allow_resolver_non_nullable_return_type: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(
-    project_name: ProjectName,
+    project_name: &ProjectName,
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
-    parse_options: ParseOptions<'_>,
+    parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     let untyped_representation = parse_untyped_docblock_representation(ast)?;
     parse_docblock_ir(
         project_name,
         untyped_representation,
         definitions,
-        &parse_options,
+        parse_options,
         ast.location,
     )
 }

@@ -47,23 +47,32 @@ type ExpectedReturnType<
 // Nullability of returned data type is correct
 // $FlowFixMe[prop-missing]
 // $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-exact]
+// $FlowFixMe[react-rule-hook]
 (useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
 ): ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>);
 
+// $FlowFixMe[react-rule-hook]
 (useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
 
 // $FlowExpectedError: can't cast nullable to non-nullable
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[incompatible-cast]
 (useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: actual type of returned data is correct
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[incompatible-exact]
+// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-cast]
 (useBlockingPaginationFragment(
   refetchableFragmentInput,
   // $FlowExpectedError[incompatible-call]
@@ -71,6 +80,7 @@ type ExpectedReturnType<
 ): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
 
 // $FlowExpectedError[incompatible-call] `Example_user$fragmentType` is incompatible with  `FragmentType`
+// $FlowFixMe[react-rule-hook]
 (useBlockingPaginationFragment(
   refetchableFragmentInput,
   // $FlowExpectedError[incompatible-call]
@@ -78,18 +88,28 @@ type ExpectedReturnType<
 ): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
 
 // $FlowExpectedError: Key should not be a user provided object
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[prop-missing]
+// $FlowFixMe[cannot-resolve-name]
 useBlockingPaginationFragment(fragmentInput, {abc: 123});
 
 // $FlowExpectedError: Key should not be an empty object
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[prop-missing]
+// $FlowFixMe[cannot-resolve-name]
 useBlockingPaginationFragment(fragmentInput, {});
 
 // $FlowExpectedError: Key should be the `<name>$key` type from generated flow
+// $FlowFixMe[react-rule-hook]
+// $FlowFixMe[prop-missing]
+// $FlowFixMe[cannot-resolve-name]
 useBlockingPaginationFragment(fragmentInput, fragmentData);
 
 // Refetch function options:
 declare var variables: QueryVariables;
 declare var environment: IEnvironment;
 
+// $FlowFixMe[react-rule-hook]
 const {refetch} = useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
@@ -108,6 +128,7 @@ refetch(variables, {
 declare var extraVariables: {nickname: string};
 declare var invalidVariables: {foo: string};
 
+// $FlowFixMe[react-rule-hook]
 const {loadNext} = useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,

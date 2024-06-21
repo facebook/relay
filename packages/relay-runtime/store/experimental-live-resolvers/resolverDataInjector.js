@@ -61,6 +61,7 @@ function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
       if (fieldName in data) {
         if (isRequiredField === true) {
           invariant(
+            // $FlowFixMe[invalid-computed-prop]
             data[fieldName] != null,
             'Expected required resolver field `%s` in fragment `%s` to be non-null.',
             fieldName,
@@ -68,6 +69,7 @@ function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
           );
         }
 
+        // $FlowFixMe[invalid-computed-prop]
         return resolverFn(data[fieldName], args);
       } else {
         // If both `data` and `fieldName` is available, we expect the

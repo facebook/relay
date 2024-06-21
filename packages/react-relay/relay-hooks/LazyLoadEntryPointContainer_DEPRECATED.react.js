@@ -175,7 +175,20 @@ function LazyLoadEntryPointContainer_DEPRECATED<
   const entryPointParamsHash = stableStringify(entryPointParams);
   const {getComponent, queries, entryPoints, extraProps, rootModuleID} =
     useMemo(() => {
-      return prepareEntryPoint(
+      return prepareEntryPoint<
+        TEntryPointParams,
+        TPreloadedQueries,
+        TPreloadedEntryPoints,
+        TRuntimeProps,
+        TExtraProps,
+        EntryPointComponent<
+          TPreloadedQueries,
+          TPreloadedEntryPoints,
+          TRuntimeProps,
+          TExtraProps,
+        >,
+        _,
+      >(
         environmentProvider ?? {
           getEnvironment: () => environment,
         },

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b333fb4f27ac97378f98d6f40e32504f>>
+ * @generated SignedSource<<0fcfe34726846687001fb9cf0431f725>>
  */
 
 mod client_edges;
@@ -55,10 +55,10 @@ async fn client_edge_to_client_object() {
 }
 
 #[tokio::test]
-async fn client_edge_to_client_union_invalid() {
-    let input = include_str!("client_edges/fixtures/client-edge-to-client-union.invalid.graphql");
-    let expected = include_str!("client_edges/fixtures/client-edge-to-client-union.invalid.expected");
-    test_fixture(transform_fixture, file!(), "client-edge-to-client-union.invalid.graphql", "client_edges/fixtures/client-edge-to-client-union.invalid.expected", input, expected).await;
+async fn client_edge_to_client_union() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-client-union.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-client-union.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-to-client-union.graphql", "client_edges/fixtures/client-edge-to-client-union.expected", input, expected).await;
 }
 
 #[tokio::test]

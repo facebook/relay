@@ -192,14 +192,6 @@ pub enum SchemaValidationErrorMessages {
     ResolversCantImplementId { id_field_name: StringKey },
 
     #[error(
-        "The type `{non_interface_name}` is {variant_name}. Please use a client-defined interface instead."
-    )]
-    UnexpectedNonInterface {
-        non_interface_name: StringKey,
-        variant_name: &'static str,
-    },
-
-    #[error(
         "The interface `{interface_name}` is not defined in a client schema extension. Resolver types that implement interfaces can only implement client-defined interfaces."
     )]
     UnexpectedServerInterface { interface_name: InterfaceName },
@@ -218,14 +210,14 @@ pub enum SchemaValidationErrorMessages {
     #[error(
         "Resolvers on the mutation type {mutation_type_name} are disallowed without the enable_relay_resolver_mutations feature flag"
     )]
-    DisallowedMutationResolvers { mutation_type_name: String },
+    DisallowedMutationResolvers { mutation_type_name: StringKey },
 
     #[error(
         "Mutation resolver {resolver_field_name} must return a scalar or enum type, got {actual_return_type}"
     )]
     MutationResolverNonScalarReturn {
-        resolver_field_name: String,
-        actual_return_type: String,
+        resolver_field_name: StringKey,
+        actual_return_type: StringKey,
     },
 }
 

@@ -19,10 +19,7 @@ const {
   TODO_STORE,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 /**
- * @RelayResolver
- * @onType Query
- * @fieldName todo(todoID: ID!)
- * @outputType Todo
+ * @RelayResolver Query.todo(todoID: ID!): Todo
  * @live
  */
 function todo(args: {todoID: string}): LiveState<?ReturnType> {

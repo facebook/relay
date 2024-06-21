@@ -17,7 +17,6 @@ import type {
   ResolverNormalizationInfo,
 } from '../../util/ReaderNode';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
-import type {NormalizationOptions} from '../RelayResponseNormalizer';
 import type {
   DataIDSet,
   MutableRecordSource,
@@ -64,6 +63,7 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
+const MODEL_PROPERTY_NAME = '__relay_model_instance';
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -527,13 +527,15 @@ class LiveResolverCache implements ResolverCache {
         const nextSource = RelayRecordSource.create();
         for (let ii = 0; ii < value.length; ii++) {
           const currentValue = value[ii];
+          // TODO: T184433715 We currently break with the GraphQL spec and filter out null items in lists.
           if (currentValue == null) {
             continue;
           }
           invariant(
-            typeof currentValue == 'object',
+            typeof currentValue === 'object',
             '_setResolverValue: Expected object value as the payload for the @outputType resolver.',
           );
+
           // The `id` of the nested object (@outputType resolver)
           // is localized to it's resolver record. To ensure that
           // there is only one path to the records created from the
@@ -546,14 +548,16 @@ class LiveResolverCache implements ResolverCache {
             RelayModernRecord.getDataID(resolverRecord),
             ii,
           );
-          const source = normalizeOutputTypeValue(
+
+          const source = this._normalizeOutputTypeValue(
             outputTypeDataID,
             currentValue,
             variables,
             normalizationInfo,
-            this._store.__getNormalizationOptions([field.path, String(ii)]),
+            [field.path, String(ii)],
             typename,
           );
+
           for (const recordID of source.getRecordIDs()) {
             // For plural case we'll keep adding the `item` records to the `nextSource`
             // so we can publish all of them at the same time: clean up all records,
@@ -573,7 +577,7 @@ class LiveResolverCache implements ResolverCache {
         );
       } else {
         invariant(
-          typeof value == 'object',
+          typeof value === 'object',
           '_setResolverValue: Expected object value as the payload for the @outputType resolver.',
         );
         const typename = getConcreteTypename(normalizationInfo, value);
@@ -582,12 +586,12 @@ class LiveResolverCache implements ResolverCache {
           typename,
           RelayModernRecord.getDataID(resolverRecord),
         );
-        const nextSource = normalizeOutputTypeValue(
+        const nextSource = this._normalizeOutputTypeValue(
           outputTypeDataID,
           value,
           variables,
           normalizationInfo,
-          this._store.__getNormalizationOptions([field.path]),
+          [field.path],
           typename,
         );
         for (const recordID of nextSource.getRecordIDs()) {
@@ -610,18 +614,14 @@ class LiveResolverCache implements ResolverCache {
         nextOutputTypeRecordIDs,
       );
 
-      if (RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES) {
-        shallowFreeze(resolverValue);
-      }
+      shallowFreeze(resolverValue);
       RelayModernRecord.setValue(
         resolverRecord,
         RELAY_RESOLVER_VALUE_KEY,
         resolverValue,
       );
     } else {
-      if (RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES) {
-        shallowFreeze(value);
-      }
+      shallowFreeze(value);
       // For "classic" resolvers (or if the value is nullish), we are just setting their
       // value as is.
       RelayModernRecord.setValue(
@@ -700,7 +700,83 @@ class LiveResolverCache implements ResolverCache {
     if (recycled !== originalInputs) {
       return true;
     }
+
+    if (RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD) {
+      // This record does not need to be recomputed, we can reuse the cached value.
+      // For subsequent reads we can mark this record as "clean" so that they will
+      // not need to re-read the fragment.
+      const nextRecord = RelayModernRecord.clone(record);
+      RelayModernRecord.setValue(
+        nextRecord,
+        RELAY_RESOLVER_INVALIDATION_KEY,
+        false,
+      );
+
+      const recordSource = this._getRecordSource();
+      recordSource.set(RelayModernRecord.getDataID(record), nextRecord);
+    }
+
     return false;
+  }
+
+  // Returns a normalized version (RecordSource) of the @outputType,
+  // containing only "weak" records.
+  _normalizeOutputTypeValue(
+    outputTypeDataID: DataID,
+    value: {+[key: string]: mixed},
+    variables: Variables,
+    normalizationInfo: ResolverNormalizationInfo,
+    fieldPath: Array<string>,
+    typename: string,
+  ): RecordSource {
+    const source = RelayRecordSource.create();
+
+    switch (normalizationInfo.kind) {
+      case 'OutputType': {
+        const record = RelayModernRecord.create(outputTypeDataID, typename);
+        source.set(outputTypeDataID, record);
+        const selector = createNormalizationSelector(
+          normalizationInfo.normalizationNode,
+          outputTypeDataID,
+          variables,
+        );
+
+        const normalizationOptions =
+          this._store.__getNormalizationOptions(fieldPath);
+        // The resulted `source` is the normalized version of the
+        // resolver's (@outputType) value.
+        // All records in the `source` should have IDs that
+        // is "prefix-ed" with the parent resolver record `ID`
+        // and they don't expect to have a "strong" identifier.
+        return normalize(
+          source,
+          selector,
+          // normalize does not mutate values, but it's impractical to type this
+          // argument as readonly. For now we'll excuse ourselves and pass a
+          // read only type
+          // $FlowFixMe[incompatible-variance]
+          value,
+          normalizationOptions,
+        ).source;
+      }
+      // For weak models we have a simpler case. We simply need to update a
+      // single field on the record.
+      case 'WeakModel': {
+        const record = RelayModernRecord.create(outputTypeDataID, typename);
+
+        RelayModernRecord.setValue(record, MODEL_PROPERTY_NAME, value);
+
+        source.set(outputTypeDataID, record);
+        return source;
+      }
+      default:
+        (normalizationInfo.kind: empty);
+        invariant(
+          false,
+          'LiveResolverCache: Unexpected normalization info kind `%s`.',
+          normalizationInfo.kind,
+        );
+    }
   }
 
   // If a given record does not exist, creates an empty record consisting of
@@ -740,35 +816,6 @@ class LiveResolverCache implements ResolverCache {
       }
     }
   }
-}
-
-// Returns a normalized version (RecordSource) of the @outputType,
-// containing only "weak" records.
-function normalizeOutputTypeValue(
-  outputTypeDataID: DataID,
-  value: {...},
-  variables: Variables,
-  resolverNormalizationInfo: ResolverNormalizationInfo,
-  normalizationOptions: NormalizationOptions,
-  typename: string,
-): RecordSource {
-  const source = RelayRecordSource.create();
-  source.set(
-    outputTypeDataID,
-    RelayModernRecord.create(outputTypeDataID, typename),
-  );
-  const selector = createNormalizationSelector(
-    resolverNormalizationInfo.normalizationNode,
-    outputTypeDataID,
-    variables,
-  );
-
-  // The resulted `source` is the normalized version of the
-  // resolver's (@outputType) value.
-  // All records in the `source` should have IDs that
-  // is "prefix-ed" with the parent resolver record `ID`
-  // and they don't expect to have a "strong" identifier.
-  return normalize(source, selector, value, normalizationOptions).source;
 }
 
 // Update the `currentSource` with the set of new records from the

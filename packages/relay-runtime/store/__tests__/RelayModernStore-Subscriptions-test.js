@@ -54,6 +54,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
     value.forEach(item => assertIsDeeplyFrozen(item));
   } else if (typeof value === 'object' && value !== null) {
     for (const key in value) {
+      // $FlowFixMe[invalid-computed-prop]
       assertIsDeeplyFrozen(value[key]);
     }
   }
@@ -63,6 +64,7 @@ function cloneEventWithSets(event: LogEvent) {
   const nextEvent = {};
   for (const key in event) {
     if (event.hasOwnProperty(key)) {
+      // $FlowFixMe[invalid-computed-prop]
       const val = event[key];
       if (val instanceof Set) {
         // $FlowFixMe[prop-missing]

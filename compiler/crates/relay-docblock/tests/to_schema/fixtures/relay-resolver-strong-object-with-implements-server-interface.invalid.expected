@@ -17,5 +17,5 @@
   /path/to/test/fixture/relay-resolver-strong-object-with-implements-server-interface.invalid.js:2:19
     1 │ *
     2 │  * @RelayResolver ClientUser implements Node
-      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │                   ^^^^^^^^^^
     3 │

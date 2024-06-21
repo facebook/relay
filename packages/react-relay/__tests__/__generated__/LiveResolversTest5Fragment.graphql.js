@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<62f8f7d95016fca963e27b75a3b14c34>>
+ * @generated SignedSource<<13cf98ec079b3f82c005c0ae50a8b326>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolverType} fr
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolverType: (
   rootKey: CounterSuspendsWhenOdd$key,
-) => LiveState<?mixed>);
+) => LiveState<?number>);
 declare export opaque type LiveResolversTest5Fragment$fragmentType: FragmentType;
 export type LiveResolversTest5Fragment$data = {|
-  +counter_suspends_when_odd: ?ReturnType<ReturnType<typeof queryCounterSuspendsWhenOddResolverType>["read"]>,
+  +counter_suspends_when_odd: ?number,
   +$fragmentType: LiveResolversTest5Fragment$fragmentType,
 |};
 export type LiveResolversTest5Fragment$key = {

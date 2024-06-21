@@ -171,10 +171,10 @@ function createValueResolver(mockResolvers: ?MockResolvers): ValueResolver {
 
 function generateMockList<T>(
   placeholderArray: $ReadOnlyArray<mixed>,
-  generateListItem: (defaultValue: mixed) => T,
+  generateListItem: (defaultValue: mixed, index?: number) => T,
 ): $ReadOnlyArray<T> {
-  return placeholderArray.map(possibleDefaultValue =>
-    generateListItem(possibleDefaultValue),
+  return placeholderArray.map((possibleDefaultValue, index) =>
+    generateListItem(possibleDefaultValue, index),
   );
 }
 
@@ -314,7 +314,9 @@ class RelayMockPayloadGenerator {
         // falls through
         case DEFER:
         case STREAM: {
-          if (this._generateDeferredPayload) {
+          const isDeferreable =
+            selection.if == null || this._variables[selection.if];
+          if (this._generateDeferredPayload && isDeferreable) {
             const deferredData = this._traverseSelections(
               selection.selections,
               typeName,
@@ -526,7 +528,7 @@ class RelayMockPayloadGenerator {
                 false,
                 path,
                 null,
-                null,
+                defaultValues,
               ),
             };
           }
@@ -731,9 +733,7 @@ class RelayMockPayloadGenerator {
     // We will pass this data down to selection, so _mockScalar(...) can use
     // values from `defaults`
     const selectionPath = [...path, applicationName];
-    const typeFromSelection = this._selectionMetadata[
-      selectionPath.join('.')
-    ] ?? {
+    const typeFromSelection = this._getTypeDetailsForPath(selectionPath) ?? {
       type: DEFAULT_MOCK_TYPENAME,
     };
 
@@ -767,13 +767,19 @@ class RelayMockPayloadGenerator {
     const isAbstractType =
       field.concreteType == null && typeName === typeFromSelection.type;
 
-    const generateDataForField = (possibleDefaultValue: mixed) => {
+    const generateDataForField = (
+      possibleDefaultValue: mixed,
+      index?: number,
+    ) => {
+      const fieldPath = field.plural
+        ? [...selectionPath, index?.toString(10) ?? '0']
+        : selectionPath;
       const fieldDefaultValue =
         this._getDefaultValuesForObject(
           field.concreteType ?? typeFromSelection.type,
           field.name,
           field.alias,
-          selectionPath,
+          fieldPath,
           args,
         ) ?? possibleDefaultValue;
 
@@ -789,7 +795,7 @@ class RelayMockPayloadGenerator {
           alias: field.alias,
           args,
         },
-        [...path, applicationName],
+        fieldPath,
         typeof data[applicationName] === 'object'
           ? // $FlowFixMe[incompatible-variance]
             data[applicationName]
@@ -903,13 +909,28 @@ class RelayMockPayloadGenerator {
     +nullable: boolean,
   } {
     return (
-      this._selectionMetadata[selectionPath.join('.')] ?? {
+      this._getTypeDetailsForPath(selectionPath) ?? {
         type: field.name === 'id' ? 'ID' : 'String',
         plural: false,
         enumValues: null,
         nullable: false,
       }
     );
+  }
+
+  /**
+   * When selecting metadata, skip the number on plural fields so that every field in the array
+   * gets the same metadata.
+   * @private
+   */
+  _getTypeDetailsForPath(
+    path: $ReadOnlyArray<string>,
+  ): $Values<SelectionMetadata> {
+    return this._selectionMetadata[
+      // When selecting metadata, skip the number on plural fields so that every field in the array
+      // gets the same metadata.
+      path.filter(field => isNaN(parseInt(field, 10))).join('.')
+    ];
   }
 }
 

@@ -29,11 +29,17 @@ graphql`mutation barMutation {
 
 //- schema.graphql
 
-type Mutation
+type Mutation {
+   some_field: Boolean
+}
 
-type NotCalledMutation
+type NotCalledMutation {
+   some_field: Boolean
+}
 
-type Query
+type Query {
+   some_field: Boolean
+}
 
 schema {
    query: Query,

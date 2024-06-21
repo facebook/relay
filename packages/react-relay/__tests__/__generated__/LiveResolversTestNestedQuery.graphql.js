@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cf0ff51ddc62ed83c69062a451678d97>>
+ * @generated SignedSource<<e5c4af130eafe9eca404acf1971766d2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,17 +26,17 @@ import {inner as queryInnerResolverType} from "../../../relay-runtime/store/__te
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolverType: (
   rootKey: InnerResolver$key,
-) => LiveState<?mixed>);
+) => LiveState<?number>);
 import {outer as queryOuterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
 // Type assertion validating that `queryOuterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryOuterResolverType: (
   rootKey: OuterResolver$key,
-) => ?mixed);
+) => ?number);
 export type LiveResolversTestNestedQuery$variables = {||};
 export type LiveResolversTestNestedQuery$data = {|
-  +inner: ?ReturnType<ReturnType<typeof queryInnerResolverType>["read"]>,
-  +outer: ?ReturnType<typeof queryOuterResolverType>,
+  +inner: ?number,
+  +outer: ?number,
 |};
 export type LiveResolversTestNestedQuery = {|
   response: LiveResolversTestNestedQuery$data,
@@ -82,7 +82,7 @@ var v0 = {
   },
   "kind": "RelayResolver",
   "storageKey": null,
-  "isOutputType": false
+  "isOutputType": true
 };
 return {
   "fragment": {
@@ -140,7 +140,7 @@ return {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": false
+        "isOutputType": true
       },
       (v0/*: any*/)
     ]

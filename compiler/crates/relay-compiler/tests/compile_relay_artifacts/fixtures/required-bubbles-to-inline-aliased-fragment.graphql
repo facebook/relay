@@ -1,0 +1,7 @@
+query requiredBubblesToInlineAliasedFragmentQuery {
+  ... @alias(as: "myAlias") {
+    me @required(action: NONE) {
+      id
+    }
+  }
+}

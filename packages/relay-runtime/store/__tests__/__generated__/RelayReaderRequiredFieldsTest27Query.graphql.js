@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<53e0b3a32b44b6519eb4ded0b78bf2d4>>
+ * @generated SignedSource<<bea7633f180e38d57a479b0e922a4bce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,19 +26,19 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => ?mixed);
+) => ?string);
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolverType: (
   rootKey: QueryAllAstrologicalSignsResolver$key,
-) => ?$ReadOnlyArray<?{|
+) => ?$ReadOnlyArray<{|
   +id: DataID,
 |}>);
 export type RelayReaderRequiredFieldsTest27Query$variables = {||};
 export type RelayReaderRequiredFieldsTest27Query$data = {|
-  +all_astrological_signs: $ReadOnlyArray<?{|
-    +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+  +all_astrological_signs: $ReadOnlyArray<{|
+    +name: ?string,
   |}>,
 |};
 export type RelayReaderRequiredFieldsTest27Query = {|
@@ -69,6 +69,7 @@ return {
         "field": {
           "kind": "ClientEdgeToClientObject",
           "concreteType": "AstrologicalSign",
+          "modelResolvers": null,
           "backingField": {
             "alias": null,
             "args": null,
@@ -182,7 +183,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "storageKey": null,
-                    "isOutputType": false
+                    "isOutputType": true
                   }
                 ],
                 "type": "AstrologicalSign",
@@ -190,7 +191,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": false
+              "isOutputType": true
             },
             (v0/*: any*/)
           ],

@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+scalar Query
+
+enum Mutation {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+input Subscription {
+  id: ID!
+  name: String!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+==================================== OUTPUT ===================================
+✖︎ Expected an object type for name 'Query', got a scalar.
+
+  <generated>:1:1
+    1 │ scalar Query
+      │ ^
+    2 │

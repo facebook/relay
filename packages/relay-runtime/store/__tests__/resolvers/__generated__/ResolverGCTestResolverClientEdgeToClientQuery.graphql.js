@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8946b23c0ce692ed855aae08ba8f616c>>
+ * @generated SignedSource<<f497e9903f6b38761aea8590bd459fab>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => ?mixed);
+) => ?string);
 import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -39,7 +39,7 @@ export type ResolverGCTestResolverClientEdgeToClientQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientQuery$data = {|
   +me: ?{|
     +astrological_sign: ?{|
-      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+      +name: ?string,
     |},
   |},
 |};
@@ -77,6 +77,7 @@ return {
           {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
+            "modelResolvers": null,
             "backingField": {
               "alias": null,
               "args": null,
@@ -204,7 +205,7 @@ return {
                         },
                         "kind": "RelayResolver",
                         "storageKey": null,
-                        "isOutputType": false
+                        "isOutputType": true
                       }
                     ],
                     "type": "AstrologicalSign",
@@ -212,7 +213,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "storageKey": null,
-                  "isOutputType": false
+                  "isOutputType": true
                 },
                 (v0/*: any*/)
               ],

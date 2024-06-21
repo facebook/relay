@@ -28,12 +28,12 @@ const {
   ACTOR_CHANGE,
   ALIASED_FRAGMENT_SPREAD,
   ALIASED_INLINE_FRAGMENT_SPREAD,
+  CATCH_FIELD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
-  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -136,11 +136,11 @@ function updateProxyFromSelections<TData>(
             );
             // Flow incorrect assumes that the return value for the get method must match
             // the set parameter.
-            let value = (updatableProxyRootRecord.getValue(
+            // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
+            let value: any = updatableProxyRootRecord.getValue(
               selection.name,
               newVariables,
-              // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
-            ): any);
+            );
             if (value == null) {
               value = getScalarUsingMissingFieldHandlers(
                 selection,
@@ -202,10 +202,10 @@ function updateProxyFromSelections<TData>(
       case CLIENT_EDGE_TO_CLIENT_OBJECT:
       case CLIENT_EDGE_TO_SERVER_OBJECT:
       case DEFER:
-      case FLIGHT_FIELD:
       case MODULE_IMPORT:
       case RELAY_LIVE_RESOLVER:
       case REQUIRED_FIELD:
+      case CATCH_FIELD:
       case STREAM:
       case RELAY_RESOLVER:
         // These types of reader nodes are not currently handled.

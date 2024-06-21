@@ -12,12 +12,12 @@ fragment LinkedField on User {
 ==================================== OUTPUT ===================================
 import type { FragmentRefs } from "relay-runtime";
 export type LinkedField$data = {
-  readonly name: string | null;
+  readonly name: string | null | undefined;
   readonly profilePicture: {
-    readonly height: number | null;
-    readonly uri: string | null;
-    readonly width: number | null;
-  } | null;
+    readonly height: number | null | undefined;
+    readonly uri: string | null | undefined;
+    readonly width: number | null | undefined;
+  } | null | undefined;
   readonly " $fragmentType": "LinkedField";
 };
 export type LinkedField$key = {

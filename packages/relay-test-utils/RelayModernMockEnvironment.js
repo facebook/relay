@@ -113,7 +113,7 @@ type MockFunctions = {
   +complete: (request: ConcreteRequest | OperationDescriptor) => void,
   +resolve: (
     request: ConcreteRequest | OperationDescriptor,
-    payload: GraphQLSingularResponse,
+    payload: $ReadOnlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
   ) => void,
   +getAllOperations: () => $ReadOnlyArray<OperationDescriptor>,
   +findOperation: (
@@ -400,12 +400,15 @@ function createMockEnvironment(
 
   const resolve = (
     request: ConcreteRequest | OperationDescriptor,
-    payload: GraphQLSingularResponse,
+    response: $ReadOnlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
   ): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
       invariant(sink !== null, 'Sink should be defined.');
-      sink.next(ensureValidPayload(payload));
+      const payloads = Array.isArray(response) ? response : [response];
+      payloads.forEach(payload => {
+        sink.next(ensureValidPayload(payload));
+      });
       sink.complete();
     });
   };
@@ -478,6 +481,7 @@ function createMockEnvironment(
     environment.executeMutation,
   );
 
+  // $FlowFixMe[incompatible-type]
   if (global?.process?.env?.NODE_ENV === 'test') {
     // Mock all the functions with their original behavior
     mockDisposableMethod(environment, 'applyUpdate');

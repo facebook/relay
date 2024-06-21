@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:allow_legacy_verbose_syntax
+
+/**
+ * @RelayResolver MyType
+ */
+
+/**
+ * @RelayResolver
+ * @onType MyType
+ * @fieldName my_field
+ * @rootFragment myRootFragment
+ */
+
+graphql`
+  fragment myRootFragment on MyType {
+    id
+  }
+`
+==================================== OUTPUT ===================================
+type MyType @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(fragment_name: "MyType__id", generated_fragment: true, inject_fragment_data: "id", import_name: "MyType", import_path: "/path/to/test/fixture/legacy-relay-resolver-with-root-fragment-on-model.js") @resolver_source_hash(value: "b81f253a757aaba36955be6d8e224c2a") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+extend type MyType {
+  my_field: RelayResolverValue @relay_resolver(import_name: "my_field", import_path: "/path/to/test/fixture/legacy-relay-resolver-with-root-fragment-on-model.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "6ea8e78f94a38ef98a44161e39f85f8d")
+}

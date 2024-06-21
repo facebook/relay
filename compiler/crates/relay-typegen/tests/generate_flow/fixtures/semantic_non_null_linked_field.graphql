@@ -1,0 +1,12 @@
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on ClientUser @throwOnFieldError {
+  best_friend {
+    name
+  }
+}
+
+%extensions%
+
+type ClientUser {
+  best_friend: User @semanticNonNull
+}

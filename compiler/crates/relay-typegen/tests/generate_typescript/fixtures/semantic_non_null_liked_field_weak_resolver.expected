@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on ClientUser @throwOnFieldError {
+  blob {
+    data
+  }
+}
+
+%extensions%
+
+type ClientUser {
+  blob: Blob @semanticNonNull @relay_resolver(
+      import_path: "./foo/bar.js"
+      has_output_type: true
+    )
+}
+
+type Blob {
+  data: String
+}
+==================================== OUTPUT ===================================
+export type ClientUser__blob$normalization$variables = Record<PropertyKey, never>;
+export type ClientUser__blob$normalization$data = {
+  readonly data: string | null | undefined;
+};
+export type ClientUser__blob$normalization = {
+  response: ClientUser__blob$normalization$data;
+  variables: ClientUser__blob$normalization$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+import clientUserBlobResolverType from "bar";
+export type MyFragment$data = {
+  readonly blob: {
+    readonly data: string | null | undefined;
+  };
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};

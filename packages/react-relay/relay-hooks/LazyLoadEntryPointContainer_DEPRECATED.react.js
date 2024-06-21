@@ -85,8 +85,10 @@ function prepareEntryPoint<
   }
   const preloadProps = entryPoint.getPreloadProps(entryPointParams);
   const {queries, entryPoints, extraProps} = preloadProps;
-  const preloadedQueries: $Shape<TPreloadedQueries> = {};
-  const preloadedEntryPoints: $Shape<TPreloadedEntryPoints> = {};
+  // $FlowFixMe[incompatible-type]
+  const preloadedQueries: Partial<TPreloadedQueries> = {};
+  // $FlowFixMe[incompatible-type]
+  const preloadedEntryPoints: Partial<TPreloadedEntryPoints> = {};
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
     queriesPropNames.forEach(queryPropName => {
@@ -173,7 +175,20 @@ function LazyLoadEntryPointContainer_DEPRECATED<
   const entryPointParamsHash = stableStringify(entryPointParams);
   const {getComponent, queries, entryPoints, extraProps, rootModuleID} =
     useMemo(() => {
-      return prepareEntryPoint(
+      return prepareEntryPoint<
+        TEntryPointParams,
+        TPreloadedQueries,
+        TPreloadedEntryPoints,
+        TRuntimeProps,
+        TExtraProps,
+        EntryPointComponent<
+          TPreloadedQueries,
+          TPreloadedEntryPoints,
+          TRuntimeProps,
+          TExtraProps,
+        >,
+        _,
+      >(
         environmentProvider ?? {
           getEnvironment: () => environment,
         },

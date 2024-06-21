@@ -50,16 +50,10 @@ const GuidesRescuedFromOldTutorial = [
   'guided-tour/updating-data/graphql-subscriptions',
   {
     'Updating Data': [
-      ...fbContent({
-        internal: [
-          'guided-tour/updating-data/imperatively-modifying-store-data',
-          'guided-tour/updating-data/imperatively-modifying-linked-fields',
-          'guided-tour/updating-data/typesafe-updaters-faq',
-        ],
-        external: [
-          'guided-tour/updating-data/imperatively-modifying-store-data-unsafe',
-        ],
-      }),
+      'guided-tour/list-data/updating-connections',
+      'guided-tour/updating-data/imperatively-modifying-store-data',
+      'guided-tour/updating-data/imperatively-modifying-linked-fields',
+      'guided-tour/updating-data/typesafe-updaters-faq',
       'guided-tour/updating-data/local-data-updates',
       'guided-tour/updating-data/client-only-data',
     ],
@@ -76,10 +70,11 @@ const Guides = fbContent({
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
     'guides/required-directive',
-    'guides/relay-resolvers',
+    'guides/alias-directive',
     'guides/client-schema-extensions',
     'guides/type-emission',
     'guided-tour/rendering/error-states',
+    'guides/fb/client-mutation-id-and-actor-id',
     GuidesRescuedFromOldTutorial,
     {
       EntryPoints: [
@@ -108,10 +103,27 @@ const Guides = fbContent({
     'guides/persisted-queries',
     'guides/network-layer',
     'guides/client-schema-extensions',
+    {
+      'Relay Resolvers': [
+        'guides/relay-resolvers/introduction',
+        'guides/relay-resolvers/enabling',
+        'guides/relay-resolvers/defining-types',
+        'guides/relay-resolvers/defining-fields',
+        'guides/relay-resolvers/return-types',
+        'guides/relay-resolvers/field-arguments',
+        'guides/relay-resolvers/derived-fields',
+        'guides/relay-resolvers/live-fields',
+        'guides/relay-resolvers/suspense',
+        'guides/relay-resolvers/errors',
+        'guides/relay-resolvers/descriptions',
+        'guides/relay-resolvers/deprecated',
+        'guides/relay-resolvers/limitations',
+      ],
+    },
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
     'guides/required-directive',
-    'guides/relay-resolvers',
+    'guides/alias-directive',
     'guided-tour/rendering/error-states',
     GuidesRescuedFromOldTutorial,
     // TODO(T84797602) release incremental data delivery externally
@@ -143,6 +155,7 @@ module.exports = {
         'tutorial/refetchable-fragments',
         'tutorial/connections-pagination',
         'tutorial/mutations-updates',
+        'tutorial/organizing-mutations-queries-and-subscriptions',
       ],
       Installation: [
         'getting-started/prerequisites',
@@ -182,6 +195,12 @@ module.exports = {
             'api-reference/relay-runtime/store',
             'api-reference/relay-runtime/commit-mutation',
             'api-reference/relay-runtime/request-subscription',
+          ],
+        },
+        {
+          'Relay Resolvers': [
+            'api-reference/relay-resolvers/docblock-format',
+            'api-reference/relay-resolvers/runtime-functions',
           ],
         },
         'api-reference/graphql/graphql-directives',

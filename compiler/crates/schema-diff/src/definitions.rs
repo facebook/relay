@@ -171,6 +171,17 @@ pub enum SchemaChange {
     DefinitionChanges(Vec<DefinitionChange>),
 }
 
+impl fmt::Display for SchemaChange {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SchemaChange::None => write!(f, "None"),
+            SchemaChange::GenericChange => write!(f, "GenericChange"),
+            SchemaChange::InvalidSchema => write!(f, "InvalidSchema"),
+            SchemaChange::DefinitionChanges(changes) => write!(f, "{:?}", changes),
+        }
+    }
+}
+
 impl fmt::Debug for SchemaChange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

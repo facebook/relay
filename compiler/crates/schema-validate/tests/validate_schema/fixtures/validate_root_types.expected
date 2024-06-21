@@ -19,5 +19,9 @@ type Human implements Hominid @fetchable(field_name: "id") {
   pet: Pet
 }
 ==================================== OUTPUT ===================================
-Errors:
-	* 'Query' root type must be provided.
+✖︎ 'Query' root type must be provided.
+
+  <generated>:1:1
+    1 │ directive @fetchable(field_name: String) on OBJECT
+      │ ^
+    2 │

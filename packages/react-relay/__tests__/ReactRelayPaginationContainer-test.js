@@ -148,7 +148,10 @@ describe('ReactRelayPaginationContainer', () => {
         count,
       };
     });
-    TestComponent = render;
+    TestComponent = ({ref, ...props}) => {
+      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
+      return render(props);
+    };
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
@@ -333,6 +336,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -441,6 +445,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -508,6 +513,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -606,6 +612,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,

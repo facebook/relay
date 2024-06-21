@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  nodes(ids: [4]) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+export type UpdatableQuery$variables = Record<PropertyKey, never>;
+export type UpdatableQuery$data = {
+  get nodes(): ReadonlyArray<{
+    readonly id: string;
+  } | null | undefined> | null | undefined;
+  set nodes(value: []);
+};
+export type UpdatableQuery = {
+  response: UpdatableQuery$data;
+  variables: UpdatableQuery$variables;
+};

@@ -11,10 +11,10 @@
 
 'use strict';
 
-declare function isPromise(p: mixed): boolean %checks(p instanceof Promise);
+declare function isPromise<T>(p: mixed): p is Promise<T>;
 
-function isPromise(p: $FlowFixMe): boolean {
-  return !!p && typeof p.then === 'function';
+function isPromise(p: mixed) {
+  return p != null && typeof p === 'object' && typeof p.then === 'function';
 }
 
 module.exports = isPromise;

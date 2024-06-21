@@ -17,13 +17,11 @@ import type {
   ResolverNormalizationInfo,
 } from '../../util/ReaderNode';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
-import type {NormalizationOptions} from '../RelayResponseNormalizer';
 import type {
   DataIDSet,
   MutableRecordSource,
   Record,
   RecordSource,
-  RelayResolverError,
   SingularReaderSelector,
   Snapshot,
 } from '../RelayStoreTypes';
@@ -33,10 +31,12 @@ import type {
   ResolverCache,
 } from '../ResolverCache';
 import type LiveResolverStore from './LiveResolverStore';
-import type {LiveState} from './LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const shallowFreeze = require('../../util/shallowFreeze');
 const {generateClientID, generateClientObjectClientID} = require('../ClientID');
 const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
@@ -63,6 +63,7 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
+const MODEL_PROPERTY_NAME = '__relay_model_instance';
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -115,7 +116,7 @@ class LiveResolverCache implements ResolverCache {
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
-    ?RelayResolverError,
+    ?Error,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
     ?DataIDSet /** Set of dirty records after read */,
@@ -144,7 +145,7 @@ class LiveResolverCache implements ResolverCache {
         // Clean up any existing subscriptions before creating the new subscription
         // to avoid being double subscribed, or having a dangling subscription in
         // the event of an error during subscription.
-        this._maybeUnsubscribeFromLiveState(linkedRecord);
+        maybeUnsubscribeFromLiveState(linkedRecord);
       }
       linkedID = linkedID ?? generateClientID(recordID, storageKey);
       linkedRecord = RelayModernRecord.create(
@@ -154,8 +155,19 @@ class LiveResolverCache implements ResolverCache {
 
       const evaluationResult = evaluate();
 
+      RelayModernRecord.setValue(
+        linkedRecord,
+        RELAY_RESOLVER_SNAPSHOT_KEY,
+        evaluationResult.snapshot,
+      );
+      RelayModernRecord.setValue(
+        linkedRecord,
+        RELAY_RESOLVER_ERROR_KEY,
+        evaluationResult.error,
+      );
+
       if (field.kind === RELAY_LIVE_RESOLVER) {
-        if (evaluationResult.resolverResult != undefined) {
+        if (evaluationResult.resolverResult != null) {
           if (__DEV__) {
             invariant(
               isLiveStateValue(evaluationResult.resolverResult),
@@ -164,6 +176,10 @@ class LiveResolverCache implements ResolverCache {
               field.path,
             );
           }
+          invariant(
+            evaluationResult.error == null,
+            'Did not expect resolver to have both a value and an error.',
+          );
           const liveState: LiveState<mixed> =
             // $FlowFixMe[incompatible-type] - casting mixed
             evaluationResult.resolverResult;
@@ -203,16 +219,7 @@ class LiveResolverCache implements ResolverCache {
           variables,
         );
       }
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_SNAPSHOT_KEY,
-        evaluationResult.snapshot,
-      );
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_ERROR_KEY,
-        evaluationResult.error,
-      );
+
       recordSource.set(linkedID, linkedRecord);
 
       // Link the resolver value record to the resolver field of the record being read:
@@ -269,9 +276,9 @@ class LiveResolverCache implements ResolverCache {
         );
       }
 
-      updatedDataIDs = this._setResolverValue(
+      updatedDataIDs = this._setLiveResolverValue(
         linkedRecord,
-        liveState.read(),
+        liveState,
         field,
         variables,
       );
@@ -290,9 +297,15 @@ class LiveResolverCache implements ResolverCache {
     const answer: T = this._getResolverValue(linkedRecord);
 
     // $FlowFixMe[incompatible-type] - casting mixed
-    const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
+    const snapshot: ?Snapshot = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_SNAPSHOT_KEY,
+    );
     // $FlowFixMe[incompatible-type] - casting mixed
-    const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
+    const error: ?Error = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_ERROR_KEY,
+    );
 
     let suspenseID = null;
 
@@ -326,18 +339,6 @@ class LiveResolverCache implements ResolverCache {
     });
   }
 
-  _maybeUnsubscribeFromLiveState(linkedRecord: Record) {
-    // If there's an existing subscription, unsubscribe.
-    // $FlowFixMe[incompatible-type] - casting mixed
-    const previousUnsubscribe: () => void = RelayModernRecord.getValue(
-      linkedRecord,
-      RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
-    );
-    if (previousUnsubscribe != null) {
-      previousUnsubscribe();
-    }
-  }
-
   // Register a new Live State object in the store, subscribing to future
   // updates.
   _setLiveStateValue(
@@ -362,9 +363,9 @@ class LiveResolverCache implements ResolverCache {
     );
 
     // Store the current value, for this read, and future cached reads.
-    const updatedDataIDs = this._setResolverValue(
+    const updatedDataIDs = this._setLiveResolverValue(
       linkedRecord,
-      liveState.read(),
+      liveState,
       field,
       variables,
     );
@@ -400,7 +401,12 @@ class LiveResolverCache implements ResolverCache {
         return;
       }
 
-      if (!(RELAY_RESOLVER_LIVE_STATE_VALUE in currentRecord)) {
+      if (
+        !RelayModernRecord.hasValue(
+          currentRecord,
+          RELAY_RESOLVER_LIVE_STATE_VALUE,
+        )
+      ) {
         warning(
           false,
           'Unexpected callback for a incomplete live resolver record (__id: `%s`). The record has missing live state value. ' +
@@ -467,6 +473,28 @@ class LiveResolverCache implements ResolverCache {
     }
   }
 
+  _setLiveResolverValue(
+    resolverRecord: Record,
+    liveValue: LiveState<mixed>,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
+    variables: Variables,
+  ): DataIDSet | null {
+    let value: null | mixed = null;
+    let resolverError: null | mixed = null;
+    try {
+      value = liveValue.read();
+    } catch (e) {
+      resolverError = e;
+    }
+
+    RelayModernRecord.setValue(
+      resolverRecord,
+      RELAY_RESOLVER_ERROR_KEY,
+      resolverError,
+    );
+    return this._setResolverValue(resolverRecord, value, field, variables);
+  }
+
   _setResolverValue(
     resolverRecord: Record,
     value: mixed,
@@ -475,7 +503,11 @@ class LiveResolverCache implements ResolverCache {
   ): DataIDSet | null {
     const normalizationInfo = field.normalizationInfo;
     let updatedDataIDs = null;
-    if (value != null && normalizationInfo != null) {
+    if (
+      value != null &&
+      normalizationInfo != null &&
+      !isSuspenseSentinel(value)
+    ) {
       let resolverValue: DataID | Array<DataID>;
 
       const prevOutputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
@@ -495,13 +527,15 @@ class LiveResolverCache implements ResolverCache {
         const nextSource = RelayRecordSource.create();
         for (let ii = 0; ii < value.length; ii++) {
           const currentValue = value[ii];
+          // TODO: T184433715 We currently break with the GraphQL spec and filter out null items in lists.
           if (currentValue == null) {
             continue;
           }
           invariant(
-            typeof currentValue == 'object',
+            typeof currentValue === 'object',
             '_setResolverValue: Expected object value as the payload for the @outputType resolver.',
           );
+
           // The `id` of the nested object (@outputType resolver)
           // is localized to it's resolver record. To ensure that
           // there is only one path to the records created from the
@@ -514,14 +548,16 @@ class LiveResolverCache implements ResolverCache {
             RelayModernRecord.getDataID(resolverRecord),
             ii,
           );
-          const source = normalizeOutputTypeValue(
+
+          const source = this._normalizeOutputTypeValue(
             outputTypeDataID,
             currentValue,
             variables,
             normalizationInfo,
-            this._store.__getNormalizationOptions([field.path, String(ii)]),
+            [field.path, String(ii)],
             typename,
           );
+
           for (const recordID of source.getRecordIDs()) {
             // For plural case we'll keep adding the `item` records to the `nextSource`
             // so we can publish all of them at the same time: clean up all records,
@@ -541,7 +577,7 @@ class LiveResolverCache implements ResolverCache {
         );
       } else {
         invariant(
-          typeof value == 'object',
+          typeof value === 'object',
           '_setResolverValue: Expected object value as the payload for the @outputType resolver.',
         );
         const typename = getConcreteTypename(normalizationInfo, value);
@@ -550,12 +586,12 @@ class LiveResolverCache implements ResolverCache {
           typename,
           RelayModernRecord.getDataID(resolverRecord),
         );
-        const nextSource = normalizeOutputTypeValue(
+        const nextSource = this._normalizeOutputTypeValue(
           outputTypeDataID,
           value,
           variables,
           normalizationInfo,
-          this._store.__getNormalizationOptions([field.path]),
+          [field.path],
           typename,
         );
         for (const recordID of nextSource.getRecordIDs()) {
@@ -578,12 +614,14 @@ class LiveResolverCache implements ResolverCache {
         nextOutputTypeRecordIDs,
       );
 
+      shallowFreeze(resolverValue);
       RelayModernRecord.setValue(
         resolverRecord,
         RELAY_RESOLVER_VALUE_KEY,
         resolverValue,
       );
     } else {
+      shallowFreeze(value);
       // For "classic" resolvers (or if the value is nullish), we are just setting their
       // value as is.
       RelayModernRecord.setValue(
@@ -624,7 +662,7 @@ class LiveResolverCache implements ResolverCache {
             continue;
           }
           for (const anotherRecordID of recordSet) {
-            this._markInvalidatedResolverRecord(anotherRecordID, recordSource);
+            markInvalidatedResolverRecord(anotherRecordID, recordSource);
             if (!visited.has(anotherRecordID)) {
               recordsToVisit.push(anotherRecordID);
             }
@@ -632,28 +670,6 @@ class LiveResolverCache implements ResolverCache {
         }
       }
     }
-  }
-
-  _markInvalidatedResolverRecord(
-    dataID: DataID,
-    recordSource: MutableRecordSource, // Written to
-  ) {
-    const record = recordSource.get(dataID);
-    if (!record) {
-      warning(
-        false,
-        'Expected a resolver record with ID %s, but it was missing.',
-        dataID,
-      );
-      return;
-    }
-    const nextRecord = RelayModernRecord.clone(record);
-    RelayModernRecord.setValue(
-      nextRecord,
-      RELAY_RESOLVER_INVALIDATION_KEY,
-      true,
-    );
-    recordSource.set(dataID, nextRecord);
   }
 
   _isInvalid(
@@ -684,7 +700,83 @@ class LiveResolverCache implements ResolverCache {
     if (recycled !== originalInputs) {
       return true;
     }
+
+    if (RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD) {
+      // This record does not need to be recomputed, we can reuse the cached value.
+      // For subsequent reads we can mark this record as "clean" so that they will
+      // not need to re-read the fragment.
+      const nextRecord = RelayModernRecord.clone(record);
+      RelayModernRecord.setValue(
+        nextRecord,
+        RELAY_RESOLVER_INVALIDATION_KEY,
+        false,
+      );
+
+      const recordSource = this._getRecordSource();
+      recordSource.set(RelayModernRecord.getDataID(record), nextRecord);
+    }
+
     return false;
+  }
+
+  // Returns a normalized version (RecordSource) of the @outputType,
+  // containing only "weak" records.
+  _normalizeOutputTypeValue(
+    outputTypeDataID: DataID,
+    value: {+[key: string]: mixed},
+    variables: Variables,
+    normalizationInfo: ResolverNormalizationInfo,
+    fieldPath: Array<string>,
+    typename: string,
+  ): RecordSource {
+    const source = RelayRecordSource.create();
+
+    switch (normalizationInfo.kind) {
+      case 'OutputType': {
+        const record = RelayModernRecord.create(outputTypeDataID, typename);
+        source.set(outputTypeDataID, record);
+        const selector = createNormalizationSelector(
+          normalizationInfo.normalizationNode,
+          outputTypeDataID,
+          variables,
+        );
+
+        const normalizationOptions =
+          this._store.__getNormalizationOptions(fieldPath);
+        // The resulted `source` is the normalized version of the
+        // resolver's (@outputType) value.
+        // All records in the `source` should have IDs that
+        // is "prefix-ed" with the parent resolver record `ID`
+        // and they don't expect to have a "strong" identifier.
+        return normalize(
+          source,
+          selector,
+          // normalize does not mutate values, but it's impractical to type this
+          // argument as readonly. For now we'll excuse ourselves and pass a
+          // read only type
+          // $FlowFixMe[incompatible-variance]
+          value,
+          normalizationOptions,
+        ).source;
+      }
+      // For weak models we have a simpler case. We simply need to update a
+      // single field on the record.
+      case 'WeakModel': {
+        const record = RelayModernRecord.create(outputTypeDataID, typename);
+
+        RelayModernRecord.setValue(record, MODEL_PROPERTY_NAME, value);
+
+        source.set(outputTypeDataID, record);
+        return source;
+      }
+      default:
+        (normalizationInfo.kind: empty);
+        invariant(
+          false,
+          'LiveResolverCache: Unexpected normalization info kind `%s`.',
+          normalizationInfo.kind,
+        );
+    }
   }
 
   // If a given record does not exist, creates an empty record consisting of
@@ -702,19 +794,10 @@ class LiveResolverCache implements ResolverCache {
   }
 
   unsubscribeFromLiveResolverRecords(invalidatedDataIDs: Set<DataID>): void {
-    if (invalidatedDataIDs.size === 0) {
-      return;
-    }
-
-    for (const dataID of invalidatedDataIDs) {
-      const record = this._getRecordSource().get(dataID);
-      if (
-        record != null &&
-        RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME
-      ) {
-        this._maybeUnsubscribeFromLiveState(record);
-      }
-    }
+    return unsubscribeFromLiveResolverRecordsImpl(
+      this._getRecordSource(),
+      invalidatedDataIDs,
+    );
   }
 
   // Given the set of possible invalidated DataID
@@ -728,43 +811,11 @@ class LiveResolverCache implements ResolverCache {
 
     for (const dataID of invalidatedDataIDs) {
       const record = this._getRecordSource().get(dataID);
-      if (
-        record != null &&
-        RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME
-      ) {
+      if (record != null && isResolverRecord(record)) {
         this._getRecordSource().delete(dataID);
       }
     }
   }
-}
-
-// Returns a normalized version (RecordSource) of the @outputType,
-// containing only "weak" records.
-function normalizeOutputTypeValue(
-  outputTypeDataID: DataID,
-  value: {...},
-  variables: Variables,
-  resolverNormalizationInfo: ResolverNormalizationInfo,
-  normalizationOptions: NormalizationOptions,
-  typename: string,
-): RecordSource {
-  const source = RelayRecordSource.create();
-  source.set(
-    outputTypeDataID,
-    RelayModernRecord.create(outputTypeDataID, typename),
-  );
-  const selector = createNormalizationSelector(
-    resolverNormalizationInfo.normalizationNode,
-    outputTypeDataID,
-    variables,
-  );
-
-  // The resulted `source` is the normalized version of the
-  // resolver's (@outputType) value.
-  // All records in the `source` should have IDs that
-  // is "prefix-ed" with the parent resolver record `ID`
-  // and they don't expect to have a "strong" identifier.
-  return normalize(source, selector, value, normalizationOptions).source;
 }
 
 // Update the `currentSource` with the set of new records from the
@@ -806,7 +857,11 @@ function updateCurrentSource(
       const updatedRecord = RelayModernRecord.update(currentRecord, nextRecord);
       if (updatedRecord !== currentRecord) {
         updatedDataIDs.add(recordID);
-        currentSource.set(recordID, nextRecord);
+        currentSource.set(recordID, updatedRecord);
+        // We also need to mark all linked records from the current record as invalidated,
+        // so that the next time these records are accessed in RelayReader,
+        // they will be re-read and re-evaluated by the LiveResolverCache and re-subscribed.
+        markInvalidatedLinkedResolverRecords(currentRecord, currentSource);
       }
     } else {
       currentSource.set(recordID, nextRecord);
@@ -814,6 +869,91 @@ function updateCurrentSource(
   }
 
   return updatedDataIDs;
+}
+
+function getAllLinkedRecordIds(record: Record): DataIDSet {
+  const linkedRecordIDs = new Set<DataID>();
+  RelayModernRecord.getFields(record).forEach(field => {
+    if (RelayModernRecord.hasLinkedRecordID(record, field)) {
+      const linkedRecordID = RelayModernRecord.getLinkedRecordID(record, field);
+      if (linkedRecordID != null) {
+        linkedRecordIDs.add(linkedRecordID);
+      }
+    } else if (RelayModernRecord.hasLinkedRecordIDs(record, field)) {
+      RelayModernRecord.getLinkedRecordIDs(record, field)?.forEach(
+        linkedRecordID => {
+          if (linkedRecordID != null) {
+            linkedRecordIDs.add(linkedRecordID);
+          }
+        },
+      );
+    }
+  });
+
+  return linkedRecordIDs;
+}
+
+function markInvalidatedResolverRecord(
+  dataID: DataID,
+  recordSource: MutableRecordSource, // Written to
+) {
+  const record = recordSource.get(dataID);
+  if (!record) {
+    warning(
+      false,
+      'Expected a resolver record with ID %s, but it was missing.',
+      dataID,
+    );
+    return;
+  }
+  const nextRecord = RelayModernRecord.clone(record);
+  RelayModernRecord.setValue(nextRecord, RELAY_RESOLVER_INVALIDATION_KEY, true);
+  recordSource.set(dataID, nextRecord);
+}
+
+function markInvalidatedLinkedResolverRecords(
+  record: Record,
+  recordSource: MutableRecordSource,
+): void {
+  const currentLinkedDataIDs = getAllLinkedRecordIds(record);
+  for (const recordID of currentLinkedDataIDs) {
+    const record = recordSource.get(recordID);
+    if (record != null && isResolverRecord(record)) {
+      markInvalidatedResolverRecord(recordID, recordSource);
+    }
+  }
+}
+
+function unsubscribeFromLiveResolverRecordsImpl(
+  recordSource: RecordSource,
+  invalidatedDataIDs: $ReadOnlySet<DataID>,
+): void {
+  if (invalidatedDataIDs.size === 0) {
+    return;
+  }
+
+  for (const dataID of invalidatedDataIDs) {
+    const record = recordSource.get(dataID);
+    if (record != null && isResolverRecord(record)) {
+      maybeUnsubscribeFromLiveState(record);
+    }
+  }
+}
+
+function isResolverRecord(record: Record): boolean {
+  return RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME;
+}
+
+function maybeUnsubscribeFromLiveState(linkedRecord: Record): void {
+  // If there's an existing subscription, unsubscribe.
+  // $FlowFixMe[incompatible-type] - casting mixed
+  const previousUnsubscribe: () => void = RelayModernRecord.getValue(
+    linkedRecord,
+    RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+  );
+  if (previousUnsubscribe != null) {
+    previousUnsubscribe();
+  }
 }
 
 function expectRecord(source: RecordSource, recordID: DataID): Record {
@@ -853,4 +993,5 @@ function getConcreteTypename(
 module.exports = {
   LiveResolverCache,
   getUpdatedDataIDs,
+  RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
 };

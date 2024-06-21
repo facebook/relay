@@ -13,7 +13,7 @@
 
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 
-const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
+const useBlockingPaginationFragmentOriginal = require('../legacy/useBlockingPaginationFragment');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -28,11 +28,11 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
+
+const {disallowWarnings, expectWarningWillFire} = (jest.requireActual(
+  'relay-test-utils-internal',
+): $FlowFixMe);
 
 const {useMemo, useState} = React;
 
@@ -71,10 +71,10 @@ describe('useBlockingPaginationFragment', () => {
       this.setState({error});
     }
     render(): any | React.Node {
-      const {children, fallback} = this.props;
+      const {children, fallback: Fallback} = this.props;
       const {error} = this.state;
       if (error) {
-        return React.createElement(fallback, {error});
+        return <Fallback error={error} />;
       }
       return children;
     }
@@ -135,7 +135,6 @@ describe('useBlockingPaginationFragment', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
@@ -2492,7 +2491,6 @@ describe('useBlockingPaginationFragment', () => {
         // the component twice: `expectFragmentResults` will fail in the next
         // test
         jest.resetModules();
-        disallowWarnings();
       });
 
       it('preserves pagination request if re-rendered with same fragment ref', () => {

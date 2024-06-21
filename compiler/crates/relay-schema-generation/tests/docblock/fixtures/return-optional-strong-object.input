@@ -1,0 +1,28 @@
+//- Cat.js
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+//- Cat-name.js
+
+import type CatFlowType from 'Cat';
+/**
+ * @RelayResolver
+ */
+export function friend(cat: CatFlowType): ?IdOf<"Cat"> {
+  return {};
+}

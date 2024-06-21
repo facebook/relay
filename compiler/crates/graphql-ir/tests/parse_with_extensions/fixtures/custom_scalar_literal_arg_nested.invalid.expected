@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery {
+    extension_field {
+        scalar_field(custom_scalar_arg: "1234")
+    }
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+type Obj {
+    some_key: Int!
+    scalar_field(custom_scalar_arg: CustomScalarType!): Int
+}
+
+extend type Query {
+    extension_field: Obj
+}
+==================================== ERROR ====================================
+✖︎ Unexpected scalar literal `"1234"` provided in a position expecting custom scalar type `CustomScalarType`. This value should come from a variable.
+
+  custom_scalar_literal_arg_nested.invalid.graphql:6:41
+    5 │     extension_field {
+    6 │         scalar_field(custom_scalar_arg: "1234")
+      │                                         ^^^^^^
+    7 │     }

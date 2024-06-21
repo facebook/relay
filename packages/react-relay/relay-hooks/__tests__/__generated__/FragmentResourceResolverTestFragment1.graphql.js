@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3231a836506b3994282595aaab58cfc8>>
+ * @generated SignedSource<<e5904c88d8519ff50e68ed8c6347e0ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {always_throws as userAlwaysThrowsResolverType} from "../../../../relay-r
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAlwaysThrowsResolverType: (
   rootKey: UserAlwaysThrowsResolver$key,
-) => mixed);
+) => ?string);
 declare export opaque type FragmentResourceResolverTestFragment1$fragmentType: FragmentType;
 export type FragmentResourceResolverTestFragment1$data = {|
-  +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolverType>,
+  +always_throws: ?string,
   +$fragmentType: FragmentResourceResolverTestFragment1$fragmentType,
 |};
 export type FragmentResourceResolverTestFragment1$key = {

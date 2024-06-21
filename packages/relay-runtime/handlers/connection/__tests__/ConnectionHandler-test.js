@@ -848,6 +848,190 @@ describe('ConnectionHandler', () => {
         });
       });
 
+      it('appends two streamed edges, which have been streamed before and know their end cursors', () => {
+        // First edge
+        normalize(
+          {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      id: '2',
+                    },
+                  },
+                ],
+                [PAGE_INFO]: {
+                  // EACH EDGE ALREADY WILL KNOW ITS END CURSOR FOR THAT PAGE
+                  [END_CURSOR]: 'cursor:3',
+                  [HAS_NEXT_PAGE]: false,
+                  [HAS_PREV_PAGE]: false,
+                  [START_CURSOR]: 'cursor:2',
+                },
+              },
+            },
+          },
+          {
+            after: 'cursor:1',
+            before: null,
+            count: 10,
+            orderby: ['first name'],
+            id: '4',
+          },
+        );
+        const args = {after: 'cursor:1', first: 10, orderby: ['first name']};
+        const handleKey =
+          getRelayHandleKey(
+            'connection',
+            'ConnectionQuery_friends',
+            'friends',
+          ) + '(orderby:["first name"])';
+        const payload = {
+          args,
+          dataID: '4',
+          fieldKey: getStableStorageKey('friends', args),
+          handleKey,
+        };
+        ConnectionHandler.update(proxy, payload);
+        expect(sinkSource.toJSON()).toEqual({
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '2'},
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:3',
+              [HAS_NEXT_PAGE]: false,
+            },
+        });
+
+        // Second Edge
+        normalize(
+          {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:3',
+                    node: {
+                      id: '3',
+                    },
+                  },
+                ],
+                [PAGE_INFO]: {
+                  // EACH EDGE ALREADY WILL KNOW ITS END CURSOR FOR THAT PAGE
+                  // (THIS IS FINAL EDGE, BUT STILL...)
+                  [END_CURSOR]: 'cursor:3',
+                  [HAS_NEXT_PAGE]: false,
+                  [HAS_PREV_PAGE]: false,
+                  [START_CURSOR]: 'cursor:2',
+                },
+              },
+            },
+          },
+          {
+            after: 'cursor:1',
+            before: null,
+            count: 10,
+            orderby: ['first name'],
+            id: '4',
+          },
+        );
+        const secondArgs = {
+          after: 'cursor:1',
+          first: 10,
+          orderby: ['first name'],
+        };
+        const secondHandleKey =
+          getRelayHandleKey(
+            'connection',
+            'ConnectionQuery_friends',
+            'friends',
+          ) + '(orderby:["first name"])';
+        const secondPayload = {
+          args,
+          dataID: '4',
+          fieldKey: getStableStorageKey('friends', secondArgs),
+          handleKey: secondHandleKey,
+        };
+        ConnectionHandler.update(proxy, secondPayload);
+
+        const result = {
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 3,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '2'},
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:3',
+              node: {[REF_KEY]: '3'},
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:3',
+              [HAS_NEXT_PAGE]: false,
+            },
+        };
+        expect(sinkSource.toJSON()).toEqual(result);
+      });
+
       it('prepends new edges', () => {
         normalize(
           {

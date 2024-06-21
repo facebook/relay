@@ -508,18 +508,6 @@ pre.outerPre {
   border-radius: var(--ifm-button-border-radius);
 }
 
-.try-it {
-  padding-top: 10px;
-}
-
-.try-it a.button {
-  color: #f9f6ef;
-  border-color: #EAEAE2;
-  border-style: solid;
-  border-width: var(--ifm-button-border-width);
-  border-radius: var(--ifm-button-border-radius);
-}
-
 a.hash-link {
   margin-left: 0;
 }

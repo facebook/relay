@@ -79,13 +79,13 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
         location: Location,
         highlight_color: Style,
     ) -> std::fmt::Result {
-        let source_printer = SourcePrinter::default();
+        let source_printer = SourcePrinter;
         if let Some(source) = self.sources.get(location.source_location()) {
             let range = source.to_span_range(location.span());
             writeln!(
                 writer,
                 "  {}{}",
-                location.source_location().path().underline(),
+                normalize_path(location.source_location().path()).underline(),
                 format!(":{}:{}", range.start.line + 1, range.start.character + 1).dimmed()
             )?;
             source_printer.write_span_with_highlight_style(
@@ -99,7 +99,7 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
             writeln!(
                 writer,
                 "{}: <missing source>",
-                location.source_location().path()
+                normalize_path(location.source_location().path())
             )?;
         }
         Ok(())
@@ -117,4 +117,10 @@ where
     fn get(&self, source_location: SourceLocationKey) -> Option<TextSource> {
         self(source_location)
     }
+}
+
+/// Normalize Windows paths to Unix style. This is important for stable test
+/// output across Mac/Windows/Linux.
+fn normalize_path(path: &str) -> String {
+    path.replace("\\", "/")
 }

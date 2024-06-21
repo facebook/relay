@@ -113,7 +113,7 @@ fragment TestFragment on User
                     directives: [],
                 },
             ],
-            type_condition: Object(69),
+            type_condition: Object(70),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -131,7 +131,7 @@ fragment TestFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: fragment_with_valid_provider.graphql:210:224,
-                        item: FieldID(474),
+                        item: FieldID(476),
                     },
                     arguments: [
                         Argument {
@@ -167,7 +167,7 @@ fragment TestFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment_with_valid_provider.graphql:251:254,
-                                item: FieldID(179),
+                                item: FieldID(182),
                             },
                             arguments: [],
                             directives: [],

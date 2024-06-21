@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ea53f81ddf5494ef9f7acb063fc159b3>>
+ * @generated SignedSource<<baeb9375188b9b7284578261ae8830c4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js";
 // Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -26,12 +26,12 @@ import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverTyp
   args: {|
     prefix: string,
   |},
-) => LiveState<mixed>);
+) => LiveState<?string>);
 export type LiveResolversTest12Query$variables = {|
   prefix: string,
 |};
 export type LiveResolversTest12Query$data = {|
-  +counter_no_fragment_with_arg: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterNoFragmentWithArgResolverType>["read"]>,
+  +counter_no_fragment_with_arg: ?string,
 |};
 export type LiveResolversTest12Query = {|
   response: LiveResolversTest12Query$data,
@@ -94,7 +94,7 @@ return {
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           }
         ]
       }

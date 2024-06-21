@@ -1,0 +1,140 @@
+==================================== INPUT ====================================
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery($arg: CustomScalarType!) {
+    extension_field(custom_scalar_arg: $arg) {
+        __typename
+    }
+    extension_scalar_field(custom_scalar_arg: $arg)
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+type Obj {
+    some_key: Int!
+}
+
+extend type Query {
+    extension_field(custom_scalar_arg: CustomScalarType!): Obj
+    extension_scalar_field(custom_scalar_arg: CustomScalarType!): Int
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: custom_scalar_variable_arg.graphql:41:68,
+                item: OperationDefinitionName(
+                    "CustomScalarLiteralArgQuery",
+                ),
+            },
+            type_: Object(0),
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: custom_scalar_variable_arg.graphql:69:73,
+                        item: VariableName(
+                            "arg",
+                        ),
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(8),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: custom_scalar_variable_arg.graphql:100:115,
+                        item: FieldID(527),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: custom_scalar_variable_arg.graphql:116:133,
+                                item: ArgumentName(
+                                    "custom_scalar_arg",
+                                ),
+                            },
+                            value: WithLocation {
+                                location: custom_scalar_variable_arg.graphql:135:139,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: custom_scalar_variable_arg.graphql:135:139,
+                                            item: VariableName(
+                                                "arg",
+                                            ),
+                                        },
+                                        type_: NonNull(
+                                            Named(
+                                                Scalar(8),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: custom_scalar_variable_arg.graphql:151:161,
+                                item: FieldID(529),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: custom_scalar_variable_arg.graphql:172:194,
+                        item: FieldID(528),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: custom_scalar_variable_arg.graphql:195:212,
+                                item: ArgumentName(
+                                    "custom_scalar_arg",
+                                ),
+                            },
+                            value: WithLocation {
+                                location: custom_scalar_variable_arg.graphql:214:218,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: custom_scalar_variable_arg.graphql:214:218,
+                                            item: VariableName(
+                                                "arg",
+                                            ),
+                                        },
+                                        type_: NonNull(
+                                            Named(
+                                                Scalar(8),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

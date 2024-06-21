@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<15ed106f46f6c3c809e7b14187e2320b>>
+ * @generated SignedSource<<f322b2f6615796b06a3c69377d6b5b12>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,10 +26,10 @@ import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
   args: {|
     world: string,
   |},
-) => mixed);
+) => ?string);
 declare export opaque type HelloWorldResolverWithProvidedVariable$fragmentType: FragmentType;
 export type HelloWorldResolverWithProvidedVariable$data = {|
-  +hello: ?$Call<<R>((...empty[]) => R) => R, typeof queryHelloResolverType>,
+  +hello: ?string,
   +$fragmentType: HelloWorldResolverWithProvidedVariable$fragmentType,
 |};
 export type HelloWorldResolverWithProvidedVariable$key = {
@@ -43,7 +43,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__relay_internal__pv__HelloWorldProviderjs"
+      "name": "__relay_internal__pv__HelloWorldProviderrelayprovider"
     }
   ],
   "kind": "Fragment",
@@ -59,7 +59,7 @@ var node/*: ReaderFragment*/ = {
             {
               "kind": "Variable",
               "name": "world",
-              "variableName": "__relay_internal__pv__HelloWorldProviderjs"
+              "variableName": "__relay_internal__pv__HelloWorldProviderrelayprovider"
             }
           ],
           "fragment": null,
@@ -76,7 +76,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eaa3cd07d00f67f243afb816ae3dc3dd";
+  (node/*: any*/).hash = "9f94df55099df09e6d33779b83f732fc";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

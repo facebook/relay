@@ -1,0 +1,16 @@
+//- foo.js
+graphql`
+  fragment foo on User @throwOnFieldError {
+     name
+  }`;
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "experimentalEmitSemanticNullabilityTypes": true
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

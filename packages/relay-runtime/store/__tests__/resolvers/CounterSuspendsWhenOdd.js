@@ -12,20 +12,15 @@
 'use strict';
 
 import type {CounterSuspendsWhenOdd$key} from './__generated__/CounterSuspendsWhenOdd.graphql';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
-const {graphql} = require('relay-runtime');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const {graphql, suspenseSentinel} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName counter_suspends_when_odd
+ * @RelayResolver Query.counter_suspends_when_odd: Int
  * @rootFragment CounterSuspendsWhenOdd
- * @onType Query
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State

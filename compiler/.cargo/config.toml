@@ -4,3 +4,11 @@
 # replace-with = "domorexp"
 # [unstable]
 # registry-auth = true
+# This file should be kept in sync with the project's Buck flags.
+# See parent PACKAGE.
+
+[build]
+rustflags = [
+    "-Drust-2018-idioms",
+    "-Dwarnings",
+]

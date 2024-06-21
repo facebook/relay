@@ -1,0 +1,11 @@
+mutation MyMutation {
+  setName(name: "Alice") {
+    ...myFragment
+  }
+}
+
+fragment myFragment on User {
+  name @required(action: THROW)
+}
+
+# %extensions%

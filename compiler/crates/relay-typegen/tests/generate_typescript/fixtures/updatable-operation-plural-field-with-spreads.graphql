@@ -1,0 +1,9 @@
+query UpdatableQuery @updatable {
+  nodes(ids: [4]) {
+    ...Updatable_user
+  }
+}
+
+fragment Updatable_user on User @assignable {
+  __typename
+}

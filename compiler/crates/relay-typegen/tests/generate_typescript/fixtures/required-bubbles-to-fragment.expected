@@ -6,10 +6,10 @@ fragment NonNullFragment on User {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type NonNullFragment$data = {
-  readonly firstName: string | null;
+  readonly firstName: string | null | undefined;
   readonly lastName: string;
   readonly " $fragmentType": "NonNullFragment";
-} | null;
+} | null | undefined;
 export type NonNullFragment$key = {
   readonly " $data"?: NonNullFragment$data;
   readonly " $fragmentSpreads": FragmentRefs<"NonNullFragment">;

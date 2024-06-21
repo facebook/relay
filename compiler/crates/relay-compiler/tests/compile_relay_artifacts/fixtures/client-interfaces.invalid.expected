@@ -1,0 +1,107 @@
+==================================== INPUT ====================================
+# TODO T174533887 expected to throw
+
+query clientInterfacesInvalidQuery {
+  cat {
+    greeting
+  }
+}
+
+# %extensions%
+interface Cat {
+  greeting: String
+}
+
+type Tabby implements Cat {
+  description: String
+}
+
+extend type Query {
+  cat: Cat
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientInterfacesInvalidQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "cat",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "greeting",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientInterfacesInvalidQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "cat",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "greeting",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "bff40d074712569f213acce4cc45cb3b",
+    "id": null,
+    "metadata": {},
+    "name": "clientInterfacesInvalidQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.

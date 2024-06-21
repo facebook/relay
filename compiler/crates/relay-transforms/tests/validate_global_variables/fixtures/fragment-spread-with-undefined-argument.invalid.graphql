@@ -1,0 +1,11 @@
+#expected-to-throw
+query QueryWithUndefinedArgument {
+  node {
+    ...UserFragment @arguments(age: $age)
+  }
+}
+
+fragment UserFragment on User
+@argumentDefinitions(age: {type: "Int", defaultValue: null}) {
+  name
+}

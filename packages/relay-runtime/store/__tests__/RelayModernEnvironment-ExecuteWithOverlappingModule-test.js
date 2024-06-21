@@ -205,7 +205,6 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           },
 
           __fragmentOwner: userOperation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -249,7 +248,6 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           },
 
           __fragmentOwner: userOperation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'PlainUserNameRenderer.react',
         },
       },
@@ -296,7 +294,6 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           },
 
           __fragmentOwner: userOperation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -357,7 +354,6 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           },
 
           __fragmentOwner: actorOperation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownActorNameRenderer.react',
         },
       },

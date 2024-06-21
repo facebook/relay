@@ -16,7 +16,15 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
-const {createReaderSelector, getPluralSelector} = require('relay-runtime');
+const {
+  RelayFeatureFlags,
+  createReaderSelector,
+  getPluralSelector,
+} = require('relay-runtime');
+const {
+  LiveResolverCache,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverCache');
+const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 
 describe('RelayReader @required', () => {
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
@@ -45,6 +53,76 @@ describe('RelayReader @required', () => {
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toEqual({me: null});
+  });
+
+  it('bubbles @required(action: LOG) up to aliased inline fragment without type condition', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        backgroundImage: {__ref: 'client:2'},
+      },
+      'client:2': {
+        __id: 'client:2',
+        __typename: 'Image',
+        uri: null,
+      },
+    });
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery {
+        me {
+          ... @alias(as: "requiredFields") {
+            backgroundImage @required(action: LOG) {
+              uri @required(action: LOG)
+            }
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: {requiredFields: null}});
+  });
+
+  it('bubbles @required(action: LOG) up to aliased inline fragment _with_ type condition', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        backgroundImage: {__ref: 'client:2'},
+      },
+      'client:2': {
+        __id: 'client:2',
+        __typename: 'Image',
+        uri: null,
+      },
+    });
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery {
+        me {
+          ... on User @alias(as: "requiredFields") {
+            backgroundImage @required(action: LOG) {
+              uri @required(action: LOG)
+            }
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data} = read(source, operation.fragment);
+    expect(data).toEqual({me: {requiredFields: null}});
   });
 
   it('if two @required(action: THROW) errors cascade, report the more deeply nested one', () => {
@@ -790,5 +868,154 @@ describe('RelayReader @required', () => {
     const pluralSelector = getPluralSelector(BarFragment, nodes);
     const data = pluralSelector.selectors.map(s => read(source, s).data);
     expect(data).toEqual([{username: 'Wendy'}, null]);
+  });
+
+  describe('client edge with @required', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
+    });
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+    });
+    test('throws when missing required field', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+        },
+      });
+      const FooQuery = graphql`
+        query RelayReaderRequiredFieldsTest25Query {
+          me {
+            client_object(return_null: true) @required(action: THROW) {
+              description
+            }
+          }
+        }
+      `;
+      const store = new LiveResolverStore(source);
+      const operation = createOperationDescriptor(FooQuery, {});
+      const resolverCache = new LiveResolverCache(() => source, store);
+      const {missingRequiredFields} = read(
+        source,
+        operation.fragment,
+        resolverCache,
+      );
+      expect(missingRequiredFields).toEqual({
+        action: 'THROW',
+        field: {
+          owner: 'RelayReaderRequiredFieldsTest25Query',
+          path: 'me.client_object',
+        },
+      });
+    });
+
+    test('does not throw when required field is present', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          birthdate: {__ref: 'client:2'},
+        },
+        'client:2': {
+          month: 3,
+          day: 11,
+        },
+      });
+      const FooQuery = graphql`
+        query RelayReaderRequiredFieldsTest26Query {
+          me {
+            astrological_sign @required(action: THROW) {
+              name
+            }
+          }
+        }
+      `;
+
+      const store = new LiveResolverStore(source);
+      const operation = createOperationDescriptor(FooQuery, {});
+      const resolverCache = new LiveResolverCache(() => source, store);
+      const {data, missingRequiredFields} = read(
+        source,
+        operation.fragment,
+        resolverCache,
+      );
+      expect(data).toEqual({me: {astrological_sign: {name: 'Pisces'}}});
+      expect(missingRequiredFields).toBe(null);
+    });
+
+    test('does not throw when required plural field is present', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+        },
+      });
+      const FooQuery = graphql`
+        query RelayReaderRequiredFieldsTest27Query {
+          all_astrological_signs @required(action: THROW) {
+            name
+          }
+        }
+      `;
+
+      const store = new LiveResolverStore(source);
+      const operation = createOperationDescriptor(FooQuery, {});
+      const resolverCache = new LiveResolverCache(() => source, store);
+      const {data, missingRequiredFields} = read(
+        source,
+        operation.fragment,
+        resolverCache,
+      );
+      expect(data.all_astrological_signs.length).toBe(12);
+      expect(missingRequiredFields).toBe(null);
+    });
+
+    test('does not throw when @live required field is suspended', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+        },
+      });
+      const FooQuery = graphql`
+        query RelayReaderRequiredFieldsTest28Query {
+          live_user_resolver_always_suspend
+            @waterfall
+            @required(action: THROW) {
+            name
+          }
+        }
+      `;
+      const store = new LiveResolverStore(source);
+      const operation = createOperationDescriptor(FooQuery, {});
+      const resolverCache = new LiveResolverCache(() => source, store);
+      const snapshot = read(source, operation.fragment, resolverCache);
+      expect(snapshot.missingRequiredFields).toEqual(null);
+      expect(snapshot.missingLiveResolverFields).toEqual([
+        {
+          path: 'RelayReaderRequiredFieldsTest28Query.live_user_resolver_always_suspend',
+          liveStateID: 'client:root:live_user_resolver_always_suspend',
+        },
+      ]);
+    });
   });
 });

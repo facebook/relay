@@ -78,6 +78,7 @@ beforeEach(() => {
   }) {
     renderCount = (renderCount || 0) + 1;
     [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
+      // $FlowFixMe[react-rule-hook]
       useEntryPointLoader<{...}, any, any, any, any, any, any>(
         environmentProvider,
         entryPoint,
@@ -153,7 +154,7 @@ it('disposes the entry point and nullifies the state when the disposeEntryPoint 
 });
 
 beforeEach(() => {
-  jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+  jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
 });
 
 afterEach(() => {

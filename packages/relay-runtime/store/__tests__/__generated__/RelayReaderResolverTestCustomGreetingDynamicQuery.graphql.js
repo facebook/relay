@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1aba9b07c641d36e60acc46f1a0f1c38>>
+ * @generated SignedSource<<e089922dbab564b81af5e26cc44f9a9c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,15 +27,15 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
   args: {|
     salutation: string,
   |},
-) => mixed);
+) => ?string);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,
 |};
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$data = {|
   +me: ?{|
-    +dynamic_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
-    +greetz: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
-    +willkommen: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
+    +dynamic_greeting: ?string,
+    +greetz: ?string,
+    +willkommen: ?string,
   |},
 |};
 export type RelayReaderResolverTestCustomGreetingDynamicQuery = {|
@@ -161,7 +161,7 @@ return {
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "name": "custom_greeting",
@@ -169,7 +169,7 @@ return {
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
             "storageKey": "custom_greeting(salutation:\"Greetz\")",
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "name": "custom_greeting",
@@ -177,7 +177,7 @@ return {
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
             "storageKey": "custom_greeting(salutation:\"Willkommen\")",
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "alias": null,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<acd2f74261230fa7dadf6bcb2efa7bea>>
+ * @generated SignedSource<<5451d709cb840278df5d822aba954bbe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {todos as queryTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodos.js";
 // Type assertion validating that `queryTodosResolverType` resolver is correctly implemented.
@@ -76,7 +76,7 @@ v1 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": false
+      "isOutputType": true
     }
   ],
   "type": "Todo",
@@ -94,6 +94,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoConnection",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": (v0/*: any*/),
@@ -103,6 +104,7 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodos').todos,
           "path": "todos",
           "normalizationInfo": {
+            "kind": "OutputType",
             "concreteType": "TodoConnection",
             "plural": false,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')
@@ -258,7 +260,7 @@ return {
                                     },
                                     "kind": "RelayResolver",
                                     "storageKey": null,
-                                    "isOutputType": false
+                                    "isOutputType": true
                                   }
                                 ],
                                 "storageKey": null
@@ -276,7 +278,7 @@ return {
                       "fragment": (v1/*: any*/),
                       "kind": "RelayResolver",
                       "storageKey": null,
-                      "isOutputType": false
+                      "isOutputType": true
                     }
                   ],
                   "storageKey": null

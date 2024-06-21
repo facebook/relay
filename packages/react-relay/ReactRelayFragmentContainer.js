@@ -242,12 +242,14 @@ function createContainerWithFragments<
       // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
-      return React.createElement(Component, {
-        ...props,
-        ...this.state.data,
-        ref: componentRef,
-        relay: this.state.relayProp,
-      });
+      return (
+        <Component
+          {...props}
+          {...this.state.data}
+          ref={componentRef}
+          relay={this.state.relayProp}
+        />
+      );
     }
   };
 }

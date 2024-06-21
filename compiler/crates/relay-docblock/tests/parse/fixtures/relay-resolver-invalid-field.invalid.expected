@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -25,8 +26,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Unexpected docblock field `@notValid`
 
-  /path/to/test/fixture/relay-resolver-invalid-field.invalid.js:16:5
-   15 │  * @rootFragment myRootFragment
-   16 │  * @notValid myRootFragment
+  /path/to/test/fixture/relay-resolver-invalid-field.invalid.js:17:5
+   16 │  * @rootFragment myRootFragment
+   17 │  * @notValid myRootFragment
       │     ^^^^^^^^
-   17 │
+   18 │

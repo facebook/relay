@@ -12,17 +12,15 @@
 'use strict';
 
 import type {LiveCounterResolver$key} from './__generated__/LiveCounterResolver.graphql';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName counter
+ * @RelayResolver Query.counter: Int
  * @rootFragment LiveCounterResolver
- * @onType Query
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State

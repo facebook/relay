@@ -1,0 +1,50 @@
+==================================== INPUT ====================================
+# relay:experimental_emit_semantic_nullability_types
+query MyQuery @raw_response_type @throwOnFieldError {
+  opera {
+    composer {
+      name
+    }
+    cast {
+      singer {
+        name
+      }
+      character
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type MyQuery$variables = Record<PropertyKey, never>;
+export type MyQuery$data = {
+  readonly opera: {
+    readonly cast: ReadonlyArray<{
+      readonly character: string;
+      readonly singer: {
+        readonly name: string | null | undefined;
+      };
+    }>;
+    readonly composer: {
+      readonly name: string | null | undefined;
+    };
+  } | null | undefined;
+};
+export type MyQuery$rawResponse = {
+  readonly opera?: {
+    readonly cast: ReadonlyArray<{
+      readonly character: string | null | undefined;
+      readonly singer: {
+        readonly id: string;
+        readonly name: string | null | undefined;
+      } | null | undefined;
+    } | null | undefined> | null | undefined;
+    readonly composer: {
+      readonly id: string;
+      readonly name: string | null | undefined;
+    } | null | undefined;
+  } | null | undefined;
+};
+export type MyQuery = {
+  rawResponse: MyQuery$rawResponse;
+  response: MyQuery$data;
+  variables: MyQuery$variables;
+};

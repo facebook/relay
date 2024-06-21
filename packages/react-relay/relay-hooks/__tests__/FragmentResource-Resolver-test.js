@@ -11,20 +11,21 @@
 
 'use strict';
 
+import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
+
 const {
   getFragmentResourceForEnvironment,
-} = require('react-relay/relay-hooks/FragmentResource');
+} = require('react-relay/relay-hooks/legacy/FragmentResource');
 const {RelayFeatureFlags, getFragment} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
 const {
   disallowConsoleErrors,
   disallowWarnings,
-} = require(`relay-test-utils-internal`);
+} = require('relay-test-utils-internal');
 
 disallowConsoleErrors();
 disallowWarnings();
@@ -58,24 +59,12 @@ describe('FragmentResource RelayResolver behavior', () => {
   let query;
   let fragmentNode;
   let fragmentRef;
-  let mockRequiredFieldLogger;
+  let mockRelayFieldLogger;
 
   beforeEach(() => {
-    mockRequiredFieldLogger = jest.fn<
-      [
-        | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
-        | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
-        | {
-            +error: Error,
-            +fieldPath: string,
-            +kind: 'relay_resolver.error',
-            +owner: string,
-          },
-      ],
-      void,
-    >();
+    mockRelayFieldLogger = jest.fn<[RelayFieldLoggerEvent], void>();
     environment = createMockEnvironment({
-      requiredFieldLogger: mockRequiredFieldLogger,
+      relayFieldLogger: mockRelayFieldLogger,
     });
     FragmentResource = getFragmentResourceForEnvironment(environment);
     query = createOperationDescriptor(BASIC_QUERY, {id: '1'});
@@ -98,9 +87,9 @@ describe('FragmentResource RelayResolver behavior', () => {
 
   it('Reports an error to the logger when a resolver field throws an error.', async () => {
     FragmentResource.read(fragmentNode, fragmentRef, 'componentDisplayName');
-    expect(environment.requiredFieldLogger).toHaveBeenCalledTimes(1);
+    expect(environment.relayFieldLogger).toHaveBeenCalledTimes(1);
 
-    const event = mockRequiredFieldLogger.mock.calls[0][0];
+    const event = mockRelayFieldLogger.mock.calls[0][0];
     if (event.kind !== 'relay_resolver.error') {
       throw new Error(
         "Expected log event to be of kind 'relay_resolver.error'",

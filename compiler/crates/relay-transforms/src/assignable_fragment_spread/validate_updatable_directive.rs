@@ -320,7 +320,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         {
             return Err(vec![
                 Diagnostic::error(
-                    ValidationMessage::UpdatableDisallowRealyResolvers,
+                    ValidationMessage::UpdatableDisallowRelayResolvers,
                     field.definition.location,
                 )
                 .annotate("The field is defined here:", field_def.name.location),
@@ -341,7 +341,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         {
             return Err(vec![
                 Diagnostic::error(
-                    ValidationMessage::UpdatableDisallowRealyResolvers,
+                    ValidationMessage::UpdatableDisallowRelayResolvers,
                     linked_field.definition.location,
                 )
                 .annotate("The field is defined here:", field_def.name.location),

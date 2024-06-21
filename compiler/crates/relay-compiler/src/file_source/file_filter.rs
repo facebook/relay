@@ -10,7 +10,7 @@ use std::path::PathBuf;
 
 use fnv::FnvHashSet;
 use glob::Pattern;
-use intern::string_key::StringKey;
+use relay_config::ProjectName;
 
 use crate::config::Config;
 use crate::config::SchemaLocation;
@@ -58,8 +58,11 @@ impl FileFilter {
 }
 
 // Get roots for extensions, schemas and output dirs
-fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<StringKey>) -> Vec<PathBuf> {
+fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<ProjectName>) -> Vec<PathBuf> {
     let mut roots = vec![];
+    for (path, _project_set) in &config.generated_sources {
+        roots.push(path);
+    }
     for project_config in config.projects.values() {
         if !enabled_projects.contains(&project_config.name) {
             continue;
@@ -78,7 +81,7 @@ fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<StringKey>) ->
     unify_roots(roots)
 }
 
-fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<StringKey>) -> Vec<PathBuf> {
+fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<ProjectName>) -> Vec<PathBuf> {
     unify_roots(
         config
             .sources
@@ -87,7 +90,7 @@ fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<StringKey>) -
                 let is_enabled = project_set
                     .iter()
                     .any(|name| enabled_projects.contains(name));
-                is_enabled.then(|| path)
+                is_enabled.then_some(path)
             })
             .collect(),
     )
@@ -99,7 +102,7 @@ fn unify_roots(mut paths: Vec<&PathBuf>) -> Vec<PathBuf> {
     let mut roots = Vec::new();
     for path in paths {
         match roots.last() {
-            Some(prev) if path.starts_with(&prev) => {
+            Some(prev) if path.starts_with(prev) => {
                 // skip
             }
             _ => {
@@ -108,4 +111,78 @@ fn unify_roots(mut paths: Vec<&PathBuf>) -> Vec<PathBuf> {
         }
     }
     roots
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn create_test_config() -> Config {
+        Config::from_string_for_test(
+            r#"
+                {
+                    "sources": {
+                        "src/js": "public",
+                        "src/js/internal": "internal",
+                        "src/vendor": "public",
+                        "src/custom": "with_custom_generated_dir",
+                        "src/typescript": "typescript",
+                        "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"]
+                    },
+                    "generatedSources": {
+                        "src/resolver_codegen/__generated__": "public"
+                    },
+                    "projects": {
+                        "public": {
+                            "schema": "graphql/public.graphql",
+                            "language": "flow"
+                        },
+                        "internal": {
+                            "schema": "graphql/__generated__/internal.graphql",
+                            "language": "flow"
+                        },
+                        "with_custom_generated_dir": {
+                            "schema": "graphql/__generated__/custom.graphql",
+                            "output": "graphql/custom-generated",
+                            "language": "flow"
+                        },
+                        "typescript": {
+                            "schema": "graphql/ts_schema.graphql",
+                            "language": "typescript"
+                        },
+                        "overlapping_generated_dir": {
+                            "schema": "graphql/__generated__/custom.graphql",
+                            "language": "flow"
+                        }
+                    }
+                }
+            "#,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn test_file_filter() {
+        let config = create_test_config();
+        let file_filter = FileFilter::from_config(&config);
+
+        assert!(file_filter.is_file_relevant(&PathBuf::from("src/js/a.js")),);
+        assert!(!file_filter.is_file_relevant(&PathBuf::from("src/js/__generated__/a.js")),);
+        assert!(file_filter.is_file_relevant(&PathBuf::from(
+            "src/resolver_codegen/__generated__/resolvers.js"
+        )),);
+        assert!(file_filter.is_file_relevant(&PathBuf::from("src/js/nested/b.js")),);
+        assert!(file_filter.is_file_relevant(&PathBuf::from("src/js/internal/nested/c.js")),);
+        assert!(file_filter.is_file_relevant(&PathBuf::from("src/custom/custom-generated/c.js")),);
+        assert!(
+            !file_filter
+                .is_file_relevant(&PathBuf::from("src/js/internal/nested/__generated__/c.js")),
+        );
+        assert!(file_filter.is_file_relevant(&PathBuf::from("graphql/custom-generated/c.js")),);
+        assert!(file_filter.is_file_relevant(&PathBuf::from("graphql/public.graphql")),);
+        assert!(
+            file_filter.is_file_relevant(&PathBuf::from("graphql/__generated__/internal.graphql")),
+        );
+        assert!(file_filter.is_file_relevant(&PathBuf::from("src/typescript/a.ts")),);
+    }
 }

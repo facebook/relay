@@ -21,14 +21,20 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:255:262,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:263:265,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -47,16 +53,23 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "required",
-        ),
+        name: WithLocation {
+            location: directive-on-arg-def.graphql:62:70,
+            item: DirectiveName(
+                "required",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "action",
-                ),
+                name: WithLocation {
+                    location: directive-on-arg-def.graphql:71:77,
+                    item: ArgumentName(
+                        "action",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Enum(0),
@@ -80,16 +93,23 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:334:338,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:339:341,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -108,11 +128,15 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "static",
-        ),
+        name: WithLocation {
+            location: directive-on-arg-def.graphql:130:136,
+            item: DirectiveName(
+                "static",
+            ),
+        },
         arguments: [],
         locations: [
             ArgumentDefinition,
@@ -120,6 +144,7 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
 ]
   type_map: {
@@ -134,7 +159,7 @@ Text Schema:Schema {
   enums: [
     Enum {
         name: WithLocation {
-            location: <generated>:5:24,
+            location: directive-on-arg-def.graphql:5:24,
             item: EnumName(
                 "RequiredFieldAction",
             ),
@@ -156,12 +181,13 @@ Text Schema:Schema {
         ],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
   fields: [
     Field {
         name: WithLocation {
-            location: <generated>:176:179,
+            location: directive-on-arg-def.graphql:176:179,
             item: "foo",
         },
         is_extension: false,
@@ -174,6 +200,7 @@ Text Schema:Schema {
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -192,6 +219,7 @@ Text Schema:Schema {
         description: Some(
             "This object's GraphQL type. Provided by GraphQL type name introspection.",
         ),
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -208,6 +236,7 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -226,6 +255,7 @@ Text Schema:Schema {
         description: Some(
             "Relay's cache key for this object.",
         ),
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -240,6 +270,7 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -249,9 +280,12 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -270,6 +304,7 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
 ]
   input_objects: []
@@ -277,7 +312,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: <generated>:166:171,
+            location: directive-on-arg-def.graphql:166:171,
             item: ObjectName(
                 "Query",
             ),
@@ -289,6 +324,7 @@ Text Schema:Schema {
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
   scalars: [
@@ -302,6 +338,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -313,6 +350,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -324,6 +362,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -335,6 +374,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -346,6 +386,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
   unions: []
@@ -354,14 +395,20 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -380,16 +427,23 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "required",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "required",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "action",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "action",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Enum(0),
@@ -406,16 +460,23 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -434,11 +495,15 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "static",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "static",
+            ),
+        },
         arguments: [],
         locations: [
             ArgumentDefinition,
@@ -446,6 +511,7 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
 ]
 enums: [
@@ -473,6 +539,7 @@ enums: [
         ],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
 fields: [
@@ -491,6 +558,7 @@ fields: [
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
 ]
 input_objects: []
@@ -510,6 +578,7 @@ objects: [
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
 scalars: [
@@ -523,6 +592,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -534,6 +604,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -545,6 +616,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -556,6 +628,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -567,6 +640,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
 unions: []

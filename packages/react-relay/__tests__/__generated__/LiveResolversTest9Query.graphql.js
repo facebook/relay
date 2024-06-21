@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f078221dc7e57f12b045908e5daaeaa9>>
+ * @generated SignedSource<<8ae5e76947e74633ba85751b4400e334>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql";
 import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
@@ -28,14 +28,14 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
   args: {|
     scale: ?number,
   |},
-) => LiveState<mixed>);
+) => LiveState<?string>);
 export type LiveResolversTest9Query$variables = {|
   id: string,
   scale: number,
 |};
 export type LiveResolversTest9Query$data = {|
   +node: ?{|
-    +profile_picture_uri?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
+    +profile_picture_uri?: ?string,
   |},
 |};
 export type LiveResolversTest9Query = {|
@@ -91,7 +91,7 @@ return {
             "selections": [
               {
                 "alias": "profile_picture_uri",
-                "args": null,
+                "args": [],
                 "fragment": {
                   "args": (v2/*: any*/),
                   "kind": "FragmentSpread",
@@ -162,7 +162,7 @@ return {
                       },
                       "kind": "RelayResolver",
                       "storageKey": null,
-                      "isOutputType": false
+                      "isOutputType": true
                     },
                     {
                       "name": "user_profile_picture_uri_with_scale",
@@ -194,7 +194,7 @@ return {
                       },
                       "kind": "RelayResolver",
                       "storageKey": null,
-                      "isOutputType": false
+                      "isOutputType": true
                     }
                   ],
                   "type": "User",
@@ -202,7 +202,7 @@ return {
                 },
                 "kind": "RelayResolver",
                 "storageKey": null,
-                "isOutputType": false
+                "isOutputType": true
               }
             ],
             "type": "User",

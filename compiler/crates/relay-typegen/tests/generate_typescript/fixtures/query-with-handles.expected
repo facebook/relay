@@ -23,21 +23,21 @@ export type LinkedHandleField$variables = {
 export type LinkedHandleField$data = {
   readonly node: {
     readonly friends?: {
-      readonly count: number | null;
-    } | null;
-  } | null;
+      readonly count: number | null | undefined;
+    } | null | undefined;
+  } | null | undefined;
 };
 export type LinkedHandleField$rawResponse = {
   readonly node: {
     readonly __typename: "User";
     readonly friends: {
-      readonly count: number | null;
-    } | null;
+      readonly count: number | null | undefined;
+    } | null | undefined;
     readonly id: string;
   } | {
     readonly __typename: string;
     readonly id: string;
-  } | null;
+  } | null | undefined;
 };
 export type LinkedHandleField = {
   rawResponse: LinkedHandleField$rawResponse;
@@ -50,18 +50,18 @@ export type ScalarHandleField$variables = {
 };
 export type ScalarHandleField$data = {
   readonly node: {
-    readonly name?: string | null;
-  } | null;
+    readonly name?: string | null | undefined;
+  } | null | undefined;
 };
 export type ScalarHandleField$rawResponse = {
   readonly node: {
     readonly __typename: "User";
     readonly id: string;
-    readonly name: string | null;
+    readonly name: string | null | undefined;
   } | {
     readonly __typename: string;
     readonly id: string;
-  } | null;
+  } | null | undefined;
 };
 export type ScalarHandleField = {
   rawResponse: ScalarHandleField$rawResponse;

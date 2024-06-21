@@ -2,6 +2,7 @@ directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
 directive @extern_type(schema: String, name: String) on INTERFACE
 directive @fetchable(field_name: String) on OBJECT
+directive @fbid on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
 schema {
   query: Query
@@ -75,4 +76,18 @@ interface Image implements Resource & Node {
   id: ID!
   url: String
   thumbnail: String
+}
+
+input UserRequest {
+  user_id: ID! @fbid
+  other_user_ids: [ID!] = [] @fbid
+}
+
+type UserResponse {
+  user_id: ID! @fbid
+  name: String
+}
+
+type UsernameQuery {
+  fetch_user_name(user_id: ID @fbid): String
 }

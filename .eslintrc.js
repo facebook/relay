@@ -26,6 +26,9 @@ module.exports = {
     // Flow declares trip up the no-redeclare rule
     'no-redeclare': 'off',
 
+    // Flow handles these rules
+    'no-unreachable': 'off',
+
     // Prettier and ESLint may disagree on the following rules
     indent: 'off',
     'array-bracket-spacing': 'off',
@@ -41,7 +44,15 @@ module.exports = {
     // TODO T31139228: remove or re-enable these once eslint-plugin-flowtype
     // is compatible with babel-eslint >= 8
     'no-undef': 'off',
-    'no-unused-vars': [1, {args: 'none'}],
+    'no-unused-vars': [
+      1,
+      {
+        args: 'none',
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
+    ],
 
     // This has a different name internally
     'no-label-var': 'off',

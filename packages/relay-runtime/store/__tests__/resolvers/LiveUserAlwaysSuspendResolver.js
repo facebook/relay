@@ -12,17 +12,12 @@
 'use strict';
 
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const {suspenseSentinel} = require('relay-runtime');
 
 /**
- * @RelayResolver
- * @fieldName live_user_resolver_always_suspend
- * @onType Query
- * @edgeTo User
+ * @RelayResolver Query.live_user_resolver_always_suspend: User
  * @live
  */
 function live_user_resolver_always_suspend(): LiveState<

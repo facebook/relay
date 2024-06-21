@@ -1,0 +1,69 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment Foo_user on User {
+  best_friend {
+    id
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+interface ClientOnlyInterface implements Node {
+  id: ID!
+}
+
+# Add a concrete type so that we don't trigger an unrelated compiler error.
+type BestFriend implements ClientOnlyInterface @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
+}
+
+extend type User {
+  best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+fragment Foo_user on User {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: None,
+  #     unique_id: 0,
+  #     model_resolvers: [
+  #         ClientEdgeModelResolver {
+  #             type_name: WithLocation {
+  #                 location: <generated>:144:154,
+  #                 item: ObjectName(
+  #                     "BestFriend",
+  #                 ),
+  #             },
+  #             is_live: false,
+  #         },
+  #     ],
+  # }
+   {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(529),
+    #     import_path: "BestFriendResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: EdgeTo,
+    #     fragment_data_injection_mode: None,
+    # }
+    
+    best_friend {
+      id
+    }
+  }
+}

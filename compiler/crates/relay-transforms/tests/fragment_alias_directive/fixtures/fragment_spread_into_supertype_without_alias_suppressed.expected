@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node {
+    # This might not match!
+    ...RelayReaderNamedFragmentsTest_user @dangerously_unaliased_fixme
+  }
+}
+==================================== OUTPUT ===================================
+query RelayReaderNamedFragmentsTest2Query {
+  node {
+    ...RelayReaderNamedFragmentsTest_user @dangerously_unaliased_fixme
+  }
+}
+
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}

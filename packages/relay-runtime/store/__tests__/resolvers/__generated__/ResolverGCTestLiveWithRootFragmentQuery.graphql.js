@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fbf17f9429a148c67d77d18819c2671c>>
+ * @generated SignedSource<<cdf8ded6c4452df9eb4c232c69a712c0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,17 +18,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { LiveCounterResolver$key } from "./LiveCounterResolver.graphql";
 import {counter as queryCounterResolverType} from "../LiveCounterResolver.js";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolverType: (
   rootKey: LiveCounterResolver$key,
-) => LiveState<mixed>);
+) => LiveState<?number>);
 export type ResolverGCTestLiveWithRootFragmentQuery$variables = {||};
 export type ResolverGCTestLiveWithRootFragmentQuery$data = {|
-  +counter: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolverType>["read"]>,
+  +counter: ?number,
 |};
 export type ResolverGCTestLiveWithRootFragmentQuery = {|
   response: ResolverGCTestLiveWithRootFragmentQuery$data,
@@ -108,7 +108,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": false
+        "isOutputType": true
       }
     ]
   },

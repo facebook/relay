@@ -1,0 +1,10 @@
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on Screen @throwOnFieldError {
+  pixels
+}
+
+%extensions%
+
+type Screen {
+  pixels: [[Int]] @semanticNonNull(levels: [2])
+}

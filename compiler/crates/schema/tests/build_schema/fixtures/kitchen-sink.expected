@@ -57,6 +57,15 @@ extend type User {
   nickname: String
   client: ClientType
 }
+
+interface HasName {
+  name: String
+}
+
+extend interface Node implements HasName {
+  name: String
+}
+extend type User implements HasName
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
   query_type: Some(
@@ -66,14 +75,20 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:255:262,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:263:265,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -92,16 +107,23 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:334:338,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:339:341,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -120,16 +142,23 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "source",
-        ),
+        name: WithLocation {
+            location: kitchen-sink.graphql:11:17,
+            item: DirectiveName(
+                "source",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "schema",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:18:24,
+                    item: ArgumentName(
+                        "schema",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -140,9 +169,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:35:39,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -164,6 +196,7 @@ Text Schema:Schema {
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
 ]
   type_map: {
@@ -171,6 +204,7 @@ Text Schema:Schema {
     "Boolean": Scalar(3),
     "ClientType": Object(3),
     "Float": Scalar(6),
+    "HasName": Interface(1),
     "ID": Scalar(4),
     "Int": Scalar(7),
     "Location": InputObject(0),
@@ -185,7 +219,7 @@ Text Schema:Schema {
   enums: [
     Enum {
         name: WithLocation {
-            location: <generated>:340:348,
+            location: kitchen-sink.graphql:340:348,
             item: EnumName(
                 "PageType",
             ),
@@ -229,20 +263,24 @@ Text Schema:Schema {
         ],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
   fields: [
     Field {
         name: WithLocation {
-            location: <generated>:154:158,
+            location: kitchen-sink.graphql:154:158,
             item: "node",
         },
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "id",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:159:161,
+                    item: ArgumentName(
+                        "id",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(4),
@@ -261,18 +299,22 @@ Text Schema:Schema {
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
-            location: <generated>:176:181,
+            location: kitchen-sink.graphql:176:181,
             item: "nodes",
         },
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "ids",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:182:185,
+                    item: ArgumentName(
+                        "ids",
+                    ),
+                },
                 type_: NonNull(
                     List(
                         NonNull(
@@ -301,10 +343,11 @@ Text Schema:Schema {
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
-            location: <generated>:227:229,
+            location: kitchen-sink.graphql:227:229,
             item: "id",
         },
         is_extension: false,
@@ -319,10 +362,11 @@ Text Schema:Schema {
             Interface(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
-            location: <generated>:268:270,
+            location: kitchen-sink.graphql:268:270,
             item: "id",
         },
         is_extension: false,
@@ -337,10 +381,11 @@ Text Schema:Schema {
             Object(1),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
-            location: <generated>:278:282,
+            location: kitchen-sink.graphql:278:282,
             item: "name",
         },
         is_extension: false,
@@ -353,10 +398,11 @@ Text Schema:Schema {
             Object(1),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
-            location: <generated>:308:310,
+            location: kitchen-sink.graphql:308:310,
             item: "id",
         },
         is_extension: false,
@@ -369,10 +415,11 @@ Text Schema:Schema {
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
-            location: <generated>:317:321,
+            location: kitchen-sink.graphql:317:321,
             item: "type",
         },
         is_extension: false,
@@ -385,6 +432,7 @@ Text Schema:Schema {
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -401,6 +449,7 @@ Text Schema:Schema {
             Object(3),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -417,6 +466,7 @@ Text Schema:Schema {
             Object(1),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -433,6 +483,41 @@ Text Schema:Schema {
             Object(1),
         ),
         description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: kitchen-sink.graphql:835:839,
+            item: "name",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(8),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: kitchen-sink.graphql:896:900,
+            item: "name",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(8),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+        description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -451,6 +536,7 @@ Text Schema:Schema {
         description: Some(
             "This object's GraphQL type. Provided by GraphQL type name introspection.",
         ),
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -467,6 +553,7 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -485,6 +572,7 @@ Text Schema:Schema {
         description: Some(
             "Relay's cache key for this object.",
         ),
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -499,6 +587,7 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -508,9 +597,12 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -529,21 +621,25 @@ Text Schema:Schema {
         directives: [],
         parent_type: None,
         description: None,
+        hack_source: None,
     },
 ]
   input_objects: [
     InputObject {
         name: WithLocation {
-            location: <generated>:510:518,
+            location: kitchen-sink.graphql:510:518,
             item: InputObjectName(
                 "Location",
             ),
         },
         fields: [
             Argument {
-                name: ArgumentName(
-                    "lat",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:569:572,
+                    item: ArgumentName(
+                        "lat",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(6),
@@ -554,9 +650,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "lon",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:583:586,
+                    item: ArgumentName(
+                        "lon",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(6),
@@ -567,9 +666,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "city",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:597:601,
+                    item: ArgumentName(
+                        "city",
+                    ),
+                },
                 type_: Named(
                     Scalar(8),
                 ),
@@ -578,9 +680,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "zip",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:612:615,
+                    item: ArgumentName(
+                        "zip",
+                    ),
+                },
                 type_: Named(
                     Scalar(7),
                 ),
@@ -589,9 +694,12 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "previous_cities",
-                ),
+                name: WithLocation {
+                    location: kitchen-sink.graphql:623:638,
+                    item: ArgumentName(
+                        "previous_cities",
+                    ),
+                },
                 type_: List(
                     NonNull(
                         Named(
@@ -642,12 +750,13 @@ Text Schema:Schema {
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
   interfaces: [
     Interface {
         name: WithLocation {
-            location: <generated>:218:222,
+            location: kitchen-sink.graphql:218:222,
             item: InterfaceName(
                 "Node",
             ),
@@ -659,16 +768,38 @@ Text Schema:Schema {
         ],
         fields: [
             FieldID(2),
+            FieldID(11),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(1),
+        ],
+        description: None,
+        hack_source: None,
+    },
+    Interface {
+        name: WithLocation {
+            location: kitchen-sink.graphql:823:830,
+            item: InterfaceName(
+                "HasName",
+            ),
+        },
+        is_extension: true,
+        implementing_interfaces: [],
+        implementing_objects: [],
+        fields: [
+            FieldID(10),
         ],
         directives: [],
         interfaces: [],
         description: None,
+        hack_source: None,
     },
 ]
   objects: [
     Object {
         name: WithLocation {
-            location: <generated>:144:149,
+            location: kitchen-sink.graphql:144:149,
             item: ObjectName(
                 "Query",
             ),
@@ -681,10 +812,11 @@ Text Schema:Schema {
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
-            location: <generated>:243:247,
+            location: kitchen-sink.graphql:243:247,
             item: ObjectName(
                 "User",
             ),
@@ -698,13 +830,15 @@ Text Schema:Schema {
         ],
         interfaces: [
             InterfaceID(0),
+            InterfaceID(1),
         ],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
-            location: <generated>:299:303,
+            location: kitchen-sink.graphql:299:303,
             item: ObjectName(
                 "Page",
             ),
@@ -717,6 +851,7 @@ Text Schema:Schema {
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -732,6 +867,7 @@ Text Schema:Schema {
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
   scalars: [
@@ -745,6 +881,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -756,6 +893,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -767,6 +905,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -778,6 +917,7 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -789,10 +929,11 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:459:462,
+            location: kitchen-sink.graphql:459:462,
             item: ScalarName(
                 "URL",
             ),
@@ -836,10 +977,11 @@ Text Schema:Schema {
             },
         ],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:660:665,
+            location: kitchen-sink.graphql:660:665,
             item: ScalarName(
                 "Float",
             ),
@@ -847,10 +989,11 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:674:677,
+            location: kitchen-sink.graphql:674:677,
             item: ScalarName(
                 "Int",
             ),
@@ -858,10 +1001,11 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
-            location: <generated>:686:692,
+            location: kitchen-sink.graphql:686:692,
             item: ScalarName(
                 "String",
             ),
@@ -869,13 +1013,16 @@ Text Schema:Schema {
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
   unions: [
     Union {
         name: WithLocation {
-            location: <generated>:431:436,
-            item: "Actor",
+            location: kitchen-sink.graphql:431:436,
+            item: UnionName(
+                "Actor",
+            ),
         },
         is_extension: false,
         members: [
@@ -884,6 +1031,7 @@ Text Schema:Schema {
         ],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
   }
@@ -891,14 +1039,20 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: DirectiveName(
-            "include",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "include",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -917,16 +1071,23 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "skip",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "if",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -945,16 +1106,23 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
     Directive {
-        name: DirectiveName(
-            "source",
-        ),
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "source",
+            ),
+        },
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "schema",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "schema",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -965,9 +1133,12 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "name",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -989,6 +1160,7 @@ directives: [
         repeatable: false,
         is_extension: false,
         description: None,
+        hack_source: None,
     },
 ]
 enums: [
@@ -1038,6 +1210,7 @@ enums: [
         ],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
 fields: [
@@ -1056,6 +1229,24 @@ fields: [
             Object(1),
         ),
         description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+        description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1074,6 +1265,24 @@ fields: [
             Interface(0),
         ),
         description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+        description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1090,6 +1299,7 @@ fields: [
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1106,6 +1316,7 @@ fields: [
             Object(2),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1115,9 +1326,12 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "id",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "id",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -1136,6 +1350,7 @@ fields: [
             Object(3),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1145,9 +1360,12 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: ArgumentName(
-                    "ids",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "ids",
+                    ),
+                },
                 type_: NonNull(
                     List(
                         NonNull(
@@ -1176,6 +1394,7 @@ fields: [
             Object(3),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1194,6 +1413,7 @@ fields: [
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1210,6 +1430,7 @@ fields: [
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1226,6 +1447,7 @@ fields: [
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
     Field {
         name: WithLocation {
@@ -1242,6 +1464,7 @@ fields: [
             Object(0),
         ),
         description: None,
+        hack_source: None,
     },
 ]
 input_objects: [
@@ -1254,9 +1477,12 @@ input_objects: [
         },
         fields: [
             Argument {
-                name: ArgumentName(
-                    "lat",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "lat",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -1267,9 +1493,12 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "lon",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "lon",
+                    ),
+                },
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -1280,9 +1509,12 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "city",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "city",
+                    ),
+                },
                 type_: Named(
                     Scalar(1),
                 ),
@@ -1291,9 +1523,12 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "zip",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "zip",
+                    ),
+                },
                 type_: Named(
                     Scalar(4),
                 ),
@@ -1302,9 +1537,12 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: ArgumentName(
-                    "previous_cities",
-                ),
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "previous_cities",
+                    ),
+                },
                 type_: List(
                     NonNull(
                         Named(
@@ -1355,9 +1593,28 @@ input_objects: [
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
 interfaces: [
+    Interface {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: InterfaceName(
+                "HasName",
+            ),
+        },
+        is_extension: true,
+        implementing_interfaces: [],
+        implementing_objects: [],
+        fields: [
+            FieldID(7),
+        ],
+        directives: [],
+        interfaces: [],
+        description: None,
+        hack_source: None,
+    },
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
@@ -1372,10 +1629,14 @@ interfaces: [
         ],
         fields: [
             FieldID(5),
+            FieldID(6),
         ],
         directives: [],
-        interfaces: [],
+        interfaces: [
+            InterfaceID(1),
+        ],
         description: None,
+        hack_source: None,
     },
 ]
 objects: [
@@ -1393,6 +1654,7 @@ objects: [
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -1403,12 +1665,13 @@ objects: [
         },
         is_extension: false,
         fields: [
-            FieldID(6),
-            FieldID(7),
+            FieldID(8),
+            FieldID(9),
         ],
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -1419,12 +1682,13 @@ objects: [
         },
         is_extension: false,
         fields: [
-            FieldID(8),
-            FieldID(9),
+            FieldID(10),
+            FieldID(11),
         ],
         interfaces: [],
         directives: [],
         description: None,
+        hack_source: None,
     },
     Object {
         name: WithLocation {
@@ -1442,9 +1706,11 @@ objects: [
         ],
         interfaces: [
             InterfaceID(0),
+            InterfaceID(1),
         ],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
 scalars: [
@@ -1458,6 +1724,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1469,6 +1736,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1480,6 +1748,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1491,6 +1760,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1502,6 +1772,7 @@ scalars: [
         is_extension: false,
         directives: [],
         description: None,
+        hack_source: None,
     },
     Scalar {
         name: WithLocation {
@@ -1549,13 +1820,16 @@ scalars: [
             },
         ],
         description: None,
+        hack_source: None,
     },
 ]
 unions: [
     Union {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Actor",
+            item: UnionName(
+                "Actor",
+            ),
         },
         is_extension: false,
         members: [
@@ -1564,6 +1838,7 @@ unions: [
         ],
         directives: [],
         description: None,
+        hack_source: None,
     },
 ]
 }

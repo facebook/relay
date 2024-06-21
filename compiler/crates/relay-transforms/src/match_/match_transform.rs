@@ -44,6 +44,7 @@ use indexmap::IndexSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use relay_config::DeferStreamInterface;
 use relay_config::ModuleImportConfig;
 use schema::FieldID;
 use schema::ScalarID;
@@ -52,7 +53,6 @@ use schema::Type;
 use schema::TypeReference;
 
 use super::validation_message::ValidationMessage;
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
 use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
@@ -64,8 +64,14 @@ pub fn transform_match(
     program: &Program,
     feature_flags: &FeatureFlags,
     module_import_config: ModuleImportConfig,
+    defer_stream_interface: DeferStreamInterface,
 ) -> DiagnosticsResult<Program> {
-    let mut transformer = MatchTransform::new(program, feature_flags, module_import_config);
+    let mut transformer = MatchTransform::new(
+        program,
+        feature_flags,
+        module_import_config,
+        defer_stream_interface,
+    );
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
         Ok(next_program.replace_or_else(|| program.clone()))
@@ -113,6 +119,7 @@ pub struct MatchTransform<'program, 'flag> {
     // Stores the fragments that should use @no_inline and their parent document name
     no_inline_fragments: FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     module_import_config: ModuleImportConfig,
+    defer_stream_interface: DeferStreamInterface,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {
@@ -120,6 +127,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         program: &'program Program,
         feature_flags: &'flag FeatureFlags,
         module_import_config: ModuleImportConfig,
+        defer_stream_interface: DeferStreamInterface,
     ) -> Self {
         Self {
             program,
@@ -136,6 +144,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             no_inline_flag: &feature_flags.no_inline,
             no_inline_fragments: Default::default(),
             module_import_config,
+            defer_stream_interface,
         }
     }
 
@@ -317,7 +326,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 && !(spread.directives.len() == 2
                     && spread
                         .directives
-                        .named(DEFER_STREAM_CONSTANTS.defer_name)
+                        .named(self.defer_stream_interface.defer_name)
                         .is_some())
             {
                 // allow @defer and @module in typegen transforms
@@ -476,7 +485,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             if should_use_no_inline {
                 self.no_inline_fragments
                     .entry(fragment.name.item)
-                    .or_insert_with(std::vec::Vec::new)
+                    .or_default()
                     .push(self.document_name);
             }
 

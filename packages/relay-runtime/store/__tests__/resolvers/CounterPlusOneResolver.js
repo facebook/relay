@@ -17,10 +17,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName counter_plus_one
+ * @RelayResolver Query.counter_plus_one: Int
  * @rootFragment CounterPlusOneResolver
- * @onType Query
  *
  * A resolver which reads a @live resolver field (`counter`) to return `counter + 1`.
  */

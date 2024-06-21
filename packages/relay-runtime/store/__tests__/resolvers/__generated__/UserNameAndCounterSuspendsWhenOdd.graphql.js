@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<043d2d856d351546d18a2a871f2c29ed>>
+ * @generated SignedSource<<2cfb4a04b6dc7ebece41e36dfd9ba534>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,17 +19,16 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { CounterSuspendsWhenOdd$key } from "./CounterSuspendsWhenOdd.graphql";
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { FragmentType } from "relay-runtime";
+import type { LiveState, FragmentType } from "relay-runtime";
 import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolverType} from "../CounterSuspendsWhenOdd.js";
 // Type assertion validating that `queryCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolverType: (
   rootKey: CounterSuspendsWhenOdd$key,
-) => LiveState<mixed>);
+) => LiveState<?number>);
 declare export opaque type UserNameAndCounterSuspendsWhenOdd$fragmentType: FragmentType;
 export type UserNameAndCounterSuspendsWhenOdd$data = {|
-  +counter_suspends_when_odd: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterSuspendsWhenOddResolverType>["read"]>,
+  +counter_suspends_when_odd: ?number,
   +me: ?{|
     +name: ?string,
   |},

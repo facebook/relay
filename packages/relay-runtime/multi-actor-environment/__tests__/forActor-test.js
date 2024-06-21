@@ -38,7 +38,7 @@ test('forActor: creates an environment', () => {
   const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
-    requiredFieldLogger: jest.fn(),
+    relayFieldLogger: jest.fn(),
   });
   const actorEnvironment = multiActorEnvironment.forActor(actorIdentifer);
 
@@ -61,7 +61,7 @@ test('forActor: memoize an environment', () => {
   const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
-    requiredFieldLogger: jest.fn(),
+    relayFieldLogger: jest.fn(),
   });
   const actorEnvironment = multiActorEnvironment.forActor(actorIdentifer);
 

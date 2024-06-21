@@ -26,6 +26,7 @@ use crate::KEY_FRAGMENT_TYPE;
 pub struct TypeScriptPrinter {
     result: String,
     use_import_type_syntax: bool,
+    include_undefined_in_nullable_union: bool,
     indentation: usize,
 }
 
@@ -53,7 +54,7 @@ impl Writer for TypeScriptPrinter {
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
-            AST::Callable(return_type) => self.write_callable(&*return_type),
+            AST::Callable(return_type) => self.write_callable(return_type),
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
@@ -91,10 +92,10 @@ impl Writer for TypeScriptPrinter {
         }
     }
 
-    fn write_local_type(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "type {} = ", name)?;
+    fn write_type_assertion(&mut self, name: &str, value: &AST) -> FmtResult {
+        write!(&mut self.result, "({} as ", name)?;
         self.write(value)?;
-        writeln!(&mut self.result, ";")
+        writeln!(&mut self.result, ");")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
@@ -170,6 +171,8 @@ impl TypeScriptPrinter {
             result: String::new(),
             indentation: 0,
             use_import_type_syntax: config.use_import_type_syntax,
+            include_undefined_in_nullable_union: !config
+                .typescript_exclude_undefined_from_nullable_union,
         }
     }
 
@@ -212,20 +215,28 @@ impl TypeScriptPrinter {
 
     fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
         let null_type = AST::RawType("null".intern());
+        let undefined_type = AST::RawType("undefined".intern());
         if let AST::Union(members) = of_type {
             let mut new_members = Vec::with_capacity(members.len() + 1);
             new_members.extend_from_slice(members);
             new_members.push(null_type);
-            self.write_union(&*new_members)?;
+            if self.include_undefined_in_nullable_union {
+                new_members.push(undefined_type);
+            }
+            self.write_union(&new_members)?;
         } else {
-            self.write_union(&*vec![of_type.clone(), null_type])?;
+            let mut union_members = vec![of_type.clone(), null_type];
+            if self.include_undefined_in_nullable_union {
+                union_members.push(undefined_type)
+            }
+            self.write_union(&union_members)?;
         }
         Ok(())
     }
 
     fn write_object(&mut self, props: &[Prop]) -> FmtResult {
         if props.is_empty() {
-            write!(&mut self.result, "{{}}")?;
+            write!(&mut self.result, "Record<PropertyKey, never>")?;
             return Ok(());
         }
 
@@ -233,7 +244,7 @@ impl TypeScriptPrinter {
         // are missing a newline.
         if props.len() == 1 {
             if let Prop::Spread(_) = props[0] {
-                write!(&mut self.result, "{{}}")?;
+                write!(&mut self.result, "Record<PropertyKey, never>")?;
                 return Ok(());
             }
         }
@@ -276,10 +287,22 @@ impl TypeScriptPrinter {
                     self.write(&key_value_pair.value)?;
                     writeln!(&mut self.result, ";")?;
                 }
-                Prop::GetterSetterPair(_) => {
-                    panic!(
-                        "Getters and setters with different types are not implemented in typescript. See https://github.com/microsoft/TypeScript/issues/43662"
-                    );
+                Prop::GetterSetterPair(getter_setter_pair) => {
+                    // Write the getter
+                    self.write_indentation()?;
+                    write!(&mut self.result, "get ")?;
+                    self.write(&AST::Identifier(getter_setter_pair.key))?;
+                    write!(&mut self.result, "(): ")?;
+                    self.write(&getter_setter_pair.getter_return_value)?;
+                    writeln!(&mut self.result, ";")?;
+
+                    // Write the setter
+                    self.write_indentation()?;
+                    write!(&mut self.result, "set ")?;
+                    self.write(&AST::Identifier(getter_setter_pair.key))?;
+                    write!(&mut self.result, "(value: ")?;
+                    self.write(&getter_setter_pair.setter_parameter)?;
+                    writeln!(&mut self.result, ");")?;
                 }
             }
         }
@@ -387,14 +410,14 @@ mod tests {
     fn nullable_type() {
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::String))),
-            "string | null".to_string()
+            "string | null | undefined".to_string()
         );
 
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::Union(SortedASTList::new(
                 vec![AST::String, AST::Number],
             ))))),
-            "string | number | null"
+            "string | number | null | undefined"
         )
     }
 
@@ -402,7 +425,7 @@ mod tests {
     fn exact_object() {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(Vec::new()))),
-            r"{}".to_string()
+            r"Record<PropertyKey, never>".to_string()
         );
 
         assert_eq!(
@@ -487,7 +510,7 @@ mod tests {
     fn inexact_object() {
         assert_eq!(
             print_type(&AST::InexactObject(InexactObject::new(Vec::new()))),
-            "{}".to_string()
+            "Record<PropertyKey, never>".to_string()
         );
 
         assert_eq!(

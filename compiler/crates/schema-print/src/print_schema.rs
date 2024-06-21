@@ -170,7 +170,7 @@ struct Printer<'schema, 'writer> {
     type_writers_index: Option<(StringKey, usize)>,
 }
 
-impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
+impl<'schema, 'writer> Printer<'schema, 'writer> {
     fn new(schema: &'schema SDLSchema, writers: &'writer mut Vec<String>) -> Self {
         Self {
             schema,
@@ -242,7 +242,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
     }
 
     fn print_directive(&mut self, directive: &Directive) -> FmtResult {
-        write!(self.writer(), "directive @{}", directive.name)?;
+        write!(self.writer(), "directive @{}", directive.name.item)?;
         self.print_args(&directive.arguments)?;
         write!(
             self.writer(),
@@ -303,7 +303,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_union(&mut self, id: UnionID) -> FmtResult {
         let union_ = self.schema.union(id);
-        write!(self.writer(), "union {}", union_.name.item)?;
+        write!(self.writer(), "union {}", union_.name.item.0)?;
         self.print_directive_values(&union_.directives)?;
         if !union_.members.is_empty() {
             let union_members = union_
@@ -372,10 +372,11 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
                 write!(self.writer(), ", ")?;
             }
             let type_string = self.schema.get_type_string(&arg.type_);
-            write!(self.writer(), "{}: {}", arg.name, type_string,)?;
+            write!(self.writer(), "{}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }
+            self.print_directive_values(&arg.directives)?;
         }
         write!(self.writer(), ")")
     }
@@ -402,10 +403,11 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_new_line()?;
         for arg in args.iter() {
             let type_string = self.schema.get_type_string(&arg.type_);
-            write!(self.writer(), "  {}: {}", arg.name, type_string,)?;
+            write!(self.writer(), "  {}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }
+            self.print_directive_values(&arg.directives)?;
             self.print_new_line()?;
         }
         write!(self.writer(), "}}")

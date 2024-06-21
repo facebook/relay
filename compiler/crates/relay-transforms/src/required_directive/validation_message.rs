@@ -8,7 +8,8 @@
 use intern::string_key::StringKey;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, serde::Serialize)]
+#[serde(tag = "type")]
 pub(super) enum ValidationMessage {
     #[error(
         "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match. Consider using `@alias` to give your inline fragment a name."

@@ -1,0 +1,12 @@
+# expected-to-throw
+mutation MyMutation {
+  some_resolver
+}
+
+# %extensions%
+type SomeType {
+  id: ID
+}
+extend type Mutation {
+  some_resolver: SomeType @relay_resolver
+}

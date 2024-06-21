@@ -20,13 +20,14 @@ import type {
   DataIDSet,
   MutableRecordSource,
   Record,
-  RelayResolverError,
   SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
 
 const recycleNodesInto = require('../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const shallowFreeze = require('../util/shallowFreeze');
 const {generateClientID} = require('./ClientID');
 const RelayModernRecord = require('./RelayModernRecord');
 const {
@@ -44,7 +45,7 @@ type ResolverID = string;
 export type EvaluationResult<T> = {
   resolverResult: ?T,
   snapshot: ?Snapshot,
-  error: ?RelayResolverError,
+  error: ?Error,
 };
 
 export type ResolverFragmentResult = {
@@ -65,7 +66,7 @@ export interface ResolverCache {
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
-    ?RelayResolverError,
+    ?Error,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
     ?DataIDSet /** Set of updated records after read. Then need to be consumed by `processFollowupUpdates` */,
@@ -90,7 +91,7 @@ class NoopResolverCache implements ResolverCache {
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
-    ?RelayResolverError,
+    ?Error,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
     ?DataIDSet /** Set of dirty records after read */,
@@ -147,7 +148,7 @@ class RecordResolverCache implements ResolverCache {
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
-    ?RelayResolverError,
+    ?Error,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
     ?DataIDSet /** Set of dirty records after read */,
@@ -173,6 +174,7 @@ class RecordResolverCache implements ResolverCache {
       linkedRecord = RelayModernRecord.create(linkedID, '__RELAY_RESOLVER__');
 
       const evaluationResult = evaluate();
+      shallowFreeze(evaluationResult.resolverResult);
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,
@@ -224,11 +226,22 @@ class RecordResolverCache implements ResolverCache {
     }
 
     // $FlowFixMe[incompatible-type] - will always be empty
-    const answer: T = linkedRecord[RELAY_RESOLVER_VALUE_KEY];
+    const answer: T = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_VALUE_KEY,
+    );
+
     // $FlowFixMe[incompatible-type] - casting mixed
-    const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
+    const snapshot: ?Snapshot = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_SNAPSHOT_KEY,
+    );
+
     // $FlowFixMe[incompatible-type] - casting mixed
-    const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
+    const error: ?Error = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_ERROR_KEY,
+    );
 
     return [answer, linkedID, error, snapshot, undefined, undefined];
   }
@@ -313,6 +326,22 @@ class RecordResolverCache implements ResolverCache {
     if (recycled !== originalInputs) {
       return true;
     }
+
+    if (RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD) {
+      // This record does not need to be recomputed, we can reuse the cached value.
+      // For subsequent reads we can mark this record as "clean" so that they will
+      // not need to re-read the fragment.
+      const nextRecord = RelayModernRecord.clone(record);
+      RelayModernRecord.setValue(
+        nextRecord,
+        RELAY_RESOLVER_INVALIDATION_KEY,
+        false,
+      );
+
+      const recordSource = this._getRecordSource();
+      recordSource.set(RelayModernRecord.getDataID(record), nextRecord);
+    }
+
     return false;
   }
 

@@ -1,0 +1,31 @@
+# relay-resolver-enable-interface-output-type
+
+query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
+    cat {
+        name
+        ... on Cat {
+            description
+        }
+    }
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+    name: String
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    name: String
+}
+
+type Persian implements Cat {
+    description: String
+    name: String
+}
+
+extend type Query {
+    cat: Cat
+}

@@ -1,6 +1,4 @@
 {
-  "name": "relay-website",
-  "version": "0.0.1",
   "repository": "facebook/relay",
   "license": "MIT",
   "private": true,
@@ -37,8 +35,7 @@
   },
   "resolutions": {
     "highlight.js": "^10.4.1",
-    "shelljs": "^0.8.5",
-    "ansi-html": "0.0.8"
+    "shelljs": "^0.8.5"
   },
   "prettier": {
     "arrowParens": "avoid",

@@ -292,7 +292,7 @@ impl<Id: InternId> InternTable<Id, Id::Intern> {
     /// Usually you can rely on `deref` to do this implicitly.
     #[inline]
     fn get(&'static self, r: Id) -> &Id::Intern {
-        &*self.arena.get(r.unwrap())
+        self.arena.get(r.unwrap())
     }
 
     /// Getter that checks for the need to allocate.
@@ -699,6 +699,21 @@ macro_rules! intern_struct {
     };
 }
 
+pub trait Lookup {
+    fn lookup(self) -> &'static str;
+}
+
+#[macro_export]
+macro_rules! impl_lookup {
+    ($named:ident) => {
+        impl Lookup for $named {
+            fn lookup(self) -> &'static str {
+                self.0.lookup()
+            }
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use serde_derive::Deserialize;
@@ -845,19 +860,4 @@ mod tests {
             { WithIntern::strip(serde_json::from_str(&serialized)).unwrap() };
         assert_eq!(deserialized, val);
     }
-}
-
-pub trait Lookup {
-    fn lookup(self) -> &'static str;
-}
-
-#[macro_export]
-macro_rules! impl_lookup {
-    ($named:ident) => {
-        impl Lookup for $named {
-            fn lookup(self) -> &'static str {
-                self.0.lookup()
-            }
-        }
-    };
 }

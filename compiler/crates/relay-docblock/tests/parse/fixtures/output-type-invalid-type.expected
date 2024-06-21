@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -30,8 +31,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `favorite_page`.
 
-  /path/to/test/fixture/output-type-invalid-type.js:15:5
-   14 │  * @fieldName favorite_page
-   15 │  * @outputType **LOL**
+  /path/to/test/fixture/output-type-invalid-type.js:16:5
+   15 │  * @fieldName favorite_page
+   16 │  * @outputType **LOL**
       │     ^^^^^^^^^^
-   16 │  * @rootFragment myRootFragment
+   17 │  * @rootFragment myRootFragment

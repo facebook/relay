@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+mutation feedbackUnLikeMutation($input: FeedbackUnLikeInput) {
+  feedbackUnLike(input: $input) {
+    feedback {
+      id
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type FeedbackUnLikeInput = {
+  feedbackId?: string | null | undefined;
+  silent?: boolean;
+};
+export type feedbackUnLikeMutation$variables = {
+  input?: FeedbackUnLikeInput | null | undefined;
+};
+export type feedbackUnLikeMutation$data = {
+  readonly feedbackUnLike: {
+    readonly feedback: {
+      readonly id: string;
+    } | null | undefined;
+  } | null | undefined;
+};
+export type feedbackUnLikeMutation = {
+  response: feedbackUnLikeMutation$data;
+  variables: feedbackUnLikeMutation$variables;
+};

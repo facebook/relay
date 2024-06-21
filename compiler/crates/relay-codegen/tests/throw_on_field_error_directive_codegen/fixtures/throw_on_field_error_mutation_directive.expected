@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+# relay:experimental_emit_semantic_nullability_types
+# expected-to-throw
+
+mutation MyMutation @throwOnFieldError {
+  setName(name: "Alice") {
+    name
+  }
+}
+==================================== ERROR ====================================
+Diagnostic(DiagnosticData { message: InvalidDirectiveUsageUnsupportedLocation(DirectiveName("throwOnFieldError")), location: throw_on_field_error_mutation_directive.graphql:95:112, related_information: [], tags: [], severity: Error, data: [], machine_readable: {} })

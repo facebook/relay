@@ -11,13 +11,14 @@ use std::path::PathBuf;
 use common::Diagnostic;
 use glob::PatternError;
 use persist_query::PersistError;
+use relay_config::ProjectName;
+use serde::Serialize;
 use thiserror::Error;
-
-use crate::compiler_state::ProjectName;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Serialize)]
+#[serde(tag = "type")]
 pub enum Error {
     #[error("Unable to initialize relay compiler configuration. Error details: \n{details}")]
     ConfigError { details: String },
@@ -32,6 +33,7 @@ pub enum Error {
     )]
     ConfigFileValidation {
         config_path: PathBuf,
+        #[serde(skip_serializing)]
         validation_errors: Vec<ConfigValidationError>,
     },
 
@@ -56,31 +58,43 @@ pub enum Error {
     BuildProjectsErrors { errors: Vec<BuildProjectError> },
 
     #[error("Failed to read file `{file}`: {source}")]
-    ReadFileError { file: PathBuf, source: io::Error },
+    ReadFileError {
+        file: PathBuf,
+        #[serde(skip_serializing)]
+        source: io::Error,
+    },
 
     #[error("Failed to write file `{file}`: {source}")]
-    WriteFileError { file: PathBuf, source: io::Error },
+    WriteFileError {
+        file: PathBuf,
+        #[serde(skip_serializing)]
+        source: io::Error,
+    },
 
     #[error("Unable to serialize state to file: `{file}`, because of `{source}`.")]
     SerializationError {
         file: PathBuf,
+        #[serde(skip_serializing)]
         source: Box<bincode::ErrorKind>,
     },
 
     #[error("Unable to deserialize state from file: `{file}`, because of `{source}`.")]
     DeserializationError {
         file: PathBuf,
+        #[serde(skip_serializing)]
         source: Box<bincode::ErrorKind>,
     },
 
     #[error("Failed to canonicalize root: `{root}`.")]
     CanonicalizeRoot {
         root: PathBuf,
+        #[serde(skip_serializing)]
         source: std::io::Error,
     },
 
     #[error("Watchman error: {source}")]
     Watchman {
+        #[serde(skip_serializing)]
         #[from]
         source: watchman_client::Error,
     },
@@ -91,6 +105,7 @@ pub enum Error {
     #[error("Failed to read file: `{file}`.")]
     FileRead {
         file: PathBuf,
+        #[serde(skip_serializing)]
         source: std::io::Error,
     },
 
@@ -102,12 +117,14 @@ pub enum Error {
 
     #[error("Error in post artifact writer: {error}")]
     PostArtifactsError {
+        #[serde(skip_serializing)]
         error: Box<dyn std::error::Error + Sync + Send>,
     },
 
     #[error("Compilation cancelled due to new changes")]
     Cancelled,
 
+    #[serde(skip_serializing)]
     #[error("IO error {0}")]
     IOError(std::io::Error),
 
@@ -117,9 +134,11 @@ pub enum Error {
     #[error("JSON parse error in `{file}`: {source}")]
     SerdeError {
         file: PathBuf,
+        #[serde(skip_serializing)]
         source: serde_json::Error,
     },
 
+    #[serde(skip_serializing)]
     #[error("glob pattern error: {0}")]
     PatternError(PatternError),
 
@@ -227,15 +246,13 @@ pub enum ConfigValidationError {
     },
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 pub enum BuildProjectError {
     #[error(
-        "Validation errors:{}",
+        "Validation errors: {} error(s) encountered above.",
         errors
-            .iter()
-            .map(|err| format!("\n - {}", err.print_without_source()))
-            .collect::<Vec<_>>()
-            .join("")
+            .len()
     )]
     ValidationErrors {
         errors: Vec<Diagnostic>,
@@ -250,10 +267,15 @@ pub enum BuildProjectError {
             .join("")
     )]
     PersistErrors {
+        #[serde(skip_serializing)]
         errors: Vec<PersistError>,
         project_name: ProjectName,
     },
 
     #[error("Failed to write file `{file}`: {source}")]
-    WriteFileError { file: PathBuf, source: io::Error },
+    WriteFileError {
+        file: PathBuf,
+        #[serde(skip_serializing)]
+        source: io::Error,
+    },
 }

@@ -1,0 +1,111 @@
+==================================== INPUT ====================================
+query clientInterfacesNoInlineQuery {
+  cat {
+    description
+  }
+}
+
+# %extensions%
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+    greeting: String
+}
+
+type Persian implements Cat {
+    description: String
+    adopted: Boolean
+}
+
+extend type Query {
+    cat: Cat
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientInterfacesNoInlineQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "cat",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientInterfacesNoInlineQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "cat",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "230ba4fd5e4507dad3c08d149cd68d69",
+    "id": null,
+    "metadata": {},
+    "name": "clientInterfacesNoInlineQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.

@@ -42,7 +42,7 @@ export type {
   RefetchFn,
   RefetchFnDynamic,
   Options as RefetchOptions,
-} from './relay-hooks/useRefetchableFragmentNode';
+} from './relay-hooks/legacy/useRefetchableFragmentNode';
 export type {
   DataID,
   DeclarativeMutationConfig,

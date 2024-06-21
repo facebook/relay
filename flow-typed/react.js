@@ -16,7 +16,7 @@
 // the types of useTransition, startTranstion, and useDeferredValue used only in test.
 declare module react {
   declare export var DOM: any;
-  declare export var PropTypes: ReactPropTypes;
+  declare export var PropTypes: any;
   declare export var version: string;
 
   declare export function checkPropTypes<V>(
@@ -27,24 +27,19 @@ declare module react {
     getStack: ?() => ?string,
   ): void;
 
-  declare export var createClass: React$CreateClass;
+  declare export var createClass: $FlowFixMe;
   declare export function createContext<T>(
     defaultValue: T,
     calculateChangedBits: ?(a: T, b: T) => number,
   ): React$Context<T>;
   declare export var createElement: React$CreateElement;
   declare export var cloneElement: React$CloneElement;
-  declare export function createFactory<ElementType: React$ElementType>(
-    type: ElementType,
-  ): React$ElementFactory<ElementType>;
   declare export function createRef<T>(): {|current: null | T|};
 
   declare export function isValidElement(element: any): boolean;
 
   declare export var Component: typeof React$Component;
   declare export var PureComponent: typeof React$PureComponent;
-  declare export type StatelessFunctionalComponent<P> =
-    React$StatelessFunctionalComponent<P>;
   declare export type ComponentType<-P> = React$ComponentType<P>;
   declare export type AbstractComponent<
     -Config,
@@ -57,8 +52,6 @@ declare module react {
   declare export type Key = React$Key;
   declare export type Ref<C> = React$Ref<C>;
   declare export type Node = React$Node;
-  declare export type TransportObject = React$TransportObject;
-  declare export type TransportValue = React$TransportValue;
   declare export type Context<T> = React$Context<T>;
   declare export type Portal = React$Portal;
   declare export var ConcurrentMode: ({
@@ -107,12 +100,12 @@ declare module react {
   ): React$AbstractComponent<Config, Instance>;
 
   declare export function memo<Config, Instance = mixed>(
-    component: React$AbstractComponent<Config, Instance>,
+    component_: React$AbstractComponent<Config, Instance>,
     equal?: (Config, Config) => boolean,
   ): React$AbstractComponent<Config, Instance>;
 
   declare export function lazy<Config, Instance = mixed>(
-    component: () => Promise<{
+    component_: () => Promise<{
       default: React$AbstractComponent<Config, Instance>,
       ...
     }>,
@@ -223,7 +216,6 @@ declare module react {
     +createContext: typeof createContext,
     +createElement: typeof createElement,
     +cloneElement: typeof cloneElement,
-    +createFactory: typeof createFactory,
     +createRef: typeof createRef,
     +forwardRef: typeof forwardRef,
     +isValidElement: typeof isValidElement,

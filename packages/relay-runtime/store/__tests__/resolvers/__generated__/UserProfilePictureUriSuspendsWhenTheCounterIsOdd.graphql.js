@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d7c22d5cbddf70142ec990fb92c1f89>>
+ * @generated SignedSource<<b512a3af606c245508eb3b303d3a71f9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
   rootKey: UserGreetingResolver$key,
-) => mixed);
+) => ?string);
 import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolverType} from "../UserProfilePictureResolver.js";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -35,11 +35,11 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
   args: {|
     scale: ?number,
   |},
-) => mixed);
+) => ?string);
 declare export opaque type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType: FragmentType;
 export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data = {|
-  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
-  +uri: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleResolverType>,
+  +greeting: ?string,
+  +uri: ?string,
   +$fragmentType: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType,
 |};
 export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key = {
@@ -76,7 +76,7 @@ var node/*: ReaderFragment*/ = {
     },
     {
       "alias": "uri",
-      "args": null,
+      "args": [],
       "fragment": {
         "args": [
           {

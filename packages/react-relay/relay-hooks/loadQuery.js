@@ -24,6 +24,7 @@ import type {
   IEnvironment,
   OperationDescriptor,
   OperationType,
+  Query,
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
@@ -45,7 +46,7 @@ const warning = require('warning');
 let RenderDispatcher = null;
 let fetchKey = 100001;
 
-function useTrackLoadQueryInRender() {
+hook useTrackLoadQueryInRender() {
   if (RenderDispatcher === null) {
     // Flow does not know of React internals (rightly so), but we need to
     // ensure here that this function isn't called inside render.
@@ -56,12 +57,32 @@ function useTrackLoadQueryInRender() {
   }
 }
 
+type QueryType<T> =
+  T extends Query<infer V, infer D, infer RR>
+    ? {
+        variables: V,
+        response: D,
+        rawResponse?: $NonMaybeType<RR>,
+      } // $FlowFixMe[deprecated-type]
+    : $Call<<T>(PreloadableConcreteRequest<T>) => T, T>;
+
+declare function loadQuery<
+  T,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
+>(
+  environment: IEnvironment,
+  preloadableRequest: T,
+  variables: QueryType<T>['variables'],
+  options?: ?LoadQueryOptions,
+  environmentProviderOptions?: ?TEnvironmentProviderOptions,
+): PreloadedQueryInner<QueryType<T>, TEnvironmentProviderOptions>;
+
 function loadQuery<
   TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 >(
   environment: IEnvironment,
-  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
+  preloadableRequest: PreloadableConcreteRequest<TQuery>,
   variables: TQuery['variables'],
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,

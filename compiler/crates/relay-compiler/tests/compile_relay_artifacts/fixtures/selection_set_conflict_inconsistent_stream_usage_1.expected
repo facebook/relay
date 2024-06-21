@@ -5,7 +5,7 @@ query selectionSetConflictInconsistentStreamUsage1Query {
     ... on User {
       friends {
         ... on FriendsConnection {
-          edges @stream(label: "hdijf", initial_count: 1) {
+          edges @stream(label: "hdijf", initialCount: 1) {
             node {
               name
             }
@@ -21,11 +21,11 @@ query selectionSetConflictInconsistentStreamUsage1Query {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Field 'edges' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'
+✖︎ Field 'edges' is marked with @stream in one place, and not marked in another place. Please use an alias to distinguish the two fields.
 
   selection_set_conflict_inconsistent_stream_usage_1.graphql:7:11
     6 │         ... on FriendsConnection {
-    7 │           edges @stream(label: "hdijf", initial_count: 1) {
+    7 │           edges @stream(label: "hdijf", initialCount: 1) {
       │           ^^^^^
     8 │             node {
 

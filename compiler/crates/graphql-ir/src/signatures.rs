@@ -191,7 +191,7 @@ fn build_fragment_signature(
         })
         .or_else(|| {
             argument_definition_directives
-                .get(0)
+                .first()
                 .map(|x| build_fragment_variable_definitions(schema, fragment, x))
         })
         .unwrap_or_else(|| Ok(Default::default()));

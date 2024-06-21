@@ -183,7 +183,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         count,
       };
     });
-    TestComponent = render;
+    TestComponent = ({ref, ...props}) => {
+      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
+      return render(props);
+    };
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
@@ -262,7 +265,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                         },
                     },
                     __fragmentOwner: ownerUser1.request,
-                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -317,7 +319,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                         },
                     },
                     __fragmentOwner: ownerUser1.request,
-                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -376,7 +377,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       loadMore(1, jest.fn());
       expect(render.mock.calls.length).toBe(1);
 
-      TestComponent.mockClear();
+      render.mockClear();
       TestChildComponent.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.resolve(UserQuery, {
@@ -432,7 +433,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                 },
             },
             __fragmentOwner: expectedOwner.request,
-            __isWithinUnmatchedTypeRefinement: false,
           },
         },
         {
@@ -448,7 +448,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                 },
             },
             __fragmentOwner: expectedOwner.request,
-            __isWithinUnmatchedTypeRefinement: false,
           },
         },
       ]);
@@ -511,7 +510,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                         },
                     },
                     __fragmentOwner: ownerUser1.request,
-                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -635,7 +633,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                       },
                   },
                   __fragmentOwner: expectedOwner.request,
-                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -810,7 +807,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                       },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
-                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -893,7 +889,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                       },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
-                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -923,7 +918,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       };
       expect(environment.mock.isLoading(UserQuery, variables)).toBe(true);
 
-      TestComponent.mockClear();
+      render.mockClear();
       TestChildComponent.mockClear();
       environment.mock.resolve(UserQuery, {
         data: {
@@ -983,7 +978,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                       },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
-                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
               {
@@ -999,7 +993,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                       },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
-                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],

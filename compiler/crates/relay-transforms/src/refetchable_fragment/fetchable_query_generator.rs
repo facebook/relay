@@ -37,6 +37,7 @@ use super::build_used_global_variables;
 use super::validation_message::ValidationMessage;
 use super::QueryGenerator;
 use super::RefetchRoot;
+use super::RefetchableIdentifierInfo;
 use super::RefetchableMetadata;
 use super::CONSTANTS;
 use crate::root_variables::VariableMap;
@@ -72,7 +73,11 @@ fn build_refetch_operation(
                 RefetchableMetadata {
                     operation_name: query_name,
                     path: vec![fetch_field_name],
-                    identifier_field: Some(identifier_field_name),
+                    identifier_info: Some(RefetchableIdentifierInfo {
+                        identifier_field: identifier_field_name,
+                        identifier_query_variable_name: schema_config
+                            .node_interface_id_variable_name,
+                    }),
                 },
             ),
             selections: enforce_selections_with_id_field(
@@ -103,7 +108,7 @@ fn build_refetch_operation(
                 alias: None,
                 definition: WithLocation::new(fragment.name.location, fetch_field_id),
                 arguments: vec![Argument {
-                    name: WithLocation::new(fragment.name.location, id_arg.name),
+                    name: WithLocation::new(fragment.name.location, id_arg.name.item),
                     value: WithLocation::new(
                         fragment.name.location,
                         Value::Variable(Variable {

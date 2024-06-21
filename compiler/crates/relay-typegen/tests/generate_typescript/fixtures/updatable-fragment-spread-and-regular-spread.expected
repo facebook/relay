@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+query updatableFragmentSpreadAndRegularSpreadQuery {
+  me {
+    ...updatableFragmentSpreadAndRegularSpread_updatable_user
+    ...updatableFragmentSpreadAndRegularSpread_user
+  }
+}
+
+fragment updatableFragmentSpreadAndRegularSpread_updatable_user on User @updatable {
+  firstName
+}
+
+fragment updatableFragmentSpreadAndRegularSpread_user on User {
+  firstName
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type updatableFragmentSpreadAndRegularSpreadQuery$variables = Record<PropertyKey, never>;
+export type updatableFragmentSpreadAndRegularSpreadQuery$data = {
+  readonly me: {
+    readonly $updatableFragmentSpreads: FragmentRefs<"updatableFragmentSpreadAndRegularSpread_updatable_user">;
+    readonly " $fragmentSpreads": FragmentRefs<"updatableFragmentSpreadAndRegularSpread_user">;
+  } | null | undefined;
+};
+export type updatableFragmentSpreadAndRegularSpreadQuery = {
+  response: updatableFragmentSpreadAndRegularSpreadQuery$data;
+  variables: updatableFragmentSpreadAndRegularSpreadQuery$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type updatableFragmentSpreadAndRegularSpread_updatable_user$data = {
+  firstName: string | null | undefined;
+  readonly " $fragmentType": "updatableFragmentSpreadAndRegularSpread_updatable_user";
+};
+export type updatableFragmentSpreadAndRegularSpread_updatable_user$key = {
+  readonly " $data"?: updatableFragmentSpreadAndRegularSpread_updatable_user$data;
+  readonly $updatableFragmentSpreads: FragmentRefs<"updatableFragmentSpreadAndRegularSpread_updatable_user">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type updatableFragmentSpreadAndRegularSpread_user$data = {
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "updatableFragmentSpreadAndRegularSpread_user";
+};
+export type updatableFragmentSpreadAndRegularSpread_user$key = {
+  readonly " $data"?: updatableFragmentSpreadAndRegularSpread_user$data;
+  readonly " $fragmentSpreads": FragmentRefs<"updatableFragmentSpreadAndRegularSpread_user">;
+};

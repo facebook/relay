@@ -30,6 +30,7 @@ SchemaDocument {
                 interfaces: [],
                 directives: [],
                 fields: None,
+                span: 0:12,
             },
         ),
         ObjectTypeDefinition(
@@ -76,6 +77,8 @@ SchemaDocument {
                                 arguments: None,
                                 directives: [],
                                 description: None,
+                                hack_source: None,
+                                span: 27:39,
                             },
                         ],
                         end: Token {
@@ -84,6 +87,7 @@ SchemaDocument {
                         },
                     },
                 ),
+                span: 12:42,
             },
         ),
         ObjectTypeDefinition(
@@ -211,6 +215,8 @@ SchemaDocument {
                                 arguments: None,
                                 directives: [],
                                 description: None,
+                                hack_source: None,
+                                span: 106:116,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -273,6 +279,7 @@ SchemaDocument {
                                                 ),
                                                 default_value: None,
                                                 directives: [],
+                                                span: 121:139,
                                             },
                                         ],
                                         end: Token {
@@ -283,6 +290,8 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
+                                hack_source: None,
+                                span: 116:150,
                             },
                         ],
                         end: Token {
@@ -291,6 +300,7 @@ SchemaDocument {
                         },
                     },
                 ),
+                span: 42:153,
             },
         ),
         ObjectTypeDefinition(
@@ -323,6 +333,7 @@ SchemaDocument {
                 ],
                 directives: [],
                 fields: None,
+                span: 153:203,
             },
         ),
     ],

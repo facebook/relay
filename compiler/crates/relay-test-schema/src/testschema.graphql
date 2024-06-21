@@ -6,6 +6,12 @@ schema {
   subscription: Subscription
 }
 
+directive @credentials(
+  use_case: String!
+  vc_transform: String!
+  token: String
+) on FIELD
+
 directive @live_query(polling_interval: Int, config_id: String) on QUERY
 
 directive @customDirective(level: Int!) on FIELD | FRAGMENT_SPREAD
@@ -25,9 +31,9 @@ directive @defer(
 
 directive @stream(
   label: String!
-  initial_count: Int!
+  initialCount: Int!
   if: Boolean = true
-  use_customized_batch: Boolean = false
+  useCustomizedBatch: Boolean = false
 ) on FIELD
 
 directive @fetchable(field_name: String!) on OBJECT
@@ -54,6 +60,7 @@ type Query {
   _mutation: Mutation
   fetch__User(id: ID!): User
   fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
+  fetch__FetchableType(fetch_id: ID!): FetchableType
   nonNodeStory(id: ID!): NonNodeStory
   wrongViewer: WithWrongViewer
 }
@@ -63,16 +70,6 @@ interface MaybeNodeInterface {
 }
 
 scalar JSON
-
-directive @react_flight(
-  components: [String!]!
-) on QUERY | MUTATION | SUBSCRIPTION
-
-scalar ReactFlightComponent
-
-scalar ReactFlightProps
-
-directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
 
 union MaybeNode = Story | FakeNode | NonNode
 
@@ -124,6 +121,7 @@ type Mutation {
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
   commentsDelete(input: CommentsDeleteInput): CommentsDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+  feedbackUnLike(input: FeedbackUnLikeInput): FeedbackUnLikeResponsePayload
   feedbackLikeStrict(
     input: FeedbackLikeInputStrict!
   ): FeedbackLikeResponsePayload
@@ -190,6 +188,11 @@ input CommentsDeleteInput {
 
 input FeedbackLikeInput {
   feedbackId: ID
+}
+
+input FeedbackUnLikeInput {
+  feedbackId: ID
+  silent: Boolean! = false
 }
 
 input FeedbackLikeInputStrict {
@@ -453,6 +456,10 @@ type Feedback implements Node {
 }
 
 type FeedbackLikeResponsePayload {
+  feedback: Feedback
+}
+
+type FeedbackUnLikeResponsePayload {
   feedback: Feedback
 }
 
@@ -796,7 +803,6 @@ type PhotoStory implements FeedUnit & Node {
 
 type Story implements FeedUnit & Node & MaybeNodeInterface {
   attachments: [StoryAttachment]
-  flight(component: String!, props: ReactFlightProps): ReactFlightComponent
 
   # FeedUnit
   canViewerDelete: Boolean
@@ -1185,4 +1191,23 @@ type Settings {
 
 type WithWrongViewer {
   actor_key: Viewer
+}
+
+extend type Query {
+  opera: Opera
+}
+
+type Opera {
+  composer: User @semanticNonNull
+  cast: [Portrayal] @semanticNonNull(levels: [0, 1])
+}
+
+type Portrayal {
+  singer: User @semanticNonNull
+  character: String @semanticNonNull
+}
+
+type FetchableType implements Node @fetchable(field_name: "fetch_id") {
+  id: ID!
+  fetch_id: ID!
 }

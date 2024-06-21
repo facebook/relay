@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6702d893d5893fde158d0a6977a74203>>
+ * @generated SignedSource<<e5c4af130eafe9eca404acf1971766d2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { InnerResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/InnerResolver.graphql";
 import type { OuterResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/OuterResolver.graphql";
 import {inner as queryInnerResolverType} from "../../../relay-runtime/store/__tests__/resolvers/InnerResolver.js";
@@ -26,17 +26,17 @@ import {inner as queryInnerResolverType} from "../../../relay-runtime/store/__te
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolverType: (
   rootKey: InnerResolver$key,
-) => LiveState<mixed>);
+) => LiveState<?number>);
 import {outer as queryOuterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
 // Type assertion validating that `queryOuterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryOuterResolverType: (
   rootKey: OuterResolver$key,
-) => mixed);
+) => ?number);
 export type LiveResolversTestNestedQuery$variables = {||};
 export type LiveResolversTestNestedQuery$data = {|
-  +inner: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryInnerResolverType>["read"]>,
-  +outer: ?$Call<<R>((...empty[]) => R) => R, typeof queryOuterResolverType>,
+  +inner: ?number,
+  +outer: ?number,
 |};
 export type LiveResolversTestNestedQuery = {|
   response: LiveResolversTestNestedQuery$data,
@@ -82,7 +82,7 @@ var v0 = {
   },
   "kind": "RelayResolver",
   "storageKey": null,
-  "isOutputType": false
+  "isOutputType": true
 };
 return {
   "fragment": {
@@ -140,7 +140,7 @@ return {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": false
+        "isOutputType": true
       },
       (v0/*: any*/)
     ]

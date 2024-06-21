@@ -27,9 +27,17 @@ pub struct Interface {
     pub directives: Vec<DirectiveValue>,
     pub interfaces: Vec<InterfaceID>,
     pub description: Option<StringKey>,
+    pub hack_source: Option<StringKey>,
 }
 
 impl Interface {
+    pub fn named_field<S: Schema>(&self, name: StringKey, schema: &S) -> Option<FieldID> {
+        self.fields
+            .iter()
+            .find(|field_id| schema.field(**field_id).name.item == name)
+            .copied()
+    }
+
     /// Return all objects that implement, directly or recursively, a given interface.
     /// The iteration order of the HashSet might depend on the order in which schema files
     /// are processed. It should not be relied upon when generating artifacts.
@@ -227,6 +235,7 @@ mod test {
             directives: vec![],
             interfaces: vec![],
             description: None,
+            hack_source: None,
         }
     }
 

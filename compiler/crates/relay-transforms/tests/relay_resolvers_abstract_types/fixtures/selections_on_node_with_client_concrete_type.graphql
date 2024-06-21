@@ -1,0 +1,14 @@
+# relay-resolver-enable-interface-output-type
+
+query selectionsOnNodeQuery {
+    node(id: 4) {
+        __typename
+        id
+    }
+}
+
+# %extensions%
+
+type ClientType implements Node {
+    id: ID!
+}

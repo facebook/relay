@@ -31,7 +31,7 @@ export type ExampleQuery$variables = {
 export type ExampleQuery$data = {
   readonly node: {
     readonly id: string;
-  } | null;
+  } | null | undefined;
 };
 export type ExampleQuery = {
   response: ExampleQuery$data;
@@ -40,14 +40,14 @@ export type ExampleQuery = {
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {
   client_mutation_id: string;
-  feedback?: CommentfeedbackFeedback | null;
-  feedbackId?: string | null;
+  feedback?: CommentfeedbackFeedback | null | undefined;
+  feedbackId?: string | null | undefined;
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null;
+  comment?: FeedbackcommentComment | null | undefined;
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null;
+  feedback?: CommentfeedbackFeedback | null | undefined;
 };
 export type TestMutation$variables = {
   input: CommentCreateInput;
@@ -56,8 +56,8 @@ export type TestMutation$data = {
   readonly commentCreate: {
     readonly comment: {
       readonly id: string;
-    } | null;
-  } | null;
+    } | null | undefined;
+  } | null | undefined;
 };
 export type TestMutation = {
   response: TestMutation$data;
@@ -65,17 +65,17 @@ export type TestMutation = {
 };
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {
-  feedbackId?: string | null;
+  feedbackId?: string | null | undefined;
 };
 export type TestSubscription$variables = {
-  input?: FeedbackLikeInput | null;
+  input?: FeedbackLikeInput | null | undefined;
 };
 export type TestSubscription$data = {
   readonly feedbackLikeSubscribe: {
     readonly feedback: {
       readonly id: string;
-    } | null;
-  } | null;
+    } | null | undefined;
+  } | null | undefined;
 };
 export type TestSubscription = {
   response: TestSubscription$data;

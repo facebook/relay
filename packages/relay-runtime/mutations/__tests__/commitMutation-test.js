@@ -144,6 +144,8 @@ describe('Configs: NODE_DELETE', () => {
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
       mutation,
       optimisticResponse,
       optimisticUpdater,
@@ -595,6 +597,10 @@ describe('Configs: RANGE_ADD', () => {
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       mutation,
       optimisticResponse,
       optimisticUpdater,
@@ -651,6 +657,10 @@ describe('Configs: RANGE_ADD', () => {
     // send mutation
     commitMutation(environment, {
       configs,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       mutation,
       variables,
     });
@@ -736,6 +746,10 @@ describe('Configs: RANGE_ADD', () => {
     // send the same mutation again
     commitMutation(environment, {
       configs,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       mutation,
       variables,
     });
@@ -816,6 +830,10 @@ describe('Configs: RANGE_ADD', () => {
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       mutation,
       optimisticResponse,
       optimisticUpdater,
@@ -881,6 +899,10 @@ describe('Configs: RANGE_ADD', () => {
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       mutation,
       optimisticResponse,
       optimisticUpdater,
@@ -936,6 +958,10 @@ describe('Configs: RANGE_ADD', () => {
     // send mutation
     commitMutation(environment, {
       updater,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       mutation,
       variables,
     });
@@ -1027,6 +1053,10 @@ describe('Configs: RANGE_ADD', () => {
     // send the same mutation again
     commitMutation(environment, {
       updater,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       mutation,
       variables,
     });
@@ -1139,7 +1169,7 @@ describe('Required mutation roots', () => {
       mutation commitMutationTestRequiredRootFieldMutation(
         $input: CommentDeleteInput
       ) {
-        commentDelete(input: $input) @required(action: THROW) {
+        commentDelete(input: $input) {
           deletedCommentId
         }
       }

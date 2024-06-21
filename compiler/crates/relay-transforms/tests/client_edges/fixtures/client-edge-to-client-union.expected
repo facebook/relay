@@ -1,0 +1,74 @@
+==================================== INPUT ====================================
+fragment FeedbackFragmentType on User {
+  feedback_as_union {
+    ... on Like {
+      __typename
+    }
+  }
+}
+
+# %extensions%
+
+type Like @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "LikeResolver", fragment_name: "Like__id", inject_fragment_data: "id")
+}
+
+type Heart @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "HeartResolver", fragment_name: "Heart__id", inject_fragment_data: "id")
+}
+
+union ClientOnlyUnion = Comment | Like | Heart
+
+extend type User {
+  feedback_as_union: ClientOnlyUnion @relay_resolver(import_path: "FeedbackResolver")
+}
+==================================== OUTPUT ===================================
+fragment FeedbackFragmentType on User {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: None,
+  #     unique_id: 0,
+  #     model_resolvers: [
+  #         ClientEdgeModelResolver {
+  #             type_name: WithLocation {
+  #                 location: <generated>:199:204,
+  #                 item: ObjectName(
+  #                     "Heart",
+  #                 ),
+  #             },
+  #             is_live: false,
+  #         },
+  #         ClientEdgeModelResolver {
+  #             type_name: WithLocation {
+  #                 location: <generated>:7:11,
+  #                 item: ObjectName(
+  #                     "Like",
+  #                 ),
+  #             },
+  #             is_live: false,
+  #         },
+  #     ],
+  # }
+   {
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(530),
+    #     import_path: "FeedbackResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "feedback_as_union",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: EdgeTo,
+    #     fragment_data_injection_mode: None,
+    # }
+    
+    feedback_as_union {
+      ... on Like {
+        __typename
+      }
+    }
+  }
+}

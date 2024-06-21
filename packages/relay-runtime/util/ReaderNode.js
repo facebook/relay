@@ -33,7 +33,7 @@ export type ReaderInlineDataFragmentSpread = {
   +kind: 'InlineDataFragmentSpread',
   +name: string,
   +selections: $ReadOnlyArray<ReaderSelection>,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
   +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
 };
 
@@ -44,6 +44,7 @@ export type ReaderFragment = {
   +abstractKey?: ?string,
   +metadata?: ?{
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
+    +throwOnFieldError?: boolean,
     +hasClientEdges?: boolean,
     +mask?: boolean,
     +plural?: boolean,
@@ -76,11 +77,16 @@ export type ReaderPaginationFragment = {
   },
 };
 
+export type RefetchableIdentifierInfo = {
+  +identifierField: string,
+  +identifierQueryVariableName: string,
+};
+
 export type ReaderRefetchMetadata = {
   +connection?: ?ReaderPaginationMetadata,
   +operation: string | ConcreteRequest,
   +fragmentPathInResult: Array<string>,
-  +identifierField?: ?string,
+  +identifierInfo?: ?RefetchableIdentifierInfo,
 };
 
 // Stricter form of ConnectionMetadata
@@ -135,7 +141,7 @@ export type ReaderRootArgument = {
 export type ReaderInlineFragment = {
   +kind: 'InlineFragment',
   +selections: $ReadOnlyArray<ReaderSelection>,
-  +type: string,
+  +type: ?string,
   +abstractKey?: ?string,
 };
 
@@ -212,14 +218,6 @@ export type ReaderScalarField = {
   +storageKey?: ?string,
 };
 
-export type ReaderFlightField = {
-  +kind: 'FlightField',
-  +alias: ?string,
-  +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +storageKey: ?string,
-};
-
 export type ReaderDefer = {
   +kind: 'Defer',
   +selections: $ReadOnlyArray<ReaderSelection>,
@@ -234,30 +232,47 @@ export type RequiredFieldAction = 'NONE' | 'LOG' | 'THROW';
 
 export type ReaderRequiredField = {
   +kind: 'RequiredField',
-  +field:
-    | ReaderField
-    | ReaderClientEdgeToClientObject
-    | ReaderClientEdgeToServerObject,
+  +field: ReaderField | ReaderClientEdge,
   +action: RequiredFieldAction,
   +path: string,
 };
 
-type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
-// With ES6 imports, a resolver function might be exported under the `default` key.
-type ResolverModule = ResolverFunction | {default: ResolverFunction};
+export type CatchFieldTo = 'RESULT' | 'NULL';
 
-export type ResolverNormalizationInfo = {
+export type ReaderCatchField = {
+  +kind: 'CatchField',
+  +field: ReaderField | ReaderClientEdge,
+  +to: CatchFieldTo,
+  +path: string,
+};
+
+export type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
+// With ES6 imports, a resolver function might be exported under the `default` key.
+export type ResolverModule = ResolverFunction | {default: ResolverFunction};
+
+export type ResolverNormalizationInfo =
+  | ResolverOutputTypeNormalizationInfo
+  | ResolverWeakModelNormalizationInfo;
+
+export type ResolverOutputTypeNormalizationInfo = {
+  +kind: 'OutputType',
   +concreteType: string | null,
   +plural: boolean,
   +normalizationNode: NormalizationSelectableNode,
 };
 
+export type ResolverWeakModelNormalizationInfo = {
+  +kind: 'WeakModel',
+  +concreteType: string | null,
+  +plural: boolean,
+};
+
 export type ReaderRelayResolver = {
   +kind: 'RelayResolver',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +fragment: ?ReaderFragmentSpread,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +fragment?: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
   +normalizationInfo?: ResolverNormalizationInfo,
@@ -265,10 +280,10 @@ export type ReaderRelayResolver = {
 
 export type ReaderRelayLiveResolver = {
   +kind: 'RelayLiveResolver',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +fragment: ?ReaderFragmentSpread,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +fragment?: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
   +normalizationInfo?: ResolverNormalizationInfo,
@@ -277,6 +292,9 @@ export type ReaderRelayLiveResolver = {
 export type ReaderClientEdgeToClientObject = {
   +kind: 'ClientEdgeToClientObject',
   +concreteType: string | null,
+  +modelResolvers: {
+    [string]: ReaderRelayResolver | ReaderRelayLiveResolver,
+  } | null,
   +linkedField: ReaderLinkedField,
   +backingField:
     | ReaderRelayResolver
@@ -294,15 +312,17 @@ export type ReaderClientEdgeToServerObject = {
     | ReaderClientExtension,
 };
 
+export type ReaderClientEdge =
+  | ReaderClientEdgeToClientObject
+  | ReaderClientEdgeToServerObject;
+
 export type ReaderSelection =
   | ReaderCondition
-  | ReaderClientEdgeToClientObject
-  | ReaderClientEdgeToServerObject
+  | ReaderClientEdge
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField
   | ReaderActorChange
-  | ReaderFlightField
   | ReaderFragmentSpread
   | ReaderAliasedFragmentSpread
   | ReaderInlineDataFragmentSpread
@@ -310,6 +330,7 @@ export type ReaderSelection =
   | ReaderInlineFragment
   | ReaderModuleImport
   | ReaderStream
+  | ReaderCatchField
   | ReaderRequiredField
   | ReaderRelayResolver;
 

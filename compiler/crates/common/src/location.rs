@@ -18,7 +18,19 @@ use crate::span::Span;
 /// The location of a source. Could be a standalone file (e.g. test.graphql),
 /// an embedded source (GraphQL tag in a JS file) or generated code without a
 /// location.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
+#[serde(tag = "type")]
 pub enum SourceLocationKey {
     /// A source embedded within a file. The 0-based index is an index into the
     /// embedded sources. E.g. the second graphql tag has index 1.
@@ -72,7 +84,7 @@ impl SourceLocationKey {
 
 /// An absolute source location describing both the file and position (span)
 /// with that file.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
 pub struct Location {
     /// The source containing this location (e.g. embedded or standalone file).
     source_location: SourceLocationKey,

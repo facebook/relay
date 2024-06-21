@@ -12,17 +12,15 @@
 'use strict';
 
 import type {InnerResolver$key} from './__generated__/InnerResolver.graphql';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName inner
+ * @RelayResolver Query.inner: Int
  * @rootFragment InnerResolver
- * @onType Query
  * @live
  */
 function inner(rootKey: InnerResolver$key): LiveState<number> {

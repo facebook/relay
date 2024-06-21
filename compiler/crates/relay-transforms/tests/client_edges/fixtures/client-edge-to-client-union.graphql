@@ -1,0 +1,25 @@
+fragment FeedbackFragmentType on User {
+  feedback_as_union {
+    ... on Like {
+      __typename
+    }
+  }
+}
+
+# %extensions%
+
+type Like @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "LikeResolver", fragment_name: "Like__id", inject_fragment_data: "id")
+}
+
+type Heart @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "HeartResolver", fragment_name: "Heart__id", inject_fragment_data: "id")
+}
+
+union ClientOnlyUnion = Comment | Like | Heart
+
+extend type User {
+  feedback_as_union: ClientOnlyUnion @relay_resolver(import_path: "FeedbackResolver")
+}

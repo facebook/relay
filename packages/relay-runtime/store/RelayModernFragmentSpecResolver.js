@@ -14,6 +14,7 @@
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  ErrorResponseFields,
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
@@ -228,6 +229,7 @@ class SelectorResolver {
   _environment: IEnvironment;
   _isMissingData: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
+  _errorResponseFields: ?ErrorResponseFields;
   _relayResolverErrors: RelayResolverErrors;
   _rootIsQueryRenderer: boolean;
   _selector: SingularReaderSelector;
@@ -245,6 +247,7 @@ class SelectorResolver {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
+    this._errorResponseFields = snapshot.errorResponseFields;
     this._relayResolverErrors = snapshot.relayResolverErrors;
     this._environment = environment;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
@@ -330,6 +333,8 @@ class SelectorResolver {
       this._environment,
       this._missingRequiredFields,
       this._relayResolverErrors,
+      this._errorResponseFields,
+      this._selector.node.metadata?.throwOnFieldError ?? false,
     );
     return this._data;
   }
@@ -346,6 +351,7 @@ class SelectorResolver {
     this._data = recycleNodesInto(this._data, snapshot.data);
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
+    this._errorResponseFields = snapshot.errorResponseFields;
     this._relayResolverErrors = snapshot.relayResolverErrors;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
@@ -383,6 +389,7 @@ class SelectorResolver {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
+    this._errorResponseFields = snapshot.errorResponseFields;
     this._relayResolverErrors = snapshot.relayResolverErrors;
     this._callback();
   };

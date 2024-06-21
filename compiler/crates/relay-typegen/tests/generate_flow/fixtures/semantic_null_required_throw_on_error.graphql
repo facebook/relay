@@ -1,0 +1,12 @@
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on ClientUser @throwOnFieldError {
+  nullable_name @required(action: LOG)
+  resolver_name @required(action: LOG)
+}
+
+%extensions%
+
+type ClientUser {
+  nullable_name: String
+  resolver_name: RelayResolverValue @relay_resolver(import_path: "CatResolver")
+}

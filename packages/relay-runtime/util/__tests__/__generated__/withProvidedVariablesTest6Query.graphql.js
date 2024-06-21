@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2dc5f8f1fb7f57f4fbd9ed95c754cf4f>>
+ * @generated SignedSource<<33a7c304a92c212c1292fd71495c8cb8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,16 +29,14 @@ export type withProvidedVariablesTest6Query = {|
   response: withProvidedVariablesTest6Query$data,
   variables: withProvidedVariablesTest6Query$variables,
 |};
-type ProvidedVariablesType = {|
+({
+  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider')
+}: {|
   +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
     +get: () => number,
   |},
-|};
+|});
 */
-
-var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider')
-};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [
@@ -152,7 +150,9 @@ return {
     "name": "withProvidedVariablesTest6Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest6Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1relayprovider: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest6Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest6Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1relayprovider) {\n    uri\n  }\n}\n",
-    "providedVariables": providedVariablesDefinition
+    "providedVariables": {
+      "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider')
+    }
   }
 };
 })();

@@ -10,7 +10,6 @@
  */
 
 'use strict';
-import type {ReactFlightServerError} from '../../network/RelayNetworkTypes';
 
 const {
   getActorIdentifier,
@@ -438,21 +437,18 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_RelayResponseNormalizerTestFragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_RelayResponseNormalizerTestFragment:
-              'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_RelayResponseNormalizerTestFragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayResponseNormalizerTestFragment:
+            'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -464,8 +460,7 @@ describe('RelayResponseNormalizer', () => {
           args: null,
           operationReference:
             'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
-          dataID:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          dataID: 'client:1:nameRenderer(supported:"34hjiS")',
           kind: 'ModuleImportPayload',
           data: {
             __typename: 'MarkdownUserNameRenderer',
@@ -521,21 +516,18 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_RelayResponseNormalizerTestFragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_RelayResponseNormalizerTestFragment:
-              'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_RelayResponseNormalizerTestFragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayResponseNormalizerTestFragment:
+            'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -547,8 +539,7 @@ describe('RelayResponseNormalizer', () => {
           args: null,
           operationReference:
             'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
-          dataID:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          dataID: 'client:1:nameRenderer(supported:"34hjiS")',
           kind: 'ModuleImportPayload',
           data: {
             __typename: 'MarkdownUserNameRenderer',
@@ -596,18 +587,15 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'CustomNameRenderer',
-            // note: 'customField' data not processed, there is no selection on this type
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'CustomNameRenderer',
+          // note: 'customField' data not processed, there is no selection on this type
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -640,8 +628,7 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            null,
+          'nameRenderer(supported:"34hjiS")': null,
         },
         'client:root': {
           __id: 'client:root',
@@ -3491,564 +3478,6 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
-  describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
-    let FlightQuery;
-    let recordSource;
-    let ServerOrClientQuery;
-    const dummyReactFlightPayloadDeserializer = () => {
-      return {
-        readRoot() {
-          return {
-            $$typeof: Symbol.for('react.element'),
-            type: 'div',
-            key: null,
-            ref: null,
-            props: {foo: 1},
-          };
-        },
-      };
-    };
-
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
-
-      FlightQuery = graphql`
-        query RelayResponseNormalizerTestFlightQuery($id: ID!, $count: Int!) {
-          node(id: $id) {
-            ... on Story {
-              flightComponent(condition: true, count: $count, id: $id)
-            }
-          }
-        }
-      `;
-      graphql`
-        fragment RelayResponseNormalizerTest_clientFragment on Story {
-          name
-          body {
-            text
-          }
-        }
-      `;
-      ServerOrClientQuery = graphql`
-        query RelayResponseNormalizerTestServerOrClientQuery($id: ID!) {
-          node(id: $id) {
-            ...RelayResponseNormalizerTest_clientFragment
-              @relay_client_component
-          }
-        }
-      `;
-      recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
-    });
-
-    describe('when successful', () => {
-      it('normalizes Flight fields', () => {
-        const payload: $FlowFixMe = {
-          node: {
-            id: '1',
-            __typename: 'Story',
-            flightComponent: {
-              status: 'SUCCESS',
-              tree: [
-                {
-                  type: 'div',
-                  key: null,
-                  ref: null,
-                  props: {foo: 1},
-                },
-              ],
-              queries: [
-                {
-                  id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
-                  module: {__dr: 'RelayFlightExampleQuery.graphql'},
-                  response: {
-                    data: {
-                      story: {
-                        id: '2',
-                        name: 'Lauren',
-                        __typename: 'User',
-                      },
-                    },
-                    extensions: [],
-                  },
-                  variables: {
-                    id: '2',
-                  },
-                },
-              ],
-              errors: [],
-              fragments: [
-                {
-                  module: {
-                    __dr: 'RelayResponseNormalizerTest_clientFragment$normalization.graphql',
-                  },
-                  __id: '3',
-                  __typename: 'Story',
-                  response: {
-                    data: {
-                      node: {
-                        id: '3',
-                        __typename: 'Story',
-                        name: 'React Server Components: The Musical',
-                        body: {
-                          text: 'Presenting a new musical from the director of Cats (2019)!',
-                        },
-                      },
-                    },
-                  },
-                  variables: {
-                    id: '3',
-                  },
-                },
-              ],
-            },
-          },
-        };
-        normalize(
-          recordSource,
-          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-            count: 10,
-            id: '1',
-          }),
-          payload,
-          {
-            ...defaultOptions,
-            reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
-          },
-        );
-        expect(recordSource.toJSON()).toMatchInlineSnapshot(`
-          Object {
-            "1": Object {
-              "__id": "1",
-              "__typename": "Story",
-              "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
-                "__ref": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
-              },
-              "id": "1",
-            },
-            "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
-              "__id": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
-              "__typename": "ReactFlightComponent",
-              "executableDefinitions": Array [
-                Object {
-                  "module": Object {
-                    "__dr": "RelayFlightExampleQuery.graphql",
-                  },
-                  "variables": Object {
-                    "id": "2",
-                  },
-                },
-                Object {
-                  "module": Object {
-                    "__dr": "RelayResponseNormalizerTest_clientFragment$normalization.graphql",
-                  },
-                  "variables": Object {
-                    "id": "3",
-                  },
-                },
-              ],
-              "tree": Object {
-                "readRoot": [Function],
-              },
-            },
-            "client:root": Object {
-              "__id": "client:root",
-              "__typename": "__Root",
-              "node(id:\\"1\\")": Object {
-                "__ref": "1",
-              },
-            },
-          }
-        `);
-      });
-
-      it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
-        const payload: $FlowFixMe = {
-          node: {
-            id: '1',
-            __typename: 'Story',
-            flightComponent: {
-              status: 'SUCCESS',
-              tree: [],
-              queries: [],
-              errors: [],
-              fragments: [],
-            },
-          },
-        };
-
-        expect(() => {
-          normalize(
-            recordSource,
-            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-              count: 10,
-              id: '1',
-            }),
-            payload,
-            {
-              ...defaultOptions,
-              reactFlightPayloadDeserializer:
-                dummyReactFlightPayloadDeserializer,
-            },
-          );
-        }).not.toThrow();
-        expect(() => {
-          normalize(
-            recordSource,
-            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-              count: 10,
-              id: '1',
-            }),
-            payload,
-            defaultOptions,
-          );
-        }).toThrow();
-      });
-    });
-
-    describe('when server errors are encountered', () => {
-      describe('and ReactFlightServerErrorHandler is specified', () => {
-        const reactFlightServerErrorHandler = jest.fn<
-          [string, Array<ReactFlightServerError>],
-          void,
-        >();
-        it('calls ReactFlightServerErrorHandler', () => {
-          const payload: $FlowFixMe = {
-            node: {
-              id: '1',
-              __typename: 'Story',
-              flightComponent: {
-                status: 'FAIL_JS_ERROR',
-                tree: [],
-                queries: [],
-                errors: [
-                  {
-                    message: 'Something threw an error on the server',
-                    stack: 'Error\n    at <anonymous>:1:1',
-                  },
-                ],
-                fragments: [],
-              },
-            },
-          };
-          normalize(
-            recordSource,
-            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-              count: 10,
-              id: '1',
-            }),
-            payload,
-            {
-              ...defaultOptions,
-              reactFlightPayloadDeserializer:
-                dummyReactFlightPayloadDeserializer,
-              reactFlightServerErrorHandler,
-            },
-          );
-          expect(reactFlightServerErrorHandler).toHaveBeenCalledWith(
-            'FAIL_JS_ERROR',
-            expect.arrayContaining([
-              expect.objectContaining({
-                message: 'Something threw an error on the server',
-                stack: 'Error\n    at <anonymous>:1:1',
-              }),
-            ]),
-          );
-        });
-      });
-      describe('and no ReactFlightServerErrorHandler is specified', () => {
-        it('warns', () => {
-          const payload: $FlowFixMe = {
-            node: {
-              id: '1',
-              __typename: 'Story',
-              flightComponent: {
-                status: 'FAIL_JS_ERROR',
-                tree: [],
-                queries: [],
-                errors: [
-                  {
-                    message: 'Something threw an error on the server',
-                    stack: 'Error\n    at <anonymous>:1:1',
-                  },
-                ],
-                fragments: [],
-              },
-            },
-          };
-          expectToWarn(
-            'RelayResponseNormalizer: Received server errors for field `flightComponent`.\n\n' +
-              'Something threw an error on the server\n' +
-              'Error\n    at <anonymous>:1:1',
-            () => {
-              normalize(
-                recordSource,
-                createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-                  count: 10,
-                  id: '1',
-                }),
-                payload,
-                {
-                  ...defaultOptions,
-                  reactFlightPayloadDeserializer:
-                    dummyReactFlightPayloadDeserializer,
-                },
-              );
-            },
-          );
-        });
-      });
-    });
-
-    describe('when the response is malformed', () => {
-      it('normalizes when the response is null', () => {
-        const payload = {
-          node: {
-            id: '1',
-            __typename: 'Story',
-            flightComponent: null,
-          },
-        };
-        normalize(
-          recordSource,
-          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-            count: 10,
-            id: '1',
-          }),
-          payload,
-          {
-            ...defaultOptions,
-            reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
-          },
-        );
-        expect(recordSource.toJSON()).toMatchInlineSnapshot(`
-          Object {
-            "1": Object {
-              "__id": "1",
-              "__typename": "Story",
-              "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": null,
-              "id": "1",
-            },
-            "client:root": Object {
-              "__id": "client:root",
-              "__typename": "__Root",
-              "node(id:\\"1\\")": Object {
-                "__ref": "1",
-              },
-            },
-          }
-        `);
-      });
-      it('throws if the response is undefined', () => {
-        const payload = {
-          node: {
-            id: '1',
-            __typename: 'Story',
-            flightComponent: undefined,
-          },
-        };
-        expect(() => {
-          normalize(
-            recordSource,
-            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-              count: 10,
-              id: '1',
-            }),
-            payload,
-            {
-              ...defaultOptions,
-              reactFlightPayloadDeserializer:
-                dummyReactFlightPayloadDeserializer,
-            },
-          );
-        }).toThrow(/Payload did not contain a value for field/);
-      });
-
-      it('warns if the row protocol is null', () => {
-        const payload: $FlowFixMe = {
-          node: {
-            id: '1',
-            __typename: 'Story',
-            flightComponent: {
-              status: 'UNEXPECTED_ERROR',
-              tree: null,
-              queries: [],
-              errors: [],
-              fragments: [],
-            },
-          },
-        };
-        expectToWarn(
-          'RelayResponseNormalizer: Expected `tree` not to be null. This typically indicates that a fatal server error prevented any Server Component rows from being written.',
-          () => {
-            normalize(
-              recordSource,
-              createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-                count: 10,
-                id: '1',
-              }),
-              payload,
-              {
-                ...defaultOptions,
-                reactFlightPayloadDeserializer:
-                  dummyReactFlightPayloadDeserializer,
-              },
-            );
-          },
-        );
-      });
-    });
-
-    describe('when the query contains @relay_client_component spreads', () => {
-      let options;
-      describe('and client component processing is enabled', () => {
-        beforeEach(() => {
-          options = {
-            ...defaultOptions,
-            shouldProcessClientComponents: true,
-          };
-        });
-        it('normalizes', () => {
-          const payload = {
-            node: {
-              id: '1',
-              __typename: 'Story',
-              name: 'React Server Components: The Musical',
-              body: {
-                text: 'Presenting a new musical from the director of Cats (2019)!',
-              },
-            },
-          };
-          normalize(
-            recordSource,
-            createNormalizationSelector(
-              ServerOrClientQuery.operation,
-              ROOT_ID,
-              {
-                id: '1',
-              },
-            ),
-            payload,
-            options,
-          );
-          expect(recordSource.toJSON()).toMatchInlineSnapshot(`
-            Object {
-              "1": Object {
-                "__id": "1",
-                "__typename": "Story",
-                "body": Object {
-                  "__ref": "client:1:body",
-                },
-                "id": "1",
-                "name": "React Server Components: The Musical",
-              },
-              "client:1:body": Object {
-                "__id": "client:1:body",
-                "__typename": "Text",
-                "text": "Presenting a new musical from the director of Cats (2019)!",
-              },
-              "client:root": Object {
-                "__id": "client:root",
-                "__typename": "__Root",
-                "node(id:\\"1\\")": Object {
-                  "__ref": "1",
-                },
-              },
-            }
-          `);
-        });
-      });
-
-      describe('and client component processing is disabled', () => {
-        beforeEach(() => {
-          options = {
-            ...defaultOptions,
-            shouldProcessClientComponents: false,
-          };
-        });
-        it('does not normalize', () => {
-          const payload = {
-            node: {
-              id: '1',
-              __typename: 'Story',
-            },
-          };
-          normalize(
-            recordSource,
-            createNormalizationSelector(
-              ServerOrClientQuery.operation,
-              ROOT_ID,
-              {
-                id: '1',
-              },
-            ),
-            payload,
-            options,
-          );
-          expect(recordSource.toJSON()).toMatchInlineSnapshot(`
-            Object {
-              "1": Object {
-                "__id": "1",
-                "__typename": "Story",
-                "id": "1",
-              },
-              "client:root": Object {
-                "__id": "client:root",
-                "__typename": "__Root",
-                "node(id:\\"1\\")": Object {
-                  "__ref": "1",
-                },
-              },
-            }
-          `);
-        });
-
-        it('does not normalize client fragment data even if present', () => {
-          const payload = {
-            node: {
-              id: '1',
-              __typename: 'Story',
-              name: 'React Server Components: The Musical',
-              body: {
-                text: 'Presenting a new musical from the director of Cats (2019)!',
-              },
-            },
-          };
-          normalize(
-            recordSource,
-            createNormalizationSelector(
-              ServerOrClientQuery.operation,
-              ROOT_ID,
-              {
-                id: '1',
-              },
-            ),
-            payload,
-            options,
-          );
-          expect(recordSource.toJSON()).toMatchInlineSnapshot(`
-            Object {
-              "1": Object {
-                "__id": "1",
-                "__typename": "Story",
-                "id": "1",
-              },
-              "client:root": Object {
-                "__id": "client:root",
-                "__typename": "__Root",
-                "node(id:\\"1\\")": Object {
-                  "__ref": "1",
-                },
-              },
-            }
-          `);
-        });
-      });
-    });
-  });
   describe('"falsy" IDs in payload', () => {
     let recordSource;
     const Query = graphql`
@@ -4275,7 +3704,7 @@ describe('RelayResponseNormalizer', () => {
       );
 
       expect(result).toEqual({
-        errors: null,
+        errors: undefined,
         fieldPayloads: [],
         followupPayloads: [
           {
@@ -4343,7 +3772,7 @@ describe('RelayResponseNormalizer', () => {
         {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
       );
       expect(result).toEqual({
-        errors: null,
+        errors: undefined,
         fieldPayloads: [],
         followupPayloads: [
           {
@@ -4412,7 +3841,7 @@ describe('RelayResponseNormalizer', () => {
         {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
       );
       expect(result).toEqual({
-        errors: null,
+        errors: undefined,
         fieldPayloads: [],
         followupPayloads: [
           {
@@ -4494,7 +3923,7 @@ describe('RelayResponseNormalizer', () => {
         },
       );
       expect(result).toEqual({
-        errors: null,
+        errors: undefined,
         fieldPayloads: [],
         followupPayloads: [],
         incrementalPlaceholders: [],
@@ -4538,7 +3967,7 @@ describe('RelayResponseNormalizer', () => {
         },
       );
       expect(result).toEqual({
-        errors: null,
+        errors: undefined,
         fieldPayloads: [],
         followupPayloads: [],
         incrementalPlaceholders: [],
@@ -4601,7 +4030,7 @@ describe('RelayResponseNormalizer', () => {
         {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
       );
       expect(result).toEqual({
-        errors: null,
+        errors: undefined,
         fieldPayloads: [],
         followupPayloads: [
           {
@@ -4710,6 +4139,443 @@ describe('RelayResponseNormalizer', () => {
           __typename: '__Root',
         },
       });
+    });
+  });
+
+  describe('when field error handling is disabled', () => {
+    const wasFieldErrorHandlingEnabled =
+      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
+
+    beforeAll(() => {
+      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = false;
+    });
+
+    it('ignores field errors', () => {
+      const FooQuery = graphql`
+        query RelayResponseNormalizerTest36Query($id: ID!) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              firstName
+              lastName
+              friends(first: 3) {
+                edges {
+                  cursor
+                  node {
+                    firstName
+                    lastName
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          firstName: 'Jerry',
+          lastName: 'Seinfeld',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  id: '2',
+                  firstName: 'George',
+                  lastName: 'Costanza',
+                },
+              },
+              {
+                cursor: 'cursor:3',
+                node: {
+                  id: '3',
+                  firstName: null,
+                  lastName: 'Kramer',
+                },
+              },
+              {
+                cursor: 'cursor:4',
+                node: {
+                  id: '4',
+                  firstName: null,
+                  lastName: 'Newman',
+                },
+              },
+            ],
+          },
+        },
+      };
+      const errors = [
+        {
+          message: "No one knows Kramer's first name until season six!",
+          path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
+        },
+        {
+          message: 'There was another error!',
+          path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
+        },
+        {
+          message: "No one knows Newman's first name!",
+          path: ['node', 'friends', 'edges', 2, 'node', 'firstName'],
+        },
+      ];
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      normalize(
+        recordSource,
+        createNormalizationSelector(FooQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
+        payload,
+        defaultOptions,
+        errors,
+      );
+      const friendsID = 'client:1:friends(first:3)';
+      const edge0ID = `${friendsID}:edges:0`;
+      const edge1ID = `${friendsID}:edges:1`;
+      const edge2ID = `${friendsID}:edges:2`;
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          firstName: 'Jerry',
+          'friends(first:3)': {__ref: friendsID},
+          lastName: 'Seinfeld',
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          firstName: 'George',
+          id: '2',
+          lastName: 'Costanza',
+        },
+        '3': {
+          __id: '3',
+          __typename: 'User',
+          firstName: null,
+          id: '3',
+          lastName: 'Kramer',
+        },
+        '4': {
+          __id: '4',
+          __typename: 'User',
+          firstName: null,
+          id: '4',
+          lastName: 'Newman',
+        },
+        [friendsID]: {
+          __id: friendsID,
+          __typename: 'FriendsConnection',
+          edges: {
+            __refs: [edge0ID, edge1ID, edge2ID],
+          },
+        },
+        [edge0ID]: {
+          __id: edge0ID,
+          __typename: 'FriendsEdge',
+          cursor: 'cursor:2',
+          node: {__ref: '2'},
+        },
+        [edge1ID]: {
+          __id: edge1ID,
+          __typename: 'FriendsEdge',
+          cursor: 'cursor:3',
+          node: {__ref: '3'},
+        },
+        [edge2ID]: {
+          __id: edge2ID,
+          __typename: 'FriendsEdge',
+          cursor: 'cursor:4',
+          node: {__ref: '4'},
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    afterAll(() => {
+      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
+        wasFieldErrorHandlingEnabled;
+    });
+  });
+
+  describe('when field error handling is enabled', () => {
+    const wasFieldErrorHandlingEnabled =
+      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
+
+    beforeAll(() => {
+      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
+    });
+
+    it('normalizes queries with multiple field errors', () => {
+      const FooQuery = graphql`
+        query RelayResponseNormalizerTest37Query($id: ID!) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              firstName
+              lastName
+              friends(first: 3) {
+                edges {
+                  cursor
+                  node {
+                    firstName
+                    lastName
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          firstName: 'Jerry',
+          lastName: 'Seinfeld',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  id: '2',
+                  firstName: 'George',
+                  lastName: 'Costanza',
+                },
+              },
+              {
+                cursor: 'cursor:3',
+                node: {
+                  id: '3',
+                  firstName: null,
+                  lastName: 'Kramer',
+                },
+              },
+              {
+                cursor: 'cursor:4',
+                node: {
+                  id: '4',
+                  firstName: null,
+                  lastName: 'Newman',
+                },
+              },
+            ],
+          },
+        },
+      };
+      const errors = [
+        {
+          message: "No one knows Kramer's first name until season six!",
+          path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
+        },
+        {
+          message: 'There was another error!',
+          path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
+        },
+        {
+          message: "No one knows Newman's first name!",
+          path: ['node', 'friends', 'edges', 2, 'node', 'firstName'],
+        },
+      ];
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      normalize(
+        recordSource,
+        createNormalizationSelector(FooQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
+        payload,
+        defaultOptions,
+        errors,
+      );
+      const friendsID = 'client:1:friends(first:3)';
+      const edge0ID = `${friendsID}:edges:0`;
+      const edge1ID = `${friendsID}:edges:1`;
+      const edge2ID = `${friendsID}:edges:2`;
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          firstName: 'Jerry',
+          'friends(first:3)': {__ref: friendsID},
+          lastName: 'Seinfeld',
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          firstName: 'George',
+          id: '2',
+          lastName: 'Costanza',
+        },
+        '3': {
+          __errors: {
+            firstName: [
+              {
+                message: "No one knows Kramer's first name until season six!",
+              },
+              {
+                message: 'There was another error!',
+              },
+            ],
+          },
+          __id: '3',
+          __typename: 'User',
+          firstName: null,
+          id: '3',
+          lastName: 'Kramer',
+        },
+        '4': {
+          __errors: {
+            firstName: [
+              {
+                message: "No one knows Newman's first name!",
+              },
+            ],
+          },
+          __id: '4',
+          __typename: 'User',
+          firstName: null,
+          id: '4',
+          lastName: 'Newman',
+        },
+        [friendsID]: {
+          __id: friendsID,
+          __typename: 'FriendsConnection',
+          edges: {
+            __refs: [edge0ID, edge1ID, edge2ID],
+          },
+        },
+        [edge0ID]: {
+          __id: edge0ID,
+          __typename: 'FriendsEdge',
+          cursor: 'cursor:2',
+          node: {__ref: '2'},
+        },
+        [edge1ID]: {
+          __id: edge1ID,
+          __typename: 'FriendsEdge',
+          cursor: 'cursor:3',
+          node: {__ref: '3'},
+        },
+        [edge2ID]: {
+          __id: edge2ID,
+          __typename: 'FriendsEdge',
+          cursor: 'cursor:4',
+          node: {__ref: '4'},
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    it('normalizes queries with field errors that bubbled up', () => {
+      const FooQuery = graphql`
+        query RelayResponseNormalizerTest38Query($id: ID!) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              firstName
+              lastName
+              friends(first: 3) {
+                edges {
+                  cursor
+                  node {
+                    firstName
+                    lastName
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          firstName: 'Jerry',
+          lastName: 'Seinfeld',
+          friends: null,
+        },
+      };
+      const errors = [
+        {
+          message: "No one knows Kramer's first name until season six!",
+          path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
+        },
+        {
+          message: 'There was another error!',
+          path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
+        },
+        {
+          message: "No one knows Newman's first name!",
+          path: ['node', 'friends', 'edges', 2, 'node', 'firstName'],
+        },
+      ];
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      normalize(
+        recordSource,
+        createNormalizationSelector(FooQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
+        payload,
+        defaultOptions,
+        errors,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          __errors: {
+            'friends(first:3)': [
+              {
+                message: "No one knows Kramer's first name until season six!",
+                path: ['edges', 1, 'node', 'firstName'],
+              },
+              {
+                message: 'There was another error!',
+                path: ['edges', 1, 'node', 'firstName'],
+              },
+              {
+                message: "No one knows Newman's first name!",
+                path: ['edges', 2, 'node', 'firstName'],
+              },
+            ],
+          },
+          firstName: 'Jerry',
+          'friends(first:3)': null,
+          id: '1',
+          lastName: 'Seinfeld',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+    });
+
+    afterAll(() => {
+      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
+        wasFieldErrorHandlingEnabled;
     });
   });
 });

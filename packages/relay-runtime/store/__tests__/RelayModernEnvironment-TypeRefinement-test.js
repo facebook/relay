@@ -901,7 +901,6 @@ describe('missing data detection', () => {
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {RelayModernEnvironmentTypeRefinementTest2Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -947,7 +946,6 @@ describe('missing data detection', () => {
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {RelayModernEnvironmentTypeRefinementTest2Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -999,7 +997,6 @@ describe('missing data detection', () => {
         __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {RelayModernEnvironmentTypeRefinementTest2Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -1065,8 +1062,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest4Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest4Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1110,8 +1110,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest4Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest4Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1156,8 +1159,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest4Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest4Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1202,8 +1208,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest4Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest4Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1269,8 +1278,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest6Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest6Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1315,8 +1327,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest6Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest6Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1362,8 +1377,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest6Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest6Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1409,8 +1427,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest6Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest6Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1478,8 +1499,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest8Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest8Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1524,8 +1548,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest8Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest8Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1571,8 +1598,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest8Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest8Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1618,8 +1648,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest8Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest8Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1685,8 +1718,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest10Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest10Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1729,8 +1765,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest10Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest10Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1798,8 +1837,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest12Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest12Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1842,8 +1884,11 @@ describe('missing data detection', () => {
         lastName: undefined,
         __id: 'abc',
         __fragmentOwner: operation.request,
-        __fragments: {RelayModernEnvironmentTypeRefinementTest12Fragment: {}},
-        __isWithinUnmatchedTypeRefinement: true,
+        __fragments: {
+          RelayModernEnvironmentTypeRefinementTest12Fragment: {
+            $isWithinUnmatchedTypeRefinement: true,
+          },
+        },
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(

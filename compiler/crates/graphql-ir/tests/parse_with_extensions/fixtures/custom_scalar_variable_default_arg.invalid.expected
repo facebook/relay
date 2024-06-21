@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery($arg: CustomScalarType! = "foobar") {
+    extension_field(custom_scalar_arg: $arg) {
+        __typename
+    }
+    extension_scalar_field(custom_scalar_arg: $arg)
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+type Obj {
+    some_key: Int!
+}
+
+extend type Query {
+    extension_field(custom_scalar_arg: CustomScalarType!): Obj
+    extension_scalar_field(custom_scalar_arg: CustomScalarType!): Int
+}
+==================================== ERROR ====================================
+✖︎ Unexpected scalar literal `"foobar"` provided in a position expecting custom scalar type `CustomScalarType`. This value should come from a variable.
+
+  custom_scalar_variable_default_arg.invalid.graphql:4:61
+    3 │ 
+    4 │ query CustomScalarLiteralArgQuery($arg: CustomScalarType! = "foobar") {
+      │                                                             ^^^^^^^^
+    5 │     extension_field(custom_scalar_arg: $arg) {

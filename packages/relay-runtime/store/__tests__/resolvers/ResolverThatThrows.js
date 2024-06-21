@@ -12,16 +12,14 @@
 'use strict';
 
 import type {ResolverThatThrows$key} from './__generated__/ResolverThatThrows.graphql';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName resolver_that_throws
+ * @RelayResolver User.resolver_that_throws: RelayResolverValue
  * @rootFragment ResolverThatThrows
- * @onType User
  * @live
  *
  * This should always throw.

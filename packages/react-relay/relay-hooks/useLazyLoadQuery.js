@@ -30,7 +30,7 @@ const {
 // This separate type export is only needed as long as we are injecting
 // a separate hooks implementation in ./HooksImplementation -- it can
 // be removed after we stop doing that.
-export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
+export type UseLazyLoadQueryHookType = hook <TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: {
@@ -41,7 +41,7 @@ export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
   },
 ) => TData;
 
-function useLazyLoadQuery<TVariables: Variables, TData>(
+hook useLazyLoadQuery<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: {
@@ -75,4 +75,5 @@ function useLazyLoadQuery<TVariables: Variables, TData>(
   return data;
 }
 
+// $FlowFixMe[react-rule-hook-incompatible]
 module.exports = (useLazyLoadQuery: UseLazyLoadQueryHookType);

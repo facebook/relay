@@ -44,7 +44,7 @@ export function deserializeState(params) {
     console.warn('Unexpected encoding version: ' + params.get('enc'));
     return null;
   }
-  const state = {};
+  const state = DEFAULT_STATE;
   for (const key of Object.keys(DEFAULT_STATE)) {
     const value = params.get(key);
     if (key == 'schemaText' || key == 'documentText') {

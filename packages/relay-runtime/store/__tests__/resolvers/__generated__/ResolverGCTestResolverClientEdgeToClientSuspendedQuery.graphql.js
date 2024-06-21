@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5adf3b6239e3a00c98a2127e00a4ec6a>>
+ * @generated SignedSource<<2935b9600729c90bf8148a5deba4ec77>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +18,14 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { DataID } from "relay-runtime";
+import type { LiveState, DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+) => ?string);
 import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOddResolverType} from "../QueryVirgoLiveSuspendsWhenOddResolver.js";
 // Type assertion validating that `queryVirgoSuspendsWhenCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -39,7 +38,7 @@ export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {|
     +__typename: "User",
   |},
   +virgo_suspends_when_counter_is_odd: ?{|
-    +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+    +name: ?string,
   |},
 |};
 export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery = {|
@@ -75,6 +74,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -103,7 +103,7 @@ return {
               "kind": "RelayResolver",
               "name": "name",
               "resolverModule": require('./../AstrologicalSignNameResolver').name,
-              "path": "name"
+              "path": "virgo_suspends_when_counter_is_odd.name"
             }
           ],
           "storageKey": null
@@ -168,7 +168,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "storageKey": null,
-                    "isOutputType": false
+                    "isOutputType": true
                   }
                 ],
                 "type": "AstrologicalSign",
@@ -176,7 +176,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": false
+              "isOutputType": true
             },
             (v1/*: any*/)
           ],

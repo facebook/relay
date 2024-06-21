@@ -1,0 +1,12 @@
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on ClientUser @throwOnFieldError {
+  name
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull @relay_resolver(
+      import_path: "./foo/bar.js"
+    )
+}

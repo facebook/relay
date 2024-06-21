@@ -1,0 +1,284 @@
+==================================== INPUT ====================================
+fragment fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  global_id
+  ... on User {
+    name
+    ...fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture
+  }
+}
+
+fragment fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "global_id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "global_id",
+            "variableName": "global_id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "global_id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "global_id",
+            "variableName": "global_id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "global_id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "size",
+                    "variableName": "size"
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profilePicture",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "uri",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "31dcd57f42128b8d975e6224202a17c9",
+    "id": null,
+    "metadata": {},
+    "name": "RefetchableFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $global_id: ID!
+) {
+  node(global_id: $global_id) {
+    __typename
+    ...fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment
+    global_id
+  }
+}
+
+fragment fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment on Node {
+  __isNode: __typename
+  global_id
+  ... on User {
+    name
+    ...fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierInfo": {
+        "identifierField": "global_id",
+        "identifierQueryVariableName": "id"
+      }
+    }
+  },
+  "name": "fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "global_id",
+      "storageKey": null
+    },
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        },
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture"
+        }
+      ],
+      "type": "User",
+      "abstractKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

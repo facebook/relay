@@ -21,19 +21,14 @@ use crate::Rollout;
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
-    pub enable_flight_transform: bool,
-
-    #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
-    /// Enable deprecated `@outputType` on Relay Resolvers.
     #[serde(default)]
-    pub relay_resolver_enable_output_type: FeatureFlag,
+    pub enable_catch_directive_transform: FeatureFlag,
 
-    /// Enable hashing of the `supported` argument of 3D fields. Partial
-    /// enabling of the feature flag checks the name based on the field type.
     #[serde(default)]
-    pub hash_supported_argument: FeatureFlag,
+    // Enable returning interfaces from Relay Resolvers without @outputType
+    pub relay_resolver_enable_interface_output_type: FeatureFlag,
 
     /// For now, this also disallows fragments with variable definitions
     /// This also makes @module to opt in using @no_inline internally
@@ -55,28 +50,94 @@ pub struct FeatureFlags {
     pub text_artifacts: FeatureFlag,
 
     #[serde(default)]
-    pub enable_client_edges: FeatureFlag,
-
-    #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
 
     /// Enable support for the experimental `@alias` directive on fragment spreads.
     #[serde(default)]
     pub enable_fragment_aliases: FeatureFlag,
 
+    /// Enforce that you must add `@alias` to a fragment if it may not match,
+    /// due to type mismatch or `@skip`/`@include`
+    #[serde(default)]
+    pub enforce_fragment_alias_where_ambiguous: FeatureFlag,
+
     /// Print queries in compact form
     #[serde(default)]
     pub compact_query_text: FeatureFlag,
 
     /// Create normalization nodes for client edges to client objects
-    #[serde(default)]
+    #[serde(default = "default_as_true")]
     pub emit_normalization_nodes_for_client_edges: bool,
+
+    /// Fully build the normalization AST for Resolvers
+    #[serde(default)]
+    pub enable_resolver_normalization_ast: bool,
+
+    /// Allow relay resolvers to extend the Mutation type
+    #[serde(default)]
+    pub enable_relay_resolver_mutations: bool,
+
+    /// Perform strict validations when custom scalar types are used
+    #[serde(default)]
+    pub enable_strict_custom_scalars: bool,
+
+    /// Relay Resolvers are a read-time feature that are not actually handled in
+    /// our mutation APIs. We are in the process of removing any existing
+    /// examples, but this flag is part of a process of removing any existing
+    /// examples.
+    #[serde(default)]
+    pub allow_resolvers_in_mutation_response: FeatureFlag,
+
+    /// @required with an action of THROW is read-time feature that is not
+    /// compatible with our mutation APIs. We are in the process of removing
+    /// any existing examples, but this flag is part of a process of removing
+    /// any existing examples.
+    #[serde(default)]
+    pub allow_required_in_mutation_response: FeatureFlag,
+
+    /// Mirror of `enable_resolver_normalization_ast`
+    /// excludes resolver metadata from reader ast
+    #[serde(default)]
+    pub disable_resolver_reader_ast: bool,
+
+    /// Add support for parsing and transforming variable definitions on fragment
+    /// definitions and arguments on fragment spreads.
+    #[serde(default)]
+    pub enable_fragment_argument_transform: bool,
+
+    /// Allow non-nullable return types from resolvers.
+    #[serde(default)]
+    pub allow_resolver_non_nullable_return_type: FeatureFlag,
+
+    /// Disable validating the composite schema (server, client schema
+    /// extensions, Relay Resolvers) after its built.
+    #[serde(default)]
+    pub disable_schema_validation: bool,
+
+    /// Disallow the `@required` directive on fields that are already non-null
+    /// in the schema.
+    #[serde(default)]
+    pub disallow_required_on_non_null_fields: bool,
+
+    /// Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator
+    /// in @refetchable transform
+    #[serde(default)]
+    pub prefer_fetchable_in_refetch_queries: bool,
+
+    /// Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.
+    #[serde(default)]
+    pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+fn default_as_true() -> bool {
+    true
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize, Default)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature
+    #[default]
     Disabled,
 
     /// Fully enabled: developers may use this feature
@@ -87,12 +148,6 @@ pub enum FeatureFlag {
 
     /// Partially enabled: used for gradual rollout of the feature
     Rollout { rollout: Rollout },
-}
-
-impl Default for FeatureFlag {
-    fn default() -> Self {
-        FeatureFlag::Disabled
-    }
 }
 
 impl FeatureFlag {

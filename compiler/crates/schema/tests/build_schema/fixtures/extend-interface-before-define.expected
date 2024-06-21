@@ -19,7 +19,7 @@ type MyType {
 ==================================== ERROR ====================================
 ✖︎ Cannot extend type 'MyType', the type is not defined on the server schema.
 
-  <generated>:11:13
+  extend-interface-before-define.graphql:11:13
    10 │ 
    11 │ extend type MyType {
       │             ^^^^^^

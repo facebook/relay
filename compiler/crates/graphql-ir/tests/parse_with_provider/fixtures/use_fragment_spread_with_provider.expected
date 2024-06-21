@@ -34,7 +34,7 @@ fragment ChildFragment2 on User
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(69),
+            type_condition: Object(70),
             directives: [],
             selections: [
                 FragmentSpread {
@@ -143,7 +143,7 @@ fragment ChildFragment2 on User
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(69),
+            type_condition: Object(70),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -161,7 +161,7 @@ fragment ChildFragment2 on User
                     alias: None,
                     definition: WithLocation {
                         location: use_fragment_spread_with_provider.graphql:286:300,
-                        item: FieldID(474),
+                        item: FieldID(476),
                     },
                     arguments: [
                         Argument {
@@ -199,7 +199,7 @@ fragment ChildFragment2 on User
                                     alias: None,
                                     definition: WithLocation {
                                         location: use_fragment_spread_with_provider.graphql:327:330,
-                                        item: FieldID(179),
+                                        item: FieldID(182),
                                     },
                                     arguments: [],
                                     directives: [],
@@ -275,7 +275,7 @@ fragment ChildFragment2 on User
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(69),
+            type_condition: Object(70),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -295,7 +295,7 @@ fragment ChildFragment2 on User
                             alias: None,
                             definition: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:526:532,
-                                item: FieldID(483),
+                                item: FieldID(485),
                             },
                             arguments: [],
                             directives: [],

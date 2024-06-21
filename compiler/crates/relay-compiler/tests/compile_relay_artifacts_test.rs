@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a462cf5b6b402f99514438fe2a6c56fe>>
+ * @generated SignedSource<<1cbf5b06f3aa5678cb1b1d37cea9c275>>
  */
 
 mod compile_relay_artifacts;
@@ -1508,6 +1508,13 @@ async fn required_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/required-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required-directive.expected");
     test_fixture(transform_fixture, file!(), "required-directive.graphql", "compile_relay_artifacts/fixtures/required-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn required_directive_on_conditional_field() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-directive-on-conditional-field.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-directive-on-conditional-field.expected");
+    test_fixture(transform_fixture, file!(), "required-directive-on-conditional-field.graphql", "compile_relay_artifacts/fixtures/required-directive-on-conditional-field.expected", input, expected).await;
 }
 
 #[tokio::test]

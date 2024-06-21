@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+query FooQuery($condition: Boolean!) {
+  me {
+    firstName
+    lastName @required(action: LOG) @skip(if: $condition)
+  }
+}
+==================================== OUTPUT ===================================
+export type FooQuery$variables = {|
+  condition: CustomBoolean,
+|};
+export type FooQuery$data = {|
+  +me: ?{|
+    +firstName: ?string,
+    +lastName?: string,
+  |},
+|};
+export type FooQuery = {|
+  response: FooQuery$data,
+  variables: FooQuery$variables,
+|};

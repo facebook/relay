@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fbad3b8f1e54b6a58a0190aff49f96bc>>
+ * @generated SignedSource<<1630011fc826a0199de34bf6ba1fc24d>>
  */
 
 mod generate_flow;
@@ -612,6 +612,13 @@ async fn required_chain_bubbles_to_non_null_linked_field_through_inline_fragment
     let input = include_str!("generate_flow/fixtures/required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.expected");
     test_fixture(transform_fixture, file!(), "required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.graphql", "generate_flow/fixtures/required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn required_conditional() {
+    let input = include_str!("generate_flow/fixtures/required-conditional.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-conditional.expected");
+    test_fixture(transform_fixture, file!(), "required-conditional.graphql", "generate_flow/fixtures/required-conditional.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -7,30 +7,17 @@
 
 use std::sync::Arc;
 
-use common::DirectiveName;
 use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
 use graphql_ir::build;
-use graphql_ir::node_identifier::LocationAgnosticBehavior;
 use graphql_ir::Program;
-use graphql_ir_validations::validate_selection_conflict;
+use graphql_ir_validations::validate_fragment_alias_conflict;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::get_test_schema_with_located_extensions;
 use relay_test_schema::TEST_SCHEMA;
-
-#[derive(Clone)]
-struct LocationAgnosticBehaviorForTestOnly;
-impl LocationAgnosticBehavior for LocationAgnosticBehaviorForTestOnly {
-    fn should_skip_in_node_identifier(_name: DirectiveName) -> bool {
-        false
-    }
-    fn hash_for_name_only(_name: DirectiveName) -> bool {
-        false
-    }
-}
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut schema = TEST_SCHEMA.to_owned();
@@ -66,12 +53,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     };
 
     let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
-    validate_selection_conflict::<LocationAgnosticBehaviorForTestOnly>(
-        &program,
-        &Default::default(),
-        true,
-    )
-    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+    validate_fragment_alias_conflict(&program)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     Ok("OK".to_owned())
 }

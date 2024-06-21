@@ -598,10 +598,12 @@ fn apply_operation_text_transforms(
         skip_null_arguments_transform(&program)
     });
     log_event.time("validate_selection_conflict", || {
-        graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
-            &program,
-            project_config,
-            true,
+        try_join(|| graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
+                &program,
+                project_config,
+                true,
+            ),
+            || graphql_ir_validations::validate_fragment_alias_conflict(&program),
         )
     })?;
     program = log_event.time("skip_client_extensions", || {

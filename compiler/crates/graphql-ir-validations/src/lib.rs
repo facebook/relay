@@ -11,6 +11,8 @@
 #![deny(clippy::clone_on_ref_ptr)]
 #![allow(clippy::comparison_chain)]
 
+mod validate_fragment_alias_conflict;
 mod validate_selection_conflict;
 
+pub use validate_fragment_alias_conflict::validate_fragment_alias_conflict;
 pub use validate_selection_conflict::validate_selection_conflict;

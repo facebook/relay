@@ -12,7 +12,7 @@ query RelayReaderNamedFragmentsTest2Query {
 ==================================== ERROR ====================================
 ✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'name' and 'canViewerComment'
 
-  field_names_still_conflict_in_alaised_fragment.graphql:6:19
+  field_names_still_conflict_in_aliased_fragment.graphql:6:19
     5 │     ... on User @alias(as: "myAlias") {
     6 │       same_alias: name
       │                   ^^^^
@@ -20,7 +20,7 @@ query RelayReaderNamedFragmentsTest2Query {
 
   ℹ︎ the other field
 
-  field_names_still_conflict_in_alaised_fragment.graphql:8:17
+  field_names_still_conflict_in_aliased_fragment.graphql:8:17
     7 │     }
     8 │     same_alias: canViewerComment
       │                 ^^^^^^^^^^^^^^^^

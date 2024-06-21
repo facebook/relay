@@ -15,7 +15,6 @@ import type {OperationDescriptor} from '../RelayStoreTypes';
 import type {Variables} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -121,7 +120,6 @@ describe('RelayModernSelector', () => {
       size: null,
       cond: false,
     };
-    RelayFeatureFlags.ENABLE_STRICT_EQUAL_SELECTORS = true;
   });
 
   describe('getSingularSelector()', () => {

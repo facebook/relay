@@ -11,7 +11,6 @@
 
 'use strict';
 
-const useFragmentInternal_EXPERIMENTAL = require('../relay-hooks/experimental/useFragmentInternal_EXPERIMENTAL');
 const React = require('react');
 const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');

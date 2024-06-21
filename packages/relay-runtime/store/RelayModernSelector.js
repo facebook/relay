@@ -23,7 +23,6 @@ import type {
   SingularReaderSelector,
 } from './RelayStoreTypes';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
   CLIENT_EDGE_TRAVERSAL_PATH,

@@ -244,28 +244,6 @@ impl From<SchemaExtension> for SchemaDefinition {
 impl ExtensionIntoDefinition for SchemaExtension {
     type DefinitionType = SchemaDefinition;
 }
-impl From<SchemaExtension> for SchemaDefinition {
-    fn from(ext: SchemaExtension) -> Self {
-        Self {
-            directives: ext.directives,
-            operation_types: ext.operation_types.unwrap_or(List {
-                span: Span::empty(),
-                start: Token {
-                    span: Span::empty(),
-                    kind: TokenKind::OpenBrace,
-                },
-                items: Vec::new(),
-                end: Token {
-                    span: Span::empty(),
-                    kind: TokenKind::CloseBrace,
-                },
-            }),
-        }
-    }
-}
-impl ExtensionIntoDefinition for SchemaExtension {
-    type DefinitionType = SchemaDefinition;
-}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct OperationTypeDefinition {
@@ -328,19 +306,6 @@ impl From<ObjectTypeExtension> for ObjectTypeDefinition {
 impl ExtensionIntoDefinition for ObjectTypeExtension {
     type DefinitionType = ObjectTypeDefinition;
 }
-impl From<ObjectTypeExtension> for ObjectTypeDefinition {
-    fn from(ext: ObjectTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            interfaces: ext.interfaces,
-            directives: ext.directives,
-            fields: ext.fields,
-        }
-    }
-}
-impl ExtensionIntoDefinition for ObjectTypeExtension {
-    type DefinitionType = ObjectTypeDefinition;
-}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InterfaceTypeDefinition {
@@ -367,19 +332,6 @@ impl From<InterfaceTypeExtension> for InterfaceTypeDefinition {
             directives: ext.directives,
             fields: ext.fields,
             span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for InterfaceTypeExtension {
-    type DefinitionType = InterfaceTypeDefinition;
-}
-impl From<InterfaceTypeExtension> for InterfaceTypeDefinition {
-    fn from(ext: InterfaceTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            interfaces: ext.interfaces,
-            directives: ext.directives,
-            fields: ext.fields,
         }
     }
 }
@@ -415,18 +367,6 @@ impl From<UnionTypeExtension> for UnionTypeDefinition {
 impl ExtensionIntoDefinition for UnionTypeExtension {
     type DefinitionType = UnionTypeDefinition;
 }
-impl From<UnionTypeExtension> for UnionTypeDefinition {
-    fn from(ext: UnionTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            directives: ext.directives,
-            members: ext.members,
-        }
-    }
-}
-impl ExtensionIntoDefinition for UnionTypeExtension {
-    type DefinitionType = UnionTypeDefinition;
-}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct ScalarTypeDefinition {
@@ -447,17 +387,6 @@ impl From<ScalarTypeExtension> for ScalarTypeDefinition {
             name: ext.name,
             directives: ext.directives,
             span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for ScalarTypeExtension {
-    type DefinitionType = ScalarTypeDefinition;
-}
-impl From<ScalarTypeExtension> for ScalarTypeDefinition {
-    fn from(ext: ScalarTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            directives: ext.directives,
         }
     }
 }
@@ -493,18 +422,6 @@ impl From<EnumTypeExtension> for EnumTypeDefinition {
 impl ExtensionIntoDefinition for EnumTypeExtension {
     type DefinitionType = EnumTypeDefinition;
 }
-impl From<EnumTypeExtension> for EnumTypeDefinition {
-    fn from(ext: EnumTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            directives: ext.directives,
-            values: ext.values,
-        }
-    }
-}
-impl ExtensionIntoDefinition for EnumTypeExtension {
-    type DefinitionType = EnumTypeDefinition;
-}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InputObjectTypeDefinition {
@@ -528,18 +445,6 @@ impl From<InputObjectTypeExtension> for InputObjectTypeDefinition {
             directives: ext.directives,
             fields: ext.fields,
             span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for InputObjectTypeExtension {
-    type DefinitionType = InputObjectTypeDefinition;
-}
-impl From<InputObjectTypeExtension> for InputObjectTypeDefinition {
-    fn from(ext: InputObjectTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            directives: ext.directives,
-            fields: ext.fields,
         }
     }
 }

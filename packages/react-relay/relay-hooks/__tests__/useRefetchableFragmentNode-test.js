@@ -38,8 +38,6 @@ import type {
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useRefetchableFragmentInternal_EXPERIMENTAL = require('../experimental/useRefetchableFragmentInternal_EXPERIMENTAL');
-const useRefetchableFragmentNode_LEGACY = require('../legacy/useRefetchableFragmentNode');
 const {useTrackLoadQueryInRender} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useRefetchableFragmentInternal = require('../useRefetchableFragmentInternal');

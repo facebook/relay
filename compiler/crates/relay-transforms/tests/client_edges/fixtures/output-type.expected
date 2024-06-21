@@ -31,9 +31,6 @@ fragment Foo_user on User {
   #             "ClientUser",
   #         ),
   #     ),
-  #     location: <generated>:7:17,
-  #     has_model_instance_field: false,
-  #     is_model_live: false,
   #     unique_id: 0,
   #     model_resolvers: [],
   # }

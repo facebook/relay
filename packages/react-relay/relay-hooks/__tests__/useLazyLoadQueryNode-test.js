@@ -28,11 +28,6 @@ import type {
 } from 'relay-runtime/store/RelayStoreTypes';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useFragment_EXPERIMENTAL = require('../experimental/useFragment_EXPERIMENTAL');
-const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
-const usePaginationFragment_EXPERIMENTAL = require('../experimental/usePaginationFragment_EXPERIMENTAL');
-const useRefetchableFragment_EXPERIMENTAL = require('../experimental/useRefetchableFragment_EXPERIMENTAL');
-const HooksImplementation = require('../HooksImplementation');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');

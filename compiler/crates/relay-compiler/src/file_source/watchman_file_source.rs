@@ -110,7 +110,6 @@ impl WatchmanFileSource {
                     saved_state_config.clone(),
                     saved_state_loader.as_ref(),
                     saved_state_version,
-                    self.config,
                 )
                 .await
             {
@@ -217,7 +216,6 @@ impl WatchmanFileSource {
         saved_state_config: ScmAwareClockData,
         saved_state_loader: &'_ (dyn SavedStateLoader + Send + Sync),
         saved_state_version: &str,
-        config: &Config,
     ) -> std::result::Result<Result<CompilerState>, &'static str> {
         let try_saved_state_event = perf_logger_event.start("try_saved_state_time");
         let scm_since = Clock::ScmAware(FatClockData {

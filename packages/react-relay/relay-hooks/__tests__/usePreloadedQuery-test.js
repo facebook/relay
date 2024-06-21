@@ -16,7 +16,6 @@ import type {usePreloadedQueryTestQuery} from './__generated__/usePreloadedQuery
 import type {Sink} from 'relay-runtime';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
-const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');

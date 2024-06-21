@@ -82,9 +82,6 @@ pub enum ClientEdgeMetadataDirective {
     },
     ClientObject {
         type_name: Option<ObjectName>,
-        location: Location,
-        has_model_instance_field: bool,
-        is_model_live: bool,
         unique_id: u32,
         model_resolvers: Vec<ClientEdgeModelResolver>,
     },

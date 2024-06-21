@@ -19,21 +19,9 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type RelayMockPayloadGeneratorTest_fragment61$normalization = {|
-  +id: string,
-  +name: ?string,
-|};
-
 */
 
 var node/*: NormalizationSplitOperation*/ = {
-  "argumentDefinitions": [
-    {
-      "defaultValue": false,
-      "kind": "LocalArgument",
-      "name": "RelayMockPayloadGeneratorTest_fragment61$cond"
-    }
-  ],
   "kind": "SplitOperation",
   "metadata": {},
   "name": "RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name$normalization",
@@ -57,7 +45,7 @@ var node/*: NormalizationSplitOperation*/ = {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "name",
+          "name": "text",
           "storageKey": null
         },
         {
@@ -67,7 +55,8 @@ var node/*: NormalizationSplitOperation*/ = {
           "name": "id",
           "storageKey": null
         }
-      ]
+      ],
+      "storageKey": null
     }
   ]
 };

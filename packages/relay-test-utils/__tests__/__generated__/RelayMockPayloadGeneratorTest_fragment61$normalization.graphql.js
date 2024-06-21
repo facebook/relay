@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ff9a67c10728fa277e01300c15c80d19>>
+ * @generated SignedSource<<eceadb8efbc75aa6f4d980309b354fb0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,35 +36,25 @@ var node/*: NormalizationSplitOperation*/ = {
   ],
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name$normalization",
+  "name": "RelayMockPayloadGeneratorTest_fragment61$normalization",
   "selections": [
     {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "plaintext",
+      "name": "id",
       "storageKey": null
     },
     {
-      "alias": null,
-      "args": null,
-      "concreteType": "PlainUserNameData",
-      "kind": "LinkedField",
-      "name": "data",
-      "plural": false,
+      "condition": "RelayMockPayloadGeneratorTest_fragment61$cond",
+      "kind": "Condition",
+      "passingValue": true,
       "selections": [
         {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
           "name": "name",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "id",
           "storageKey": null
         }
       ]
@@ -73,7 +63,7 @@ var node/*: NormalizationSplitOperation*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6292a26c9ba4d0e57ddcc19c901e1cbe";
+  (node/*: any*/).hash = "25e64d959ac400af76cce1c64d022f38";
 }
 
 module.exports = node;

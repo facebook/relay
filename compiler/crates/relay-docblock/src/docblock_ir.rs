@@ -158,8 +158,6 @@ pub(crate) fn parse_docblock_ir(
         }
     };
 
-    validate_strict_resolver_flavors(parse_options, &parsed_docblock_ir)?;
-
     assert_all_fields_removed(
         fields,
         resolver_field.key_location(),

@@ -10,7 +10,6 @@
  */
 
 'use strict';
-import type {LiveState} from 'relay-runtime';
 
 /**
  * @RelayResolver Query.non_live_resolver_with_live_return_value: String

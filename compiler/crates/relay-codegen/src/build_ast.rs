@@ -17,12 +17,14 @@ use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -164,16 +166,6 @@ pub fn build_request(
         fragment: fragment,
         kind: Primitive::String(CODEGEN_CONSTANTS.request),
         operation: operation_primitive,
-        params: Primitive::Key(request_parameters),
-    }))
-}
-
-pub fn build_preloadable_request(
-    ast_builder: &mut AstBuilder,
-    request_parameters: AstKey,
-) -> AstKey {
-    ast_builder.intern(Ast::Object(object! {
-        kind: Primitive::String(CODEGEN_CONSTANTS.preloadable_concrete_request),
         params: Primitive::Key(request_parameters),
     }))
 }

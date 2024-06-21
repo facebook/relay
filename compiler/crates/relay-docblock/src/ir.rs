@@ -11,7 +11,6 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
-use common::FeatureFlags;
 use common::InterfaceName;
 use common::Location;
 use common::Named;
@@ -193,7 +192,6 @@ impl DocblockIr {
         project_name: ProjectName,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
-        feature_flags: &FeatureFlags,
     ) -> DiagnosticsResult<String> {
         Ok(self
             .to_graphql_schema_ast(project_name, schema, schema_config)?
@@ -216,106 +214,12 @@ impl DocblockIr {
         project_name: ProjectName,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
-        feature_flags: &FeatureFlags,
     ) -> DiagnosticsResult<SchemaDocument> {
         match self {
             DocblockIr::Type(type_) => Ok(type_.to_graphql_schema_ast(schema_config)),
             DocblockIr::Field(field) => {
                 field.to_graphql_schema_ast(project_name, schema, schema_config)
             }
-        }?;
-
-        for definition in &schema_doc.definitions {
-            ensure_valid_resolver_field_definition(
-                definition,
-                schema,
-                location,
-                feature_flags.enable_relay_resolver_mutations,
-            )?;
-        }
-        Ok(schema_doc)
-    }
-}
-
-fn ensure_valid_resolver_field_definition(
-    definition: &TypeSystemDefinition,
-    schema: &SDLSchema,
-    ast_location: Location,
-    mutation_resolvers_enabled: bool,
-) -> DiagnosticsResult<()> {
-    validate_mutation_resolvers(definition, schema, ast_location, mutation_resolvers_enabled)?;
-    DiagnosticsResult::Ok(())
-}
-
-fn validate_mutation_resolvers(
-    definition: &TypeSystemDefinition,
-    schema: &SDLSchema,
-    ast_location: Location,
-    mutation_resolvers_enabled: bool,
-) -> DiagnosticsResult<()> {
-    if let Some(mutation_type) = schema.mutation_type() {
-        match definition {
-            TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
-                name: extended_type_name,
-                fields,
-                ..
-            }) => {
-                if let Some(extended_type) = schema.get_type(extended_type_name.value) {
-                    if extended_type == mutation_type {
-                        if !mutation_resolvers_enabled {
-                            return DiagnosticsResult::Err(vec![Diagnostic::error(
-                                SchemaValidationErrorMessages::DisallowedMutationResolvers {
-                                    mutation_type_name: extended_type_name.value.to_string(),
-                                },
-                                ast_location,
-                            )]);
-                        }
-                        if let Some(resolver_field) = get_relay_resolver_field(fields) {
-                            let field_type = &resolver_field.type_;
-                            if !is_valid_mutation_resolver_return_type(schema, field_type) {
-                                return DiagnosticsResult::Err(vec![Diagnostic::error(
-                                    SchemaValidationErrorMessages::MutationResolverNonScalarReturn {
-                                        resolver_field_name: resolver_field.name.value.to_string(),
-                                        actual_return_type: field_type.to_string(),
-                                    },
-                                    ast_location,
-                                )]);
-                            }
-                        }
-                    }
-                }
-            }
-            _ => (),
-        }
-    }
-
-    DiagnosticsResult::Ok(())
-}
-
-fn get_relay_resolver_field(fields: &Option<List<FieldDefinition>>) -> Option<&FieldDefinition> {
-    fields.as_ref().map(|list| &list.items).and_then(|fields| {
-        fields.iter().find(|f| {
-            f.directives
-                .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
-                .is_some()
-        })
-    })
-}
-
-fn is_valid_mutation_resolver_return_type(schema: &SDLSchema, type_: &TypeAnnotation) -> bool {
-    match type_ {
-        TypeAnnotation::Named(named_type) => {
-            if let Some(actual_type) = schema.get_type(named_type.name.value) {
-                actual_type.is_scalar() || actual_type.is_enum()
-            } else {
-                false
-            }
-        }
-        TypeAnnotation::List(_) => false,
-        TypeAnnotation::NonNull(non_null_type) => {
-            // note: this should be unreachable since we already disallow relay resolvers to return non-nullable types
-            // - implement this anyway in case that changes in the future
-            return is_valid_mutation_resolver_return_type(schema, &non_null_type.as_ref().type_);
         }
     }
 }

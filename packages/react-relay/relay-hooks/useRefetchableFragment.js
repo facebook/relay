@@ -89,7 +89,6 @@ hook useRefetchableFragment<
   }
   // $FlowFixMe[incompatible-return]
   // $FlowFixMe[prop-missing]
-  // $FlowFixMe[incompatible-variance]
   return [fragmentData, refetch];
 }
 

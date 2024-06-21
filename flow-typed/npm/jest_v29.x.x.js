@@ -1182,7 +1182,6 @@ type JestPrettyFormatColors = {
 };
 
 type JestPrettyFormatIndent = string => string;
-type JestPrettyFormatRefs = Array<any>;
 type JestPrettyFormatPrint = any => string;
 type JestPrettyFormatOptions = {|
   callToJSON: boolean,

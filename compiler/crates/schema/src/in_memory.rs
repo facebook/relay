@@ -1522,6 +1522,7 @@ impl InMemorySchema {
                 interfaces,
                 fields,
                 directives,
+                ..
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Interface(id)) => {
                     let index = id.as_usize();

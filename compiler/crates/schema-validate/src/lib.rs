@@ -21,7 +21,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use lazy_static::lazy_static;
-use log::info;
+use rayon::prelude::*;
 use regex::Regex;
 use schema::EnumID;
 use schema::Field;

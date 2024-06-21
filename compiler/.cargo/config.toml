@@ -1,3 +1,9 @@
+# [registries]
+# domorexp = { index = "sparse+https://domoreexp.pkgs.visualstudio.com/_packaging/npm-mirror/Cargo/index/" }
+# [source.crates-io]
+# replace-with = "domorexp"
+# [unstable]
+# registry-auth = true
 # This file should be kept in sync with the project's Buck flags.
 # See parent PACKAGE.
 

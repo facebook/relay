@@ -609,26 +609,6 @@ impl<'b> JSONPrinter<'b> {
         }
     }
 
-    fn write_resolver_module_reference(
-        &mut self,
-        f: &mut String,
-        resolver_function_name: ModuleImportName,
-        field_type: &StringKey,
-    ) -> FmtResult {
-        match resolver_function_name {
-            ModuleImportName::Default(_) => {
-                panic!("Expected a named import for Relay Resolvers")
-            }
-            ModuleImportName::Named { name, .. } => {
-                write!(
-                    f,
-                    "{{ resolverFunctionName: \"{}\", fieldType: \"{}\" }}",
-                    name, field_type
-                )
-            }
-        }
-    }
-
     fn write_js_dependency(
         &mut self,
         f: &mut String,

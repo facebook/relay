@@ -11,7 +11,6 @@
 
 'use strict';
 
-import type {Options} from './legacy/useRefetchableFragmentNode';
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {Options} from './useRefetchableFragmentInternal';
 import type {

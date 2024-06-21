@@ -281,7 +281,6 @@ class RelayReader {
   ): ?SelectorData {
     const record = this._recordSource.get(dataID);
     this._seenRecords.add(dataID);
-
     if (record == null) {
       if (record === undefined) {
         this._markDataAsMissing();

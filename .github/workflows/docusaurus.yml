@@ -17,7 +17,6 @@ jobs:
   build-compiler-explorer:
     name: Build Compiler Explorer
     runs-on: ubuntu-latest
-    needs: [build-compiler-explorer]
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1

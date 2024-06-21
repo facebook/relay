@@ -55,7 +55,7 @@ pub enum SchemaGenerationError {
         module_name: StringKey,
     },
     #[error("Not yet implemented")]
-    TODO,
+    Todo,
 
     #[error("Expected the function name to exist")]
     MissingFunctionName,

@@ -47,7 +47,7 @@ impl ImportExportVisitor {
         mut self,
         ast: &'_ hermes_estree::Program,
     ) -> DiagnosticsResult<(Imports, FxHashSet<StringKey>)> {
-        self.visit_program(&ast);
+        self.visit_program(ast);
         if !self.errors.is_empty() {
             Err(self.errors)
         } else {

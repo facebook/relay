@@ -473,6 +473,7 @@ impl RelayResolverExtractor {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn add_type_definition(
         &mut self,
         imports: &Imports,
@@ -927,7 +928,7 @@ fn return_type_to_type_annotation(
                                 })
                             } else {
                                 return Err(vec![Diagnostic::error(
-                                    SchemaGenerationError::TODO,
+                                    SchemaGenerationError::Todo,
                                     location,
                                 )]);
                             }
@@ -958,7 +959,7 @@ fn return_type_to_type_annotation(
                 }
                 _ => {
                     return Err(vec![Diagnostic::error(
-                        SchemaGenerationError::TODO,
+                        SchemaGenerationError::Todo,
                         location,
                     )]);
                 }

@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query ProdQueryWithArgument @relay_test_operation(DO_NOT_USE_use_in_production: true) {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+    }
+  }
+}
+# %extensions%
+==================================== OUTPUT ===================================
+query ProdQueryWithArgument @__metadata(relayTestingSelectionTypeInfo: {node: {enumValues: null, nullable: true, plural: false, type: "Node"}, node.id: {enumValues: null, nullable: false, plural: false, type: "ID"}, node.name: {enumValues: null, nullable: true, plural: false, type: "String"}}) {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+    }
+  }
+}

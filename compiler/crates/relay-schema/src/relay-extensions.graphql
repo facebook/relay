@@ -3,7 +3,9 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-directive @relay_test_operation on QUERY | MUTATION | SUBSCRIPTION
+directive @relay_test_operation(
+  DO_NOT_USE_use_in_production: Boolean = false @static
+) on QUERY | MUTATION | SUBSCRIPTION
 
 """
 (Relay only)

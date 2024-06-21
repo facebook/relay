@@ -84,6 +84,24 @@ describe('stableCopy', () => {
         '}',
     );
   });
+
+  it('copies values that contain the same array twice (but not in a cycle', () => {
+    const someArray = [1, 2];
+    const object = {
+      a: someArray,
+      b: someArray,
+    };
+    expect(stableCopy(object)).toEqual(object);
+  });
+
+  it('copies values that contain the same object twice (but not in a cycle', () => {
+    const someObj = {x: 1};
+    const object = {
+      a: someObj,
+      b: someObj,
+    };
+    expect(stableCopy(object)).toEqual(object);
+  });
 });
 
 describe('hasCycle', () => {
@@ -139,5 +157,22 @@ describe('hasCycle', () => {
     const a: $FlowFixMe = function noop() {};
     a.self = a;
     expect(hasCycle(a)).toBe(false);
+  });
+  it('does not detect cyle in values that contain the same array twice (but not in a cyle', () => {
+    const someArray = [1, 2];
+    const object = {
+      a: someArray,
+      b: someArray,
+    };
+    expect(hasCycle(object)).toBe(false);
+  });
+
+  it('does not detect cyle in value that contain the same object twice (but not in a cyle', () => {
+    const someObj = {x: 1};
+    const object = {
+      a: someObj,
+      b: someObj,
+    };
+    expect(hasCycle(object)).toBe(false);
   });
 });

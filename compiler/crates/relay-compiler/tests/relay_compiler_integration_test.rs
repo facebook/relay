@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f7617f554ddbed5ba9c28f3a4c0b5f90>>
+ * @generated SignedSource<<4ed46c8869542d0837a520ae742aa619>>
  */
 
 mod relay_compiler_integration;
@@ -230,10 +230,31 @@ async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
 }
 
 #[tokio::test]
-async fn resolver_returns_union() {
-    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union.expected");
-    test_fixture(transform_fixture, file!(), "resolver_returns_union.input", "relay_compiler_integration/fixtures/resolver_returns_union.expected", input, expected).await;
+async fn resolver_returns_union_of_cse() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_cse.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_cse.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union_of_cse.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_cse.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_union_of_cse_weak() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_cse_weak.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_cse_weak.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union_of_cse_weak.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_cse_weak.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_union_of_strong_resolver() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_strong_resolver.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_strong_resolver.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union_of_strong_resolver.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_strong_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_union_of_weak_resolver() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union_of_weak_resolver.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -1,4 +1,3 @@
-==================================== INPUT ====================================
 //- PersonComponent.js
 graphql`query PersonComponentQuery {
   person {
@@ -18,10 +17,18 @@ graphql`query PersonComponentQuery {
 
 //- UserTypeResolvers.js
 /**
+ * @RelayResolver User
+ */
+
+/**
  * @RelayResolver User.name: String
  */
 
 //- AdminTypeResolvers.js
+/**
+ * @RelayResolver Admin
+ */
+
 /**
  * @RelayResolver Admin.name: String
  */
@@ -47,19 +54,5 @@ type Query {
 }
 
 //- schema-extensions/extension.graphql
-type User {
-  id: ID!
-}
-type Admin {
-  id: ID!
-}
 
 union Person = User | Admin
-==================================== OUTPUT ===================================
-✖︎ @RelayResolver union type `Person` for field `person` is not supported as @outputType, yet.
-
-  QueryResolvers.js:2:25
-    1 │ *
-    2 │  * @RelayResolver Query.person: Person
-      │                         ^^^^^^
-    3 │

@@ -17,6 +17,7 @@ use ::intern::Lookup;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
+use common::ObjectName;
 use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
@@ -2510,17 +2511,18 @@ fn create_edge_to_return_type_ast(
         optional: false,
     })];
     if inner_type.is_abstract_type() && schema.is_extension_type(*inner_type) {
-        // Note: there is currently no way to create a resolver that returns an abstract
-        // client type, so this branch will not be hit until we enable that feature.
-        let interface_id = inner_type.get_interface_id().expect(
-            "Only interfaces are supported here. This indicates a bug in the Relay compiler.",
-        );
-        let valid_typenames = schema
-            .interface(interface_id)
-            .implementing_objects
-            .iter()
-            .map(|id| schema.object(*id).name.item)
-            .collect::<Vec<_>>();
+        let get_object_names = |members: &Vec<ObjectID>| {
+            members
+                .iter()
+                .map(|id| schema.object(*id).name.item)
+                .collect::<Vec<_>>()
+        };
+        let mut valid_typenames: Vec<ObjectName> = match inner_type {
+            Type::Interface(id) => get_object_names(&schema.interface(*id).implementing_objects),
+            Type::Union(id) => get_object_names(&schema.union(*id).members),
+            _ => panic!("Unexpected abstract type"),
+        };
+        valid_typenames.sort();
 
         fields.push(Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_TYPENAME,

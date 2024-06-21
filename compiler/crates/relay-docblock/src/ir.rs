@@ -525,14 +525,23 @@ trait ResolverIr: Sized {
                         }
                         _ => None,
                     };
-                    let is_edge_to = fields.map_or(false, |fields| {
+                    let mut is_edge_to_strong_object = fields.map_or(false, |fields| {
                         fields.iter().any(|id| {
                             schema.field(*id).name.item
                                 == project_config.schema_config.node_interface_id_field
                         })
                     });
+                    if let Some(Type::Union(id)) = schema_type {
+                        let union = schema.union(id);
+                        is_edge_to_strong_object = union.members.iter().all(|id| {
+                            schema.object(*id).fields.iter().any(|id| {
+                                schema.field(*id).name.item
+                                    == project_config.schema_config.node_interface_id_field
+                            })
+                        });
+                    }
 
-                    if !is_edge_to {
+                    if !is_edge_to_strong_object {
                         // If terse resolver does not return strong object (edge)
                         // it should be `@outputType` resolver
                         arguments.push(true_argument(

@@ -73,7 +73,7 @@ const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayReplaySubject = require('./util/RelayReplaySubject');
-const {stableCopy} = require('./util/stableCopy');
+const {hasCycle, stableCopy} = require('./util/stableCopy');
 const withProvidedVariables = require('./util/withProvidedVariables');
 
 export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
@@ -363,6 +363,7 @@ module.exports = {
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
+  hasCycle: hasCycle,
   getFragmentIdentifier: getFragmentIdentifier,
   getRefetchMetadata: getRefetchMetadata,
   getPaginationMetadata: getPaginationMetadata,

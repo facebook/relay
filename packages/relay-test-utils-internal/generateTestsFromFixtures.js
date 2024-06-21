@@ -22,7 +22,7 @@ const path = require('path');
  */
 const FIXTURE_TAG = Symbol.for('FIXTURE_TAG');
 expect.addSnapshotSerializer({
-  serialize(value) {
+  print(value) {
     return Object.keys(value)
       .map(key => `~~~~~~~~~~ ${key.toUpperCase()} ~~~~~~~~~~\n${value[key]}`)
       .join('\n');

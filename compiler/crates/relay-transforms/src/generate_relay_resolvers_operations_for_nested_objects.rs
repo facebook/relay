@@ -15,7 +15,6 @@ use common::NamedItem;
 use common::WithLocation;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
-use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
@@ -490,31 +489,15 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                 continue;
             }
 
-            let inner_field_type = field.type_.inner();
-
             // Allow scalar/enums as @outputType
-            if inner_field_type.is_scalar() || inner_field_type.is_enum() {
-                continue;
-            }
-
-            let is_model = inner_field_type
-                .get_object_id()
-                .and_then(|object_id| {
-                    let object = program.schema.object(object_id);
-                    object
-                        .directives
-                        .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
-                })
-                .is_some();
-
-            if is_model {
+            if field.type_.inner().is_scalar() || field.type_.inner().is_enum() {
                 continue;
             }
 
             let selections = match generate_fat_selections_from_type(
                 &program.schema,
                 schema_config,
-                inner_field_type,
+                field.type_.inner(),
                 field,
             ) {
                 Ok(selections) => selections,

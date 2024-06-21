@@ -652,9 +652,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         it('optimistically creates @match fields and loads resources', () => {
           operationLoader.load.mockImplementationOnce(() => {
             return new Promise(resolve => {
-              setTimeout(() => {
+              setImmediate(() => {
                 resolve(markdownRendererNormalizationFragment);
-              }, 0);
+              });
             });
           });
           environment

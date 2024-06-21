@@ -61,7 +61,8 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.default_transform_operation(operation)
+        let transformed = self.default_transform_operation(operation);
+        transformed
     }
 
     fn transform_fragment(

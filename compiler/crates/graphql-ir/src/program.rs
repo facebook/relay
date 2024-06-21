@@ -155,6 +155,7 @@ impl Program {
                 };
             }
         }
-        self.operations.extend(operations.into_values());
+        self.operations
+            .extend(operations.into_iter().map(|(_, op)| op));
     }
 }

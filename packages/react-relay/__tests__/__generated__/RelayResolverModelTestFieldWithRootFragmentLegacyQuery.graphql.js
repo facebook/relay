@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<edca95f340972085206d6a9f32e28f4d>>
+ * @generated SignedSource<<eb11e21205e629c4cefd4b2bd5723324>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,13 +35,13 @@ import {capitalized_id_legacy as todoModelCapitalizedIdLegacyResolverType} from 
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelCapitalizedIdLegacyResolverType: (
   rootKey: TodoModelCapitalizedIDLegacy$key,
-) => ?string);
+) => ?mixed);
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables = {|
   id: string,
 |};
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data = {|
   +todo_model: ?{|
-    +capitalized_id_legacy: ?string,
+    +capitalized_id_legacy: ?ReturnType<typeof todoModelCapitalizedIdLegacyResolverType>,
   |},
 |};
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery = {|
@@ -84,20 +84,18 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoModel",
-        "modelResolvers": {
-          "TodoModel": {
-            "alias": null,
-            "args": [],
-            "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "TodoModel__id"
-            },
-            "kind": "RelayLiveResolver",
-            "name": "todo_model",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
-            "path": "todo_model.__relay_model_instance"
-          }
+        "modelResolver": {
+          "alias": null,
+          "args": [],
+          "fragment": {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "TodoModel__id"
+          },
+          "kind": "RelayLiveResolver",
+          "name": "todo_model",
+          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+          "path": "todo_model.__relay_model_instance"
         },
         "backingField": {
           "alias": null,
@@ -174,7 +172,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": true
+              "isOutputType": false
             },
             (v2/*: any*/)
           ],

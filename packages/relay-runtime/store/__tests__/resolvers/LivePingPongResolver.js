@@ -18,8 +18,10 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.ping: String
+ * @RelayResolver
+ * @fieldName ping
  * @rootFragment LivePingPongResolver
+ * @onType Query
  * @live
  *
  * A @live Relay resolver that synchronously triggers an update on initial

@@ -11,18 +11,21 @@
 
 'use strict';
 
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
+
 /**
- * @RelayResolver User.client_object(return_null: Boolean!): ClientObject
- *
- * Returns a weak ClientObject or null depending upon the argument.
+ * @RelayResolver
+ * @fieldName client_object(id: ID!)
+ * @edgeTo ClientObject
+ * @onType User
  */
 function client_object(args: {
-  return_null: boolean,
-}): {description: string} | null {
-  if (args.return_null) {
+  id: string,
+}): ?ConcreteClientEdgeResolverReturnType<> {
+  if (args.id === '0') {
     return null;
   }
-  return {description: 'Hello world'};
+  return {id: args.id};
 }
 
 module.exports = {

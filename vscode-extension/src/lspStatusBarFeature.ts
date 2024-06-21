@@ -10,7 +10,6 @@ import {
   StaticFeature,
   InitializeParams,
   RequestType,
-  FeatureState,
 } from 'vscode-languageclient';
 import {RelayExtensionContext} from './context';
 
@@ -117,12 +116,13 @@ export function handleShowStatusMethod(
   }
 }
 
-// This StaticFeature is solely responsible for intercepting window/showStatus
-// commands from the LSP Server and displaying those messages on the client
-// status bar.
+// This StaticFeature is solely responsible for intercepting
+// window/showStatus commands from the LSP Server and displaying
+// those messages on the client status bar.
 //
-// The StatusBarItem creation does not happen here since we may want to use the
-// status bar to display messages before we get messages from the LSP server.
+// The StatusBarItem creation does not happen here since we may
+// want to use the status bar to display messages before we
+// get messages from the LSP server.
 // e.g. Looking for Relay binary...
 export class LSPStatusBarFeature implements StaticFeature {
   private context: RelayExtensionContext;
@@ -131,15 +131,6 @@ export class LSPStatusBarFeature implements StaticFeature {
 
   constructor(context: RelayExtensionContext) {
     this.context = context;
-  }
-
-  getState(): FeatureState {
-    return {kind: 'static'};
-  }
-
-  clear(): void {
-    this.context.statusBar.hide();
-    this.disposable?.dispose();
   }
 
   fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
@@ -154,5 +145,9 @@ export class LSPStatusBarFeature implements StaticFeature {
         handleShowStatusMethod(this.context, params);
       },
     );
+  }
+
+  dispose(): void {
+    this.disposable?.dispose();
   }
 }

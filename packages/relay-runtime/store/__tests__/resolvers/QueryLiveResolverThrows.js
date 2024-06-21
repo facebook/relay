@@ -14,7 +14,9 @@
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.live_resolver_throws: RelayResolverValue
+ * @RelayResolver
+ * @fieldName live_resolver_throws
+ * @onType Query
  * @live
  *
  * A @live resolver that throws

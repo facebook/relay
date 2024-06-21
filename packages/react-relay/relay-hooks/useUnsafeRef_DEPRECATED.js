@@ -18,7 +18,7 @@ const {useMemo} = require('react');
  * pattern to read or write from a ref during render as it does not trigger
  * a rerender and might result in bugs.
  */
-hook useUnsafeRef_DEPRECATED<T>(init: T): {current: T} {
+function useUnsafeRef_DEPRECATED<T>(init: T): {current: T} {
   return useMemo<{current: T}>(() => ({current: init}), []);
 }
 

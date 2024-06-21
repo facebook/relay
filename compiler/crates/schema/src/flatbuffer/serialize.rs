@@ -141,7 +141,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     }
 
     fn serialize_directive(&mut self, directive: &Directive) {
-        let name = directive.name.item.0.lookup();
+        let name = directive.name.0.lookup();
         if self.directives.contains_key(name) {
             return;
         }
@@ -421,7 +421,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         value: &Argument,
     ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
         let args = schema_flatbuffer::ArgumentArgs {
-            name: Some(self.bldr.create_string(value.name.item.0.lookup())),
+            name: Some(self.bldr.create_string(value.name.0.lookup())),
             value: value
                 .default_value
                 .as_ref()

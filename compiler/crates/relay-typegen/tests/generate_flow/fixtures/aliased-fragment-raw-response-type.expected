@@ -16,10 +16,10 @@ import type { MyUserFragment$fragmentType } from "MyUserFragment.graphql";
 export type MyQuery$variables = {||};
 export type MyQuery$data = {|
   +me: ?{|
-    +my_inline_fragment: {|
+    +my_inline_fragment: ?{|
       +name: ?string,
     |},
-    +my_user: {|
+    +my_user: ?{|
       +$fragmentSpreads: MyUserFragment$fragmentType,
     |},
   |},

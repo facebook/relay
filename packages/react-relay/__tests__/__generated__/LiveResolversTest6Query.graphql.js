@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9dcf6c9ce34df52a5fbef93ae2d23fc7>>
+ * @generated SignedSource<<328545432bb4a27ae857c424abf680e5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -120,7 +120,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": true
+              "isOutputType": false
             }
           ],
           "type": "Query",
@@ -128,7 +128,7 @@ return {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": true
+        "isOutputType": false
       }
     ]
   },

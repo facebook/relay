@@ -61,7 +61,7 @@ export type UseLoadMoreFunctionArgs = {
   onReset: () => void,
 };
 
-hook useLoadMoreFunction<TVariables: Variables>(
+function useLoadMoreFunction<TVariables: Variables>(
   args: UseLoadMoreFunctionArgs,
 ): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {

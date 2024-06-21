@@ -117,10 +117,7 @@ describe('ReactRelayFragmentContainer', () => {
       user: UserFragment,
     };
 
-    TestComponent = ({ref, ...props}) => {
-      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
-      return render(props);
-    };
+    TestComponent = render;
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayFragmentContainer.createContainer(
       TestComponent,
@@ -670,16 +667,6 @@ describe('ReactRelayFragmentContainer', () => {
     }
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
-      // Requires the `allowConcurrentByDefault` feature flag. Only run if
-      // we detect support for `unstable_concurrentUpdatesByDefault`.
-      if (
-        !ReactTestRenderer.create
-          .toString()
-          .includes('unstable_concurrentUpdatesByDefault')
-      ) {
-        return;
-      }
-
       const Scheduler = require('scheduler');
       const YieldChild = props => {
         Scheduler.log(props.children);

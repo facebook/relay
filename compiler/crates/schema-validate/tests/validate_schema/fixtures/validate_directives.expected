@@ -30,57 +30,23 @@ type Query {
   user: Human
 }
 ==================================== OUTPUT ===================================
-✖︎ Name '__fetchable' must not begin with '__', which is reserved by GraphQL introspection.
+Directive __fetchable with definition:
+	directive @__fetchable(field_name: String) on OBJECT
+had errors:
+	* Name '__fetchable' must not begin with '__', which is reserved by GraphQL introspection.
 
-  validate_directives.graphql:1:12
-    1 │ directive @__fetchable(field_name: String) on OBJECT
-      │            ^^^^^^^^^^^
-    2 │ 
+Directive __fetchableOther with definition:
+	directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
+had errors:
+	* Duplicate argument 'field_name' found on field/directive '__fetchableOther'.
+	* Name '__fetchableOther' must not begin with '__', which is reserved by GraphQL introspection.
 
-✖︎ Name '__field_name' must not begin with '__', which is reserved by GraphQL introspection.
+Directive fetchable with definition:
+	directive @fetchable(__field_name: String) on OBJECT
+had errors:
+	* Name '__field_name' must not begin with '__', which is reserved by GraphQL introspection.
 
-  validate_directives.graphql:3:22
-    2 │ 
-    3 │ directive @fetchable(__field_name: String) on OBJECT
-      │                      ^^^^^^^^^^^^
-    4 │ 
-
-✖︎ Duplicate argument 'field_name' found on field/directive 'fetchableOther'.
-
-  validate_directives.graphql:5:47
-    4 │ 
-    5 │ directive @fetchableOther(field_name: String, field_name: Int) on OBJECT
-      │                                               ^^^^^^^^^^
-    6 │ 
-
-  ℹ︎ Previously defined here:
-
-  validate_directives.graphql:5:27
-    4 │ 
-    5 │ directive @fetchableOther(field_name: String, field_name: Int) on OBJECT
-      │                           ^^^^^^^^^^
-    6 │ 
-
-✖︎ Name '__fetchableOther' must not begin with '__', which is reserved by GraphQL introspection.
-
-  validate_directives.graphql:7:12
-    6 │ 
-    7 │ directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
-      │            ^^^^^^^^^^^^^^^^
-    8 │ 
-
-✖︎ Duplicate argument 'field_name' found on field/directive '__fetchableOther'.
-
-  validate_directives.graphql:7:49
-    6 │ 
-    7 │ directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
-      │                                                 ^^^^^^^^^^
-    8 │ 
-
-  ℹ︎ Previously defined here:
-
-  validate_directives.graphql:7:29
-    6 │ 
-    7 │ directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
-      │                             ^^^^^^^^^^
-    8 │
+Directive fetchableOther with definition:
+	directive @fetchableOther(field_name: String, field_name: Int) on OBJECT
+had errors:
+	* Duplicate argument 'field_name' found on field/directive 'fetchableOther'.

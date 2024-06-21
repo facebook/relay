@@ -149,7 +149,7 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
     RelayFeatureFlags.ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES = false;
   });
 
-  it('should throw promise for pending operation affecting fragment owner', async () => {
+  it('should throw promise for pending operation affecting fragment owner', () => {
     environment.commitPayload(viewerOperation, {
       viewer: {
         actor: {
@@ -227,7 +227,7 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
     });
 
     environment.mock.complete(nodeOperation.request.node);
-    await expect(thrown).resolves.not.toThrow();
+    expect(thrown).resolves.not.toThrow();
 
     result = FragmentResource.read(
       getFragment(UserFragment),
@@ -240,7 +240,7 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
     });
   });
 
-  it('should throw promise for plural fragment', async () => {
+  it('should throw promise for plural fragment', () => {
     environment.commitPayload(viewerOperation, {
       viewer: {
         actor: {
@@ -333,7 +333,7 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
     });
 
     environment.mock.complete(nodeOperation.request.node);
-    await expect(thrown).resolves.not.toThrow();
+    expect(thrown).resolves.not.toThrow();
 
     result = FragmentResource.read(
       getFragment(UsersFragment),

@@ -1,8 +1,0 @@
-fragment MyFragment on User {
-  some_field @required(action: THROW)
-}
-
-# %extensions%
-extend type User {
-  some_field: Int @semanticNonNull
-}

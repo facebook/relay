@@ -48,10 +48,11 @@ macro_rules! intern {
 macro_rules! make_intern {
     ($name:ident as $alias:ident) => {
         use lazy_static::lazy_static;
-        use $crate::Intern;
-        use $crate::InternKey;
-        use $crate::InternTable;
-        use $crate::RawInternKey;
+
+        use crate::Intern;
+        use crate::InternKey;
+        use crate::InternTable;
+        use crate::RawInternKey;
 
         lazy_static! {
             /// Global interning table for this type

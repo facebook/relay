@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<869fcdd6d7df80060874622ffc7e5dd3>>
+ * @generated SignedSource<<39931863f644da14711fdb5c3b5964f9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAl
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAlwaysThrowsResolverType: (
   rootKey: UserAlwaysThrowsResolver$key,
-) => ?string);
+) => ?mixed);
 export type RelayReaderResolverTest12Query$variables = {||};
 export type RelayReaderResolverTest12Query$data = {|
   +me: ?{|
-    +always_throws: ?string,
+    +always_throws: ?ReturnType<typeof userAlwaysThrowsResolverType>,
   |},
 |};
 export type RelayReaderResolverTest12Query = {|
@@ -105,7 +105,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": true
+            "isOutputType": false
           },
           {
             "alias": null,

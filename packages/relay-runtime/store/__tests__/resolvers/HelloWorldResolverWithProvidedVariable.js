@@ -17,7 +17,9 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.hello_world_with_provided_variable: String
+ * @RelayResolver
+ * @fieldName hello_world_with_provided_variable
+ * @onType Query
  * @rootFragment HelloWorldResolverWithProvidedVariable
  *
  * Say `Hello ${world}!`
@@ -31,7 +33,7 @@ function hello_world_with_provided_variable(
       @argumentDefinitions(
         provided_variable: {
           type: "String!"
-          provider: "./HelloWorldProvider.relayprovider"
+          provider: "./HelloWorldProvider.js"
         }
       ) {
         hello(world: $provided_variable)

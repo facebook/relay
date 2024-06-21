@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50c1ac6d807f995864839d14f9e7601b>>
+ * @generated SignedSource<<ee35c608e173bb0949ea5f84b5f56d2d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,10 +24,10 @@ import {counter_plus_one as queryCounterPlusOneResolverType} from "../../../rela
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterPlusOneResolverType: (
   rootKey: CounterPlusOneResolver$key,
-) => ?number);
+) => ?mixed);
 export type LiveResolversTest3Query$variables = {||};
 export type LiveResolversTest3Query$data = {|
-  +counter_plus_one: ?number,
+  +counter_plus_one: ?ReturnType<typeof queryCounterPlusOneResolverType>,
 |};
 export type LiveResolversTest3Query = {|
   response: LiveResolversTest3Query$data,
@@ -113,7 +113,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": true
+              "isOutputType": false
             }
           ],
           "type": "Query",
@@ -121,7 +121,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": true
+        "isOutputType": false
       }
     ]
   },

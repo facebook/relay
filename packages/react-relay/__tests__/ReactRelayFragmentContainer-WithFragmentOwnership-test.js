@@ -117,10 +117,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
       user: UserFragment,
     };
     variables = {rootVariable: 'root'};
-    TestComponent = ({ref, ...props}) => {
-      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
-      return render(props);
-    };
+    TestComponent = render;
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayFragmentContainer.createContainer(
       TestComponent,

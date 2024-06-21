@@ -37,9 +37,7 @@ graphql`fragment PersonComponentFragment on IPerson {
 }
 
 //- schema.graphql
-type Query {
-  some_field: Boolean
-}
+# Empty server schema
 
 //- schema-extensions/extension.graphql
 interface IPerson {

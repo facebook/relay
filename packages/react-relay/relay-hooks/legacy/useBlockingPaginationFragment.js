@@ -65,7 +65,7 @@ type ReturnType<TVariables, TData, TKey> = {
   refetch: RefetchFn<TVariables, TKey>,
 };
 
-hook useBlockingPaginationFragment<
+function useBlockingPaginationFragment<
   TFragmentType: FragmentType,
   TVariables: Variables,
   TData,
@@ -166,7 +166,7 @@ hook useBlockingPaginationFragment<
   };
 }
 
-hook useLoadMore<TVariables: Variables>(args: {
+function useLoadMore<TVariables: Variables>(args: {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
   ...$Exact<

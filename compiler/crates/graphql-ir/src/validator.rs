@@ -42,7 +42,6 @@ pub trait Validator {
         fragment: &FragmentDefinition,
     ) -> DiagnosticsResult<()> {
         validate!(
-            self.validate_variable_definitions(&fragment.variable_definitions),
             self.validate_selections(&fragment.selections),
             self.validate_directives(&fragment.directives)
         )
@@ -58,7 +57,6 @@ pub trait Validator {
         operation: &OperationDefinition,
     ) -> DiagnosticsResult<()> {
         validate!(
-            self.validate_variable_definitions(&operation.variable_definitions),
             self.validate_directives(&operation.directives),
             self.validate_selections(&operation.selections)
         )
@@ -198,29 +196,6 @@ pub trait Validator {
 
     fn default_validate_argument(&mut self, argument: &Argument) -> DiagnosticsResult<()> {
         self.validate_value(&argument.value.item)
-    }
-
-    // Variable Definitions
-    fn validate_variable_definitions(
-        &mut self,
-        variables: &[VariableDefinition],
-    ) -> DiagnosticsResult<()> {
-        self.validate_list(variables, Self::validate_variable_definition)
-    }
-
-    fn validate_variable_definition(
-        &mut self,
-        variable_definition: &VariableDefinition,
-    ) -> DiagnosticsResult<()> {
-        self.default_validate_variable_definition(variable_definition)
-    }
-
-    fn default_validate_variable_definition(
-        &mut self,
-        variable_definition: &VariableDefinition,
-    ) -> DiagnosticsResult<()> {
-        let _ = variable_definition;
-        Ok(())
     }
 
     // Values

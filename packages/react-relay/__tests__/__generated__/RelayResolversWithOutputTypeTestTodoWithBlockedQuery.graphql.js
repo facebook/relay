@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<23a2228e817b92c509d48fc7d96971e8>>
+ * @generated SignedSource<<32a7b5f30be2c05a1d25e3d4f47213e6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -90,7 +90,7 @@ v2 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": true
+      "isOutputType": false
     }
   ],
   "type": "Todo",
@@ -108,7 +108,6 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
-        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),
@@ -118,7 +117,6 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo').todo,
           "path": "todo",
           "normalizationInfo": {
-            "kind": "OutputType",
             "concreteType": "Todo",
             "plural": false,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
@@ -135,7 +133,6 @@ return {
             {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "Todo",
-              "modelResolvers": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -149,7 +146,6 @@ return {
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
                 "path": "todo.blocked_by",
                 "normalizationInfo": {
-                  "kind": "OutputType",
                   "concreteType": "Todo",
                   "plural": true,
                   "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')
@@ -289,7 +285,7 @@ return {
                                   },
                                   "kind": "RelayResolver",
                                   "storageKey": null,
-                                  "isOutputType": true
+                                  "isOutputType": false
                                 }
                               ],
                               "storageKey": null
@@ -307,7 +303,7 @@ return {
                     "fragment": (v2/*: any*/),
                     "kind": "RelayResolver",
                     "storageKey": null,
-                    "isOutputType": true
+                    "isOutputType": false
                   }
                 ],
                 "storageKey": null

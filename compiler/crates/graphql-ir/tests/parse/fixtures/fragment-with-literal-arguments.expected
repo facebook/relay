@@ -102,7 +102,7 @@ fragment ChildFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-literal-arguments.graphql:174:188,
-                        item: FieldID(476),
+                        item: FieldID(475),
                     },
                     arguments: [
                         Argument {
@@ -138,7 +138,7 @@ fragment ChildFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:215:218,
-                                item: FieldID(182),
+                                item: FieldID(181),
                             },
                             arguments: [],
                             directives: [],

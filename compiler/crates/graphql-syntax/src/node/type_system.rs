@@ -7,17 +7,15 @@
 
 use std::fmt;
 
-use common::Named;
 use common::Span;
-use intern::string_key::Intern;
 use intern::string_key::StringKey;
 
 use super::constant_directive::ConstantDirective;
+use super::constant_value::ConstantValue;
 use super::constant_value::StringNode;
 use super::executable::OperationKind;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
-use crate::DefaultValue;
 use crate::TokenKind;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -40,7 +38,7 @@ pub enum TypeSystemDefinition {
 }
 
 impl TypeSystemDefinition {
-    pub fn span(&self) -> Span {
+    pub fn location(&self) -> Span {
         match self {
             TypeSystemDefinition::SchemaDefinition(_extension) => Span::empty(), // Not implemented
             TypeSystemDefinition::SchemaExtension(_extension) => Span::empty(),  // Not implemented
@@ -67,52 +65,44 @@ impl fmt::Display for TypeSystemDefinition {
             TypeSystemDefinition::SchemaDefinition(SchemaDefinition {
                 directives,
                 operation_types,
-                ..
             }) => write_schema_definition_helper(f, directives, &operation_types.items),
             TypeSystemDefinition::SchemaExtension(SchemaExtension {
                 directives,
                 operation_types,
-                ..
             }) => write_schema_extension_helper(f, directives, operation_types),
             TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
                 name,
                 interfaces,
                 fields,
                 directives,
-                ..
             }) => write_object_helper(f, &name.value, interfaces, fields, directives, false),
             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
                 name,
                 interfaces,
                 fields,
                 directives,
-                ..
             }) => write_object_helper(f, &name.value, interfaces, fields, directives, true),
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
                 name,
                 interfaces,
                 fields,
                 directives,
-                ..
             }) => write_interface_helper(f, &name.value, interfaces, fields, directives, false),
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
                 name,
                 interfaces,
                 fields,
                 directives,
-                ..
             }) => write_interface_helper(f, &name.value, interfaces, fields, directives, true),
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
                 name,
                 directives,
                 members,
-                ..
             }) => write_union_type_definition_helper(f, &name.value, directives, members, false),
             TypeSystemDefinition::UnionTypeExtension(UnionTypeExtension {
                 name,
                 directives,
                 members,
-                ..
             }) => write_union_type_definition_helper(f, &name.value, directives, members, true),
             TypeSystemDefinition::DirectiveDefinition(DirectiveDefinition {
                 name,
@@ -121,7 +111,6 @@ impl fmt::Display for TypeSystemDefinition {
                 locations,
                 description,
                 hack_source,
-                ..
             }) => write_directive_definition_helper(
                 f,
                 &name.value,
@@ -135,7 +124,6 @@ impl fmt::Display for TypeSystemDefinition {
                 name,
                 directives,
                 fields,
-                ..
             }) => {
                 write_input_object_type_definition_helper(f, &name.value, directives, fields, false)
             }
@@ -143,7 +131,6 @@ impl fmt::Display for TypeSystemDefinition {
                 name,
                 directives,
                 fields,
-                ..
             }) => {
                 write_input_object_type_definition_helper(f, &name.value, directives, fields, true)
             }
@@ -151,47 +138,19 @@ impl fmt::Display for TypeSystemDefinition {
                 name,
                 directives,
                 values,
-                ..
             }) => write_enum_type_definition_helper(f, &name.value, directives, values, false),
             TypeSystemDefinition::EnumTypeExtension(EnumTypeExtension {
                 name,
                 directives,
                 values,
-                ..
             }) => write_enum_type_definition_helper(f, &name.value, directives, values, true),
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                 name,
                 directives,
-                ..
             }) => write_scalar_type_definition_helper(f, &name.value, directives, false),
-            TypeSystemDefinition::ScalarTypeExtension(ScalarTypeExtension {
-                name,
-                directives,
-                ..
-            }) => write_scalar_type_definition_helper(f, &name.value, directives, true),
-        }
-    }
-}
-
-impl Named for TypeSystemDefinition {
-    type Name = StringKey;
-    fn name(&self) -> StringKey {
-        match self {
-            TypeSystemDefinition::SchemaDefinition(_definition) => "".intern(), // Not implemented
-            TypeSystemDefinition::SchemaExtension(_extension) => "".intern(),   // Not implemented
-            TypeSystemDefinition::ObjectTypeDefinition(definition) => definition.name.value,
-            TypeSystemDefinition::ObjectTypeExtension(extension) => extension.name.value,
-            TypeSystemDefinition::InterfaceTypeDefinition(definition) => definition.name.value,
-            TypeSystemDefinition::InterfaceTypeExtension(extension) => extension.name.value,
-            TypeSystemDefinition::UnionTypeDefinition(definition) => definition.name.value,
-            TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.value,
-            TypeSystemDefinition::DirectiveDefinition(definition) => definition.name.value,
-            TypeSystemDefinition::InputObjectTypeDefinition(definition) => definition.name.value,
-            TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.value,
-            TypeSystemDefinition::EnumTypeDefinition(definition) => definition.name.value,
-            TypeSystemDefinition::EnumTypeExtension(extension) => extension.name.value,
-            TypeSystemDefinition::ScalarTypeDefinition(definition) => definition.name.value,
-            TypeSystemDefinition::ScalarTypeExtension(extension) => extension.name.value,
+            TypeSystemDefinition::ScalarTypeExtension(ScalarTypeExtension { name, directives }) => {
+                write_scalar_type_definition_helper(f, &name.value, directives, true)
+            }
         }
     }
 }
@@ -212,37 +171,12 @@ pub trait ExtensionIntoDefinition: Sized {
 pub struct SchemaDefinition {
     pub directives: Vec<ConstantDirective>,
     pub operation_types: List<OperationTypeDefinition>,
-    pub span: Span,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct SchemaExtension {
     pub directives: Vec<ConstantDirective>,
     pub operation_types: Option<List<OperationTypeDefinition>>,
-    pub span: Span,
-}
-impl From<SchemaExtension> for SchemaDefinition {
-    fn from(ext: SchemaExtension) -> Self {
-        Self {
-            directives: ext.directives,
-            operation_types: ext.operation_types.unwrap_or(List {
-                span: Span::empty(),
-                start: Token {
-                    span: Span::empty(),
-                    kind: TokenKind::OpenBrace,
-                },
-                items: Vec::new(),
-                end: Token {
-                    span: Span::empty(),
-                    kind: TokenKind::CloseBrace,
-                },
-            }),
-            span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for SchemaExtension {
-    type DefinitionType = SchemaDefinition;
 }
 impl From<SchemaExtension> for SchemaDefinition {
     fn from(ext: SchemaExtension) -> Self {
@@ -271,7 +205,6 @@ impl ExtensionIntoDefinition for SchemaExtension {
 pub struct OperationTypeDefinition {
     pub operation: OperationType,
     pub type_: Identifier,
-    pub span: Span,
 }
 
 impl fmt::Display for OperationTypeDefinition {
@@ -303,7 +236,6 @@ pub struct ObjectTypeDefinition {
     pub interfaces: Vec<Identifier>,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
-    pub span: Span,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -312,21 +244,6 @@ pub struct ObjectTypeExtension {
     pub interfaces: Vec<Identifier>,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
-    pub span: Span,
-}
-impl From<ObjectTypeExtension> for ObjectTypeDefinition {
-    fn from(ext: ObjectTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            interfaces: ext.interfaces,
-            directives: ext.directives,
-            fields: ext.fields,
-            span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for ObjectTypeExtension {
-    type DefinitionType = ObjectTypeDefinition;
 }
 impl From<ObjectTypeExtension> for ObjectTypeDefinition {
     fn from(ext: ObjectTypeExtension) -> Self {
@@ -348,7 +265,6 @@ pub struct InterfaceTypeDefinition {
     pub interfaces: Vec<Identifier>,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
-    pub span: Span,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -357,21 +273,6 @@ pub struct InterfaceTypeExtension {
     pub interfaces: Vec<Identifier>,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
-    pub span: Span,
-}
-impl From<InterfaceTypeExtension> for InterfaceTypeDefinition {
-    fn from(ext: InterfaceTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            interfaces: ext.interfaces,
-            directives: ext.directives,
-            fields: ext.fields,
-            span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for InterfaceTypeExtension {
-    type DefinitionType = InterfaceTypeDefinition;
 }
 impl From<InterfaceTypeExtension> for InterfaceTypeDefinition {
     fn from(ext: InterfaceTypeExtension) -> Self {
@@ -392,7 +293,6 @@ pub struct UnionTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub members: Vec<Identifier>,
-    pub span: Span,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -400,20 +300,6 @@ pub struct UnionTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub members: Vec<Identifier>,
-    pub span: Span,
-}
-impl From<UnionTypeExtension> for UnionTypeDefinition {
-    fn from(ext: UnionTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            directives: ext.directives,
-            members: ext.members,
-            span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for UnionTypeExtension {
-    type DefinitionType = UnionTypeDefinition;
 }
 impl From<UnionTypeExtension> for UnionTypeDefinition {
     fn from(ext: UnionTypeExtension) -> Self {
@@ -432,26 +318,12 @@ impl ExtensionIntoDefinition for UnionTypeExtension {
 pub struct ScalarTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
-    pub span: Span,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct ScalarTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
-    pub span: Span,
-}
-impl From<ScalarTypeExtension> for ScalarTypeDefinition {
-    fn from(ext: ScalarTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            directives: ext.directives,
-            span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for ScalarTypeExtension {
-    type DefinitionType = ScalarTypeDefinition;
 }
 impl From<ScalarTypeExtension> for ScalarTypeDefinition {
     fn from(ext: ScalarTypeExtension) -> Self {
@@ -470,7 +342,6 @@ pub struct EnumTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub values: Option<List<EnumValueDefinition>>,
-    pub span: Span,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -478,20 +349,6 @@ pub struct EnumTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub values: Option<List<EnumValueDefinition>>,
-    pub span: Span,
-}
-impl From<EnumTypeExtension> for EnumTypeDefinition {
-    fn from(ext: EnumTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            directives: ext.directives,
-            values: ext.values,
-            span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for EnumTypeExtension {
-    type DefinitionType = EnumTypeDefinition;
 }
 impl From<EnumTypeExtension> for EnumTypeDefinition {
     fn from(ext: EnumTypeExtension) -> Self {
@@ -511,7 +368,6 @@ pub struct InputObjectTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<InputValueDefinition>>,
-    pub span: Span,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -519,20 +375,6 @@ pub struct InputObjectTypeExtension {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<InputValueDefinition>>,
-    pub span: Span,
-}
-impl From<InputObjectTypeExtension> for InputObjectTypeDefinition {
-    fn from(ext: InputObjectTypeExtension) -> Self {
-        Self {
-            name: ext.name,
-            directives: ext.directives,
-            fields: ext.fields,
-            span: ext.span,
-        }
-    }
-}
-impl ExtensionIntoDefinition for InputObjectTypeExtension {
-    type DefinitionType = InputObjectTypeDefinition;
 }
 impl From<InputObjectTypeExtension> for InputObjectTypeDefinition {
     fn from(ext: InputObjectTypeExtension) -> Self {
@@ -551,7 +393,6 @@ impl ExtensionIntoDefinition for InputObjectTypeExtension {
 pub struct EnumValueDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
-    pub span: Span,
 }
 
 impl fmt::Display for EnumValueDefinition {
@@ -569,7 +410,6 @@ pub struct DirectiveDefinition {
     pub locations: Vec<DirectiveLocation>,
     pub description: Option<StringNode>,
     pub hack_source: Option<StringNode>,
-    pub span: Span,
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -631,13 +471,12 @@ impl fmt::Display for DirectiveLocation {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct InputValueDefinition {
     pub name: Identifier,
     pub type_: TypeAnnotation,
-    pub default_value: Option<DefaultValue>,
+    pub default_value: Option<ConstantValue>,
     pub directives: Vec<ConstantDirective>,
-    pub span: Span,
 }
 
 impl fmt::Display for InputValueDefinition {
@@ -672,7 +511,6 @@ pub struct FieldDefinition {
     pub directives: Vec<ConstantDirective>,
     pub description: Option<StringNode>,
     pub hack_source: Option<StringNode>,
-    pub span: Span,
 }
 
 impl fmt::Display for FieldDefinition {

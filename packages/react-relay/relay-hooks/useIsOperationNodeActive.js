@@ -23,7 +23,7 @@ const {
 
 const {useEffect, useState, useMemo} = React;
 
-hook useIsOperationNodeActive(
+function useIsOperationNodeActive(
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
 ): boolean {

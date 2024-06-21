@@ -201,7 +201,7 @@ impl<'a> Validator for UpdatableFragmentSpread<'a> {
         }));
         match self.default_validate_linked_field(linked_field) {
             Ok(_) => {}
-            Err(e) => errors.extend(e),
+            Err(e) => errors.extend(e.into_iter()),
         }
         let linked_field_item = match self.path.pop().expect("path should not be empty") {
             PathItem::LinkedField(l) => l,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30aff183aa754716b7491388977376dd>>
+ * @generated SignedSource<<9a0067afd8f121e1038cba917258708e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ import {reads_client_edge as userReadsClientEdgeResolverType} from "../resolvers
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userReadsClientEdgeResolverType: (
   rootKey: UserReadsClientEdgeResolver$key,
-) => ?string);
+) => ?mixed);
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {||};
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {|
   +me: ?{|
-    +reads_client_edge: ?string,
+    +reads_client_edge: ?ReturnType<typeof userReadsClientEdgeResolverType>,
   |},
 |};
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery = {|
@@ -119,7 +119,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": true
+            "isOutputType": false
           },
           {
             "alias": null,

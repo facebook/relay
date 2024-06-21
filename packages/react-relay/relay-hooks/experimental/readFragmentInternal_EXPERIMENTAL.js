@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {QueryResult} from './QueryResource';
+import type {QueryResult} from '../QueryResource';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -23,7 +23,7 @@ import type {
 } from 'relay-runtime';
 import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreTypes';
 
-const {getQueryResourceForEnvironment} = require('./QueryResource');
+const {getQueryResourceForEnvironment} = require('../QueryResource');
 const invariant = require('invariant');
 const {
   __internal: {fetchQuery: fetchQueryInternal},
@@ -88,7 +88,6 @@ function handlePotentialSnapshotErrorsForState(
       state.snapshot.missingRequiredFields,
       state.snapshot.relayResolverErrors,
       state.snapshot.errorResponseFields,
-      state.snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
@@ -97,7 +96,6 @@ function handlePotentialSnapshotErrorsForState(
         snapshot.missingRequiredFields,
         snapshot.relayResolverErrors,
         snapshot.errorResponseFields,
-        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
     }
   }
@@ -161,7 +159,7 @@ function getFragmentState(
 }
 
 // fragmentNode cannot change during the lifetime of the component, though fragmentRef may change.
-function readFragmentInternal(
+function readFragmentInternal_EXPERIMENTAL(
   environment: IEnvironment,
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
@@ -299,4 +297,4 @@ function readFragmentInternal(
   return {data, clientEdgeQueries};
 }
 
-module.exports = readFragmentInternal;
+module.exports = readFragmentInternal_EXPERIMENTAL;

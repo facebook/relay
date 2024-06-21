@@ -12,7 +12,7 @@ interface Cat {
 }
 
 type Tabby implements Cat {
-    description: String @relay_resolver(import_path: "TabbyResolver")
+    description: String
 }
 
 type Persian implements Cat {

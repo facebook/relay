@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc01b78edf091a7e75b03c3eb47e5460>>
+ * @generated SignedSource<<5913ee23d3b454b8b62030303cd8ffbd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => ?string);
+) => ?mixed);
 import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -48,9 +48,9 @@ export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {|
   +me: ?{|
     +astrological_sign: ?{|
-      +name: ?string,
+      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
       +opposite: ?{|
-        +name: ?string,
+        +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
       |},
     |},
   |},
@@ -90,7 +90,7 @@ v2 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": true
+      "isOutputType": false
     }
   ],
   "type": "AstrologicalSign",
@@ -102,7 +102,7 @@ v3 = {
   "fragment": (v2/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
-  "isOutputType": true
+  "isOutputType": false
 };
 return {
   "fragment": {
@@ -124,7 +124,6 @@ return {
           {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
-            "modelResolvers": null,
             "backingField": {
               "alias": null,
               "args": null,
@@ -158,7 +157,6 @@ return {
                 {
                   "kind": "ClientEdgeToClientObject",
                   "concreteType": "AstrologicalSign",
-                  "modelResolvers": null,
                   "backingField": {
                     "alias": null,
                     "args": null,

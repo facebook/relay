@@ -25,17 +25,17 @@ impl std::fmt::Display for TopLevelStatement {
         match self {
             TopLevelStatement::ImportStatement(dependency) => match dependency.import_name {
                 ModuleImportName::Default(default_import) => {
-                    writeln!(f, "import {} from '{}';", default_import, dependency.path)?
+                    write!(f, "import {} from '{}';\n", default_import, dependency.path)?
                 }
                 ModuleImportName::Named { name, import_as } => {
                     if let Some(import_as) = import_as {
-                        writeln!(
+                        write!(
                             f,
-                            "import {{{} as {}}} from '{}';",
+                            "import {{{} as {}}} from '{}';\n",
                             name, import_as, dependency.path
                         )?
                     } else {
-                        writeln!(f, "import {{{}}} from '{}';", name, dependency.path)?
+                        write!(f, "import {{{}}} from '{}';\n", name, dependency.path)?
                     }
                 }
             },

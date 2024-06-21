@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<157ead33394671c4571b24fad8112407>>
+ * @generated SignedSource<<0da54bc9fc5eb62a2d2a1694f3f61226>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -39,6 +39,7 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
 (todoModelFancyDescriptionResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
 ) => ?TodoDescription);
+import type { TodoModel__fancy_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$data = {|
@@ -75,20 +76,18 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoModel",
-        "modelResolvers": {
-          "TodoModel": {
-            "alias": null,
+        "modelResolver": {
+          "alias": null,
+          "args": null,
+          "fragment": {
             "args": null,
-            "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "TodoModel__id"
-            },
-            "kind": "RelayLiveResolver",
-            "name": "edge_to_live_object_does_not_exist",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
-            "path": "edge_to_live_object_does_not_exist.__relay_model_instance"
-          }
+            "kind": "FragmentSpread",
+            "name": "TodoModel__id"
+          },
+          "kind": "RelayLiveResolver",
+          "name": "edge_to_live_object_does_not_exist",
+          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+          "path": "edge_to_live_object_does_not_exist.__relay_model_instance"
         },
         "backingField": {
           "alias": null,
@@ -111,7 +110,6 @@ return {
             {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "TodoDescription",
-              "modelResolvers": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -122,12 +120,12 @@ return {
                 },
                 "kind": "RelayResolver",
                 "name": "fancy_description",
-                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true),
+                "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true), '__relay_model_instance', false),
                 "path": "edge_to_live_object_does_not_exist.fancy_description",
                 "normalizationInfo": {
-                  "kind": "WeakModel",
                   "concreteType": "TodoDescription",
-                  "plural": false
+                  "plural": false,
+                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description$normalization.graphql')
                 }
               },
               "linkedField": {

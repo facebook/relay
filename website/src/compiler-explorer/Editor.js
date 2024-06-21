@@ -42,8 +42,8 @@ const editorOptions = {
 
 export default function Editor({text, onDidChange, diagnostics, style}) {
   const [ref, setRef] = useState(null);
-  const isDarkMode = useIsDarkMode();
-  const editorTheme = isDarkMode ? 'vs-dark' : 'vs';
+  const themeContext = useThemeConfig();
+  const editorTheme = themeContext.isDarkTheme ? 'vs-dark' : 'vs';
 
   const editor = useMemo(() => {
     if (ref == null) {
@@ -56,11 +56,7 @@ export default function Editor({text, onDidChange, diagnostics, style}) {
     if (editor == null) {
       return;
     }
-
-    // Calling setValue breaks undo, so we try not to do it if we don't need to.
-    if (editor.getValue() !== text) {
-      editor.setValue(text);
-    }
+    editor.setValue(text);
   }, [editor, text]);
 
   useLayoutEffect(() => {
@@ -102,36 +98,4 @@ export default function Editor({text, onDidChange, diagnostics, style}) {
   }, [editor, onDidChange]);
 
   return <div ref={setRef} style={style}></div>;
-}
-
-function getIsDarkMode() {
-  return document.documentElement.dataset.theme === 'dark';
-}
-
-// Docusaurus does not provide a hook for this, so we listen for the data
-// attribute on the HTML element to change.
-function useIsDarkMode() {
-  const [mode, setMode] = useState(() => getIsDarkMode());
-  useEffect(() => {
-    const observer = new MutationObserver((mutationsList, observer) => {
-      for (const mutation of mutationsList) {
-        if (
-          mutation.type === 'attributes' &&
-          mutation.attributeName === 'data-theme'
-        ) {
-          setMode(getIsDarkMode());
-        }
-      }
-    });
-
-    // Configuration of the observer
-    const config = {attributes: true};
-
-    // Start observing the target node
-    observer.observe(document.documentElement, config);
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-  return mode;
 }

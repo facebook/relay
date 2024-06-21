@@ -15,35 +15,35 @@ query selectionSetConflictMultipleConflictsQuery {
 ==================================== ERROR ====================================
 ✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'profile_picture' with type 'Image'
 
-  selection_set_conflict_multiple_conflicts.graphql:4:5
+  selection_set_conflict_multiple_conflicts.graphql:4:17
     3 │   me {
     4 │     same_alias: id
-      │     ^^^^^^^^^^
+      │                 ^^
     5 │     same_alias: name
 
   ℹ︎ the other field
 
-  selection_set_conflict_multiple_conflicts.graphql:6:5
+  selection_set_conflict_multiple_conflicts.graphql:6:17
     5 │     same_alias: name
     6 │     same_alias: profile_picture {
-      │     ^^^^^^^^^^
+      │                 ^^^^^^^^^^^^^^^
     7 │       size: width
 
 
 ✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'profile_picture' with type 'Image'
 
-  selection_set_conflict_multiple_conflicts.graphql:4:5
+  selection_set_conflict_multiple_conflicts.graphql:4:17
     3 │   me {
     4 │     same_alias: id
-      │     ^^^^^^^^^^
+      │                 ^^
     5 │     same_alias: name
 
   ℹ︎ the other field
 
-  selection_set_conflict_multiple_conflicts.graphql:9:5
+  selection_set_conflict_multiple_conflicts.graphql:9:17
     8 │     }
     9 │     same_alias: profile_picture {
-      │     ^^^^^^^^^^
+      │                 ^^^^^^^^^^^^^^^
    10 │       size: height
 
 

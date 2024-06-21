@@ -157,11 +157,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     };
 
     renderLogs = [];
-    QueryComponent = function TestQueryComponent(props: any) {
+    QueryComponent = function (props: any) {
       const result = usePreloadedQuery(props.queryInput, props.queryRef);
 
       const name = result?.node?.name ?? 'Empty';
-      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         renderLogs.push(`commit: ${name}`);
         return () => {

@@ -11,9 +11,9 @@
 
 'use strict';
 
+import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 import type {PreloadableConcreteRequest} from '../EntryPointTypes.flow';
 import type {usePreloadedQueryTestQuery} from './__generated__/usePreloadedQueryTestQuery.graphql';
-import type {Sink} from 'relay-runtime';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const useFragmentInternal_EXPERIMENTAL = require('../experimental/useFragmentInternal_EXPERIMENTAL');
@@ -115,8 +115,26 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-describe('usePreloadedQuery', () => {
+describe.each([
+  ['With legacy useFragmentNode', null],
+  [
+    'With new `useFragmentInternal` implementation',
+    useFragmentInternal_EXPERIMENTAL,
+  ],
+])('usePreloadedQuery (%s)', (_hookName, useFragmentInternal) => {
   beforeEach(() => {
+    if (useFragmentInternal != null) {
+      jest.mock('../HooksImplementation', () => {
+        return {
+          get() {
+            return {
+              useFragment__internal: useFragmentInternal,
+            };
+          },
+        };
+      });
+    }
+
     dataSource = undefined;
     // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetch = jest.fn((_query, _variables, _cacheConfig) =>

@@ -34,10 +34,4 @@ pub enum PersistError {
         #[from]
         source: std::io::Error,
     },
-
-    #[error("Failed parsing response: {source}. Raw response: {raw_response}")]
-    DetailedResponseParseError {
-        source: serde_json::Error,
-        raw_response: String,
-    },
 }

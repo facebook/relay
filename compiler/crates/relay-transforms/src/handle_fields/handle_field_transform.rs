@@ -36,7 +36,7 @@ pub fn handle_field_transform(program: &Program) -> Program {
 
 struct HandleFieldTransform;
 
-impl HandleFieldTransform {
+impl<'s> HandleFieldTransform {
     fn update_arguments(
         &self,
         arguments: &mut Vec<Argument>,
@@ -58,7 +58,7 @@ impl HandleFieldTransform {
     }
 }
 
-impl Transformer for HandleFieldTransform {
+impl<'s> Transformer for HandleFieldTransform {
     const NAME: &'static str = "HandleFieldTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

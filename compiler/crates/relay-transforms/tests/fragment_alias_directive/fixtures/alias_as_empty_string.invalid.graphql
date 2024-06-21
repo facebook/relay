@@ -1,9 +1,0 @@
-# expected-to-throw
-query RelayReaderNamedFragmentsTest2Query {
-  me {
-    id
-    ... on User @alias(as: "") {
-      name
-    }
-  }
-}

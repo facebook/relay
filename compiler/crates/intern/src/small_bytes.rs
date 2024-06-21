@@ -57,7 +57,7 @@ impl SmallBytes {
 impl Debug for SmallBytes {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         let s: String =
-            String::from_utf8(self.iter().flat_map(|b| escape_default(*b)).collect()).unwrap();
+            String::from_utf8(self.iter().map(|b| escape_default(*b)).flatten().collect()).unwrap();
         match self {
             Small { len, .. } => write!(f, "Small{{len:{},bytes:b\"{}\"}}", *len, s),
             Large(_) => write!(f, "Large(b\"{}\")", s),
@@ -110,7 +110,7 @@ impl From<&[u8]> for SmallBytes {
 
 impl From<Box<[u8]>> for SmallBytes {
     fn from(u: Box<[u8]>) -> SmallBytes {
-        if let Some(r) = make_small(&u) {
+        if let Some(r) = make_small(&*u) {
             r
         } else {
             Large(u)
@@ -120,7 +120,7 @@ impl From<Box<[u8]>> for SmallBytes {
 
 impl From<Vec<u8>> for SmallBytes {
     fn from(u: Vec<u8>) -> SmallBytes {
-        if let Some(r) = make_small(&u) {
+        if let Some(r) = make_small(&*u) {
             r
         } else {
             Large(u.into())
@@ -210,7 +210,7 @@ mod tests {
         assert_eq!(hash(&l), hash(e));
         let v: Vec<u8> = Vec::new();
         let ll = SmallBytes::from(v); // Consumes v.
-        let ls: &[u8] = &ll;
+        let ls: &[u8] = &*ll;
         assert_eq!(ll, l);
         assert_eq!(ls, b"");
         let vs: &[u8] = &Vec::new();

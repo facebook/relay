@@ -1063,7 +1063,6 @@ type User implements Named & Node & Actor & HasJsField & Entity & AllConcreteTyp
   nearest_neighbor: User!
   parents: [User!]!
   actor_key: ID!
-  count: Int
 }
 
 enum NameRendererContext {

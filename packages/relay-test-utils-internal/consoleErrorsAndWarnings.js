@@ -68,7 +68,6 @@ function createConsoleInterceptionSystem(
     if (installed) {
       throw new Error(`${installerName} should be called only once.`);
     }
-
     installed = true;
     setUpMock(handleMessage);
 

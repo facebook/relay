@@ -54,7 +54,7 @@ impl Writer for TypeScriptPrinter {
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
-            AST::Callable(return_type) => self.write_callable(return_type),
+            AST::Callable(return_type) => self.write_callable(&*return_type),
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
@@ -223,13 +223,13 @@ impl TypeScriptPrinter {
             if self.include_undefined_in_nullable_union {
                 new_members.push(undefined_type);
             }
-            self.write_union(&new_members)?;
+            self.write_union(&*new_members)?;
         } else {
             let mut union_members = vec![of_type.clone(), null_type];
             if self.include_undefined_in_nullable_union {
                 union_members.push(undefined_type)
             }
-            self.write_union(&union_members)?;
+            self.write_union(&*union_members)?;
         }
         Ok(())
     }

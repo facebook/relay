@@ -19,10 +19,7 @@ mod graphql_schema;
 mod in_memory;
 mod schema;
 pub mod suggestion_list;
-use std::borrow::Cow;
 
-use common::sync::IntoParallelIterator;
-use common::sync::ParallelIterator;
 use common::DiagnosticsResult;
 use common::SourceLocationKey;
 pub use definitions::Argument;
@@ -57,7 +54,6 @@ pub use graphql_syntax::DirectiveLocation;
 use graphql_syntax::SchemaDocument;
 pub use graphql_syntax::TypeSystemDefinition;
 pub use in_memory::InMemorySchema;
-use rayon::iter::IntoParallelRefIterator;
 
 pub use crate::schema::SDLSchema;
 
@@ -69,32 +65,16 @@ pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
     build_schema_with_extensions::<_, &str>(&[(sdl, SourceLocationKey::generated())], &[])
 }
 
-pub struct SchemaDocuments {
-    pub server: Vec<SchemaDocument>,
-    pub extensions: Vec<SchemaDocument>,
-}
-
-pub fn build_schema_with_extensions<
-    T: AsRef<str> + std::marker::Sync,
-    U: AsRef<str> + std::marker::Sync,
->(
+pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
-    let SchemaDocuments { server, extensions } =
-        parse_schema_with_extensions(server_sdls, extension_sdls)?;
-    SDLSchema::build(&server, &extensions)
-}
+    let mut server_documents = vec![builtins()?];
 
-pub fn parse_schema_with_extensions<
-    T: AsRef<str> + std::marker::Sync,
-    U: AsRef<str> + std::marker::Sync,
->(
-    server_sdls: &[(T, SourceLocationKey)],
-    extension_sdls: &[(U, SourceLocationKey)],
-) -> DiagnosticsResult<SchemaDocuments> {
-    let merged_server_sdls = match server_sdls {
-        [(sdl, location)] => vec![(Cow::Borrowed(sdl.as_ref()), *location)],
+    let server_schema_document = match server_sdls {
+        [(sdl, source_location)] => {
+            graphql_syntax::parse_schema_document(sdl.as_ref(), *source_location)?
+        }
         _ => {
             // When the schema is split across multiple files, the individual
             // files may not be syntactically complete, so we join them together
@@ -102,57 +82,26 @@ pub fn parse_schema_with_extensions<
 
             // Note that this requires us to use a generates source location key which
             // means click to definition for schema files will not work.
-            let mut chunks = vec![];
-            let mut buffer = String::new();
-            for (sdl, source_location) in server_sdls {
-                // Accumulate the document until it ends with a `}` to form
-                // a valid schema document
-                if ends_with_right_curly_brace(sdl) {
-                    if buffer.is_empty() {
-                        chunks.push((Cow::Borrowed(sdl.as_ref()), *source_location));
-                    } else {
-                        buffer.push_str(sdl.as_ref());
-                        chunks.push((
-                            Cow::Owned(std::mem::take(&mut buffer)),
-                            SourceLocationKey::Generated,
-                        ));
-                    }
-                } else {
-                    buffer.push_str(sdl.as_ref());
-                    buffer.push('\n');
-                }
+            let mut combined_sdl: String = String::new();
+            for (sdl, _) in server_sdls {
+                combined_sdl.push_str(sdl.as_ref());
+                combined_sdl.push('\n');
             }
-            assert!(buffer.is_empty());
-            chunks
+            graphql_syntax::parse_schema_document(&combined_sdl, SourceLocationKey::Generated)?
         }
     };
-    let result = rayon::join(
-        || {
-            merged_server_sdls
-                .into_par_iter()
-                .map(|(sdl, source_location)| {
-                    graphql_syntax::parse_schema_document(sdl.as_ref(), source_location)
-                })
-                .collect::<DiagnosticsResult<Vec<_>>>()
-        },
-        || {
-            extension_sdls
-                .par_iter()
-                .map(|(extension_sdl, location_key)| {
-                    graphql_syntax::parse_schema_document(extension_sdl.as_ref(), *location_key)
-                })
-                .collect::<DiagnosticsResult<Vec<_>>>()
-        },
-    );
 
-    let mut server_documents: Vec<SchemaDocument> = vec![builtins()?];
-    server_documents.extend(result.0?);
-    let client_schema_documents = result.1?;
+    server_documents.push(server_schema_document);
 
-    Ok(SchemaDocuments {
-        server: server_documents,
-        extensions: client_schema_documents,
-    })
+    let mut client_schema_documents = Vec::new();
+    for (extension_sdl, location_key) in extension_sdls {
+        client_schema_documents.push(graphql_syntax::parse_schema_document(
+            extension_sdl.as_ref(),
+            *location_key,
+        )?);
+    }
+
+    SDLSchema::build(&server_documents, &client_schema_documents)
 }
 
 pub fn build_schema_with_flat_buffer(bytes: Vec<u8>) -> SDLSchema {
@@ -165,16 +114,4 @@ pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBuff
 
 pub fn builtins() -> DiagnosticsResult<SchemaDocument> {
     graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())
-}
-
-fn ends_with_right_curly_brace<T: AsRef<str>>(text: T) -> bool {
-    for char in text.as_ref().chars().rev() {
-        if char == '}' {
-            return true;
-        }
-        if !char.is_whitespace() {
-            return false;
-        }
-    }
-    false
 }

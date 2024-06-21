@@ -14,16 +14,13 @@ use std::sync::Arc;
 use std::vec;
 
 use async_trait::async_trait;
-use common::DiagnosticsResult;
 use common::FeatureFlags;
 use common::Rollout;
-use docblock_syntax::DocblockAST;
 use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
-use graphql_syntax::ExecutableDefinition;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
@@ -45,9 +42,7 @@ use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
-use relay_docblock::DocblockIr;
 use relay_transforms::CustomTransformsConfig;
-use rustc_hash::FxHashMap;
 use serde::de::Error as DeError;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -68,7 +63,6 @@ use crate::errors::ConfigValidationError;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::saved_state::SavedStateLoader;
-use crate::source_control_for_root;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
 
@@ -100,10 +94,6 @@ pub struct Config {
     pub root_dir: PathBuf,
     pub sources: FnvIndexMap<PathBuf, ProjectSet>,
     pub excludes: Vec<String>,
-    /// Some projects may need to include extra source directories without being
-    /// affected by exclusion globs from the `excludes` config (e.g. generated
-    /// directories).
-    pub generated_sources: FnvIndexMap<PathBuf, ProjectSet>,
     pub projects: FnvIndexMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
@@ -159,7 +149,7 @@ pub struct Config {
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
     pub custom_override_schema_determinator:
-        Option<Box<dyn Fn(&ProjectConfig, &OperationDefinition) -> Option<String> + Send + Sync>>,
+        Option<Box<dyn Fn(&OperationDefinition) -> Option<String> + Send + Sync>>,
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
 
     /// The async function is called before the compiler connects to the file
@@ -168,26 +158,6 @@ pub struct Config {
 
     /// Runs in `try_saved_state` when the compiler state is initialized from saved state.
     pub update_compiler_state_from_saved_state: UpdateCompilerStateFromSavedState,
-
-    // Allow incremental build for some schema changes
-    pub has_schema_change_incremental_build: bool,
-
-    /// A custom function to extract resolver Dockblock IRs from sources
-    pub custom_extract_relay_resolvers: Option<
-        Box<
-            dyn Fn(
-                    ProjectName,
-                    &CompilerState,
-                    &FxHashMap<&PathBuf, (Vec<DocblockAST>, Option<&Vec<ExecutableDefinition>>)>,
-                ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>
-                // (Types, Fields)
-                + Send
-                + Sync,
-        >,
-    >,
-
-    /// A function to determine if full file source should be extracted instead of docblock
-    pub should_extract_full_source: Option<Box<dyn Fn(&str) -> bool + Send + Sync>>,
 }
 
 pub enum FileSourceKind {
@@ -267,19 +237,19 @@ impl Config {
             Ok(None) => Err(Error::ConfigError {
                 details: format!(
                     r#"
- Configuration for Relay compiler not found.
+Configuration for Relay compiler not found.
 
- Please make sure that the configuration file is created in {}.
+Please make sure that the configuration file is created in {}.
 
- You can also pass the path to the configuration file as `relay-compiler ./path-to-config/relay.json`.
+You can also pass the path to the configuration file as `relay-compiler ./path-to-config/relay.json`.
 
- Example file:
- {{
-   "src": "./src",
-   "schema": "./path-to/schema.graphql",
-   "language": "javascript"
- }}
- "#,
+Example file:
+{{
+  "src": "./src",
+  "schema": "./path-to/schema.graphql",
+  "language": "javascript"
+}}
+"#,
                     match loaders_sources.len() {
                         1 => loaders_sources[0].to_string(),
                         2 => format!("{} or {}", loaders_sources[0], loaders_sources[1]),
@@ -423,10 +393,7 @@ impl Config {
 
         let config = Self {
             name: config_file.name,
-            artifact_writer: Box::new(ArtifactFileWriter::new(
-                source_control_for_root(&root_dir),
-                root_dir.clone(),
-            )),
+            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
             status_reporter: Box::new(ConsoleStatusReporter::new(
                 root_dir.clone(),
                 is_multi_project,
@@ -434,7 +401,6 @@ impl Config {
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
-            generated_sources: config_file.generated_sources,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
@@ -457,9 +423,6 @@ impl Config {
             export_persisted_query_ids_to_file: None,
             initialize_resources: None,
             update_compiler_state_from_saved_state: None,
-            has_schema_change_incremental_build: false,
-            custom_extract_relay_resolvers: None,
-            should_extract_full_source: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -593,7 +556,6 @@ impl fmt::Debug for Config {
             root_dir,
             sources,
             excludes,
-            generated_sources,
             compile_everything,
             repersist_operations,
             projects,
@@ -618,7 +580,6 @@ impl fmt::Debug for Config {
             .field("root_dir", root_dir)
             .field("sources", sources)
             .field("excludes", excludes)
-            .field("generated_sources", generated_sources)
             .field("compile_everything", compile_everything)
             .field("repersist_operations", repersist_operations)
             .field("projects", projects)
@@ -678,16 +639,12 @@ struct MultiProjectConfigFile {
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
-    sources: FnvIndexMap<PathBuf, ProjectSet>,
+    sources: IndexMap<PathBuf, ProjectSet, fnv::FnvBuildHasher>,
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
     #[serde(default = "get_default_excludes")]
     excludes: Vec<String>,
-
-    /// Similar to sources but not affected by excludes.
-    #[serde(default)]
-    generated_sources: FnvIndexMap<PathBuf, ProjectSet>,
 
     /// Configuration of projects to compile.
     projects: FnvIndexMap<ProjectName, ConfigFileProject>,
@@ -943,10 +900,10 @@ impl<'de> Deserialize<'de> for ConfigFile {
                 Err(single_project_error) => {
                     let error_message = format!(
                         r#"The config file cannot be parsed as a single-project config file due to:
- - {:?}.
+- {:?}.
 
- It also cannot be a multi-project config file due to:
- - {:?}."#,
+It also cannot be a multi-project config file due to:
+- {:?}."#,
                         single_project_error, multi_project_error,
                     );
 
@@ -1053,7 +1010,6 @@ pub type PersistResult<T> = std::result::Result<T, PersistError>;
 pub struct ArtifactForPersister {
     pub text: String,
     pub relative_path: PathBuf,
-    pub override_schema: Option<String>,
 }
 
 #[async_trait]

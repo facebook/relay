@@ -12,10 +12,6 @@
 import type {LiveState} from '../../RelayStoreTypes';
 import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
 import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
-import type {TodoDescription_text_style$key} from './__generated__/TodoDescription_text_style.graphql';
-
-const {graphql} = require('relay-runtime');
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
  * @RelayResolver TodoDescription
@@ -24,15 +20,6 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
 export opaque type TodoDescription = {
   text: string,
   color: string,
-};
-
-/**
- * @RelayResolver TodoDescriptionStyle
- * @weak
- */
-export opaque type TodoDescriptionStyle = {
-  color: string,
-  margin: ?string,
 };
 
 // Public constructor for opaque `TodoDescription`.
@@ -125,30 +112,7 @@ function some_client_type_with_interface(
   };
 }
 
-/**
- * @RelayResolver TodoDescription.text_style(margin: String): TodoDescriptionStyle
- * @rootFragment TodoDescription_text_style
- */
-function text_style(
-  fragmentKey: TodoDescription_text_style$key,
-  {margin}: {margin?: ?string},
-): TodoDescriptionStyle {
-  const {color} = readFragment(
-    graphql`
-      fragment TodoDescription_text_style on TodoDescription {
-        color @required(action: THROW)
-      }
-    `,
-    fragmentKey,
-  );
-  return {
-    color,
-    margin,
-  };
-}
-
 module.exports = {
-  text_style,
   text_with_prefix,
   createTodoDescription,
   text,

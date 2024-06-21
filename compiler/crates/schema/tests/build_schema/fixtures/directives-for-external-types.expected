@@ -53,20 +53,14 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: WithLocation {
-            location: directives-for-external-types.graphql:179:190,
-            item: DirectiveName(
-                "extern_type",
-            ),
-        },
+        name: DirectiveName(
+            "extern_type",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:191:197,
-                    item: ArgumentName(
-                        "schema",
-                    ),
-                },
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -75,12 +69,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:207:211,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -98,20 +89,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: directives-for-external-types.graphql:245:254,
-            item: DirectiveName(
-                "fetchable",
-            ),
-        },
+        name: DirectiveName(
+            "fetchable",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:255:265,
-                    item: ArgumentName(
-                        "field_name",
-                    ),
-                },
+                name: ArgumentName(
+                    "field_name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -129,20 +114,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:255:262,
-            item: DirectiveName(
-                "include",
-            ),
-        },
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:263:265,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -164,20 +143,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: directives-for-external-types.graphql:109:117,
-            item: DirectiveName(
-                "ref_type",
-            ),
-        },
+        name: DirectiveName(
+            "ref_type",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:118:124,
-                    item: ArgumentName(
-                        "schema",
-                    ),
-                },
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -186,12 +159,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:134:138,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -209,20 +179,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:334:338,
-            item: DirectiveName(
-                "skip",
-            ),
-        },
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:339:341,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -244,20 +208,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: directives-for-external-types.graphql:11:17,
-            item: DirectiveName(
-                "source",
-            ),
-        },
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:21:25,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -300,18 +258,15 @@ Text Schema:Schema {
   fields: [
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:352:363,
+            location: <generated>:352:363,
             item: "fetch__User",
         },
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:364:366,
-                    item: ArgumentName(
-                        "id",
-                    ),
-                },
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(5),
                 ),
@@ -332,18 +287,15 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:380:395,
+            location: <generated>:380:395,
             item: "fetch__XIGStory",
         },
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:396:398,
-                    item: ArgumentName(
-                        "id",
-                    ),
-                },
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(5),
                 ),
@@ -364,7 +316,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:484:488,
+            location: <generated>:484:488,
             item: "name",
         },
         is_extension: false,
@@ -381,7 +333,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:563:565,
+            location: <generated>:563:565,
             item: "id",
         },
         is_extension: false,
@@ -398,7 +350,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:572:577,
+            location: <generated>:572:577,
             item: "story",
         },
         is_extension: false,
@@ -451,18 +403,15 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:636:659,
+            location: <generated>:636:659,
             item: "default_mailing_address",
         },
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:660:667,
-                    item: ArgumentName(
-                        "country",
-                    ),
-                },
+                name: ArgumentName(
+                    "country",
+                ),
                 type_: Named(
                     InputObject(0),
                 ),
@@ -483,7 +432,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:721:723,
+            location: <generated>:721:723,
             item: "id",
         },
         is_extension: false,
@@ -500,7 +449,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:730:740,
+            location: <generated>:730:740,
             item: "is_default",
         },
         is_extension: false,
@@ -517,7 +466,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:752:757,
+            location: <generated>:752:757,
             item: "label",
         },
         is_extension: false,
@@ -534,7 +483,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:962:964,
+            location: <generated>:962:964,
             item: "id",
         },
         is_extension: false,
@@ -551,7 +500,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: directives-for-external-types.graphql:971:975,
+            location: <generated>:971:975,
             item: "name",
         },
         is_extension: false,
@@ -644,12 +593,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -674,19 +620,16 @@ Text Schema:Schema {
   input_objects: [
     InputObject {
         name: WithLocation {
-            location: directives-for-external-types.graphql:775:782,
+            location: <generated>:775:782,
             item: InputObjectName(
                 "Country",
             ),
         },
         fields: [
             Argument {
-                name: WithLocation {
-                    location: directives-for-external-types.graphql:833:837,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -741,7 +684,7 @@ Text Schema:Schema {
   interfaces: [
     Interface {
         name: WithLocation {
-            location: directives-for-external-types.graphql:427:435,
+            location: <generated>:427:435,
             item: InterfaceName(
                 "XIGHuman",
             ),
@@ -799,7 +742,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: directives-for-external-types.graphql:342:347,
+            location: <generated>:342:347,
             item: ObjectName(
                 "Query",
             ),
@@ -816,7 +759,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: directives-for-external-types.graphql:505:509,
+            location: <generated>:505:509,
             item: ObjectName(
                 "User",
             ),
@@ -858,7 +801,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: directives-for-external-types.graphql:702:716,
+            location: <generated>:702:716,
             item: ObjectName(
                 "MailingAddress",
             ),
@@ -876,7 +819,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: directives-for-external-types.graphql:872:880,
+            location: <generated>:872:880,
             item: ObjectName(
                 "XIGStory",
             ),
@@ -1012,7 +955,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: directives-for-external-types.graphql:293:295,
+            location: <generated>:293:295,
             item: ScalarName(
                 "ID",
             ),
@@ -1062,7 +1005,7 @@ Text Schema:Schema {
   unions: [
     Union {
         name: WithLocation {
-            location: directives-for-external-types.graphql:993:1000,
+            location: <generated>:993:1000,
             item: UnionName(
                 "Address",
             ),
@@ -1118,20 +1061,14 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "extern_type",
-            ),
-        },
+        name: DirectiveName(
+            "extern_type",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "schema",
-                    ),
-                },
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1140,12 +1077,9 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1163,20 +1097,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "fetchable",
-            ),
-        },
+        name: DirectiveName(
+            "fetchable",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "field_name",
-                    ),
-                },
+                name: ArgumentName(
+                    "field_name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1194,20 +1122,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "include",
-            ),
-        },
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1229,20 +1151,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "ref_type",
-            ),
-        },
+        name: DirectiveName(
+            "ref_type",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "schema",
-                    ),
-                },
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1251,12 +1167,9 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1274,20 +1187,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "skip",
-            ),
-        },
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1309,20 +1216,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "source",
-            ),
-        },
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1408,12 +1309,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "id",
-                    ),
-                },
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(0),
                 ),
@@ -1440,12 +1338,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "id",
-                    ),
-                },
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(0),
                 ),
@@ -1542,12 +1437,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "country",
-                    ),
-                },
+                name: ArgumentName(
+                    "country",
+                ),
                 type_: Named(
                     InputObject(0),
                 ),
@@ -1628,12 +1520,9 @@ input_objects: [
         },
         fields: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),

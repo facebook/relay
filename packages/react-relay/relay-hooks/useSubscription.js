@@ -26,7 +26,7 @@ type RequestSubscriptionFn<TVariables, TData, TRawResponse> = (
   config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
 ) => Disposable;
 
-hook useSubscription<TVariables, TData, TRawResponse>(
+function useSubscription<TVariables, TData, TRawResponse>(
   config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
   requestSubscriptionFn?: RequestSubscriptionFn<
     TVariables,

@@ -11,7 +11,6 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
-use common::FeatureFlags;
 use common::NamedItem;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
@@ -24,8 +23,6 @@ use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::suggestion_list::did_you_mean;
-use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -39,10 +36,8 @@ use crate::handle_fields::HandleFieldDirectiveValues;
 pub fn transform_declarative_connection(
     program: &Program,
     connection_interface: &ConnectionInterface,
-    feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<Program> {
-    let mut transform =
-        DeclarativeConnectionMutationTransform::new(program, connection_interface, feature_flags);
+    let mut transform = DeclarativeConnectionMutationTransform::new(program, connection_interface);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -70,19 +65,13 @@ struct DeclarativeConnectionMutationTransform<'a> {
     schema: &'a SDLSchema,
     errors: Vec<Diagnostic>,
     connection_interface: &'a ConnectionInterface,
-    feature_flags: &'a FeatureFlags,
 }
 
 impl<'a> DeclarativeConnectionMutationTransform<'a> {
-    fn new(
-        program: &'a Program,
-        connection_interface: &'a ConnectionInterface,
-        feature_flags: &'a FeatureFlags,
-    ) -> Self {
+    fn new(program: &'a Program, connection_interface: &'a ConnectionInterface) -> Self {
         Self {
             schema: &program.schema,
             connection_interface,
-            feature_flags,
             errors: vec![],
         }
     }
@@ -284,36 +273,6 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                     Some(connections_arg) => {
                         let edge_typename_arg = node_directive.arguments.named(*EDGE_TYPENAME_ARG);
                         if let Some(edge_typename_arg) = edge_typename_arg {
-                            if let Some(edge_typename_value) = edge_typename_arg
-                                .value
-                                .item
-                                .get_constant()
-                                .and_then(|c| c.get_string_literal())
-                            {
-                                if !self.feature_flags.disable_edge_type_name_validation_on_declerative_connection_directives.is_enabled_for(edge_typename_value) {
-                                    let is_not_object_type = self
-                                        .schema
-                                        .get_type(edge_typename_value)
-                                        .map_or(true, |edge_type| !edge_type.is_object());
-
-                                    if is_not_object_type {
-                                        let suggestions = GraphQLSuggestions::new(self.schema);
-
-                                        self.errors.push(Diagnostic::error(
-                                            ValidationMessage::InvalidEdgeTypeName {
-                                                directive_name: node_directive.name.item,
-                                                edge_typename: edge_typename_value,
-                                                suggestions: suggestions
-                                                    .object_type_suggestions(edge_typename_value),
-                                            },
-                                            edge_typename_arg.value.location,
-                                        ));
-
-                                        return Transformed::Keep;
-                                    }
-                                }
-                            }
-
                             let field_definition = self.schema.field(field.definition.item);
                             match field_definition.type_.inner() {
                                 Type::Object(_) | Type::Interface(_) | Type::Union(_) => {
@@ -440,13 +399,5 @@ enum ValidationMessage {
         directive_name: DirectiveName,
         field_name: StringKey,
         current_type: String,
-    },
-    #[error(
-        "Expected the 'edgeTypeName' argument value on @{directive_name} to be the name of an object type. '{edge_typename}' does not refer to a known object type.{suggestions}", suggestions = did_you_mean(suggestions)
-    )]
-    InvalidEdgeTypeName {
-        directive_name: DirectiveName,
-        edge_typename: StringKey,
-        suggestions: Vec<StringKey>,
     },
 }

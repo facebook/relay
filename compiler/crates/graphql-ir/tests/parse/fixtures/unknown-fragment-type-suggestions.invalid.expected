@@ -4,7 +4,7 @@ fragment Foo on Users {
   id
 }
 ==================================== ERROR ====================================
-✖︎ Unknown type 'Users'. Did you mean `User`, `Opera`, or `Query`?
+✖︎ Unknown type 'Users'. Did you mean `User` or `Query`?
 
   unknown-fragment-type-suggestions.invalid.graphql:2:17
     1 │ # expected-to-throw

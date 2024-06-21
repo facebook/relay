@@ -148,10 +148,7 @@ describe('ReactRelayPaginationContainer', () => {
         count,
       };
     });
-    TestComponent = ({ref, ...props}) => {
-      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
-      return render(props);
-    };
+    TestComponent = render;
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,

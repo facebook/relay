@@ -27,13 +27,16 @@ declare module react {
     getStack: ?() => ?string,
   ): void;
 
-  declare export var createClass: $FlowFixMe;
+  declare export var createClass: React$CreateClass;
   declare export function createContext<T>(
     defaultValue: T,
     calculateChangedBits: ?(a: T, b: T) => number,
   ): React$Context<T>;
   declare export var createElement: React$CreateElement;
   declare export var cloneElement: React$CloneElement;
+  declare export function createFactory<ElementType: React$ElementType>(
+    type: ElementType,
+  ): React$ElementFactory<ElementType>;
   declare export function createRef<T>(): {|current: null | T|};
 
   declare export function isValidElement(element: any): boolean;
@@ -216,6 +219,7 @@ declare module react {
     +createContext: typeof createContext,
     +createElement: typeof createElement,
     +cloneElement: typeof cloneElement,
+    +createFactory: typeof createFactory,
     +createRef: typeof createRef,
     +forwardRef: typeof forwardRef,
     +isValidElement: typeof isValidElement,

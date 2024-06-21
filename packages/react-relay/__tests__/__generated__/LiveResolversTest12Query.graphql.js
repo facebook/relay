@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<baeb9375188b9b7284578261ae8830c4>>
+ * @generated SignedSource<<2d1a9ff9d4b2804a6b5b5615ce11eb53>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,12 +26,12 @@ import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverTyp
   args: {|
     prefix: string,
   |},
-) => LiveState<?string>);
+) => LiveState<?mixed>);
 export type LiveResolversTest12Query$variables = {|
   prefix: string,
 |};
 export type LiveResolversTest12Query$data = {|
-  +counter_no_fragment_with_arg: ?string,
+  +counter_no_fragment_with_arg: ?ReturnType<ReturnType<typeof queryCounterNoFragmentWithArgResolverType>["read"]>,
 |};
 export type LiveResolversTest12Query = {|
   response: LiveResolversTest12Query$data,
@@ -94,7 +94,7 @@ return {
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": true
+            "isOutputType": false
           }
         ]
       }

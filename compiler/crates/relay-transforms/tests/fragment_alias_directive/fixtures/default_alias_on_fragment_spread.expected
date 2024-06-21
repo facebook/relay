@@ -11,7 +11,7 @@ query RelayReaderNamedFragmentsTest2Query {
 ==================================== OUTPUT ===================================
 query RelayReaderNamedFragmentsTest2Query {
   me {
-    ...RelayReaderNamedFragmentsTest_user @alias @__FragmentAliasMetadata
+    ...RelayReaderNamedFragmentsTest_user @__FragmentAliasMetadata
     # FragmentAliasMetadata {
     #     alias: WithLocation {
     #         location: default_alias_on_fragment_spread.graphql:157:163,
@@ -20,7 +20,6 @@ query RelayReaderNamedFragmentsTest2Query {
     #     type_condition: Some(
     #         Object(70),
     #     ),
-    #     non_nullable: true,
     #     selection_type: Object(70),
     # }
     

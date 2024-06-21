@@ -107,7 +107,7 @@ fn build_constant_value_string(value: &ConstantValue) -> String {
         ConstantValue::List(val_list) => {
             let json_values = val_list
                 .iter()
-                .map(build_constant_value_string)
+                .map(|val| build_constant_value_string(val))
                 .collect::<Vec<_>>();
 
             format!("[{}]", json_values.join(","))

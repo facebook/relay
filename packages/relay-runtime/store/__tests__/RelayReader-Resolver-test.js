@@ -15,26 +15,17 @@ import type {Snapshot} from '../RelayStoreTypes';
 const {
   constant_dependent: UserConstantDependentResolver,
 } = require('./resolvers/UserConstantDependentResolver');
-const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
-const {
-  LiveResolverCache,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverCache');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
-const RelayModernRecord = require('relay-runtime/store/RelayModernRecord');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {read} = require('relay-runtime/store/RelayReader');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
-const {
-  RELAY_RESOLVER_INVALIDATION_KEY,
-} = require('relay-runtime/store/RelayStoreUtils');
 const {RecordResolverCache} = require('relay-runtime/store/ResolverCache');
 const {
   disallowConsoleErrors,
@@ -50,22 +41,9 @@ beforeEach(() => {
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  // The call count of the resolver used in this test
-  UserConstantDependentResolver._relayResolverTestCallCount = undefined;
 });
 
-describe.each([
-  {
-    name: 'RecordResolverCache',
-    ResolverCache: RecordResolverCache,
-    RelayStore: RelayModernStore,
-  },
-  {
-    name: 'LiveResolverCache',
-    ResolverCache: LiveResolverCache,
-    RelayStore: LiveResolverStore,
-  },
-])('Relay Resolver with $name', ({ResolverCache, RelayStore}) => {
+describe('Relay Resolver', () => {
   it('returns the result of the resolver function', () => {
     const source = RelayRecordSource.create({
       'client:root': {
@@ -80,7 +58,7 @@ describe.each([
         name: 'Alice',
       },
     });
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest1Query {
@@ -95,7 +73,7 @@ describe.each([
     const {data, seenRecords} = read(source, operation.fragment, resolverCache);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = data;
+    const {me} = (data: any);
     expect(me.greeting).toEqual('Hello, Alice!'); // Resolver result
     expect(me.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
 
@@ -120,7 +98,7 @@ describe.each([
         name: 'Alice',
       },
     });
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTestCustomGreetingDynamicQuery(
@@ -141,7 +119,7 @@ describe.each([
     const {data} = read(source, operation.fragment, resolverCache);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = data;
+    const {me} = (data: any);
     expect(me.dynamic_greeting).toEqual('Dynamic Greeting, Alice!');
     expect(me.greetz).toEqual('Greetz, Alice!');
     expect(me.willkommen).toEqual('Willkommen, Alice!');
@@ -157,7 +135,7 @@ describe.each([
     );
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me: meWithNewVariables}: any = dataWithNewVariables;
+    const {me: meWithNewVariables} = (dataWithNewVariables: any);
     expect(meWithNewVariables.dynamic_greeting).toEqual(
       'New Dynamic Greeting, Alice!',
     );
@@ -197,7 +175,7 @@ describe.each([
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
       const {errorResponseFields} = store.lookup(operation.fragment);
       expect(errorResponseFields).toEqual([
         {
@@ -241,7 +219,7 @@ describe.each([
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
       const {errorResponseFields} = store.lookup(operation.fragment);
       expect(errorResponseFields).toEqual(null);
     });
@@ -270,7 +248,7 @@ describe.each([
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const {missingRequiredFields} = store.lookup(operation.fragment);
     expect(missingRequiredFields).toEqual({
       action: 'LOG',
@@ -312,7 +290,7 @@ describe.each([
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const {isMissingData} = store.lookup(operation.fragment);
     expect(isMissingData).toBe(true);
 
@@ -349,7 +327,7 @@ describe.each([
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const {missingRequiredFields} = store.lookup(operation.fragment);
     expect(missingRequiredFields).toEqual({
       action: 'LOG',
@@ -394,7 +372,7 @@ describe.each([
         name: 'Alice',
       },
     });
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest11Query {
@@ -409,7 +387,7 @@ describe.each([
     const {data} = read(source, operation.fragment, resolverCache);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = data;
+    const {me} = (data: any);
     expect(me.the_alias).toEqual('Hello, Alice!'); // Resolver result
     expect(me.greeting).toEqual(undefined); // Unaliased name
   });
@@ -429,7 +407,7 @@ describe.each([
       },
     });
 
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -448,7 +426,7 @@ describe.each([
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = snapshot.data;
+    const {me} = (snapshot.data: any);
     expect(me.greeting).toEqual('Hello, Alice!');
     environment.commitUpdate(theStore => {
       const alice = nullthrows(theStore.get('1'));
@@ -482,7 +460,7 @@ describe.each([
       },
     });
 
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -506,7 +484,7 @@ describe.each([
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = snapshot.data;
+    const {me} = (snapshot.data: any);
     expect(me.constant_dependent).toEqual(1);
     expect(resolverInternals._relayResolverTestCallCount).toBe(1);
     environment.commitUpdate(theStore => {
@@ -517,81 +495,10 @@ describe.each([
     subscription.dispose();
     const newSnapshot = store.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me: newMe}: any = newSnapshot.data;
+    const {me: newMe} = (newSnapshot.data: any);
     expect(newMe.constant_dependent).toEqual(1);
     expect(resolverInternals._relayResolverTestCallCount).toBe(1);
   });
-
-  it.each([true, false])(
-    'marks the resolver cache as clean if the upstream has not changed with RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD=%s',
-    markClean => {
-      RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD =
-        markClean;
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          name: 'Alice',
-        },
-      });
-
-      const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-      const environment = new RelayModernEnvironment({
-        network: RelayNetwork.create(jest.fn()),
-        store,
-      });
-
-      const FooQuery = graphql`
-        query RelayReaderResolverTestMarkCleanQuery {
-          me {
-            constant_dependent
-          }
-        }
-      `;
-
-      const cb = jest.fn<[Snapshot], void>();
-      const operation = createOperationDescriptor(FooQuery, {});
-      const snapshot = store.lookup(operation.fragment);
-      const subscription = store.subscribe(snapshot, cb);
-      // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-      const {me}: any = snapshot.data;
-      expect(me.constant_dependent).toEqual(1);
-      environment.commitUpdate(theStore => {
-        const alice = nullthrows(theStore.get('1'));
-        alice.setValue('Alicia', 'name');
-      });
-      subscription.dispose();
-
-      // Rereading the resolver's fragment, only to find that no fields that we read have changed,
-      // should clear the RELAY_RESOLVER_INVALIDATION_KEY.
-      const resolverCacheRecord = environment
-        .getStore()
-        .getSource()
-        .get('client:1:constant_dependent');
-      invariant(
-        resolverCacheRecord != null,
-        'Expected a resolver cache record',
-      );
-
-      const isMaybeInvalid = RelayModernRecord.getValue(
-        resolverCacheRecord,
-        RELAY_RESOLVER_INVALIDATION_KEY,
-      );
-
-      if (markClean) {
-        expect(isMaybeInvalid).toBe(false);
-      } else {
-        // Without the feature flag enabled, T185969900 still reproduces.
-        expect(isMaybeInvalid).toBe(true);
-      }
-    },
-  );
 
   it('handles optimistic updates (applied after subscribing)', () => {
     const source = RelayRecordSource.create({
@@ -608,7 +515,7 @@ describe.each([
       },
     });
 
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -627,7 +534,7 @@ describe.each([
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = snapshot.data;
+    const {me} = (snapshot.data: any);
     expect(me.greeting).toEqual('Hello, Alice!');
 
     const checkUpdate = (
@@ -646,7 +553,7 @@ describe.each([
       );
       const newSnapshot = store.lookup(operation.fragment);
       // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-      const {me: newMe}: any = newSnapshot.data;
+      const {me: newMe} = (newSnapshot.data: any);
       expect(newMe.greeting).toEqual(expectedGreeting);
     };
 
@@ -677,7 +584,7 @@ describe.each([
       },
     });
 
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -703,7 +610,7 @@ describe.each([
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = snapshot.data;
+    const {me} = (snapshot.data: any);
     expect(me.greeting).toEqual('Hello, Alicia!');
 
     const checkUpdate = (
@@ -722,7 +629,7 @@ describe.each([
       );
       const newSnapshot = store.lookup(operation.fragment);
       // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-      const {me: newMe}: any = newSnapshot.data;
+      const {me: newMe} = (newSnapshot.data: any);
       expect(newMe.greeting).toEqual(expectedGreeting);
     };
 
@@ -766,7 +673,7 @@ describe.each([
       },
     });
 
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -785,7 +692,7 @@ describe.each([
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = snapshot.data;
+    const {me} = (snapshot.data: any);
     expect(me.best_friend_greeting).toEqual('Hello, Bob!');
     environment.commitUpdate(theStore => {
       const bob = nullthrows(theStore.get('2'));
@@ -803,7 +710,7 @@ describe.each([
     );
     const newSnapshot = store.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me: newMe}: any = newSnapshot.data;
+    const {me: newMe} = (newSnapshot.data: any);
     expect(newMe.best_friend_greeting).toEqual('Hello, Bilbo!');
     subscription.dispose();
   });
@@ -823,7 +730,7 @@ describe.each([
       },
     });
 
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -842,7 +749,7 @@ describe.each([
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = snapshot.data;
+    const {me} = (snapshot.data: any);
     expect(me.shouted_greeting).toEqual('HELLO, ALICE!');
     environment.commitUpdate(theStore => {
       const alice = nullthrows(theStore.get('1'));
@@ -896,7 +803,7 @@ describe.each([
       },
     });
 
-    const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
@@ -915,7 +822,7 @@ describe.each([
     const snapshot = store.lookup(operation.fragment);
     const subscription = store.subscribe(snapshot, cb);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = snapshot.data;
+    const {me} = (snapshot.data: any);
     expect(me.best_friend_shouted_greeting).toEqual('HELLO, BOB!');
     environment.commitUpdate(updateStore => {
       const bob = nullthrows(updateStore.get('2'));
@@ -991,14 +898,14 @@ describe.each([
       }
     `;
 
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
     const {data} = read(source, operation.fragment, resolverCache);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me}: any = data;
+    const {me} = (data: any);
     expect(me).toBe(null); // Resolver result
   });
 
@@ -1024,7 +931,7 @@ describe.each([
       }
     `;
 
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
@@ -1090,7 +997,7 @@ describe.each([
       }
     `;
 
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
@@ -1149,7 +1056,7 @@ describe.each([
       }
     `;
 
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const operation = createOperationDescriptor(FooQuery, {});
 
@@ -1184,7 +1091,7 @@ describe.each([
         __id: '1',
       },
     });
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest15Query {
@@ -1203,7 +1110,7 @@ describe.each([
     expect(isMissingData).toBe(false);
 
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {undefined_field}: any = data;
+    const {undefined_field} = (data: any);
     expect(undefined_field).toBe(undefined); // Resolver result
   });
 
@@ -1226,7 +1133,7 @@ describe.each([
         uri: 'http://my-url-1.5',
       },
     });
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest16Query($scale: Float!) {
@@ -1248,8 +1155,9 @@ describe.each([
     expect(isMissingData).toBe(false);
 
     const {
-      me: {user_profile_picture_uri_with_scale}, // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    }: any = data;
+      me: {user_profile_picture_uri_with_scale},
+      // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
+    } = (data: any);
     expect(user_profile_picture_uri_with_scale).toBe('http://my-url-1.5'); // Resolver result
   });
 
@@ -1272,7 +1180,7 @@ describe.each([
         uri: 'http://my-url-1.5',
       },
     });
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest17Query {
@@ -1292,8 +1200,9 @@ describe.each([
     expect(isMissingData).toBe(false);
 
     const {
-      me: {user_profile_picture_uri_with_scale_and_default_value}, // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    }: any = data;
+      me: {user_profile_picture_uri_with_scale_and_default_value},
+      // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
+    } = (data: any);
     expect(user_profile_picture_uri_with_scale_and_default_value).toBe(
       'http://my-url-1.5',
     ); // Resolver result
@@ -1318,7 +1227,7 @@ describe.each([
         uri: 'http://my-url-2',
       },
     });
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest18Query {
@@ -1341,8 +1250,9 @@ describe.each([
     expect(isMissingData).toBe(false);
 
     const {
-      me: {profile_picture2}, // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    }: any = data;
+      me: {profile_picture2},
+      // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
+    } = (data: any);
     expect(profile_picture2).toBe('http://my-url-2'); // Resolver result
   });
 
@@ -1371,7 +1281,7 @@ describe.each([
         uri: 'http://my-url-1.5',
       },
     });
-    const resolverCache = new ResolverCache(() => source);
+    const resolverCache = new RecordResolverCache(() => source);
 
     const FooQuery = graphql`
       query RelayReaderResolverTest19Query($scale: Float) {
@@ -1399,8 +1309,9 @@ describe.each([
     expect(isMissingData).toBe(false);
 
     const {
-      me: {profile_picture2, big_profile_picture}, // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    }: any = data;
+      me: {profile_picture2, big_profile_picture},
+      // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
+    } = (data: any);
     expect(profile_picture2).toBe('http://my-url-2'); // Resolver result
     expect(big_profile_picture).toEqual({
       uri: 'http://my-url-1.5',
@@ -1426,9 +1337,7 @@ describe.each([
           __id: '1',
           id: '1',
           __typename: 'User',
-          'profile_picture(scale:1.5)': {
-            __ref: '1:profile_picture(scale:1.5)',
-          },
+          'profile_picture(scale:1.5)': {__ref: '1:profile_picture(scale:1.5)'},
           'profile_picture(scale:2)': {__ref: '1:profile_picture(scale:2)'},
         },
         '1:profile_picture(scale:1.5)': {
@@ -1442,7 +1351,7 @@ describe.each([
           uri: 'http://my-url-2',
         },
       });
-      const resolverCache = new ResolverCache(() => source);
+      const resolverCache = new RecordResolverCache(() => source);
 
       let operation = createOperationDescriptor(Query, {scale: 1.5});
       let readResult = read(source, operation.fragment, resolverCache);
@@ -1481,9 +1390,7 @@ describe.each([
           __id: '1',
           id: '1',
           __typename: 'User',
-          'profile_picture(scale:1.5)': {
-            __ref: '1:profile_picture(scale:1.5)',
-          },
+          'profile_picture(scale:1.5)': {__ref: '1:profile_picture(scale:1.5)'},
           'profile_picture(scale:2)': {__ref: '1:profile_picture(scale:2)'},
         },
         '1:profile_picture(scale:1.5)': {
@@ -1497,7 +1404,7 @@ describe.each([
           // uri: 'http://my-url-2', this field now is missing
         },
       });
-      const resolverCache = new ResolverCache(() => source);
+      const resolverCache = new RecordResolverCache(() => source);
 
       let operation = createOperationDescriptor(Query, {scale: 1.5});
       let readResult = read(source, operation.fragment, resolverCache);
@@ -1539,9 +1446,7 @@ describe.each([
           __id: '1',
           id: '1',
           __typename: 'User',
-          'profile_picture(scale:1.5)': {
-            __ref: '1:profile_picture(scale:1.5)',
-          },
+          'profile_picture(scale:1.5)': {__ref: '1:profile_picture(scale:1.5)'},
           'profile_picture(scale:2)': {__ref: '1:profile_picture(scale:2)'},
         },
         '1:profile_picture(scale:1.5)': {
@@ -1556,7 +1461,7 @@ describe.each([
         },
       });
 
-      const resolverCache = new ResolverCache(() => source);
+      const resolverCache = new RecordResolverCache(() => source);
 
       let operation = createOperationDescriptor(Query, {
         scale: 1.5,
@@ -1589,10 +1494,7 @@ describe.each([
       });
 
       // Changing both arguments
-      operation = createOperationDescriptor(Query, {
-        scale: 1.5,
-        name: 'Clair',
-      });
+      operation = createOperationDescriptor(Query, {scale: 1.5, name: 'Clair'});
       readResult = read(source, operation.fragment, resolverCache);
       expect(readResult.isMissingData).toBe(false);
       expect(readResult.data).toEqual({

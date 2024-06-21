@@ -64,7 +64,7 @@ type UseMutationConfigInternal<TVariables, TData, TRawResponse> = {
   variables: TVariables,
 };
 
-hook useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
+function useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
   mutation: Mutation<TVariables, TData, TRawResponse>,
   commitMutationFn?: (
     environment: IEnvironment,

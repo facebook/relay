@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c35d41452808724ef2c31f8dddea7315>>
+ * @generated SignedSource<<764976e13835b46a90a081472ca4a403>>
  */
 
 mod parse;
@@ -59,13 +59,6 @@ async fn argument_definitions_typo_invalid() {
     let input = include_str!("parse/fixtures/argument_definitions_typo.invalid.graphql");
     let expected = include_str!("parse/fixtures/argument_definitions_typo.invalid.expected");
     test_fixture(transform_fixture, file!(), "argument_definitions_typo.invalid.graphql", "parse/fixtures/argument_definitions_typo.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn argument_with_default() {
-    let input = include_str!("parse/fixtures/argument_with_default.graphql");
-    let expected = include_str!("parse/fixtures/argument_with_default.expected");
-    test_fixture(transform_fixture, file!(), "argument_with_default.graphql", "parse/fixtures/argument_with_default.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -633,11 +626,4 @@ async fn unknown_fragment_type_suggestions_invalid() {
     let input = include_str!("parse/fixtures/unknown-fragment-type-suggestions.invalid.graphql");
     let expected = include_str!("parse/fixtures/unknown-fragment-type-suggestions.invalid.expected");
     test_fixture(transform_fixture, file!(), "unknown-fragment-type-suggestions.invalid.graphql", "parse/fixtures/unknown-fragment-type-suggestions.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn variable_with_default() {
-    let input = include_str!("parse/fixtures/variable_with_default.graphql");
-    let expected = include_str!("parse/fixtures/variable_with_default.expected");
-    test_fixture(transform_fixture, file!(), "variable_with_default.graphql", "parse/fixtures/variable_with_default.expected", input, expected).await;
 }

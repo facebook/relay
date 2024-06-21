@@ -8,7 +8,6 @@
 use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::Arc;
 
 use common::PerfLogEvent;
 use common::PerfLogger;
@@ -28,12 +27,12 @@ pub struct WalkDirFileSourceResult {
     pub resolved_root: PathBuf,
 }
 
-pub struct WalkDirFileSource {
-    pub config: Arc<Config>,
-    expected_file_extensions: HashSet<&'static str>,
+pub struct WalkDirFileSource<'config> {
+    pub config: &'config Config,
+    expected_file_extensions: HashSet<&'config str>,
 }
 
-fn get_expected_file_extensions(config: &Config) -> HashSet<&'static str> {
+fn get_expected_file_extensions(config: &Config) -> HashSet<&str> {
     let mut file_extensions = HashSet::<&str>::with_capacity(6);
     file_extensions.insert("graphql");
     file_extensions.insert("gql");
@@ -55,15 +54,14 @@ fn get_expected_file_extensions(config: &Config) -> HashSet<&'static str> {
     file_extensions
 }
 
-impl WalkDirFileSource {
-    pub fn new(config: Arc<Config>) -> Self {
+impl<'config> WalkDirFileSource<'config> {
+    pub fn new(config: &'config Config) -> Self {
         debug!(
             "Watchman server is disabled, or not available. Using GlobFileSource to find files."
         );
-        let expected_file_extensions = get_expected_file_extensions(&config);
         Self {
             config,
-            expected_file_extensions,
+            expected_file_extensions: get_expected_file_extensions(config),
         }
     }
 
@@ -87,7 +85,7 @@ impl WalkDirFileSource {
                     .ok()?
                     .to_path_buf();
 
-                self.should_include_file(&relative_path).then_some(File {
+                self.should_include_file(&relative_path).then(|| File {
                     name: relative_path,
                     exists: true,
                 })
@@ -104,7 +102,7 @@ impl WalkDirFileSource {
         });
         setup_event.stop(timer);
         let compiler_state = CompilerState::from_file_source_changes(
-            &self.config,
+            self.config,
             &file_source_changes,
             &setup_event,
             perf_logger,

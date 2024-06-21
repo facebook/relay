@@ -26,7 +26,7 @@ type ReturnType<TFragmentData: mixed> = {
   enableStoreUpdates: () => void,
 };
 
-hook useFragmentNode<TFragmentData: mixed>(
+function useFragmentNode<TFragmentData: mixed>(
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
   componentDisplayName: string,

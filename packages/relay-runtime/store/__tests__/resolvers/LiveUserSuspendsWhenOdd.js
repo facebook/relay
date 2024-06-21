@@ -18,7 +18,10 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 const {suspenseSentinel} = require('relay-runtime');
 
 /**
- * @RelayResolver Query.live_user_suspends_when_odd: User
+ * @RelayResolver
+ * @fieldName live_user_suspends_when_odd
+ * @edgeTo User
+ * @onType Query
  * @live
  */
 function live_user_suspends_when_odd(): LiveState<{|+id: DataID|}> {

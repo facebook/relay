@@ -481,7 +481,6 @@ function createMockEnvironment(
     environment.executeMutation,
   );
 
-  // $FlowFixMe[incompatible-type]
   if (global?.process?.env?.NODE_ENV === 'test') {
     // Mock all the functions with their original behavior
     mockDisposableMethod(environment, 'applyUpdate');

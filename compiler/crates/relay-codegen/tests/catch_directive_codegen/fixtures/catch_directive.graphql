@@ -1,4 +1,0 @@
-fragment MyFragment on Node {
-  id
-  name @catch(to: RESULT)
-}

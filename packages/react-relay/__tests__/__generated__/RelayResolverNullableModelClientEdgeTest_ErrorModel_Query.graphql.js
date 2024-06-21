@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2a1161fc02bf8e3fcf82a67a1fc6454e>>
+ * @generated SignedSource<<ac3dd6d6fcd58577c8f8065955856772>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,20 +57,18 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "ErrorModel",
-        "modelResolvers": {
-          "ErrorModel": {
-            "alias": null,
+        "modelResolver": {
+          "alias": null,
+          "args": null,
+          "fragment": {
             "args": null,
-            "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "ErrorModel__id"
-            },
-            "kind": "RelayResolver",
-            "name": "edge_to_model_that_throws",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
-            "path": "edge_to_model_that_throws.__relay_model_instance"
-          }
+            "kind": "FragmentSpread",
+            "name": "ErrorModel__id"
+          },
+          "kind": "RelayResolver",
+          "name": "edge_to_model_that_throws",
+          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
+          "path": "edge_to_model_that_throws.__relay_model_instance"
         },
         "backingField": {
           "alias": null,

@@ -1,9 +1,0 @@
-query RelayReaderNamedFragmentsTest2Query($someCondition: Boolean!) {
-  me {
-    # This might not match, but that's fine since our types capture the
-    # nullability of the individual fields
-    ... on User {
-      name
-    }
-  }
-}

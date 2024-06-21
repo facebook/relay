@@ -144,6 +144,7 @@ impl<T: Any> AsAny for T {
 mod tests {
     use std::collections::hash_map::RandomState;
     use std::hash::BuildHasher;
+    use std::hash::Hasher;
 
     use once_cell::sync::Lazy;
 
@@ -165,7 +166,9 @@ mod tests {
 
         static BUILD_HASHER: Lazy<RandomState> = Lazy::new(RandomState::new);
         fn hash<T: Hash>(x: T) -> u64 {
-            BUILD_HASHER.hash_one(&x)
+            let mut hasher = BUILD_HASHER.build_hasher();
+            x.hash(&mut hasher);
+            hasher.finish()
         }
 
         assert_eq!(

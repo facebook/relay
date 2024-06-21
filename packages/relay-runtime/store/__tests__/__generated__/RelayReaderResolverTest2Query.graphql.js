@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<99fda8499ec290ac6be8aff8703f737d>>
+ * @generated SignedSource<<78e12d18b6ac947f266db7071641def8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ import {constant_dependent as userConstantDependentResolverType} from "../resolv
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userConstantDependentResolverType: (
   rootKey: UserConstantDependentResolver$key,
-) => ?number);
+) => ?mixed);
 export type RelayReaderResolverTest2Query$variables = {||};
 export type RelayReaderResolverTest2Query$data = {|
   +me: ?{|
-    +constant_dependent: ?number,
+    +constant_dependent: ?ReturnType<typeof userConstantDependentResolverType>,
   |},
 |};
 export type RelayReaderResolverTest2Query = {|
@@ -111,7 +111,7 @@ var node/*: ConcreteRequest*/ = {
                   },
                   "kind": "RelayResolver",
                   "storageKey": null,
-                  "isOutputType": true
+                  "isOutputType": false
                 }
               ],
               "type": "User",
@@ -119,7 +119,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": true
+            "isOutputType": false
           },
           {
             "alias": null,

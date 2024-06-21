@@ -29,5 +29,5 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend type User {
-  favorite_page: Page @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/client-edge-relay-resolver.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "eeac1664eff365a817d8a2446abe76ce")
+  favorite_page: Page @relay_resolver(import_path: "/path/to/test/fixture/client-edge-relay-resolver.js", fragment_name: "myRootFragment", import_name: "favorite_page") @resolver_source_hash(value: "eeac1664eff365a817d8a2446abe76ce")
 }

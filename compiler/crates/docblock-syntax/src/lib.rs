@@ -331,7 +331,7 @@ impl SpanString {
         Self { span, string }
     }
     fn append_line(&mut self, other: Self) {
-        self.string.push('\n');
+        self.string.push_str("\n");
         self.string.push_str(&other.string);
         self.span.end = other.span.end;
     }

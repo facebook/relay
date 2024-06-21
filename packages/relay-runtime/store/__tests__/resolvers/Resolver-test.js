@@ -71,7 +71,7 @@ describe('Relay Resolver', () => {
     );
 
     // $FlowFixMe[unclear-type]
-    const {data}: any = environment.lookup(fragmentSelector);
+    const {data} = (environment.lookup(fragmentSelector): any);
 
     expect(data.greeting).toEqual('Hello, Alice!'); // Resolver result
     expect(data.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
@@ -99,7 +99,7 @@ describe('Relay Resolver', () => {
     });
 
     // $FlowFixMe[unclear-type]
-    const {data}: any = environment.lookup(operation.fragment);
+    const {data} = (environment.lookup(operation.fragment): any);
 
     expect(data.me.greeting).toEqual('Hello, Alice!'); // Resolver result
     expect(data.me.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
@@ -134,10 +134,10 @@ describe('Relay Resolver', () => {
 
     environment.commitPayload(operation, {});
 
-    // $FlowFixMe[unclear-type]
-    const {data, relayResolverErrors}: any = environment.lookup(
+    const {data, relayResolverErrors} = (environment.lookup(
       operation.fragment,
-    );
+      // $FlowFixMe[unclear-type]
+    ): any);
     expect(relayResolverErrors).toHaveLength(0);
     expect(data.hello_optional_world).toEqual('Hello, Default!');
   });

@@ -13,7 +13,6 @@ use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use ::intern::Lookup;
-use common::DirectiveName;
 use common::InputObjectName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
@@ -23,7 +22,6 @@ use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use indexmap::IndexMap;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use relay_config::JsModuleFormat;
 use relay_config::TypegenLanguage;
 use relay_transforms::RefetchableDerivedFromMetadata;
@@ -76,11 +74,6 @@ use crate::VALIDATOR_EXPORT_NAME;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 
-lazy_static! {
-    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-}
-
 pub(crate) fn write_operation_type_exports_section(
     typegen_context: &'_ TypegenContext<'_>,
     typegen_operation: &OperationDefinition,
@@ -97,11 +90,6 @@ pub(crate) fn write_operation_type_exports_section(
     let mut input_object_types = Default::default();
     let mut imported_raw_response_types = Default::default();
 
-    let is_throw_on_field_error = typegen_operation
-        .directives
-        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
-        .is_some();
-
     let type_selections = visit_selections(
         typegen_context,
         &typegen_operation.selections,
@@ -114,7 +102,6 @@ pub(crate) fn write_operation_type_exports_section(
         &mut custom_scalars,
         &mut runtime_imports,
         None,
-        is_throw_on_field_error,
     );
 
     let data_type = get_data_type(
@@ -145,7 +132,6 @@ pub(crate) fn write_operation_type_exports_section(
                 &mut runtime_imports,
                 &mut custom_scalars,
                 None,
-                is_throw_on_field_error,
             );
             Some((
                 raw_response_selections_to_babel(
@@ -231,8 +217,8 @@ pub(crate) fn write_operation_type_exports_section(
 
     if let Some(provided_variables_type) = expected_provided_variables_type {
         let actual_provided_variables_object = maybe_provided_variables_object.unwrap_or_else(|| {
-             panic!("Expected the provided variables object. If you see this error, it most likley a bug in the compiler.");
-     });
+            panic!("Expected the provided variables object. If you see this error, it most likley a bug in the compiler.");
+    });
 
         // Assert that expected type of provided variables matches
         // the flow/typescript types of functions with providers.
@@ -281,11 +267,6 @@ pub(crate) fn write_split_operation_type_exports_section(
     let mut runtime_imports = RuntimeImports::default();
     let mut custom_scalars = CustomScalarsImports::default();
 
-    let is_throw_on_field_error = typegen_operation
-        .directives
-        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
-        .is_some();
-
     let raw_response_selections = raw_response_visit_selections(
         typegen_context,
         &normalization_operation.selections,
@@ -296,7 +277,6 @@ pub(crate) fn write_split_operation_type_exports_section(
         &mut runtime_imports,
         &mut custom_scalars,
         None,
-        is_throw_on_field_error,
     );
     let raw_response_type = raw_response_selections_to_babel(
         typegen_context,
@@ -334,11 +314,6 @@ pub(crate) fn write_fragment_type_exports_section(
         .named(*ASSIGNABLE_DIRECTIVE)
         .is_some();
 
-    let is_throw_on_field_error = fragment_definition
-        .directives
-        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
-        .is_some();
-
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
@@ -363,7 +338,6 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut custom_scalars,
         &mut runtime_imports,
         None,
-        is_throw_on_field_error,
     );
     if !fragment_definition.type_condition.is_abstract_type() {
         let num_concrete_selections = type_selections
@@ -595,9 +569,7 @@ fn write_relay_resolver_imports(
                 )?;
             }
         }
-        if let AST::AssertFunctionType(_) = &resolver.resolver_type {
-            writer.write(&resolver.resolver_type)?;
-        }
+        writer.write(&resolver.resolver_type)?;
     }
     Ok(())
 }
@@ -662,18 +634,16 @@ fn write_enum_definitions(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     let enum_ids = encountered_enums.into_sorted_vec(typegen_context.schema);
-    let maybe_suffix = &typegen_context
-        .project_config
-        .typegen_config
-        .enum_module_suffix;
     for enum_id in enum_ids {
         let enum_type = typegen_context.schema.enum_(enum_id);
-        if !enum_type.is_extension && maybe_suffix.is_some() {
-            // We can't chain `if let` statements, so we need to unwrap here.
-            let suffix = maybe_suffix.as_ref().unwrap();
+        if let Some(enum_module_suffix) = &typegen_context
+            .project_config
+            .typegen_config
+            .enum_module_suffix
+        {
             writer.write_import_type(
                 &[enum_type.name.item.lookup()],
-                &format!("{}{}", enum_type.name.item, suffix),
+                &format!("{}{}", enum_type.name.item, enum_module_suffix),
             )?;
         } else {
             let mut members: Vec<AST> = enum_type
@@ -682,21 +652,10 @@ fn write_enum_definitions(
                 .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
                 .collect();
 
-            // Users can specify a config option to disable the inclusion of
-            // FUTURE_ENUM_VALUE in the enum union. Additionally we want to avoid
-            // emitting FUTURE_ENUM_VALUE if the enum is actually defined on the
-            // client. For example in Client Schema Extensions or (some day)
-            // Relay Resolvers.
-            //
-            // In the case of a client defined enum, we don't need to enforce
-            // the breaking change semantics dictated by the GraphQL spec
-            // because new fields added to the client schema will simply result
-            // in fixable Flow/TypeScript errors elsewhere in the codebase.
-            if !(enum_type.is_extension
-                || typegen_context
-                    .project_config
-                    .typegen_config
-                    .no_future_proof_enums)
+            if !typegen_context
+                .project_config
+                .typegen_config
+                .no_future_proof_enums
             {
                 members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));
             }

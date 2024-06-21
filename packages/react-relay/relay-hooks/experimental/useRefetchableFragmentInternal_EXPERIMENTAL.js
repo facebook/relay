@@ -11,7 +11,8 @@
 
 'use strict';
 
-import type {LoaderFn} from './useQueryLoader';
+import type {RefetchableIdentifierInfo} from '../../../relay-runtime/util/ReaderNode';
+import type {LoaderFn} from '../useQueryLoader';
 import type {
   ConcreteRequest,
   Disposable,
@@ -20,19 +21,18 @@ import type {
   OperationDescriptor,
   OperationType,
   ReaderFragment,
-  RefetchableIdentifierInfo,
   RenderPolicy,
   Variables,
   VariablesOf,
 } from 'relay-runtime';
 
-const ProfilerContext = require('./ProfilerContext');
-const {getQueryResourceForEnvironment} = require('./QueryResource');
-const readFragmentInternal = require('./readFragmentInternal');
-const useFragmentInternal = require('./useFragmentInternal');
-const useIsMountedRef = require('./useIsMountedRef');
-const useQueryLoader = require('./useQueryLoader');
-const useRelayEnvironment = require('./useRelayEnvironment');
+const ProfilerContext = require('../ProfilerContext');
+const {getQueryResourceForEnvironment} = require('../QueryResource');
+const useIsMountedRef = require('../useIsMountedRef');
+const useQueryLoader = require('../useQueryLoader');
+const useRelayEnvironment = require('../useRelayEnvironment');
+const readFragmentInternal = require('./readFragmentInternal_EXPERIMENTAL');
+const useFragmentInternal = require('./useFragmentInternal_EXPERIMENTAL');
 const invariant = require('invariant');
 const {useCallback, useContext, useReducer} = require('react');
 const {
@@ -160,7 +160,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
   }
 }
 
-hook useRefetchableFragmentNode<
+function useRefetchableFragmentNode<
   TQuery: OperationType,
   TKey: ?{+$data?: mixed, ...},
 >(
@@ -355,7 +355,7 @@ hook useRefetchableFragmentNode<
   };
 }
 
-hook useRefetchFunction<TQuery: OperationType>(
+function useRefetchFunction<TQuery: OperationType>(
   componentDisplayName: string,
   dispatch: (
     | {

@@ -9,18 +9,10 @@ interface Page implements User {
   id: ID
 }
 ==================================== ERROR ====================================
-✖︎ Expected an interface type for name 'User', got an object.
+✖︎ Expected an interface type for name 'User', got 'Object(0)'.
 
-  invalid-interface-implements-noninterface.graphql:7:27
+  <generated>:7:27
     6 │ 
     7 │ interface Page implements User {
       │                           ^^^^
     8 │   id: ID
-
-  ℹ︎ the other type is defined here
-
-  invalid-interface-implements-noninterface.graphql:3:6
-    2 │ 
-    3 │ type User {
-      │      ^^^^
-    4 │   id: ID

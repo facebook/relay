@@ -93,7 +93,8 @@ impl OperationDefinition {
         // https://spec.graphql.org/June2018/#sec-Anonymous-Operation-Definitions
         self.operation
             .as_ref()
-            .map_or(OperationKind::Query, |(_, operation_kind)| *operation_kind)
+            .map(|(_, operation_kind)| *operation_kind)
+            .unwrap_or(OperationKind::Query)
     }
 }
 
@@ -170,6 +171,19 @@ pub struct TypeCondition {
 impl fmt::Display for TypeCondition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("on {}", self.type_))
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct DefaultValue {
+    pub span: Span,
+    pub equals: Token,
+    pub value: ConstantValue,
+}
+
+impl fmt::Display for DefaultValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
     }
 }
 

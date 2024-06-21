@@ -42,7 +42,7 @@ impl Writer for FlowPrinter {
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
-            AST::Callable(return_type) => self.write_callable(return_type),
+            AST::Callable(return_type) => self.write_callable(&*return_type),
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
@@ -54,7 +54,7 @@ impl Writer for FlowPrinter {
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(*document_name, selections)
             }
-            AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
+            AST::FragmentReference(fragments) => self.write_fragment_references(&***fragments),
             AST::FragmentReferenceType(fragment) => {
                 write!(&mut self.result, "{}$fragmentType", fragment)
             }

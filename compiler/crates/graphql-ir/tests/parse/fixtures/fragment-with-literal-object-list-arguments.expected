@@ -77,7 +77,7 @@ fragment ChildFragment on Query
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-object-list-arguments.graphql:105:110,
-                                item: FieldID(56),
+                                item: FieldID(55),
                             },
                             arguments: [],
                             directives: [],
@@ -248,7 +248,7 @@ fragment ChildFragment on Query
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-object-list-arguments.graphql:340:345,
-                                item: FieldID(56),
+                                item: FieldID(55),
                             },
                             arguments: [],
                             directives: [],

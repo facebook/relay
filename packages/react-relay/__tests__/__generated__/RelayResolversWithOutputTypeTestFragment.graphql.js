@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0791a3689047698f85dc032c99248acd>>
+ * @generated SignedSource<<3667cd860cf304ea0aa637b1d9d43854>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,7 +58,6 @@ var node/*: ReaderFragment*/ = {
     {
       "kind": "ClientEdgeToClientObject",
       "concreteType": "TodoText",
-      "modelResolvers": null,
       "backingField": {
         "alias": null,
         "args": null,
@@ -72,7 +71,6 @@ var node/*: ReaderFragment*/ = {
         "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver').text,
         "path": "text",
         "normalizationInfo": {
-          "kind": "OutputType",
           "concreteType": "TodoText",
           "plural": false,
           "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__text$normalization.graphql')

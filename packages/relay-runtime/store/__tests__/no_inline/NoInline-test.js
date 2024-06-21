@@ -62,7 +62,7 @@ describe('No Inline w/ Common JS', () => {
     );
 
     // $FlowFixMe[unclear-type]
-    const {data}: any = environment.lookup(fragmentSelector);
+    const {data} = (environment.lookup(fragmentSelector): any);
 
     expect(data.name).toEqual('Alice');
   });

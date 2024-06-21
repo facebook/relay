@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fbad3b8f1e54b6a58a0190aff49f96bc>>
+ * @generated SignedSource<<cb37c049ca89756a597dc03ff7c628ea>>
  */
 
 mod generate_flow;
@@ -678,34 +678,6 @@ async fn required_within_aliased_inline_fragment_on_abstract() {
 }
 
 #[tokio::test]
-async fn resolver_on_interface_of_all_strong_model_type() {
-    let input = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type.graphql");
-    let expected = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type.expected");
-    test_fixture(transform_fixture, file!(), "resolver-on-interface-of-all-strong-model-type.graphql", "generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn resolver_on_interface_of_all_strong_model_type_with_extension() {
-    let input = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-extension.graphql");
-    let expected = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-extension.expected");
-    test_fixture(transform_fixture, file!(), "resolver-on-interface-of-all-strong-model-type-with-extension.graphql", "generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-extension.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn resolver_on_interface_of_all_strong_model_type_with_root_fragment() {
-    let input = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-root-fragment.graphql");
-    let expected = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-root-fragment.expected");
-    test_fixture(transform_fixture, file!(), "resolver-on-interface-of-all-strong-model-type-with-root-fragment.graphql", "generate_flow/fixtures/resolver-on-interface-of-all-strong-model-type-with-root-fragment.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn resolver_on_interface_of_all_weak_model_type() {
-    let input = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-weak-model-type.graphql");
-    let expected = include_str!("generate_flow/fixtures/resolver-on-interface-of-all-weak-model-type.expected");
-    test_fixture(transform_fixture, file!(), "resolver-on-interface-of-all-weak-model-type.graphql", "generate_flow/fixtures/resolver-on-interface-of-all-weak-model-type.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn roots() {
     let input = include_str!("generate_flow/fixtures/roots.graphql");
     let expected = include_str!("generate_flow/fixtures/roots.expected");
@@ -717,83 +689,6 @@ async fn scalar_field() {
     let input = include_str!("generate_flow/fixtures/scalar-field.graphql");
     let expected = include_str!("generate_flow/fixtures/scalar-field.expected");
     test_fixture(transform_fixture, file!(), "scalar-field.graphql", "generate_flow/fixtures/scalar-field.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_in_raw_response() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_in_raw_response.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_in_raw_response.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_in_raw_response.graphql", "generate_flow/fixtures/semantic_non_null_in_raw_response.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_items_in_matrix() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_items_in_matrix.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_items_in_matrix.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_items_in_matrix.graphql", "generate_flow/fixtures/semantic_non_null_items_in_matrix.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_liked_field_resolver() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_liked_field_resolver.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_liked_field_resolver.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_liked_field_resolver.graphql", "generate_flow/fixtures/semantic_non_null_liked_field_resolver.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_liked_field_weak_resolver() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_liked_field_weak_resolver.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_liked_field_weak_resolver.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_liked_field_weak_resolver.graphql", "generate_flow/fixtures/semantic_non_null_liked_field_weak_resolver.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_linked_field() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_linked_field.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_linked_field.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_linked_field.graphql", "generate_flow/fixtures/semantic_non_null_linked_field.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_list_and_list_item() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_list_and_list_item.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_list_and_list_item.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_list_and_list_item.graphql", "generate_flow/fixtures/semantic_non_null_list_and_list_item.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_list_item() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_list_item.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_list_item.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_list_item.graphql", "generate_flow/fixtures/semantic_non_null_list_item.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_scalar() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar.graphql", "generate_flow/fixtures/semantic_non_null_scalar.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_scalar_feature_disabled() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_feature_disabled.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_feature_disabled.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_feature_disabled.graphql", "generate_flow/fixtures/semantic_non_null_scalar_feature_disabled.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_non_null_scalar_resolver() {
-    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_resolver.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_resolver.expected");
-    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_resolver.graphql", "generate_flow/fixtures/semantic_non_null_scalar_resolver.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn semantic_null_required_throw_on_error() {
-    let input = include_str!("generate_flow/fixtures/semantic_null_required_throw_on_error.graphql");
-    let expected = include_str!("generate_flow/fixtures/semantic_null_required_throw_on_error.expected");
-    test_fixture(transform_fixture, file!(), "semantic_null_required_throw_on_error.graphql", "generate_flow/fixtures/semantic_null_required_throw_on_error.expected", input, expected).await;
 }
 
 #[tokio::test]

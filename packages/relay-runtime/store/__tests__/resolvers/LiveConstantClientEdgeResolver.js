@@ -15,7 +15,10 @@ import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.live_constant_client_edge: User
+ * @RelayResolver
+ * @fieldName live_constant_client_edge
+ * @onType Query
+ * @edgeTo User
  * @live
  */
 function live_constant_client_edge(): LiveState<

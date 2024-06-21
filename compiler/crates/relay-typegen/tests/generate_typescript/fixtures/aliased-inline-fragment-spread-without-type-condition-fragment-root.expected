@@ -9,7 +9,7 @@ import { FragmentRefs } from "relay-runtime";
 export type Foo$data = {
   readonly named_fragment: {
     readonly name: string | null | undefined;
-  };
+  } | null | undefined;
   readonly " $fragmentType": "Foo";
 };
 export type Foo$key = {

@@ -33,22 +33,6 @@ type Human implements Hominid @fetchable(field_name: "id") {
   other_friends(location: Location, location: Location): [Human]
 }
 
-type Ape implements Hominid {
-  pet: Canine
-  friends: [Hominid] # Missing argument
-}
-
-type Chimp implements Hominid {
-  pet: Canine
-  friends(location: String): [Hominid] # Missing argument
-}
-
-# Implement Hominid twice
-type Bonobo implements Hominid & Hominid {
-  pet: Canine
-  friends(location: Location): [Hominid]
-}
-
 type Query {
   fetch__Human(id: ID!): Human
   user: Human

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c9b11494c80c0a6a1ee1861b2f7f148a>>
+ * @generated SignedSource<<8e9153525279695aaad2bbfe01d80b6f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,19 +26,19 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => ?string);
+) => ?mixed);
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolverType: (
   rootKey: QueryAllAstrologicalSignsResolver$key,
-) => ?$ReadOnlyArray<{|
+) => ?$ReadOnlyArray<?{|
   +id: DataID,
 |}>);
 export type ClientEdgeToClientObjectTest2Query$variables = {||};
 export type ClientEdgeToClientObjectTest2Query$data = {|
-  +all_astrological_signs: ?$ReadOnlyArray<{|
-    +name: ?string,
+  +all_astrological_signs: ?$ReadOnlyArray<?{|
+    +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
   |}>,
 |};
 export type ClientEdgeToClientObjectTest2Query = {|
@@ -67,7 +67,6 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
-        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -178,7 +177,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "storageKey": null,
-                    "isOutputType": true
+                    "isOutputType": false
                   }
                 ],
                 "type": "AstrologicalSign",
@@ -186,7 +185,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": true
+              "isOutputType": false
             },
             (v0/*: any*/)
           ],

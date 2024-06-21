@@ -18,10 +18,10 @@ export type MyQuery$data = {
   readonly me: {
     readonly my_inline_fragment: {
       readonly name: string | null | undefined;
-    };
+    } | null | undefined;
     readonly my_user: {
       readonly " $fragmentSpreads": FragmentRefs<"MyUserFragment">;
-    };
+    } | null | undefined;
   } | null | undefined;
 };
 export type MyQuery$rawResponse = {

@@ -10,7 +10,6 @@ use common::DirectiveName;
 use common::SourceLocationKey;
 use graphql_syntax::*;
 use intern::string_key::StringKey;
-use rayon::iter::ParallelIterator;
 
 use crate::definitions::Directive;
 use crate::definitions::*;
@@ -343,13 +342,6 @@ impl SDLSchema {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
             SDLSchema::InMemory(schema) => schema.get_type_map(),
-        }
-    }
-
-    pub fn get_type_map_par_iter(&self) -> impl ParallelIterator<Item = (&StringKey, &Type)> {
-        match self {
-            SDLSchema::FlatBuffer(_schema) => todo!(),
-            SDLSchema::InMemory(schema) => schema.get_type_map_par_iter(),
         }
     }
 

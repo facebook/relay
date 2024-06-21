@@ -24,8 +24,7 @@ use lsp_types::HoverContents;
 use lsp_types::MarkedString;
 use resolution_path::ArgumentPath;
 use resolution_path::ArgumentRoot;
-use resolution_path::ConstantArgumentParent;
-use resolution_path::ConstantArgumentPath;
+use resolution_path::ConstantArgPath;
 use resolution_path::ConstantBooleanPath;
 use resolution_path::ConstantEnumPath;
 use resolution_path::ConstantFloatPath;
@@ -38,7 +37,6 @@ use resolution_path::ConstantStringPath;
 use resolution_path::ConstantValueParent;
 use resolution_path::ConstantValuePath;
 use resolution_path::ConstantValueRoot;
-use resolution_path::DefaultValueParent;
 use resolution_path::DefaultValuePath;
 use resolution_path::DirectivePath;
 use resolution_path::FragmentDefinitionPath;
@@ -132,7 +130,7 @@ enum HoverBehavior<'a> {
     FragmentSpread(&'a FragmentSpreadPath<'a>),
     Directive(&'a DirectivePath<'a>),
     FragmentDefinition(&'a FragmentDefinition),
-    None,
+    ExecutableDocument,
 }
 
 fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> HoverBehavior<'a> {
@@ -174,10 +172,10 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
         ResolutionPath::DefaultValue(DefaultValuePath {
             inner: _,
             parent:
-                DefaultValueParent::VariableDefinition(VariableDefinitionPath {
+                VariableDefinitionPath {
                     inner: variable_definition,
                     parent: _,
-                }),
+                },
         }) => HoverBehavior::VariableDefinition(variable_definition),
         ResolutionPath::VariableDefinition(VariableDefinitionPath {
             inner: variable_definition,
@@ -186,21 +184,21 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
         ResolutionPath::NonNullTypeAnnotation(NonNullTypeAnnotationPath {
             inner: _,
             parent: non_null_annotation_parent,
-        }) => non_null_annotation_parent
-            .parent
-            .find_variable_definition_path()
-            .map_or(HoverBehavior::None, |path| {
-                HoverBehavior::VariableDefinition(path.inner)
-            }),
+        }) => HoverBehavior::VariableDefinition(
+            non_null_annotation_parent
+                .parent
+                .find_variable_definition_path()
+                .inner,
+        ),
         ResolutionPath::ListTypeAnnotation(ListTypeAnnotationPath {
             inner: _,
             parent: list_type_annotation_parent,
-        }) => list_type_annotation_parent
-            .parent
-            .find_variable_definition_path()
-            .map_or(HoverBehavior::None, |path| {
-                HoverBehavior::VariableDefinition(path.inner)
-            }),
+        }) => HoverBehavior::VariableDefinition(
+            list_type_annotation_parent
+                .parent
+                .find_variable_definition_path()
+                .inner,
+        ),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -212,11 +210,9 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                             parent: type_annotation_parent,
                         },
                 }),
-        }) => type_annotation_parent
-            .find_variable_definition_path()
-            .map_or(HoverBehavior::None, |path| {
-                HoverBehavior::VariableDefinition(path.inner)
-            }),
+        }) => HoverBehavior::VariableDefinition(
+            type_annotation_parent.find_variable_definition_path().inner,
+        ),
 
         // Explicitly don't show hovers for VariableDefinitionList
         ResolutionPath::VariableDefinitionList(_) => HoverBehavior::VariableDefinitionList,
@@ -278,35 +274,23 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
-                IdentParent::ConstantArgumentKey(ConstantArgumentPath {
+                IdentParent::ConstantArgKey(ConstantArgPath {
                     inner: _,
                     parent:
-                        ConstantArgumentParent::ConstantObj(ConstantObjPath {
+                        ConstantObjPath {
                             inner: _,
                             parent: constant_value_path,
-                        }),
+                        },
                 }),
         }) => HoverBehavior::ConstantValue(&constant_value_path.parent),
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent:
-                IdentParent::ConstantArgumentKey(ConstantArgumentPath {
-                    inner: _,
-                    parent: ConstantArgumentParent::ConstantDirective(_),
-                }),
-        }) => HoverBehavior::None,
         ResolutionPath::ConstantObj(ConstantObjPath {
             inner: _,
             parent: constant_value_path,
         }) => HoverBehavior::ConstantValue(&constant_value_path.parent),
-        ResolutionPath::ConstantArgument(ConstantArgumentPath {
+        ResolutionPath::ConstantArg(ConstantArgPath {
             inner: _,
-            parent: ConstantArgumentParent::ConstantObj(constant_obj_path),
+            parent: constant_obj_path,
         }) => HoverBehavior::ConstantValue(&constant_obj_path.parent.parent),
-        ResolutionPath::ConstantArgument(ConstantArgumentPath {
-            inner: _,
-            parent: ConstantArgumentParent::ConstantDirective(_),
-        }) => HoverBehavior::None,
 
         // Scalar and linked fields
         ResolutionPath::ScalarField(ScalarFieldPath {
@@ -443,117 +427,12 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
         }) => HoverBehavior::FragmentDefinition(fragment_definition),
 
         // Explicitly show no hover content of operation/fragment definitions
-        ResolutionPath::ExecutableDocument(_) => HoverBehavior::None,
-        ResolutionPath::SchemaDocument(_) => HoverBehavior::None,
-        ResolutionPath::SchemaDefinition(_) => HoverBehavior::None,
-        ResolutionPath::SchemaExtension(_) => HoverBehavior::None,
-        ResolutionPath::OperationTypeDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::OperationTypeDefinitionType(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::DirectiveDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::DirectiveDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::InputValueDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::InputValueDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::DefaultValue(DefaultValuePath {
-            inner: _,
-            parent: DefaultValueParent::InputValueDefinition(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::UnionTypeDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::UnionTypeDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::UnionTypeExtension(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::UnionTypeExtensionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::UnionTypeMemberType(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::InterfaceTypeDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::InterfaceTypeDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::InterfaceTypeExtension(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::InterfaceTypeExtensionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::ImplementedInterfaceName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::ObjectTypeDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::ObjectTypeDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::ObjectTypeExtension(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::ObjectTypeExtensionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::InputObjectTypeDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::InputObjectTypeDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::InputObjectTypeExtension(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::InputObjectTypeExtensionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::EnumTypeDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::EnumTypeDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::EnumTypeExtension(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::EnumTypeExtensionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::EnumValueDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::EnumValueDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::ScalarTypeDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::ScalarTypeDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::ScalarTypeExtension(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::ScalarTypeExtensionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::FieldDefinition(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::FieldDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::ConstantDirective(_) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::ConstantDirectiveName(_),
-        }) => HoverBehavior::None,
+        ResolutionPath::ExecutableDocument(_) => HoverBehavior::ExecutableDocument,
     }
 }
 
-fn get_hover_contents(
-    hover_behavior: HoverBehavior<'_>,
+fn get_hover_contents<'a>(
+    hover_behavior: HoverBehavior<'a>,
     schema: &SDLSchema,
     schema_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
@@ -575,7 +454,6 @@ fn get_hover_contents(
             schema,
             schema_name,
             schema_documentation,
-            program,
             content_consumer_type,
         ),
         HoverBehavior::ScalarOrLinkedField(field_name, selection_path) => {
@@ -593,7 +471,6 @@ fn get_hover_contents(
             schema,
             schema_name,
             schema_documentation,
-            program,
             content_consumer_type,
         ),
         HoverBehavior::InlineFragment(inline_fragment_path) => on_hover_inline_fragment(
@@ -620,7 +497,7 @@ fn get_hover_contents(
             content_consumer_type,
         ),
 
-        HoverBehavior::None => None,
+        HoverBehavior::ExecutableDocument => None,
     }
 }
 
@@ -650,10 +527,11 @@ fn on_hover_variable_definition(
     let variable_identifier = &variable_definition.name;
     let variable_inner_type = variable_definition.type_.inner().name.value;
     let variable_type = &variable_definition.type_;
-    let variable_default_value = variable_definition.default_value.as_ref().map_or_else(
-        || "".to_string(),
-        |default_value| format!(" with default value `{}`", default_value.value),
-    );
+    let variable_default_value = variable_definition
+        .default_value
+        .as_ref()
+        .map(|default_value| format!(" with default value `{}`", default_value.value))
+        .unwrap_or_else(|| "".to_string());
 
     HoverContents::Scalar(MarkedString::String(format!(
         "`{}`: **{}**{}",
@@ -675,7 +553,6 @@ fn on_hover_constant_value<'a>(
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
-    program: &Program,
     content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     match constant_value_parent.find_constant_value_root() {
@@ -691,20 +568,16 @@ fn on_hover_constant_value<'a>(
             schema,
             schema_name,
             schema_documentation,
-            program,
             content_consumer_type,
         ),
-        ConstantValueRoot::InputValueDefinition(_) => None,
-        ConstantValueRoot::ConstantArgument(_) => None,
     }
 }
 
-fn on_hover_argument_path(
-    argument_path: &ArgumentPath<'_>,
+fn on_hover_argument_path<'a>(
+    argument_path: &ArgumentPath<'a>,
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
-    program: &Program,
     content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     let ArgumentPath {
@@ -737,18 +610,10 @@ fn on_hover_argument_path(
             schema_documentation,
             content_consumer_type,
         ),
-        ArgumentRoot::FragmentSpread(fragment_spread_path) => get_fragment_spread_hover_content(
-            fragment_spread_path,
-            schema,
-            schema_name,
-            schema_documentation,
-            program,
-            content_consumer_type,
-        ),
     }?;
 
     let mut contents = vec![argument_info];
-    contents.extend(field_hover_info);
+    contents.extend(field_hover_info.into_iter());
 
     Some(HoverContents::Array(contents))
 }
@@ -847,7 +712,7 @@ fn get_scalar_or_linked_field_hover_content(
             let arg_type_name = schema.get_type_name(arg.type_.inner()).lookup();
             hover_contents.push(MarkedString::from_markdown(format!(
                 "{}: **{}**{}\n\n{}",
-                arg.name.item,
+                arg.name,
                 content_consumer_type.render_text_with_params(
                     &schema.get_type_string(&arg.type_),
                     &GraphQLSchemaExplorerParams {
@@ -864,7 +729,7 @@ fn get_scalar_or_linked_field_hover_content(
                 if let Some(description) = schema_documentation.get_field_argument_description(
                     parent_type_name,
                     field.name.item.lookup(),
-                    arg.name.item.0.lookup(),
+                    arg.name.0.lookup(),
                 ) {
                     description.to_string()
                 } else {
@@ -979,26 +844,6 @@ fn on_hover_fragment_spread<'a>(
     program: &Program,
     content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
-    let hover_contents = get_fragment_spread_hover_content(
-        fragment_spread_path,
-        schema,
-        schema_name,
-        schema_documentation,
-        program,
-        content_consumer_type,
-    )?;
-
-    Some(HoverContents::Array(hover_contents))
-}
-
-fn get_fragment_spread_hover_content<'a>(
-    fragment_spread_path: &'a FragmentSpreadPath<'a>,
-    schema: &SDLSchema,
-    schema_name: StringKey,
-    schema_documentation: &impl SchemaDocumentation,
-    program: &Program,
-    content_consumer_type: ContentConsumerType,
-) -> Option<Vec<MarkedString>> {
     // TODO eventually show information about whether the fragment spread is
     // infallible, fallible, interface-on-interface, etc.
 
@@ -1103,19 +948,19 @@ For example:
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }
 
-    Some(hover_contents)
+    Some(HoverContents::Array(hover_contents))
 }
 
-fn on_hover_directive(
-    directive_path: &DirectivePath<'_>,
+fn on_hover_directive<'a>(
+    directive_path: &DirectivePath<'a>,
     schema: &SDLSchema,
 ) -> Option<HoverContents> {
     let content = get_directive_hover_content(directive_path, schema)?;
     Some(HoverContents::Array(content))
 }
 
-fn get_directive_hover_content(
-    directive_path: &DirectivePath<'_>,
+fn get_directive_hover_content<'a>(
+    directive_path: &DirectivePath<'a>,
     schema: &SDLSchema,
 ) -> Option<Vec<MarkedString>> {
     let DirectivePath {

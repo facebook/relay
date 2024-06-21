@@ -27,7 +27,7 @@ If data is lower-priority and should be loaded after the main data has loaded, b
 
 We’ve already prepared a hovercard component that you can put to use. However, it has been in a directory called `future` in order to avoid compilation errors since it uses `ImageFragment`. Now that we’re at this stage of the tutorial, you can move the modules in `future` into `src/components`:
 
-```shell
+```
 mv future/* src/components
 ```
 

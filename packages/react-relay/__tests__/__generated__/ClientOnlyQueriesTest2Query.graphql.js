@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cea683aaf11197b5a008b8912e68e500>>
+ * @generated SignedSource<<2a93ca9cc563e0dcd48ae03eef2939a1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {hello as queryHelloResolverType} from "../../../relay-runtime/store/__te
   args: {|
     world: string,
   |},
-) => ?string);
+) => ?mixed);
 export type ClientOnlyQueriesTest2Query$variables = {||};
 export type ClientOnlyQueriesTest2Query$data = {|
-  +hello: ?string,
+  +hello: ?ReturnType<typeof queryHelloResolverType>,
 |};
 export type ClientOnlyQueriesTest2Query = {|
   response: ClientOnlyQueriesTest2Query$data,
@@ -84,7 +84,7 @@ return {
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": "hello(world:\"World\")",
-            "isOutputType": true
+            "isOutputType": false
           }
         ]
       }

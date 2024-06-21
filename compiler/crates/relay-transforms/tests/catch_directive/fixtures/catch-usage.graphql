@@ -1,3 +1,0 @@
-fragment FragFoo on User {
-  name @catch(to: RESULT)
-}

@@ -19,5 +19,4 @@ graphql`fragment barFragment on User {
 }
 
 //- schema.graphql
-type Query { user: User }
 type User { name: String }

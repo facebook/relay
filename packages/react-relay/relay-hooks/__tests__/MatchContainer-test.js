@@ -73,16 +73,14 @@ describe('MatchContainer', () => {
     ));
   });
 
-  it('throws when match prop is null', async () => {
+  it('throws when match prop is null', () => {
     // This prevents console.error output in the test, which is expected
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-    await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
-          <MatchContainer loader={loader} match={(42: $FlowFixMe)} />,
-        );
-      });
-    }).rejects.toThrow(
+    expect(() => {
+      TestRenderer.create(
+        <MatchContainer loader={loader} match={(42: $FlowFixMe)} />,
+      );
+    }).toThrow(
       'MatchContainer: Expected `match` value to be an object or null/undefined.',
     );
   });
@@ -201,7 +199,7 @@ describe('MatchContainer', () => {
   it('renders the fallback if the match object is empty', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -220,7 +218,7 @@ describe('MatchContainer', () => {
   it('renders the fallback if the match object is missing expected fields', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -244,118 +242,110 @@ describe('MatchContainer', () => {
     expect(Fallback).toBeCalledTimes(1);
   });
 
-  it('throws if the match object is invalid (__id)', async () => {
+  it('throws if the match object is invalid (__id)', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
-          <MatchContainer
-            loader={loader}
-            match={
-              ({
-                __id: 42, // not a string
-                __fragments: null,
-                __fragmentPropName: null,
-                __fragmentOwner: null,
-                __module_component: null,
-              }: $FlowFixMe)
-            } // intentionally all null
-            props={otherProps}
-            fallback={(<Fallback />: $FlowFixMe)}
-          />,
-        );
-      });
-    }).rejects.toThrow(
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    expect(() => {
+      TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={
+            ({
+              __id: 42, // not a string
+              __fragments: null,
+              __fragmentPropName: null,
+              __fragmentOwner: null,
+              __module_component: null,
+            }: $FlowFixMe)
+          } // intentionally all null
+          props={otherProps}
+          fallback={(<Fallback />: $FlowFixMe)}
+        />,
+      );
+    }).toThrow(
       "MatchContainer: Invalid 'match' value, expected an object that has a '...SomeFragment' spread.",
     );
   });
 
-  it('throws if the match object is invalid (__fragments)', async () => {
+  it('throws if the match object is invalid (__fragments)', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
-          <MatchContainer
-            loader={loader}
-            match={
-              ({
-                __id: null,
-                __fragments: 42, // not an object
-                __fragmentPropName: null,
-                __fragmentOwner: null,
-                __module_component: null,
-              }: $FlowFixMe)
-            } // intentionally all null
-            props={otherProps}
-            fallback={(<Fallback />: $FlowFixMe)}
-          />,
-        );
-      });
-    }).rejects.toThrow(
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    expect(() => {
+      TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={
+            ({
+              __id: null,
+              __fragments: 42, // not an object
+              __fragmentPropName: null,
+              __fragmentOwner: null,
+              __module_component: null,
+            }: $FlowFixMe)
+          } // intentionally all null
+          props={otherProps}
+          fallback={(<Fallback />: $FlowFixMe)}
+        />,
+      );
+    }).toThrow(
       "MatchContainer: Invalid 'match' value, expected an object that has a '...SomeFragment' spread.",
     );
   });
 
-  it('throws if the match object is invalid (__fragmentOwner)', async () => {
+  it('throws if the match object is invalid (__fragmentOwner)', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
-          <MatchContainer
-            loader={loader}
-            match={
-              ({
-                __id: null,
-                __fragments: null,
-                __fragmentPropName: null,
-                __fragmentOwner: 42, // not an object
-                __module_component: null,
-              }: $FlowFixMe)
-            } // intentionally all null
-            props={otherProps}
-            fallback={(<Fallback />: $FlowFixMe)}
-          />,
-        );
-      });
-    }).rejects.toThrow(
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    expect(() => {
+      TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={
+            ({
+              __id: null,
+              __fragments: null,
+              __fragmentPropName: null,
+              __fragmentOwner: 42, // not an object
+              __module_component: null,
+            }: $FlowFixMe)
+          } // intentionally all null
+          props={otherProps}
+          fallback={(<Fallback />: $FlowFixMe)}
+        />,
+      );
+    }).toThrow(
       "MatchContainer: Invalid 'match' value, expected an object that has a '...SomeFragment' spread.",
     );
   });
 
-  it('throws if the match object is invalid (__fragmentPropName)', async () => {
+  it('throws if the match object is invalid (__fragmentPropName)', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
-          <MatchContainer
-            loader={loader}
-            match={
-              ({
-                __id: null,
-                __fragments: null,
-                __fragmentPropName: 42, // not a string
-                __fragmentOwner: null,
-                __module_component: null,
-              }: $FlowFixMe)
-            } // intentionally all null
-            props={otherProps}
-            fallback={(<Fallback />: $FlowFixMe)}
-          />,
-        );
-      });
-    }).rejects.toThrow(
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
+    expect(() => {
+      TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={
+            ({
+              __id: null,
+              __fragments: null,
+              __fragmentPropName: 42, // not a string
+              __fragmentOwner: null,
+              __module_component: null,
+            }: $FlowFixMe)
+          } // intentionally all null
+          props={otherProps}
+          fallback={(<Fallback />: $FlowFixMe)}
+        />,
+      );
+    }).toThrow(
       "MatchContainer: Invalid 'match' value, expected an object that has a '...SomeFragment' spread.",
     );
   });
@@ -363,7 +353,7 @@ describe('MatchContainer', () => {
   it('renders the fallback if the match value is null', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -394,7 +384,7 @@ describe('MatchContainer', () => {
   it('renders the fallback if the match value is undefined', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -412,7 +402,7 @@ describe('MatchContainer', () => {
 
   it('transitions from fallback when new props have a component', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}
@@ -453,7 +443,7 @@ describe('MatchContainer', () => {
       propName: 'actor',
       module: 'ActorContainer.react',
     });
-    const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
+    const Fallback = (jest.fn(() => <div>fallback</div>): $FlowFixMe);
     const renderer = TestRenderer.create(
       <MatchContainer
         loader={loader}

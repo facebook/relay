@@ -17,13 +17,11 @@ use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::build_project::get_project_asts;
-use relay_compiler::build_project::BuildMode;
 use relay_compiler::build_project::ProjectAstData;
 use relay_compiler::build_project::ProjectAsts;
 use relay_compiler::build_raw_program;
 use relay_compiler::build_schema;
 use relay_compiler::compiler_state::CompilerState;
-use relay_compiler::config::Config;
 use relay_compiler::config::ProjectConfig;
 use relay_compiler::errors::BuildProjectError;
 use relay_compiler::errors::Error;
@@ -39,7 +37,6 @@ use relay_compiler::GraphQLAsts;
 use relay_compiler::ProjectName;
 use relay_compiler::SourceControlUpdateStatus;
 use schema::SDLSchema;
-use schema_diff::check::SchemaChangeSafety;
 use schema_documentation::SchemaDocumentation;
 use tokio::task;
 use tokio::task::JoinHandle;
@@ -243,7 +240,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
                 &compiler_state.get_dirty_artifact_sources(&self.lsp_state.config),
-                &self.lsp_state.config,
             )
         })?;
 
@@ -281,21 +277,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 }
                 compiler_state.project_has_pending_changes(project_config.name)
             })
-            .map(|project_config| {
-                self.build_project(
-                    &self.lsp_state.config,
-                    project_config,
-                    compiler_state,
-                    &graphql_asts,
-                )
-            })
+            .map(|project_config| self.build_project(project_config, compiler_state, &graphql_asts))
             .collect();
         log_event.stop(timer);
 
         let mut errors = vec![];
         for build_result in build_results {
-            if let Err(BuildProjectFailure::Error(err)) = build_result {
-                errors.push(err);
+            match build_result {
+                Err(BuildProjectFailure::Error(err)) => {
+                    errors.push(err);
+                }
+                _ => {}
             }
         }
         if errors.is_empty() {
@@ -308,7 +300,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn build_project(
         &self,
-        config: &Config,
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
@@ -322,13 +313,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         log_event.string("project", project_name.to_string());
 
         let schema = log_event.time("build_schema_time", || {
-            self.build_schema(
-                compiler_state,
-                config,
-                project_config,
-                graphql_asts_map,
-                &log_event,
-            )
+            self.build_schema(compiler_state, project_config, graphql_asts_map)
         })?;
 
         let ProjectAstData {
@@ -356,26 +341,18 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn build_schema(
         &self,
         compiler_state: &CompilerState,
-        config: &Config,
         project_config: &ProjectConfig,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
-        log_event: &impl PerfLogEvent,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
         match self.lsp_state.schemas.entry(project_config.name.into()) {
             Entry::Vacant(e) => {
-                let schema = build_schema(
-                    compiler_state,
-                    config,
-                    project_config,
-                    graphql_asts_map,
-                    log_event,
-                )
-                .map_err(|errors| {
-                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                        errors,
-                        project_name: project_config.name,
-                    })
-                })?;
+                let schema = build_schema(compiler_state, project_config, graphql_asts_map)
+                    .map_err(|errors| {
+                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                            errors,
+                            project_name: project_config.name,
+                        })
+                    })?;
                 e.insert(Arc::clone(&schema));
                 Ok(schema)
             }
@@ -383,20 +360,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !compiler_state.project_has_pending_schema_changes(project_config.name) {
                     Ok(Arc::clone(e.get()))
                 } else {
-                    let schema = build_schema(
-                        compiler_state,
-                        config,
-                        project_config,
-                        graphql_asts_map,
-                        log_event,
-                    )
-                    .map_err(|errors| {
-                        debug!("build error");
-                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                            errors,
-                            project_name: project_config.name,
-                        })
-                    })?;
+                    let schema = build_schema(compiler_state, project_config, graphql_asts_map)
+                        .map_err(|errors| {
+                            debug!("build error");
+                            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                                errors,
+                                project_name: project_config.name,
+                            })
+                        })?;
                     e.insert(Arc::clone(&schema));
                     Ok(schema)
                 }
@@ -404,7 +375,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
     }
 
-    #[allow(clippy::too_many_arguments)]
     fn build_programs(
         &self,
         project_config: &ProjectConfig,
@@ -415,83 +385,33 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), BuildProjectFailure> {
-        let mut build_mode = if !self
+        let is_incremental_build = self
             .lsp_state
             .source_programs
             .contains_key(&project_config.name.into())
-            || !compiler_state.has_processed_changes()
-        {
-            BuildMode::Full
-        } else {
-            let project_schema_change = compiler_state.schema_change_safety(
+            && compiler_state.has_processed_changes()
+            && !compiler_state.has_breaking_schema_change(
                 log_event,
                 project_config.name,
                 &project_config.schema_config,
-            );
-            match project_schema_change {
-                SchemaChangeSafety::Unsafe => BuildMode::Full,
-                SchemaChangeSafety::Safe | SchemaChangeSafety::SafeWithIncrementalBuild(_) => {
-                    let base_schema_change = if let Some(base) = project_config.base {
-                        compiler_state.schema_change_safety(
-                            log_event,
-                            base,
-                            &project_config.schema_config,
-                        )
-                    } else {
-                        SchemaChangeSafety::Safe
-                    };
-                    match (project_schema_change, base_schema_change) {
-                        (SchemaChangeSafety::Unsafe, _) => BuildMode::Full,
-                        (_, SchemaChangeSafety::Unsafe) => BuildMode::Full,
-                        (SchemaChangeSafety::Safe, SchemaChangeSafety::Safe) => {
-                            BuildMode::Incremental
-                        }
-                        (
-                            SchemaChangeSafety::SafeWithIncrementalBuild(c),
-                            SchemaChangeSafety::Safe,
-                        ) => BuildMode::IncrementalWithSchemaChanges(c),
-                        (
-                            SchemaChangeSafety::Safe,
-                            SchemaChangeSafety::SafeWithIncrementalBuild(c),
-                        ) => BuildMode::IncrementalWithSchemaChanges(c),
-                        (
-                            SchemaChangeSafety::SafeWithIncrementalBuild(c1),
-                            SchemaChangeSafety::SafeWithIncrementalBuild(c2),
-                        ) => BuildMode::IncrementalWithSchemaChanges(
-                            c1.into_iter().chain(c2).collect(),
-                        ),
-                    }
-                }
-            }
-        };
-        if !self.lsp_state.config.has_schema_change_incremental_build {
-            // Killswitch here to bail out of schema based incremental builds
-            build_mode = if let BuildMode::IncrementalWithSchemaChanges(_) = build_mode {
-                BuildMode::Full
+            )
+            && if let Some(base) = project_config.base {
+                !compiler_state.has_breaking_schema_change(
+                    log_event,
+                    base,
+                    &project_config.schema_config,
+                )
             } else {
-                build_mode
-            }
-        }
-        log_event.bool(
-            "is_incremental_build",
-            match build_mode {
-                BuildMode::Incremental | BuildMode::IncrementalWithSchemaChanges(_) => true,
-                BuildMode::Full => false,
-            },
-        );
-        log_event.string(
-            "build_mode",
-            match build_mode {
-                BuildMode::Full => String::from("Full"),
-                BuildMode::Incremental => String::from("Incremental"),
-                BuildMode::IncrementalWithSchemaChanges(_) => {
-                    String::from("IncrementalWithSchemaChanges")
-                }
-            },
-        );
-
-        let (base_program, _) =
-            build_raw_program(project_config, project_asts, schema, log_event, build_mode)?;
+                true
+            };
+        log_event.bool("is_incremental_build", is_incremental_build);
+        let (base_program, _) = build_raw_program(
+            project_config,
+            project_asts,
+            schema,
+            log_event,
+            is_incremental_build,
+        )?;
 
         if compiler_state.should_cancel_current_build() {
             debug!("Build is cancelled: updates in source code/or new file changes are pending.");

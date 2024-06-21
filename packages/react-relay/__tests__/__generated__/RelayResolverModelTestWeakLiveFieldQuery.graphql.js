@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ab42932b32e0ff6fe93da1ad82758435>>
+ * @generated SignedSource<<284ae496bcef2a16f2448b29dd6aaf8d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -40,6 +40,7 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
 (todoDescriptionTextResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
 ) => ?string);
+import type { Query__live_todo_description$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__live_todo_description$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestWeakLiveFieldQuery$variables = {|
   id: string,
@@ -102,19 +103,18 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoDescription",
-        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_todo_description",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').live_todo_description,
+          "resolverModule": require('relay-runtime/experimental').weakObjectWrapperLive(require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').live_todo_description, '__relay_model_instance', false),
           "path": "live_todo_description",
           "normalizationInfo": {
-            "kind": "WeakModel",
             "concreteType": "TodoDescription",
-            "plural": false
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__live_todo_description$normalization.graphql')
           }
         },
         "linkedField": {

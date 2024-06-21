@@ -38,34 +38,18 @@ enum InvlidPetType {
   null
 }
 ==================================== OUTPUT ===================================
-✖︎ Enum must define one or more values.
+Type EmptyPetType with definition:
+	enum EmptyPetType
+had errors:
+	* Enum must define one or more values.
 
-  validate_enum.graphql:32:6
-   31 │ 
-   32 │ enum EmptyPetType
-      │      ^^^^^^^^^^^^
-   33 │ 
-
-✖︎ Enum cannot include value: true.
-
-  validate_enum.graphql:34:6
-   33 │ 
-   34 │ enum InvlidPetType {
-      │      ^^^^^^^^^^^^^
-   35 │   true
-
-✖︎ Enum cannot include value: false.
-
-  validate_enum.graphql:34:6
-   33 │ 
-   34 │ enum InvlidPetType {
-      │      ^^^^^^^^^^^^^
-   35 │   true
-
-✖︎ Enum cannot include value: null.
-
-  validate_enum.graphql:34:6
-   33 │ 
-   34 │ enum InvlidPetType {
-      │      ^^^^^^^^^^^^^
-   35 │   true
+Type InvlidPetType with definition:
+	enum InvlidPetType {
+  true
+  false
+  null
+}
+had errors:
+	* Enum cannot include value: false.
+	* Enum cannot include value: null.
+	* Enum cannot include value: true.

@@ -27,7 +27,6 @@ Document {
                         value: "Foo",
                     },
                     directives: [],
-                    span: 0:12,
                 },
             ),
         ),
@@ -86,7 +85,6 @@ Document {
                                     directives: [],
                                     description: None,
                                     hack_source: None,
-                                    span: 58:66,
                                 },
                             ],
                             end: Token {
@@ -95,7 +93,6 @@ Document {
                             },
                         },
                     ),
-                    span: 44:69,
                 },
             ),
         ),

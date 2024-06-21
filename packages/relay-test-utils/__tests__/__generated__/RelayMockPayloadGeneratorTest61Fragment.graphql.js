@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2950a4af508db05f20089599ee9bf66a>>
+ * @generated SignedSource<<821653ff1ca2cd39dc124bcef12486b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,18 +18,9 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-import type { RelayMockPayloadGeneratorTest61SubFragment$fragmentType } from "./RelayMockPayloadGeneratorTest61SubFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest61Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest61Fragment$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +$fragmentSpreads: RelayMockPayloadGeneratorTest61SubFragment$fragmentType,
-      |},
-    |}>,
-  |},
-  +id: string,
   +name: ?string,
   +$fragmentType: RelayMockPayloadGeneratorTest61Fragment$fragmentType,
 |};
@@ -52,56 +43,6 @@ var node/*: ReaderFragment*/ = {
       "kind": "ScalarField",
       "name": "name",
       "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "FriendsConnection",
-      "kind": "LinkedField",
-      "name": "friends",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "concreteType": "FriendsEdge",
-          "kind": "LinkedField",
-          "name": "edges",
-          "plural": true,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "concreteType": "User",
-              "kind": "LinkedField",
-              "name": "node",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "Defer",
-                  "selections": [
-                    {
-                      "args": null,
-                      "kind": "FragmentSpread",
-                      "name": "RelayMockPayloadGeneratorTest61SubFragment"
-                    }
-                  ]
-                }
-              ],
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
     }
   ],
   "type": "User",
@@ -109,7 +50,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "853420f56943a6c9654b9c942463c857";
+  (node/*: any*/).hash = "187c2abd3d1971151e500cd7a751e8db";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

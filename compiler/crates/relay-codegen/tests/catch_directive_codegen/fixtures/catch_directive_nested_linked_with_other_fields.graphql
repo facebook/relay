@@ -1,6 +1,0 @@
-fragment MyFragmentFirst on User {
-  parents @catch(to: NULL) {
-    id
-    lastName @catch(to: RESULT)
-  }
-}

@@ -14,7 +14,10 @@
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.hello_user(id: ID!): User
+ * @RelayResolver
+ * @fieldName hello_user(id: ID!)
+ * @edgeTo User
+ * @onType Query
  *
  * This should return the User
  */

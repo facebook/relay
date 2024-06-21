@@ -26,7 +26,6 @@ function handlePotentialSnapshotErrors(
   missingRequiredFields: ?MissingRequiredFields,
   relayResolverErrors: RelayResolverErrors,
   errorResponseFields: ?ErrorResponseFields,
-  throwOnFieldError: boolean,
 ) {
   for (const resolverError of relayResolverErrors) {
     environment.relayFieldLogger({
@@ -36,20 +35,8 @@ function handlePotentialSnapshotErrors(
       error: resolverError.error,
     });
   }
-
   if (
-    relayResolverErrors.length > 0 &&
-    (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT ||
-      throwOnFieldError)
-  ) {
-    throw new RelayFieldError(
-      `Relay: Unexpected resolver exception`,
-      relayResolverErrors.map(e => ({message: e.error.message})),
-    );
-  }
-
-  if (
-    (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING || throwOnFieldError) &&
+    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING &&
     errorResponseFields != null
   ) {
     if (errorResponseFields != null) {
@@ -65,13 +52,10 @@ function handlePotentialSnapshotErrors(
       }
     }
 
-    if (
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT ||
-      throwOnFieldError
-    ) {
+    if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT) {
       throw new RelayFieldError(
         `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
-        errorResponseFields.map(({error}) => error),
+        errorResponseFields.map(({path, owner, error}) => error),
       );
     }
   }

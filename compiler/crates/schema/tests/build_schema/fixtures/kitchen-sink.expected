@@ -75,20 +75,14 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: WithLocation {
-            location: <generated>:255:262,
-            item: DirectiveName(
-                "include",
-            ),
-        },
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:263:265,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -110,20 +104,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:334:338,
-            item: DirectiveName(
-                "skip",
-            ),
-        },
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:339:341,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -145,20 +133,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: kitchen-sink.graphql:11:17,
-            item: DirectiveName(
-                "source",
-            ),
-        },
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:18:24,
-                    item: ArgumentName(
-                        "schema",
-                    ),
-                },
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -169,12 +151,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:35:39,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -219,7 +198,7 @@ Text Schema:Schema {
   enums: [
     Enum {
         name: WithLocation {
-            location: kitchen-sink.graphql:340:348,
+            location: <generated>:340:348,
             item: EnumName(
                 "PageType",
             ),
@@ -269,18 +248,15 @@ Text Schema:Schema {
   fields: [
     Field {
         name: WithLocation {
-            location: kitchen-sink.graphql:154:158,
+            location: <generated>:154:158,
             item: "node",
         },
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:159:161,
-                    item: ArgumentName(
-                        "id",
-                    ),
-                },
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(4),
@@ -303,18 +279,15 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: kitchen-sink.graphql:176:181,
+            location: <generated>:176:181,
             item: "nodes",
         },
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:182:185,
-                    item: ArgumentName(
-                        "ids",
-                    ),
-                },
+                name: ArgumentName(
+                    "ids",
+                ),
                 type_: NonNull(
                     List(
                         NonNull(
@@ -347,7 +320,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: kitchen-sink.graphql:227:229,
+            location: <generated>:227:229,
             item: "id",
         },
         is_extension: false,
@@ -366,7 +339,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: kitchen-sink.graphql:268:270,
+            location: <generated>:268:270,
             item: "id",
         },
         is_extension: false,
@@ -385,7 +358,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: kitchen-sink.graphql:278:282,
+            location: <generated>:278:282,
             item: "name",
         },
         is_extension: false,
@@ -402,7 +375,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: kitchen-sink.graphql:308:310,
+            location: <generated>:308:310,
             item: "id",
         },
         is_extension: false,
@@ -419,7 +392,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: kitchen-sink.graphql:317:321,
+            location: <generated>:317:321,
             item: "type",
         },
         is_extension: false,
@@ -597,12 +570,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -627,19 +597,16 @@ Text Schema:Schema {
   input_objects: [
     InputObject {
         name: WithLocation {
-            location: kitchen-sink.graphql:510:518,
+            location: <generated>:510:518,
             item: InputObjectName(
                 "Location",
             ),
         },
         fields: [
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:569:572,
-                    item: ArgumentName(
-                        "lat",
-                    ),
-                },
+                name: ArgumentName(
+                    "lat",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(6),
@@ -650,12 +617,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:583:586,
-                    item: ArgumentName(
-                        "lon",
-                    ),
-                },
+                name: ArgumentName(
+                    "lon",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(6),
@@ -666,12 +630,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:597:601,
-                    item: ArgumentName(
-                        "city",
-                    ),
-                },
+                name: ArgumentName(
+                    "city",
+                ),
                 type_: Named(
                     Scalar(8),
                 ),
@@ -680,12 +641,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:612:615,
-                    item: ArgumentName(
-                        "zip",
-                    ),
-                },
+                name: ArgumentName(
+                    "zip",
+                ),
                 type_: Named(
                     Scalar(7),
                 ),
@@ -694,12 +652,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: kitchen-sink.graphql:623:638,
-                    item: ArgumentName(
-                        "previous_cities",
-                    ),
-                },
+                name: ArgumentName(
+                    "previous_cities",
+                ),
                 type_: List(
                     NonNull(
                         Named(
@@ -756,7 +711,7 @@ Text Schema:Schema {
   interfaces: [
     Interface {
         name: WithLocation {
-            location: kitchen-sink.graphql:218:222,
+            location: <generated>:218:222,
             item: InterfaceName(
                 "Node",
             ),
@@ -799,7 +754,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: kitchen-sink.graphql:144:149,
+            location: <generated>:144:149,
             item: ObjectName(
                 "Query",
             ),
@@ -816,7 +771,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: kitchen-sink.graphql:243:247,
+            location: <generated>:243:247,
             item: ObjectName(
                 "User",
             ),
@@ -838,7 +793,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: kitchen-sink.graphql:299:303,
+            location: <generated>:299:303,
             item: ObjectName(
                 "Page",
             ),
@@ -933,7 +888,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: kitchen-sink.graphql:459:462,
+            location: <generated>:459:462,
             item: ScalarName(
                 "URL",
             ),
@@ -981,7 +936,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: kitchen-sink.graphql:660:665,
+            location: <generated>:660:665,
             item: ScalarName(
                 "Float",
             ),
@@ -993,7 +948,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: kitchen-sink.graphql:674:677,
+            location: <generated>:674:677,
             item: ScalarName(
                 "Int",
             ),
@@ -1005,7 +960,7 @@ Text Schema:Schema {
     },
     Scalar {
         name: WithLocation {
-            location: kitchen-sink.graphql:686:692,
+            location: <generated>:686:692,
             item: ScalarName(
                 "String",
             ),
@@ -1019,7 +974,7 @@ Text Schema:Schema {
   unions: [
     Union {
         name: WithLocation {
-            location: kitchen-sink.graphql:431:436,
+            location: <generated>:431:436,
             item: UnionName(
                 "Actor",
             ),
@@ -1039,20 +994,14 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "include",
-            ),
-        },
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1074,20 +1023,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "skip",
-            ),
-        },
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1109,20 +1052,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "source",
-            ),
-        },
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "schema",
-                    ),
-                },
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1133,12 +1070,9 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1326,12 +1260,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "id",
-                    ),
-                },
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -1360,12 +1291,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "ids",
-                    ),
-                },
+                name: ArgumentName(
+                    "ids",
+                ),
                 type_: NonNull(
                     List(
                         NonNull(
@@ -1477,12 +1405,9 @@ input_objects: [
         },
         fields: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "lat",
-                    ),
-                },
+                name: ArgumentName(
+                    "lat",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -1493,12 +1418,9 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "lon",
-                    ),
-                },
+                name: ArgumentName(
+                    "lon",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -1509,12 +1431,9 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "city",
-                    ),
-                },
+                name: ArgumentName(
+                    "city",
+                ),
                 type_: Named(
                     Scalar(1),
                 ),
@@ -1523,12 +1442,9 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "zip",
-                    ),
-                },
+                name: ArgumentName(
+                    "zip",
+                ),
                 type_: Named(
                     Scalar(4),
                 ),
@@ -1537,12 +1453,9 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "previous_cities",
-                    ),
-                },
+                name: ArgumentName(
+                    "previous_cities",
+                ),
                 type_: List(
                     NonNull(
                         Named(

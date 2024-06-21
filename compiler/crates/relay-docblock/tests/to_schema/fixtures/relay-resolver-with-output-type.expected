@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_output_type
+// relay:allow_legacy_verbose_syntax
+
+/**
+ * @RelayResolver
+ *
+ * @onType User
+ * @fieldName favorite_page
+ * @outputType ClientPage
+ * @rootFragment myRootFragment
+ *
+ * The user's favorite page! They probably clicked something in the UI
+ * to tell us that it was their favorite page and then we put that in a
+ * database or something. Then we got that info out again and put it out
+ * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
+ */
+
+graphql`
+ fragment myRootFragment on User {
+   name
+ }
+`
+
+// %extensions%
+
+graphql`
+  type ClientPage {
+    foo: String
+  }
+`
+==================================== OUTPUT ===================================
+extend type User {
+  favorite_page: ClientPage @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-with-output-type.js", fragment_name: "myRootFragment", has_output_type: true, import_name: "favorite_page") @resolver_source_hash(value: "88293c3a51d22c37485f8fb1444eed2b")
+}

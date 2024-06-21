@@ -74,14 +74,14 @@ impl SourcePrinter {
             let end = line_end_byte_indices
                 .get(line_index)
                 .cloned()
-                .unwrap_or(source.len());
+                .unwrap_or_else(|| source.len());
             let start = if line_index == 0 {
                 0
             } else {
                 line_end_byte_indices
                     .get(line_index - 1)
                     .cloned()
-                    .unwrap_or(source.len())
+                    .unwrap_or_else(|| source.len())
             };
             start..end
         };

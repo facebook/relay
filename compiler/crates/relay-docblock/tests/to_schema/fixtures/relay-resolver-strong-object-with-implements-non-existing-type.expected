@@ -12,10 +12,10 @@
  * @RelayResolver FriendGroup implements TweedUnit
  */
 ==================================== ERROR ====================================
-✖︎ Reference to undefined type 'TweedUnit'.
+✖︎ The type `TweedUnit` is not an existing GraphQL type. Did you mean `FeedUnit`?
 
-  /path/to/test/fixture/relay-resolver-strong-object-with-implements-non-existing-type.js:2:42
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-non-existing-type.js:2:19
     1 │ *
     2 │  * @RelayResolver FriendGroup implements TweedUnit
-      │                                          ^^^^^^^^^
+      │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     3 │

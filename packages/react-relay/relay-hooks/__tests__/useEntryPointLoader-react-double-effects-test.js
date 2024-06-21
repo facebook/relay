@@ -142,14 +142,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function TestQueryComponent(props: any) {
+    QueryComponent = function (props: any) {
       const result = usePreloadedQuery(
         gqlQuery,
         (props.queries.TestQuery: $FlowFixMe),
       );
 
       const name = result?.node?.name ?? 'Empty';
-      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         queryRenderLogs.push(`commit: ${name}`);
         return () => {
@@ -162,7 +161,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function TestLoaderComponent(props: any) {
+    LoaderComponent = function (props: any) {
       // $FlowFixMe[underconstrained-implicit-instantiation]
       const [entryPointRef] = useEntryPointLoader<
         _,
@@ -186,7 +185,6 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       } else {
         entryPointRefId = entryPointRef.queries.TestQuery?.id ?? 'Unknown';
       }
-      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         loaderRenderLogs.push(`commit: ${entryPointRefId}`);
         return () => {

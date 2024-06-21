@@ -26,13 +26,6 @@ pub trait Visitor {
         }
     }
 
-    fn visit_executable_definition(&mut self, definition: &ExecutableDefinition) {
-        match definition {
-            ExecutableDefinition::Operation(operation) => self.visit_operation(operation),
-            ExecutableDefinition::Fragment(fragment) => self.visit_fragment(fragment),
-        }
-    }
-
     // Fragment Definition
     fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
         self.default_visit_fragment(fragment)

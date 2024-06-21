@@ -19,12 +19,7 @@ graphql`mutation barMutation {
 
 //- schema.graphql
 
-type Mutation {
-   some_mutation: Boolean
-}
-type Query {
-   greeting: String
-}
+type Mutation
 
 
 //- extensions.graphql

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<430ac2bc4f448133a1efd70b6d1760ff>>
+ * @generated SignedSource<<7b9c61003da6eac8a0943edbf94fce8f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -46,6 +46,7 @@ import {fancy_description_suspends as todoModelFancyDescriptionSuspendsResolverT
 (todoModelFancyDescriptionSuspendsResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
 ) => LiveState<?TodoDescription>);
+import type { TodoModel__fancy_description_suspends$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description_suspends$normalization.graphql";
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestSuspendedWeakClientEdgeQuery$variables = {|
   id: string,
@@ -104,20 +105,18 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoModel",
-        "modelResolvers": {
-          "TodoModel": {
-            "alias": null,
-            "args": [],
-            "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "TodoModel__id"
-            },
-            "kind": "RelayLiveResolver",
-            "name": "todo_model",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
-            "path": "todo_model.__relay_model_instance"
-          }
+        "modelResolver": {
+          "alias": null,
+          "args": [],
+          "fragment": {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "TodoModel__id"
+          },
+          "kind": "RelayLiveResolver",
+          "name": "todo_model",
+          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+          "path": "todo_model.__relay_model_instance"
         },
         "backingField": {
           "alias": null,
@@ -139,7 +138,6 @@ return {
             {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "TodoDescription",
-              "modelResolvers": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -150,12 +148,12 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "fancy_description_suspends",
-                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description_suspends, '__relay_model_instance', true),
+                "resolverModule": require('relay-runtime/experimental').weakObjectWrapperLive(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description_suspends, '__relay_model_instance', true), '__relay_model_instance', false),
                 "path": "todo_model.fancy_description_suspends",
                 "normalizationInfo": {
-                  "kind": "WeakModel",
                   "concreteType": "TodoDescription",
-                  "plural": false
+                  "plural": false,
+                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__fancy_description_suspends$normalization.graphql')
                 }
               },
               "linkedField": {

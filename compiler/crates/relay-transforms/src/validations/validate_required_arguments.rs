@@ -131,12 +131,12 @@ impl ValidateRequiredArguments<'_> {
                     && !arguments
                         .iter()
                         .map(|arg| arg.name.item)
-                        .any(|x| x == def.name.item)
+                        .any(|x| x == def.name)
                 {
                     return Err(vec![
                         Diagnostic::error(
                             ValidationMessage::MissingRequiredArgument {
-                                argument_name: def.name.item,
+                                argument_name: def.name,
                                 node_name,
                                 root_name: root_name_with_location.item,
                                 type_string: self.program.schema.get_type_string(&def.type_),

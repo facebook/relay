@@ -23,7 +23,6 @@ use serde::Serializer;
 use sha1::Digest;
 use sha1::Sha1;
 
-use crate::build_project::source_control::SourceControl;
 use crate::errors::BuildProjectError;
 use crate::errors::Error;
 
@@ -41,23 +40,32 @@ pub trait ArtifactWriter {
     fn finalize(&self) -> crate::errors::Result<()>;
 }
 
-#[derive(Default)]
+type SourceControlFn =
+    fn(&PathBuf, &Mutex<Vec<PathBuf>>, &Mutex<Vec<PathBuf>>) -> crate::errors::Result<()>;
 pub struct ArtifactFileWriter {
     added: Mutex<Vec<PathBuf>>,
     removed: Mutex<Vec<PathBuf>>,
-    source_control: Option<Box<dyn SourceControl + Send + Sync>>,
+    source_control_fn: Option<SourceControlFn>,
     root_dir: PathBuf,
 }
 
-impl ArtifactFileWriter {
-    pub fn new(
-        source_control: Option<Box<dyn SourceControl + Send + Sync>>,
-        root_dir: PathBuf,
-    ) -> Self {
+impl Default for ArtifactFileWriter {
+    fn default() -> Self {
         Self {
             added: Default::default(),
             removed: Default::default(),
-            source_control,
+            source_control_fn: None,
+            root_dir: Default::default(),
+        }
+    }
+}
+
+impl ArtifactFileWriter {
+    pub fn new(source_control_fn: Option<SourceControlFn>, root_dir: PathBuf) -> Self {
+        Self {
+            added: Default::default(),
+            removed: Default::default(),
+            source_control_fn,
             root_dir,
         }
     }
@@ -114,9 +122,8 @@ impl ArtifactWriter for ArtifactFileWriter {
     }
 
     fn finalize(&self) -> crate::errors::Result<()> {
-        if let Some(source_control) = &self.source_control {
-            source_control.add_files(&self.root_dir, &self.added)?;
-            source_control.remove_files(&self.root_dir, &self.removed)
+        if let Some(source_control_fn) = self.source_control_fn {
+            (source_control_fn)(&self.root_dir, &self.added, &self.removed)
         } else {
             Ok(())
         }
@@ -324,7 +331,7 @@ impl ArtifactWriter for ArtifactDifferenceShardedWriter {
     }
 }
 
-fn ensure_file_directory_exists(file_path: &Path) -> io::Result<()> {
+fn ensure_file_directory_exists(file_path: &PathBuf) -> io::Result<()> {
     if let Some(file_directory) = file_path.parent() {
         if !file_directory.exists() {
             create_dir_all(file_directory)?;

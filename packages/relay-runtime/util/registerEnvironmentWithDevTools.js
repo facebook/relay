@@ -20,8 +20,8 @@ function registerEnvironmentWithDevTools(environment: IEnvironment): void {
     typeof global !== 'undefined'
       ? global
       : typeof window !== 'undefined'
-        ? window
-        : undefined;
+      ? window
+      : undefined;
   const devToolsHook = _global && _global.__RELAY_DEVTOOLS_HOOK__;
   if (devToolsHook) {
     devToolsHook.registerEnvironment(environment);

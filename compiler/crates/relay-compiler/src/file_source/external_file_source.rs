@@ -8,7 +8,6 @@
 use std::fs::File as FsFile;
 use std::io::BufReader;
 use std::path::PathBuf;
-use std::sync::Arc;
 
 use common::PerfLogger;
 
@@ -21,9 +20,9 @@ use crate::FileSourceResult;
 
 /// The purpose of this module is to handle saved state and list of changed files
 /// from the external source, and not from the watchman
-pub struct ExternalFileSource {
+pub struct ExternalFileSource<'config> {
     changed_files_list: PathBuf,
-    pub config: Arc<Config>,
+    pub config: &'config Config,
 }
 
 #[derive(Debug)]
@@ -51,8 +50,8 @@ impl ExternalFileSourceResult {
     }
 }
 
-impl ExternalFileSource {
-    pub fn new(changed_files_list: PathBuf, config: Arc<Config>) -> Self {
+impl<'config> ExternalFileSource<'config> {
+    pub fn new(changed_files_list: PathBuf, config: &'config Config) -> Self {
         Self {
             config,
             changed_files_list,
@@ -80,7 +79,7 @@ impl ExternalFileSource {
                 ExternalFileSourceResult::read_from_fs(&self.changed_files_list, root_dir.clone())?,
             ));
 
-        compiler_state.merge_file_source_changes(&self.config, perf_logger, true)?;
+        compiler_state.merge_file_source_changes(self.config, perf_logger, true)?;
 
         Ok(compiler_state)
     }

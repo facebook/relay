@@ -114,6 +114,7 @@ class DataChecker {
   _mostRecentlyInvalidatedAt: number | null;
   _mutator: RelayRecordSourceMutator;
   _operationLoader: OperationLoader | null;
+  _operationLastWrittenAt: ?number;
   _recordSourceProxy: RelayRecordSourceProxy;
   _recordWasMissing: boolean;
   _source: RecordSource;

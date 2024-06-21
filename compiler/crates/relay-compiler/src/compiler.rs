@@ -95,7 +95,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     pub async fn watch(&self) -> Result<()> {
         'watch: loop {
             let setup_event = self.perf_logger.create_event("compiler_setup");
-            let initial_watch_compile_timer = setup_event.start("initial_watch_compile");
             self.config.status_reporter.build_starts();
             let result: Result<(CompilerState, Arc<Notify>, JoinHandle<()>)> = async {
                 if let Some(initialize_resources) = &self.config.initialize_resources {
@@ -172,7 +171,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             self.config.status_reporter.build_errors(&err);
                         }
                     };
-                    setup_event.stop(initial_watch_compile_timer);
+
                     setup_event.complete();
                     info!("Watching for new changes...");
 
@@ -304,7 +303,6 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
             &dirty_artifact_sources,
-            &config,
         )
     })?;
 

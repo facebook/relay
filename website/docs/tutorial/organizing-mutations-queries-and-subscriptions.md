@@ -1,4 +1,4 @@
-# Organizing Mutations, Queries, and Subscriptions
+## Organizing Mutations, Queries, and Subscriptions
 
 Relay Operations (Mutations, Queries, and Subscriptions) have strict naming requirements. The operation name must begin with the module name, and end with the GraphQL operation type. The name also must be globally unique.
 

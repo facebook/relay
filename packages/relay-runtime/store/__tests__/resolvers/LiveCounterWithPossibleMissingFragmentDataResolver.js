@@ -19,8 +19,10 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.live_counter_with_possible_missing_fragment_data: Int
+ * @RelayResolver
+ * @fieldName live_counter_with_possible_missing_fragment_data
  * @rootFragment LiveCounterWithPossibleMissingFragmentDataResolverFragment
+ * @onType Query
  * @live
  */
 function live_counter_with_possible_missing_fragment_data(

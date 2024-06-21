@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a6880296f247ee9d9d2e312d6c26b4a2>>
+ * @generated SignedSource<<080455566173c6f7361b4c9ca50ab6d3>>
  */
 
 mod extract;
@@ -17,20 +17,6 @@ async fn comments() {
     let input = include_str!("extract/fixtures/comments.js");
     let expected = include_str!("extract/fixtures/comments.expected");
     test_fixture(transform_fixture, file!(), "comments.js", "extract/fixtures/comments.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn complex_regex() {
-    let input = include_str!("extract/fixtures/complex_regex.js");
-    let expected = include_str!("extract/fixtures/complex_regex.expected");
-    test_fixture(transform_fixture, file!(), "complex_regex.js", "extract/fixtures/complex_regex.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn division() {
-    let input = include_str!("extract/fixtures/division.js");
-    let expected = include_str!("extract/fixtures/division.expected");
-    test_fixture(transform_fixture, file!(), "division.js", "extract/fixtures/division.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -62,13 +48,6 @@ async fn quote_in_jsx() {
 }
 
 #[tokio::test]
-async fn regex() {
-    let input = include_str!("extract/fixtures/regex.js");
-    let expected = include_str!("extract/fixtures/regex.expected");
-    test_fixture(transform_fixture, file!(), "regex.js", "extract/fixtures/regex.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn relay_resolver() {
     let input = include_str!("extract/fixtures/relay_resolver.js");
     let expected = include_str!("extract/fixtures/relay_resolver.expected");
@@ -87,13 +66,6 @@ async fn simple() {
     let input = include_str!("extract/fixtures/simple.flow");
     let expected = include_str!("extract/fixtures/simple.expected");
     test_fixture(transform_fixture, file!(), "simple.flow", "extract/fixtures/simple.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn slashes() {
-    let input = include_str!("extract/fixtures/slashes.js");
-    let expected = include_str!("extract/fixtures/slashes.expected");
-    test_fixture(transform_fixture, file!(), "slashes.js", "extract/fixtures/slashes.expected", input, expected).await;
 }
 
 #[tokio::test]

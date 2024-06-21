@@ -28,71 +28,68 @@ graphql`
   }
 `
 ==================================== OUTPUT ===================================
-Field(
-    LegacyVerboseResolver(
-        LegacyVerboseResolverIr {
-            field: FieldDefinitionStub {
-                name: Identifier {
+LegacyVerboseResolver(
+    LegacyVerboseResolverIr {
+        field: FieldDefinitionStub {
+            name: Identifier {
+                span: 53:66,
+                token: Token {
                     span: 53:66,
-                    token: Token {
-                        span: 53:66,
-                        kind: Identifier,
-                    },
-                    value: "favorite_page",
+                    kind: Identifier,
                 },
-                arguments: None,
+                value: "favorite_page",
             },
-            on: Type(
-                PopulatedIrField {
-                    key_location: /path/to/test/fixture/relay-resolver.js:27:33,
-                    value: WithLocation {
-                        location: /path/to/test/fixture/relay-resolver.js:34:38,
-                        item: "User",
-                    },
+            arguments: None,
+        },
+        on: Type(
+            PopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver.js:27:33,
+                value: WithLocation {
+                    location: /path/to/test/fixture/relay-resolver.js:34:38,
+                    item: "User",
                 },
-            ),
-            root_fragment: Some(
+            },
+        ),
+        root_fragment: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver.js:100:114,
+                item: FragmentDefinitionName(
+                    "myRootFragment",
+                ),
+            },
+        ),
+        output_type: Some(
+            EdgeTo(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver.js:100:114,
-                    item: FragmentDefinitionName(
-                        "myRootFragment",
+                    location: /path/to/test/fixture/relay-resolver.js:78:82,
+                    item: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 78:82,
+                                token: Token {
+                                    span: 78:82,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
+                            },
+                        },
                     ),
                 },
             ),
-            output_type: Some(
-                EdgeTo(
-                    WithLocation {
-                        location: /path/to/test/fixture/relay-resolver.js:78:82,
-                        item: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 78:82,
-                                    token: Token {
-                                        span: 78:82,
-                                        kind: Identifier,
-                                    },
-                                    value: "Page",
-                                },
-                            },
-                        ),
-                    },
-                ),
-            ),
-            description: Some(
-                WithLocation {
-                    location: /path/to/test/fixture/relay-resolver.js:117:408,
-                    item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
-                },
-            ),
-            hack_source: None,
-            deprecated: None,
-            semantic_non_null: None,
-            live: None,
-            location: /path/to/test/fixture/relay-resolver.js:0:409,
-            fragment_arguments: None,
-            source_hash: ResolverSourceHash(
-                "eeac1664eff365a817d8a2446abe76ce",
-            ),
-        },
-    ),
+        ),
+        description: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver.js:117:408,
+                item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+            },
+        ),
+        hack_source: None,
+        deprecated: None,
+        live: None,
+        location: /path/to/test/fixture/relay-resolver.js:0:409,
+        fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "eeac1664eff365a817d8a2446abe76ce",
+        ),
+    },
 )

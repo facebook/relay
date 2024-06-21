@@ -15,7 +15,7 @@ export type RelayReaderNamedFragmentsTest2Query$data = {
   readonly me: {
     readonly named_fragment: {
       readonly " $fragmentSpreads": FragmentRefs<"RelayReaderNamedFragmentsTest_user">;
-    };
+    } | null | undefined;
   } | null | undefined;
 };
 export type RelayReaderNamedFragmentsTest2Query = {

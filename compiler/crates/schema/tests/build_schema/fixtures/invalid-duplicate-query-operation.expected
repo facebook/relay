@@ -14,9 +14,9 @@ type Query2 {
   s: String
 }
 ==================================== ERROR ====================================
-✖︎ Duplicate query type definition, got 'Query2' and 'Query1'.
+✖︎ Duplicate Query type definition, got 'Query2' and 'Query1'.
 
-  invalid-duplicate-query-operation.graphql:5:10
+  <generated>:5:10
     4 │   query: Query1
     5 │   query: Query2
       │          ^^^^^^

@@ -1,9 +1,0 @@
-mutation VariableWithDefault($input: FeedbackUnLikeInput! = { feedbackId: "123"}) {
-  feedbackUnLike(input: $input) {
-    feedback {
-      body {
-        text
-      }
-    }
-  }
-}

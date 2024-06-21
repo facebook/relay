@@ -20,7 +20,6 @@ path = "tests/to_schema_test.rs"
 common = { path = "../common" }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
-errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
@@ -37,4 +36,4 @@ fixture-tests = { path = "../fixture-tests" }
 graphql-cli = { path = "../graphql-cli" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.29.1", features = ["full", "test-util", "tracing"] }

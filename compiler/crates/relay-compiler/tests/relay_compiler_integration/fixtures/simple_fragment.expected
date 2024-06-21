@@ -12,7 +12,6 @@ graphql`
 }
 
 //- schema.graphql
-type Query { me: User }
 type User { name: String }
 ==================================== OUTPUT ===================================
 //- __generated__/foo.graphql.ts

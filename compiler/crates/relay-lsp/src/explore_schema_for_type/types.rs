@@ -271,7 +271,7 @@ fn get_schema_explorer_input_object(
                 get_empty_schema_explorer_type_reference(arg.type_.inner(), schema, documentation);
 
             SchemaExplorerFieldArgument {
-                argument_name: arg.name.item.to_string(),
+                argument_name: arg.name.to_string(),
                 argument_description: None,
                 default_value: arg.default_value.as_ref().map(|value| value.to_string()),
                 rendered_type_name: schema.get_type_string(&arg.type_),
@@ -399,12 +399,12 @@ fn get_schema_explorer_field(
                 .get_field_argument_description(
                     parent_type_name.lookup(),
                     &field_name,
-                    arg.name.item.0.lookup(),
+                    arg.name.0.lookup(),
                 )
                 .map(|field_argument_description| field_argument_description.to_string());
 
             SchemaExplorerFieldArgument {
-                argument_name: arg.name.item.to_string(),
+                argument_name: arg.name.to_string(),
                 argument_description,
                 rendered_type_name: schema.get_type_string(&arg.type_),
                 type_reference,

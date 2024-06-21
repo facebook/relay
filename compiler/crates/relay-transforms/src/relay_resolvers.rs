@@ -216,8 +216,11 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     .expect("Previous validation passes ensured this exists.")
             });
 
-            let (fragment_arguments, field_arguments) =
-                field.arguments().iter().cloned().partition(|arg| {
+            let (fragment_arguments, field_arguments) = field
+                .arguments()
+                .iter()
+                .map(|arg| arg.clone())
+                .partition(|arg| {
                     if let Some(fragment_definition) = fragment_definition {
                         fragment_definition
                             .variable_definitions
@@ -464,7 +467,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                         // This is expect to be `__relay_model_instance`
                                         // TODO: Add validation/panic to assert that weak object has only
                                         // one field here, and it's a magic relay instance field.
-                                        Some(*object.fields.first().unwrap())
+                                        Some(*object.fields.get(0).unwrap())
                                     } else {
                                         None
                                     }

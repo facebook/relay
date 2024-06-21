@@ -1,9 +1,0 @@
-# expected-to-throw
-
-type Foo {
-  name: String
-}
-
-interface Foo {
-  name: String
-}

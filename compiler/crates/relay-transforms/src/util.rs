@@ -23,7 +23,6 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
-use crate::catch_directive::CATCH_DIRECTIVE_NAME;
 use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::connections::ConnectionMetadataDirective;
 use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
@@ -85,8 +84,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 20] = [
-        *CATCH_DIRECTIVE_NAME,
+    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 19] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -107,8 +105,7 @@ lazy_static! {
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
     ];
-    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 9] = [
-        *CATCH_DIRECTIVE_NAME,
+    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 8] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,

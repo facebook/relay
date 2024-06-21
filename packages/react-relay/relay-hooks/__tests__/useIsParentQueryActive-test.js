@@ -431,7 +431,7 @@ it('should only update if the latest owner completes the query', () => {
     },
   });
   const snapshot = environment.lookup(newOperation.fragment);
-  const newFragmentRef: $FlowFixMe = snapshot.data?.node;
+  const newFragmentRef = (snapshot.data?.node: $FlowFixMe);
   expect(mockFn.mock.calls[0]).toEqual([true]);
 
   TestRenderer.act(() => {

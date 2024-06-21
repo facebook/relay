@@ -52,9 +52,6 @@ yarn link
 cd ~/fbsource/xplat/js/RKJSModules/Libraries/Relay/oss/__github__/website
 yarn link relay-compiler-playground
 
-# You may need to clear Docusaurus cache
-npx docusaurus clear
-
 # Launch the website in dev mode
 yarn start
 ```

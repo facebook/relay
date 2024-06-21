@@ -29,7 +29,6 @@ lazy_static! {
     pub static ref REFETCHABLE_NAME: DirectiveName = DirectiveName("refetchable".intern());
     static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
     static ref DIRECTIVES_ARG: ArgumentName = ArgumentName("directives".intern());
-    static ref PREFER_FETCHABLE_ARG: ArgumentName = ArgumentName("preferFetchable".intern());
 }
 
 /// Represents the @refetchable Relay directive:
@@ -38,20 +37,17 @@ lazy_static! {
 /// directive @refetchable(
 ///   queryName: String!
 ///   directives: [String!]
-///   preferFetchable: Boolean
 /// ) on FRAGMENT_DEFINITION
 /// ```
 pub struct RefetchableDirective {
     pub query_name: WithLocation<OperationDefinitionName>,
     pub directives: Vec<Directive>,
-    pub prefer_fetchable: bool,
 }
 
 impl RefetchableDirective {
     pub fn from_directive(schema: &SDLSchema, directive: &Directive) -> DiagnosticsResult<Self> {
         let mut name = None;
         let mut directives = Vec::new();
-        let mut prefer_fetchable = false;
 
         for argument in &directive.arguments {
             if argument.name.item == *QUERY_NAME_ARG {
@@ -124,8 +120,6 @@ impl RefetchableDirective {
                         argument.value.location,
                     )])
                 }?
-            } else if argument.name.item == *PREFER_FETCHABLE_ARG {
-                prefer_fetchable = true
             } else {
                 // should be validated by general directive validations
                 panic!(
@@ -137,7 +131,6 @@ impl RefetchableDirective {
         Ok(Self {
             query_name: name.unwrap(),
             directives,
-            prefer_fetchable,
         })
     }
 }

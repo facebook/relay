@@ -211,19 +211,6 @@ class Executor<TMutation: MutationParameters> {
     this._normalizeResponse = normalizeResponse;
 
     const id = this._nextSubscriptionId++;
-
-    if (
-      RelayFeatureFlags.PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION &&
-      optimisticConfig != null
-    ) {
-      this._processOptimisticResponse(
-        optimisticConfig.response != null
-          ? {data: optimisticConfig.response}
-          : null,
-        optimisticConfig.updater,
-        false,
-      );
-    }
     source.subscribe({
       complete: () => this._complete(id),
       error: error => this._error(error),
@@ -246,10 +233,7 @@ class Executor<TMutation: MutationParameters> {
       },
     });
 
-    if (
-      !RelayFeatureFlags.PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION &&
-      optimisticConfig != null
-    ) {
+    if (optimisticConfig != null) {
       this._processOptimisticResponse(
         optimisticConfig.response != null
           ? {data: optimisticConfig.response}

@@ -14,10 +14,12 @@
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.live_resolver_return_undefined: RelayResolverValue
+ * @RelayResolver
+ * @fieldName live_resolver_return_undefined
+ * @onType Query
  * @live
  *
- * A @live resolver that returns undefined
+ * A @live resolver that throws
  */
 // $FlowFixMe - this resolver returns undefined, but should return LiveState
 function live_resolver_return_undefined(): LiveState<$FlowFixMe> {}

@@ -17,8 +17,10 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Todo.complete: Boolean
+ * @RelayResolver
+ * @onType Todo
  * @rootFragment TodoCompleteResolverFragment
+ * @fieldName complete
  */
 function complete(rootKey: TodoCompleteResolverFragment$key): ?boolean {
   const data = readFragment(

@@ -287,7 +287,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                 linked_field,
                 "an assignable fragment was spread in this linked field",
             ) {
-                self.errors.extend(e);
+                self.errors.extend(e.into_iter());
             }
         }
 

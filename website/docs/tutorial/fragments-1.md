@@ -50,7 +50,7 @@ type Props = {
 export default function Story({story}: Props) {
   return (
     <Card>
-      <PosterByline poster={story.poster} />
+      <PosterByline person={story.poster} />
       <Heading>{story.title}</Heading>
       // change-line
       <Timestamp time={story.createdAt} /> // Add this line
@@ -142,7 +142,7 @@ export default function Story({story}: Props) {
   return (
     <Card>
       <Heading>{data.title}</Heading>
-      <PosterByline poster={data.poster} />
+      <PosterByline person={data.poster} />
       <Timestamp time={data.createdAt} />
       <Image image={data.image} />
       <StorySummary summary={data.summary} />
@@ -210,7 +210,7 @@ The `PosterByline` component used by `Story` renders the poster’s name and pro
 * Declare a `PosterBylineFragment` on `Actor` and specify the fields it needs (`name`, `profilePicture`). The `Actor` type represents a person or organization that can post a story.
 * Spread that fragment within `poster` in `StoryFragment`.
 * Call `useFragment` to retrieve the data.
-* Update the Props to accept a `PosterBylineFragment$key` as the `poster` prop.
+* Update the Props to accept a `PosterBylineFragment$key` as the `person` prop.
 
 It’s worth going through these steps a second time, to get the mechanics of using fragments under your fingers. There are a lot of parts here that need to slot together in the right way.
 

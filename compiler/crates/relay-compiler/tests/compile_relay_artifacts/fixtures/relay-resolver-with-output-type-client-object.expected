@@ -110,7 +110,6 @@ extend type User {
     {
       "kind": "ClientEdgeToClientObject",
       "concreteType": "ClientUser",
-      "modelResolvers": null,
       "backingField": {
         "alias": "poppy",
         "args": null,
@@ -124,7 +123,6 @@ extend type User {
         "resolverModule": require('PopStarNameResolver'),
         "path": "poppy",
         "normalizationInfo": {
-          "kind": "OutputType",
           "concreteType": "ClientUser",
           "plural": false,
           "normalizationNode": require('User__pop_star_name$normalization.graphql')

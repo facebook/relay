@@ -11,18 +11,16 @@
 
 'use strict';
 
-import type {DataID} from './util/RelayRuntimeTypes';
-
+const LiveResolverStore = require('./store/experimental-live-resolvers/LiveResolverStore');
 const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
-
-// Annotates a strong object return type, where `A` is the GraphQL typename
-// eslint-disable-next-line no-unused-vars
-export type IdOf<A> = DataID;
-
-// Annotates a `RelayResolverValue` GraphQL return type
-// eslint-disable-next-line no-unused-vars
-export type RelayResolverValue<A> = A;
+const {
+  weakObjectWrapper,
+  weakObjectWrapperLive,
+} = require('./store/experimental-live-resolvers/weakObjectWrapper');
 
 module.exports = {
   resolverDataInjector,
+  weakObjectWrapper,
+  weakObjectWrapperLive,
+  LiveResolverStore,
 };

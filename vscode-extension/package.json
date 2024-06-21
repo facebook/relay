@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "2.3.0",
+  "version": "2.1.0",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -20,8 +20,7 @@
     "onLanguage:javascript",
     "onLanguage:javascriptreact",
     "onLanguage:typescript",
-    "onLanguage:typescriptreact",
-    "onLanguage:graphql"
+    "onLanguage:typescriptreact"
   ],
   "extensionDependencies": [
     "GraphQL.vscode-graphql-syntax"
@@ -136,7 +135,7 @@
   },
   "dependencies": {
     "semver": "^7.3.7",
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.23",

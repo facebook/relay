@@ -19,8 +19,10 @@ const {graphql, suspenseSentinel} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.counter_suspends_when_odd: Int
+ * @RelayResolver
+ * @fieldName counter_suspends_when_odd
  * @rootFragment CounterSuspendsWhenOdd
+ * @onType Query
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State

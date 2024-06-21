@@ -84,7 +84,7 @@ query LiteralListArgumentQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: literal-list-argument.graphql:86:91,
-                                item: FieldID(31),
+                                item: FieldID(30),
                             },
                             arguments: [],
                             directives: [],
@@ -93,7 +93,7 @@ query LiteralListArgumentQuery {
                                     alias: None,
                                     definition: WithLocation {
                                         location: literal-list-argument.graphql:100:104,
-                                        item: FieldID(34),
+                                        item: FieldID(33),
                                     },
                                     arguments: [],
                                     directives: [],

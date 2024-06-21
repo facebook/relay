@@ -27,7 +27,7 @@ fragment InlineUntypedFragment on User {
                             alias: None,
                             definition: WithLocation {
                                 location: inline-untyped-fragment.graphql:53:57,
-                                item: FieldID(468),
+                                item: FieldID(467),
                             },
                             arguments: [],
                             directives: [],

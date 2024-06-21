@@ -14,7 +14,10 @@
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 /**
- * @RelayResolver User.client_node(id: ID!): Node
+ * @RelayResolver
+ * @fieldName client_node(id: ID!)
+ * @edgeTo Node
+ * @onType User
  */
 function client_node(args: {
   id: string,

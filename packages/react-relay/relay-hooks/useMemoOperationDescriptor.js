@@ -24,7 +24,7 @@ const {createOperationDescriptor, getRequest} = require('relay-runtime');
 
 const {useMemo} = React;
 
-hook useMemoOperationDescriptor(
+function useMemoOperationDescriptor(
   gqlQuery: GraphQLTaggedNode,
   variables: Variables,
   cacheConfig?: ?CacheConfig,

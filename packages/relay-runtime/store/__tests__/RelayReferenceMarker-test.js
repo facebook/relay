@@ -26,10 +26,12 @@ import {ROOT_ID} from '../RelayStoreUtils';
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 describe('RelayReferenceMarker', () => {
@@ -508,11 +510,9 @@ describe('RelayReferenceMarker', () => {
       `;
       loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
           (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
         load: jest.fn((moduleName: mixed) =>
-          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -868,11 +868,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
           (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
         load: jest.fn((moduleName: mixed) =>
-          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -919,11 +917,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
           (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
         load: jest.fn((moduleName: mixed) =>
-          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -969,11 +965,9 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
           (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
         load: jest.fn((moduleName: mixed) =>
-          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -1063,11 +1057,9 @@ describe('RelayReferenceMarker', () => {
       `;
       loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
           (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
         ),
         load: jest.fn((moduleName: mixed) =>
-          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };

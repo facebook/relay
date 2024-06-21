@@ -51,18 +51,12 @@ type Fur {
   color: String
 }
 ==================================== OUTPUT ===================================
-✖︎ Union type EmptyFurType must define one or more member types.
+Type EmptyFurType with definition:
+	union EmptyFurType
+had errors:
+	* Union type EmptyFurType must define one or more member types.
 
-  validate_union.graphql:41:7
-   40 │ 
-   41 │ union EmptyFurType
-      │       ^^^^^^^^^^^^
-   42 │ 
-
-✖︎ Union can only include member Hair once.
-
-  validate_union.graphql:43:7
-   42 │ 
-   43 │ union InvalidFurType = Hair | Fur | Hair
-      │       ^^^^^^^^^^^^^^
-   44 │
+Type InvalidFurType with definition:
+	union InvalidFurType = Hair | Fur | Hair
+had errors:
+	* Union can only include member Hair once.

@@ -21,7 +21,7 @@ extend type User {
 
   ℹ︎ previously defined here
 
-  invalid-object-extension-duplicated-server-field.graphql:4:3
+  <generated>:4:3
     3 │ type User {
     4 │   name: String
       │   ^^^^

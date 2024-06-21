@@ -13,9 +13,6 @@ impl<'a> ArgumentParent<'a> {
             Self::Directive(directive_path) => ArgumentRoot::Directive(directive_path),
             Self::ScalarField(scalar_field_path) => ArgumentRoot::ScalarField(scalar_field_path),
             Self::LinkedField(linked_field_path) => ArgumentRoot::LinkedField(linked_field_path),
-            Self::FragmentSpread(fragment_spread_path) => {
-                ArgumentRoot::FragmentSpread(fragment_spread_path)
-            }
             Self::ConstantObject(ConstantObjectPath { inner: _, parent }) => parent
                 .parent
                 .find_enclosing_argument_path()
@@ -36,7 +33,6 @@ pub enum ArgumentRoot<'a> {
     LinkedField(&'a LinkedFieldPath<'a>),
     ScalarField(&'a ScalarFieldPath<'a>),
     Directive(&'a DirectivePath<'a>),
-    FragmentSpread(&'a FragmentSpreadPath<'a>),
 }
 
 #[cfg(test)]

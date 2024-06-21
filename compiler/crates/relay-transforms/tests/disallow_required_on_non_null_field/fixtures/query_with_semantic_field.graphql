@@ -1,9 +1,0 @@
-# relay:experimental_emit_semantic_nullability_types
-query MyQuery @throwOnFieldError {
-  some_field
-}
-
-# %extensions%
-extend type Query {
-  some_field: Int @semanticNonNull
-}

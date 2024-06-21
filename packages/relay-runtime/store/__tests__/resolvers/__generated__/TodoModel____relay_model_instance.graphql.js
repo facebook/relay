@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5907090a31d5a7bf8e5b42c2376ef7cf>>
+ * @generated SignedSource<<fbbce9e1241862ddae562dff8818c589>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {TodoModel as todoModelRelayModelInstanceResolverType} from "../TodoModel
 ) => LiveState<mixed>);
 declare export opaque type TodoModel____relay_model_instance$fragmentType: FragmentType;
 export type TodoModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<ReturnType<typeof todoModelRelayModelInstanceResolverType>["read"]>>,
+  +__relay_model_instance: ?ReturnType<ReturnType<typeof todoModelRelayModelInstanceResolverType>["read"]>,
   +$fragmentType: TodoModel____relay_model_instance$fragmentType,
 |};
 export type TodoModel____relay_model_instance$key = {

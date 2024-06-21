@@ -53,6 +53,7 @@ fn build_refetch_operation(
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let id_name = schema_config.node_interface_id_field;
+
     let node_interface_id = schema.get_type(CONSTANTS.node_type_name).and_then(|type_| {
         if let Type::Interface(id) = type_ {
             Some(id)
@@ -167,7 +168,7 @@ fn build_refetch_operation(
                     alias: None,
                     definition: WithLocation::new(fragment.name.location, node_field_id),
                     arguments: vec![Argument {
-                        name: WithLocation::new(fragment.name.location, id_arg.name.item),
+                        name: WithLocation::new(fragment.name.location, id_arg.name),
                         value: WithLocation::new(
                             fragment.name.location,
                             Value::Variable(Variable {

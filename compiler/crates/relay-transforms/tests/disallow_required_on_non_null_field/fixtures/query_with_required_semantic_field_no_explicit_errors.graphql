@@ -1,8 +1,0 @@
-query MyQuery {
-  some_field @required(action: LOG)
-}
-
-# %extensions%
-extend type Query {
-  some_field: Int @semanticNonNull
-}

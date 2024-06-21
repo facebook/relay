@@ -33,11 +33,10 @@ For JavaScript changes:
 
 For Rust changes:
 
-1. [Install Rust and Cargo](https://www.rust-lang.org/tools/install)
-2. Ensure all rust code is formatted by running `cargo fmt` from within `./compiler`.
-3. If you've added or removed any fixture tests, ensure all generated tests are up to date by running `./scripts/update-fixtures.sh` from the repository root.
-4. Ensure all code typechecks by running `cargo check` from within `./compiler`.
-5. Ensure all tests pass by running `cargo test` from within `./compiler`.
+1. Ensure all rust code is formatted by running `cargo fmt` from within `./compiler`.
+2. If you've added or removed any fixture tests, ensure all generated tests are up to date by running `./scripts/update-fixtures.sh` from the repository root.
+3. Ensure all code typechecks by running `cargo check` from within `./compiler`.
+4. Ensure all tests pass by running `cargo test` from within `./compiler`.
 
 ### Contributor License Agreement (CLA)
 

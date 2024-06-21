@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f49d4bee95cf370371492f2bb49b315>>
+ * @generated SignedSource<<1cfb508e2d0094231d72d3244e935bf8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { RelayReaderAliasedFragmentsTest_user$fragmentType } from "./RelayR
 export type RelayReaderAliasedFragmentsTest2Query$variables = {||};
 export type RelayReaderAliasedFragmentsTest2Query$data = {|
   +me: ?{|
-    +aliased_fragment: {|
+    +aliased_fragment: ?{|
       +$fragmentSpreads: RelayReaderAliasedFragmentsTest_user$fragmentType,
     |},
   |},

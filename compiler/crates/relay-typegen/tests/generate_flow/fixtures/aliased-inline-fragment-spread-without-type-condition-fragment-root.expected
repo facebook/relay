@@ -8,7 +8,7 @@ fragment Foo on User {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
 export type Foo$data = {|
-  +aliased_fragment: {|
+  +aliased_fragment: ?{|
     +name: ?string,
   |},
   +$fragmentType: Foo$fragmentType,

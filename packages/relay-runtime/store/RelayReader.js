@@ -14,8 +14,8 @@
 import type {
   ReaderActorChange,
   ReaderAliasedFragmentSpread,
-  ReaderCatchField,
-  ReaderClientEdge,
+  ReaderClientEdgeToClientObject,
+  ReaderClientEdgeToServerObject,
   ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
@@ -52,7 +52,6 @@ const {
   ACTOR_CHANGE,
   ALIASED_FRAGMENT_SPREAD,
   ALIASED_INLINE_FRAGMENT_SPREAD,
-  CATCH_FIELD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
@@ -95,8 +94,6 @@ const {
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
-type RequiredOrCatchField = ReaderRequiredField | ReaderCatchField;
-
 function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
@@ -136,9 +133,11 @@ class RelayReader {
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
   ) {
-    this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
-      ? [...selector.clientEdgeTraversalPath]
-      : [];
+    this._clientEdgeTraversalPath =
+      RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
+      selector.clientEdgeTraversalPath?.length
+        ? [...selector.clientEdgeTraversalPath]
+        : [];
     this._missingClientEdges = [];
     this._missingLiveResolverFields = [];
     this._isMissingData = false;
@@ -221,9 +220,10 @@ class RelayReader {
     return {
       data,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
-      missingClientEdges: this._missingClientEdges.length
-        ? this._missingClientEdges
-        : null,
+      missingClientEdges:
+        RelayFeatureFlags.ENABLE_CLIENT_EDGES && this._missingClientEdges.length
+          ? this._missingClientEdges
+          : null,
       missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
@@ -237,7 +237,6 @@ class RelayReader {
     if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
       return;
     }
-
     const errors = RelayModernRecord.getErrors(record, storageKey);
 
     if (errors == null) {
@@ -259,7 +258,10 @@ class RelayReader {
 
   _markDataAsMissing(): void {
     this._isMissingData = true;
-    if (this._clientEdgeTraversalPath.length) {
+    if (
+      RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
+      this._clientEdgeTraversalPath.length
+    ) {
       const top =
         this._clientEdgeTraversalPath[this._clientEdgeTraversalPath.length - 1];
       // Top can be null if we've traversed past a client edge into an ordinary
@@ -340,92 +342,6 @@ class RelayReader {
     }
   }
 
-  _handleCatchFieldValue(
-    selection: ReaderCatchField,
-    record: Record,
-    data: SelectorData,
-    value: mixed,
-  ) {
-    const {to} = selection;
-    const field = selection.field?.backingField ?? selection.field;
-    const fieldName = field?.alias ?? field?.name;
-
-    // ReaderClientExtension doesn't have `alias` or `name`
-    // so we don't support this yet
-    invariant(
-      fieldName != null,
-      "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
-    );
-
-    if (this._errorResponseFields != null) {
-      for (let i = 0; i < this._errorResponseFields.length; i++) {
-        // if it's a @catch - it can only be NULL or RESULT. So we always add the "to" from the CatchField.
-        this._errorResponseFields[i].to = to;
-      }
-    }
-    // If we have a nested @required(THROW)  that will throw,
-    // we want to catch that error and provide it, and remove the original error
-    if (this._missingRequiredFields?.action === 'THROW') {
-      if (this._missingRequiredFields?.field == null) {
-        return;
-      }
-
-      // We want to catch nested @required THROWs
-      if (this._errorResponseFields == null) {
-        this._errorResponseFields = [];
-      }
-
-      const {owner, path} = this._missingRequiredFields.field;
-      this._errorResponseFields.push({
-        owner,
-        path,
-        error: {
-          message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
-        },
-        to,
-      });
-
-      // remove missing required because we're providing it in catch instead.
-      this._missingRequiredFields = null;
-
-      return;
-    }
-
-    if (this._errorResponseFields != null) {
-      const errors = this._errorResponseFields.map(error => error.error);
-
-      data[fieldName] = {
-        ok: false,
-        errors,
-      };
-      return;
-    }
-
-    data[fieldName] = {
-      ok: true,
-      value,
-    };
-
-    // we do nothing if to is 'NULL'
-  }
-
-  _handleRequiredFieldValue(
-    selection: ReaderRequiredField,
-    value: mixed,
-  ): boolean /*should continue to siblings*/ {
-    if (value == null) {
-      const {action} = selection;
-      if (action !== 'NONE') {
-        this._maybeReportUnexpectedNull(selection.path, action);
-      }
-      // We are going to throw, or our parent is going to get nulled out.
-      // Either way, sibling values are going to be ignored, so we can
-      // bail early here as an optimization.
-      return false;
-    }
-    return true;
-  }
-
   _traverseSelections(
     selections: $ReadOnlyArray<ReaderSelection>,
     record: Record,
@@ -433,37 +349,21 @@ class RelayReader {
   ): boolean /* had all expected data */ {
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
-
       switch (selection.kind) {
-        case REQUIRED_FIELD:
-          const requiredFieldValue = this._readClientSideDirectiveField(
-            selection,
-            record,
-            data,
-          );
-          if (!this._handleRequiredFieldValue(selection, requiredFieldValue)) {
+        case REQUIRED_FIELD: {
+          const fieldValue = this._readRequiredField(selection, record, data);
+          if (fieldValue == null) {
+            const {action} = selection;
+            if (action !== 'NONE') {
+              this._maybeReportUnexpectedNull(selection.path, action);
+            }
+            // We are going to throw, or our parent is going to get nulled out.
+            // Either way, sibling values are going to be ignored, so we can
+            // bail early here as an optimization.
             return false;
           }
           break;
-        case CATCH_FIELD:
-          const catchFieldValue = this._readClientSideDirectiveField(
-            selection,
-            record,
-            data,
-          );
-          if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE) {
-            /* NULL is old behavior. do nothing. */
-            if (selection.to != 'NULL') {
-              /* @catch(to: RESULT) is the default */
-              this._handleCatchFieldValue(
-                selection,
-                record,
-                data,
-                catchFieldValue,
-              );
-            }
-          }
-          break;
+        }
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;
@@ -538,7 +438,9 @@ class RelayReader {
         case CLIENT_EXTENSION: {
           const isMissingData = this._isMissingData;
           const alreadyMissingClientEdges = this._missingClientEdges.length;
-          this._clientEdgeTraversalPath.push(null);
+          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
+            this._clientEdgeTraversalPath.push(null);
+          }
           const hasExpectedData = this._traverseSelections(
             selection.selections,
             record,
@@ -551,7 +453,9 @@ class RelayReader {
             isMissingData ||
             this._missingClientEdges.length > alreadyMissingClientEdges ||
             this._missingLiveResolverFields.length > 0;
-          this._clientEdgeTraversalPath.pop();
+          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
+            this._clientEdgeTraversalPath.pop();
+          }
           if (!hasExpectedData) {
             return false;
           }
@@ -573,7 +477,11 @@ class RelayReader {
           break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
         case CLIENT_EDGE_TO_SERVER_OBJECT:
-          this._readClientEdge(selection, record, data);
+          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
+            this._readClientEdge(selection, record, data);
+          } else {
+            throw new Error('Client edges are not yet supported.');
+          }
           break;
         default:
           (selection: empty);
@@ -587,8 +495,8 @@ class RelayReader {
     return true;
   }
 
-  _readClientSideDirectiveField(
-    selection: RequiredOrCatchField,
+  _readRequiredField(
+    selection: ReaderRequiredField,
     record: Record,
     data: SelectorData,
   ): ?mixed {
@@ -635,8 +543,8 @@ class RelayReader {
     const parentRecordID = RelayModernRecord.getDataID(record);
     const result = this._readResolverFieldImpl(field, parentRecordID);
 
-    const fieldName = field.alias ?? field.name;
-    data[fieldName] = result;
+    const applicationName = field.alias ?? field.name;
+    data[applicationName] = result;
     return result;
   }
 
@@ -822,152 +730,104 @@ class RelayReader {
   }
 
   _readClientEdge(
-    field: ReaderClientEdge,
+    field: ReaderClientEdgeToServerObject | ReaderClientEdgeToClientObject,
     record: Record,
     data: SelectorData,
   ): ?mixed {
     const backingField = field.backingField;
 
     // Because ReaderClientExtension doesn't have `alias` or `name` and so I don't know
-    // how to get its fieldName or storageKey yet:
+    // how to get its applicationName or storageKey yet:
     invariant(
       backingField.kind !== 'ClientExtension',
       'Client extension client edges are not yet implemented.',
     );
 
-    const fieldName = backingField.alias ?? backingField.name;
+    const applicationName = backingField.alias ?? backingField.name;
     const backingFieldData = {};
     this._traverseSelections([backingField], record, backingFieldData);
-    // At this point, backingFieldData is an object with a single key (fieldName)
+    // At this point, backingFieldData is an object with a single key (applicationName)
     // whose value is the value returned from the resolver, or a suspense sentinel.
 
-    // $FlowFixMe[invalid-computed-prop]
-    const clientEdgeResolverResponse = backingFieldData[fieldName];
+    const clientEdgeResolverResponse = backingFieldData[applicationName];
     if (
       clientEdgeResolverResponse == null ||
       isSuspenseSentinel(clientEdgeResolverResponse)
     ) {
-      data[fieldName] = clientEdgeResolverResponse;
+      data[applicationName] = clientEdgeResolverResponse;
       return clientEdgeResolverResponse;
     }
 
-    if (field.linkedField.plural) {
-      invariant(
-        Array.isArray(clientEdgeResolverResponse),
-        'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
-      );
-      let storeIDs: $ReadOnlyArray<DataID>;
-      invariant(
-        field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT,
-        'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
-      );
-      if (field.backingField.normalizationInfo == null) {
-        // @edgeTo case where we need to ensure that the record has `id` field
-        storeIDs = clientEdgeResolverResponse.map(itemResponse => {
-          const concreteType = field.concreteType ?? itemResponse.__typename;
-          invariant(
-            typeof concreteType === 'string',
-            'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
-          );
-          const localId = extractIdFromResponse(itemResponse);
-          const id = this._resolverCache.ensureClientRecord(
-            localId,
-            concreteType,
-          );
+    const validClientEdgeResolverResponse =
+      assertValidClientEdgeResolverResponse(field, clientEdgeResolverResponse);
 
-          const modelResolvers = field.modelResolvers;
-          if (modelResolvers != null) {
-            const modelResolver = modelResolvers[concreteType];
-            invariant(
-              modelResolver !== undefined,
-              `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(modelResolvers).join(', ')} but got \`${concreteType}\`.`,
-            );
-            const model = this._readResolverFieldImpl(modelResolver, id);
-            return model != null ? id : null;
+    switch (validClientEdgeResolverResponse.kind) {
+      case 'PluralConcrete':
+        const storeIDs = getStoreIDsForPluralClientEdgeResolver(
+          field,
+          validClientEdgeResolverResponse.ids,
+          this._resolverCache,
+        );
+        let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
+        if (field.modelResolver != null) {
+          const modelResolver = field.modelResolver;
+          validStoreIDs = storeIDs.map(storeID => {
+            const model = this._readResolverFieldImpl(modelResolver, storeID);
+            return model != null ? storeID : null;
+          });
+        }
+        this._clientEdgeTraversalPath.push(null);
+        const edgeValues = this._readLinkedIds(
+          field.linkedField,
+          validStoreIDs,
+          record,
+          data,
+        );
+        this._clientEdgeTraversalPath.pop();
+        data[applicationName] = edgeValues;
+        return edgeValues;
+
+      case 'SingularConcrete':
+        const [storeID, traversalPathSegment] =
+          getStoreIDAndTraversalPathSegmentForSingularClientEdgeResolver(
+            field,
+            validClientEdgeResolverResponse.id,
+            this._resolverCache,
+          );
+        if (field.modelResolver != null) {
+          const model = this._readResolverFieldImpl(
+            field.modelResolver,
+            storeID,
+          );
+          if (model == null) {
+            // If the model resolver returns undefined, we should still return null
+            // to match GQL behavior.
+            data[applicationName] = null;
+            return null;
           }
-          return id;
-        });
-      } else {
-        // The normalization process in LiveResolverCache should take care of generating the correct ID.
-        storeIDs = clientEdgeResolverResponse.map(extractIdFromResponse);
-      }
-      this._clientEdgeTraversalPath.push(null);
-      const edgeValues = this._readLinkedIds(
-        field.linkedField,
-        storeIDs,
-        record,
-        data,
-      );
-      this._clientEdgeTraversalPath.pop();
-      data[fieldName] = edgeValues;
-      return edgeValues;
-    } else {
-      const id = extractIdFromResponse(clientEdgeResolverResponse);
-      let storeID: DataID;
-      const concreteType =
-        field.concreteType ?? clientEdgeResolverResponse.__typename;
-      let traversalPathSegment: ClientEdgeTraversalInfo | null;
-      if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
-        if (field.backingField.normalizationInfo == null) {
-          invariant(
-            typeof concreteType === 'string',
-            'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
-          );
-          // @edgeTo case where we need to ensure that the record has `id` field
-          storeID = this._resolverCache.ensureClientRecord(id, concreteType);
-          traversalPathSegment = null;
-        } else {
-          // The normalization process in LiveResolverCache should take care of generating the correct ID.
-          storeID = id;
-          traversalPathSegment = null;
         }
-      } else {
-        storeID = id;
-        traversalPathSegment = {
-          readerClientEdge: field,
-          clientEdgeDestinationID: id,
-        };
-      }
+        this._clientEdgeTraversalPath.push(traversalPathSegment);
 
-      const modelResolvers = field.modelResolvers;
-      if (modelResolvers != null) {
+        const prevData = data[applicationName];
         invariant(
-          typeof concreteType === 'string',
-          'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
+          prevData == null || typeof prevData === 'object',
+          'RelayReader(): Expected data for field `%s` on record `%s` ' +
+            'to be an object, got `%s`.',
+          applicationName,
+          RelayModernRecord.getDataID(record),
+          prevData,
         );
-        const modelResolver = modelResolvers[concreteType];
-        invariant(
-          modelResolver !== undefined,
-          `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(modelResolvers).join(', ')} but got \`${concreteType}\`.`,
+        const edgeValue = this._traverse(
+          field.linkedField,
+          storeID,
+          // $FlowFixMe[incompatible-variance]
+          prevData,
         );
-        const model = this._readResolverFieldImpl(modelResolver, storeID);
-        if (model == null) {
-          // If the model resolver returns undefined, we should still return null
-          // to match GQL behavior.
-          data[fieldName] = null;
-          return null;
-        }
-      }
-      this._clientEdgeTraversalPath.push(traversalPathSegment);
-
-      const prevData = data[fieldName];
-      invariant(
-        prevData == null || typeof prevData === 'object',
-        'RelayReader(): Expected data for field `%s` on record `%s` ' +
-          'to be an object, got `%s`.',
-        fieldName,
-        RelayModernRecord.getDataID(record),
-        prevData,
-      );
-      const edgeValue = this._traverse(
-        field.linkedField,
-        storeID,
-        // $FlowFixMe[incompatible-variance]
-        prevData,
-      );
-      this._clientEdgeTraversalPath.pop();
-      data[fieldName] = edgeValue;
-      return edgeValue;
+        this._clientEdgeTraversalPath.pop();
+        data[applicationName] = edgeValue;
+        return edgeValue;
+      default:
+        (validClientEdgeResolverResponse.kind: empty);
     }
   }
 
@@ -976,7 +836,7 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const fieldName = field.alias ?? field.name;
+    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
     if (value === null) {
@@ -984,7 +844,7 @@ class RelayReader {
     } else if (value === undefined) {
       this._markDataAsMissing();
     }
-    data[fieldName] = value;
+    data[applicationName] = value;
     return value;
   }
 
@@ -993,11 +853,11 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const fieldName = field.alias ?? field.name;
+    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
-      data[fieldName] = linkedID;
+      data[applicationName] = linkedID;
       if (linkedID === null) {
         this._maybeAddErrorResponseFields(record, storageKey);
       } else if (linkedID === undefined) {
@@ -1006,18 +866,18 @@ class RelayReader {
       return linkedID;
     }
 
-    const prevData = data[fieldName];
+    const prevData = data[applicationName];
     invariant(
       prevData == null || typeof prevData === 'object',
       'RelayReader(): Expected data for field `%s` on record `%s` ' +
         'to be an object, got `%s`.',
-      fieldName,
+      applicationName,
       RelayModernRecord.getDataID(record),
       prevData,
     );
     // $FlowFixMe[incompatible-variance]
     const value = this._traverse(field, linkedID, prevData);
-    data[fieldName] = value;
+    data[applicationName] = value;
     return value;
   }
 
@@ -1026,7 +886,7 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const fieldName = field.alias ?? field.name;
+    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const externalRef = RelayModernRecord.getActorLinkedRecordID(
       record,
@@ -1034,13 +894,13 @@ class RelayReader {
     );
 
     if (externalRef == null) {
-      data[fieldName] = externalRef;
+      data[applicationName] = externalRef;
       if (externalRef === undefined) {
         this._markDataAsMissing();
       } else if (externalRef === null) {
         this._maybeAddErrorResponseFields(record, storageKey);
       }
-      return data[fieldName];
+      return data[applicationName];
     }
     const [actorIdentifier, dataID] = externalRef;
 
@@ -1052,11 +912,11 @@ class RelayReader {
       }),
       fragmentRef,
     );
-    data[fieldName] = {
+    data[applicationName] = {
       __fragmentRef: fragmentRef,
       __viewer: actorIdentifier,
     };
-    return data[fieldName];
+    return data[applicationName];
   }
 
   _readPluralLink(
@@ -1078,22 +938,22 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const fieldName = field.alias ?? field.name;
+    const applicationName = field.alias ?? field.name;
 
     if (linkedIDs == null) {
-      data[fieldName] = linkedIDs;
+      data[applicationName] = linkedIDs;
       if (linkedIDs === undefined) {
         this._markDataAsMissing();
       }
       return linkedIDs;
     }
 
-    const prevData = data[fieldName];
+    const prevData = data[applicationName];
     invariant(
       prevData == null || Array.isArray(prevData),
       'RelayReader(): Expected data for field `%s` on record `%s` ' +
         'to be an array, got `%s`.',
-      fieldName,
+      applicationName,
       RelayModernRecord.getDataID(record),
       prevData,
     );
@@ -1112,7 +972,7 @@ class RelayReader {
         prevItem == null || typeof prevItem === 'object',
         'RelayReader(): Expected data for field `%s` on record `%s` ' +
           'to be an object, got `%s`.',
-        fieldName,
+        applicationName,
         RelayModernRecord.getDataID(record),
         prevItem,
       );
@@ -1120,7 +980,7 @@ class RelayReader {
       // $FlowFixMe[incompatible-variance]
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
     });
-    data[fieldName] = linkedArray;
+    data[applicationName] = linkedArray;
     return linkedArray;
   }
 
@@ -1209,20 +1069,6 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?(SelectorData | false) {
-    if (inlineFragment.type == null) {
-      // Inline fragment without a type condition: always read data
-      // Usually this would get compiled away, but fragments with @alias
-      // and no type condition will get preserved.
-      const hasExpectedData = this._traverseSelections(
-        inlineFragment.selections,
-        record,
-        data,
-      );
-      if (hasExpectedData === false) {
-        return false;
-      }
-      return data;
-    }
     const {abstractKey} = inlineFragment;
     if (abstractKey == null) {
       // concrete type refinement: only read data if the type exactly matches
@@ -1304,13 +1150,15 @@ class RelayReader {
     );
     data[FRAGMENT_OWNER_KEY] = this._owner;
 
-    if (
-      this._clientEdgeTraversalPath.length > 0 &&
-      this._clientEdgeTraversalPath[
-        this._clientEdgeTraversalPath.length - 1
-      ] !== null
-    ) {
-      data[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
+    if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
+      if (
+        this._clientEdgeTraversalPath.length > 0 &&
+        this._clientEdgeTraversalPath[
+          this._clientEdgeTraversalPath.length - 1
+        ] !== null
+      ) {
+        data[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
+      }
     }
   }
 
@@ -1438,7 +1286,132 @@ function getResolverValue(
   return [resolverResult, resolverError];
 }
 
-function extractIdFromResponse(individualResponse: mixed): string {
+type ValidClientEdgeResolverResponse =
+  | {
+      kind: 'PluralConcrete',
+      ids: $ReadOnlyArray<DataID>,
+    }
+  | {
+      kind: 'SingularConcrete',
+      id: DataID,
+    };
+
+function assertValidClientEdgeResolverResponse(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+  clientEdgeResolverResponse: mixed,
+): ValidClientEdgeResolverResponse {
+  if (field.linkedField.plural) {
+    invariant(
+      Array.isArray(clientEdgeResolverResponse),
+      'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
+    );
+    return {
+      kind: 'PluralConcrete',
+      ids: clientEdgeResolverResponse.map(response =>
+        extractIdFromResponse(
+          response,
+          'Expected this plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
+        ),
+      ),
+    };
+  } else {
+    return {
+      kind: 'SingularConcrete',
+      id: extractIdFromResponse(
+        clientEdgeResolverResponse,
+        'Expected this Client Edge Relay Resolver to return an ID of type `string` or an object with shape {id}.',
+      ),
+    };
+  }
+}
+
+// For weak objects:
+// The return value of a client edge resolver is the entire object (though,
+// strong objects become DataIDs or arrays thereof). However, when being read
+// out, these raw objects are turned into DataIDs or arrays thereof.
+//
+// For strong objects:
+// For a singular field, the return value of a client edge resolver is a DataID
+// (i.e. a string). If the edge points to a client type, we namespace the
+// ID with the typename by calling resolverCache.ensureClientRecord.
+function getStoreIDAndTraversalPathSegmentForSingularClientEdgeResolver(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+  clientEdgeResolverResponse: DataID,
+  resolverCache: ResolverCache,
+): [DataID, ClientEdgeTraversalInfo | null] {
+  if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
+    if (field.backingField.normalizationInfo == null) {
+      const concreteType = field.concreteType;
+      invariant(
+        concreteType != null,
+        'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
+          'This indicates a bug in Relay.',
+      );
+      // @edgeTo case where we need to ensure that the record has `id` field
+      return [
+        resolverCache.ensureClientRecord(
+          clientEdgeResolverResponse,
+          concreteType,
+        ),
+        null,
+      ];
+    } else {
+      // The normalization process in LiveResolverCache should take care of generating the correct ID.
+      return [clientEdgeResolverResponse, null];
+    }
+  } else {
+    return [
+      clientEdgeResolverResponse,
+      {
+        readerClientEdge: field,
+        clientEdgeDestinationID: clientEdgeResolverResponse,
+      },
+    ];
+  }
+}
+
+// For weak objects:
+// The return value of a client edge resolver is the entire object (though,
+// strong objects become DataIDs or arrays thereof). However, when being read
+// out, these raw objects are turned into DataIDs or arrays thereof.
+//
+// For strong objects:
+// For a plural field, the return value of a client edge resolver is an
+// array of DataID's. If the edge points to a client type, we namespace the
+// IDs with the typename by calling resolverCache.ensureClientRecord.
+function getStoreIDsForPluralClientEdgeResolver(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+  clientEdgeResolverResponse: $ReadOnlyArray<DataID>,
+  resolverCache: ResolverCache,
+): $ReadOnlyArray<DataID> {
+  if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
+    if (field.backingField.normalizationInfo == null) {
+      const concreteType = field.concreteType;
+      invariant(
+        concreteType != null,
+        'Expected at least one of backingField.normalizationInfo or field.concreteType to be non-null. ' +
+          'This indicates a bug in Relay.',
+      );
+      // @edgeTo case where we need to ensure that the record has `id` field
+      return clientEdgeResolverResponse.map(id =>
+        resolverCache.ensureClientRecord(id, concreteType),
+      );
+    } else {
+      // The normalization process in LiveResolverCache should take care of generating the correct ID.
+      return clientEdgeResolverResponse;
+    }
+  } else {
+    invariant(
+      false,
+      'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+    );
+  }
+}
+
+function extractIdFromResponse(
+  individualResponse: mixed,
+  errorMessage: string,
+): string {
   if (typeof individualResponse === 'string') {
     return individualResponse;
   } else if (
@@ -1448,10 +1421,7 @@ function extractIdFromResponse(individualResponse: mixed): string {
   ) {
     return individualResponse.id;
   }
-  invariant(
-    false,
-    'Expected object returned from an edge resolver to be a string or an object with an `id` property',
-  );
+  invariant(false, errorMessage);
 }
 
 module.exports = {read};

@@ -183,10 +183,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         count,
       };
     });
-    TestComponent = ({ref, ...props}) => {
-      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
-      return render(props);
-    };
+    TestComponent = render;
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
@@ -377,7 +374,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       loadMore(1, jest.fn());
       expect(render.mock.calls.length).toBe(1);
 
-      render.mockClear();
+      TestComponent.mockClear();
       TestChildComponent.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.resolve(UserQuery, {
@@ -918,7 +915,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       };
       expect(environment.mock.isLoading(UserQuery, variables)).toBe(true);
 
-      render.mockClear();
+      TestComponent.mockClear();
       TestChildComponent.mockClear();
       environment.mock.resolve(UserQuery, {
         data: {

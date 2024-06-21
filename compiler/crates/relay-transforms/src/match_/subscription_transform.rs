@@ -96,8 +96,8 @@ impl<'program> SubscriptionTransform<'program> {
                             let object_field = self.program.schema.field(*object_field_id);
                             if object_field.name.item == MATCH_CONSTANTS.js_field_name {
                                 // if we find a js field, it must be valid
-                                return self.is_valid_js_dependency(&object_field.type_).then_some(
-                                    ValidFieldResult {
+                                return self.is_valid_js_dependency(&object_field.type_).then(
+                                    || ValidFieldResult {
                                         linked_field,
                                         js_field_id: *object_field_id,
                                         fragment_spread,
@@ -122,7 +122,7 @@ impl<'program> SubscriptionTransform<'program> {
         if linked_field.selections.len() != 1 {
             return None;
         }
-        let first_item = linked_field.selections.first().unwrap();
+        let first_item = linked_field.selections.get(0).unwrap();
         match first_item {
             Selection::FragmentSpread(fragment_spread) => Some(fragment_spread),
             _ => None,
@@ -139,10 +139,10 @@ impl<'program> SubscriptionTransform<'program> {
         }
     }
 
-    fn get_replacement_selection(
+    fn get_replacement_selection<'operation>(
         &self,
         operation: &OperationDefinition,
-        valid_result: ValidFieldResult<'_>,
+        valid_result: ValidFieldResult<'operation>,
     ) -> Selection {
         let ValidFieldResult {
             linked_field,
@@ -176,8 +176,7 @@ impl<'program> SubscriptionTransform<'program> {
         })));
 
         let type_condition = Some(
-            self.program
-                .schema
+            (&self.program.schema)
                 .field(linked_field.definition.item)
                 .type_
                 .inner(),

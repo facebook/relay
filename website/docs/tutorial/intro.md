@@ -36,8 +36,6 @@ When you run `npm run dev`, several processes are started:
 
 In the terminal output, these three processes’ log output are marked with tags: `[webpack]` in yellow, `[server]` in green, and `[relay]` in blue. Keep a look out for errors marked with `[relay]` as these are helpful if your GraphQL has any mistakes.
 
-If you encounter errors in the `[relay]` process indicating: ```[relay] thread 'main' panicked at 'Cannot run relay in watch mode if `watchman` is not available (or explicitly disabled).'```, this means watchman is not installed or available on your system. To resolve this, you may need to [install watchman separately](https://facebook.github.io/watchman/docs/install). After installing watchman, try running `npm run dev` again.
-
 Now that these processes are running, you should be able to open [http://localhost:3000](http://localhost:3000/) in your browser.
 
 ![Screenshot](/img/docs/tutorial/intro-screenshot-placeholder.png)

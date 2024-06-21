@@ -20,7 +20,7 @@ const useLazyLoadQuery = require('./useLazyLoadQuery');
  * These queries are consist of queries for client-only data,
  * schematized via local schema extensions and/or Relay resolvers.
  */
-hook useClientQuery<TVariables: Variables, TData, TRawResponse>(
+function useClientQuery<TVariables: Variables, TData, TRawResponse>(
   gqlQuery: ClientQuery<TVariables, TData, TRawResponse>,
   variables: TVariables,
   options?: {

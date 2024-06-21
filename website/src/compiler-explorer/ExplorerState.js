@@ -38,9 +38,6 @@ export function useExplorerState() {
       setLanguage: language => dispatch({type: 'SET_LANGUAGE', language}),
       setOutputType: outputType =>
         dispatch({type: 'SET_OUTPUT_TYPE', outputType}),
-      setInputWindow: inputWindow => {
-        dispatch({type: 'UPDATE_INPUT_WINDOW', inputWindow});
-      },
     };
   }, []);
   return {
@@ -57,8 +54,6 @@ function reducer(state, action) {
       return {...state, documentText: action.documentText};
     case 'SET_OUTPUT_TYPE':
       return {...state, outputType: action.outputType};
-    case 'UPDATE_INPUT_WINDOW':
-      return {...state, inputWindow: action.inputWindow};
     case 'SET_FEATURE_FLAG':
       const featureFlags = {
         ...state.featureFlags,

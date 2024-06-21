@@ -42,7 +42,6 @@ lazy_static! {
     pub static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
     pub static ref DEPRECATED_FIELD: StringKey = "deprecated".intern();
     pub static ref LIVE_FIELD: StringKey = "live".intern();
-    pub static ref SEMANTIC_NON_NULL_FIELD: StringKey = "semanticNonNull".intern();
     // Using a longer name version for this "special" field
     // help us avoid potential collision with product code (__self, __instance can be used for something else)
     pub static ref RELAY_RESOLVER_MODEL_INSTANCE_FIELD: StringKey = "__relay_model_instance".intern();

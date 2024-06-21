@@ -208,8 +208,14 @@ module.exports = {
       require.resolve('docusaurus-plugin-internaldocs-fb/docusaurus-preset'),
       {
         docs: {
-          showLastUpdateAuthor: false,
-          showLastUpdateTime: false,
+          showLastUpdateAuthor: fbContent({
+            internal: false,
+            external: true,
+          }),
+          showLastUpdateTime: fbContent({
+            internal: false,
+            external: true,
+          }),
           editUrl: fbContent({
             internal:
               'https://www.internalfb.com/intern/diffusion/FBS/browse/master/xplat/js/RKJSModules/Libraries/Relay/oss/__github__/website/',
@@ -485,8 +491,8 @@ module.exports = {
       ],
     },
     algolia: {
-      appId: 'UBPJPW35NS',
-      apiKey: '26e12c1c268d99b20a16f365f8593df9',
+      appId: 'BH4D9OD16A',
+      apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
       indexName: 'relay',
       contextualSearch: true,
     },

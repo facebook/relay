@@ -24,76 +24,73 @@ graphql`
   }
 `
 ==================================== OUTPUT ===================================
-Field(
-    LegacyVerboseResolver(
-        LegacyVerboseResolverIr {
-            field: FieldDefinitionStub {
-                name: Identifier {
+LegacyVerboseResolver(
+    LegacyVerboseResolverIr {
+        field: FieldDefinitionStub {
+            name: Identifier {
+                span: 53:66,
+                token: Token {
                     span: 53:66,
-                    token: Token {
-                        span: 53:66,
-                        kind: Identifier,
-                    },
-                    value: "favorite_page",
+                    kind: Identifier,
                 },
-                arguments: None,
+                value: "favorite_page",
             },
-            on: Type(
-                PopulatedIrField {
-                    key_location: /path/to/test/fixture/relay-resolver-deprecated.js:27:33,
-                    value: WithLocation {
-                        location: /path/to/test/fixture/relay-resolver-deprecated.js:34:38,
-                        item: "User",
-                    },
+            arguments: None,
+        },
+        on: Type(
+            PopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver-deprecated.js:27:33,
+                value: WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-deprecated.js:34:38,
+                    item: "User",
                 },
-            ),
-            root_fragment: Some(
+            },
+        ),
+        root_fragment: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver-deprecated.js:100:114,
+                item: FragmentDefinitionName(
+                    "myRootFragment",
+                ),
+            },
+        ),
+        output_type: Some(
+            EdgeTo(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-deprecated.js:100:114,
-                    item: FragmentDefinitionName(
-                        "myRootFragment",
+                    location: /path/to/test/fixture/relay-resolver-deprecated.js:78:82,
+                    item: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 78:82,
+                                token: Token {
+                                    span: 78:82,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
+                            },
+                        },
                     ),
                 },
             ),
-            output_type: Some(
-                EdgeTo(
-                    WithLocation {
-                        location: /path/to/test/fixture/relay-resolver-deprecated.js:78:82,
-                        item: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 78:82,
-                                    token: Token {
-                                        span: 78:82,
-                                        kind: Identifier,
-                                    },
-                                    value: "Page",
-                                },
-                            },
-                        ),
+        ),
+        description: None,
+        hack_source: None,
+        deprecated: Some(
+            PopulatedIrField(
+                PopulatedIrField {
+                    key_location: /path/to/test/fixture/relay-resolver-deprecated.js:119:129,
+                    value: WithLocation {
+                        location: /path/to/test/fixture/relay-resolver-deprecated.js:130:159,
+                        item: "This one is not used any more",
                     },
-                ),
+                },
             ),
-            description: None,
-            hack_source: None,
-            deprecated: Some(
-                PopulatedIrField(
-                    PopulatedIrField {
-                        key_location: /path/to/test/fixture/relay-resolver-deprecated.js:119:129,
-                        value: WithLocation {
-                            location: /path/to/test/fixture/relay-resolver-deprecated.js:130:159,
-                            item: "This one is not used any more",
-                        },
-                    },
-                ),
-            ),
-            semantic_non_null: None,
-            live: None,
-            location: /path/to/test/fixture/relay-resolver-deprecated.js:0:160,
-            fragment_arguments: None,
-            source_hash: ResolverSourceHash(
-                "01183f3ee51f5cb85eec42335548ae0f",
-            ),
-        },
-    ),
+        ),
+        live: None,
+        location: /path/to/test/fixture/relay-resolver-deprecated.js:0:160,
+        fragment_arguments: None,
+        source_hash: ResolverSourceHash(
+            "01183f3ee51f5cb85eec42335548ae0f",
+        ),
+    },
 )

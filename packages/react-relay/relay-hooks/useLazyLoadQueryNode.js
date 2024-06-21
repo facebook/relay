@@ -29,13 +29,12 @@ const {
   getQueryResourceForEnvironment,
 } = require('./QueryResource');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
-const useFragmentInternal = require('./useFragmentInternal');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const React = require('react');
 
 const {useContext, useEffect, useState, useRef} = React;
 
-hook useLazyLoadQueryNode<TQuery: OperationType>({
+function useLazyLoadQueryNode<TQuery: OperationType>({
   query,
   componentDisplayName,
   fetchObservable,
@@ -128,7 +127,7 @@ hook useLazyLoadQueryNode<TQuery: OperationType>({
   });
 
   const {fragmentNode, fragmentRef} = preparedQueryResult;
-  const data = useFragmentInternal(
+  const data = useFragmentNodeImpl(
     fragmentNode,
     fragmentRef,
     componentDisplayName,

@@ -53,7 +53,7 @@ impl<'a> Validator for AssignableDirective<'a> {
         if fragment.selections.len() == 1 {
             let first = fragment
                 .selections
-                .first()
+                .get(0)
                 .expect("Just checked selection length");
             if let Selection::ScalarField(scalar_field) = first {
                 if scalar_field.definition.item != self.program.schema.typename_field()

@@ -13,8 +13,9 @@
 
 import type {Fragment, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
+const HooksImplementation = require('./HooksImplementation');
+const useFragmentNode = require('./legacy/useFragmentNode');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
-const useFragmentInternal = require('./useFragmentInternal');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
@@ -25,43 +26,54 @@ type HasSpread<TFragmentType> = {
 };
 
 // if the key is non-nullable, return non-nullable value
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare function useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: HasSpread<TFragmentType>,
 ): TData;
 
 // if the key is nullable, return nullable value
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare function useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: ?HasSpread<TFragmentType>,
 ): ?TData;
 
 // if the key is a non-nullable array of keys, return non-nullable array
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare function useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: $ReadOnlyArray<HasSpread<TFragmentType>>,
 ): TData;
 
 // if the key is a nullable array of keys, return nullable array
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare function useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: ?$ReadOnlyArray<HasSpread<TFragmentType>>,
 ): ?TData;
 
-hook useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
+function useFragment_LEGACY(fragment: GraphQLTaggedNode, key: mixed): mixed {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
   const fragmentNode = getFragment(fragment);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
-  const data = useFragmentInternal(fragmentNode, key, 'useFragment()');
+  const {data} = useFragmentNode<mixed>(fragmentNode, key, 'useFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    // $FlowFixMe[react-rule-hook]
     useDebugValue({fragment: fragmentNode.name, data});
   }
   return data;
+}
+
+function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
+  const impl = HooksImplementation.get();
+  if (impl) {
+    // $FlowFixMe This is safe because impl.useFragment has the type of useFragment...
+    return impl.useFragment(fragment, key);
+    // (i.e. type declared above, but not the supertype used in this function definition)
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useFragment_LEGACY(fragment, key);
+  }
 }
 
 module.exports = useFragment;

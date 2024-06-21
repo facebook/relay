@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ad05913d5c695dae2bff7516d5212786>>
+ * @generated SignedSource<<da8d9a86631d1f73f75fd5cca4dcfe4a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -80,7 +80,7 @@ v2 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": true
+      "isOutputType": false
     }
   ],
   "type": "Todo",
@@ -98,7 +98,6 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
-        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),
@@ -108,7 +107,6 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo').todo,
           "path": "todo",
           "normalizationInfo": {
-            "kind": "OutputType",
             "concreteType": "Todo",
             "plural": false,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
@@ -226,7 +224,7 @@ return {
                             },
                             "kind": "RelayResolver",
                             "storageKey": null,
-                            "isOutputType": true
+                            "isOutputType": false
                           }
                         ],
                         "storageKey": null
@@ -244,7 +242,7 @@ return {
               "fragment": (v2/*: any*/),
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": true
+              "isOutputType": false
             }
           ],
           "storageKey": null

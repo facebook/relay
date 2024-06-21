@@ -1,5 +1,0 @@
-fragment MyFragment on User {
-  address {
-    street @catch(to: RESULT)
-  }
-}

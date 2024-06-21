@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {QueryResult} from './QueryResource';
+import type {QueryResult} from '../QueryResource';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -26,8 +26,8 @@ import type {
   MissingLiveResolverField,
 } from 'relay-runtime/store/RelayStoreTypes';
 
-const {getQueryResourceForEnvironment} = require('./QueryResource');
-const useRelayEnvironment = require('./useRelayEnvironment');
+const {getQueryResourceForEnvironment} = require('../QueryResource');
+const useRelayEnvironment = require('../useRelayEnvironment');
 const invariant = require('invariant');
 const {useDebugValue, useEffect, useMemo, useRef, useState} = require('react');
 const {
@@ -118,7 +118,6 @@ function handlePotentialSnapshotErrorsForState(
       state.snapshot.missingRequiredFields,
       state.snapshot.relayResolverErrors,
       state.snapshot.errorResponseFields,
-      state.snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
@@ -127,7 +126,6 @@ function handlePotentialSnapshotErrorsForState(
         snapshot.missingRequiredFields,
         snapshot.relayResolverErrors,
         snapshot.errorResponseFields,
-        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
     }
   }
@@ -362,7 +360,7 @@ function getFragmentState(
 }
 
 // fragmentNode cannot change during the lifetime of the component, though fragmentRef may change.
-hook useFragmentInternal(
+function useFragmentInternal_EXPERIMENTAL(
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
   hookDisplayName: string,
@@ -468,7 +466,6 @@ hook useFragmentInternal(
     // a static (constant) property of the fragment. In practice, this effect will
     // always or never run for a given invocation of this hook.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    // $FlowFixMe[react-rule-hook]
     const [clientEdgeQueries, activeRequestPromises] = useMemo(() => {
       const missingClientEdges = getMissingClientEdges(state);
       // eslint-disable-next-line no-shadow
@@ -499,7 +496,6 @@ hook useFragmentInternal(
 
     // See above note
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    // $FlowFixMe[react-rule-hook]
     useEffect(() => {
       const QueryResource = getQueryResourceForEnvironment(environment);
       if (clientEdgeQueries?.length) {
@@ -532,10 +528,8 @@ hook useFragmentInternal(
     // We only suspend when the component is first trying to mount or changing
     // selectors, not if data becomes missing later:
     if (
-      RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE ||
       environment !== previousEnvironment ||
       !committedFragmentSelectorRef.current ||
-      // $FlowFixMe[react-rule-unsafe-ref]
       !areEqualSelectors(committedFragmentSelectorRef.current, fragmentSelector)
     ) {
       invariant(fragmentSelector != null, 'refinement, see invariants above');
@@ -595,7 +589,6 @@ hook useFragmentInternal(
         state = updatedState;
       }
     }
-    // $FlowFixMe[react-rule-unsafe-ref]
     hasPendingStateChanges.current = false;
   }
 
@@ -608,7 +601,6 @@ hook useFragmentInternal(
     // for a particular useFragment invocation site
     const fragmentRefIsNullish = fragmentRef == null; // for less sensitive memoization
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    // $FlowFixMe[react-rule-hook]
     data = useMemo(() => {
       if (state.kind === 'bailout') {
         // Bailout state can happen if the fragmentRef is a plural array that is empty or has no
@@ -659,11 +651,10 @@ hook useFragmentInternal(
 
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    // $FlowFixMe[react-rule-hook]
     useDebugValue({fragment: fragmentNode.name, data});
   }
 
   return data;
 }
 
-module.exports = useFragmentInternal;
+module.exports = useFragmentInternal_EXPERIMENTAL;

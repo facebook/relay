@@ -23,6 +23,26 @@ extend type Query {
 }
 ==================================== OUTPUT ===================================
 {
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "Query__client_type$normalization",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "__relay_model_instance",
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -34,19 +54,18 @@ extend type Query {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "MyClientType",
-        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,
           "fragment": null,
           "kind": "RelayResolver",
           "name": "client_type",
-          "resolverModule": require('ClientTypeResolver'),
+          "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('ClientTypeResolver'), '__relay_model_instance', false),
           "path": "client_type",
           "normalizationInfo": {
-            "kind": "WeakModel",
             "concreteType": "MyClientType",
-            "plural": false
+            "plural": false,
+            "normalizationNode": require('Query__client_type$normalization.graphql')
           }
         },
         "linkedField": {

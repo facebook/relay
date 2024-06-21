@@ -95,7 +95,6 @@ export type GeneratedNode =
 
 const RelayConcreteNode = {
   ACTOR_CHANGE: 'ActorChange',
-  CATCH_FIELD: 'CatchField',
   CONDITION: 'Condition',
   CLIENT_COMPONENT: 'ClientComponent',
   CLIENT_EDGE_TO_SERVER_OBJECT: 'ClientEdgeToServerObject',

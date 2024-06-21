@@ -18,8 +18,10 @@ const {graphql, suspenseSentinel} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.live_external_greeting: String
+ * @RelayResolver
+ * @fieldName live_external_greeting
  * @rootFragment LiveExternalGreetingFragment
+ * @onType Query
  * @live
  */
 function live_external_greeting(

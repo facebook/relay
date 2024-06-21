@@ -13,7 +13,7 @@
 
 const {useEffect, useRef} = require('react');
 
-hook useIsMountedRef(): {current: boolean} {
+function useIsMountedRef(): {current: boolean} {
   const isMountedRef = useRef(true);
 
   useEffect(() => {

@@ -69,7 +69,7 @@ const NewsfeedQuery = graphql`
 
 Let’s break this down:
 
-* To embed GraphQL within JavaScript, we put a string literal <span class="color1">marked with the <code>graphql``</code> tag</span>. This tag allows the Relay compiler to find and compile the GraphQL within a JavaScript codebase.
+* To embed GraphQL within Javascript, we put a string literal <span class="color1">marked with the <code>graphql``</code> tag</span>. This tag allows the Relay compiler to find and compile the GraphQL within a Javascript codebase.
 * Our GraphQL string consists of a <span class="color2">query declaration</span> with the keyword `query` and then a query name. Note that the query name **must** begin with the module name (in this case <code>Newsfeed</code>).
 * Inside the query declaration are *fields*, which specify what information to query for*:*
     * Some fields are *<span class="color3">scalar fields</span>* that retrieve a string, number, or other unit of information.
@@ -179,7 +179,7 @@ const MyQuery = graphql`
 `;
 ```
 
-... the JavaScript variable `MyQuery` is actually assigned to an object that looks something like this:
+... the Javascript variable `MyQuery` is actually assigned to an object that looks something like this:
 
 ```
 const MyQuery = {
@@ -260,7 +260,7 @@ We’ll revisit types throughout this tutorial. But next, we'll look at an even 
 
 Queries are the foundation of fetching GraphQL data. We’ve seen:
 
-* How to define a GraphQL query within our app using the <code>graphql``</code> tagged literal.
+* How to define a GraphQL query within our app using the <code>graphql``</code> tagged literal
 * How to use the `useLazyLoadQuery` hook to fetch the results of a query when a component renders.
 * How to import Relay's generated types for type safety.
 

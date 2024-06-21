@@ -13,17 +13,18 @@
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.non_live_resolver_with_live_return_value: String
+ * @RelayResolver
+ * @fieldName non_live_resolver_with_live_return_value
+ * @onType Query
  *
  * A non-@live resolver that returns a LiveObject
  */
-function non_live_resolver_with_live_return_value(): string {
-  // $FlowFixMe This is an intentionally wrong type to test what happens when you return a LiveObject from a non-@live resolver.
+function non_live_resolver_with_live_return_value(): LiveState<string> {
   return {
     read() {
       return 'Oops!';
     },
-    subscribe() {
+    subscribe(cb) {
       return () => {};
     },
   };

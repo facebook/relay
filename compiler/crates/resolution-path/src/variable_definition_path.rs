@@ -8,10 +8,10 @@
 use super::*;
 
 impl<'a> TypeAnnotationParent<'a> {
-    pub fn find_variable_definition_path(&'a self) -> Option<&'a VariableDefinitionPath<'a>> {
+    pub fn find_variable_definition_path(&'a self) -> &'a VariableDefinitionPath<'a> {
         match self {
             TypeAnnotationParent::VariableDefinition(variable_definition_path) => {
-                Some(variable_definition_path)
+                variable_definition_path
             }
             TypeAnnotationParent::ListTypeAnnotation(ListTypeAnnotationPath {
                 inner: _,
@@ -25,8 +25,6 @@ impl<'a> TypeAnnotationParent<'a> {
             }) => non_null_type_annotation_parent
                 .parent
                 .find_variable_definition_path(),
-            TypeAnnotationParent::FieldDefinition(FieldDefinitionPath { .. }) => None,
-            TypeAnnotationParent::InputValueDefinition(InputValueDefinitionPath { .. }) => None,
         }
     }
 }
@@ -59,9 +57,8 @@ mod tests {
                     }),
             }) = resolved
             {
-                let variable_definition_path = type_annotation_parent
-                    .find_variable_definition_path()
-                    .unwrap();
+                let variable_definition_path =
+                    type_annotation_parent.find_variable_definition_path();
                 assert!(variable_definition_path.inner.name.name.lookup() == "isCool");
             } else {
                 panic!(
@@ -93,9 +90,8 @@ mod tests {
                     }),
             }) = resolved
             {
-                let variable_definition_path = type_annotation_parent
-                    .find_variable_definition_path()
-                    .unwrap();
+                let variable_definition_path =
+                    type_annotation_parent.find_variable_definition_path();
                 assert!(variable_definition_path.inner.name.name.lookup() == "isCool");
             } else {
                 panic!(
@@ -127,9 +123,8 @@ mod tests {
                     }),
             }) = resolved
             {
-                let variable_definition_path = type_annotation_parent
-                    .find_variable_definition_path()
-                    .unwrap();
+                let variable_definition_path =
+                    type_annotation_parent.find_variable_definition_path();
                 assert!(variable_definition_path.inner.name.name.lookup() == "isCool");
             } else {
                 panic!(
@@ -161,9 +156,8 @@ mod tests {
                     }),
             }) = resolved
             {
-                let variable_definition_path = type_annotation_parent
-                    .find_variable_definition_path()
-                    .unwrap();
+                let variable_definition_path =
+                    type_annotation_parent.find_variable_definition_path();
                 assert!(variable_definition_path.inner.name.name.lookup() == "isCool");
             } else {
                 panic!(

@@ -1,7 +1,0 @@
-# expected-to-throw
-query Foo {
-  me {
-    id
-    name @catch @required(action: THROW)
-  }
-}

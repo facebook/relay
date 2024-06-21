@@ -10,6 +10,7 @@ use std::collections::hash_map::RandomState;
 use std::fmt;
 use std::hash::BuildHasher;
 use std::hash::Hash;
+use std::hash::Hasher;
 
 use hashbrown::raw::RawTable;
 use parking_lot::RwLock;
@@ -110,7 +111,9 @@ impl<T, S: BuildHasher> ShardedSet<T, S> {
 }
 
 fn hash_one<B: BuildHasher, T: Hash>(build_hasher: &B, x: T) -> u64 {
-    build_hasher.hash_one(&x)
+    let mut hasher = build_hasher.build_hasher();
+    x.hash(&mut hasher);
+    hasher.finish()
 }
 
 pub struct InsertLock<'a, T, S = RandomState> {

@@ -50,7 +50,7 @@ type NullEntryPointReference = {
 };
 const initialNullEntryPointReferenceState = {kind: 'NullEntryPointReference'};
 
-hook useLoadEntryPoint<
+function useLoadEntryPoint<
   TEntryPointParams: {...},
   TPreloadedQueries: {...},
   TPreloadedEntryPoints: {...},

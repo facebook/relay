@@ -24,7 +24,7 @@ pub struct PackageJsonLoader<'a> {
 }
 impl<'a, T: for<'de> Deserialize<'de>> Loader<T> for PackageJsonLoader<'a> {
     fn load(&self, path: &Path) -> Result<Option<T>, ErrorCode> {
-        let file = File::open(path).unwrap();
+        let file = File::open(&path).unwrap();
         let reader = BufReader::new(file);
         let mut package_json: Value = serde_json::from_reader(reader)
             .map_err(|error| ErrorCode::PackageJsonParseError { error })?;
@@ -52,7 +52,7 @@ impl<T> Loader<T> for YamlLoader {
 pub struct JsonLoader;
 impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsonLoader {
     fn load(&self, path: &Path) -> Result<Option<T>, ErrorCode> {
-        let file = File::open(path).unwrap();
+        let file = File::open(&path).unwrap();
         let reader = BufReader::new(file);
         let config = serde_json::from_reader(reader)?;
         Ok(Some(config))
@@ -65,7 +65,7 @@ impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsLoader {
         let output = Command::new("node")
             .arg("-e")
             .arg(r#"process.stdout.write(JSON.stringify(require(process.argv[1])))"#)
-            .arg(path)
+            .arg(&path)
             .output()
             .expect("failed to execute process. Make sure you have Node installed.");
 

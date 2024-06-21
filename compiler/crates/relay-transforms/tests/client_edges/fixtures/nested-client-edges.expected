@@ -32,7 +32,7 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(526),
+    #     field_id: FieldID(518),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,
@@ -54,7 +54,7 @@ fragment Foo_user on User {
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(526),
+        #     field_id: FieldID(518),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: None,
@@ -110,7 +110,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGe
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(526),
+    #     field_id: FieldID(518),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,

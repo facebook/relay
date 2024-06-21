@@ -19,8 +19,10 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.inner: Int
+ * @RelayResolver
+ * @fieldName inner
  * @rootFragment InnerResolver
+ * @onType Query
  * @live
  */
 function inner(rootKey: InnerResolver$key): LiveState<number> {

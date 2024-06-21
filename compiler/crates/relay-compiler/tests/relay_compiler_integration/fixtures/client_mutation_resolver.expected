@@ -22,13 +22,7 @@ graphql`mutation barMutation {
 
 //- schema.graphql
 
-type Mutation {
-   some_field: Boolean
-}
-
-type Query {
-   some_field: Boolean
-}
+type Mutation
 ==================================== OUTPUT ===================================
 //- __generated__/barMutation.graphql.js
 /**

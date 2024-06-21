@@ -24,7 +24,6 @@ interface ClientInterface {
 
 type ClientType implements ClientInterface {
   name: String
-  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "ClientTypeResolver" fragment_name: "ClientType__id", generated_fragment: true, inject_fragment_data: "id", import_name: "ClientType")
 }
 
 type ClientTypeWithNestedInterface {

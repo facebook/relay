@@ -18,14 +18,11 @@ use graphql_ir::LinkedField;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::ValidationMessage;
-use graphql_ir::ValidationMessageWithData;
 use graphql_ir::Validator;
 use graphql_ir::Value;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
-
-use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn deprecated_fields(
     schema: &Arc<SDLSchema>,
@@ -131,17 +128,6 @@ impl<'a> Validator for DeprecatedFields<'a> {
 
     fn validate_directive(&mut self, directive: &Directive) -> DiagnosticsResult<()> {
         if let Some(directive_definition) = self.schema.get_directive(directive.name.item) {
-            // GraphQL does not support @deprecated on directive definitions,
-            // but there are some directives that Relay exposes as escape
-            // hatches which we would like to render as struckthrough in order
-            // to indicate that they should be avoided or migrated to some other pattern.
-            if directive_definition.name.item == *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME {
-                self.warnings.push(Diagnostic::hint_with_data(
-                    ValidationMessageWithData::DeprecatedDangerouslyUnaliasedDirective,
-                    directive.name.location,
-                    vec![DiagnosticTag::DEPRECATED],
-                ));
-            }
             for arg in &directive.arguments {
                 if let Some(arg_definition) = directive_definition.arguments.named(arg.name.item) {
                     if let Some(deprecation) = arg_definition.deprecated() {

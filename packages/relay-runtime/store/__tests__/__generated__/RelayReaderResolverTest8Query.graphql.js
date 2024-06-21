@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<295785b03490c71a1aa606b2e6d61f2d>>
+ * @generated SignedSource<<24c22cf3ad00ac0454ec9ea73cb3cadd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ import {name_passthrough as userNamePassthroughResolverType} from "../resolvers/
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userNamePassthroughResolverType: (
   rootKey: UserNamePassthroughResolver$key,
-) => ?string);
+) => ?mixed);
 export type RelayReaderResolverTest8Query$variables = {||};
 export type RelayReaderResolverTest8Query$data = {|
   +me: ?{|
-    +name_passthrough: $NonMaybeType<?string>,
+    +name_passthrough: $NonMaybeType<ReturnType<typeof userNamePassthroughResolverType>>,
   |},
 |};
 export type RelayReaderResolverTest8Query = {|
@@ -110,7 +110,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": true
+            "isOutputType": false
           },
           {
             "alias": null,

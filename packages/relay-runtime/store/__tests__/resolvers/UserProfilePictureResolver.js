@@ -17,8 +17,10 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.user_profile_picture_uri_with_scale: String
+ * @RelayResolver
+ * @fieldName user_profile_picture_uri_with_scale
  * @rootFragment UserProfilePictureResolver
+ * @onType User
  */
 function user_profile_picture_uri_with_scale(
   rootKey: UserProfilePictureResolver$key,

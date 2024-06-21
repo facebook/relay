@@ -64,10 +64,7 @@ describe('RelayReader error fields', () => {
         {
           owner: 'RelayReaderRelayErrorHandlingTest1Query',
           path: 'me.lastName',
-          error: {
-            message: 'There was an error!',
-            path: ['me', 'lastName'],
-          },
+          error: {message: 'There was an error!', path: ['me', 'lastName']},
         },
       ]);
     });

@@ -21,20 +21,14 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: WithLocation {
-            location: <generated>:255:262,
-            item: DirectiveName(
-                "include",
-            ),
-        },
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:263:265,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -56,20 +50,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: directive-on-arg-def.graphql:62:70,
-            item: DirectiveName(
-                "required",
-            ),
-        },
+        name: DirectiveName(
+            "required",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: directive-on-arg-def.graphql:71:77,
-                    item: ArgumentName(
-                        "action",
-                    ),
-                },
+                name: ArgumentName(
+                    "action",
+                ),
                 type_: NonNull(
                     Named(
                         Enum(0),
@@ -96,20 +84,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:334:338,
-            item: DirectiveName(
-                "skip",
-            ),
-        },
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:339:341,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -131,12 +113,9 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: directive-on-arg-def.graphql:130:136,
-            item: DirectiveName(
-                "static",
-            ),
-        },
+        name: DirectiveName(
+            "static",
+        ),
         arguments: [],
         locations: [
             ArgumentDefinition,
@@ -159,7 +138,7 @@ Text Schema:Schema {
   enums: [
     Enum {
         name: WithLocation {
-            location: directive-on-arg-def.graphql:5:24,
+            location: <generated>:5:24,
             item: EnumName(
                 "RequiredFieldAction",
             ),
@@ -187,7 +166,7 @@ Text Schema:Schema {
   fields: [
     Field {
         name: WithLocation {
-            location: directive-on-arg-def.graphql:176:179,
+            location: <generated>:176:179,
             item: "foo",
         },
         is_extension: false,
@@ -280,12 +259,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -312,7 +288,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: directive-on-arg-def.graphql:166:171,
+            location: <generated>:166:171,
             item: ObjectName(
                 "Query",
             ),
@@ -395,20 +371,14 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "include",
-            ),
-        },
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -430,20 +400,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "required",
-            ),
-        },
+        name: DirectiveName(
+            "required",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "action",
-                    ),
-                },
+                name: ArgumentName(
+                    "action",
+                ),
                 type_: NonNull(
                     Named(
                         Enum(0),
@@ -463,20 +427,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "skip",
-            ),
-        },
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -498,12 +456,9 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "static",
-            ),
-        },
+        name: DirectiveName(
+            "static",
+        ),
         arguments: [],
         locations: [
             ArgumentDefinition,

@@ -51,11 +51,13 @@ disallowConsoleErrors();
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
   resetStore();
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 test('Live Resolver without fragment', async () => {

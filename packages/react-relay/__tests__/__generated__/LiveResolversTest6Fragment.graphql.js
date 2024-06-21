@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<96215027532c2a33fd53ac1f1cb27f9a>>
+ * @generated SignedSource<<8ec2694f9c261256b3709393fea8767a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {user_name_and_counter_suspends_when_odd as queryUserNameAndCounterSuspen
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryUserNameAndCounterSuspendsWhenOddResolverType: (
   rootKey: UserNameAndCounterSuspendsWhenOdd$key,
-) => ?string);
+) => ?mixed);
 declare export opaque type LiveResolversTest6Fragment$fragmentType: FragmentType;
 export type LiveResolversTest6Fragment$data = {|
-  +user_name_and_counter_suspends_when_odd: ?string,
+  +user_name_and_counter_suspends_when_odd: ?ReturnType<typeof queryUserNameAndCounterSuspendsWhenOddResolverType>,
   +$fragmentType: LiveResolversTest6Fragment$fragmentType,
 |};
 export type LiveResolversTest6Fragment$key = {

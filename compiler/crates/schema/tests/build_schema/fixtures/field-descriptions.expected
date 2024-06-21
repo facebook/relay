@@ -43,20 +43,14 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: WithLocation {
-            location: <generated>:255:262,
-            item: DirectiveName(
-                "include",
-            ),
-        },
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:263:265,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -78,20 +72,14 @@ Text Schema:Schema {
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:334:338,
-            item: DirectiveName(
-                "skip",
-            ),
-        },
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:339:341,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -126,7 +114,7 @@ Text Schema:Schema {
   fields: [
     Field {
         name: WithLocation {
-            location: field-descriptions.graphql:42:45,
+            location: <generated>:42:45,
             item: "foo",
         },
         is_extension: false,
@@ -143,7 +131,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: field-descriptions.graphql:101:105,
+            location: <generated>:101:105,
             item: "line",
         },
         is_extension: false,
@@ -162,7 +150,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: field-descriptions.graphql:154:159,
+            location: <generated>:154:159,
             item: "block",
         },
         is_extension: false,
@@ -181,7 +169,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: field-descriptions.graphql:271:286,
+            location: <generated>:271:286,
             item: "multiline_block",
         },
         is_extension: false,
@@ -200,7 +188,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: field-descriptions.graphql:361:374,
+            location: <generated>:361:374,
             item: "extended_line",
         },
         is_extension: true,
@@ -219,7 +207,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: field-descriptions.graphql:423:437,
+            location: <generated>:423:437,
             item: "extended_block",
         },
         is_extension: true,
@@ -238,7 +226,7 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: field-descriptions.graphql:549:573,
+            location: <generated>:549:573,
             item: "extended_multiline_block",
         },
         is_extension: true,
@@ -333,12 +321,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "name",
-                    ),
-                },
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -365,7 +350,7 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: field-descriptions.graphql:32:37,
+            location: <generated>:32:37,
             item: ObjectName(
                 "Query",
             ),
@@ -381,7 +366,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: field-descriptions.graphql:59:62,
+            location: <generated>:59:62,
             item: ObjectName(
                 "Foo",
             ),
@@ -469,20 +454,14 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "include",
-            ),
-        },
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -504,20 +483,14 @@ directives: [
         hack_source: None,
     },
     Directive {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: DirectiveName(
-                "skip",
-            ),
-        },
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: WithLocation {
-                    location: <generated>:0:0,
-                    item: ArgumentName(
-                        "if",
-                    ),
-                },
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),

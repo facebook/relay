@@ -7,7 +7,6 @@
 
 use std::sync::Arc;
 
-use common::Location;
 use graphql_ir::*;
 use relay_transforms::Programs;
 use schema::SDLSchema;
@@ -53,7 +52,6 @@ pub enum MinExecutableDefinition {
 pub struct MinOperationDefinition {
     pub operation: String,
     pub name: String,
-    pub location: Location,
     pub type_: String,
     pub selections: Vec<MinSelection>,
 }
@@ -63,7 +61,6 @@ impl MinOperationDefinition {
         MinOperationDefinition {
             operation: op.kind.to_string(),
             name: op.name.item.to_string(),
-            location: op.name.location,
             type_: schema.get_type_name(op.type_).to_string(),
             selections: op
                 .selections
@@ -77,7 +74,6 @@ impl MinOperationDefinition {
 #[derive(Serialize)]
 pub struct MinFragmentDefinition {
     pub name: String,
-    pub location: Location,
     pub type_: String,
     pub selections: Vec<MinSelection>,
 }
@@ -89,7 +85,6 @@ impl MinFragmentDefinition {
     ) -> Self {
         MinFragmentDefinition {
             name: fragment.name.item.0.to_string(),
-            location: fragment.name.location,
             type_: schema.get_type_name(fragment.type_condition).to_string(),
             selections: fragment
                 .selections

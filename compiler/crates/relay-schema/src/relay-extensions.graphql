@@ -22,19 +22,6 @@ directive @no_inline(raw_response_type: Boolean) on FRAGMENT_DEFINITION
 """
 (Relay only)
 
-A directive added to queries and fragments which causes the Relay client to throw
-if reading a field that has an error. Relay will also honor the @semanticNonNull
-direcitve on fields read from that query or fragment. Emitted types for such
-fields will be non-null. Requires the `experimental_emit_semantic_nullability_types`
-typegen configuration to be enabled.
-
-[Read More](https://relay.dev/docs/api-reference/graphql-and-directives/)
-"""
-directive @throwOnFieldError on QUERY | FRAGMENT_DEFINITION
-
-"""
-(Relay only)
-
 A directive added to queries which tells Relay to generate types that cover
 the `optimisticResponse` parameter to `commitMutation`.
 
@@ -58,7 +45,6 @@ types, or on a type that implements `Node` (i.e. a type that has an id).
 directive @refetchable(
   queryName: String!
   directives: [String!]
-  preferFetchable: Boolean
 ) on FRAGMENT_DEFINITION
 
 """
@@ -155,17 +141,6 @@ enum RequiredFieldAction {
   THROW
 }
 
-# CatchTransform
-"""
-(Relay Only)
-
-NULL and RESULT are the `to` values you can use in the @catch directive to tell relay how to treat field-level errors
-"""
-enum CatchFieldTo {
-  NULL
-  RESULT
-}
-
 """
 (Relay Only)
 
@@ -177,14 +152,6 @@ null".
 [Read More](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/required-directive/) (FB only)
 """
 directive @required(action: RequiredFieldAction! @static) on FIELD
-
-"""
-(Relay Only)
-
-`@catch` is a directive you can add to fields in your Relay queries to
-declare how errors are handled.
-"""
-directive @catch(to: CatchFieldTo! = RESULT @static) on FIELD
 
 # DeclarativeConnection
 """
@@ -290,7 +257,7 @@ directive @RelayOutputType on OBJECT
 
 Marks a given query or fragment as updatable.
 
-[Read More](https://relay.dev/docs/next/guided-tour/updating-data/imperatively-modifying-linked-fields/)
+[Read More](https://fb.quip.com/4FZaADvkQPPl)
 """
 directive @updatable on QUERY | FRAGMENT_DEFINITION
 
@@ -299,7 +266,7 @@ directive @updatable on QUERY | FRAGMENT_DEFINITION
 
 Marks a given fragment as assignable.
 
-[Read More](https://relay.dev/docs/next/guided-tour/updating-data/imperatively-modifying-linked-fields/)
+[Read More](https://fb.quip.com/4FZaADvkQPPl)
 """
 directive @assignable on FRAGMENT_DEFINITION
 
@@ -308,23 +275,8 @@ directive @assignable on FRAGMENT_DEFINITION
 
 Exposes a fragment's data as a new field which can be null checked to ensure it
 matches the parent selection.
-
-[Read More](https://relay.dev/docs/next/guides/alias-directive/)
 """
 directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-"""
-(Relay Only)
-
-This directive allows users to opt out of validation which enforces that @alias
-be used on all fragment spreads which might not match. It is intended as an
-escape hatch for incremental adoption of enforcing `@alias`.
-
-DO NOT ADD NEW USES OF THIS DIRECTIVE.
-
-[Read More](https://relay.dev/docs/next/guides/alias-directive/)
-"""
-directive @dangerously_unaliased_fixme on FRAGMENT_SPREAD
 
 """
 (Relay Only)

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f665e1e989acc63f7c9b95a3152e3d16>>
+ * @generated SignedSource<<955f4b42ed749fc8d676cc1cde396ff3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,10 +22,10 @@ import type { LiveState } from "relay-runtime";
 import {live_resolver_with_bad_return_value as queryLiveResolverWithBadReturnValueResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverWithBadReturnValue.js";
 // Type assertion validating that `queryLiveResolverWithBadReturnValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveResolverWithBadReturnValueResolverType: () => LiveState<?string>);
+(queryLiveResolverWithBadReturnValueResolverType: () => LiveState<?mixed>);
 export type LiveResolversTest16Query$variables = {||};
 export type LiveResolversTest16Query$data = {|
-  +live_resolver_with_bad_return_value: ?string,
+  +live_resolver_with_bad_return_value: ?ReturnType<ReturnType<typeof queryLiveResolverWithBadReturnValueResolverType>["read"]>,
 |};
 export type LiveResolversTest16Query = {|
   response: LiveResolversTest16Query$data,
@@ -73,7 +73,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": true
+            "isOutputType": false
           }
         ]
       }

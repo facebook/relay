@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fa68a05c518e06e02f5422577e744799>>
+ * @generated SignedSource<<b52aabaf1ef95103a810f3357333982c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -64,20 +64,18 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "StrongModel",
-        "modelResolvers": {
-          "StrongModel": {
-            "alias": null,
+        "modelResolver": {
+          "alias": null,
+          "args": null,
+          "fragment": {
             "args": null,
-            "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "StrongModel__id"
-            },
-            "kind": "RelayResolver",
-            "name": "edge_to_strong_model_does_not_exist",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
-            "path": "edge_to_strong_model_does_not_exist.__relay_model_instance"
-          }
+            "kind": "FragmentSpread",
+            "name": "StrongModel__id"
+          },
+          "kind": "RelayResolver",
+          "name": "edge_to_strong_model_does_not_exist",
+          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
+          "path": "edge_to_strong_model_does_not_exist.__relay_model_instance"
         },
         "backingField": {
           "alias": null,

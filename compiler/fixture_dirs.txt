@@ -7,7 +7,6 @@ crates/graphql-ir-validations/tests/validate_selection_conflict
 crates/graphql-ir/tests/parse_with_extensions
 crates/graphql-ir/tests/parse_with_provider
 crates/graphql-ir/tests/parse
-crates/graphql-syntax/tests/advance_schema_document
 crates/graphql-syntax/tests/parse_document
 crates/graphql-syntax/tests/parse_document_with_features
 crates/graphql-syntax/tests/parse_executable_document_with_error_recovery
@@ -19,14 +18,12 @@ crates/graphql-text-printer/tests/operation_printer
 crates/graphql-text-printer/tests/print_ast
 crates/graphql-text-printer/tests/print
 crates/relay-codegen/tests/aliased_fragments
-crates/relay-codegen/tests/catch_directive_codegen
 crates/relay-codegen/tests/client_edges
 crates/relay-codegen/tests/client_extensions
 crates/relay-codegen/tests/client_extensions_abstract_types
 crates/relay-codegen/tests/connections
 crates/relay-codegen/tests/deduped_json_codegen
 crates/relay-codegen/tests/defer_stream
-crates/relay-codegen/tests/throw_on_field_error_directive_codegen
 crates/relay-codegen/tests/json_codegen
 crates/relay-codegen/tests/relay_actor_change
 crates/relay-codegen/tests/request_metadata
@@ -39,12 +36,9 @@ crates/relay-docblock/tests/parse
 crates/relay-docblock/tests/to_schema
 crates/relay-lsp/tests/find_field_usages
 crates/relay-lsp/tests/hover
-crates/relay-schema-generation/tests/docblock
-crates/relay-schema-generation/tests/extract
 crates/relay-transforms/tests/apply_fragment_arguments
 crates/relay-transforms/tests/assignable_directive
 crates/relay-transforms/tests/assignable_fragment_spread
-crates/relay-transforms/tests/catch_directive
 crates/relay-transforms/tests/client_edges
 crates/relay-transforms/tests/client_extensions
 crates/relay-transforms/tests/client_extensions_abstract_types
@@ -52,7 +46,6 @@ crates/relay-transforms/tests/declarative_connection
 crates/relay-transforms/tests/defer_stream
 crates/relay-transforms/tests/disallow_non_node_id_fields
 crates/relay-transforms/tests/disallow_readtime_features_in_mutations
-crates/relay-transforms/tests/disallow_required_on_non_null_field
 crates/relay-transforms/tests/disallow_reserved_aliases
 crates/relay-transforms/tests/disallow_typename_on_root
 crates/relay-transforms/tests/flatten

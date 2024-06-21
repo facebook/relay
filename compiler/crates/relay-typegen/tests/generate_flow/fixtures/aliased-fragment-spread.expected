@@ -13,7 +13,7 @@ import type { RelayReaderNamedFragmentsTest_user$fragmentType } from "RelayReade
 export type RelayReaderNamedFragmentsTest2Query$variables = {||};
 export type RelayReaderNamedFragmentsTest2Query$data = {|
   +me: ?{|
-    +aliased_fragment: {|
+    +aliased_fragment: ?{|
       +$fragmentSpreads: RelayReaderNamedFragmentsTest_user$fragmentType,
     |},
   |},

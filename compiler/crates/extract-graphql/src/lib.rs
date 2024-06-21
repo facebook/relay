@@ -174,15 +174,12 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
             //   }
             '"' => consume_string(&mut it, '"'),
             '\'' => consume_string(&mut it, '\''),
-            '\\' => consume_escaped_char(&mut it),
             '/' => {
-                match it.chars.peek() {
+                match it.next() {
                     Some((_, '/')) => {
-                        it.next();
                         consume_line_comment(&mut it);
                     }
                     Some((_, '*')) => {
-                        it.next();
                         let start = i;
                         let line_index = it.line_index;
                         let column_index = it.column_index;
@@ -216,17 +213,13 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     res
 }
 
-fn consume_escaped_char(it: &mut CharReader<'_>) {
-    it.next();
-}
-
 fn consume_identifier(it: &mut CharReader<'_>) {
-    while it.chars.peek().is_some() {
-        match it.chars.peek() {
-            Some((_, 'a'..='z' | 'A'..='Z' | '_' | '0'..='9')) => {
-                it.next();
+    for (_, c) in it {
+        match c {
+            'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {}
+            _ => {
+                return;
             }
-            _ => break,
         }
     }
 }

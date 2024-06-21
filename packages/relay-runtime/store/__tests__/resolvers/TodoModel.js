@@ -69,7 +69,9 @@ function capitalized_id(key: TodoModelCapitalizedID$key): ?string {
 }
 
 /**
- * @RelayResolver TodoModel.capitalized_id_legacy: String
+ * @RelayResolver
+ * @fieldName capitalized_id_legacy
+ * @onType TodoModel
  * @rootFragment TodoModelCapitalizedIDLegacy
  *
  * Like `capitalized_id`, but implemented using the non-terse legacy syntax
@@ -134,19 +136,6 @@ function many_fancy_descriptions(
 }
 
 /**
- * @RelayResolver TodoModel.many_fancy_descriptions_but_some_are_null: [TodoDescription]
- */
-function many_fancy_descriptions_but_some_are_null(
-  model: TodoModelType,
-): $ReadOnlyArray<TodoDescription | null> {
-  if (model == null) {
-    return [];
-  }
-
-  return [createTodoDescription(model.description, model.isCompleted), null];
-}
-
-/**
  * @RelayResolver Query.todo_model_null: TodoModel
  */
 function todo_model_null(): ?ConcreteClientEdgeResolverReturnType<> {
@@ -184,6 +173,5 @@ module.exports = {
   fancy_description_null,
   fancy_description_suspends,
   many_fancy_descriptions,
-  many_fancy_descriptions_but_some_are_null,
   live_todo_description,
 };

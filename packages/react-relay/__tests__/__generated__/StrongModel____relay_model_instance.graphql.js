@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7c5d632e9655b03baf5b566251e7b947>>
+ * @generated SignedSource<<661159f03895bedac67ce7b08999cb2b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import {StrongModel as strongModelRelayModelInstanceResolverType} from "../Relay
 ) => mixed);
 declare export opaque type StrongModel____relay_model_instance$fragmentType: FragmentType;
 export type StrongModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof strongModelRelayModelInstanceResolverType>>,
+  +__relay_model_instance: ?ReturnType<typeof strongModelRelayModelInstanceResolverType>,
   +$fragmentType: StrongModel____relay_model_instance$fragmentType,
 |};
 export type StrongModel____relay_model_instance$key = {

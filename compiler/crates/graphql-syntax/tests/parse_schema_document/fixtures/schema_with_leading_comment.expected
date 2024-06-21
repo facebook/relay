@@ -28,7 +28,6 @@ SchemaDocument {
                                 },
                                 value: "RootQueryType",
                             },
-                            span: 99:122,
                         },
                         OperationTypeDefinition {
                             operation: Mutation,
@@ -40,7 +39,6 @@ SchemaDocument {
                                 },
                                 value: "RootMutationType",
                             },
-                            span: 122:149,
                         },
                     ],
                     end: Token {
@@ -48,7 +46,6 @@ SchemaDocument {
                         kind: CloseBrace,
                     },
                 },
-                span: 88:151,
             },
         ),
     ],

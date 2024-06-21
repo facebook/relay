@@ -39,9 +39,9 @@ pub(super) enum ValidationMessage {
     },
 
     #[error(
-        "The `queryName` specified in `@refetchable` must be unique, a definition with the name `{definition_name}` already exists."
+        "A unique query name has to be specified in `@refetchable`, an operation `{query_name}` already exists."
     )]
-    RefetchableQueryConflictWithDefinition { definition_name: StringKey },
+    RefetchableQueryConflictWithQuery { query_name: OperationDefinitionName },
 
     #[error(
         "Invalid use of @refetchable with @connection in fragment '{fragment_name}', at most once @connection can appear in a refetchable fragment."

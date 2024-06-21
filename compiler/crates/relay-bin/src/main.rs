@@ -246,7 +246,7 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
         }
     }
 
-    Ok(())
+    return Ok(());
 }
 
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
@@ -266,7 +266,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     set_project_flag(&mut config, command.projects)?;
 
     if command.validate {
-        config.artifact_writer = Box::<ArtifactValidationWriter>::default();
+        config.artifact_writer = Box::new(ArtifactValidationWriter::default());
     }
 
     config.create_operation_persister = Some(Box::new(|project_config| {
@@ -383,12 +383,14 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
 
     let perf_logger = Arc::new(ConsoleLogger);
     let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> = None;
+    let js_language_server = None;
 
     start_language_server(
         config,
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
+        js_language_server,
     )
     .await
     .map_err(|err| Error::LSPError {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2cc8134935e56665b110562006cf1846>>
+ * @generated SignedSource<<9afa115bf1b5c16f4e1efb7995ee8eb6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,10 +25,10 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
   rootKey: UserGreetingResolver$key,
-) => ?string);
+) => ?mixed);
 declare export opaque type UserShoutedGreetingResolver$fragmentType: FragmentType;
 export type UserShoutedGreetingResolver$data = {|
-  +greeting: ?string,
+  +greeting: ?ReturnType<typeof userGreetingResolverType>,
   +$fragmentType: UserShoutedGreetingResolver$fragmentType,
 |};
 export type UserShoutedGreetingResolver$key = {

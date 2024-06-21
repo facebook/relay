@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<971fe46e359244d6b6f6b67ef992985e>>
+ * @generated SignedSource<<294c647ee395bc40905542cf5c12d28b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -134,7 +134,10 @@ return {
                       {
                         "kind": "Literal",
                         "name": "supported",
-                        "value": "34hjiS"
+                        "value": [
+                          "PlainUserNameRenderer",
+                          "MarkdownUserNameRenderer"
+                        ]
                       }
                     ],
                     "concreteType": null,
@@ -172,7 +175,7 @@ return {
                         "abstractKey": null
                       }
                     ],
-                    "storageKey": "nameRenderer(supported:\"34hjiS\")"
+                    "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
                   },
                   (v2/*: any*/)
                 ],

@@ -13,15 +13,15 @@ use std::path::PathBuf;
 use common::Diagnostic;
 use common::SourceLocationKey;
 use dependency_analyzer::ExecutableDefinitionNameSet;
+use dependency_analyzer::ExecutableDefinitionNameVec;
 use fnv::FnvHashMap;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
-use relay_config::ProjectName;
 
-use crate::artifact_map::ArtifactSourceKey;
 use crate::compiler_state::GraphQLSources;
+use crate::compiler_state::ProjectName;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::file_source::LocatedGraphQLSource;
@@ -32,7 +32,7 @@ pub struct GraphQLAsts {
     /// Names of fragments and operations that are updated or created
     pub pending_definition_names: ExecutableDefinitionNameSet,
     /// Names of fragments and operations that are deleted
-    pub removed_definition_names: Vec<ArtifactSourceKey>,
+    pub removed_definition_names: ExecutableDefinitionNameVec,
 }
 
 impl GraphQLAsts {
@@ -49,30 +49,14 @@ impl GraphQLAsts {
 
     pub fn from_graphql_sources_map(
         graphql_sources_map: &FnvHashMap<ProjectName, GraphQLSources>,
-        dirty_artifact_sources: &FnvHashMap<ProjectName, Vec<ArtifactSourceKey>>,
+        dirty_definitions_map: &FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>>,
     ) -> Result<FnvHashMap<ProjectName, GraphQLAsts>> {
         graphql_sources_map
             .iter()
             .map(|(&project_name, sources)| {
                 let asts = GraphQLAsts::from_graphql_sources(
                     sources,
-                    dirty_artifact_sources
-                        .get(&project_name)
-                        .map(|dirty_artifacts| {
-                            dirty_artifacts
-                                .iter()
-                                .filter_map(|artifact_source_key| match artifact_source_key {
-                                    ArtifactSourceKey::ExecutableDefinition(def_name) => {
-                                        Some(def_name)
-                                    }
-                                    ArtifactSourceKey::Schema()
-                                    | ArtifactSourceKey::ResolverHash(_) => {
-                                        // We're only concerned with collecting ExecutableDefinitionNames
-                                        None
-                                    }
-                                })
-                                .collect()
-                        }),
+                    dirty_definitions_map.get(&project_name),
                 )?;
                 Ok((project_name, asts))
             })
@@ -84,7 +68,7 @@ impl GraphQLAsts {
     /// Additionally collects the set of definition names that updated, given the compiler state
     pub fn from_graphql_sources(
         graphql_sources: &GraphQLSources,
-        dirty_definitions: Option<Vec<&ExecutableDefinitionName>>,
+        dirty_definitions: Option<&Vec<ExecutableDefinitionName>>,
     ) -> Result<Self> {
         let mut syntax_errors = Vec::new();
 
@@ -150,40 +134,18 @@ impl GraphQLAsts {
                         source_location,
                     ) {
                         for def in document.definitions {
-                            match def {
-                                ExecutableDefinition::Operation(operation) => {
-                                    if !(definitions_for_file.iter().any(|def| {
-                                        if let ExecutableDefinition::Operation(op) = def {
-                                            op.name == operation.name
-                                        } else {
-                                            false
-                                        }
-                                    })) {
-                                        if let Some(operation_name) = operation.name {
+                            let name = def.name();
+                            if let Some(def_name) = name {
+                                if !definitions_for_file.iter().any(|def| def.name() == name) {
+                                    match def {
+                                        ExecutableDefinition::Operation(_) => {
                                             removed_definition_names
-                                                .push(ArtifactSourceKey::ExecutableDefinition(
-                                                ExecutableDefinitionName::OperationDefinitionName(
-                                                    OperationDefinitionName(operation_name.value),
-                                                ),
-                                            ));
+                                                .push(OperationDefinitionName(def_name).into())
                                         }
-                                    }
-                                }
-                                ExecutableDefinition::Fragment(fragment) => {
-                                    if !(definitions_for_file.iter().any(|def| {
-                                        if let ExecutableDefinition::Fragment(frag) = def {
-                                            frag.name == fragment.name
-                                        } else {
-                                            false
+                                        ExecutableDefinition::Fragment(_) => {
+                                            removed_definition_names
+                                                .push(FragmentDefinitionName(def_name).into())
                                         }
-                                    })) {
-                                        removed_definition_names.push(
-                                            ArtifactSourceKey::ExecutableDefinition(
-                                                ExecutableDefinitionName::FragmentDefinitionName(
-                                                    FragmentDefinitionName(fragment.name.value),
-                                                ),
-                                            ),
-                                        );
                                     }
                                 }
                             }

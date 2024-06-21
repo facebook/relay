@@ -56,7 +56,7 @@ function CombinedFriendsListComponent(props: Props) {
 
   const {data: viewerData, ...viewerPagination} = usePaginationFragment(
     graphql`
-      fragment CombinedFriendsListComponent_viewer on Viewer {
+      fragment CombinedFriendsListComponent_user on Viewer {
         actor {
           ... on User {
             name

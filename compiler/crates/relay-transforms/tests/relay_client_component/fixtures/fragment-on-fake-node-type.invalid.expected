@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithRelayClientComponent($id: ID!) {
+  nonNodeStory(id: $id) {
+    id
+    ...ClientFragmentOnFakeNode @relay_client_component
+  }
+}
+
+fragment ClientFragmentOnFakeNode on NonNodeStory {
+  message {
+    text
+  }
+}
+==================================== ERROR ====================================
+✖︎ @relay_client_component can only be used on fragments on Viewer or Query, or whose type implements the Node interface. If the fragment's type is a union type, all members of that union must implement Node.
+
+  fragment-on-fake-node-type.invalid.graphql:9:10
+    8 │ 
+    9 │ fragment ClientFragmentOnFakeNode on NonNodeStory {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   message {

@@ -214,6 +214,9 @@ will be prepended to its parent connection.
 """
 directive @prependNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 
+# RelayClientComponentTransform
+directive @relay_client_component on FRAGMENT_SPREAD
+
 # RelayResolver
 directive @relay_resolver(
   fragment_name: String!

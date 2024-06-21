@@ -36,7 +36,7 @@ export type RelayClientIDFieldQuery$data = {
     readonly __typename: "User";
     readonly __id: string;
     readonly id: string;
-  } | null | undefined;
+  } | null;
   readonly node: {
     readonly __typename: string;
     readonly __id: string;
@@ -46,11 +46,11 @@ export type RelayClientIDFieldQuery$data = {
       readonly text?: {
         readonly __typename: "Text";
         readonly __id: string;
-        readonly text: string | null | undefined;
-      } | null | undefined;
-    } | null | undefined;
+        readonly text: string | null;
+      } | null;
+    } | null;
     readonly id: string;
-  } | null | undefined;
+  } | null;
 };
 export type RelayClientIDFieldQuery = {
   response: RelayClientIDFieldQuery$data;

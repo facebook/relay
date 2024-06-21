@@ -11,8 +11,8 @@
 
 'use strict';
 
+import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 import type {Query__todo$normalization as ReturnType} from './__generated__/Query__todo$normalization.graphql';
-import type {LiveState} from 'relay-runtime';
 
 const {
   Selectors,

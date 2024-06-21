@@ -12,7 +12,6 @@
 
 mod ast;
 mod ir;
-mod minimized_executable;
 
 pub use ast::get_definition_references;
 pub use ast::get_reachable_ast;
@@ -21,4 +20,3 @@ pub use ir::get_reachable_ir;
 pub use ir::ExecutableDefinitionNameMap;
 pub use ir::ExecutableDefinitionNameSet;
 pub use ir::ExecutableDefinitionNameVec;
-pub use minimized_executable::MinProgram;

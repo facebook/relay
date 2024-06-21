@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query FlightQuery($cond: Boolean!, $count: Int!, $id: ID!) {
+  node(id: $id) {
+    ... on User {
+      id
+      extension_field(condition: $cond, count: $count, id: $id)
+    }
+  }
+}
+
+# %extensions%
+directive @react_flight_component(name: String!) on FIELD_DEFINITION
+
+extend type User {
+  extension_field(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent @react_flight_component(name: "ExtensionField.server")
+}
+==================================== ERROR ====================================
+✖︎ Cannot query field 'extension_field', this type does not define a 'flight' field
+
+  flight.invalid.graphql:7:7
+    6 │       id
+    7 │       extension_field(condition: $cond, count: $count, id: $id)
+      │       ^^^^^^^^^^^^^^^
+    8 │     }

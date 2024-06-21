@@ -147,7 +147,7 @@ function App(props: Props) {
           // be cached, so we use the 'store-only'
           // fetchPolicy to avoid suspending.
           loadQuery({id: 'different-id'}, {fetchPolicy: 'store-only'});
-        },
+        }
         error: () => {
           setIsRefetching(false);
         }

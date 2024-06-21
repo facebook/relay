@@ -53,6 +53,14 @@ function likeFeedback(environment: IEnvironment): Disposable {
 
 <MutationConfig />
 
+### Flow Type Parameters
+
+* `TMutation`: Type parameter that should corresponds the Flow type for the mutation query. This type is available to import from the the auto-generated file: `<mutationName>.graphql.js`.
+  * Note that this auto-generated type will implement `MutationParameters`.
+
+:::caution
+If you do not **explicitly** pass this type parameter, the variables, optimistic response and response passed to `onCompleted` **will not be type-checked**!
+:::
 
 ### Return Value
 

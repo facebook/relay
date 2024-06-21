@@ -46,7 +46,7 @@ extend type User {
             "selections": [
               {
                 "alias": null,
-                "args": [],
+                "args": null,
                 "fragment": {
                   "args": [
                     {

@@ -15,7 +15,4 @@ DocblockAST {
             },
         ),
     ],
-    source_hash: ResolverSourceHash(
-        "a49d092bbb5fbad6582962e62fac5d2c",
-    ),
 }

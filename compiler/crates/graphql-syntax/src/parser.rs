@@ -372,7 +372,6 @@ impl<'a> Parser<'a> {
     /// []  TypeSystemExtension
     fn parse_type_system_definition(&mut self) -> ParseResult<TypeSystemDefinition> {
         let description = self.parse_optional_description();
-        let hack_source = self.parse_optional_hack_source();
         let token = self.peek();
         if token.kind != TokenKind::Identifier {
             // TODO
@@ -402,7 +401,7 @@ impl<'a> Parser<'a> {
                 self.parse_input_object_type_definition()?,
             )),
             "directive" => Ok(TypeSystemDefinition::DirectiveDefinition(
-                self.parse_directive_definition(description, hack_source)?,
+                self.parse_directive_definition(description)?,
             )),
             "extend" => self.parse_type_system_extension(),
             token_str => {
@@ -794,7 +793,6 @@ impl<'a> Parser<'a> {
     fn parse_directive_definition(
         &mut self,
         description: Option<StringNode>,
-        hack_source: Option<StringNode>,
     ) -> ParseResult<DirectiveDefinition> {
         self.parse_keyword("directive")?;
         self.parse_kind(TokenKind::At)?;
@@ -813,7 +811,6 @@ impl<'a> Parser<'a> {
             repeatable,
             locations,
             description,
-            hack_source,
         })
     }
 
@@ -914,27 +911,6 @@ impl<'a> Parser<'a> {
     }
 
     /**
-     * hack_source : StringValue
-     */
-    fn parse_optional_hack_source(&mut self) -> Option<StringNode> {
-        match self.peek_token_kind() {
-            TokenKind::StringLiteral => {
-                let token = self.parse_token();
-                let source = self.source(&token);
-                let value = source[1..source.len() - 1].to_string().intern();
-                Some(StringNode { token, value })
-            }
-            TokenKind::BlockStringLiteral => {
-                let token = self.parse_token();
-                let source = self.source(&token);
-                let value = clean_block_string_literal(source).intern();
-                Some(StringNode { token, value })
-            }
-            _ => None,
-        }
-    }
-
-    /**
      * FieldsDefinition : { FieldDefinition+ }
      */
     fn parse_fields_definition(&mut self) -> ParseResult<Option<List<FieldDefinition>>> {
@@ -951,7 +927,6 @@ impl<'a> Parser<'a> {
      */
     fn parse_field_definition_impl(&mut self) -> ParseResult<FieldDefinition> {
         let description = self.parse_optional_description();
-        let hack_source = self.parse_optional_hack_source();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
         self.parse_kind(TokenKind::Colon)?;
@@ -963,7 +938,6 @@ impl<'a> Parser<'a> {
             arguments,
             directives,
             description,
-            hack_source,
         })
     }
 

@@ -1,0 +1,13 @@
+# expected-to-throw
+query QueryWithRelayClientComponent {
+  neverNode {
+    ... on FakeNode {
+      id
+    }
+    ...ClientFragmentOnNonNodeUnion @relay_client_component
+  }
+}
+
+fragment ClientFragmentOnNonNodeUnion on NonNode {
+  name
+}

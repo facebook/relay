@@ -1,0 +1,20 @@
+# expected-to-throw
+query QueryWithRelayClientComponent {
+  maybeNode {
+    ...ClientFragment_one @relay_client_component
+    ...ClientFragment_two @relay_client_component
+    ...ClientFragment_three @relay_client_component
+  }
+}
+
+fragment ClientFragment_one on NonNode {
+  name
+}
+fragment ClientFragment_two on FakeNode {
+  id
+}
+fragment ClientFragment_three on Story {
+  author {
+    name
+  }
+}

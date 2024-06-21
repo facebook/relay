@@ -50,15 +50,14 @@ function getPaginationMetadata(
     componentDisplayName,
     fragmentNode.name,
   );
-  const identifierInfo = refetchMetadata.identifierInfo;
+  const identifierField = refetchMetadata.identifierField;
   invariant(
-    identifierInfo?.identifierField == null ||
-      typeof identifierInfo.identifierField === 'string',
+    identifierField == null || typeof identifierField === 'string',
     'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
   );
   return {
     connectionPathInFragmentData,
-    identifierField: identifierInfo?.identifierField,
+    identifierField,
     paginationRequest,
     paginationMetadata,
     stream: connectionMetadata.stream === true,

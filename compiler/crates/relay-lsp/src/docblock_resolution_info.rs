@@ -23,7 +23,7 @@ pub fn create_docblock_resolution_info(
     position_span: Span,
 ) -> Option<DocblockResolutionInfo> {
     match docblock_ir {
-        DocblockIr::LegacyVerboseResolver(resolver_ir) => {
+        DocblockIr::RelayResolver(resolver_ir) => {
             match resolver_ir.on {
                 On::Type(on_type) => {
                     if on_type.value.location.contains(position_span) {
@@ -37,21 +37,18 @@ pub fn create_docblock_resolution_info(
                 }
             };
 
-            // Root fragment
             if let Some(root_fragment) = resolver_ir.root_fragment {
                 if root_fragment.location.contains(position_span) {
                     return Some(DocblockResolutionInfo::RootFragment(root_fragment.item));
                 }
             }
 
-            // Field name
             if resolver_ir.field.name.span.contains(position_span) {
                 return Some(DocblockResolutionInfo::FieldName(
                     resolver_ir.field.name.value,
                 ));
             }
 
-            // Return type
             if let Some(output_type) = &resolver_ir.output_type {
                 if output_type.inner().location.contains(position_span) {
                     return Some(DocblockResolutionInfo::Type(
@@ -60,7 +57,6 @@ pub fn create_docblock_resolution_info(
                 }
             }
 
-            // @deprecated key
             if let Some(deprecated) = resolver_ir.deprecated {
                 if deprecated.key_location().contains(position_span) {
                     return Some(DocblockResolutionInfo::Deprecated);
@@ -91,13 +87,6 @@ pub fn create_docblock_resolution_info(
                 if root_fragment.location.contains(position_span) {
                     return Some(DocblockResolutionInfo::RootFragment(root_fragment.item));
                 }
-            }
-
-            // Field name
-            if resolver_ir.field.name.span.contains(position_span) {
-                return Some(DocblockResolutionInfo::FieldName(
-                    resolver_ir.field.name.value,
-                ));
             }
 
             // @deprecated key

@@ -32,7 +32,7 @@
 //! `tests/first_transform/mod.rs` exports the transform to test, for example:
 //!
 //! ```ignore
-//! pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+//! pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 //!   Ok(fixture.to_uppercase())
 //! }
 //! ```
@@ -46,20 +46,19 @@
 //!
 //! *FB-internal: see `scripts/generate_fixture_tests.sh` to generate all.*
 //
-//! *FB-internal: use buck run //relay/oss/crates/fixture-tests:fixture-tests-bin -- \<path to tests dir\>
+//! *FB-internal: use buck run //relay/oss/crates/fixture-tests:fixture-tests-bin -- <path to tests dir>
+//! *FB-internal: if you don't want to use cargo run. This is useful for development on a dev-server or
+//! *FB-internal: or machines w/o cargo installed.
 
 mod print_diff;
 
 use std::env;
 use std::fs::File;
-use std::future::Future;
 use std::io::prelude::*;
-use std::path::PathBuf;
-use std::process::Command;
 use std::sync::Arc;
 
 use lazy_static::lazy_static;
-use tokio::sync::Mutex;
+use parking_lot::Mutex;
 
 lazy_static! {
     static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
@@ -73,31 +72,16 @@ pub struct Fixture<'a> {
     pub content: &'a str,
 }
 
-// https://stackoverflow.com/a/70511636
-pub trait AsyncFn<T>: Fn(T) -> <Self as AsyncFn<T>>::Fut {
-    type Fut: Future<Output = <Self as AsyncFn<T>>::Output>;
-    type Output;
-}
-impl<T, F, Fut> AsyncFn<T> for F
-where
-    F: Fn(T) -> Fut,
-    Fut: Future,
-{
-    type Fut = Fut;
-    type Output = Fut::Output;
-}
-
 /// This is an internal function and is typically called from generated code
 /// containing one test per fixture.
-pub async fn test_fixture<T, U, V>(
+pub fn test_fixture<T, U, V>(
     transform: T,
-    source_file_path: &str,
     input_file_name: &str,
     expected_file_name: &str,
     input: &str,
     expected: &str,
 ) where
-    T: for<'b> AsyncFn<&'b Fixture<'b>, Output = Result<U, V>>,
+    T: FnOnce(&Fixture<'_>) -> Result<U, V>,
     U: std::fmt::Display,
     V: std::fmt::Display,
 {
@@ -108,9 +92,9 @@ pub async fn test_fixture<T, U, V>(
     let expect_ok = !input.contains("expected-to-throw");
     let actual_result: Result<U, V>;
     {
-        let _guard = LOCK.lock().await;
+        let _guard = LOCK.lock();
         colored::control::set_override(false);
-        actual_result = transform(&fixture).await;
+        actual_result = transform(&fixture);
         colored::control::unset_override();
     }
 
@@ -162,32 +146,19 @@ pub async fn test_fixture<T, U, V>(
         }
 
         if env::var_os("UPDATE_SNAPSHOTS").is_some() {
-            let expected_file_path = workspace_root()
-                .join(source_file_path)
-                .with_file_name(expected_file_name);
-            File::create(&expected_file_path)
-                .unwrap_or_else(|_| panic!("Unable to create {}", expected_file_path.display(),))
+            let file_name = format!("tests/{}", expected_file_name);
+            File::create(&file_name)
+                .unwrap_or_else(|_| {
+                    panic!(
+                        "Unable to create {}/{}",
+                        env::current_dir().unwrap().to_str().unwrap(),
+                        file_name
+                    )
+                })
                 .write_all(actual.as_bytes())
                 .unwrap();
         } else {
-            panic!(
-                "Snapshot did not match. Run with UPDATE_SNAPSHOTS=1 to update.\nIf using Buck you can use `buck test <YOUR_TEST_TARGET> -- --env UPDATE_SNAPSHOTS=1"
-            );
+            panic!("Snapshot did not match. Run with UPDATE_SNAPSHOTS=1 to update.");
         }
-    }
-}
-
-fn workspace_root() -> PathBuf {
-    if let Ok(cargo) = std::env::var("CARGO") {
-        let stdout = Command::new(cargo)
-            .args(&["locate-project", "--workspace", "--message-format=plain"])
-            .output()
-            .unwrap()
-            .stdout;
-        let workspace_cargo_toml = PathBuf::from(&std::str::from_utf8(&stdout).unwrap().trim());
-        workspace_cargo_toml.parent().unwrap().to_path_buf()
-    } else {
-        // Assuming we're building via Meta-internal BUCK setup, which executes tests from workspace root
-        std::env::current_dir().unwrap()
     }
 }

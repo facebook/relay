@@ -1,0 +1,7 @@
+fragment ServerComponentFragment on Viewer {
+  ...ClientFragment @relay_client_component
+}
+
+fragment ClientFragment on Viewer {
+  isFbEmployee
+}

@@ -21,6 +21,7 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 
+use crate::relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
 use crate::NoInlineFragmentSpreadMetadata;
 use crate::RelayLocationAgnosticBehavior;
 
@@ -127,6 +128,7 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
             Selection::FragmentSpread(selection) => {
                 let should_skip_inline = selection.directives.iter().any(|directive| {
                     directive.name.item == NoInlineFragmentSpreadMetadata::directive_name()
+                        || directive.name.item == *RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME
                 });
                 if should_skip_inline {
                     Transformed::Keep

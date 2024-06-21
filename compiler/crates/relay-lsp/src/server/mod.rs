@@ -33,6 +33,7 @@ use lsp_server::ResponseError;
 pub use lsp_state::GlobalState;
 pub use lsp_state::LSPState;
 pub use lsp_state::Schemas;
+pub use lsp_state::SourcePrograms;
 use lsp_types::notification::Cancel;
 use lsp_types::notification::DidChangeTextDocument;
 use lsp_types::notification::DidCloseTextDocument;

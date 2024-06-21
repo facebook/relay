@@ -18,41 +18,41 @@ query TestStream @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestStream$variables = Record<PropertyKey, never>;
+export type TestStream$variables = {};
 export type TestStream$data = {
   readonly node: {
     readonly friends?: {
       readonly edges: ReadonlyArray<{
         readonly node: {
           readonly id: string;
-        } | null | undefined;
-      } | null | undefined> | null | undefined;
-    } | null | undefined;
-    readonly name?: string | null | undefined;
-  } | null | undefined;
+        } | null;
+      } | null> | null;
+    } | null;
+    readonly name?: string | null;
+  } | null;
 };
 export type TestStream$rawResponse = {
   readonly node: {
     readonly __typename: "User";
     readonly friends: {
       readonly edges: ReadonlyArray<{
-        readonly cursor: string | null | undefined;
+        readonly cursor: string | null;
         readonly node: {
           readonly __typename: "User";
           readonly id: string;
-        } | null | undefined;
-      } | null | undefined> | null | undefined;
+        } | null;
+      } | null> | null;
       readonly pageInfo: {
-        readonly endCursor: string | null | undefined;
-        readonly hasNextPage: boolean | null | undefined;
-      } | null | undefined;
-    } | null | undefined;
+        readonly endCursor: string | null;
+        readonly hasNextPage: boolean | null;
+      } | null;
+    } | null;
     readonly id: string;
-    readonly name: string | null | undefined;
+    readonly name: string | null;
   } | {
     readonly __typename: string;
     readonly id: string;
-  } | null | undefined;
+  } | null;
 };
 export type TestStream = {
   rawResponse: TestStream$rawResponse;

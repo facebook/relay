@@ -20,18 +20,18 @@ extend type User {
     )
 }
 ==================================== OUTPUT ===================================
-import type { LiveState } from "relay-runtime";
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { relayResolver_PopStarNameResolverFragment_name$key } from "relayResolver_PopStarNameResolverFragment_name.graphql";
 import userPopStarNameResolverType from "PopStarNameResolver";
 // Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType: (
   rootKey: relayResolver_PopStarNameResolverFragment_name$key,
-) => LiveState<?mixed>);
+) => LiveState<mixed>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +pop_star_name: ?ReturnType<ReturnType<typeof userPopStarNameResolverType>["read"]>,
+    +pop_star_name: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>["read"]>,
   |},
 |};
 export type relayResolver_Query = {|

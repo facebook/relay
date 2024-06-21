@@ -21,12 +21,10 @@ type ClientUser @__RelayResolverModel {
   id: ID!
 }
 
-# This resolver's fragment is generated because it's on a @__RelayResolverModel
-# type and does not define its own fragment using @rootFragment. This is indicated with
-# the `generated_fragment` directive argument.
+# This resolver's fragment is generated because it's on a @__RelayResolverModel type.
 # Dependency tracker should not look for this fragment.
 extend type ClientUser {
-  pop_star_name: String @relay_resolver(fragment_name: "this___is___generated", import_path: "PopStarNameResolver", generated_fragment: true)
+  pop_star_name: String @relay_resolver(fragment_name: "this___is___generated", import_path: "PopStarNameResolver")
 }
 ==================================== OUTPUT ===================================
 Fragment: F1

@@ -1,8 +1,0 @@
-# expected-to-throw
-mutation MyMutation {
-  setName(name: "Alice") {
-    name @required(action: THROW)
-  }
-}
-
-# %extensions%

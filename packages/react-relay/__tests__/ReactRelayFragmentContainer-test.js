@@ -82,7 +82,9 @@ describe('ReactRelayFragmentContainer', () => {
   }
 
   beforeEach(() => {
-    jest.mock('scheduler', () => require('./mockScheduler'));
+    jest.mock('scheduler', () => {
+      return jest.requireActual('scheduler/unstable_mock');
+    });
     environment = createMockEnvironment();
     UserQuery = graphql`
       query ReactRelayFragmentContainerTestUserQuery($id: ID!) {
@@ -262,7 +264,6 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Zuck',
       },
       missingRequiredFields: null,
-      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -356,7 +357,6 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
-      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -410,7 +410,6 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
-      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -641,7 +640,7 @@ describe('ReactRelayFragmentContainer', () => {
 
   describe('concurrent mode', () => {
     function assertYieldsWereCleared(_scheduler) {
-      const actualYields = _scheduler.unstable_clearLog();
+      const actualYields = _scheduler.unstable_clearYields();
       if (actualYields.length !== 0) {
         throw new Error(
           'Log of yielded values is not empty. ' +
@@ -654,7 +653,7 @@ describe('ReactRelayFragmentContainer', () => {
       const Scheduler = require('scheduler');
       assertYieldsWereCleared(Scheduler);
       Scheduler.unstable_flushAllWithoutAsserting();
-      const actualYields = Scheduler.unstable_clearLog();
+      const actualYields = Scheduler.unstable_clearYields();
       expect(actualYields).toEqual(expectedYields);
     }
 
@@ -662,14 +661,14 @@ describe('ReactRelayFragmentContainer', () => {
       const Scheduler = require('scheduler');
       assertYieldsWereCleared(Scheduler);
       Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-      const actualYields = Scheduler.unstable_clearLog();
+      const actualYields = Scheduler.unstable_clearYields();
       expect(actualYields).toEqual(expectedYields);
     }
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
       const Scheduler = require('scheduler');
       const YieldChild = props => {
-        Scheduler.log(props.children);
+        Scheduler.unstable_yieldValue(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user}) => {

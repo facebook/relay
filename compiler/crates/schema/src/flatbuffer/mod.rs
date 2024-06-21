@@ -18,7 +18,6 @@ use common::InterfaceName;
 use common::ObjectName;
 use common::ScalarName;
 use common::Span;
-use common::UnionName;
 use common::WithLocation;
 use flatbuffers::ForwardsUOffset;
 use flatbuffers::Vector;
@@ -176,7 +175,6 @@ impl<'fb> FlatBufferSchema<'fb> {
             locations,
             repeatable: directive.repeatable(),
             description: None,
-            hack_source: None,
         };
         Some(parsed_directive)
     }
@@ -225,7 +223,6 @@ impl<'fb> FlatBufferSchema<'fb> {
             is_extension: scalar.is_extension(),
             directives: self.parse_directive_values(scalar.directives()?)?,
             description: None,
-            hack_source: None,
         };
         Some(parsed_scalar)
     }
@@ -238,7 +235,6 @@ impl<'fb> FlatBufferSchema<'fb> {
             fields: self.parse_arguments(input_object.fields()?)?,
             directives: self.parse_directive_values(input_object.directives()?)?,
             description: None,
-            hack_source: None,
         };
         Some(parsed_input_object)
     }
@@ -252,7 +248,6 @@ impl<'fb> FlatBufferSchema<'fb> {
             values: self.parse_enum_values(enum_.values()?)?,
             directives: self.parse_directive_values(enum_.directives()?)?,
             description: None,
-            hack_source: None,
         };
         Some(parsed_enum)
     }
@@ -267,7 +262,6 @@ impl<'fb> FlatBufferSchema<'fb> {
             interfaces: object.interfaces()?.iter().map(InterfaceID).collect(),
             directives: self.parse_directive_values(object.directives()?)?,
             description: None,
-            hack_source: None,
         };
         Some(parsed_object)
     }
@@ -285,21 +279,19 @@ impl<'fb> FlatBufferSchema<'fb> {
             directives: self.parse_directive_values(interface.directives()?)?,
             interfaces: wrap_ids(interface.interfaces(), InterfaceID),
             description: None,
-            hack_source: None,
         };
         Some(parsed_interface)
     }
 
     fn parse_union(&self, id: UnionID) -> Option<Union> {
         let union = self.unions.get(id.0.try_into().unwrap());
-        let name = UnionName(union.name()?.intern());
+        let name = union.name()?.intern();
         let parsed_union = Union {
             name: WithLocation::generated(name),
             is_extension: union.is_extension(),
             members: wrap_ids(union.members(), ObjectID),
             directives: self.parse_directive_values(union.directives()?)?,
             description: None,
-            hack_source: None,
         };
         Some(parsed_union)
     }
@@ -314,7 +306,6 @@ impl<'fb> FlatBufferSchema<'fb> {
             directives: self.parse_directive_values(field.directives()?)?,
             parent_type: self.get_type(self.get_fbtype_name(&field.parent_type()?)),
             description: None,
-            hack_source: None,
         };
         Some(parsed_field)
     }

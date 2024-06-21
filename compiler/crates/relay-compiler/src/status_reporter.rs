@@ -151,23 +151,3 @@ impl StatusReporter for ConsoleStatusReporter {
         }
     }
 }
-
-pub struct JSONStatusReporter;
-
-impl StatusReporter for JSONStatusReporter {
-    fn build_starts(&self) {}
-
-    fn build_completes(&self, diagnostics: &[Diagnostic]) {
-        println!(
-            "{{\"completed\":true,\"diagnostics\":{}}}",
-            serde_json::to_string(diagnostics).unwrap()
-        );
-    }
-
-    fn build_errors(&self, error: &Error) {
-        println!(
-            "{{\"completed\":false,\"error\":{}}}",
-            serde_json::to_string(error).unwrap()
-        );
-    }
-}

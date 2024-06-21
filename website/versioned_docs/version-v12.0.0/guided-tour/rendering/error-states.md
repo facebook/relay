@@ -17,9 +17,9 @@ import FbErrorBoundary from './fb/FbErrorBoundary.md';
 
 As you may have noticed, we mentioned that using `usePreloadedQuery` will render data from a query that was (or is) being fetched from the server, but we didn't elaborate on how to render UI to show an error if an error occurred during fetch. We will cover that in this section.
 
-We can use [Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) components to catch errors that occur during render (due to a network error, or any kind of error), and render an alternative error UI when that occurs. The way it works is similar to how `Suspense` works, by wrapping a component tree in an error boundary, we can specify how we want to react when an error occurs, for example by rendering a fallback UI.
+We can use [Error Boundary](https://reactjs.org/docs/error-boundaries.html) components to catch errors that occur during render (due to a network error, or any kind of error), and render an alternative error UI when that occurs. The way it works is similar to how `Suspense` works, by wrapping a component tree in an error boundary, we can specify how we want to react when an error occurs, for example by rendering a fallback UI.
 
-[Error boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) are simply components that implement the static `getDerivedStateFromError` method:
+[Error boundaries](https://reactjs.org/docs/error-boundaries.html) are simply components that implement the static `getDerivedStateFromError` method:
 
 ```js
 const React = require('React');

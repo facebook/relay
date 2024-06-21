@@ -7,7 +7,8 @@
 
 use graphql_ir::Argument;
 use graphql_ir::Directive;
-use relay_config::DeferStreamInterface;
+
+use super::DEFER_STREAM_CONSTANTS;
 
 /// Utility to access the arguments of the @defer directive.
 pub struct DeferDirective<'a> {
@@ -19,13 +20,13 @@ impl<'a> DeferDirective<'a> {
     /// Extracts the arguments from the given directive assumed to be a @defer
     /// directive.
     /// Panics on any unexpected arguments.
-    pub fn from(directive: &'a Directive, defer_stream_interface: &DeferStreamInterface) -> Self {
+    pub fn from(directive: &'a Directive) -> Self {
         let mut if_arg = None;
         let mut label_arg = None;
         for arg in &directive.arguments {
-            if arg.name.item == defer_stream_interface.if_arg {
+            if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg {
                 if_arg = Some(arg);
-            } else if arg.name.item == defer_stream_interface.label_arg {
+            } else if arg.name.item == DEFER_STREAM_CONSTANTS.label_arg {
                 label_arg = Some(arg);
             } else {
                 panic!("Unexpected argument to @defer: {}", arg.name.item);
@@ -47,19 +48,19 @@ impl<'a> StreamDirective<'a> {
     /// Extracts the arguments from the given directive assumed to be a @stream
     /// directive.
     /// Panics on any unexpected arguments.
-    pub fn from(directive: &'a Directive, defer_stream_interface: &DeferStreamInterface) -> Self {
+    pub fn from(directive: &'a Directive) -> Self {
         let mut if_arg = None;
         let mut label_arg = None;
         let mut initial_count_arg = None;
         let mut use_customized_batch_arg = None;
         for arg in &directive.arguments {
-            if arg.name.item == defer_stream_interface.if_arg {
+            if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg {
                 if_arg = Some(arg);
-            } else if arg.name.item == defer_stream_interface.label_arg {
+            } else if arg.name.item == DEFER_STREAM_CONSTANTS.label_arg {
                 label_arg = Some(arg);
-            } else if arg.name.item == defer_stream_interface.initial_count_arg {
+            } else if arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg {
                 initial_count_arg = Some(arg);
-            } else if arg.name.item == defer_stream_interface.use_customized_batch_arg {
+            } else if arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg {
                 use_customized_batch_arg = Some(arg);
             } else {
                 panic!("Unexpected argument to @stream: {}", arg.name.item);

@@ -94,7 +94,7 @@ beforeEach(() => {
   }) {
     const [mutation, setMutationFn] = useState(initialMutation);
     setMutation = setMutationFn;
-    const [commitFn, isMutationInFlight] = useMutation(mutation);
+    const [commitFn, isMutationInFlight] = useMutation<any>(mutation);
     commit = (config: any) =>
       ReactTestRenderer.act(() => {
         disposable = commitFn(config);

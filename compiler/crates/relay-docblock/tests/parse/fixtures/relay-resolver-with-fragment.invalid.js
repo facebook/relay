@@ -6,7 +6,6 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 graphql`
   fragment myRootFragment on User {

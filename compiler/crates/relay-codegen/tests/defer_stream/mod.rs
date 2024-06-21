@@ -15,13 +15,12 @@ use graphql_syntax::parse_executable;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_codegen::JsModuleFormat;
-use relay_config::DeferStreamInterface;
 use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
 use relay_transforms::sort_selections;
 use relay_transforms::transform_defer_stream;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),
@@ -30,9 +29,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let schema = get_test_schema();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(Arc::clone(&schema), ir);
-    let defer_stream_interface = DeferStreamInterface::default();
-    let next_program =
-        sort_selections(&transform_defer_stream(&program, &defer_stream_interface).unwrap());
+    let next_program = sort_selections(&transform_defer_stream(&program).unwrap());
     let mut result = next_program
         .fragments()
         .map(|def| {

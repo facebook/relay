@@ -13,16 +13,16 @@ query Viewer($params: JSON) {
 ==================================== OUTPUT ===================================
 import { JSON } from "TypeDefsFile";
 export type Viewer$variables = {
-  params?: JSON | null | undefined;
+  params?: JSON | null;
 };
 export type Viewer$data = {
   readonly viewer: {
     readonly actor: {
       readonly profilePicture2?: {
         readonly __typename: "Image";
-      } | null | undefined;
-    } | null | undefined;
-  } | null | undefined;
+      } | null;
+    } | null;
+  } | null;
 };
 export type Viewer = {
   response: Viewer$data;

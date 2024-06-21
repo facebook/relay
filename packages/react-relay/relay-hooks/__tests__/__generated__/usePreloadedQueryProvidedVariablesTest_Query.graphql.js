@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1bd7619ea2f07d3500636a825112fa19>>
+ * @generated SignedSource<<bbfbe1b79e98de906b541d5cc37b5b06>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,18 +32,20 @@ export type usePreloadedQueryProvidedVariablesTest_Query = {|
   response: usePreloadedQueryProvidedVariablesTest_Query$data,
   variables: usePreloadedQueryProvidedVariablesTest_Query$variables,
 |};
-({
-  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
-  "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('./../RelayProvider_returnsFalse.relayprovider')
-}: {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
     +get: () => boolean,
   |},
   +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
     +get: () => boolean,
   |},
-|});
+|};
 */
+
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
+  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
+  "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('./../RelayProvider_returnsFalse.relayprovider')
+};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
@@ -204,10 +206,7 @@ return {
     "name": "usePreloadedQueryProvidedVariablesTest_Query",
     "operationKind": "query",
     "text": "query usePreloadedQueryProvidedVariablesTest_Query(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTruerelayprovider: Boolean!\n  $__relay_internal__pv__RelayProvider_returnsFalserelayprovider: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...usePreloadedQueryProvidedVariablesTest_Fragment\n  }\n}\n\nfragment usePreloadedQueryProvidedVariablesTest_Fragment on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  firstName @include(if: $__relay_internal__pv__RelayProvider_returnsFalserelayprovider)\n  lastName @skip(if: $__relay_internal__pv__RelayProvider_returnsFalserelayprovider)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
-      "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('./../RelayProvider_returnsFalse.relayprovider')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

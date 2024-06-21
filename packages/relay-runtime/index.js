@@ -34,12 +34,7 @@ const {
 } = require('./store/ClientID');
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
-const {
-  isSuspenseSentinel,
-  suspenseSentinel,
-} = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
-const normalizeResponse = require('./store/normalizeResponse');
 const readInlineData = require('./store/readInlineData');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
@@ -88,10 +83,7 @@ export type {
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
-export type {
-  MutationConfig,
-  CommitMutationConfig,
-} from './mutations/commitMutation';
+export type {MutationConfig} from './mutations/commitMutation';
 export type {
   ExecuteFunction,
   FetchFunction,
@@ -103,6 +95,10 @@ export type {
   LogRequestInfoFunction,
   PayloadData,
   PayloadError,
+  ReactFlightPayloadData,
+  ReactFlightPayloadQuery,
+  ReactFlightServerTree,
+  ReactFlightServerError,
   SubscribeFunction,
   Uploadable,
   UploadableMap,
@@ -110,8 +106,6 @@ export type {
 export type {
   ObservableFromValue,
   Observer,
-  Sink,
-  Source,
   Subscribable,
   Subscription,
 } from './network/RelayObservable';
@@ -138,7 +132,6 @@ export type {
   MutableRecordSource,
   MutationParameters,
   NormalizationSelector,
-  NormalizeResponseFunction,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -148,8 +141,10 @@ export type {
   OptimisticUpdateFunction,
   PluralReaderSelector,
   Props,
-  RecordSourceJSON,
   PublishQueue,
+  ReactFlightClientResponse,
+  ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   ReaderSelector,
   ReadOnlyRecordProxy,
   ReadOnlyRecordSourceProxy,
@@ -158,7 +153,7 @@ export type {
   RecordSourceSelectorProxy,
   RelayContext,
   RequestDescriptor,
-  RelayFieldLogger,
+  RequiredFieldLogger,
   SelectorData,
   SelectorStoreUpdater,
   SingularReaderSelector,
@@ -166,7 +161,6 @@ export type {
   StoreUpdater,
   UpdatableData,
   TaskScheduler,
-  LiveState,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,
@@ -177,6 +171,7 @@ export type {
   NormalizationArgument,
   NormalizationDefer,
   NormalizationField,
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
@@ -193,6 +188,7 @@ export type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
+  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragment,
   ReaderInlineDataFragmentSpread,
@@ -204,7 +200,6 @@ export type {
   ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
-  RefetchableIdentifierInfo,
   RequiredFieldAction,
 } from './util/ReaderNode';
 export type {
@@ -238,7 +233,6 @@ export type {
 export type {Local3DPayload} from './util/createPayloadFor3DField';
 export type {Direction} from './util/getPaginationVariables';
 export type {RequestIdentifier} from './util/getRequestIdentifier';
-export type {ResolverFunction} from './util/ReaderNode';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
@@ -306,8 +300,6 @@ module.exports = {
   graphql: GraphQLTag.graphql,
   isFragment: GraphQLTag.isFragment,
   isInlineDataFragment: GraphQLTag.isInlineDataFragment,
-  isSuspenseSentinel,
-  suspenseSentinel,
   isRequest: GraphQLTag.isRequest,
   readInlineData,
 
@@ -373,13 +365,11 @@ module.exports = {
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
-    getLocalVariables: RelayConcreteVariables.getLocalVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,
     fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getObservableForActiveRequest:
       fetchQueryInternal.getObservableForActiveRequest,
-    normalizeResponse: normalizeResponse,
     withProvidedVariables: withProvidedVariables,
   },
 };

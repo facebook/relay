@@ -38,20 +38,6 @@ Before getting started, bear in mind that we assume some level of familiarity wi
 
 </OssOnly>
 
-## On to the Tutorial
-
-<FbInternalOnly>
-
-* [Tutorial](https://www.internalfb.com/intern/staticdocs/relay/docs/tutorial/intro/)
-
-</FbInternalOnly>
-
-<OssOnly>
-
-* [Tutorial](https://relay.dev/docs/tutorial/intro/)
-
-</OssOnly>
-
 <FbCrashCourse />
 
 <DocsRating />

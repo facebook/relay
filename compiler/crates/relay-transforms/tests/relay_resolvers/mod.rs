@@ -19,13 +19,12 @@ use graphql_syntax::parse_executable;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
-use relay_config::ProjectName;
 use relay_test_schema::get_test_schema_with_located_extensions;
 use relay_transforms::fragment_alias_directive;
 use relay_transforms::relay_resolvers;
 use relay_transforms::validate_resolver_fragments;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
         let graphql_location = SourceLocationKey::embedded(fixture.file_name, 0);
@@ -42,7 +41,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         // Run `fragment_alias_directive` first because we want to ensure we
         // correctly generate paths for named inline fragment spreads.
         let next_program = fragment_alias_directive(&program, &FeatureFlag::Enabled)
-            .and_then(|program| relay_resolvers(ProjectName::default(), &program, true))
+            .and_then(|program| relay_resolvers(&program, true))
             .map_err(|diagnostics| diagnostics_to_sorted_string(base, extensions, &diagnostics))?;
 
         let printer_options = PrinterOptions {

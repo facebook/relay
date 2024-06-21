@@ -55,14 +55,17 @@ declare function readFragment<
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): $NonMaybeType<TKey['$data']>;
+): $Call<<TFragmentData>({+$data?: TFragmentData, ...}) => TFragmentData, TKey>;
 
 declare function readFragment<
   TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): ?TKey?.['$data'];
+): $Call<
+  <TFragmentData>(?{+$data?: TFragmentData, ...}) => ?TFragmentData,
+  TKey,
+>;
 
 declare function readFragment<
   TKey: $ReadOnlyArray<{
@@ -73,7 +76,12 @@ declare function readFragment<
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): $NonMaybeType<TKey[number]['$data']>;
+): $Call<
+  <TFragmentData>(
+    $ReadOnlyArray<{+$data?: TFragmentData, ...}>,
+  ) => TFragmentData,
+  TKey,
+>;
 
 declare function readFragment<
   TKey: ?$ReadOnlyArray<{
@@ -84,7 +92,12 @@ declare function readFragment<
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): ?TKey?.[number]['$data'];
+): $Call<
+  <TFragmentData>(
+    ?$ReadOnlyArray<{+$data?: TFragmentData, ...}>,
+  ) => ?TFragmentData,
+  TKey,
+>;
 
 declare function readFragment<TKey: FragmentType, TData>(
   fragmentInput: Fragment<TKey, TData>,

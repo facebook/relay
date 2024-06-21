@@ -12,7 +12,6 @@ use std::fmt::Write;
 
 use lsp_types::DiagnosticSeverity;
 use lsp_types::DiagnosticTag;
-use serde::ser::SerializeMap;
 use serde_json::Value;
 
 use crate::Location;
@@ -47,7 +46,7 @@ pub fn diagnostics_result<T>(result: T, diagnostics: Diagnostics) -> Diagnostics
 
 /// A diagnostic message as a result of validating some code. This struct is
 /// modeled after the LSP Diagnostic type:
-/// <https://microsoft.github.io/language-server-protocol/specification#diagnostic>
+/// https://microsoft.github.io/language-server-protocol/specification#diagnostic
 ///
 /// Changes from LSP:
 /// - `location` is different from LSP in that it's a file + span instead of
@@ -226,19 +225,19 @@ impl Diagnostic {
         let mut result = String::new();
         writeln!(
             result,
-            "{message}: {location}",
+            "{message}:{location:?}",
             message = &self.0.message,
-            location = self.0.location.source_location().path()
+            location = self.0.location
         )
         .unwrap();
         if !self.0.related_information.is_empty() {
             for (ix, related) in self.0.related_information.iter().enumerate() {
                 writeln!(
                     result,
-                    "[related {ix}] {message}:{location}",
+                    "[related {ix}] {message}:{location:?}",
                     ix = ix + 1,
                     message = related.message,
-                    location = related.location.source_location().path()
+                    location = related.location
                 )
                 .unwrap();
             }
@@ -250,18 +249,6 @@ impl Diagnostic {
 impl fmt::Display for Diagnostic {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.print_without_source())
-    }
-}
-
-impl serde::Serialize for Diagnostic {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let mut diagnostic = serializer.serialize_map(Some(2))?;
-        diagnostic.serialize_entry("message", &self.0.message)?;
-        diagnostic.serialize_entry("location", &self.0.location)?;
-        diagnostic.end()
     }
 }
 
@@ -315,14 +302,11 @@ pub trait WithDiagnosticData {
 
 /// Trait for diagnostic messages to allow structs that capture
 /// some data and can lazily convert it to a message.
-#[typetag::serialize(tag = "type")]
 pub trait DiagnosticDisplay: fmt::Debug + fmt::Display + Send + Sync {}
 
 /// Automatically implement the trait if constraints are met, so that
 /// implementors don't need to.
-#[typetag::serialize]
-impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync + typetag::Serialize
-{}
+impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync {}
 
 impl From<Diagnostic> for Diagnostics {
     fn from(diagnostic: Diagnostic) -> Self {

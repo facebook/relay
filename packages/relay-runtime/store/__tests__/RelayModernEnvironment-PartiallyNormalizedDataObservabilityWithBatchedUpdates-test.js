@@ -322,7 +322,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
   let callbacks;
   let callback;
   let observationSnapshot;
-  let promise: Promise<?NormalizationRootNode>;
+  let promise;
   let resolve;
 
   beforeEach(() => {
@@ -340,7 +340,8 @@ describe('execute() a query with nested @module fragments, where the inner @modu
 
     promise = new Promise(_resolve => (resolve = _resolve));
     operationLoader = {
-      load: jest.fn(() => promise),
+      // $FlowFixMe[incompatible-type-arg] Error found while enabling LTI on this file
+      load: () => promise,
       get: jest.fn(),
     };
     source = RelayRecordSource.create();

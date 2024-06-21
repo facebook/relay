@@ -243,10 +243,7 @@ fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node {
         "node"
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
-      "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
-      }
+      "identifierField": "id"
     }
   },
   "name": "refetchableFragmentOnNodeWithMissingId_RefetchableFragment",

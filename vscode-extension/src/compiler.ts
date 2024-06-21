@@ -25,7 +25,6 @@ export function createAndStartCompiler(context: RelayExtensionContext) {
   const terminal = window.createTerminal({
     name: 'Relay Compiler',
     cwd: context.relayBinaryExecutionOptions.rootPath,
-    isTransient: true,
   });
 
   terminal.sendText(

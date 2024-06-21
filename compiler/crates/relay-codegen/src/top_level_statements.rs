@@ -18,6 +18,7 @@ pub struct TopLevelStatements(IndexMap<String, TopLevelStatement, FnvBuildHasher
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TopLevelStatement {
     ImportStatement(JSModuleDependency),
+    VariableDefinition(String),
 }
 
 impl std::fmt::Display for TopLevelStatement {
@@ -39,6 +40,7 @@ impl std::fmt::Display for TopLevelStatement {
                     }
                 }
             },
+            TopLevelStatement::VariableDefinition(text) => write!(f, "{}", text)?,
         };
         Ok(())
     }

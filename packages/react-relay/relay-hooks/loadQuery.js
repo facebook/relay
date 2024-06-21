@@ -24,7 +24,6 @@ import type {
   IEnvironment,
   OperationDescriptor,
   OperationType,
-  Query,
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
@@ -57,31 +56,12 @@ function useTrackLoadQueryInRender() {
   }
 }
 
-type QueryType<T> = T extends Query<infer V, infer D, infer RR>
-  ? {
-      variables: V,
-      response: D,
-      rawResponse?: $NonMaybeType<RR>,
-    } // $FlowFixMe[deprecated-type]
-  : $Call<<T>(PreloadableConcreteRequest<T>) => T, T>;
-
-declare function loadQuery<
-  T,
-  TEnvironmentProviderOptions = EnvironmentProviderOptions,
->(
-  environment: IEnvironment,
-  preloadableRequest: T,
-  variables: QueryType<T>['variables'],
-  options?: ?LoadQueryOptions,
-  environmentProviderOptions?: ?TEnvironmentProviderOptions,
-): PreloadedQueryInner<QueryType<T>, TEnvironmentProviderOptions>;
-
 function loadQuery<
   TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 >(
   environment: IEnvironment,
-  preloadableRequest: PreloadableConcreteRequest<TQuery>,
+  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: TQuery['variables'],
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,

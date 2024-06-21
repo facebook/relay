@@ -20,19 +20,11 @@ type Mutation {
   success: boolean
 }
 
-interface HasName {
+interface XIGHuman @source(schema: "instagram", name: "Human") {
   name: String
 }
 
-interface HasNickname {
-  nickname: String
-}
-
-interface XIGHuman implements Animal @source(schema: "instagram", name: "Human") {
-  name: String
-}
-
-extend interface XIGHuman implements HasNickname {
+extend interface XIGHuman {
   nickname: String
 }
 

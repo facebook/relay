@@ -26,8 +26,9 @@ use dashmap::DashSet;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
+use graphql_ir::ExecutableDefinitionName;
+use intern::string_key::StringKey;
 use rayon::prelude::*;
-use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use schema_diff::definitions::SchemaChange;
@@ -38,7 +39,6 @@ use zstd::stream::read::Decoder as ZstdDecoder;
 use zstd::stream::write::Encoder as ZstdEncoder;
 
 use crate::artifact_map::ArtifactMap;
-use crate::artifact_map::ArtifactSourceKey;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
@@ -53,6 +53,9 @@ use crate::file_source::LocatedDocblockSource;
 use crate::file_source::LocatedGraphQLSource;
 use crate::file_source::LocatedJavascriptSourceFeatures;
 use crate::file_source::SourceControlUpdateStatus;
+
+/// Name of a compiler project.
+pub type ProjectName = StringKey;
 
 /// Set of project names.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
@@ -76,7 +79,7 @@ impl ProjectSet {
         existing_names.push(project_name);
     }
 
-    pub fn iter(&self) -> slice::Iter<'_, ProjectName> {
+    pub fn iter(&self) -> slice::Iter<'_, StringKey> {
         self.0.iter()
     }
 
@@ -91,7 +94,7 @@ impl ProjectSet {
 
 impl IntoIterator for ProjectSet {
     type Item = ProjectName;
-    type IntoIter = vec::IntoIter<ProjectName>;
+    type IntoIter = vec::IntoIter<StringKey>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
@@ -384,7 +387,7 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
     }
 
-    fn get_schema_change(&self, sources: &SchemaSources) -> SchemaChange {
+    fn is_change_safe(&self, sources: &SchemaSources, schema_config: &SchemaConfig) -> bool {
         let previous = sources
             .get_old_sources()
             .into_iter()
@@ -397,16 +400,9 @@ impl CompilerState {
             .map(String::as_str)
             .collect::<Vec<_>>();
 
-        detect_changes(&current, &previous)
-    }
+        let schema_change = detect_changes(&current, &previous);
 
-    fn is_change_safe(
-        &self,
-        sources: &SchemaSources,
-        schema_change: &SchemaChange,
-        schema_config: &SchemaConfig,
-    ) -> bool {
-        if schema_change == &SchemaChange::None {
+        if schema_change == SchemaChange::None {
             true
         } else {
             let current_sources_with_location = sources
@@ -443,30 +439,22 @@ impl CompilerState {
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
     pub fn has_breaking_schema_change(
         &self,
-        log_event: &impl PerfLogEvent,
-        project_name: ProjectName,
+        project_name: StringKey,
         schema_config: &SchemaConfig,
     ) -> bool {
         if let Some(extension) = self.extensions.get(&project_name) {
             if !extension.pending.is_empty() {
-                log_event.string("has_breaking_schema_change", "extension".to_owned());
                 return true;
             }
         }
         if let Some(docblocks) = self.docblocks.get(&project_name) {
             if !docblocks.pending.is_empty() {
-                log_event.string("has_breaking_schema_change", "docblock".to_owned());
                 return true;
             }
         }
         if let Some(schema) = self.schemas.get(&project_name) {
-            if !schema.pending.is_empty() {
-                let schema_change = self.get_schema_change(schema);
-                if !self.is_change_safe(schema, &schema_change, schema_config) {
-                    log_event.string("schema_change", schema_change.to_string());
-                    log_event.string("has_breaking_schema_change", "schema_change".to_owned());
-                    return true;
-                }
+            if !(schema.pending.is_empty() || self.is_change_safe(schema, schema_config)) {
+                return true;
             }
         }
         false
@@ -565,11 +553,11 @@ impl CompilerState {
         self.dirty_artifact_paths.clear();
     }
 
-    /// Calculate dirty definitions/sources from dirty artifacts
-    pub fn get_dirty_artifact_sources(
+    /// Calculate dirty definitions from dirty artifacts
+    pub fn get_dirty_definitions(
         &self,
         config: &Config,
-    ) -> FnvHashMap<ProjectName, Vec<ArtifactSourceKey>> {
+    ) -> FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>> {
         if self.dirty_artifact_paths.is_empty() {
             return Default::default();
         }
@@ -588,7 +576,7 @@ impl CompilerState {
                         let mut added = false;
                         for artifact_record in artifact_records {
                             if paths.remove(&artifact_record.path).is_some() && !added {
-                                dirty_definitions.push(definition_name.clone());
+                                dirty_definitions.push(*definition_name);
                                 if paths.is_empty() {
                                     break 'outer;
                                 }

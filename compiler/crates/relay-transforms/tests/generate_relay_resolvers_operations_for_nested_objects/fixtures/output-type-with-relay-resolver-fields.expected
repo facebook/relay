@@ -40,7 +40,13 @@ query User__pop_star_name$normalization @__SplitOperationMetadata
 # SplitOperationMetadata {
 #     derived_from: None,
 #     location: output-type-with-relay-resolver-fields.graphql:204:217,
-#     parent_documents: {},
+#     parent_documents: {
+#         OperationDefinitionName(
+#             OperationDefinitionName(
+#                 "User__pop_star_name$normalization",
+#             ),
+#         ),
+#     },
 #     raw_response_type_generation_mode: Some(
 #         AllFieldsRequired,
 #     ),

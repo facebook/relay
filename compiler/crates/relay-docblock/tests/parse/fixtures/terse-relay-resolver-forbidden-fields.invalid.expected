@@ -7,7 +7,6 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver User.favorite_page: Page
@@ -32,56 +31,56 @@
 ==================================== ERROR ====================================
 ✖︎ The compiler attempted to parse this `@RelayResolver` block as a terse resolver declaration, but there were unexpected fields: @fieldName, @onType, @onInterface, @edgeTo, @outputType, and @weak.
 
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:12:5
-   11 │ *
-   12 │  * @RelayResolver User.favorite_page: Page
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:11:5
+   10 │ *
+   11 │  * @RelayResolver User.favorite_page: Page
       │     ^^^^^^^^^^^^^
-   13 │  * @rootFragment myRootFragment
+   12 │  * @rootFragment myRootFragment
+
+  ℹ︎ Unexpected field
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:13:5
+   12 │  * @rootFragment myRootFragment
+   13 │  * @onType User
+      │     ^^^^^^
+   14 │  * @edgeTo User
 
   ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:14:5
-   13 │  * @rootFragment myRootFragment
-   14 │  * @onType User
+   13 │  * @onType User
+   14 │  * @edgeTo User
       │     ^^^^^^
-   15 │  * @edgeTo User
+   15 │  * @onInterface User
 
   ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:15:5
-   14 │  * @onType User
-   15 │  * @edgeTo User
-      │     ^^^^^^
-   16 │  * @onInterface User
+   14 │  * @edgeTo User
+   15 │  * @onInterface User
+      │     ^^^^^^^^^^^
+   16 │  * @outputType User
 
   ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:16:5
-   15 │  * @edgeTo User
-   16 │  * @onInterface User
-      │     ^^^^^^^^^^^
-   17 │  * @outputType User
+   15 │  * @onInterface User
+   16 │  * @outputType User
+      │     ^^^^^^^^^^
+   17 │  * @fieldName my_field
 
   ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:17:5
-   16 │  * @onInterface User
-   17 │  * @outputType User
-      │     ^^^^^^^^^^
-   18 │  * @fieldName my_field
+   16 │  * @outputType User
+   17 │  * @fieldName my_field
+      │     ^^^^^^^^^
+   18 │  * @weak
 
   ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:18:5
-   17 │  * @outputType User
-   18 │  * @fieldName my_field
-      │     ^^^^^^^^^
-   19 │  * @weak
-
-  ℹ︎ Unexpected field
-
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:19:5
-   18 │  * @fieldName my_field
-   19 │  * @weak
+   17 │  * @fieldName my_field
+   18 │  * @weak
       │     ^^^^
-   20 │  *
+   19 │  *

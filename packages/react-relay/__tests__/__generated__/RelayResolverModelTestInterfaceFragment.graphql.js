@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<601c203cc431f4e2111fc34d8f5b5739>>
+ * @generated SignedSource<<2e452547adee3384123090730327ab6b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -46,13 +46,13 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
 declare export opaque type RelayResolverModelTestInterfaceFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestInterfaceFragment$data = {|
   +fancy_description: ?{|
-    +some_client_type_with_interface: ?{|
+    +some_client_type_with_interface: {|
       +client_interface: {|
         +__typename: string,
         +description: ?string,
       |},
     |},
-    +some_interface: ?{|
+    +some_interface: {|
       +__typename: string,
       +description: ?string,
     |},
@@ -109,7 +109,7 @@ return {
         },
         "kind": "RelayResolver",
         "name": "fancy_description",
-        "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true), '__relay_model_instance', false),
+        "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', false), '__relay_model_instance', false),
         "path": "fancy_description",
         "normalizationInfo": {
           "concreteType": "TodoDescription",
@@ -134,8 +134,8 @@ return {
               "fragment": (v0/*: any*/),
               "kind": "RelayResolver",
               "name": "some_interface",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', true),
-              "path": "fancy_description.some_interface",
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', false),
+              "path": "some_interface",
               "normalizationInfo": {
                 "concreteType": null,
                 "plural": false,
@@ -162,8 +162,8 @@ return {
               "fragment": (v0/*: any*/),
               "kind": "RelayResolver",
               "name": "some_client_type_with_interface",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_client_type_with_interface, '__relay_model_instance', true),
-              "path": "fancy_description.some_client_type_with_interface",
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_client_type_with_interface, '__relay_model_instance', false),
+              "path": "some_client_type_with_interface",
               "normalizationInfo": {
                 "concreteType": "ClientTypeWithNestedClientInterface",
                 "plural": false,

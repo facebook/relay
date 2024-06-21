@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e5d747e7aa05f28e5d950589cbec6c0c>>
+ * @generated SignedSource<<99b2659aac414e5620cf540a3b13791b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,10 +43,7 @@ var node/*: ReaderFragment*/ = {
         "node"
       ],
       "operation": require('./GraphQLTagTestUserFragment1RefetchQuery.graphql'),
-      "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
-      }
+      "identifierField": "id"
     }
   },
   "name": "GraphQLTagTest2UserFragment",

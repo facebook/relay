@@ -17,6 +17,16 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
+<OssOnly>
+
+:::caution
+
+Because in TypeScript, [getters and setters cannot have different types](https://github.com/microsoft/TypeScript/issues/43662), and the generated types of getters and setters is not the same, `readUpdatableQuery` is currently unusable with TypeScript. `readUpdatableFragment` is usable, as long as the updatable fragment contains only scalar fields.
+
+:::
+
+</OssOnly>
+
 :::note
 See also [using readUpdatableQuery to update scalar fields in the store](../imperatively-modifying-store-data).
 :::

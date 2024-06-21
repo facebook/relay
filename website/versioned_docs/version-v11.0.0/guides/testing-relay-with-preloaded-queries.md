@@ -134,7 +134,7 @@ This is more straightforward - it is done via a call to `environment.mock.queueP
    * Used a different query - the query resolver would not be called, `currentOperation` will be `null`
    * Query variables don't match - the query resolver would not be called, `currentOperation` will be `null` (make sure to inspect the `variables`).
       * Also, make sure arrays are in the same order, if any (or better yet, use sets, if at all possible).
-* If data returned from the query is not what you expect, make sure you're generating the right graphql type.
+* If data returned rom the query is not what you expect, make sure you're generating the right graphql type.
    * You can tell you're mocking the wrong one if the return values look something like `<mock-value-for-field-"formatted_amount">`
 
 

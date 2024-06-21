@@ -18,7 +18,7 @@ If you want to fetch a query outside of React, you can use the `fetchQuery` func
 
 ```js
 // You should prefer passing an environment that was returned from useRelayEnvironment()
-const environment = require('MyEnvironment');
+const MyEnvironment = require('MyEnvironment');
 const {fetchQuery} = require('react-relay');
 
 fetchQuery(

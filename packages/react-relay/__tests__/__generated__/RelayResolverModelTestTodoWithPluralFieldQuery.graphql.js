@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d611925eaf22ec9d965459063dde825e>>
+ * @generated SignedSource<<ba00aa99edcb326c8cd308a5e43bb302>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -92,19 +92,6 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "TodoModel",
-        "modelResolver": {
-          "alias": null,
-          "args": [],
-          "fragment": {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "TodoModel__id"
-          },
-          "kind": "RelayLiveResolver",
-          "name": "todo_model",
-          "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
-          "path": "todo_model.__relay_model_instance"
-        },
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),

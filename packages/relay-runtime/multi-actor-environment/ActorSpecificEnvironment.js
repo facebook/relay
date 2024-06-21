@@ -25,7 +25,7 @@ import type {
   OperationTracker,
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
-  RelayFieldLogger,
+  RequiredFieldLogger,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -54,7 +54,7 @@ export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   logFn: LogFunction,
   multiActorEnvironment: IMultiActorEnvironment,
   network: INetwork,
-  relayFieldLogger: RelayFieldLogger,
+  requiredFieldLogger: RequiredFieldLogger,
   store: Store,
   missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
 }>;
@@ -70,7 +70,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   +configName: ?string;
   +multiActorEnvironment: IMultiActorEnvironment;
   +options: mixed;
-  relayFieldLogger: RelayFieldLogger;
+  requiredFieldLogger: RequiredFieldLogger;
 
   constructor(config: ActorSpecificEnvironmentConfig) {
     this.configName = config.configName;
@@ -78,7 +78,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     this.multiActorEnvironment = config.multiActorEnvironment;
 
     this.__log = config.logFn;
-    this.relayFieldLogger = config.relayFieldLogger;
+    this.requiredFieldLogger = config.requiredFieldLogger;
     this._operationTracker = new RelayOperationTracker();
     this._store = config.store;
     this._network = wrapNetworkWithLogObserver(this, config.network);

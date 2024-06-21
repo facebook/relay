@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithRelayClientComponent {
+  me {
+    id
+    ...ClientFragmentWithArguments @relay_client_component @arguments(scale: 1.5)
+  }
+}
+
+fragment ClientFragmentWithArguments on User @argumentDefinitions(scale: {type: "Float"}) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ @relay_client_component is not compatible with @arguments.
+
+  fragment-with-arguments.invalid.graphql:5:71
+    4 │     id
+    5 │     ...ClientFragmentWithArguments @relay_client_component @arguments(scale: 1.5)
+      │                                                                       ^^^^^
+    6 │   }

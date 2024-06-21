@@ -1,9 +1,0 @@
-# expected-to-throw
-mutation MyMutation {
-  some_resolver
-}
-
-# %extensions%
-extend type Mutation {
-  some_resolver: Int @relay_resolver
-}

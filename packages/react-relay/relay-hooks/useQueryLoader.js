@@ -82,6 +82,9 @@ type UseQueryLoaderHookReturnType<
   () => void,
 ];
 
+type ExtractVariablesType = <T>({+variables: T, ...}) => T;
+type ExtractResponseType = <T>({+response: T, ...}) => T;
+
 declare function useQueryLoader<
   TVariables: Variables,
   TData,
@@ -106,7 +109,10 @@ declare function useQueryLoader<
 declare function useQueryLoader<TQuery: OperationType>(
   preloadableRequest: PreloadableConcreteRequest<TQuery>,
   initialQueryReference?: ?PreloadedQuery<TQuery>,
-): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;
+): UseQueryLoaderHookReturnType<
+  $Call<ExtractVariablesType, TQuery>,
+  $Call<ExtractResponseType, TQuery>,
+>;
 
 function useQueryLoader<
   TVariables: Variables,
@@ -195,7 +201,7 @@ function useQueryLoader<
             }
           : options;
       if (isMountedRef.current) {
-        const updatedQueryReference = loadQuery(
+        const updatedQueryReference = loadQuery<QueryType>(
           options?.__environment ?? environment,
           preloadableRequest,
           variables,

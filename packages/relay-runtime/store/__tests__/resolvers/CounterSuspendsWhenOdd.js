@@ -12,10 +12,13 @@
 'use strict';
 
 import type {CounterSuspendsWhenOdd$key} from './__generated__/CounterSuspendsWhenOdd.graphql';
-import type {LiveState} from 'relay-runtime';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
-const {graphql, suspenseSentinel} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**

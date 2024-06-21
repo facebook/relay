@@ -10,14 +10,9 @@
  */
 
 'use strict';
-import type {
-  LogEvent,
-  RelayFieldLoggerEvent,
-} from 'relay-runtime/store/RelayStoreTypes';
+import type {LogEvent} from '../../../relay-runtime/store/RelayStoreTypes';
 
-const {
-  getFragmentResourceForEnvironment,
-} = require('../legacy/FragmentResource');
+const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
   __internal: {fetchQuery},
   createOperationDescriptor,
@@ -38,15 +33,27 @@ let environment;
 let query;
 let FragmentResource;
 let logger;
-let relayFieldLogger;
+let requiredFieldLogger;
 
 beforeEach(() => {
   logger = jest.fn<[LogEvent], void>();
-  relayFieldLogger = jest.fn<[RelayFieldLoggerEvent], void>();
+  requiredFieldLogger = jest.fn<
+    [
+      | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
+      | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
+      | {
+          +error: Error,
+          +fieldPath: string,
+          +kind: 'relay_resolver.error',
+          +owner: string,
+        },
+    ],
+    void,
+  >();
 
   environment = createMockEnvironment({
     log: logger,
-    relayFieldLogger,
+    requiredFieldLogger,
   });
   FragmentResource = getFragmentResourceForEnvironment(environment);
 
@@ -109,7 +116,7 @@ test('Logs if a @required(action: LOG) field is null', () => {
     },
     componentDisplayName,
   );
-  expect(relayFieldLogger).toHaveBeenCalledWith({
+  expect(requiredFieldLogger).toHaveBeenCalledWith({
     fieldPath: 'alternate_name',
     kind: 'missing_field.log',
     owner: 'FragmentResourceRequiredFieldTestUserFragment',
@@ -172,7 +179,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
     "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment'.",
   );
 
-  expect(relayFieldLogger).toHaveBeenCalledWith({
+  expect(requiredFieldLogger).toHaveBeenCalledWith({
     fieldPath: 'name',
     kind: 'missing_field.throw',
     owner: 'FragmentResourceRequiredFieldTestUserFragment',

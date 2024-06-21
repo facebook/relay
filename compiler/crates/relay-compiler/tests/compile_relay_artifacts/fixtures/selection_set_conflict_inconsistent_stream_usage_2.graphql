@@ -4,13 +4,13 @@ query selectionSetConflictInconsistentStreamUsage2Query {
     ... on User {
       friends {
         ... on FriendsConnection {
-          edges @stream(label: "hdijf", initialCount: 1) {
+          edges @stream(label: "hdijf", initial_count: 1) {
             node {
               name
             }
           }
         }
-        edges @stream(label: "hkjdf", initialCount: 2) {
+        edges @stream(label: "hkjdf", initial_count: 2) {
           node {
             id
           }

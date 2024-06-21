@@ -113,7 +113,7 @@ type MockFunctions = {
   +complete: (request: ConcreteRequest | OperationDescriptor) => void,
   +resolve: (
     request: ConcreteRequest | OperationDescriptor,
-    payload: $ReadOnlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
+    payload: GraphQLSingularResponse,
   ) => void,
   +getAllOperations: () => $ReadOnlyArray<OperationDescriptor>,
   +findOperation: (
@@ -400,15 +400,12 @@ function createMockEnvironment(
 
   const resolve = (
     request: ConcreteRequest | OperationDescriptor,
-    response: $ReadOnlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
+    payload: GraphQLSingularResponse,
   ): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
       invariant(sink !== null, 'Sink should be defined.');
-      const payloads = Array.isArray(response) ? response : [response];
-      payloads.forEach(payload => {
-        sink.next(ensureValidPayload(payload));
-      });
+      sink.next(ensureValidPayload(payload));
       sink.complete();
     });
   };

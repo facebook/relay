@@ -23,11 +23,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: ESLint
-        run: yarn --ignore-engines run lint
+        run: yarn run lint
       - name: Prettier
-        run: yarn --ignore-engines run prettier-check
+        run: yarn run prettier-check
       - name: Typecheck
-        run: yarn --ignore-engines run typecheck
+        run: yarn run typecheck
 
   js-tests:
     name: JS Tests (Node ${{ matrix.node-version }})
@@ -95,7 +95,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.72.0
+          toolchain: 1.64.0
           override: true
       - name: "Run tests"
         run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
@@ -118,7 +118,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.72.0
+          toolchain: 1.64.0
           override: true
       - name: "Update fixture tests"
         run: ./scripts/update-fixtures.sh
@@ -136,7 +136,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2023-11-11
+          toolchain: nightly-2022-06-26
           override: true
           components: rustfmt
       - name: "rustfmt"
@@ -177,7 +177,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.72.0
+          toolchain: 1.64.0
           override: true
           target: ${{ matrix.target.target }}
       - uses: actions/setup-node@v2

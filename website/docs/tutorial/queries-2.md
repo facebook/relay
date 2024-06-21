@@ -219,7 +219,7 @@ You may also notice that this request is made only the first time you hover over
 <details>
 <summary>Deep dive: Caching and the Relay Store</summary>
 
-In contrast to most other systems, Relay’s caching is not based on queries, but on graph nodes. Relay maintains a local cache of all the nodes it has fetched called the Relay Store. Each node in the Store is identified and retrieved by its ID. If two queries ask for the same information, as identified by node IDs, then the second query will be fulfilled using the cached information retrieved for the first query, and not be fetched.  Make sure to configure [missing field handlers](/docs/guided-tour/reusing-cached-data/filling-in-missing-data/) to take advantage of this caching behavior.
+In contrast to most other systems, Relay’s caching is not based on queries, but on graph nodes. Relay maintains a local cache of all the nodes it has fetched called the Relay Store. Each node in the Store is identified and retrieved by its ID. If two queries ask for the same information, as identified by node IDs, then the second query will be fulfilled using the cached information retrieved for the first query, and not be fetched.
 
 Relay will garbage-collect nodes from the Store if they aren’t “reachable” from any queries that are used, or have been recently used, by any mounted components.
 </details>
@@ -386,4 +386,4 @@ Although we introduced queries using `useLazyLoadQuery` for simplicity, preloade
 * Query variables are used by passing them into field arguments.
 * Preloaded queries are always the best way to go. For user interaction queries, initiate the fetch in the event handler. For the initial query for your screen, initiate the fetch as early as possible in your specific routing system. Use lazy-loaded queries only for quick prototyping, or not at all.
 
-Next we'll briefly look at a way to enhance the hovercard by handling different types of posters differently. After that, we'll see how to handle situations where information that's part of the initial query also needs to be updated and refetched with different variables.
+Next we'll briefly look at a way to enhance the hovecard by handling different types of posters differently. After that, we'll see how to handle situations where information that's part of the initial query also needs to be updated and refetched with different variables.

@@ -10,7 +10,6 @@
  */
 
 'use strict';
-import type {LiveState} from 'relay-runtime';
 
 /**
  * @RelayResolver
@@ -20,6 +19,8 @@ import type {LiveState} from 'relay-runtime';
  *
  * A @live resolver that does not return a LiveObject
  */
+import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
+
 function live_resolver_with_bad_return_value(): LiveState<string> {
   // $FlowFixMe The purpose of this resolver is to test a bad return value.
   return 'Oops!';

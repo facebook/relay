@@ -7,19 +7,7 @@
 
 use thiserror::Error;
 
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Error,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type")]
+#[derive(Clone, Copy, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum SyntaxError {
     #[error("Expected \"{expected}\".")]
     ExpectedString { expected: &'static str },

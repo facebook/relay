@@ -73,7 +73,6 @@ file sources, and "listen" to the file changes in the "watch" mode. If
 - `schemaConfig`
   - `nodeInterfaceIdField` Configure the name of the globally unique ID field on
     the Node interface. Useful if you can't use the default `id` field name.
-  - `nodeInterfaceIdVariableName` Specifies the name of the variable expected by the `node` query to pass the Node id.
     [string][default: "id"]
   - `nonNodeIdFields` Restricts the type of all fields named `id` to `ID`.
     - `allowedIdTypes` Mappings from types in your schema to allowed types

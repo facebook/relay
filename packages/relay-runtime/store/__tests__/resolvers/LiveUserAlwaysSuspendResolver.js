@@ -12,9 +12,11 @@
 'use strict';
 
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
-import type {LiveState} from 'relay-runtime';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
-const {suspenseSentinel} = require('relay-runtime');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 
 /**
  * @RelayResolver

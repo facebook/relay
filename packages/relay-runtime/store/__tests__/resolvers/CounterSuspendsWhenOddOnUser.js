@@ -11,10 +11,12 @@
 
 'use strict';
 
-import type {LiveState} from 'relay-runtime';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
-const {suspenseSentinel} = require('relay-runtime');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 
 /**
  * @RelayResolver

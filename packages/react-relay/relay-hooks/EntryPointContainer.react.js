@@ -23,15 +23,10 @@ const {useContext, useEffect} = require('react');
 const warning = require('warning');
 
 function EntryPointContainer<
-  // $FlowFixMe[unsupported-variance-annotation]
   +TPreloadedQueries: {...},
-  // $FlowFixMe[unsupported-variance-annotation]
   +TPreloadedNestedEntryPoints: {...},
-  // $FlowFixMe[unsupported-variance-annotation]
   +TRuntimeProps: {...},
-  // $FlowFixMe[unsupported-variance-annotation]
   +TExtraProps,
-  // $FlowFixMe[unsupported-variance-annotation]
   +TEntryPointComponent: EntryPointComponent<
     TPreloadedQueries,
     TPreloadedNestedEntryPoints,

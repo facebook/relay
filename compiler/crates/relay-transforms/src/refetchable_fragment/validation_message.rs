@@ -11,8 +11,7 @@ use graphql_ir::VariableName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
-#[derive(Error, Debug, serde::Serialize)]
-#[serde(tag = "type")]
+#[derive(Error, Debug)]
 pub(super) enum ValidationMessage {
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', only supported are fragments on:\n{descriptions}"

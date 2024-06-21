@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f59b2fcd357e043b5d5fa94238f3fe2>>
+ * @generated SignedSource<<4d4d9044120228582912eca1d5a3b57b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,18 +29,20 @@ export type withProvidedVariablesTest5Query = {|
   response: withProvidedVariablesTest5Query$data,
   variables: withProvidedVariablesTest5Query$variables,
 |};
-({
-  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider'),
-  "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('./../provideRandomNumber_invalid2.relayprovider')
-}: {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
     +get: () => number,
   |},
   +__relay_internal__pv__provideRandomNumber_invalid2relayprovider: {|
     +get: () => number,
   |},
-|});
+|};
 */
+
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
+  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider'),
+  "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('./../provideRandomNumber_invalid2.relayprovider')
+};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [
@@ -176,10 +178,7 @@ return {
     "name": "withProvidedVariablesTest5Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest5Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1relayprovider: Float!\n  $__relay_internal__pv__provideRandomNumber_invalid2relayprovider: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest5Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest5Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1relayprovider) {\n    uri\n  }\n  other_picture: profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid2relayprovider) {\n    uri\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider'),
-      "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('./../provideRandomNumber_invalid2.relayprovider')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

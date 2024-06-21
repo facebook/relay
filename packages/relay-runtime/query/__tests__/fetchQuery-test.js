@@ -11,7 +11,6 @@
 
 'use strict';
 
-import type {RelayFieldLoggerEvent} from '../../store/RelayStoreTypes';
 import type {fetchQueryTest1Query$data} from './__generated__/fetchQueryTest1Query.graphql';
 import type {RequestParameters} from 'relay-runtime';
 
@@ -240,9 +239,21 @@ describe('fetchQuery', () => {
 
 describe('fetchQuery with missing @required value', () => {
   it('provides data snapshot on next', () => {
-    const relayFieldLogger = jest.fn<[RelayFieldLoggerEvent], void>();
+    const requiredFieldLogger = jest.fn<
+      [
+        | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
+        | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
+        | {
+            +error: Error,
+            +fieldPath: string,
+            +kind: 'relay_resolver.error',
+            +owner: string,
+          },
+      ],
+      void,
+    >();
     const environment = createMockEnvironment({
-      relayFieldLogger,
+      requiredFieldLogger,
     });
     const query = graphql`
       query fetchQueryTest2Query {
@@ -267,7 +278,7 @@ describe('fetchQuery with missing @required value', () => {
     });
     subscription.unsubscribe();
     expect(observer.next).toHaveBeenCalledWith({me: null});
-    expect(relayFieldLogger).toHaveBeenCalledWith({
+    expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'me.name',
       kind: 'missing_field.log',
       owner: 'fetchQueryTest2Query',
@@ -275,8 +286,20 @@ describe('fetchQuery with missing @required value', () => {
   });
 
   it('throws on resolution', () => {
-    const relayFieldLogger = jest.fn<[RelayFieldLoggerEvent], void>();
-    const environment = createMockEnvironment({relayFieldLogger});
+    const requiredFieldLogger = jest.fn<
+      [
+        | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
+        | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
+        | {
+            +error: Error,
+            +fieldPath: string,
+            +kind: 'relay_resolver.error',
+            +owner: string,
+          },
+      ],
+      void,
+    >();
+    const environment = createMockEnvironment({requiredFieldLogger});
     const query = graphql`
       query fetchQueryTest3Query {
         me {
@@ -299,7 +322,7 @@ describe('fetchQuery with missing @required value', () => {
       data: {me: {id: 'ID-1', name: null}},
     });
     subscription.unsubscribe();
-    expect(relayFieldLogger).toHaveBeenCalledWith({
+    expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'me.name',
       kind: 'missing_field.throw',
       owner: 'fetchQueryTest3Query',

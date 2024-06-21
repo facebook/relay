@@ -5,14 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::HashSet;
 use std::sync::Arc;
 
 use common::Diagnostic;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use common::WithDiagnostics;
-use docblock_shared::ResolverSourceHash;
 use futures::future::join_all;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::debug;
@@ -22,19 +20,16 @@ use tokio::sync::Notify;
 use tokio::task;
 use tokio::task::JoinHandle;
 
-use crate::artifact_map::ArtifactSourceKey;
 use crate::build_project::build_project;
 use crate::build_project::commit_project;
 use crate::build_project::BuildProjectFailure;
 use crate::compiler_state::ArtifactMapKind;
 use crate::compiler_state::CompilerState;
-use crate::compiler_state::DocblockSources;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::file_source::FileSource;
 use crate::file_source::FileSourceSubscriptionNextChange;
-use crate::file_source::LocatedDocblockSource;
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::FileSourceResult;
@@ -298,11 +293,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     setup_event: &impl PerfLogEvent,
     compiler_state: &mut CompilerState,
 ) -> Result<Vec<Diagnostic>> {
-    let dirty_artifact_sources = compiler_state.get_dirty_artifact_sources(&config);
     let mut graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
-            &dirty_artifact_sources,
+            &compiler_state.get_dirty_definitions(&config),
         )
     })?;
 
@@ -367,16 +361,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
             .get(&project_name)
             .cloned()
             .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
-        let mut removed_artifact_sources = graphql_asts
+        let removed_definition_names = graphql_asts
             .remove(&project_name)
             .expect("Expect GraphQLAsts to exist.")
             .removed_definition_names;
-
-        let removed_docblock_artifact_sources =
-            get_removed_docblock_artifact_source_keys(compiler_state.docblocks.get(&project_name));
-
-        removed_artifact_sources.extend(removed_docblock_artifact_sources);
-
         let dirty_artifact_paths = compiler_state
             .dirty_artifact_paths
             .get(&project_name)
@@ -397,7 +385,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         programs,
                         artifacts,
                         artifact_map,
-                        removed_artifact_sources,
+                        removed_definition_names,
                         dirty_artifact_paths,
                         source_control_update_status,
                     )
@@ -444,43 +432,4 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     }
 
     Ok(all_diagnostics)
-}
-
-/// Get the list of removed docblock sources.
-fn get_removed_docblock_artifact_source_keys(
-    docblock_sources: Option<&DocblockSources>,
-) -> Vec<ArtifactSourceKey> {
-    let mut removed_docblocks: Vec<ArtifactSourceKey> = vec![];
-
-    if let Some(docblock_sources) = docblock_sources {
-        for (file_name, pending_docblock_sources_for_file) in docblock_sources.pending.iter() {
-            let mut docblocks_in_file = HashSet::new();
-
-            for LocatedDocblockSource {
-                docblock_source, ..
-            } in pending_docblock_sources_for_file
-            {
-                docblocks_in_file.insert(&docblock_source.text_source().text);
-            }
-
-            if let Some(processed) = docblock_sources.processed.get(file_name) {
-                for LocatedDocblockSource {
-                    docblock_source, ..
-                } in processed
-                {
-                    // If new content of the file doesn't contain the docblock, we should remove
-                    // the generated artifacts for this docblock.
-                    if !docblocks_in_file.contains(&docblock_source.text_source().text) {
-                        removed_docblocks.push(ArtifactSourceKey::ResolverHash(
-                            ResolverSourceHash::new(&docblock_source.text_source().text),
-                        ));
-                    }
-                }
-            }
-        }
-
-        removed_docblocks
-    } else {
-        vec![]
-    }
 }

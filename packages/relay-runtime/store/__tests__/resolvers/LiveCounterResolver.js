@@ -12,7 +12,7 @@
 'use strict';
 
 import type {LiveCounterResolver$key} from './__generated__/LiveCounterResolver.graphql';
-import type {LiveState} from 'relay-runtime';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 const {graphql} = require('relay-runtime');

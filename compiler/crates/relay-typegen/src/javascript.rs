@@ -35,7 +35,7 @@ impl Writer for JavaScriptPrinter {
         ""
     }
 
-    fn write_type_assertion(&mut self, _name: &str, _value: &AST) -> FmtResult {
+    fn write_local_type(&mut self, _name: &str, _value: &AST) -> FmtResult {
         Ok(())
     }
 

@@ -29,8 +29,8 @@ export type RelayWeakClientTypeQuery$variables = {
 };
 export type RelayWeakClientTypeQuery$data = {
   readonly my_custom_type: {
-    readonly __instance: CustomClientType | null | undefined;
-  } | null | undefined;
+    readonly __instance: CustomClientType | null;
+  } | null;
 };
 export type RelayWeakClientTypeQuery = {
   response: RelayWeakClientTypeQuery$data;

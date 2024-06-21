@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dcec65915e63dad076b4fb0312113452>>
+ * @generated SignedSource<<acd2f74261230fa7dadf6bcb2efa7bea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime";
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {todos as queryTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodos.js";
 // Type assertion validating that `queryTodosResolverType` resolver is correctly implemented.

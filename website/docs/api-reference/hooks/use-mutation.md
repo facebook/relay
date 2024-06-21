@@ -70,6 +70,11 @@ function LikeButton() {
 
 <FbUseMutationParameter />
 
+
+### Flow Type Parameters
+
+* `TMutation`: Type parameter that should corresponds the Flow type for the mutation query. This type is available to import from the the auto-generated file: `<mutationName>.graphql.js`.
+
 ### Return Value
 
 Tuple containing the following values:

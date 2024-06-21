@@ -34,7 +34,6 @@ export type PayloadError = interface {
     column: number,
     ...
   }>,
-  path?: Array<string | number>,
   // Not officially part of the spec, but used at Facebook
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
 };
@@ -84,15 +83,6 @@ export type GraphQLResponse =
   | $ReadOnlyArray<GraphQLSingularResponse>;
 
 /**
- * A function that pre-process the response at the network layer. This
- * function is invoked right after the network operation and before cache
- * operations.
- */
-export type preprocessResponseFunction = (
-  response: RelayObservable<GraphQLResponse>,
-) => RelayObservable<GraphQLResponse>;
-
-/**
  * A function that returns an Observable representing the response of executing
  * a GraphQL operation.
  */
@@ -102,8 +92,6 @@ export type ExecuteFunction = (
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
   logRequestInfo?: ?LogRequestInfoFunction,
-  encryptedVariables?: ?string,
-  preprocessResponse?: ?preprocessResponseFunction,
 ) => RelayObservable<GraphQLResponse>;
 
 /**
@@ -132,3 +120,45 @@ export type SubscribeFunction = (
 
 export type Uploadable = File | Blob;
 export type UploadableMap = {[key: string]: Uploadable};
+
+/**
+ * React Flight tree created on the server.
+ */
+export type ReactFlightServerTree = mixed;
+export type ReactFlightPayloadQuery = {
+  +id: mixed,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+};
+export type ReactFlightPayloadFragment = {
+  +__id: string,
+  +__typename: string,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+};
+export type ReactFlightServerError = {
+  +message: string,
+  +stack: string,
+  ...
+};
+/**
+ * Data that is returned by a Flight compliant GraphQL server.
+ *
+ * - status: string representing status of the server response.
+ * - tree: React Server Components written into a row protocol that can be later
+ *         read on the client. If this is null, this indicates that no rows were
+ *         were written on the server.
+ * - queries: an array of queries that the server preloaded for the client.
+ * - errors: an array of errors that were encountered while rendering the
+ *           Server Component.
+ * - fragments: an array of fragments that the server preloaded for the client.
+ */
+export type ReactFlightPayloadData = {
+  +status: string,
+  +tree: ?Array<ReactFlightServerTree>,
+  +queries: Array<ReactFlightPayloadQuery>,
+  +errors: Array<ReactFlightServerError>,
+  +fragments: Array<ReactFlightPayloadFragment>,
+};

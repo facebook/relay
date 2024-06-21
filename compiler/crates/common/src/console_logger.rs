@@ -22,9 +22,6 @@ impl PerfLogEvent for ConsoleLogEvent {
     fn number(&self, name: &'static str, number: usize) {
         debug!("{}: {}", name, number);
     }
-    fn bool(&self, name: &'static str, value: bool) {
-        debug!("{}: {}", name, value);
-    }
     fn string(&self, name: &'static str, value: String) {
         debug!("{}: {}", name, value);
     }

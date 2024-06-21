@@ -9,19 +9,7 @@ use thiserror::Error;
 
 use crate::lexer::TokenKind;
 
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Error,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type")]
+#[derive(Clone, Copy, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum SyntaxError {
     #[error("Expected a {0}")]
     Expected(TokenKind),

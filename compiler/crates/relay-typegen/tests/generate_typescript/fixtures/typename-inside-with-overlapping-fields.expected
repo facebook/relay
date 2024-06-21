@@ -21,19 +21,19 @@ export type TypenameInsideWithOverlappingFields$data = {
   readonly actor: {
     readonly __typename: "Page";
     readonly id: string;
-    readonly name: string | null | undefined;
+    readonly name: string | null;
   } | {
     readonly __typename: "User";
     readonly id: string;
-    readonly name: string | null | undefined;
+    readonly name: string | null;
     readonly profile_picture: {
-      readonly uri: string | null | undefined;
-    } | null | undefined;
+      readonly uri: string | null;
+    } | null;
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
-  } | null | undefined;
+  } | null;
   readonly " $fragmentType": "TypenameInsideWithOverlappingFields";
 };
 export type TypenameInsideWithOverlappingFields$key = {

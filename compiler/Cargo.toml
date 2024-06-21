@@ -17,7 +17,6 @@ members = [
     "crates/relay-bin",
     "crates/relay-codegen",
     "crates/relay-compiler",
-    "crates/relay-compiler-playground",
     "crates/relay-lsp",
     "crates/relay-schema",
     "crates/relay-test-schema",

@@ -1,6 +1,0 @@
-query UpdatableQuery @updatable {
-  me {
-    actorCount
-    name
-  }
-}

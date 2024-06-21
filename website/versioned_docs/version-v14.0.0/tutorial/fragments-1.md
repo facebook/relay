@@ -14,7 +14,7 @@ Go to `Newsfeed.tsx` and find `NewsfeedQuery` so that you can add the new field:
 ```
 const NewsfeedQuery = graphql`
   query NewsfeedQuery {
-    topStory {
+    top_story {
       title
       summary
       // change-line
@@ -467,8 +467,6 @@ const PosterBylineFragment = graphql`
 </Tabs>
 
 Now if you look at the images that our app downloads, you’ll see they’re of the smaller size, saving network bandwidth. Note that although we used integer literals for the value of our fragment arguments, we can also use variables supplied at runtime, as we'll see in later sections.
-
-_Note: The development server provided does not do actual image resizing, it will only append the size as integer to returned image URL as query parameter._
 
 Field arguments (e.g. `url(height: 100)`) are a feature of GraphQL itself, while fragment arguments (as in `@argumentDefinitions` and `@arguments`) are Relay-specific features. The Relay compiler processes these fragment arguments when it combines fragments into queries.
 

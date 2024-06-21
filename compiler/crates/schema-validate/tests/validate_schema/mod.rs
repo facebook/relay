@@ -9,7 +9,7 @@ use fixture_tests::Fixture;
 use schema::build_schema;
 use schema_validate_lib::validate;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let schema = build_schema(fixture.content).unwrap();
     Ok(validate(&schema).print_errors())
 }

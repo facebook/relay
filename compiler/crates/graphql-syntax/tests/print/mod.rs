@@ -9,7 +9,7 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_syntax::parse_schema_document;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let type_system_definitions =
         parse_schema_document(fixture.content, SourceLocationKey::generated())
             .expect("Failed to parse definitions")

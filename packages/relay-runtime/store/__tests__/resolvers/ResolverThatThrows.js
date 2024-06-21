@@ -12,7 +12,7 @@
 'use strict';
 
 import type {ResolverThatThrows$key} from './__generated__/ResolverThatThrows.graphql';
-import type {LiveState} from 'relay-runtime';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');

@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
 use relay_transforms::relay_client_component;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let flags = FeatureFlags::default();
     apply_transform_for_test(fixture, |program| relay_client_component(program, &flags))
 }

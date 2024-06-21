@@ -30,14 +30,6 @@ const {
 const GENERATED = './__generated__/';
 
 /**
- * Converts backslashes in a path to forward slashes (POSIX style) for
- * cross-platform compatibility.
- */
-function posixifyPath(path: string): string {
-  return process.platform === 'win32' ? path.replace(/\\/g, '/') : path;
-}
-
-/**
  * Given a graphql`` tagged template literal, replace it with the appropriate
  * runtime artifact.
  */
@@ -115,13 +107,11 @@ function createNode(
     throw new Error('GraphQL operations and fragments must contain names');
   }
   const requiredFile = definitionName + '.graphql';
-  const requiredPath = posixifyPath(
-    options.isHasteMode
-      ? requiredFile
-      : options.artifactDirectory
-      ? getRelativeImportPath(state, options.artifactDirectory, requiredFile)
-      : GENERATED + requiredFile,
-  );
+  const requiredPath = options.isHasteMode
+    ? requiredFile
+    : options.artifactDirectory
+    ? getRelativeImportPath(state, options.artifactDirectory, requiredFile)
+    : GENERATED + requiredFile;
 
   const hash = crypto
     .createHash('md5')
@@ -135,11 +125,11 @@ function createNode(
 
   const id = topScope.generateUidIdentifier(definitionName);
 
-  const expHash = t.MemberExpression(t.cloneNode(id), t.Identifier('hash'));
+  const expHash = t.MemberExpression(id, t.Identifier('hash'));
   const expWarn = warnNeedsRebuild(t, definitionName, options.buildCommand);
   const expWarnIfOutdated = t.LogicalExpression(
     '&&',
-    t.cloneNode(expHash),
+    expHash,
     t.LogicalExpression(
       '&&',
       t.BinaryExpression('!==', expHash, t.StringLiteral(hash)),
@@ -155,41 +145,34 @@ function createNode(
     const program = path.findParent(parent => parent.isProgram());
     program.unshiftContainer('body', importDeclaration);
 
-    const expAssignAndCheck = t.SequenceExpression([
-      expWarnIfOutdated,
-      t.cloneNode(id),
-    ]);
+    const expAssignAndCheck = t.SequenceExpression([expWarnIfOutdated, id]);
 
     let expAssign;
     if (options.isDevVariable != null) {
       expAssign = t.ConditionalExpression(
         t.Identifier(options.isDevVariable),
         expAssignAndCheck,
-        t.cloneNode(id),
+        id,
       );
     } else if (options.isDevelopment) {
       expAssign = expAssignAndCheck;
     } else {
-      expAssign = t.cloneNode(id);
+      expAssign = id;
     }
 
     path.replaceWith(expAssign);
   } else {
-    topScope.push({id: t.cloneNode(id)});
+    topScope.push({id});
 
     const requireGraphQLModule = t.CallExpression(t.Identifier('require'), [
       t.StringLiteral(requiredPath),
     ]);
 
-    const expAssignProd = t.AssignmentExpression(
-      '=',
-      t.cloneNode(id),
-      requireGraphQLModule,
-    );
+    const expAssignProd = t.AssignmentExpression('=', id, requireGraphQLModule);
     const expAssignAndCheck = t.SequenceExpression([
       expAssignProd,
       expWarnIfOutdated,
-      t.cloneNode(id),
+      id,
     ]);
 
     let expAssign;
@@ -208,9 +191,9 @@ function createNode(
     const expVoid0 = t.UnaryExpression('void', t.NumericLiteral(0));
     path.replaceWith(
       t.ConditionalExpression(
-        t.BinaryExpression('!==', t.cloneNode(id), expVoid0),
-        t.cloneNode(id),
-        t.cloneNode(expAssign),
+        t.BinaryExpression('!==', id, expVoid0),
+        id,
+        expAssign,
       ),
     );
   }

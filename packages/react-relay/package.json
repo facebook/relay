@@ -1,7 +1,7 @@
 {
   "name": "react-relay",
   "description": "A framework for building GraphQL-driven React applications.",
-  "version": "16.2.0",
+  "version": "15.0.0",
   "keywords": [
     "graphql",
     "relay",
@@ -20,7 +20,7 @@
     "fbjs": "^3.0.2",
     "invariant": "^2.2.4",
     "nullthrows": "^1.1.1",
-    "relay-runtime": "16.2.0"
+    "relay-runtime": "15.0.0"
   },
   "peerDependencies": {
     "react": "^16.9.0 || ^17 || ^18"

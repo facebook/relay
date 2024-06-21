@@ -10,9 +10,9 @@ fragment FeedbackFragment on Feedback {
   actors
     @stream(
       if: true
-      initialCount: 1
+      initial_count: 1
       label: "StreamedActorsLabel"
-      useCustomizedBatch: $useCustomizedBatch
+      use_customized_batch: $useCustomizedBatch
     ) {
     name
   }

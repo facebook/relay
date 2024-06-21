@@ -20,7 +20,6 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinitionName;
-use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::Variable;
@@ -33,16 +32,10 @@ use super::validation_message::ValidationMessage;
 use crate::root_variables::VariableMap;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct RefetchableIdentifierInfo {
-    pub identifier_field: StringKey,
-    pub identifier_query_variable_name: StringKey,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RefetchableMetadata {
     pub operation_name: OperationDefinitionName,
     pub path: Vec<StringKey>,
-    pub identifier_info: Option<RefetchableIdentifierInfo>,
+    pub identifier_field: Option<StringKey>,
 }
 associated_data_impl!(RefetchableMetadata);
 
@@ -73,7 +66,6 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
         arguments: fragment
             .variable_definitions
             .iter()
-            .filter(|def| ProvidedVariableMetadata::find(&def.directives).is_none())
             .map(|var| Argument {
                 name: var.name.map(|x| ArgumentName(x.0)),
                 value: WithLocation::new(

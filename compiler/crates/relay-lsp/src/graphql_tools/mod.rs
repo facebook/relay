@@ -27,7 +27,6 @@ use intern::string_key::StringKey;
 use lsp_types::request::Request;
 use lsp_types::Url;
 use relay_compiler::config::ProjectConfig;
-use relay_compiler::ProjectName;
 use relay_transforms::apply_transforms;
 use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
@@ -179,7 +178,6 @@ fn build_operation_ir_with_fragments(
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(graphql_ir::RelayMode),
             default_anonymous_operation_name: Some("anonymous".intern()),
-            allow_custom_scalar_literals: true, // for compatibility
         },
     )
     .map_err(|errors| format!("{:?}", errors))?;
@@ -214,14 +212,14 @@ pub(crate) fn get_query_text<
 >(
     state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     original_text: String,
-    project_name: ProjectName,
+    project_name: &StringKey,
 ) -> LSPRuntimeResult<String> {
-    let schema = state.get_schema(&project_name.into())?;
+    let schema = state.get_schema(project_name)?;
 
     let project_config = state
         .config
         .enabled_projects()
-        .find(|project_config| project_config.name == project_name)
+        .find(|project_config| &project_config.name == project_name)
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!(
                 "Unable to get project config for project {}.",
@@ -246,7 +244,7 @@ pub(crate) fn get_query_text<
             .map_err(LSPRuntimeError::UnexpectedError)?;
 
     let operation_name = operation.name.item.0;
-    let program = state.get_program(&project_name.into())?;
+    let program = state.get_program(project_name)?;
 
     let query_text =
         if let Some(program) = get_operation_only_program(operation, fragments, &program) {

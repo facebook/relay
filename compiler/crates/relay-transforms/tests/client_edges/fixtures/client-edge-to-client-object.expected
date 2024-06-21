@@ -31,15 +31,12 @@ fragment Foo_user on User {
   #             "ClientOnlyType",
   #         ),
   #     ),
-  #     location: <generated>:7:21,
-  #     has_model_instance_field: false,
-  #     is_model_live: false,
   #     unique_id: 0,
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(519),
+    #     field_id: FieldID(518),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,

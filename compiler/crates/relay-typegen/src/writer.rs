@@ -357,7 +357,7 @@ pub trait Writer: Write {
 
     fn write(&mut self, ast: &AST) -> FmtResult;
 
-    fn write_type_assertion(&mut self, name: &str, ast: &AST) -> FmtResult;
+    fn write_local_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 
     fn write_export_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 

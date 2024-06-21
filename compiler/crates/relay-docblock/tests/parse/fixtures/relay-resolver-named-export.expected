@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
  * @RelayResolver
  *
@@ -27,8 +25,8 @@ graphql`
   }
 `
 ==================================== OUTPUT ===================================
-LegacyVerboseResolver(
-    LegacyVerboseResolverIr {
+RelayResolver(
+    RelayResolverIr {
         field: FieldDefinitionStub {
             name: Identifier {
                 span: 53:66,
@@ -64,13 +62,9 @@ LegacyVerboseResolver(
                 item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
             },
         ),
-        hack_source: None,
         deprecated: None,
         live: None,
         location: /path/to/test/fixture/relay-resolver-named-export.js:0:393,
         fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "0a13488b7b321b8d7770f691a668ba44",
-        ),
     },
 )

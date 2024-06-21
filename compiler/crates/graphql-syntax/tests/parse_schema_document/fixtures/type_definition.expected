@@ -76,7 +76,6 @@ SchemaDocument {
                                 arguments: None,
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -212,7 +211,6 @@ SchemaDocument {
                                 arguments: None,
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -285,7 +283,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {

@@ -11,11 +11,7 @@
 
 'use strict';
 
-import type {
-  ReaderFragment,
-  ReaderRefetchMetadata,
-  RefetchableIdentifierInfo,
-} from './ReaderNode';
+import type {ReaderFragment, ReaderRefetchMetadata} from './ReaderNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
 const invariant = require('invariant');
@@ -25,7 +21,7 @@ function getRefetchMetadata(
   componentDisplayName: string,
 ): {
   fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
-  identifierInfo: ?RefetchableIdentifierInfo,
+  identifierField: ?string,
   refetchableRequest: ConcreteRequest,
   refetchMetadata: ReaderRefetchMetadata,
 } {
@@ -62,22 +58,14 @@ function getRefetchMetadata(
       'this is likely a bug in Relay.',
     componentDisplayName,
   );
-  const identifierInfo = refetchMetadata.identifierInfo;
-  if (identifierInfo != null) {
-    invariant(
-      identifierInfo.identifierField == null ||
-        typeof identifierInfo.identifierField === 'string',
-      'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
-    );
-    invariant(
-      identifierInfo.identifierQueryVariableName == null ||
-        typeof identifierInfo.identifierQueryVariableName === 'string',
-      'Relay: getRefetchMetadata(): Expected `identifierQueryVariableName` to be a string.',
-    );
-  }
+  const identifierField = refetchMetadata.identifierField;
+  invariant(
+    identifierField == null || typeof identifierField === 'string',
+    'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
+  );
   return {
     fragmentRefPathInResponse,
-    identifierInfo,
+    identifierField,
     refetchableRequest,
     refetchMetadata,
   };

@@ -1,0 +1,14 @@
+query queryWithRelayClientComponentQuery @raw_response_type{
+  viewer {
+    ...queryWithRelayClientComponent_f1 @relay_client_component
+    ...queryWithRelayClientComponent_f2 @relay_client_component
+  }
+}
+
+fragment queryWithRelayClientComponent_f1 on Viewer {
+  __typename
+}
+
+fragment queryWithRelayClientComponent_f2 on Viewer {
+  __typename
+}

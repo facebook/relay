@@ -19,7 +19,7 @@ use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
 use relay_test_schema::TEST_SCHEMA;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let features = ParserFeatures {
         fragment_argument_capability:
@@ -34,7 +34,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
         relay_mode: Some(RelayMode),
         default_anonymous_operation_name: None,
-        allow_custom_scalar_literals: true, // for compatibility
     };
 
     build_ir_with_extra_features(&TEST_SCHEMA, &ast.definitions, &builder_options)

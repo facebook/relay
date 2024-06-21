@@ -21,7 +21,7 @@ use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
 use relay_transforms::fragment_alias_directive;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let base = fixture.content;
     let schema = get_test_schema();
 

@@ -64,6 +64,11 @@ const queryReference = loadQuery(
 * `environmentProviderOptions`: *[Optional]* options object
     * Options passed to an `environmentProvider` used in `prepareSurfaceEntryPoint.js`.
 
+### Flow Type Parameters
+
+* `TQuery`: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: `<query_name>.graphql.js`.
+* `TEnvironmentProviderOptions`: The type of the `environmentProviderOptions` parameter.
+
 ### Return Value
 
 A query reference with the following properties:

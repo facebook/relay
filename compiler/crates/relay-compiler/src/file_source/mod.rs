@@ -35,7 +35,7 @@ pub use source_control_update_status::SourceControlUpdateStatus;
 pub use watchman_client::prelude::Clock;
 use watchman_file_source::WatchmanFileSource;
 
-pub use self::external_file_source::ExternalFileSourceResult;
+use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::extract_javascript_features_from_file;
 pub use self::extract_graphql::source_for_location;
 pub use self::extract_graphql::FsSourceReader;

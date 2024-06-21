@@ -12,7 +12,7 @@
 'use strict';
 
 import type {LivePingPongResolver$key} from './__generated__/LivePingPongResolver.graphql';
-import type {LiveState} from 'relay-runtime';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');

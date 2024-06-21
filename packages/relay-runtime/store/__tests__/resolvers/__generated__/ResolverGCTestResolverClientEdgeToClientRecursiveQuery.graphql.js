@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5913ee23d3b454b8b62030303cd8ffbd>>
+ * @generated SignedSource<<3983ea2457c99cb128c5e472f2360785>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => ?mixed);
+) => mixed);
 import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -48,9 +48,9 @@ export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {|
   +me: ?{|
     +astrological_sign: ?{|
-      +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
       +opposite: ?{|
-        +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+        +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
       |},
     |},
   |},
@@ -63,9 +63,17 @@ export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery = {|
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
+  "alias": null,
   "args": null,
-  "kind": "FragmentSpread",
-  "name": "AstrologicalSignNameResolver"
+  "fragment": {
+    "args": null,
+    "kind": "FragmentSpread",
+    "name": "AstrologicalSignNameResolver"
+  },
+  "kind": "RelayResolver",
+  "name": "name",
+  "resolverModule": require('./../AstrologicalSignNameResolver').name,
+  "path": "me.name"
 },
 v1 = {
   "alias": null,
@@ -145,15 +153,7 @@ return {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "fragment": (v0/*: any*/),
-                  "kind": "RelayResolver",
-                  "name": "name",
-                  "resolverModule": require('./../AstrologicalSignNameResolver').name,
-                  "path": "me.astrological_sign.name"
-                },
+                (v0/*: any*/),
                 {
                   "kind": "ClientEdgeToClientObject",
                   "concreteType": "AstrologicalSign",
@@ -168,7 +168,7 @@ return {
                     "kind": "RelayResolver",
                     "name": "opposite",
                     "resolverModule": require('./../AstrologicalSignOppositeResolver').opposite,
-                    "path": "me.astrological_sign.opposite"
+                    "path": "me.opposite"
                   },
                   "linkedField": {
                     "alias": null,
@@ -178,15 +178,7 @@ return {
                     "name": "opposite",
                     "plural": false,
                     "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "fragment": (v0/*: any*/),
-                        "kind": "RelayResolver",
-                        "name": "name",
-                        "resolverModule": require('./../AstrologicalSignNameResolver').name,
-                        "path": "me.astrological_sign.opposite.name"
-                      }
+                      (v0/*: any*/)
                     ],
                     "storageKey": null
                   }

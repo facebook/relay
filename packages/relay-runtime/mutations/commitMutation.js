@@ -18,12 +18,7 @@ import type {
   MutationParameters,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {
-  CacheConfig,
-  Disposable,
-  Mutation,
-  Variables,
-} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
 const {getRequest} = require('../query/GraphQLTag');
@@ -59,28 +54,13 @@ export type MutationConfig<TMutation: MutationParameters> = {
   variables: TMutation['variables'],
 };
 
-export type CommitMutationConfig<TVariables, TData, TRawResponse> = {
-  cacheConfig?: CacheConfig,
-  configs?: Array<DeclarativeMutationConfig>,
-  mutation: Mutation<TVariables, TData, TRawResponse>,
-  onCompleted?: ?(response: TData, errors: ?Array<PayloadError>) => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?() => void,
-  onUnsubscribe?: ?() => void,
-  optimisticResponse?: TRawResponse,
-  optimisticUpdater?: ?SelectorStoreUpdater<TData>,
-  updater?: ?SelectorStoreUpdater<TData>,
-  uploadables?: UploadableMap,
-  variables: TVariables,
-};
-
 /**
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
+function commitMutation<TMutation: MutationParameters>(
   environment: IEnvironment,
-  config: CommitMutationConfig<TVariables, TData, TRawResponse>,
+  config: MutationConfig<TMutation>,
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),
@@ -105,8 +85,6 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
   );
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
-    /* $FlowFixMe[incompatible-use] error exposed when improving flow typing of
-     * commitMutation */
     optimisticResponse = optimisticResponse();
     warning(
       false,
@@ -120,21 +98,16 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
     }
   }
   if (configs) {
-    ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert<{
-      variables: TVariables,
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
-       * of commitMutation */
-      response: TData,
-    }>(configs, mutation, optimisticUpdater, updater));
+    ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert(
+      configs,
+      mutation,
+      optimisticUpdater,
+      updater,
+    ));
   }
   const errors: Array<PayloadError> = [];
   const subscription = environment
-    .executeMutation<{
-      variables: TVariables,
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
-       * of commitMutation */
-      response: TData,
-    }>({
+    .executeMutation({
       operation,
       optimisticResponse,
       optimisticUpdater,

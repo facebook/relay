@@ -15,6 +15,6 @@ fn transform(program: &Program) -> DiagnosticsResult<Program> {
     transform_assignable_fragment_spreads_in_regular_queries(program)
 }
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, transform)
 }

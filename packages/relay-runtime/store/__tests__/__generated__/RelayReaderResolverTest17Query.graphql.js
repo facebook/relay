@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<336a536903db1558ab8ce3afb2dc1991>>
+ * @generated SignedSource<<cfbf1036eaf66622a640494bf399fadf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,11 +27,11 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
   args: {|
     scale: ?number,
   |},
-) => ?mixed);
+) => mixed);
 export type RelayReaderResolverTest17Query$variables = {||};
 export type RelayReaderResolverTest17Query$data = {|
   +me: ?{|
-    +user_profile_picture_uri_with_scale_and_default_value: ?ReturnType<typeof userUserProfilePictureUriWithScaleAndDefaultValueResolverType>,
+    +user_profile_picture_uri_with_scale_and_default_value: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleAndDefaultValueResolverType>,
   |},
 |};
 export type RelayReaderResolverTest17Query = {|
@@ -57,7 +57,7 @@ var node/*: ConcreteRequest*/ = {
         "selections": [
           {
             "alias": null,
-            "args": [],
+            "args": null,
             "fragment": {
               "args": null,
               "kind": "FragmentSpread",

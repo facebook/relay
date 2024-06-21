@@ -69,7 +69,7 @@ fragment TestFragment on User
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(70),
+            type_condition: Object(69),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -87,7 +87,7 @@ fragment TestFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: argument_definitions.graphql:161:171,
-                        item: FieldID(518),
+                        item: FieldID(517),
                     },
                     arguments: [],
                     directives: [],

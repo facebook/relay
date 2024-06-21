@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
  * @RelayResolver
  *
@@ -24,8 +22,8 @@ graphql`
   }
 `
 ==================================== OUTPUT ===================================
-LegacyVerboseResolver(
-    LegacyVerboseResolverIr {
+RelayResolver(
+    RelayResolverIr {
         field: FieldDefinitionStub {
             name: Identifier {
                 span: 53:66,
@@ -74,7 +72,6 @@ LegacyVerboseResolver(
             ),
         ),
         description: None,
-        hack_source: None,
         deprecated: Some(
             UnpopulatedIrField(
                 UnpopulatedIrField {
@@ -85,8 +82,5 @@ LegacyVerboseResolver(
         live: None,
         location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
         fragment_arguments: None,
-        source_hash: ResolverSourceHash(
-            "eb46fd9d0828f318bc5613bca9e67e42",
-        ),
     },
 )

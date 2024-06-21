@@ -26,13 +26,8 @@ struct Options {
     /// from which a test file will be generated
     #[clap(name = "DIR")]
     dirs: Vec<PathBuf>,
-
-    #[clap(long)]
-    customized_header: Option<String>,
-
-    #[clap(long)]
-    customized_snapshot_fixer: Option<String>,
 }
+
 #[derive(Debug)]
 struct TestCase {
     name: String,
@@ -57,7 +52,7 @@ fn main() {
                 continue;
             }
             let name = sanitize_identifier(path.file_stem().unwrap().to_str().unwrap());
-            let test_case = test_cases.entry(name.clone()).or_insert_with(|| TestCase {
+            let mut test_case = test_cases.entry(name.clone()).or_insert_with(|| TestCase {
                 name,
                 input: None,
                 expected: None,
@@ -74,18 +69,18 @@ fn main() {
                 test_case.input = Some(path);
             }
         }
-        for test_case in test_cases.values_mut() {
+        for mut test_case in test_cases.values_mut() {
             if test_case.expected.is_none() {
                 if let Some(ref input) = test_case.input {
                     let mut expected = input.clone();
                     expected.set_extension(EXPECTED_EXTENSION);
-                    let fixer = match &opt.customized_snapshot_fixer {
-                        Some(customized) => customized.as_str().as_bytes(),
-                        None => {
-                            "\x40nocommit\nRun snapshot tests with UPDATE_SNAPSHOTS=1 to update this new file.\n".as_bytes()
-                        }
-                    };
-                    File::create(&expected).unwrap().write_all(fixer).unwrap();
+                    File::create(&expected)
+                        .unwrap()
+                        .write_all(
+                            "\x40nocommit\nRun snapshot tests with UPDATE_SNAPSHOTS=1 to update this new file.\n"
+                            .as_bytes(),
+                        )
+                        .unwrap();
                     test_case.expected = Some(expected);
                 }
             }
@@ -98,11 +93,11 @@ fn main() {
             .map(|(_, test_case)| {
                 let test_case_name = &test_case.name;
                 format!(
-                    r#"#[tokio::test]
-async fn {0}() {{
+                    r#"#[test]
+fn {0}() {{
     let input = include_str!("{1}/fixtures/{2}");
     let expected = include_str!("{1}/fixtures/{3}");
-    test_fixture(transform_fixture, file!(), "{2}", "{1}/fixtures/{3}", input, expected).await;
+    test_fixture(transform_fixture, "{2}", "{1}/fixtures/{3}", input, expected);
 }}"#,
                     test_case.name,
                     &test_name,
@@ -154,12 +149,6 @@ async fn {0}() {{
  */
 ",
                 signing_token = SIGNING_TOKEN,
-            )
-        } else if let Some(customized_header) = &opt.customized_header {
-            format!(
-                "// {signing_token}\n// {customized_header}\n",
-                signing_token = SIGNING_TOKEN,
-                customized_header = customized_header
             )
         } else {
             format!(

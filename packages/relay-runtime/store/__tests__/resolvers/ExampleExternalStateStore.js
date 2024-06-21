@@ -44,9 +44,6 @@ class Store {
     this._state = 0;
     this._subscriptions = [];
   }
-  getSubscriptionsCount(): number {
-    return this._subscriptions.length;
-  }
 }
 
 const Selectors = {

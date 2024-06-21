@@ -9,7 +9,7 @@ use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
 use relay_transforms::provided_variable_fragment_transform;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
         provided_variable_fragment_transform(program)
     })

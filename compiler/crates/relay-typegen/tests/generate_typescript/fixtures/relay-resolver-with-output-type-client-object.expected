@@ -27,9 +27,9 @@ extend type User {
   pop_star_name: ClientUser @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
-export type User__pop_star_name$normalization$variables = Record<PropertyKey, never>;
+export type User__pop_star_name$normalization$variables = {};
 export type User__pop_star_name$normalization$data = {
-  readonly name: string | null | undefined;
+  readonly name: string | null;
 };
 export type User__pop_star_name$normalization = {
   response: User__pop_star_name$normalization$data;
@@ -37,11 +37,10 @@ export type User__pop_star_name$normalization = {
 };
 -------------------------------------------------------------------------------
 import type { FragmentRefs } from "relay-runtime";
-import userPopStarNameResolverType from "PopStarNameResolver";
 export type Foo_user$data = {
   readonly poppy: {
-    readonly name: string | null | undefined;
-  } | null | undefined;
+    readonly name: string | null;
+  } | null;
   readonly " $fragmentType": "Foo_user";
 };
 export type Foo_user$key = {
@@ -52,11 +51,11 @@ export type Foo_user$key = {
 import type { FragmentRefs } from "relay-runtime";
 export type PopStarNameResolverFragment_name$data = {
   readonly address: {
-    readonly street: string | null | undefined;
-  } | null | undefined;
-  readonly name: string | null | undefined;
+    readonly street: string | null;
+  } | null;
+  readonly name: string | null;
   readonly parents: ReadonlyArray<{
-    readonly lastName: string | null | undefined;
+    readonly lastName: string | null;
   }>;
   readonly " $fragmentType": "PopStarNameResolverFragment_name";
 };

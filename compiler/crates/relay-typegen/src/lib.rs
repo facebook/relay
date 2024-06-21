@@ -44,8 +44,11 @@ static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
 static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
+pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariablesType";
 static VALIDATOR_EXPORT_NAME: &str = "validate";
 static LIVE_RESOLVERS_LIVE_STATE: &str = "LiveState";
+static LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH: &str =
+    "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 
 lazy_static! {
     static ref KEY_CLIENTID: StringKey = "__id".intern();
@@ -108,42 +111,11 @@ pub(crate) enum MaskStatus {
     Masked,
 }
 
-pub fn generate_fragment_type_exports_section_from_extra_artifact(
-    fragment_definition: &FragmentDefinition,
-    schema: &SDLSchema,
-    project_config: &ProjectConfig,
-    fragment_locations: &FragmentLocations,
-) -> String {
-    generate_fragment_type_exports_section_impl(
-        fragment_definition,
-        schema,
-        project_config,
-        fragment_locations,
-        true,
-    )
-}
-
 pub fn generate_fragment_type_exports_section(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
     fragment_locations: &FragmentLocations,
-) -> String {
-    generate_fragment_type_exports_section_impl(
-        fragment_definition,
-        schema,
-        project_config,
-        fragment_locations,
-        false,
-    )
-}
-
-fn generate_fragment_type_exports_section_impl(
-    fragment_definition: &FragmentDefinition,
-    schema: &SDLSchema,
-    project_config: &ProjectConfig,
-    fragment_locations: &FragmentLocations,
-    is_extra_artifact_branch_module: bool,
 ) -> String {
     let typegen_context = TypegenContext::new(
         schema,
@@ -154,10 +126,7 @@ fn generate_fragment_type_exports_section_impl(
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
-        TypegenOptions {
-            no_optional_fields_in_raw_response_type: false,
-            is_extra_artifact_branch_module,
-        },
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_fragment_type_exports_section(&typegen_context, fragment_definition, &mut writer)
@@ -180,10 +149,7 @@ pub fn generate_named_validator_export(
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
-        TypegenOptions {
-            no_optional_fields_in_raw_response_type: false,
-            is_extra_artifact_branch_module: false,
-        },
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
@@ -205,7 +171,6 @@ pub fn generate_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
     fragment_locations: &FragmentLocations,
-    maybe_provided_variables: Option<String>,
 ) -> String {
     let typegen_context = TypegenContext::new(
         schema,
@@ -219,10 +184,7 @@ pub fn generate_operation_type_exports_section(
             typegen_operation.name.item.0,
         ),
         fragment_locations,
-        TypegenOptions {
-            no_optional_fields_in_raw_response_type: false,
-            is_extra_artifact_branch_module: false,
-        },
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_operation_type_exports_section(
@@ -230,7 +192,6 @@ pub fn generate_operation_type_exports_section(
         typegen_operation,
         normalization_operation,
         &mut writer,
-        maybe_provided_variables,
     )
     .unwrap();
     writer.into_string()
@@ -256,10 +217,7 @@ pub fn generate_split_operation_type_exports_section(
             typegen_operation.name.item.0,
         ),
         fragment_locations,
-        TypegenOptions {
-            no_optional_fields_in_raw_response_type,
-            is_extra_artifact_branch_module: false,
-        },
+        no_optional_fields_in_raw_response_type,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
 
@@ -282,7 +240,8 @@ struct TypegenContext<'a> {
     has_unified_output: bool,
     generating_updatable_types: bool,
     definition_source_location: WithLocation<StringKey>,
-    typegen_options: TypegenOptions,
+    // All keys in raw response should be required
+    no_optional_fields_in_raw_response_type: bool,
 }
 
 impl<'a> TypegenContext<'a> {
@@ -292,7 +251,7 @@ impl<'a> TypegenContext<'a> {
         generating_updatable_types: bool,
         definition_source_location: WithLocation<StringKey>,
         fragment_locations: &'a FragmentLocations,
-        typegen_options: TypegenOptions,
+        no_optional_fields_in_raw_response_type: bool,
     ) -> Self {
         Self {
             schema,
@@ -301,14 +260,7 @@ impl<'a> TypegenContext<'a> {
             has_unified_output: project_config.output.is_some(),
             generating_updatable_types,
             definition_source_location,
-            typegen_options,
+            no_optional_fields_in_raw_response_type,
         }
     }
-}
-
-struct TypegenOptions {
-    // All keys in raw response should be required
-    no_optional_fields_in_raw_response_type: bool,
-    // Some extra artifacts require special type generation
-    is_extra_artifact_branch_module: bool,
 }

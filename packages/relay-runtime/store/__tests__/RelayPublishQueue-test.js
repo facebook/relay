@@ -10,16 +10,10 @@
 
 'use strict';
 
-import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
-import type {NormalizationOptions} from './RelayResponseNormalizer';
-import type {
-  NormalizationSelector,
-  RelayResponsePayload,
-} from './RelayStoreTypes';
-
 const {graphql} = require('../../query/GraphQLTag');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const defaultGetDataID = require('../defaultGetDataID');
+const normalizeRelayPayload = require('../normalizeRelayPayload');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -27,7 +21,6 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayRecordSource = require('../RelayRecordSource');
-const RelayResponseNormalizer = require('../RelayResponseNormalizer');
 const {
   ID_KEY,
   REF_KEY,
@@ -862,6 +855,7 @@ describe('RelayPublishQueue', () => {
             __id: '4',
             __fragments: {RelayPublishQueueTest1Fragment: {}},
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
             name: 'Zuck',
           },
           nodes: [{name: 'Zuck'}],
@@ -1973,26 +1967,3 @@ describe('RelayPublishQueue', () => {
     });
   });
 });
-
-function normalizeRelayPayload(
-  selector: NormalizationSelector,
-  payload: PayloadData,
-  errors: ?Array<PayloadError>,
-  options: NormalizationOptions,
-): RelayResponsePayload {
-  const source = RelayRecordSource.create();
-  source.set(
-    selector.dataID,
-    RelayModernRecord.create(selector.dataID, ROOT_TYPE),
-  );
-  const relayPayload = RelayResponseNormalizer.normalize(
-    source,
-    selector,
-    payload,
-    options,
-  );
-  return {
-    ...relayPayload,
-    errors,
-  };
-}

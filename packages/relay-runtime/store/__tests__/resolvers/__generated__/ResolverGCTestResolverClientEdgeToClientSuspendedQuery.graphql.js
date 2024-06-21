@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<21b45e76745acfe45bde6dab1f73d6bf>>
+ * @generated SignedSource<<5adf3b6239e3a00c98a2127e00a4ec6a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,15 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState, DataID } from "relay-runtime";
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => ?mixed);
+) => mixed);
 import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOddResolverType} from "../QueryVirgoLiveSuspendsWhenOddResolver.js";
 // Type assertion validating that `queryVirgoSuspendsWhenCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -38,7 +39,7 @@ export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {|
     +__typename: "User",
   |},
   +virgo_suspends_when_counter_is_odd: ?{|
-    +name: ?ReturnType<typeof astrologicalSignNameResolverType>,
+    +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
   |},
 |};
 export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery = {|
@@ -102,7 +103,7 @@ return {
               "kind": "RelayResolver",
               "name": "name",
               "resolverModule": require('./../AstrologicalSignNameResolver').name,
-              "path": "virgo_suspends_when_counter_is_odd.name"
+              "path": "name"
             }
           ],
           "storageKey": null

@@ -10,7 +10,7 @@ import UploadableMap from './UploadableMap.md';
   * `onError`: *_[Optional]_* `(Error) => void`. An optional callback executed if the mutation results in an error.
   * `onCompleted`: *_[Optional]_* `($ElementType<TMutationConfig, 'response'>) => void`. An optional callback that is executed when the mutation completes.
     * The value passed to `onCompleted` is the the mutation fragment, as read out from the store, **after** updaters and declarative mutation directives are applied. This means that data from within unmasked fragments will not be read, and records that were deleted (e.g. by `@deleteRecord`) may also be null.
-  * `onUnsubscribe`: *_[Optional]_* `() => void`. An optional callback that is executed when the mutation is unsubscribed, which occurs when the returned `Disposable` is disposed.
+  * `onUnsubscribe`: *_[Optional]_* `() => void`. An optional callback that is executed when the mutation the mutation is unsubscribed, which occurs when the returned `Disposable` is disposed.
   * `optimisticResponse`: *_[Optional]_* An object whose type matches the raw response type of the mutation. Make sure you decorate your mutation with `@raw_response_type` if you are using this field.
   * `optimisticUpdater`: *_[Optional]_* [`SelectorStoreUpdater`](#type-selectorstoreupdater). A callback that is executed when `commitMutation` is called, after the `optimisticResponse` has been normalized into the store.
   * `updater`: *_[Optional]_* [`SelectorStoreUpdater`](#type-selectorstoreupdater). A callback that is executed when a payload is received, after the payload has been written into the store.

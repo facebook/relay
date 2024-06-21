@@ -105,7 +105,7 @@ pub fn extract_project_name_from_url(
             file_path
         )));
     };
-    Ok(project_name.into())
+    Ok(project_name)
 }
 
 /// Return a parsed executable document, or parsed Docblock IR for this LSP
@@ -171,19 +171,12 @@ pub fn extract_feature_from_text(
             let docblock_ir = parse_docblock(text, source_location_key)
                 .and_then(|ast| {
                     parse_docblock_ast(
-                        project_config.name,
                         &ast,
                         Some(&executable_definitions_in_file),
                         ParseOptions {
                             enable_output_type: &project_config
                                 .feature_flags
                                 .relay_resolver_enable_output_type,
-                            enable_strict_resolver_flavors: &project_config
-                                .feature_flags
-                                .relay_resolvers_enable_strict_resolver_flavors,
-                            allow_legacy_verbose_syntax: &project_config
-                                .feature_flags
-                                .relay_resolvers_allow_legacy_verbose_syntax,
                         },
                     )
                 })

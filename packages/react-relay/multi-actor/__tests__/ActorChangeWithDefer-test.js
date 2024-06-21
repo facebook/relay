@@ -152,7 +152,7 @@ describe('ActorChange with @defer', () => {
       createNetworkForActor: actorIdentifier =>
         Network.create((...args) => fetchFnForActor(...args)),
       logFn: jest.fn(),
-      relayFieldLogger: jest.fn(),
+      requiredFieldLogger: jest.fn(),
     });
     environment = multiActorEnvironment.forActor(
       getActorIdentifier('actor:1234'),

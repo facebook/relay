@@ -1,0 +1,10 @@
+query QueryWithRelayClientComponent {
+  me {
+    ...ClientFragment @relay_client_component
+  }
+}
+
+fragment ClientFragment on User {
+  id
+  name
+}

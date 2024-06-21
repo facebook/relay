@@ -124,7 +124,6 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
-            hack_source: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || -> Field {
             Field {
@@ -137,7 +136,6 @@ impl SchemaWrapper {
                 directives: Vec::new(),
                 parent_type: None,
                 description: Some(*CLIENT_ID_DESCRIPTION),
-                hack_source: None,
             }
         });
         result.fields.get(STRONGID_FIELD_ID, || Field {
@@ -148,7 +146,6 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: Some(*TYPENAME_DESCRIPTION),
-            hack_source: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
             name: WithLocation::generated(result.fetch_token_field_name),
@@ -160,7 +157,6 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
-            hack_source: None,
         });
         result.fields.get(IS_FULFILLED_FIELD_ID, || Field {
             name: WithLocation::generated(result.is_fulfilled_field_name),
@@ -180,7 +176,6 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
-            hack_source: None,
         });
 
         result.unchecked_argument_type_sentinel = Some(TypeReference::Named(
@@ -313,7 +308,7 @@ impl Schema for SchemaWrapper {
             Type::Interface(id) => self.interface(id).name.item.0,
             Type::Object(id) => self.object(id).name.item.0,
             Type::Scalar(id) => self.scalar(id).name.item.0,
-            Type::Union(id) => self.union(id).name.item.0,
+            Type::Union(id) => self.union(id).name.item,
         }
     }
 

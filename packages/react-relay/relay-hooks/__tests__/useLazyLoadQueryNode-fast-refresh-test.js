@@ -10,7 +10,6 @@
  */
 
 'use strict';
-
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {
   OperationDescriptor,

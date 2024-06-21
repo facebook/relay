@@ -16,28 +16,29 @@ use std::vec;
 use async_trait::async_trait;
 use common::FeatureFlags;
 use common::Rollout;
+use common::ScalarName;
 use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use indexmap::IndexMap;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
 use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
+use relay_config::CustomScalarType;
 use relay_config::DiagnosticReportConfig;
-pub use relay_config::ExtraArtifactsConfig;
+use relay_config::FlowTypegenConfig;
 use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
 use relay_config::ModuleImportConfig;
 pub use relay_config::PersistConfig;
 pub use relay_config::ProjectConfig;
-use relay_config::ProjectName;
 pub use relay_config::RemotePersistConfig;
-use relay_config::ResolversSchemaModuleConfig;
 use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
@@ -55,9 +56,8 @@ use watchman_client::pdu::ScmAwareClockData;
 use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 use crate::build_project::AdditionalValidations;
-use crate::compiler_state::CompilerState;
+use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
@@ -76,9 +76,6 @@ type PostArtifactsWriter = Box<
 
 type OperationPersisterCreator =
     Box<dyn Fn(&ProjectConfig) -> Option<Box<dyn OperationPersister + Send + Sync>> + Send + Sync>;
-
-type UpdateCompilerStateFromSavedState =
-    Option<Box<dyn Fn(&mut CompilerState, &Config) + Send + Sync>>;
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
@@ -111,8 +108,6 @@ pub struct Config {
 
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
-    // Function to get the file hash for an artifact file.
-    pub get_artifacts_file_hash_map: Option<GetArtifactsFileHashMapFn>,
 
     /// Compile all files. Persist ids are still re-used unless
     /// `Config::repersist_operations` is also set.
@@ -148,16 +143,12 @@ pub struct Config {
     /// and after each major transformation step (common, operations, etc)
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
-    pub custom_override_schema_determinator:
-        Option<Box<dyn Fn(&OperationDefinition) -> Option<String> + Send + Sync>>,
+
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
 
     /// The async function is called before the compiler connects to the file
     /// source.
     pub initialize_resources: Option<Box<dyn Fn() + Send + Sync>>,
-
-    /// Runs in `try_saved_state` when the compiler state is initialized from saved state.
-    pub update_compiler_state_from_saved_state: UpdateCompilerStateFromSavedState,
 }
 
 pub enum FileSourceKind {
@@ -355,8 +346,6 @@ Example file:
                     base: config_file_project.base,
                     enabled: true,
                     schema_extensions: config_file_project.schema_extensions,
-                    extra_artifacts_config: None,
-                    extra: config_file_project.extra,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
@@ -366,18 +355,19 @@ Example file:
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
+                    extra: config_file_project.extra,
                     test_path_regex,
                     feature_flags: Arc::new(
                         config_file_project
                             .feature_flags
                             .unwrap_or_else(|| config_file_feature_flags.clone()),
                     ),
+                    filename_for_artifact: None,
+                    skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
                     module_import_config: config_file_project.module_import_config,
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
-                    resolvers_schema_module: config_file_project.resolvers_schema_module,
-                    codegen_command: config_file_project.codegen_command,
                 };
                 Ok((project_name, project_config))
             })
@@ -407,7 +397,6 @@ Example file:
             load_saved_state_file: None,
             generate_extra_artifacts: None,
             generate_virtual_id_file_name: None,
-            get_artifacts_file_hash_map: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.finalize()),
@@ -419,10 +408,8 @@ Example file:
             is_dev_variable_name: config_file.is_dev_variable_name,
             file_source_config: FileSourceKind::Watchman,
             custom_transforms: None,
-            custom_override_schema_determinator: None,
             export_persisted_query_ids_to_file: None,
             initialize_resources: None,
-            update_compiler_state_from_saved_state: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -663,7 +650,7 @@ struct MultiProjectConfigFile {
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
     #[serde(skip)]
-    pub project_name: ProjectName,
+    pub project_name: StringKey,
 
     /// Path to schema.graphql
     pub schema: PathBuf,
@@ -675,11 +662,11 @@ pub struct SingleProjectConfigFile {
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
-    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
+    /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
     /// Adding to the config, to show the warning, and not a parse error.
     pub include: Vec<String>,
 
-    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
+    /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
     /// Adding to the config, to show the warning, and not a parse error.
     pub extensions: Vec<String>,
 
@@ -691,8 +678,21 @@ pub struct SingleProjectConfigFile {
     /// List of directories with schema extensions.
     pub schema_extensions: Vec<PathBuf>,
 
-    #[serde(flatten)]
-    pub typegen_config: TypegenConfig,
+    /// This option controls whether or not a catch-all entry is added to enum type definitions
+    /// for values that may be added in the future. Enabling this means you will have to update
+    /// your application whenever the GraphQL server schema adds new enum values to prevent it
+    /// from breaking.
+    pub no_future_proof_enums: bool,
+
+    /// The name of the language plugin (?) used for input files and artifacts
+    pub language: Option<TypegenLanguage>,
+
+    /// Mappings from custom scalars in your schema to built-in GraphQL
+    /// types, for type emission purposes.
+    pub custom_scalars: FnvIndexMap<ScalarName, CustomScalarType>,
+
+    /// This option enables emitting es modules artifacts.
+    pub eager_es_modules: bool,
 
     /// Query Persist Configuration
     /// It contains URL and addition parameters that will be included
@@ -723,15 +723,12 @@ pub struct SingleProjectConfigFile {
 
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
-
-    #[serde(default)]
-    pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
 }
 
 impl Default for SingleProjectConfigFile {
     fn default() -> Self {
         Self {
-            project_name: ProjectName::default(),
+            project_name: "default".intern(),
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
@@ -739,8 +736,11 @@ impl Default for SingleProjectConfigFile {
             extensions: vec![],
             excludes: get_default_excludes(),
             schema_extensions: vec![],
+            no_future_proof_enums: false,
+            language: None,
+            custom_scalars: Default::default(),
             schema_config: Default::default(),
-            typegen_config: Default::default(),
+            eager_es_modules: false,
             persist_config: None,
             is_dev_variable_name: None,
             codegen_command: None,
@@ -748,7 +748,6 @@ impl Default for SingleProjectConfigFile {
             typegen_phase: None,
             feature_flags: None,
             module_import_config: Default::default(),
-            resolvers_schema_module: Default::default(),
         }
     }
 }
@@ -827,6 +826,18 @@ impl SingleProjectConfigFile {
             }
         })?;
 
+        let language = self.language.ok_or_else(|| {
+            let mut variants = vec![];
+            for lang in TypegenLanguage::get_variants_as_string() {
+                variants.push(format!(r#"  "language": "{}""#, lang));
+            }
+
+            Error::ConfigError {
+                    details: format!("The `language` option is missing in the Relay configuration file. Please, specify one of the following options:\n{}", variants.join("\n")),
+                }
+            }
+        )?;
+
         let project_config = ConfigFileProject {
             output: self.artifact_directory.map(|dir| {
                 normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir)
@@ -849,11 +860,19 @@ impl SingleProjectConfigFile {
                 })
                 .collect(),
             persist: self.persist_config,
-            typegen_config: self.typegen_config,
+            typegen_config: TypegenConfig {
+                language,
+                custom_scalar_types: self.custom_scalars.clone(),
+                eager_es_modules: self.eager_es_modules,
+                flow_typegen: FlowTypegenConfig {
+                    no_future_proof_enums: self.no_future_proof_enums,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
-            resolvers_schema_module: self.resolvers_schema_module,
             ..Default::default()
         };
 
@@ -899,12 +918,12 @@ impl<'de> Deserialize<'de> for ConfigFile {
                 Ok(single_project_config) => Ok(ConfigFile::SingleProject(single_project_config)),
                 Err(single_project_error) => {
                     let error_message = format!(
-                        r#"The config file cannot be parsed as a single-project config file due to:
+                        r#"The config file cannot be parsed as a multi-project config file due to:
 - {:?}.
 
-It also cannot be a multi-project config file due to:
+It also cannot be a single project config file due to:
 - {:?}."#,
-                        single_project_error, multi_project_error,
+                        multi_project_error, single_project_error
                     );
 
                     Err(DeError::custom(error_message))
@@ -994,12 +1013,6 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub diagnostic_report_config: DiagnosticReportConfig,
-
-    #[serde(default)]
-    pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
-
-    #[serde(default)]
-    pub codegen_command: Option<String>,
 }
 
 pub type PersistId = String;

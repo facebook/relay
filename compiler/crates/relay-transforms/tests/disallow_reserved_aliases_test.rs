@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8a54c4298c83b3b072fa04aaa6053eda>>
+ * @generated SignedSource<<8184d04f25bd777e8ff56df2e2baff89>>
  */
 
 mod disallow_reserved_aliases;
@@ -12,30 +12,30 @@ mod disallow_reserved_aliases;
 use disallow_reserved_aliases::transform_fixture;
 use fixture_tests::test_fixture;
 
-#[tokio::test]
-async fn id_alias() {
+#[test]
+fn id_alias() {
     let input = include_str!("disallow_reserved_aliases/fixtures/id-alias.graphql");
     let expected = include_str!("disallow_reserved_aliases/fixtures/id-alias.expected");
-    test_fixture(transform_fixture, file!(), "id-alias.graphql", "disallow_reserved_aliases/fixtures/id-alias.expected", input, expected).await;
+    test_fixture(transform_fixture, "id-alias.graphql", "disallow_reserved_aliases/fixtures/id-alias.expected", input, expected);
 }
 
-#[tokio::test]
-async fn id_alias_with_errors_invalid() {
+#[test]
+fn id_alias_with_errors_invalid() {
     let input = include_str!("disallow_reserved_aliases/fixtures/id-alias-with-errors.invalid.graphql");
     let expected = include_str!("disallow_reserved_aliases/fixtures/id-alias-with-errors.invalid.expected");
-    test_fixture(transform_fixture, file!(), "id-alias-with-errors.invalid.graphql", "disallow_reserved_aliases/fixtures/id-alias-with-errors.invalid.expected", input, expected).await;
+    test_fixture(transform_fixture, "id-alias-with-errors.invalid.graphql", "disallow_reserved_aliases/fixtures/id-alias-with-errors.invalid.expected", input, expected);
 }
 
-#[tokio::test]
-async fn relay_id_alias_with_errors_invalid() {
+#[test]
+fn relay_id_alias_with_errors_invalid() {
     let input = include_str!("disallow_reserved_aliases/fixtures/relay_id-alias-with-errors.invalid.graphql");
     let expected = include_str!("disallow_reserved_aliases/fixtures/relay_id-alias-with-errors.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay_id-alias-with-errors.invalid.graphql", "disallow_reserved_aliases/fixtures/relay_id-alias-with-errors.invalid.expected", input, expected).await;
+    test_fixture(transform_fixture, "relay_id-alias-with-errors.invalid.graphql", "disallow_reserved_aliases/fixtures/relay_id-alias-with-errors.invalid.expected", input, expected);
 }
 
-#[tokio::test]
-async fn typename_alias_with_errors_invalid() {
+#[test]
+fn typename_alias_with_errors_invalid() {
     let input = include_str!("disallow_reserved_aliases/fixtures/typename-alias-with-errors.invalid.graphql");
     let expected = include_str!("disallow_reserved_aliases/fixtures/typename-alias-with-errors.invalid.expected");
-    test_fixture(transform_fixture, file!(), "typename-alias-with-errors.invalid.graphql", "disallow_reserved_aliases/fixtures/typename-alias-with-errors.invalid.expected", input, expected).await;
+    test_fixture(transform_fixture, "typename-alias-with-errors.invalid.graphql", "disallow_reserved_aliases/fixtures/typename-alias-with-errors.invalid.expected", input, expected);
 }

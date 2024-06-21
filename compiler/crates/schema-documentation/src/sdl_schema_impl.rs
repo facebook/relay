@@ -49,20 +49,6 @@ impl SchemaDocumentation for SDLSchema {
             .and_then(|argument| argument.description)
             .map(|string_key| string_key.lookup())
     }
-
-    fn get_hack_source(&self, type_name: &str) -> Option<&str> {
-        self.get_type(type_name.intern())
-            .and_then(|type_| get_hack_source_from_type(type_, self))
-            .map(|string_key| string_key.lookup())
-    }
-
-    fn get_field_hack_source(&self, type_name: &str, field_name: &str) -> Option<&str> {
-        let field_name_string_key = field_name.intern();
-        self.get_type(type_name.intern())
-            .and_then(|type_| get_field_from_type(type_, self, field_name_string_key))
-            .and_then(|field| field.hack_source)
-            .map(|string_key| string_key.lookup())
-    }
 }
 
 fn get_description_from_type(type_: Type, schema: &SDLSchema) -> Option<StringKey> {
@@ -94,15 +80,4 @@ fn get_field_from_type(type_: Type, schema: &SDLSchema, field_name: StringKey) -
             None
         }
     })
-}
-
-fn get_hack_source_from_type(type_: Type, schema: &SDLSchema) -> Option<StringKey> {
-    match type_ {
-        Type::Enum(id) => schema.enum_(id).hack_source,
-        Type::InputObject(id) => schema.input_object(id).hack_source,
-        Type::Interface(id) => schema.interface(id).hack_source,
-        Type::Object(id) => schema.object(id).hack_source,
-        Type::Scalar(id) => schema.scalar(id).hack_source,
-        Type::Union(id) => schema.union(id).hack_source,
-    }
 }

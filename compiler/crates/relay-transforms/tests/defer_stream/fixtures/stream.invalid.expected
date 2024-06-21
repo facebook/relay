@@ -3,7 +3,7 @@
 
 fragment FeedbackFragment on Feedback {
   id
-  actor @stream(initialCount: 1) {
+  actor @stream(initial_count: 1) {
     name
   }
 }
@@ -12,6 +12,6 @@ fragment FeedbackFragment on Feedback {
 
   stream.invalid.graphql:5:9
     4 │   id
-    5 │   actor @stream(initialCount: 1) {
+    5 │   actor @stream(initial_count: 1) {
       │         ^^^^^^^
     6 │     name

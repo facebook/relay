@@ -35,6 +35,7 @@ function myTestResolver(rootKey: RelayResolverTestUtilsTest$key): string {
 test('testResolver', () => {
   const input = {
     name: 'Elizabeth',
+    $fragmentType: (null: any),
   };
   const actual = testResolver(myTestResolver, input);
   expect(actual).toBe('Hello Elizabeth!');

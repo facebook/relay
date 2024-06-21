@@ -10,7 +10,7 @@ extend type Query {
   resolver_field: Boolean @relay_resolver(import_path: "ResolverModule")
 }
 ==================================== ERROR ====================================
-✖︎ Fields defined using Relay Resolvers are not allowed within @updatable operations.
+✖︎ Fields defined using Relay Resolvers are not not allowed within @updatable operations.
 
   resolver-scalar.invalid.graphql:3:3
     2 │ query resolverQuery @updatable {

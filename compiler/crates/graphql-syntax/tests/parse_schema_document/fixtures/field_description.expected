@@ -82,7 +82,6 @@ SchemaDocument {
                                         value: "Single line field description",
                                     },
                                 ),
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -116,7 +115,6 @@ SchemaDocument {
                                         value: "Block field description",
                                     },
                                 ),
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -150,7 +148,6 @@ SchemaDocument {
                                         value: "Multiline block field description which is so long\nthat it spans onto a second line.",
                                     },
                                 ),
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -213,7 +210,6 @@ SchemaDocument {
                                         value: "Single line extended field description",
                                     },
                                 ),
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -247,7 +243,6 @@ SchemaDocument {
                                         value: "Block field description",
                                     },
                                 ),
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -281,7 +276,6 @@ SchemaDocument {
                                         value: "Multiline block field description which is so long\nthat it spans onto a second line.",
                                     },
                                 ),
-                                hack_source: None,
                             },
                         ],
                         end: Token {

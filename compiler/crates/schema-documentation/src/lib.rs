@@ -31,12 +31,6 @@ pub trait SchemaDocumentation: Send + Sync {
     ) -> Option<&str> {
         None
     }
-    fn get_hack_source(&self, _type_name: &str) -> Option<&str> {
-        None
-    }
-    fn get_field_hack_source(&self, _type_name: &str, _field_name: &str) -> Option<&str> {
-        None
-    }
 }
 
 // This can probably be implemented more generically for AsRef<TSchemaDocumentation>
@@ -57,12 +51,6 @@ impl<TSchemaDocumentation: SchemaDocumentation> SchemaDocumentation for Arc<TSch
     ) -> Option<&str> {
         self.as_ref()
             .get_field_argument_description(type_name, field_name, argument_name)
-    }
-    fn get_hack_source(&self, type_name: &str) -> Option<&str> {
-        self.as_ref().get_hack_source(type_name)
-    }
-    fn get_field_hack_source(&self, type_name: &str, field_name: &str) -> Option<&str> {
-        self.as_ref().get_field_hack_source(type_name, field_name)
     }
 }
 
@@ -87,12 +75,5 @@ impl<TSchemaDocumentation: SchemaDocumentation> SchemaDocumentation
     ) -> Option<&str> {
         self.as_ref()
             .and_then(|s| s.get_field_argument_description(type_name, field_name, argument_name))
-    }
-    fn get_hack_source(&self, type_name: &str) -> Option<&str> {
-        self.as_ref().and_then(|s| s.get_hack_source(type_name))
-    }
-    fn get_field_hack_source(&self, type_name: &str, field_name: &str) -> Option<&str> {
-        self.as_ref()
-            .and_then(|s| s.get_field_hack_source(type_name, field_name))
     }
 }

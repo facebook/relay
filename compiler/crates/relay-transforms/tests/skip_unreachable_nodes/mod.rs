@@ -7,12 +7,8 @@
 
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_config::DeferStreamInterface;
 use relay_transforms::skip_unreachable_node_strict;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let defer_stream_interface = DeferStreamInterface::default();
-    apply_transform_for_test(fixture, |program| {
-        skip_unreachable_node_strict(program, defer_stream_interface)
-    })
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+    apply_transform_for_test(fixture, skip_unreachable_node_strict)
 }

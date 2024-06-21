@@ -38,7 +38,7 @@ type BadConnectionPageInfo {
   startCursor: String
 }
 ==================================== ERROR ====================================
-✖︎ Expected 'badConnection' to be passed a 'edges' selection.
+✖︎ Expected 'badConnection' to have a 'edges' selection.
 
   connection-invalid-edges-list-type.invalid.graphql:6:7
     5 │     ... on User {

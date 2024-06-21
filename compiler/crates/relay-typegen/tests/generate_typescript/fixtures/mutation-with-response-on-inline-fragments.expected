@@ -30,14 +30,14 @@ fragment InlineFragmentWithOverlappingFields on Actor {
 import { FragmentRefs } from "relay-runtime";
 export type CommentCreateInput = {
   client_mutation_id: string;
-  feedback?: CommentfeedbackFeedback | null | undefined;
-  feedbackId?: string | null | undefined;
+  feedback?: CommentfeedbackFeedback | null;
+  feedbackId?: string | null;
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null | undefined;
+  comment?: FeedbackcommentComment | null;
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null | undefined;
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type TestMutation$variables = {
   input: CommentCreateInput;
@@ -47,9 +47,9 @@ export type TestMutation$data = {
     readonly viewer: {
       readonly actor: {
         readonly " $fragmentSpreads": FragmentRefs<"InlineFragmentWithOverlappingFields">;
-      } | null | undefined;
-    } | null | undefined;
-  } | null | undefined;
+      } | null;
+    } | null;
+  } | null;
 };
 export type TestMutation$rawResponse = {
   readonly commentCreate: {
@@ -60,26 +60,26 @@ export type TestMutation$rawResponse = {
         readonly hometown: {
           readonly id: string;
           readonly message: {
-            readonly text: string | null | undefined;
-          } | null | undefined;
-        } | null | undefined;
+            readonly text: string | null;
+          } | null;
+        } | null;
         readonly id: string;
-        readonly name: string | null | undefined;
+        readonly name: string | null;
       } | {
         readonly __typename: "User";
         readonly __isActor: "User";
         readonly hometown: {
           readonly id: string;
-          readonly name: string | null | undefined;
-        } | null | undefined;
+          readonly name: string | null;
+        } | null;
         readonly id: string;
       } | {
         readonly __typename: string;
         readonly __isActor: string;
         readonly id: string;
-      } | null | undefined;
-    } | null | undefined;
-  } | null | undefined;
+      } | null;
+    } | null;
+  } | null;
 };
 export type TestMutation = {
   rawResponse: TestMutation$rawResponse;
@@ -92,11 +92,11 @@ export type InlineFragmentWithOverlappingFields$data = {
   readonly hometown?: {
     readonly id: string;
     readonly message?: {
-      readonly text: string | null | undefined;
-    } | null | undefined;
-    readonly name: string | null | undefined;
-  } | null | undefined;
-  readonly name?: string | null | undefined;
+      readonly text: string | null;
+    } | null;
+    readonly name: string | null;
+  } | null;
+  readonly name?: string | null;
   readonly " $fragmentType": "InlineFragmentWithOverlappingFields";
 };
 export type InlineFragmentWithOverlappingFields$key = {

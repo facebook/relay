@@ -50,7 +50,7 @@ You should now see a sidebar with a list of people at the top.
 
 ![Contacts list](/img/docs/tutorial/refetchable-contacts-initial.png)
 
-Have a look at `ContactsList.tsx` and you’ll find this fragment, which is what selects the list of contacts:
+Have a look at `ContactsList.js` and you’ll find this fragment, which is what selects the list of contacts:
 
 ```
 const ContactsListFragment = graphql`

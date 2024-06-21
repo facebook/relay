@@ -556,7 +556,7 @@ test('Error State', () => {
 
 The examples in this guide should work for testing components both with Relay Hooks, Containers or Renderers. When writing tests that involve the `usePreloadedQuery` hook, please also see the `queuePendingOperation` note above.
 
-### toMatchSnapshot(...)
+### toMatchSnaphot(...)
 
 Even though in all of the examples here you can see assertions with `toMatchSnapshot()`, we keep it that way just to make examples concise. But it's not the recommended way to test your components.
 

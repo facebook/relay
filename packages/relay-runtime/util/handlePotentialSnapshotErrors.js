@@ -12,60 +12,30 @@
 'use strict';
 
 import type {
-  ErrorResponseFields,
   IEnvironment,
   MissingRequiredFields,
   RelayResolverErrors,
 } from '../store/RelayStoreTypes';
 
-import {RelayFieldError} from '../store/RelayErrorTrie';
-import RelayFeatureFlags from './RelayFeatureFlags';
-
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
   missingRequiredFields: ?MissingRequiredFields,
   relayResolverErrors: RelayResolverErrors,
-  errorResponseFields: ?ErrorResponseFields,
 ) {
   for (const resolverError of relayResolverErrors) {
-    environment.relayFieldLogger({
+    environment.requiredFieldLogger({
       kind: 'relay_resolver.error',
       owner: resolverError.field.owner,
       fieldPath: resolverError.field.path,
       error: resolverError.error,
     });
   }
-  if (
-    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING &&
-    errorResponseFields != null
-  ) {
-    if (errorResponseFields != null) {
-      for (const fieldError of errorResponseFields) {
-        const {path, owner, error} = fieldError;
-
-        environment.relayFieldLogger({
-          kind: 'relay_field_payload.error',
-          owner: owner,
-          fieldPath: path,
-          error,
-        });
-      }
-    }
-
-    if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT) {
-      throw new RelayFieldError(
-        `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
-        errorResponseFields.map(({path, owner, error}) => error),
-      );
-    }
-  }
-
   if (missingRequiredFields != null) {
     switch (missingRequiredFields.action) {
       case 'THROW': {
         const {path, owner} = missingRequiredFields.field;
         // This gives the consumer the chance to throw their own error if they so wish.
-        environment.relayFieldLogger({
+        environment.requiredFieldLogger({
           kind: 'missing_field.throw',
           owner,
           fieldPath: path,
@@ -76,7 +46,7 @@ function handlePotentialSnapshotErrors(
       }
       case 'LOG':
         missingRequiredFields.fields.forEach(({path, owner}) => {
-          environment.relayFieldLogger({
+          environment.requiredFieldLogger({
             kind: 'missing_field.log',
             owner,
             fieldPath: path,

@@ -10,13 +10,13 @@ query RelayReaderNamedFragmentsTest2Query {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type RelayReaderNamedFragmentsTest2Query$variables = Record<PropertyKey, never>;
+export type RelayReaderNamedFragmentsTest2Query$variables = {};
 export type RelayReaderNamedFragmentsTest2Query$data = {
   readonly me: {
     readonly named_fragment: {
       readonly " $fragmentSpreads": FragmentRefs<"RelayReaderNamedFragmentsTest_user">;
-    } | null | undefined;
-  } | null | undefined;
+    } | null;
+  } | null;
 };
 export type RelayReaderNamedFragmentsTest2Query = {
   response: RelayReaderNamedFragmentsTest2Query$data;
@@ -25,7 +25,7 @@ export type RelayReaderNamedFragmentsTest2Query = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type RelayReaderNamedFragmentsTest_user$data = {
-  readonly name: string | null | undefined;
+  readonly name: string | null;
   readonly " $fragmentType": "RelayReaderNamedFragmentsTest_user";
 };
 export type RelayReaderNamedFragmentsTest_user$key = {

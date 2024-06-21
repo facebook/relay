@@ -292,10 +292,7 @@ fragment relayResolverWithRequiredClientEdge_best_friend_resolver on User {
         "node"
       ],
       "operation": require('ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend.graphql'),
-      "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
-      }
+      "identifierField": "id"
     }
   },
   "name": "RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend",

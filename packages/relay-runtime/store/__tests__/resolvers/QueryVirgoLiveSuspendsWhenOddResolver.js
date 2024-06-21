@@ -12,10 +12,12 @@
 'use strict';
 
 import type {AstrologicalSignID} from './AstrologicalSignUtils';
-import type {LiveState} from 'relay-runtime';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
-const {suspenseSentinel} = require('relay-runtime');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 
 /**
  * @RelayResolver Query.virgo_suspends_when_counter_is_odd: AstrologicalSign

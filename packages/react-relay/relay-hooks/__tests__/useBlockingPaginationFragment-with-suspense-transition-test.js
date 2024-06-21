@@ -13,7 +13,7 @@
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useBlockingPaginationFragmentOriginal = require('../legacy/useBlockingPaginationFragment');
+const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -94,14 +94,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       result.isPendingNext = isPendingNext;
 
       useEffect(() => {
-        Scheduler.log({data, ...result});
+        Scheduler.unstable_yieldValue({data, ...result});
       });
 
       return {data, ...result};
     }
 
     function assertYieldsWereCleared() {
-      const actualYields = Scheduler.unstable_clearLog();
+      const actualYields = Scheduler.unstable_clearYields();
       if (actualYields.length !== 0) {
         throw new Error(
           'Log of yielded values is not empty. ' +
@@ -135,7 +135,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     ) {
       assertYieldsWereCleared();
       Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-      const actualYields = Scheduler.unstable_clearLog();
+      const actualYields = Scheduler.unstable_clearYields();
       expect(actualYields.length).toEqual(expectedYields.length);
       expectedYields.forEach((expected, idx) =>
         assertYield(expected, actualYields[idx]),
@@ -186,6 +186,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -193,7 +194,9 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       // Set up mocks
       jest.resetModules();
       jest.mock('warning');
-      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
+      jest.mock('scheduler', () => {
+        return jest.requireActual('scheduler/unstable_mock');
+      });
 
       // Supress `act` warnings since we are intentionally not
       // using it for most tests here. `act` currently always
@@ -426,7 +429,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       const Fallback = () => {
         useEffect(() => {
-          Scheduler.log('Fallback');
+          Scheduler.unstable_yieldValue('Fallback');
         });
 
         return 'Fallback';
@@ -1049,7 +1052,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         });
 
         Scheduler.unstable_flushNumberOfYields(1);
-        const actualYields = Scheduler.unstable_clearLog();
+        const actualYields = Scheduler.unstable_clearYields();
 
         if (flushFallback) {
           // Flushing fallbacks by running a timer could cause other side-effects
@@ -1080,8 +1083,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         );
       }
 
-      // TODO: T150701964
-      xit('loads more items correctly after refetching', () => {
+      it('loads more items correctly after refetching', () => {
         const renderer = renderFragment();
         expectFragmentResults([
           {

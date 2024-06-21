@@ -17,9 +17,6 @@ pub trait PerfLogEvent: Send + Sync {
     /// Log number
     fn number(&self, name: &'static str, number: usize);
 
-    // Log boolean
-    fn bool(&self, name: &'static str, value: bool);
-
     /// Provides a possibility to log additional fields describing current run (like, project name)
     fn string(&self, name: &'static str, value: String);
 
@@ -56,7 +53,6 @@ pub struct NoopPerfLoggerEvent;
 impl PerfLogEvent for NoopPerfLoggerEvent {
     type Timer = ();
     fn number(&self, _name: &'static str, _number: usize) {}
-    fn bool(&self, _name: &'static str, _value: bool) {}
     fn string(&self, _name: &'static str, _value: String) {}
     fn start(&self, _name: &'static str) -> Self::Timer {}
     fn stop(&self, _timer: Self::Timer) {}

@@ -13,7 +13,7 @@
 
 const {
   getFragmentResourceForEnvironment,
-} = require('react-relay/relay-hooks/legacy/FragmentResource');
+} = require('react-relay/relay-hooks/FragmentResource');
 const {RelayFeatureFlags, getFragment} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {

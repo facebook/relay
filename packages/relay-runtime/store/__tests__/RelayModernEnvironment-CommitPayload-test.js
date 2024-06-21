@@ -272,6 +272,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               RelayModernEnvironmentCommitPayloadTest4UserFragment: {},
             },
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
         expect(fragmentCallback.mock.calls.length).toBe(1);

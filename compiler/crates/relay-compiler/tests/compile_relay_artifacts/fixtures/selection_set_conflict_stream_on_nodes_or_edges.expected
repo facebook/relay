@@ -3,7 +3,7 @@ query selectionSetConflictStreamOnNodesOrEdgesQuery {
   me {
     ... on User {
       friends {
-        edges @stream(label: "b", initialCount: 1) {
+        edges @stream(label: "b", initial_count: 1) {
           node {
             id
           }
@@ -168,7 +168,7 @@ QUERY:
 query selectionSetConflictStreamOnNodesOrEdgesQuery {
   me {
     friends {
-      edges @stream(label: "selectionSetConflictStreamOnNodesOrEdgesQuery$stream$b", initialCount: 1) {
+      edges @stream(label: "selectionSetConflictStreamOnNodesOrEdgesQuery$stream$b", initial_count: 1) {
         node {
           id
         }

@@ -76,16 +76,11 @@ export type ReaderPaginationFragment = {
   },
 };
 
-export type RefetchableIdentifierInfo = {
-  +identifierField: string,
-  +identifierQueryVariableName: string,
-};
-
 export type ReaderRefetchMetadata = {
   +connection?: ?ReaderPaginationMetadata,
   +operation: string | ConcreteRequest,
   +fragmentPathInResult: Array<string>,
-  +identifierInfo?: ?RefetchableIdentifierInfo,
+  +identifierField?: ?string,
 };
 
 // Stricter form of ConnectionMetadata
@@ -217,6 +212,14 @@ export type ReaderScalarField = {
   +storageKey?: ?string,
 };
 
+export type ReaderFlightField = {
+  +kind: 'FlightField',
+  +alias: ?string,
+  +name: string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +storageKey: ?string,
+};
+
 export type ReaderDefer = {
   +kind: 'Defer',
   +selections: $ReadOnlyArray<ReaderSelection>,
@@ -239,9 +242,9 @@ export type ReaderRequiredField = {
   +path: string,
 };
 
-export type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
+type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
 // With ES6 imports, a resolver function might be exported under the `default` key.
-export type ResolverModule = ResolverFunction | {default: ResolverFunction};
+type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
 export type ResolverNormalizationInfo = {
   +concreteType: string | null,
@@ -274,7 +277,6 @@ export type ReaderRelayLiveResolver = {
 export type ReaderClientEdgeToClientObject = {
   +kind: 'ClientEdgeToClientObject',
   +concreteType: string | null,
-  +modelResolver?: ReaderRelayResolver | ReaderRelayLiveResolver,
   +linkedField: ReaderLinkedField,
   +backingField:
     | ReaderRelayResolver
@@ -300,6 +302,7 @@ export type ReaderSelection =
   | ReaderDefer
   | ReaderField
   | ReaderActorChange
+  | ReaderFlightField
   | ReaderFragmentSpread
   | ReaderAliasedFragmentSpread
   | ReaderInlineDataFragmentSpread

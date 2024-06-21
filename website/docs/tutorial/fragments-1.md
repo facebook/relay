@@ -14,7 +14,7 @@ Go to `Newsfeed.tsx` and find `NewsfeedQuery` so that you can add the new field:
 ```
 const NewsfeedQuery = graphql`
   query NewsfeedQuery {
-    topStory {
+    top_story {
       title
       summary
       // change-line
@@ -65,7 +65,7 @@ The date should now appear. And thanks to GraphQL, we didn't have to write and d
 
 But if you think about it, why should you have had to modify `Newsfeed.tsx`? Shouldn’t React components be self-contained? Why should Newsfeed care about the specific data required by Story? What if the data was required by some child component of Story way down in the hierarchy? What if it was a component that was used in many different places? Then we would have to modify many components whenever its data requirements changed.
 
-To avoid these and many other problems, we can move the data requirements for the Story component into `Story.tsx`.
+The avoid these and many other problems, we can move the data requirements for the Story component into `Story.tsx`.
 
 We do this by splitting off `Story`’s data requirements into a *fragment* defined in `Story.tsx`. Fragments are separate pieces of GraphQL that the Relay compiler stitches together into complete queries. They allow each component to define its own data requirements, without paying the cost at runtime of each component running its own queries.
 

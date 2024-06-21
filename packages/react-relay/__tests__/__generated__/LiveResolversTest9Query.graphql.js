@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2289bab9affab280d2a1841d6b30ef51>>
+ * @generated SignedSource<<f078221dc7e57f12b045908e5daaeaa9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime";
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql";
 import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
@@ -28,14 +28,14 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
   args: {|
     scale: ?number,
   |},
-) => LiveState<?mixed>);
+) => LiveState<mixed>);
 export type LiveResolversTest9Query$variables = {|
   id: string,
   scale: number,
 |};
 export type LiveResolversTest9Query$data = {|
   +node: ?{|
-    +profile_picture_uri?: ?ReturnType<ReturnType<typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
+    +profile_picture_uri?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
   |},
 |};
 export type LiveResolversTest9Query = {|
@@ -91,7 +91,7 @@ return {
             "selections": [
               {
                 "alias": "profile_picture_uri",
-                "args": [],
+                "args": null,
                 "fragment": {
                   "args": (v2/*: any*/),
                   "kind": "FragmentSpread",

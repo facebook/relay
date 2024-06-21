@@ -27,7 +27,11 @@ const {
   isRelayModernEnvironment,
 } = require('relay-runtime');
 
-type OnDataChange = ({error?: Error, snapshot?: Snapshot, ...}) => void;
+type OnDataChange = ({
+  error?: Error,
+  snapshot?: Snapshot,
+  ...
+}) => void;
 
 /** The external API of 'fetch' **/
 export type FetchOptions = {

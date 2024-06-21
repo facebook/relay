@@ -8,7 +8,7 @@
 use std::fmt;
 use std::path::Path;
 use std::path::PathBuf;
-use std::path::MAIN_SEPARATOR;
+use std::str::FromStr;
 use std::sync::Arc;
 use std::usize;
 
@@ -22,6 +22,7 @@ use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use regex::Regex;
 use serde::de::Error;
 use serde::Deserialize;
@@ -30,20 +31,19 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::connection_interface::ConnectionInterface;
-use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
-use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
 use crate::JsModuleFormat;
-use crate::ProjectName;
 use crate::TypegenConfig;
 use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
+pub type ProjectName = StringKey;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields, rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct RemotePersistConfig {
     /// URL to send a POST request to to persist.
     pub url: String,
@@ -62,9 +62,6 @@ pub struct RemotePersistConfig {
         deserialize_with = "deserialize_semaphore_permits"
     )]
     pub semaphore_permits: Option<usize>,
-
-    #[serde(default)]
-    pub include_query_text: bool,
 }
 
 fn deserialize_semaphore_permits<'de, D>(d: D) -> Result<Option<usize>, D::Error>
@@ -101,9 +98,6 @@ pub struct LocalPersistConfig {
 
     #[serde(default)]
     pub algorithm: LocalPersistAlgorithm,
-
-    #[serde(default)]
-    pub include_query_text: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -111,15 +105,6 @@ pub struct LocalPersistConfig {
 pub enum PersistConfig {
     Remote(RemotePersistConfig),
     Local(LocalPersistConfig),
-}
-
-impl PersistConfig {
-    pub fn include_query_text(&self) -> bool {
-        match self {
-            PersistConfig::Remote(remote_config) => remote_config.include_query_text,
-            PersistConfig::Local(local_config) => local_config.include_query_text,
-        }
-    }
 }
 
 impl<'de> Deserialize<'de> for PersistConfig {
@@ -161,20 +146,6 @@ pub enum SchemaLocation {
     Directory(PathBuf),
 }
 
-pub struct ExtraArtifactsConfig {
-    pub filename_for_artifact: Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>,
-    pub skip_types_for_artifact: Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>,
-}
-
-impl Debug for ExtraArtifactsConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ExtraArtifactsConfig")
-            .field("filename_for_artifact", &"Fn")
-            .field("skip_types_for_artifact", &"Fn")
-            .finish()
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
@@ -184,13 +155,6 @@ pub struct SchemaConfig {
     /// The name of the `id` field that exists on the `Node` interface.
     #[serde(default = "default_node_interface_id_field")]
     pub node_interface_id_field: StringKey,
-
-    #[serde(default)]
-    pub defer_stream_interface: DeferStreamInterface,
-
-    /// The name of the variable expected by the `node` query.
-    #[serde(default = "default_node_interface_id_variable_name")]
-    pub node_interface_id_variable_name: StringKey,
 
     #[serde(default)]
     pub non_node_id_fields: Option<NonNodeIdFieldsConfig>,
@@ -204,10 +168,6 @@ fn default_node_interface_id_field() -> StringKey {
     "id".intern()
 }
 
-fn default_node_interface_id_variable_name() -> StringKey {
-    "id".intern()
-}
-
 fn default_unselectable_directive_name() -> DirectiveName {
     DirectiveName("unselectable".intern())
 }
@@ -216,9 +176,7 @@ impl Default for SchemaConfig {
     fn default() -> Self {
         Self {
             connection_interface: ConnectionInterface::default(),
-            defer_stream_interface: DeferStreamInterface::default(),
             node_interface_id_field: default_node_interface_id_field(),
-            node_interface_id_variable_name: default_node_interface_id_variable_name(),
             non_node_id_fields: None,
             unselectable_directive_name: default_unselectable_directive_name(),
         }
@@ -228,9 +186,8 @@ impl Default for SchemaConfig {
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
-    pub extra_artifacts_output: Option<PathBuf>,
-    pub extra_artifacts_config: Option<ExtraArtifactsConfig>,
     pub output: Option<PathBuf>,
+    pub extra_artifacts_output: Option<PathBuf>,
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
     pub schema_extensions: Vec<PathBuf>,
@@ -243,23 +200,23 @@ pub struct ProjectConfig {
     pub extra: serde_json::Value,
     pub feature_flags: Arc<FeatureFlags>,
     pub test_path_regex: Option<Regex>,
+    pub filename_for_artifact:
+        Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
+    pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
     pub js_module_format: JsModuleFormat,
     pub module_import_config: ModuleImportConfig,
     pub diagnostic_report_config: DiagnosticReportConfig,
-    pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
-    pub codegen_command: Option<String>,
 }
 
 impl Default for ProjectConfig {
     fn default() -> Self {
         Self {
-            name: ProjectName::default(),
+            name: "default".intern(),
             feature_flags: Default::default(),
             base: None,
-            extra_artifacts_output: None,
-            extra_artifacts_config: None,
             output: None,
+            extra_artifacts_output: None,
             shard_output: false,
             shard_strip_regex: None,
             schema_extensions: vec![],
@@ -271,12 +228,12 @@ impl Default for ProjectConfig {
             variable_names_comment: false,
             extra: Default::default(),
             test_path_regex: None,
+            filename_for_artifact: None,
+            skip_types_for_artifact: None,
             rollout: Default::default(),
             js_module_format: Default::default(),
             module_import_config: Default::default(),
             diagnostic_report_config: Default::default(),
-            resolvers_schema_module: Default::default(),
-            codegen_command: Default::default(),
         }
     }
 }
@@ -286,9 +243,8 @@ impl Debug for ProjectConfig {
         let ProjectConfig {
             name,
             base,
-            extra_artifacts_output,
-            extra_artifacts_config,
             output,
+            extra_artifacts_output,
             shard_output,
             shard_strip_regex,
             schema_extensions,
@@ -301,18 +257,17 @@ impl Debug for ProjectConfig {
             extra,
             feature_flags,
             test_path_regex,
+            filename_for_artifact,
+            skip_types_for_artifact,
             rollout,
             js_module_format,
             module_import_config,
             diagnostic_report_config,
-            resolvers_schema_module,
-            codegen_command,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
             .field("base", base)
             .field("output", output)
-            .field("extra_artifacts_config", extra_artifacts_config)
             .field("extra_artifacts_output", extra_artifacts_output)
             .field("shard_output", shard_output)
             .field("shard_strip_regex", shard_strip_regex)
@@ -326,12 +281,26 @@ impl Debug for ProjectConfig {
             .field("extra", extra)
             .field("feature_flags", feature_flags)
             .field("test_path_regex", test_path_regex)
+            .field(
+                "filename_for_artifact",
+                &if filename_for_artifact.is_some() {
+                    "Some<Fn>"
+                } else {
+                    "None"
+                },
+            )
+            .field(
+                "skip_types_for_artifact",
+                &if skip_types_for_artifact.is_some() {
+                    "Some<Fn>"
+                } else {
+                    "None"
+                },
+            )
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
             .field("module_import_config", module_import_config)
             .field("diagnostic_report_config", diagnostic_report_config)
-            .field("resolvers_schema_module", resolvers_schema_module)
-            .field("codegen_command", codegen_command)
             .finish()
     }
 }
@@ -367,85 +336,75 @@ impl ProjectConfig {
         }
     }
 
-    pub fn artifact_path_for_definition(
-        &self,
-        definition_name: WithLocation<impl Into<StringKey>>,
-    ) -> PathBuf {
-        let source_location = definition_name.location.source_location();
-        let artifact_name = definition_name.item.into();
-        if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
-            let filename =
-                (extra_artifacts_config.filename_for_artifact)(source_location, artifact_name);
-
-            self.create_path_for_artifact(source_location, filename)
-        } else {
-            self.path_for_language_specific_artifact(
-                source_location,
-                format!("{}.graphql", artifact_name),
-            )
-        }
-    }
-
-    pub fn path_for_language_specific_artifact(
+    pub fn path_for_artifact(
         &self,
         source_file: SourceLocationKey,
-        artifact_file_name: String,
+        definition_name: StringKey,
     ) -> PathBuf {
-        let filename = match &self.typegen_config.language {
-            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-                format!("{}.js", artifact_file_name)
+        let filename = if let Some(filename_for_artifact) = &self.filename_for_artifact {
+            filename_for_artifact(source_file, definition_name)
+        } else {
+            match &self.typegen_config.language {
+                TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                    format!("{}.graphql.js", definition_name)
+                }
+                TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
             }
-            TypegenLanguage::TypeScript => format!("{}.ts", artifact_file_name),
         };
-
         self.create_path_for_artifact(source_file, filename)
     }
 
-    /// Generates identifier for importing module at `target_module_path` from module at `importing_artifact_path`.
-    /// Import Identifier is a relative path in CommonJS projects and a module name in Haste projects.
-    pub fn js_module_import_identifier(
+    /// Generates a relative import path in Common JS projects, and a module name in Haste projects.
+    pub fn js_module_import_path(
         &self,
-        importing_artifact_path: &PathBuf,
-        target_module_path: &PathBuf,
+        definition_source_location: WithLocation<StringKey>,
+        target_module: StringKey,
     ) -> StringKey {
         match self.js_module_format {
             JsModuleFormat::CommonJS => {
-                let importing_artifact_directory = importing_artifact_path.parent().unwrap_or_else(||{
+                let definition_artifact_location = self.path_for_artifact(
+                    definition_source_location.location.source_location(),
+                    definition_source_location.item,
+                );
+
+                let module_location =
+                    PathBuf::from_str(target_module.lookup()).unwrap_or_else(|_| {
+                        panic!(
+                            "expected to be able to build a path from target_module : {}",
+                            target_module.lookup()
+                        );
+                    });
+
+                let module_path = module_location.parent().unwrap_or_else(||{
                     panic!(
-                        "expected importing_artifact_path: {:?} to have a parent path, maybe it's not a file?",
-                        importing_artifact_path
+                        "expected module_location: {:?} to have a parent path, maybe it's not a file?",
+                        module_location
                     );
                 });
-                let target_module_directory = target_module_path.parent().unwrap_or_else(||{
+
+                let definition_artifact_location_path = definition_artifact_location.parent().unwrap_or_else(||{panic!("expected definition_artifact_location: {:?} to have a parent path, maybe it's not a file?", definition_artifact_location);
+            });
+
+                let resolver_module_location =
+                    pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
+
+                let module_file_name = module_location.file_name().unwrap_or_else(|| {
                     panic!(
-                        "expected target_module_path: {:?} to have a parent path, maybe it's not a file?",
-                        target_module_path
-                    );
-                });
-                let target_module_file_name = target_module_path.file_name().unwrap_or_else(|| {
-                    panic!(
-                        "expected target_module_path: {:?} to have a file name",
-                        target_module_path
+                        "expected module_location: {:?} to have a file name",
+                        module_location
                     )
                 });
-                let relative_path =
-                    pathdiff::diff_paths(target_module_directory, importing_artifact_directory)
-                        .unwrap();
 
-                format_normalized_path(&relative_path.join(target_module_file_name)).intern()
+                resolver_module_location
+                    .join(module_file_name)
+                    .to_string_lossy()
+                    .intern()
             }
-            JsModuleFormat::Haste => target_module_path
+            JsModuleFormat::Haste => Path::new(&target_module.to_string())
                 .file_stem()
                 .unwrap()
                 .to_string_lossy()
                 .intern(),
         }
     }
-}
-
-// Stringify a path such that it is stable across operating systems.
-fn format_normalized_path(path: &Path) -> String {
-    path.to_string_lossy()
-        .to_string()
-        .replace(MAIN_SEPARATOR, "/")
 }

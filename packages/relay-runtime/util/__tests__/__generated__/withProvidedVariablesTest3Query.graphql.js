@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5815185ccc4d1a85d36ed17b4f10ec0d>>
+ * @generated SignedSource<<18a39aa5973ba29b7169324c0037ec4c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,18 +29,20 @@ export type withProvidedVariablesTest3Query = {|
   response: withProvidedVariablesTest3Query$data,
   variables: withProvidedVariablesTest3Query$variables,
 |};
-({
-  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
-  "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
-}: {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
     +get: () => boolean,
   |},
   +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
   |},
-|});
+|};
 */
+
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
+  "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
+};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [
@@ -173,10 +175,7 @@ return {
     "name": "withProvidedVariablesTest3Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest3Query(\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n  $__relay_internal__pv__provideIncludeUserNamesrelayprovider: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest3Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest3Fragment on User {\n  name @include(if: $__relay_internal__pv__provideIncludeUserNamesrelayprovider)\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
-      "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

@@ -27,7 +27,7 @@ fn format_definition(def: ExecutableDefinition) -> String {
 }
 
 // TODO: Test without using snapshot tests
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
 
     let (content, schema): (&str, Arc<SDLSchema>) = match parts.as_slice() {

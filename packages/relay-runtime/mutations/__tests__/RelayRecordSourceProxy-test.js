@@ -12,7 +12,6 @@
 'use strict';
 
 const defaultGetDataID = require('../../store/defaultGetDataID');
-const RelayModernRecord = require('../../store/RelayModernRecord');
 const RelayRecordSource = require('../../store/RelayRecordSource');
 const RelayStoreUtils = require('../../store/RelayStoreUtils');
 const RelayRecordProxy = require('../RelayRecordProxy');
@@ -133,7 +132,8 @@ describe('RelayRecordSourceProxy', () => {
       const root = baseSource.get(ROOT_ID);
       expect(root).not.toBeUndefined();
       if (root != null) {
-        RelayModernRecord.setValue(root, TYPENAME_KEY, 'User');
+        // Flow
+        root.__typename = 'User';
       }
       expect(() => {
         store.getRoot();

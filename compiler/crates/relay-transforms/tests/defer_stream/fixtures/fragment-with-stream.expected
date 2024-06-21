@@ -8,7 +8,7 @@ query QueryWithFragmentWithStream($id: ID!) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initialCount: 1, label: "StreamedActorsLabel") {
+  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
     name
   }
 }
@@ -24,7 +24,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initialCount: 1) {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
     name
   }
 }

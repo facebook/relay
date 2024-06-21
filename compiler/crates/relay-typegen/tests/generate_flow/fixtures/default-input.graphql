@@ -1,7 +1,0 @@
-mutation feedbackUnLikeMutation($input: FeedbackUnLikeInput) {
-  feedbackUnLike(input: $input) {
-    feedback {
-      id
-    }
-  }
-}

@@ -16,18 +16,7 @@ use crate::untyped_representation::AllowedFieldName;
 use crate::ON_INTERFACE_FIELD;
 use crate::ON_TYPE_FIELD;
 
-#[derive(
-    Clone,
-    Debug,
-    Error,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type")]
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum UntypedRepresentationErrorMessages {
     #[error("Unexpected docblock field `@{field_name}`")]
     UnknownField { field_name: StringKey },
@@ -41,18 +30,7 @@ pub enum UntypedRepresentationErrorMessages {
     MultipleDescriptions,
 }
 
-#[derive(
-    Clone,
-    Debug,
-    Error,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type")]
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum IrParsingErrorMessages {
     #[error("Missing docblock field `@{field_name}`")]
     MissingField { field_name: AllowedFieldName },
@@ -97,11 +75,6 @@ pub enum IrParsingErrorMessages {
     FieldWithMissingData { field_name: AllowedFieldName },
 
     #[error(
-        "Unexpected Relay Resolver field with non-nullable type. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values."
-    )]
-    FieldWithNonNullType,
-
-    #[error(
         "The compiler attempted to parse this `@RelayResolver` block as a {resolver_type}, but there were unexpected fields: {field_string}."
     )]
     LeftoverFields {
@@ -144,36 +117,9 @@ pub enum IrParsingErrorMessages {
         "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
     )]
     UnexpectedOutputType { field_name: StringKey },
-
-    #[error(
-        "Unexpected `@onType`. The deprecated `@onType` option is not enabled for the field `{field_name}`. Please use the new syntax: `@RelayResolver ParentType.field_name`."
-    )]
-    UnexpectedOnType { field_name: StringKey },
-
-    #[error(
-        "Unexpected `@onInterface`. The deprecated `@onType` option is not enabled for the field `{field_name}`. Please use the new syntax: `@RelayResolver ParentInterface.field_name`."
-    )]
-    UnexpectedOnInterface { field_name: StringKey },
-
-    #[error("@live is incompatible with @rootFragment")]
-    IncompatibleLiveAndRootFragment,
-
-    #[error("@outputType is incompatible with @rootFragment")]
-    IncompatibleOutputTypeAndRootFragment,
 }
 
-#[derive(
-    Clone,
-    Debug,
-    Error,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type")]
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum SchemaValidationErrorMessages {
     #[error(
         "Unexpected plural server type in `@edgeTo` field. Currently Relay Resolvers only support plural `@edgeTo` if the type is defined via Client Schema Extensions."
@@ -214,33 +160,9 @@ pub enum SchemaValidationErrorMessages {
         interface_name: InterfaceName,
         invalid_type_string: String,
     },
-
-    #[error(
-        "Resolvers on the mutation type {mutation_type_name} are disallowed without the enable_relay_resolver_mutations feature flag"
-    )]
-    DisallowedMutationResolvers { mutation_type_name: String },
-
-    #[error(
-        "Mutation resolver {resolver_field_name} must return a scalar or enum type, got {actual_return_type}"
-    )]
-    MutationResolverNonScalarReturn {
-        resolver_field_name: String,
-        actual_return_type: String,
-    },
 }
 
-#[derive(
-    Clone,
-    Debug,
-    Error,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type")]
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ErrorMessagesWithData {
     #[error(
         "Invalid interface given for `@onInterface`. `{interface_name}` is not an existing GraphQL interface.{suggestions}", suggestions = did_you_mean(suggestions))]

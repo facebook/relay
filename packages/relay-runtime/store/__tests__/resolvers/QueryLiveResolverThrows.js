@@ -11,8 +11,6 @@
 
 'use strict';
 
-import type {LiveState} from 'relay-runtime';
-
 /**
  * @RelayResolver
  * @fieldName live_resolver_throws
@@ -21,6 +19,8 @@ import type {LiveState} from 'relay-runtime';
  *
  * A @live resolver that throws
  */
+import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
+
 function live_resolver_throws(): LiveState<null> {
   throw new Error('What?');
 }

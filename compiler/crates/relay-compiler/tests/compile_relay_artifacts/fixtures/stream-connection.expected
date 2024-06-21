@@ -400,7 +400,7 @@ query streamConnection_NodeQuery(
     id
     ... on Story {
       comments(first: 10) {
-        edges @stream(label: "streamConnection_NodeQuery$stream$NodeQuery_comments", initialCount: 0) {
+        edges @stream(label: "streamConnection_NodeQuery$stream$NodeQuery_comments", initial_count: 0) {
           node {
             actor {
               __typename

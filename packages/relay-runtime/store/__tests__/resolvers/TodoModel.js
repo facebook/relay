@@ -11,28 +11,22 @@
 
 'use strict';
 
-import type {TodoModelCapitalizedID$key} from './__generated__/TodoModelCapitalizedID.graphql';
-import type {TodoModelCapitalizedIDLegacy$key} from './__generated__/TodoModelCapitalizedIDLegacy.graphql';
+import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 import type {TodoDescription} from './TodoDescription';
 import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
-import type {LiveState} from 'relay-runtime';
 import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
 
-const {readFragment} = require('../../ResolverFragments');
 const {createTodoDescription} = require('./TodoDescription');
-const {graphql, suspenseSentinel} = require('relay-runtime');
 const {
   Selectors,
   TODO_STORE,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 
-type TodoModelType = ?TodoItem;
-
 /**
  * @RelayResolver TodoModel
  * @live
  */
-function TodoModel(id: string): LiveState<TodoModelType> {
+function TodoModel(id: string): LiveState<?TodoItem> {
   return {
     read() {
       return Selectors.getTodo(TODO_STORE.getState(), id);
@@ -46,52 +40,14 @@ function TodoModel(id: string): LiveState<TodoModelType> {
 /**
  * @RelayResolver TodoModel.description: String
  */
-function description(model: TodoModelType): ?string {
+function description(model: ?TodoItem): ?string {
   return model?.description;
-}
-
-/**
- * @RelayResolver TodoModel.capitalized_id: String
- * @rootFragment TodoModelCapitalizedID
- *
- * A resolver on a model type that reads its own rootFragment
- */
-function capitalized_id(key: TodoModelCapitalizedID$key): ?string {
-  const todo = readFragment(
-    graphql`
-      fragment TodoModelCapitalizedID on TodoModel {
-        id
-      }
-    `,
-    key,
-  );
-  return todo.id.toUpperCase();
-}
-
-/**
- * @RelayResolver
- * @fieldName capitalized_id_legacy
- * @onType TodoModel
- * @rootFragment TodoModelCapitalizedIDLegacy
- *
- * Like `capitalized_id`, but implemented using the non-terse legacy syntax
- */
-function capitalized_id_legacy(key: TodoModelCapitalizedIDLegacy$key): ?string {
-  const todo = readFragment(
-    graphql`
-      fragment TodoModelCapitalizedIDLegacy on TodoModel {
-        id
-      }
-    `,
-    key,
-  );
-  return todo.id.toUpperCase();
 }
 
 /**
  * @RelayResolver TodoModel.fancy_description: TodoDescription
  */
-function fancy_description(model: TodoModelType): ?TodoDescription {
+function fancy_description(model: ?TodoItem): ?TodoDescription {
   if (model == null) {
     return null;
   }
@@ -99,34 +55,10 @@ function fancy_description(model: TodoModelType): ?TodoDescription {
 }
 
 /**
- * @RelayResolver TodoModel.fancy_description_null: TodoDescription
- */
-function fancy_description_null(model: TodoModelType): ?TodoDescription {
-  return null;
-}
-
-/**
- * @RelayResolver TodoModel.fancy_description_suspends: TodoDescription
- * @live
- */
-function fancy_description_suspends(
-  model: TodoModelType,
-): LiveState<TodoDescription> {
-  return {
-    read() {
-      return suspenseSentinel();
-    },
-    subscribe() {
-      return () => {};
-    },
-  };
-}
-
-/**
  * @RelayResolver TodoModel.many_fancy_descriptions: [TodoDescription]
  */
 function many_fancy_descriptions(
-  model: TodoModelType,
+  model: ?TodoItem,
 ): $ReadOnlyArray<TodoDescription> {
   if (model == null) {
     return [];
@@ -164,14 +96,10 @@ function live_todo_description(args: {
 }
 
 module.exports = {
-  capitalized_id,
-  capitalized_id_legacy,
   todo_model_null,
   TodoModel,
   description,
   fancy_description,
-  fancy_description_null,
-  fancy_description_suspends,
   many_fancy_descriptions,
   live_todo_description,
 };

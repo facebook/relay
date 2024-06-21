@@ -33,6 +33,7 @@ const {
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -201,6 +202,7 @@ function updateProxyFromSelections<TData>(
       case CLIENT_EDGE_TO_CLIENT_OBJECT:
       case CLIENT_EDGE_TO_SERVER_OBJECT:
       case DEFER:
+      case FLIGHT_FIELD:
       case MODULE_IMPORT:
       case RELAY_LIVE_RESOLVER:
       case REQUIRED_FIELD:

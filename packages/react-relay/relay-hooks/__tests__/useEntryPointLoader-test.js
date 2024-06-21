@@ -153,7 +153,7 @@ it('disposes the entry point and nullifies the state when the disposeEntryPoint 
 });
 
 beforeEach(() => {
-  jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
+  jest.mock('scheduler', () => require('scheduler/unstable_mock'));
 });
 
 afterEach(() => {

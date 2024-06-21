@@ -46,17 +46,14 @@ export type queryOnlyProvidedVar_MultiFragment = {|
   response: queryOnlyProvidedVar_MultiFragment$data,
   variables: queryOnlyProvidedVar_MultiFragment$variables,
 |};
-({
-  "__relay_internal__pv__includeNameProvider": require('includeNameProvider'),
-  "__relay_internal__pv__numberOfFriendsProvider": require('numberOfFriendsProvider')
-}: {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
   +__relay_internal__pv__numberOfFriendsProvider: {|
     +get: () => number,
   |},
-|});
+|};
 -------------------------------------------------------------------------------
 import type { FragmentOneProvidedVar$fragmentType } from "FragmentOneProvidedVar.graphql";
 export type queryOnlyProvidedVar_OneFragment$variables = {||};
@@ -69,13 +66,11 @@ export type queryOnlyProvidedVar_OneFragment = {|
   response: queryOnlyProvidedVar_OneFragment$data,
   variables: queryOnlyProvidedVar_OneFragment$variables,
 |};
-({
-  "__relay_internal__pv__includeNameProvider": require('includeNameProvider')
-}: {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
-|});
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentMultiProvidedVar$fragmentType: FragmentType;

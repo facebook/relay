@@ -34,19 +34,19 @@ fragment FeedbackFragment on Feedback {
 import { FragmentRefs } from "relay-runtime";
 export type CommentCreateInput = {
   client_mutation_id: string;
-  feedback?: CommentfeedbackFeedback | null | undefined;
-  feedbackId?: string | null | undefined;
+  feedback?: CommentfeedbackFeedback | null;
+  feedbackId?: string | null;
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null | undefined;
+  comment?: FeedbackcommentComment | null;
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null | undefined;
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentCreateMutation$variables = {
-  first?: number | null | undefined;
+  first?: number | null;
   input: CommentCreateInput;
-  orderBy?: ReadonlyArray<string> | null | undefined;
+  orderBy?: ReadonlyArray<string> | null;
 };
 export type CommentCreateMutation$data = {
   readonly commentCreate: {
@@ -54,13 +54,13 @@ export type CommentCreateMutation$data = {
       readonly friends: {
         readonly edges: ReadonlyArray<{
           readonly node: {
-            readonly lastName: string | null | undefined;
+            readonly lastName: string | null;
             readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
-          } | null | undefined;
-        } | null | undefined> | null | undefined;
-      } | null | undefined;
-    } | null | undefined;
-  } | null | undefined;
+          } | null;
+        } | null> | null;
+      } | null;
+    } | null;
+  } | null;
 };
 export type CommentCreateMutation$rawResponse = {
   readonly commentCreate: {
@@ -70,17 +70,17 @@ export type CommentCreateMutation$rawResponse = {
           readonly node: {
             readonly feedback: {
               readonly id: string;
-              readonly name: string | null | undefined;
-            } | null | undefined;
+              readonly name: string | null;
+            } | null;
             readonly id: string;
-            readonly lastName: string | null | undefined;
-            readonly name: string | null | undefined;
-          } | null | undefined;
-        } | null | undefined> | null | undefined;
-      } | null | undefined;
+            readonly lastName: string | null;
+            readonly name: string | null;
+          } | null;
+        } | null> | null;
+      } | null;
       readonly id: string;
-    } | null | undefined;
-  } | null | undefined;
+    } | null;
+  } | null;
 };
 export type CommentCreateMutation = {
   rawResponse: CommentCreateMutation$rawResponse;
@@ -91,7 +91,7 @@ export type CommentCreateMutation = {
 import { FragmentRefs } from "relay-runtime";
 export type FeedbackFragment$data = {
   readonly id: string;
-  readonly name: string | null | undefined;
+  readonly name: string | null;
   readonly " $fragmentType": "FeedbackFragment";
 };
 export type FeedbackFragment$key = {
@@ -103,9 +103,9 @@ import { FragmentRefs } from "relay-runtime";
 export type FriendFragment$data = {
   readonly feedback: {
     readonly " $fragmentSpreads": FragmentRefs<"FeedbackFragment">;
-  } | null | undefined;
-  readonly lastName: string | null | undefined;
-  readonly name: string | null | undefined;
+  } | null;
+  readonly lastName: string | null;
+  readonly name: string | null;
   readonly " $fragmentType": "FriendFragment";
 };
 export type FriendFragment$key = {

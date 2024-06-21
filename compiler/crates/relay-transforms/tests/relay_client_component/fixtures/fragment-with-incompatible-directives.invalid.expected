@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithRelayClientComponent {
+  me {
+    id
+    ...ClientFragment @relay_client_component @defer @relay(mask: false)
+  }
+}
+
+fragment ClientFragment on User {
+  id
+  name
+}
+==================================== ERROR ====================================
+✖︎ @relay_client_component is not compatible with these directives: `defer`, `relay`
+
+  fragment-with-incompatible-directives.invalid.graphql:5:8
+    4 │     id
+    5 │     ...ClientFragment @relay_client_component @defer @relay(mask: false)
+      │        ^^^^^^^^^^^^^^
+    6 │   }

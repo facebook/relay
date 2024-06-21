@@ -63,8 +63,7 @@ const DeleteEdgeHandler = {
           if (connection == null) {
             warning(
               false,
-              "[Relay] The connection with id `%s` doesn't exist.",
-              connectionID,
+              `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
             );
             continue;
           }
@@ -136,8 +135,7 @@ function edgeUpdater(
         if (connection == null) {
           warning(
             false,
-            "[Relay] The connection with id `%s` doesn't exist.",
-            connectionID,
+            `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
           );
           continue;
         }
@@ -207,8 +205,7 @@ function nodeUpdater(
         if (connection == null) {
           warning(
             false,
-            "[Relay] The connection with id `%s` doesn't exist.",
-            connectionID,
+            `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
           );
           continue;
         }

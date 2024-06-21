@@ -303,7 +303,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_union(&mut self, id: UnionID) -> FmtResult {
         let union_ = self.schema.union(id);
-        write!(self.writer(), "union {}", union_.name.item.0)?;
+        write!(self.writer(), "union {}", union_.name.item)?;
         self.print_directive_values(&union_.directives)?;
         if !union_.members.is_empty() {
             let union_members = union_
@@ -376,7 +376,6 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }
-            self.print_directive_values(&arg.directives)?;
         }
         write!(self.writer(), ")")
     }
@@ -407,7 +406,6 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
             if let Some(default) = &arg.default_value {
                 write!(self.writer(), " = {}", default,)?;
             }
-            self.print_directive_values(&arg.directives)?;
             self.print_new_line()?;
         }
         write!(self.writer(), "}}")

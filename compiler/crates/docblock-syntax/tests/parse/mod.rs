@@ -10,7 +10,7 @@ use docblock_syntax::parse_docblock;
 use fixture_tests::Fixture;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut content = fixture.content;
     if !content.starts_with("/*") {
         panic!("Expected fixture to start with \"/*\".")

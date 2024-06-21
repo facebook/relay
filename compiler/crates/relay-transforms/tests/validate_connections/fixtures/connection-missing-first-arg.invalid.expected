@@ -17,7 +17,7 @@ query NodeQuery($id: ID!) {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected field 'comments' to be passed a 'first' or 'last' argument.
+✖︎ Expected field 'comments' to have a 'first' or 'last' argument.
 
   connection-missing-first-arg.invalid.graphql:6:7
     5 │     ... on Story {

@@ -31,11 +31,11 @@ fragment Foo on Node {
 import { FragmentRefs } from "relay-runtime";
 export type Bar$data = {
   readonly body?: {
-    readonly text: string | null | undefined;
-  } | null | undefined;
+    readonly text: string | null;
+  } | null;
   readonly name?: string;
   readonly " $fragmentType": "Bar";
-} | null | undefined;
+} | null;
 export type Bar$key = {
   readonly " $data"?: Bar$data;
   readonly " $fragmentSpreads": FragmentRefs<"Bar">;
@@ -45,8 +45,8 @@ import { FragmentRefs } from "relay-runtime";
 export type Foo$data = {
   readonly __typename: "Comment";
   readonly body: {
-    readonly text: string | null | undefined;
-  } | null | undefined;
+    readonly text: string | null;
+  } | null;
   readonly " $fragmentType": "Foo";
 } | {
   readonly __typename: "User";
@@ -57,7 +57,7 @@ export type Foo$data = {
   // value in case none of the concrete values match.
   readonly __typename: "%other";
   readonly " $fragmentType": "Foo";
-} | null | undefined;
+} | null;
 export type Foo$key = {
   readonly " $data"?: Foo$data;
   readonly " $fragmentSpreads": FragmentRefs<"Foo">;

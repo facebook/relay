@@ -45,8 +45,7 @@
 //!
 //! Simply import `intern::string` and go to town:
 //! ```
-//! use intern::string;
-//! use intern::string::StringId;
+//! use intern::string::{self, StringId};
 //!
 //! let a: StringId = string::intern("a");
 //! let b = string::intern("b");
@@ -63,33 +62,27 @@
 //! static reference to the interned object referred to by `my_id`.
 //! ```
 //! # #[macro_use]
-//! use intern::intern_struct;
-//! use intern::InternId;
-//! use intern::InternSerdes;
-//! use serde_derive::Deserialize;
-//! use serde_derive::Serialize;
+//! use intern::{InternId, InternSerdes, intern_struct};
+//! use serde_derive::{Deserialize, Serialize};
 //!
 //! #[derive(Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
-//! struct MyType {
-//!     v: i64,
-//! }
+//! struct MyType{ v: i64 }
 //!
 //! intern_struct! {
 //!     struct MyId = Intern<MyType> { serdes("InternSerdes<MyId>"); }
 //! }
 //!
 //! # fn main() {
-//! let m1 = MyType { v: 1 };
-//! let m2 = MyType { v: 1 };
-//! let m3 = MyType { v: -57 };
+//! let m1 = MyType{ v: 1 };
+//! let m2 = MyType{ v: 1 };
+//! let m3 = MyType{ v: -57 };
 //! let i1 = MyId::intern(m1);
 //! let i2 = MyId::intern(m2);
 //! let i3 = MyId::intern(m3);
 //! assert_eq!(i1, i2);
 //! assert_eq!(i1.get().v, 1);
 //! assert!(i1 != i3);
-//! // Uses Deref
-//! assert_eq!(i3.v, -57);
+//! assert_eq!(i3.v, -57);  // Uses Deref
 //! # }
 //! ```
 //!

@@ -139,7 +139,7 @@ describe('Err', () => {
     );
     expect(actual.Err).toEqual({
       ConfigError:
-        'unknown field `this_key_does_not_exist`, expected one of `enable_flight_transform`, `enable_relay_resolver_transform`, `no_inline`, `enable_3d_branch_arg_generation`, `actor_change_support`, `text_artifacts`, `enable_provided_variables`, `skip_printing_nulls`, `enable_fragment_aliases` at line 1 column 26',
+        'unknown field `this_key_does_not_exist`, expected one of `enable_flight_transform`, `enable_relay_resolver_transform`, `hash_supported_argument`, `no_inline`, `enable_3d_branch_arg_generation`, `actor_change_support`, `text_artifacts`, `enable_client_edges`, `enable_provided_variables`, `skip_printing_nulls`, `enable_fragment_aliases` at line 1 column 26',
     });
   });
   test('parse_to_ast', () => {

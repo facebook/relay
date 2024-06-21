@@ -18,9 +18,6 @@
  * returns the now-frozen original object.
  */
 function deepFreeze<T: {...}>(object: T): T {
-  if (!shouldBeFrozen(object)) {
-    return object;
-  }
   Object.freeze(object);
   Object.getOwnPropertyNames(object).forEach(name => {
     const property = object[name];
@@ -33,15 +30,6 @@ function deepFreeze<T: {...}>(object: T): T {
     }
   });
   return object;
-}
-
-function shouldBeFrozen(value: mixed): boolean {
-  // Only freeze plain JS arrays and objects
-  return (
-    value != null &&
-    (Array.isArray(value) ||
-      (typeof value === 'object' && value.constructor === Object))
-  );
 }
 
 module.exports = deepFreeze;

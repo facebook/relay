@@ -15,11 +15,11 @@ use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 use relay_config::ProjectConfig;
-use relay_config::ProjectName;
 use relay_transforms::get_resolver_fragment_dependency_name;
 use schema::SDLSchema;
 use schema::Schema;
 
+use crate::compiler_state::ProjectName;
 use crate::errors::BuildProjectError;
 use crate::GraphQLAsts;
 
@@ -156,7 +156,7 @@ fn find_base_resolver_fragment_asts(
 ) -> Vec<ExecutableDefinition> {
     let mut base_resolver_fragments = ExecutableDefinitionNameSet::default();
     for field in schema.fields() {
-        if let Some(fragment_name) = get_resolver_fragment_dependency_name(field) {
+        if let Some(fragment_name) = get_resolver_fragment_dependency_name(field, schema) {
             if base_definition_asts.contains(&fragment_name.into()) {
                 base_resolver_fragments.insert(fragment_name.into());
             }

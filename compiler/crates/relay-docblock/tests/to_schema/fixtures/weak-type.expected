@@ -23,5 +23,5 @@ scalar MyClientTypeModel @__RelayCustomScalar(path: "/path/to/test/fixture/weak-
 
 
 type MyClientType @__RelayResolverModel @RelayOutputType @__RelayWeakObject @deprecated(reason: "Don't use this any more") {
-  __relay_model_instance: MyClientTypeModel! @resolver_source_hash(value: "fdcf9d39b12f481b2f5a83f2aec8d922") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: MyClientTypeModel @unselectable(reason: "This field is intended only for Relay's internal use")
 }

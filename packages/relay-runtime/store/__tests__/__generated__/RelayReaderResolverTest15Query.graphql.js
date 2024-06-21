@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<91ff9d29549477be4b7adb3b6968e356>>
+ * @generated SignedSource<<de5105ea489141bdb741bd5481e90fc3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,10 +24,10 @@ import {undefined_field as queryUndefinedFieldResolverType} from "../resolvers/U
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryUndefinedFieldResolverType: (
   rootKey: UndefinedFieldResolver$key,
-) => ?mixed);
+) => mixed);
 export type RelayReaderResolverTest15Query$variables = {||};
 export type RelayReaderResolverTest15Query$data = {|
-  +undefined_field: ?ReturnType<typeof queryUndefinedFieldResolverType>,
+  +undefined_field: ?$Call<<R>((...empty[]) => R) => R, typeof queryUndefinedFieldResolverType>,
 |};
 export type RelayReaderResolverTest15Query = {|
   response: RelayReaderResolverTest15Query$data,

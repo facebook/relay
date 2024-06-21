@@ -5,7 +5,4 @@
 DocblockAST {
     location: empty-block.ecmascript:0:2,
     sections: [],
-    source_hash: ResolverSourceHash(
-        "75966d011d530b35f16483422368e364",
-    ),
 }

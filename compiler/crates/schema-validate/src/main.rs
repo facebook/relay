@@ -27,7 +27,7 @@ pub fn main() {
     match build_schema_from_file(&opt.schema_path) {
         Ok(schema) => {
             let validation_context = validate(&schema);
-            if !validation_context.errors.is_empty() {
+            if !validation_context.errors.lock().unwrap().is_empty() {
                 eprintln!(
                     "Schema failed validation with below errors:\n{}",
                     validation_context.print_errors()

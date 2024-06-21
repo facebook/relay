@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a8dc650e63c11b1495c837bdd2d50311>>
+ * @generated SignedSource<<1aba9b07c641d36e60acc46f1a0f1c38>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,15 +27,15 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
   args: {|
     salutation: string,
   |},
-) => ?mixed);
+) => mixed);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,
 |};
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$data = {|
   +me: ?{|
-    +dynamic_greeting: ?ReturnType<typeof userCustomGreetingResolverType>,
-    +greetz: ?ReturnType<typeof userCustomGreetingResolverType>,
-    +willkommen: ?ReturnType<typeof userCustomGreetingResolverType>,
+    +dynamic_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
+    +greetz: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
+    +willkommen: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
   |},
 |};
 export type RelayReaderResolverTestCustomGreetingDynamicQuery = {|

@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
  * @RelayResolver
  *

@@ -29,18 +29,18 @@ export type ExampleQuery$variables = {
 export type ExampleQuery$data = {
   readonly node: {
     readonly friends?: {
-      readonly count: number | null | undefined;
-    } | null | undefined;
-    readonly username: string | null | undefined;
+      readonly count: number | null;
+    } | null;
+    readonly username: string | null;
     readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
-  } | null | undefined;
+  } | null;
 };
 export type ExampleQuery$rawResponse = {
   readonly node: {
     readonly __typename: string;
     readonly id: string;
-    readonly username: string | null | undefined;
-  } | null | undefined;
+    readonly username: string | null;
+  } | null;
 };
 export type ExampleQuery = {
   rawResponse: ExampleQuery$rawResponse;
@@ -52,10 +52,10 @@ import { FragmentRefs } from "relay-runtime";
 export type FriendFragment$data = {
   readonly feedback?: {
     readonly id: string;
-    readonly name: string | null | undefined;
-  } | null | undefined;
-  readonly lastName?: string | null | undefined;
-  readonly name?: string | null | undefined;
+    readonly name: string | null;
+  } | null;
+  readonly lastName?: string | null;
+  readonly name?: string | null;
   readonly " $fragmentType": "FriendFragment";
 };
 export type FriendFragment$key = {

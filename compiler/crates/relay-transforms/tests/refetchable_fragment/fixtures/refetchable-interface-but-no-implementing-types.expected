@@ -39,11 +39,8 @@ fragment RefetchableFragmentFoo on RefetchableInterfaceFoo @refetchable(queryNam
 #     path: [
 #         "node",
 #     ],
-#     identifier_info: Some(
-#         RefetchableIdentifierInfo {
-#             identifier_field: "id",
-#             identifier_query_variable_name: "id",
-#         },
+#     identifier_field: Some(
+#         "id",
 #     ),
 # }
  {

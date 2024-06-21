@@ -41,9 +41,10 @@ function testDependencies(topLevelPackagePath, packagePaths) {
 
 function testPackageDependencies(topLevelPackagePath, packagePath) {
   const errors = [];
-  const topLevelPackageJson = require(
-    path.join(topLevelPackagePath, 'package.json'),
-  );
+  const topLevelPackageJson = require(path.join(
+    topLevelPackagePath,
+    'package.json',
+  ));
   const packageJson = require(path.join(packagePath, 'package.json'));
   const packageName = path.basename(packagePath);
 

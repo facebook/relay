@@ -7,6 +7,6 @@
 
 use fixture_tests::Fixture;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     Ok(fixture.content.to_uppercase())
 }

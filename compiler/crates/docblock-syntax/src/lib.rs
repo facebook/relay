@@ -21,7 +21,6 @@ use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
 use common::WithLocation;
-use docblock_shared::ResolverSourceHash;
 use errors::SyntaxError;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -95,7 +94,6 @@ struct DocblockParser<'a> {
     errors: Vec<Diagnostic>,
     in_progress_text: Option<SpanString>,
     sections: Vec<DocblockSection>,
-    source_hash: ResolverSourceHash,
 }
 
 impl<'a> DocblockParser<'a> {
@@ -108,7 +106,6 @@ impl<'a> DocblockParser<'a> {
             chars,
             in_progress_text: None,
             sections: Vec::new(),
-            source_hash: ResolverSourceHash::new(source),
         }
     }
 
@@ -149,7 +146,6 @@ impl<'a> DocblockParser<'a> {
                      */
                     Span::new(start, end - 1),
                 ),
-                source_hash: self.source_hash,
             })
         } else {
             Err(self.errors)

@@ -26,7 +26,7 @@ describe('RelayModernFragmentSpecResolver', () => {
   let zuckOperation;
   let variables;
   let logger;
-  let relayFieldLogger;
+  let requiredFieldLogger;
 
   function setUserField(id, fieldName, value) {
     environment.applyUpdate({
@@ -39,8 +39,8 @@ describe('RelayModernFragmentSpecResolver', () => {
 
   beforeEach(() => {
     logger = jest.fn();
-    relayFieldLogger = jest.fn();
-    environment = createMockEnvironment({log: logger, relayFieldLogger});
+    requiredFieldLogger = jest.fn();
+    environment = createMockEnvironment({log: logger, requiredFieldLogger});
     UserFragment = graphql`
       fragment RelayModernFragmentSpecResolverRequiredFieldTestUserFragment on User {
         id
@@ -99,7 +99,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       true /* rootIsQueryRenderer */,
     );
     resolver.resolve();
-    expect(relayFieldLogger).toHaveBeenCalledWith({
+    expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'alternate_name',
       kind: 'missing_field.log',
       owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',
@@ -122,7 +122,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment'.",
     );
 
-    expect(relayFieldLogger).toHaveBeenCalledWith({
+    expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'name',
       kind: 'missing_field.throw',
       owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',

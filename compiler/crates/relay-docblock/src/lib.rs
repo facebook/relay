@@ -31,27 +31,22 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::TypeSystemDefinition;
 use intern::Lookup;
 pub use ir::DocblockIr;
-use ir::LegacyVerboseResolverIr;
 pub use ir::On;
-use relay_config::ProjectName;
+use ir::RelayResolverIr;
 use schema::SDLSchema;
 use untyped_representation::parse_untyped_docblock_representation;
 
 pub struct ParseOptions<'a> {
     pub enable_output_type: &'a FeatureFlag,
-    pub enable_strict_resolver_flavors: &'a FeatureFlag,
-    pub allow_legacy_verbose_syntax: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(
-    project_name: ProjectName,
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
     parse_options: ParseOptions<'_>,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     let untyped_representation = parse_untyped_docblock_representation(ast)?;
     parse_docblock_ir(
-        project_name,
         untyped_representation,
         definitions,
         &parse_options,
@@ -94,7 +89,7 @@ pub fn extend_schema_with_resolver_type_system_definition(
             schema.add_interface_type_extension(extension, location.source_location())?;
         }
         _ => panic!(
-            "Expected docblocks to only expose object and scalar definitions, and object and interface extensions."
+            "Expected docblocks to only expose object and scalar extensions, and object and interface definitions"
         ),
     })
 }

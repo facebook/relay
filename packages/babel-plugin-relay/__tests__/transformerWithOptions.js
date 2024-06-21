@@ -12,8 +12,6 @@
 
 const BabelPluginRelay = require('../BabelPluginRelay');
 const babel = require('@babel/core');
-const checkDuplicatedNodes =
-  require('@babel/helper-check-duplicate-nodes').default;
 const prettier = require('prettier');
 
 function transformerWithOptions(
@@ -25,16 +23,14 @@ function transformerWithOptions(
     const previousEnv = process.env.BABEL_ENV;
     try {
       process.env.BABEL_ENV = environment;
-      const {code, ast} = babel.transformSync(text, {
+      const code = babel.transform(text, {
         compact: false,
         cwd: '/',
         filename: filename || providedFileName || 'test.js',
         highlightCode: false,
         parserOpts: {plugins: ['jsx']},
         plugins: [[BabelPluginRelay, options]],
-        ast: true,
-      });
-      checkDuplicatedNodes(ast);
+      }).code;
       return prettier.format(code, {
         bracketSameLine: true,
         bracketSpacing: false,

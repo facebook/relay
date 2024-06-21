@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6703998458a25903621ee13227354a96>>
+ * @generated SignedSource<<41e083a018213043ae8d87d99a15ce1d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,14 +29,16 @@ export type withProvidedVariablesTest1Query = {|
   response: withProvidedVariablesTest1Query$data,
   variables: withProvidedVariablesTest1Query$variables,
 |};
-({
-  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
-}: {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
   |},
-|});
+|};
 */
+
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
+};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [
@@ -150,9 +152,7 @@ return {
     "name": "withProvidedVariablesTest1Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest1Query(\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest1Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest1Fragment on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

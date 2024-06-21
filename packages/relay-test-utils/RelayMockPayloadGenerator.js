@@ -23,12 +23,9 @@ import type {
   OperationDescriptor,
   Variables,
 } from 'relay-runtime';
-import type {GraphQLResponseWithData} from 'relay-runtime/network/RelayNetworkTypes';
-import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const invariant = require('invariant');
 const {
-  __internal,
   RelayConcreteNode,
   TYPENAME_KEY,
   getModuleComponentKey,
@@ -43,13 +40,13 @@ const {
   CONDITION,
   CONNECTION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
   RELAY_RESOLVER,
-  RELAY_LIVE_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -184,15 +181,12 @@ class RelayMockPayloadGenerator {
   _mockResolvers: MockResolvers;
   _selectionMetadata: SelectionMetadata;
   _mockClientData: boolean;
-  _generateDeferredPayload: boolean;
-  _deferredPayloads: Array<GraphQLResponseWithData>;
 
   constructor(options: {
     +variables: Variables,
     +mockResolvers: MockResolvers | null,
     +selectionMetadata: SelectionMetadata | null,
     +mockClientData: ?boolean,
-    +generateDeferredPayload: ?boolean,
   }) {
     this._variables = options.variables;
     this._mockResolvers = {
@@ -202,14 +196,12 @@ class RelayMockPayloadGenerator {
     this._selectionMetadata = options.selectionMetadata ?? {};
     this._resolveValue = createValueResolver(this._mockResolvers);
     this._mockClientData = options.mockClientData ?? false;
-    this._generateDeferredPayload = options.generateDeferredPayload ?? false;
-    this._deferredPayloads = [];
   }
 
   generate(
     selections: $ReadOnlyArray<NormalizationSelection>,
     operationType: string,
-  ): Array<GraphQLSingularResponse> {
+  ): MockData {
     const defaultValues = this._getDefaultValuesForObject(
       operationType,
       null,
@@ -217,7 +209,7 @@ class RelayMockPayloadGenerator {
       [], // path
       {},
     );
-    const data = this._traverse(
+    return this._traverse(
       {
         selections,
         typeName: operationType,
@@ -230,8 +222,6 @@ class RelayMockPayloadGenerator {
       null, // prevData
       defaultValues,
     );
-
-    return [{data}, ...this._deferredPayloads];
   }
 
   _traverse(
@@ -314,24 +304,6 @@ class RelayMockPayloadGenerator {
         // falls through
         case DEFER:
         case STREAM: {
-          if (this._generateDeferredPayload) {
-            const deferredData = this._traverseSelections(
-              selection.selections,
-              typeName,
-              isAbstractType,
-              path,
-              {},
-              defaultValues,
-            );
-
-            this._deferredPayloads.push({
-              path: [...path],
-              label: selection.label,
-              data: deferredData,
-            });
-
-            break;
-          }
           mockData = this._traverseSelections(
             selection.selections,
             typeName,
@@ -343,24 +315,8 @@ class RelayMockPayloadGenerator {
           break;
         }
 
-        case CLIENT_COMPONENT: {
-          mockData = this._traverseSelections(
-            selection.fragment.selections,
-            typeName,
-            isAbstractType,
-            path,
-            mockData,
-            defaultValues,
-          );
-          break;
-        }
+        case CLIENT_COMPONENT:
         case FRAGMENT_SPREAD: {
-          const prevVariables = this._variables;
-          this._variables = __internal.getLocalVariables(
-            this._variables,
-            selection.fragment.argumentDefinitions,
-            selection.args,
-          );
           mockData = this._traverseSelections(
             selection.fragment.selections,
             typeName,
@@ -369,7 +325,6 @@ class RelayMockPayloadGenerator {
             mockData,
             defaultValues,
           );
-          this._variables = prevVariables;
           break;
         }
 
@@ -540,9 +495,10 @@ class RelayMockPayloadGenerator {
         case SCALAR_HANDLE:
         case LINKED_HANDLE:
           break;
+        case FLIGHT_FIELD:
+          throw new Error('Flight fields are not yet supported.');
         case ACTOR_CHANGE:
           throw new Error('ActorChange fields are not yet supported.');
-        case RELAY_LIVE_RESOLVER:
         case RELAY_RESOLVER:
           if (selection.fragment) {
             mockData = this._traverseSelections(
@@ -921,14 +877,13 @@ function generateData(
   variables: Variables,
   mockResolvers: MockResolvers | null,
   selectionMetadata: SelectionMetadata | null,
-  options: ?{mockClientData?: boolean, generateDeferredPayload?: boolean},
-): Array<GraphQLSingularResponse> {
+  options: ?{mockClientData?: boolean},
+): MockData {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     mockResolvers,
     selectionMetadata,
     mockClientData: options?.mockClientData,
-    generateDeferredPayload: options?.generateDeferredPayload,
   });
   let operationType;
   if (node.name.endsWith('Mutation')) {
@@ -938,7 +893,6 @@ function generateData(
   } else {
     operationType = 'Query';
   }
-
   return mockGenerator.generate(node.selections, operationType);
 }
 
@@ -986,41 +940,16 @@ function generateDataForOperation(
   mockResolvers: ?MockResolvers,
   options: ?{mockClientData?: boolean},
 ): GraphQLSingularResponse {
-  const concreteOperation = operation.request.node.operation;
-  const [initialPayload] = generateData(
-    concreteOperation,
+  const data = generateData(
+    operation.request.node.operation,
     operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
-    {...options, generateDeferredPayload: false},
+    options,
   );
-
-  return initialPayload;
-}
-
-function generateWithDefer(
-  operation: OperationDescriptor,
-  mockResolvers: ?MockResolvers,
-  options: ?{mockClientData?: boolean, generateDeferredPayload?: boolean},
-): GraphQLResponse {
-  const {generateDeferredPayload = false, ...otherOptions} = options ?? {};
-  const concreteOperation = operation.request.node.operation;
-  const payloads = generateData(
-    concreteOperation,
-    operation.request.variables,
-    mockResolvers ?? null,
-    getSelectionMetadataFromOperation(operation),
-    {...otherOptions, generateDeferredPayload: generateDeferredPayload},
-  );
-
-  if (!generateDeferredPayload) {
-    return payloads[0];
-  }
-
-  return payloads;
+  return {data};
 }
 
 module.exports = {
   generate: generateDataForOperation,
-  generateWithDefer,
 };

@@ -14,14 +14,14 @@ fragment TestFragment on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(70),
+            type_condition: Object(69),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
                         location: directive-generic.graphql:34:36,
-                        item: FieldID(461),
+                        item: FieldID(460),
                     },
                     arguments: [],
                     directives: [

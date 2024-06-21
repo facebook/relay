@@ -28,7 +28,6 @@ import type {
   LogFunction,
   MissingFieldHandler,
   MutationParameters,
-  NormalizeResponseFunction,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -36,7 +35,9 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
   PublishQueue,
-  RelayFieldLogger,
+  ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
+  RequiredFieldLogger,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -54,9 +55,9 @@ const RelayObservable = require('../network/RelayObservable');
 const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const defaultGetDataID = require('./defaultGetDataID');
-const defaultRelayFieldLogger = require('./defaultRelayFieldLogger');
-const normalizeResponse = require('./normalizeResponse');
+const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
 const OperationExecutor = require('./OperationExecutor');
 const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
@@ -68,8 +69,9 @@ export type EnvironmentConfig = {
   +treatMissingFieldsAsNull?: boolean,
   +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
+  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +network: INetwork,
-  +normalizeResponse?: ?NormalizeResponseFunction,
   +scheduler?: ?TaskScheduler,
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
@@ -78,7 +80,7 @@ export type EnvironmentConfig = {
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
-  +relayFieldLogger?: ?RelayFieldLogger,
+  +requiredFieldLogger?: ?RequiredFieldLogger,
   +shouldProcessClientComponents?: ?boolean,
 };
 
@@ -86,6 +88,8 @@ class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
   +_defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _shouldProcessClientComponents: ?boolean;
   _network: INetwork;
   _publishQueue: PublishQueue;
@@ -99,13 +103,15 @@ class RelayModernEnvironment implements IEnvironment {
   _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
   +_isServer: boolean;
-  relayFieldLogger: RelayFieldLogger;
-  _normalizeResponse: NormalizeResponseFunction;
+  requiredFieldLogger: RequiredFieldLogger;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull === true;
     const operationLoader = config.operationLoader;
+    const reactFlightPayloadDeserializer =
+      config.reactFlightPayloadDeserializer;
+    const reactFlightServerErrorHandler = config.reactFlightServerErrorHandler;
     if (__DEV__) {
       if (operationLoader != null) {
         invariant(
@@ -117,11 +123,23 @@ class RelayModernEnvironment implements IEnvironment {
           operationLoader,
         );
       }
+      if (reactFlightPayloadDeserializer != null) {
+        invariant(
+          typeof reactFlightPayloadDeserializer === 'function',
+          'RelayModernEnvironment: Expected `reactFlightPayloadDeserializer` ' +
+            ' to be a function, got `%s`.',
+          reactFlightPayloadDeserializer,
+        );
+      }
     }
     this.__log = config.log ?? emptyFunction;
-    this.relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
+    this.requiredFieldLogger =
+      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
     this._defaultRenderPolicy =
-      config.UNSTABLE_defaultRenderPolicy ?? 'partial';
+      config.UNSTABLE_defaultRenderPolicy ??
+      RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
+        ? 'partial'
+        : 'full';
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
     this._network = wrapNetworkWithLogObserver(this, config.network);
@@ -137,7 +155,6 @@ class RelayModernEnvironment implements IEnvironment {
     this._store = config.store;
     this.options = config.options;
     this._isServer = config.isServer ?? false;
-    this._normalizeResponse = config.normalizeResponse ?? normalizeResponse;
 
     (this: any).__setNet = newNet =>
       (this._network = wrapNetworkWithLogObserver(this, newNet));
@@ -149,6 +166,8 @@ class RelayModernEnvironment implements IEnvironment {
 
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
+    this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
 
     // Register this Relay Environment with Relay DevTools if it exists.
@@ -473,6 +492,8 @@ class RelayModernEnvironment implements IEnvironment {
           assertInternalActorIdentifier(actorIdentifier);
           return publishQueue;
         },
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
         sink,
@@ -485,7 +506,6 @@ class RelayModernEnvironment implements IEnvironment {
         },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
-        normalizeResponse: this._normalizeResponse,
       });
       return () => executor.cancel();
     });

@@ -68,6 +68,7 @@ describe('Fragment Spreads', () => {
             RelayReaderAliasedFragmentsTest_user: {},
           },
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
         },
       },
     });

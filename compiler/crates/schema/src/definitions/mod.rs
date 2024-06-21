@@ -21,7 +21,6 @@ use common::Named;
 use common::NamedItem;
 use common::ObjectName;
 use common::ScalarName;
-use common::UnionName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
@@ -41,7 +40,7 @@ pub(crate) type TypeMap = HashMap<StringKey, Type>;
 
 macro_rules! type_id {
     ($name:ident, $type:ident) => {
-        #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+        #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
         pub struct $name(pub $type);
         impl $name {
             pub(crate) fn as_usize(&self) -> usize {
@@ -71,7 +70,7 @@ type_id!(ScalarID, u32);
 type_id!(UnionID, u32);
 type_id!(FieldID, u32);
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum Type {
     Enum(EnumID),
     InputObject(InputObjectID),
@@ -197,7 +196,7 @@ impl Type {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum TypeReference<T> {
     Named(T),
     NonNull(Box<TypeReference<T>>),
@@ -305,7 +304,6 @@ pub struct Directive {
     pub repeatable: bool,
     pub is_extension: bool,
     pub description: Option<StringKey>,
-    pub hack_source: Option<StringKey>,
 }
 
 impl Named for Directive {
@@ -321,7 +319,6 @@ pub struct Scalar {
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
-    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -332,7 +329,6 @@ pub struct Object {
     pub interfaces: Vec<InterfaceID>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
-    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -341,7 +337,6 @@ pub struct InputObject {
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
-    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -351,17 +346,15 @@ pub struct Enum {
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
-    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Union {
-    pub name: WithLocation<UnionName>,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
-    pub hack_source: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -377,7 +370,6 @@ pub struct Field {
     /// a single parent type.
     pub parent_type: Option<Type>,
     pub description: Option<StringKey>,
-    pub hack_source: Option<StringKey>,
 }
 
 pub struct Deprecation {
@@ -554,7 +546,7 @@ impl_named_for_with_location!(Object, ObjectName);
 impl_named_for_with_location!(Field, StringKey);
 impl_named_for_with_location!(InputObject, InputObjectName);
 impl_named_for_with_location!(Interface, InterfaceName);
-impl_named_for_with_location!(Union, UnionName);
+impl_named_for_with_location!(Union, StringKey);
 impl_named_for_with_location!(Scalar, ScalarName);
 impl_named_for_with_location!(Enum, EnumName);
 

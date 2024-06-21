@@ -21,7 +21,7 @@ use schema::Type;
 
 const SCHEMA_SEPARATOR: &str = "%extensions%";
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split(SCHEMA_SEPARATOR).collect();
     let result = match parts.as_slice() {
         [base] => {

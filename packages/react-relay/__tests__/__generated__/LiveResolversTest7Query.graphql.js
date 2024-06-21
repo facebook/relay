@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b3c59f242eb9b5345afdb097bff3038f>>
+ * @generated SignedSource<<516dc929f97fad9c780c5541582feb7a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime";
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql";
 import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
@@ -28,7 +28,7 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
   args: {|
     scale: ?number,
   |},
-) => LiveState<?mixed>);
+) => LiveState<mixed>);
 export type LiveResolversTest7Query$variables = {|
   id: string,
   scale: number,
@@ -36,7 +36,7 @@ export type LiveResolversTest7Query$variables = {|
 export type LiveResolversTest7Query$data = {|
   +node: ?{|
     +name?: ?string,
-    +user_profile_picture_uri_suspends_when_the_counter_is_odd?: ?ReturnType<ReturnType<typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
+    +user_profile_picture_uri_suspends_when_the_counter_is_odd?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
   |},
 |};
 export type LiveResolversTest7Query = {|
@@ -100,7 +100,7 @@ return {
               (v2/*: any*/),
               {
                 "alias": null,
-                "args": [],
+                "args": null,
                 "fragment": {
                   "args": (v3/*: any*/),
                   "kind": "FragmentSpread",

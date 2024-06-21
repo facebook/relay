@@ -278,7 +278,6 @@ SchemaDocument {
                                         value: "Description of the `one` field.",
                                     },
                                 ),
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -359,7 +358,6 @@ SchemaDocument {
                                         value: "This is a description of the `two` field.",
                                     },
                                 ),
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -455,7 +453,6 @@ SchemaDocument {
                                         value: "This is a description of the `three` field.",
                                     },
                                 ),
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -529,7 +526,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -640,7 +636,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -744,7 +739,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -815,7 +809,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -1007,7 +1000,6 @@ SchemaDocument {
                                     },
                                 ],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -1128,7 +1120,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -1215,7 +1206,6 @@ SchemaDocument {
                                 arguments: None,
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -1289,7 +1279,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -1433,7 +1422,6 @@ SchemaDocument {
                                     },
                                 ],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -1559,7 +1547,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -1663,7 +1650,6 @@ SchemaDocument {
                                 arguments: None,
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -1736,7 +1722,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -1810,7 +1795,6 @@ SchemaDocument {
                                 ),
                                 directives: [],
                                 description: None,
-                                hack_source: None,
                             },
                         ],
                         end: Token {
@@ -2730,7 +2714,6 @@ SchemaDocument {
                         value: "This is a description of the `@skip` directive",
                     },
                 ),
-                hack_source: None,
             },
         ),
         DirectiveDefinition(
@@ -2798,7 +2781,6 @@ SchemaDocument {
                     InlineFragment,
                 ],
                 description: None,
-                hack_source: None,
             },
         ),
         DirectiveDefinition(
@@ -2866,7 +2848,6 @@ SchemaDocument {
                     InlineFragment,
                 ],
                 description: None,
-                hack_source: None,
             },
         ),
         DirectiveDefinition(
@@ -2933,7 +2914,6 @@ SchemaDocument {
                     Interface,
                 ],
                 description: None,
-                hack_source: None,
             },
         ),
         SchemaExtension(

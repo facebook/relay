@@ -27,7 +27,6 @@ pub struct Interface {
     pub directives: Vec<DirectiveValue>,
     pub interfaces: Vec<InterfaceID>,
     pub description: Option<StringKey>,
-    pub hack_source: Option<StringKey>,
 }
 
 impl Interface {
@@ -228,7 +227,6 @@ mod test {
             directives: vec![],
             interfaces: vec![],
             description: None,
-            hack_source: None,
         }
     }
 

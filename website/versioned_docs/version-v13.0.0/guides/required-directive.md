@@ -51,11 +51,11 @@ This value is not expected to ever be null, but the component **can still render
 
 ### `THROW` (unrecoverable)
 
-This value should not be null, and the component **cannot render without it**. If a field with `action: THROW` is null at runtime, the component which reads that field **will throw during render**. The error message includes both the owner and field path. Only use this option if your component is contained within an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+This value should not be null, and the component **cannot render without it**. If a field with `action: THROW` is null at runtime, the component which reads that field **will throw during render**. The error message includes both the owner and field path. Only use this option if your component is contained within an [error boundary](https://reactjs.org/docs/error-boundaries.html).
 
 ## Locality
 
-A field's `@required` status is **local to the fragment where it is specified**. This allows you to add/remove the directive without having to think about anything outside the scope of your component.
+A field's `@required` status is **local to the fragment where it is specified**. This allows you to add add/remove the directive without having to think about anything outside the scope of your component.
 
 This choice reflects the fact that some components may be able to recover better from missing data than others. For example, a `<RestaurantInfo />` component could probably render something sensible even if the restaurant's address is missing, but a `<RestaurantLocationMap />` component might not.
 
@@ -116,7 +116,7 @@ fragment MyFrag on Actor {
 }
 ```
 
-In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullable `name`.
+In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullalble `name`.
 
 <FbInternalOnly>
 Example diff showing the adoption of this strategy: D24370183

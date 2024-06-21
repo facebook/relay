@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<78d2548c61fb6ef49166b87871b6e52c>>
+ * @generated SignedSource<<c8c37cd789f948c8175ec0648f823f47>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -80,10 +80,7 @@ return {
         "fetch__NonNodeStory"
       ],
       "operation": require('./usePaginationFragmentTestStoryFragmentRefetchQuery.graphql'),
-      "identifierInfo": {
-        "identifierField": "fetch_id",
-        "identifierQueryVariableName": "id"
-      }
+      "identifierField": "fetch_id"
     }
   },
   "name": "usePaginationFragmentTestStoryFragment",

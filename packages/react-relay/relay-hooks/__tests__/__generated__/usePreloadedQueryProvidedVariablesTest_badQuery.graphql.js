@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<940e03983e6e001ebaf61ce67f5941e5>>
+ * @generated SignedSource<<c73b674e0a7d10eaad2a7c97ea7451a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,14 +31,16 @@ export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
   response: usePreloadedQueryProvidedVariablesTest_badQuery$data,
   variables: usePreloadedQueryProvidedVariablesTest_badQuery$variables,
 |};
-({
-  "__relay_internal__pv__RelayProvider_impurerelayprovider": require('./../RelayProvider_impure.relayprovider')
-}: {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__RelayProvider_impurerelayprovider: {|
     +get: () => number,
   |},
-|});
+|};
 */
+
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
+  "__relay_internal__pv__RelayProvider_impurerelayprovider": require('./../RelayProvider_impure.relayprovider')
+};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
@@ -160,9 +162,7 @@ return {
     "name": "usePreloadedQueryProvidedVariablesTest_badQuery",
     "operationKind": "query",
     "text": "query usePreloadedQueryProvidedVariablesTest_badQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_impurerelayprovider: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...usePreloadedQueryProvidedVariablesTest_badFragment\n    id\n  }\n}\n\nfragment usePreloadedQueryProvidedVariablesTest_badFragment on User {\n  profile_picture(scale: $__relay_internal__pv__RelayProvider_impurerelayprovider) {\n    uri\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__RelayProvider_impurerelayprovider": require('./../RelayProvider_impure.relayprovider')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

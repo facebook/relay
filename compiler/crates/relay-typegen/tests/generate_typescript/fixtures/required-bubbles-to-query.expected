@@ -6,13 +6,13 @@ query FooQuery {
   }
 }
 ==================================== OUTPUT ===================================
-export type FooQuery$variables = Record<PropertyKey, never>;
+export type FooQuery$variables = {};
 export type FooQuery$data = {
   readonly me: {
-    readonly firstName: string | null | undefined;
+    readonly firstName: string | null;
     readonly lastName: string;
   };
-} | null | undefined;
+} | null;
 export type FooQuery = {
   response: FooQuery$data;
   variables: FooQuery$variables;

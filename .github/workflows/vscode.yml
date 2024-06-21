@@ -18,10 +18,10 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: ESLint
-        run: yarn --ignore-engines run lint
+        run: yarn run lint
       - name: Prettier
-        run: yarn --ignore-engines run prettier-check
+        run: yarn run prettier-check
       - name: Typecheck
-        run: yarn --ignore-engines run typecheck
+        run: yarn run typecheck
       - name: Publish
-        run: yarn --ignore-engines vsce publish --pat ${{ secrets.VSCE_PAT }}
+        run: yarn vsce publish --pat ${{ secrets.VSCE_PAT }}

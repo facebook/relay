@@ -11,7 +11,7 @@ fragment FeedbackFragment on Feedback {
   id
   foo {
     bar {
-      users @stream(initialCount: 1, label: "StreamedActorsLabel") {
+      users @stream(initial_count: 1, label: "StreamedActorsLabel") {
         id
         name
       }
@@ -36,7 +36,7 @@ type Bar {
 
   fragment-with-stream-child-of-client.invalid.graphql:13:13
    12 │     bar {
-   13 │       users @stream(initialCount: 1, label: "StreamedActorsLabel") {
+   13 │       users @stream(initial_count: 1, label: "StreamedActorsLabel") {
       │             ^^^^^^^
    14 │         id
 

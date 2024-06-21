@@ -47,7 +47,7 @@ query NodeQuery(
     id
     ... on Story {
       comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
-        edges @stream(label: "NodeQuery_comments", initialCount: 0) {
+        edges @stream(label: "NodeQuery_comments", initial_count: 0) {
           node {
             actor {
               name

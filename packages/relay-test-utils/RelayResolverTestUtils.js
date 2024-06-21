@@ -38,7 +38,7 @@ function testResolver<D, Ret>(
   resolver: ({$data: D, $fragmentRefs: any, $fragmentSpreads: any}) => Ret,
   // indexed_access is not yet enabled for this code base. Once it is, this can
   // become: `Key['$data']`
-  fragmentData: $Diff<D, {$fragmentType: mixed}>,
+  fragmentData: D,
 ): Ret {
   const readFragment = ResolverFragments.readFragment;
   // $FlowFixMe: a test utility, so... YOLO!!

@@ -30,10 +30,6 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
     args.push(config.pathToConfig);
   }
 
-  if (config.pathToLocateCommand) {
-    args.push(`--locateCommand=${config.pathToLocateCommand}`);
-  }
-
   const serverOptions: ServerOptions = {
     options: {
       cwd: context.relayBinaryExecutionOptions.rootPath,

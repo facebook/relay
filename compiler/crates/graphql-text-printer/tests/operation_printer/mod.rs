@@ -16,7 +16,7 @@ use graphql_syntax::parse_executable;
 use graphql_text_printer::print_full_operation;
 use relay_test_schema::TEST_SCHEMA;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let ast = parse_executable(fixture.content, source_location).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();

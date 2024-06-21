@@ -9,8 +9,7 @@ use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
-#[derive(Debug, Error, serde::Serialize)]
-#[serde(tag = "type")]
+#[derive(Debug, Error)]
 pub enum ValidationMessage {
     #[error(
         "The @{disallowed_directive_name} directive is not allowed on assignable fragment spreads."
@@ -60,8 +59,10 @@ pub enum ValidationMessage {
         outer_type_plural: &'static str,
     },
 
-    #[error("Fields defined using Relay Resolvers are not allowed within @updatable operations.")]
-    UpdatableDisallowRelayResolvers,
+    #[error(
+        "Fields defined using Relay Resolvers are not not allowed within @updatable operations."
+    )]
+    UpdatableDisallowRealyResolvers,
 
     #[error("The directives @include and @skip are not allowed within {outer_type_plural}.")]
     UpdatableNoConditions { outer_type_plural: &'static str },

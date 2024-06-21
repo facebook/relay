@@ -14,8 +14,8 @@
 import type {Fragment, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
 const HooksImplementation = require('./HooksImplementation');
-const useFragmentNode = require('./legacy/useFragmentNode');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
+const useFragmentNode = require('./useFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
@@ -31,23 +31,17 @@ declare function useFragment<TFragmentType: FragmentType, TData>(
   key: HasSpread<TFragmentType>,
 ): TData;
 
-// if the key is nullable, return nullable value
-declare function useFragment<TFragmentType: FragmentType, TData>(
-  fragment: Fragment<TFragmentType, TData>,
-  key: ?HasSpread<TFragmentType>,
-): ?TData;
-
 // if the key is a non-nullable array of keys, return non-nullable array
 declare function useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: $ReadOnlyArray<HasSpread<TFragmentType>>,
 ): TData;
 
-// if the key is a nullable array of keys, return nullable array
+// if the key is null/void, return null/void value
 declare function useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
-  key: ?$ReadOnlyArray<HasSpread<TFragmentType>>,
-): ?TData;
+  key: null | void,
+): null | void;
 
 function useFragment_LEGACY(fragment: GraphQLTaggedNode, key: mixed): mixed {
   // We need to use this hook in order to be able to track if

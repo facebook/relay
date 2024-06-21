@@ -125,7 +125,7 @@ impl Program {
     pub fn merge_program(
         &mut self,
         other_program: &Self,
-        removed_definition_names: Option<Vec<ExecutableDefinitionName>>,
+        removed_definition_names: Option<&[ExecutableDefinitionName]>,
     ) {
         let mut operations: HashMap<
             OperationDefinitionName,
@@ -147,10 +147,10 @@ impl Program {
             for removed in removed_definition_names {
                 match removed {
                     ExecutableDefinitionName::OperationDefinitionName(name) => {
-                        operations.remove(&name);
+                        operations.remove(name);
                     }
                     ExecutableDefinitionName::FragmentDefinitionName(name) => {
-                        self.fragments.remove(&name);
+                        self.fragments.remove(name);
                     }
                 };
             }

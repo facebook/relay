@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<28b3eba1bf961281a612ddc50ead4b1f>>
+ * @generated SignedSource<<930f7fd0c533887865d2503fc6e48d02>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,14 +31,16 @@ export type withProvidedVariablesTest2Query = {|
   response: withProvidedVariablesTest2Query$data,
   variables: withProvidedVariablesTest2Query$variables,
 |};
-({
-  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
-}: {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
   |},
-|});
+|};
 */
+
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
+};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
@@ -173,9 +175,7 @@ return {
     "name": "withProvidedVariablesTest2Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest2Query(\n  $includeFriendsCount: Boolean!\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest2Fragment_47ZY3u\n    id\n  }\n}\n\nfragment withProvidedVariablesTest2Fragment_47ZY3u on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count @include(if: $includeFriendsCount)\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

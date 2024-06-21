@@ -11,8 +11,6 @@
 
 'use strict';
 
-import type {LiveState} from 'relay-runtime';
-
 /**
  * @RelayResolver
  * @fieldName live_resolver_return_undefined
@@ -21,8 +19,10 @@ import type {LiveState} from 'relay-runtime';
  *
  * A @live resolver that throws
  */
+import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
+
 // $FlowFixMe - this resolver returns undefined, but should return LiveState
-function live_resolver_return_undefined(): LiveState<$FlowFixMe> {}
+function live_resolver_return_undefined(): LiveState<> {}
 
 module.exports = {
   live_resolver_return_undefined,

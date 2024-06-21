@@ -54,9 +54,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
 
   function forwardRef(
     props: any,
-    ref:
-      | ((null | React$ElementRef<TBase>) => mixed)
-      | {-current: null | React$ElementRef<TBase>, ...},
+    ref: ((null | any) => mixed) | {current: null | any, ...},
   ) {
     const context = useContext(ReactRelayContext);
     invariant(

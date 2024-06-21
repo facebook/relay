@@ -12,7 +12,7 @@
 'use strict';
 
 const validateMutation = require('../validateMutation');
-const {graphql} = require('relay-runtime');
+const {RelayFeatureFlags, graphql} = require('relay-runtime');
 
 jest.mock('warning', () => {
   return (dontWarn, message, ...args) => {
@@ -841,6 +841,106 @@ describe('validateOptimisticResponse', () => {
           validateMutation(optimisticResponse, mutation, variables),
         ).not.toThrow();
       }
+    });
+  });
+
+  describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
+    let FlightMutation;
+    beforeEach(() => {
+      jest.clearAllMocks();
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+      FlightMutation = graphql`
+        mutation validateMutationTestFlightMutation(
+          $input: StoryUpdateInput!
+          $count: Int!
+        ) {
+          storyUpdate(input: $input) {
+            story {
+              id
+              body {
+                text
+              }
+              flightComponentValidateMutation(condition: true, count: $count)
+            }
+          }
+        }
+      `;
+    });
+
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+    });
+
+    it('Throws an error when optimistic responses contain Flight fields', () => {
+      const optimisticResponse: $FlowFixMe = {
+        storyUpdate: {
+          story: {
+            id: 1,
+            body: {
+              text: 'Hello world',
+            },
+            flightComponentValidateMutation: {
+              tree: [
+                {
+                  type: 'div',
+                  key: null,
+                  ref: null,
+                  props: {foo: 1},
+                },
+              ],
+              queries: [],
+              errors: [],
+              fragments: [],
+            },
+          },
+        },
+      };
+      const variables = null;
+
+      expect(() => {
+        validateMutation(optimisticResponse, FlightMutation, variables);
+      }).toThrowError(/validateMutation: Flight fields are not compatible/);
+    });
+
+    it('Does not error when optimistic responses contain null or undefined Flight fields', () => {
+      const optimisticResponseWithUndefinedFlightField = {
+        storyUpdate: {
+          story: {
+            id: 1,
+            body: {
+              text: 'Hello world',
+            },
+            flightComponentValidateMutation: undefined,
+          },
+        },
+      };
+      const optimisticResponseWithNullFlightField = {
+        storyUpdate: {
+          story: {
+            id: 1,
+            body: {
+              text: 'Hello world',
+            },
+            flightComponentValidateMutation: null,
+          },
+        },
+      };
+      const variables = null;
+
+      expect(() => {
+        validateMutation(
+          optimisticResponseWithUndefinedFlightField,
+          FlightMutation,
+          variables,
+        );
+      }).not.toThrow();
+      expect(() => {
+        validateMutation(
+          optimisticResponseWithNullFlightField,
+          FlightMutation,
+          variables,
+        );
+      }).not.toThrow();
     });
   });
 });

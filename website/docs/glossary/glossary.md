@@ -393,7 +393,7 @@ A directive that applies to fragments which enables developers to pass masked da
 Normally, data is read out using `useFragment`. However, this function can only be called during the render phase. If store data is needed in a outside of the render phase, a developer has several options:
 
 * read that data during the render phase, and pass it to the function/have the function close over that data. (See also [#relay])
-* pass a reference to an `@inline` fragment, which can then be accessed (outside of the render phase) using the `readInlineData` function.
+* pass a reference to an `@inline` fragment, which can then be accessed (outside of the render phase) using the `readInlineData` directive.
 
 This directive causes them to be read out when the parent fragment is read out, and unmasked by the call to `readInlineData`.
 
@@ -672,7 +672,8 @@ Compare to [fragment resource](#fragment-resource).
 
 A directive added to queries which tells Relay to generate types that cover the `optimisticResponse` parameter to `commitMutation`.
 
-See the [guided tour on updating data](../guided-tour/updating-data/graphql-mutations/#optimistic-response) for more.
+<!-- TODO fix this link -->
+See the [documentation](../guided-tour/updating-data/local-data-updates) for more.
 
 ## Reader
 

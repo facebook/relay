@@ -26,11 +26,11 @@ import {pop_star_name as userPopStarNameResolverType} from "PopStarNameResolver"
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType: (
   rootKey: relayResolverNamedImport_PopStarNameResolverFragment_name$key,
-) => ?mixed);
+) => mixed);
 export type relayResolverNamedImport_Query$variables = {||};
 export type relayResolverNamedImport_Query$data = {|
   +me: ?{|
-    +pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
+    +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>,
   |},
 |};
 export type relayResolverNamedImport_Query = {|

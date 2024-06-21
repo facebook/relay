@@ -318,10 +318,7 @@ fragment refetchableConnectionCustomHandler_RefetchableConnection_feedback on Fe
         "node"
       ],
       "operation": require('RefetchableConnectionQuery.graphql'),
-      "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
-      }
+      "identifierField": "id"
     }
   },
   "name": "refetchableConnectionCustomHandler_RefetchableConnection_feedback",

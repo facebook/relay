@@ -114,7 +114,9 @@ query relayClientIdField_RelayClientIDFieldQuery($id: ID!) {
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": "2Rll6p"
+                    "value": [
+                      "PlainCommentBody"
+                    ]
                   }
                 ],
                 "concreteType": null,
@@ -198,7 +200,7 @@ query relayClientIdField_RelayClientIDFieldQuery($id: ID!) {
                     ]
                   }
                 ],
-                "storageKey": "commentBody(supported:\"2Rll6p\")"
+                "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
               }
             ],
             "type": "Comment",
@@ -321,7 +323,9 @@ query relayClientIdField_RelayClientIDFieldQuery($id: ID!) {
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": "2Rll6p"
+                    "value": [
+                      "PlainCommentBody"
+                    ]
                   }
                 ],
                 "concreteType": null,
@@ -405,7 +409,7 @@ query relayClientIdField_RelayClientIDFieldQuery($id: ID!) {
                     ]
                   }
                 ],
-                "storageKey": "commentBody(supported:\"2Rll6p\")"
+                "storageKey": "commentBody(supported:[\"PlainCommentBody\"])"
               }
             ],
             "type": "Comment",

@@ -17,48 +17,48 @@ query TestDefer @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestDefer$variables = Record<PropertyKey, never>;
+export type TestDefer$variables = {};
 export type TestDefer$data = {
   readonly node: {
     readonly friends?: {
       readonly edges: ReadonlyArray<{
         readonly node: {
           readonly actor: {
-            readonly name: string | null | undefined;
-          } | null | undefined;
-        } | null | undefined;
-      } | null | undefined> | null | undefined;
-    } | null | undefined;
-    readonly name?: string | null | undefined;
-  } | null | undefined;
+            readonly name: string | null;
+          } | null;
+        } | null;
+      } | null> | null;
+    } | null;
+    readonly name?: string | null;
+  } | null;
 };
 export type TestDefer$rawResponse = {
   readonly node: {
     readonly __typename: "User";
     readonly friends: {
       readonly edges: ReadonlyArray<{
-        readonly cursor: string | null | undefined;
+        readonly cursor: string | null;
         readonly node: {
           readonly __typename: "User";
           readonly actor: {
             readonly __typename: string;
             readonly id: string;
-            readonly name: string | null | undefined;
-          } | null | undefined;
+            readonly name: string | null;
+          } | null;
           readonly id: string;
-        } | null | undefined;
-      } | null | undefined> | null | undefined;
+        } | null;
+      } | null> | null;
       readonly pageInfo: {
-        readonly endCursor: string | null | undefined;
-        readonly hasNextPage: boolean | null | undefined;
-      } | null | undefined;
-    } | null | undefined;
+        readonly endCursor: string | null;
+        readonly hasNextPage: boolean | null;
+      } | null;
+    } | null;
     readonly id: string;
-    readonly name: string | null | undefined;
+    readonly name: string | null;
   } | {
     readonly __typename: string;
     readonly id: string;
-  } | null | undefined;
+  } | null;
 };
 export type TestDefer = {
   rawResponse: TestDefer$rawResponse;

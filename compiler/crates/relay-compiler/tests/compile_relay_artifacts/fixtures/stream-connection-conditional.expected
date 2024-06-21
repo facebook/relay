@@ -360,7 +360,7 @@ query streamConnectionConditionalQuery(
     id
     ... on Story {
       comments(first: 10) {
-        edges @stream(label: "streamConnectionConditionalQuery$stream$NodeQuery_comments", if: $cond, initialCount: 0, useCustomizedBatch: $cond) {
+        edges @stream(label: "streamConnectionConditionalQuery$stream$NodeQuery_comments", if: $cond, initial_count: 0, use_customized_batch: $cond) {
           node {
             __typename
             id

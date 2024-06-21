@@ -318,10 +318,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback {
         "node"
       ],
       "operation": require('RefetchableConnectionQuery.graphql'),
-      "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
-      }
+      "identifierField": "id"
     }
   },
   "name": "refetchableConnection_RefetchableConnection_feedback",

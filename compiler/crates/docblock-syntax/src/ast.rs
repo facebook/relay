@@ -8,7 +8,6 @@
 use common::Location;
 use common::Named;
 use common::WithLocation;
-use docblock_shared::ResolverSourceHash;
 use intern::string_key::StringKey;
 #[derive(Debug, PartialEq)]
 pub struct DocblockField {
@@ -33,7 +32,6 @@ pub enum DocblockSection {
 pub struct DocblockAST {
     pub location: Location,
     pub sections: Vec<DocblockSection>,
-    pub source_hash: ResolverSourceHash,
 }
 
 impl DocblockAST {

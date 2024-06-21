@@ -31,8 +31,6 @@ import {
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
-// $FlowFixMe[prop-missing]
-// $FlowFixMe[incompatible-cast]
 (useRefetchableFragment(refetchableFragmentInput, keyNonNullable): [
   NonNullableData,
   FetchFn<QueryVariablesSubset>,

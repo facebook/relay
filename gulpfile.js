@@ -13,7 +13,6 @@
 const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   plugins: [
-    'babel-plugin-syntax-hermes-parser',
     '@babel/plugin-transform-flow-strip-types',
     [
       '@babel/plugin-transform-runtime',
@@ -70,17 +69,25 @@ const buildDist = function (filename, opts, isProduction) {
   const webpackOpts = {
     externals: [/^[-/a-zA-Z0-9]+$/, /^@babel\/.+$/],
     target: opts.target,
+    node: {
+      fs: 'empty',
+      net: 'empty',
+      path: 'empty',
+      child_process: 'empty',
+      util: 'empty',
+    },
     output: {
       filename: filename,
       libraryTarget: opts.libraryTarget,
       library: opts.libraryName,
     },
     plugins: [
-      new webpack.DefinePlugin({
+      new webpackStream.webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
           isProduction ? 'production' : 'development',
         ),
       }),
+      new webpackStream.webpack.optimize.OccurrenceOrderPlugin(),
     ],
   };
   if (isProduction && !opts.noMinify) {

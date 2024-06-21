@@ -14,10 +14,6 @@ use intern::string_key::StringKey;
 pub struct ConnectionConstants {
     pub connection_directive_name: DirectiveName,
     pub stream_connection_directive_name: DirectiveName,
-    pub stream_connection_if_arg: ArgumentName,
-    pub stream_connection_label_arg: ArgumentName,
-    pub stream_connection_initial_count_arg: ArgumentName,
-    pub stream_connection_use_customized_batch_arg: ArgumentName,
 
     pub direction_forward: StringKey,
     pub direction_backward: StringKey,
@@ -47,12 +43,6 @@ impl Default for ConnectionConstants {
         Self {
             connection_directive_name: DirectiveName("connection".intern()),
             stream_connection_directive_name: DirectiveName("stream_connection".intern()),
-            stream_connection_if_arg: ArgumentName("if".intern()),
-            stream_connection_label_arg: ArgumentName("label".intern()),
-            stream_connection_initial_count_arg: ArgumentName("initial_count".intern()),
-            stream_connection_use_customized_batch_arg: ArgumentName(
-                "use_customized_batch".intern(),
-            ),
 
             direction_forward: "forward".intern(),
             direction_backward: "backward".intern(),

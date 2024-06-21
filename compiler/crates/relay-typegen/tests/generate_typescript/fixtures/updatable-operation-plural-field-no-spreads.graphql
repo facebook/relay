@@ -1,6 +1,0 @@
-query UpdatableQuery @updatable {
-  nodes(ids: [4]) {
-    id
-  }
-}
-

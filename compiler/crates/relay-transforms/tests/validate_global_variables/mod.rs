@@ -21,7 +21,7 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::TEST_SCHEMA;
 use relay_transforms::validate_global_variables;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     let ast = parse_executable(fixture.content, source_location).unwrap();
@@ -33,7 +33,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
-            allow_custom_scalar_literals: true, // for compatibility
         },
     );
 

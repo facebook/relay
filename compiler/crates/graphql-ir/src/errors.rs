@@ -10,7 +10,6 @@ use std::fmt::Display;
 use common::ArgumentName;
 use common::DiagnosticDisplay;
 use common::DirectiveName;
-use common::ScalarName;
 use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
@@ -33,18 +32,7 @@ impl Display for ErrorLink {
 }
 
 /// Fixed set of validation errors with custom display messages
-#[derive(
-    Clone,
-    Debug,
-    Error,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type", content = "args")]
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessage {
     #[error("Duplicate definitions for '{0}'")]
     DuplicateDefinition(StringKey),
@@ -232,7 +220,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "Expected field '{connection_field_name}' to be passed a '{first_arg}' or '{last_arg}' argument."
+        "Expected field '{connection_field_name}' to have a '{first_arg}' or '{last_arg}' argument."
     )]
     ExpectedConnectionToHaveCountArgs {
         connection_field_name: StringKey,
@@ -240,9 +228,7 @@ pub enum ValidationMessage {
         last_arg: ArgumentName,
     },
 
-    #[error(
-        "Expected '{connection_field_name}' to be passed a '{edges_selection_name}' selection."
-    )]
+    #[error("Expected '{connection_field_name}' to have a '{edges_selection_name}' selection.")]
     ExpectedConnectionToHaveEdgesSelection {
         connection_field_name: StringKey,
         edges_selection_name: StringKey,
@@ -346,16 +332,6 @@ pub enum ValidationMessage {
         connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         filters_arg_name: ArgumentName,
-    },
-
-    #[error(
-        "Expected the `{filters_arg_name}` argument to `@{connection_directive_name}` to be a list of argument names to the connection field to use to identify the connection, got `{invalid_name}`. Not specifying `filters` is often recommended and will use all fields."
-    )]
-    InvalidConnectionFiltersArgNotAnArgument {
-        connection_directive_name: DirectiveName,
-        connection_field_name: StringKey,
-        filters_arg_name: ArgumentName,
-        invalid_name: StringKey,
     },
 
     #[error("@stream_connection does not support aliasing the '{field_name}' field.")]
@@ -511,46 +487,9 @@ pub enum ValidationMessage {
 
     #[error("No fields can have an alias that start with two underscores.")]
     NoDoubleUnderscoreAlias,
-
-    #[error(
-        "Unexpected scalar literal `{literal_value}` provided in a position expecting custom scalar type `{scalar_type_name}`. This value should come from a variable."
-    )]
-    UnexpectedCustomScalarLiteral {
-        literal_value: String,
-        scalar_type_name: ScalarName,
-    },
-
-    #[error(
-        "Unexpected {literal_kind} literal provided in a position expecting custom scalar type `{scalar_type_name}`."
-    )]
-    UnexpectedNonScalarLiteralForCustomScalar {
-        literal_kind: String,
-        scalar_type_name: ScalarName,
-    },
-
-    #[error(
-        "Unexpected `@required(action: THROW)` directive in mutation response. The use of `@required(action: THROW)` is not supported in mutations."
-    )]
-    RequiredInMutation,
-
-    #[error(
-        "Unexpected `@RelayResolver` field referenced in mutation response. Relay Resolver fields may not be read as part of a mutation response."
-    )]
-    ResolverInMutation,
 }
 
-#[derive(
-    Clone,
-    Debug,
-    Error,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type")]
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessageWithData {
     #[error("Unknown type '{type_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
     UnknownType {

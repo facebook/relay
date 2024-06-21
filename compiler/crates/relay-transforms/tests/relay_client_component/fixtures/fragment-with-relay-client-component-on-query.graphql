@@ -1,0 +1,9 @@
+fragment ServerComponentFragment on Query {
+  ...ClientFragment @relay_client_component
+}
+
+fragment ClientFragment on Query {
+  viewer {
+    isFbEmployee
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "2.1.0",
+  "version": "2.0.0",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -68,15 +68,6 @@
           ],
           "description": "Controls what is logged to the Output Channel for the Relay language server."
         },
-        "relay.pathToLocateCommand": {
-          "scope": "workspace",
-          "default": null,
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "Path to an optional script to look up the actual definition for a GraphQL entity for implementation-first GraphQL schemas."
-        },
         "relay.pathToRelay": {
           "scope": "workspace",
           "default": null,
@@ -124,11 +115,8 @@
     "typecheck": "tsc --noEmit",
     "prettier-check": "prettier -c .",
     "lint": "eslint --max-warnings 0 .",
-    "vscode:prepublish": "rm -f tsconfig.tsbuildinfo && rm -rf out && yarn run esbuild-base -- --minify",
-    "build-local": "vsce package",
-    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
-    "esbuild": "yarn run esbuild-base --sourcemap",
-    "esbuild-watch": "yarn run esbuild-base --sourcemap --watch"
+    "vscode:prepublish": "tsc",
+    "build-local": "vsce package"
   },
   "engines": {
     "vscode": "^1.60.0"
@@ -143,13 +131,12 @@
     "@types/vscode": "^1.60.0",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.0.0",
-    "@vscode/vsce": "^2.18.0",
-    "esbuild": "^0.17.12",
-    "eslint": "^8.19.0",
+    "eslint": "^8.12.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "prettier": "^2.6.2",
-    "typescript": "^4.6.3"
+    "typescript": "^4.6.3",
+    "vsce": "^2.7.0"
   }
 }

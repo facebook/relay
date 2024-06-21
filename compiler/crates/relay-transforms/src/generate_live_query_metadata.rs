@@ -141,8 +141,7 @@ impl Transformer for GenerateLiveQueryMetadata {
     }
 }
 
-#[derive(Error, Debug, serde::Serialize)]
-#[serde(tag = "type")]
+#[derive(Error, Debug)]
 enum ValidationMessage {
     #[error(
         "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"

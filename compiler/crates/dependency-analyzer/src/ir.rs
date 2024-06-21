@@ -189,6 +189,7 @@ fn visit_selections(
             Selection::LinkedField(linked_field) => {
                 if let Some(fragment_name) = get_resolver_fragment_dependency_name(
                     schema.field(linked_field.definition.item),
+                    schema,
                 ) {
                     update_dependency_graph(
                         fragment_name.into(),
@@ -208,6 +209,7 @@ fn visit_selections(
             Selection::ScalarField(scalar_field) => {
                 if let Some(fragment_name) = get_resolver_fragment_dependency_name(
                     schema.field(scalar_field.definition.item),
+                    schema,
                 ) {
                     update_dependency_graph(
                         fragment_name.into(),

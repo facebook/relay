@@ -25,6 +25,7 @@ use crate::writer::ExactObject;
 use crate::writer::Writer;
 use crate::writer::AST;
 use crate::KEY_DATA_ID;
+use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
 use crate::LIVE_RESOLVERS_LIVE_STATE;
 use crate::LOCAL_3D_PAYLOAD;
 use crate::RELAY_RUNTIME;
@@ -41,10 +42,14 @@ pub(crate) struct RuntimeImports {
 
 impl RuntimeImports {
     pub(crate) fn write_runtime_imports(&self, writer: &mut Box<dyn Writer>) -> FmtResult {
-        let mut runtime_import_types = vec![];
         if self.resolver_live_state_type {
-            runtime_import_types.push(LIVE_RESOLVERS_LIVE_STATE);
+            writer.write_import_type(
+                &[LIVE_RESOLVERS_LIVE_STATE],
+                LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH,
+            )?;
         }
+
+        let mut runtime_import_types = vec![];
         if self.generic_fragment_type {
             runtime_import_types.push(writer.get_runtime_fragment_import())
         }

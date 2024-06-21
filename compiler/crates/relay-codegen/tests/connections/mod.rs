@@ -18,14 +18,13 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_codegen::build_request_params;
 use relay_codegen::JsModuleFormat;
 use relay_codegen::Printer;
-use relay_config::DeferStreamInterface;
 use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
 use relay_transforms::transform_connections;
 use relay_transforms::validate_connections;
 use relay_transforms::ConnectionInterface;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_config = ProjectConfig {
         js_module_format: JsModuleFormat::Haste,
         ..Default::default()
@@ -42,13 +41,11 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let connection_interface = ConnectionInterface::default();
-    let defer_stream_interface = DeferStreamInterface::default();
 
     validate_connections(&program, &connection_interface)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    let next_program =
-        transform_connections(&program, &connection_interface, &defer_stream_interface);
+    let next_program = transform_connections(&program, &connection_interface);
 
     let mut printed = next_program
         .operations()

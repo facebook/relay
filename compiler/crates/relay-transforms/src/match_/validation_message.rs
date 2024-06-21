@@ -12,8 +12,7 @@ use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
-#[derive(Error, Debug, serde::Serialize)]
-#[serde(tag = "type")]
+#[derive(Error, Debug)]
 pub enum ValidationMessage {
     #[error("Invalid @match selection: all selections should be fragment spreads with @module.")]
     InvalidMatchNotAllSelectionsFragmentSpreadWithModule,

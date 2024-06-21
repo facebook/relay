@@ -32,18 +32,8 @@ type ClientTypeWithNestedInterface {
 }
 
 extend type User {
-  pop_star_name: ClientInterface
-    @relay_resolver(
-      fragment_name: "PopStarNameResolverFragment_name"
-      import_path: "PopStarNameResolver"
-      has_output_type: true
-    )
-  pop_star_game: ClientTypeWithNestedInterface
-    @relay_resolver(
-      fragment_name: "PopStarNameResolverFragment_name"
-      import_path: "PopStarNameResolver"
-      has_output_type: true
-    )
+  pop_star_name: ClientInterface! @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+  pop_star_game: ClientTypeWithNestedInterface! @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
 export type User__pop_star_game$normalization$variables = {||};
@@ -87,7 +77,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 ) => ?User__pop_star_name$normalization);
 declare export opaque type Foo_user$fragmentType: FragmentType;
 export type Foo_user$data = {|
-  +poppy: ?{|
+  +poppy: {|
     +name: ?string,
   |},
   +$fragmentType: Foo_user$fragmentType,

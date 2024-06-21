@@ -13,8 +13,8 @@
 
 import type {
   NormalizationClientEdgeToClientObject,
+  NormalizationFlightField,
   NormalizationLinkedField,
-  NormalizationLiveResolverField,
   NormalizationModuleImport,
   NormalizationNode,
   NormalizationResolverField,
@@ -25,16 +25,19 @@ import type {
   DataIDSet,
   NormalizationSelector,
   OperationLoader,
+  ReactFlightReachableExecutableDefinitions,
   Record,
   RecordSource,
 } from './RelayStoreTypes';
 
 const getOperation = require('../util/getOperation');
 const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
@@ -45,6 +48,7 @@ const {
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -55,10 +59,9 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
   RELAY_RESOLVER,
-  RELAY_LIVE_RESOLVER,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
 } = RelayConcreteNode;
-const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
+const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
@@ -229,6 +232,13 @@ class RelayReferenceMarker {
         case CLIENT_EXTENSION:
           this._traverseSelections(selection.selections, record);
           break;
+        case FLIGHT_FIELD:
+          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            this._traverseFlightField(selection, record);
+          } else {
+            throw new Error('Flight fields are not yet supported.');
+          }
+          break;
         case CLIENT_COMPONENT:
           if (this._shouldProcessClientComponents === false) {
             break;
@@ -236,9 +246,6 @@ class RelayReferenceMarker {
           this._traverseSelections(selection.fragment.selections, record);
           break;
         case RELAY_RESOLVER:
-          this._traverseResolverField(selection, record);
-          break;
-        case RELAY_LIVE_RESOLVER:
           this._traverseResolverField(selection, record);
           break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
@@ -308,7 +315,7 @@ class RelayReferenceMarker {
   }
 
   _traverseResolverField(
-    field: NormalizationResolverField | NormalizationLiveResolverField,
+    field: NormalizationResolverField,
     record: Record,
   ): ?DataID {
     const storageKey = getStorageKey(field, this._variables);
@@ -386,6 +393,51 @@ class RelayReferenceMarker {
         this._traverse(field, linkedID);
       }
     });
+  }
+
+  _traverseFlightField(field: NormalizationFlightField, record: Record): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+    if (linkedID == null) {
+      return;
+    }
+    this._references.add(linkedID);
+
+    const reactFlightClientResponseRecord = this._recordSource.get(linkedID);
+
+    if (reactFlightClientResponseRecord == null) {
+      return;
+    }
+
+    const reachableExecutableDefinitions = RelayModernRecord.getValue(
+      reactFlightClientResponseRecord,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
+    );
+
+    if (!Array.isArray(reachableExecutableDefinitions)) {
+      return;
+    }
+
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'DataChecker: Expected an operationLoader to be configured when using ' +
+        'React Flight',
+    );
+    // In Flight, the variables that are in scope for reachable executable
+    // definitions aren't the same as what's in scope for the outer query.
+    const prevVariables = this._variables;
+    // $FlowFixMe[incompatible-cast]
+    for (const definition of (reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions>)) {
+      this._variables = definition.variables;
+      const operationReference = definition.module;
+      const normalizationRootNode = operationLoader.get(operationReference);
+      if (normalizationRootNode != null) {
+        const operation = getOperation(normalizationRootNode);
+        this._traverse(operation, ROOT_ID);
+      }
+    }
+    this._variables = prevVariables;
   }
 }
 

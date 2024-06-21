@@ -142,7 +142,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                         },
                         OperationDefinition {
                             name: WithLocation::new(
-                                module_metadata.fragment_source_location,
+                                module_metadata.location,
                                 OperationDefinitionName(normalization_name),
                             ),
                             type_: parent_type,

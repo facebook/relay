@@ -23,7 +23,7 @@ import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 The internal version of devtools has the latest updates and the process of installation will be much faster.
 
 1. Before downloading the new Devtools, make sure you've deleted all older versions of the extension.
-2. Join [Relay Support](https://fb.workplace.com/groups/relay.support) group and you will automatically be added to the `cpe_relay_devtools_extension` gatekeeper.
+2. Join [Relay DevTools Support](https://fb.workplace.com/groups/655864995271028) group and you will automatically be added to the cpe_relay_devtools_extension gatekeeper.
 3. Wait 20-30 minutes, and it should be downloaded on your Chrome browser
 4. Or run `sudo soloctl -i` on your machine to get the extension immediately
 

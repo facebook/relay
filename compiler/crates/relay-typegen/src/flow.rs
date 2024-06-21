@@ -85,10 +85,10 @@ impl Writer for FlowPrinter {
         "FragmentType"
     }
 
-    fn write_type_assertion(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "({}: ", name)?;
+    fn write_local_type(&mut self, name: &str, value: &AST) -> FmtResult {
+        write!(&mut self.result, "type {} = ", name)?;
         self.write(value)?;
-        writeln!(&mut self.result, ");")
+        writeln!(&mut self.result, ";")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
@@ -312,7 +312,11 @@ impl FlowPrinter {
     }
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
-        write!(&mut self.result, "ReturnType<typeof {}>", function_name)
+        write!(
+            &mut self.result,
+            "$Call<<R>((...empty[]) => R) => R, typeof {}>",
+            function_name
+        )
     }
 
     fn write_return_type_of_method_call(
@@ -320,7 +324,7 @@ impl FlowPrinter {
         object: &AST,
         method_name: StringKey,
     ) -> FmtResult {
-        write!(&mut self.result, "ReturnType<")?;
+        write!(&mut self.result, "$Call<")?;
         self.write(object)?;
         write!(&mut self.result, "[\"{}\"]>", method_name)
     }
@@ -612,7 +616,7 @@ mod tests {
     fn function_return_type() {
         assert_eq!(
             print_type(&AST::ReturnTypeOfFunctionWithName("someFunc".intern())),
-            "ReturnType<typeof someFunc>".to_string()
+            "$Call<<R>((...empty[]) => R) => R, typeof someFunc>".to_string()
         );
     }
 }

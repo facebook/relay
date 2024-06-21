@@ -12,7 +12,7 @@ query NodeQuery($id: ID!, $first: Int, $after: ID) {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected 'comments' to be passed a 'edges' selection.
+✖︎ Expected 'comments' to have a 'edges' selection.
 
   connection-missing-edges-selection.invalid.graphql:6:7
     5 │     ... on Story {

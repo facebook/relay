@@ -53,7 +53,7 @@ query StreamQuerry($RELAY_INCREMENTAL_DELIVERY: Boolean!) {
   node(id: 4) {
     id
     ... on Feedback {
-      actors @stream(if: $RELAY_INCREMENTAL_DELIVERY, label: "foo", initialCount: 3) {
+      actors @stream(if: $RELAY_INCREMENTAL_DELIVERY, label: "foo", initial_count: 3) {
         name
       }
     }

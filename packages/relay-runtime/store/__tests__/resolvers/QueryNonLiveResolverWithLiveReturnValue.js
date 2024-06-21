@@ -10,7 +10,6 @@
  */
 
 'use strict';
-import type {LiveState} from 'relay-runtime';
 
 /**
  * @RelayResolver
@@ -19,6 +18,8 @@ import type {LiveState} from 'relay-runtime';
  *
  * A non-@live resolver that returns a LiveObject
  */
+import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
+
 function non_live_resolver_with_live_return_value(): LiveState<string> {
   return {
     read() {

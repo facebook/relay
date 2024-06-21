@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use relay_config::ProjectName;
-
+use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
 
 #[derive(Debug, PartialEq, Eq, Hash)]

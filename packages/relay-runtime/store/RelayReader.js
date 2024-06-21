@@ -16,6 +16,7 @@ import type {
   ReaderAliasedFragmentSpread,
   ReaderClientEdgeToClientObject,
   ReaderClientEdgeToServerObject,
+  ReaderFlightField,
   ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
@@ -33,7 +34,6 @@ import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
-  ErrorResponseFields,
   MissingClientEdgeRequestInfo,
   MissingLiveResolverField,
   MissingRequiredFields,
@@ -57,6 +57,7 @@ const {
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_DATA_FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
@@ -74,12 +75,14 @@ const {
 } = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
+const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
   CLIENT_EDGE_TRAVERSAL_PATH,
   FRAGMENT_OWNER_KEY,
   FRAGMENT_PROP_NAME_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
+  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
   MODULE_COMPONENT_KEY,
   ROOT_ID,
   getArgumentValues,
@@ -117,7 +120,6 @@ class RelayReader {
   _missingLiveResolverFields: Array<MissingLiveResolverField>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
-  _errorResponseFields: ?ErrorResponseFields;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
   _seenRecords: DataIDSet;
@@ -143,7 +145,6 @@ class RelayReader {
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
-    this._errorResponseFields = null;
     this._owner = selector.owner;
     this._recordSource = recordSource;
     this._seenRecords = new Set();
@@ -229,31 +230,7 @@ class RelayReader {
       selector: this._selector,
       missingRequiredFields: this._missingRequiredFields,
       relayResolverErrors: this._resolverErrors,
-      errorResponseFields: this._errorResponseFields,
     };
-  }
-
-  _maybeAddErrorResponseFields(record: Record, storageKey: string): void {
-    if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
-      return;
-    }
-    const errors = RelayModernRecord.getErrors(record, storageKey);
-
-    if (errors == null) {
-      return;
-    }
-    const owner = this._fragmentName;
-
-    if (this._errorResponseFields == null) {
-      this._errorResponseFields = [];
-    }
-    for (const error of errors) {
-      this._errorResponseFields.push({
-        owner,
-        path: (error.path ?? []).join('.'),
-        error,
-      });
-    }
   }
 
   _markDataAsMissing(): void {
@@ -283,7 +260,6 @@ class RelayReader {
   ): ?SelectorData {
     const record = this._recordSource.get(dataID);
     this._seenRecords.add(dataID);
-
     if (record == null) {
       if (record === undefined) {
         this._markDataAsMissing();
@@ -308,7 +284,11 @@ class RelayReader {
     return this._variables[name];
   }
 
-  _maybeReportUnexpectedNull(fieldPath: string, action: 'LOG' | 'THROW') {
+  _maybeReportUnexpectedNull(
+    fieldPath: string,
+    action: 'LOG' | 'THROW',
+    _record: Record,
+  ) {
     if (this._missingRequiredFields?.action === 'THROW') {
       // Chained @required directives may cause a parent `@required(action:
       // THROW)` field to become null, so the first missing field we
@@ -355,7 +335,7 @@ class RelayReader {
           if (fieldValue == null) {
             const {action} = selection;
             if (action !== 'NONE') {
-              this._maybeReportUnexpectedNull(selection.path, action);
+              this._maybeReportUnexpectedNull(selection.path, action, record);
             }
             // We are going to throw, or our parent is going to get nulled out.
             // Either way, sibling values are going to be ignored, so we can
@@ -472,6 +452,13 @@ class RelayReader {
           }
           break;
         }
+        case FLIGHT_FIELD:
+          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            this._readFlightField(selection, record, data);
+          } else {
+            throw new Error('Flight fields are not yet supported.');
+          }
+          break;
         case ACTOR_CHANGE:
           this._readActorChange(selection, record, data);
           break;
@@ -540,19 +527,8 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): mixed {
-    const parentRecordID = RelayModernRecord.getDataID(record);
-    const result = this._readResolverFieldImpl(field, parentRecordID);
-
-    const applicationName = field.alias ?? field.name;
-    data[applicationName] = result;
-    return result;
-  }
-
-  _readResolverFieldImpl(
-    field: ReaderRelayResolver | ReaderRelayLiveResolver,
-    parentRecordID: DataID,
-  ): mixed {
     const {fragment} = field;
+    const parentRecordID = RelayModernRecord.getDataID(record);
 
     // Found when reading the resolver fragment, which can happen either when
     // evaluating the resolver and it calls readFragment, or when checking if the
@@ -615,16 +591,26 @@ class RelayReader {
             field,
             this._variables,
             key,
+            this._fragmentName,
           );
-          return {resolverResult, snapshot, error: resolverError};
+          return {
+            resolverResult,
+            snapshot: snapshot,
+            error: resolverError,
+          };
         });
       } else {
         const [resolverResult, resolverError] = getResolverValue(
           field,
           this._variables,
           null,
+          this._fragmentName,
         );
-        return {resolverResult, snapshot: undefined, error: resolverError};
+        return {
+          resolverResult,
+          snapshot: undefined,
+          error: resolverError,
+        };
       }
     };
 
@@ -643,29 +629,6 @@ class RelayReader {
       getDataForResolverFragment,
     );
 
-    this._propogateResolverMetadata(
-      field.path,
-      cachedSnapshot,
-      resolverError,
-      seenRecord,
-      suspenseID,
-      updatedDataIDs,
-    );
-
-    return result;
-  }
-
-  // Reading a resolver field can uncover missing data, errors, suspense,
-  // additional seen records and updated dataIDs. All of these facts must be
-  // represented in the snapshot we return for this fragment.
-  _propogateResolverMetadata(
-    fieldPath: string,
-    cachedSnapshot: ?Snapshot,
-    resolverError: ?Error,
-    seenRecord: ?DataID,
-    suspenseID: ?DataID,
-    updatedDataIDs: ?DataIDSet,
-  ) {
     // The resolver's root fragment (if there is one) may be missing data, have
     // errors, or be in a suspended state. Here we propagate those cases
     // upwards to mimic the behavior of having traversed into that fragment directly.
@@ -697,10 +660,7 @@ class RelayReader {
     // the errors can be attached to this read's snapshot. This allows the error
     // to be logged.
     if (resolverError) {
-      this._resolverErrors.push({
-        field: {path: fieldPath, owner: this._fragmentName},
-        error: resolverError,
-      });
+      this._resolverErrors.push(resolverError);
     }
 
     // The resolver itself creates a record in the store. We record that we've
@@ -718,7 +678,7 @@ class RelayReader {
     if (suspenseID != null) {
       this._isMissingData = true;
       this._missingLiveResolverFields.push({
-        path: `${this._fragmentName}.${fieldPath}`,
+        path: `${this._fragmentName}.${field.path}`,
         liveStateID: suspenseID,
       });
     }
@@ -727,13 +687,17 @@ class RelayReader {
         this._updatedDataIDs.add(recordID);
       }
     }
+
+    const applicationName = field.alias ?? field.name;
+    data[applicationName] = result;
+    return result;
   }
 
   _readClientEdge(
     field: ReaderClientEdgeToServerObject | ReaderClientEdgeToClientObject,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): void {
     const backingField = field.backingField;
 
     // Because ReaderClientExtension doesn't have `alias` or `name` and so I don't know
@@ -755,7 +719,7 @@ class RelayReader {
       isSuspenseSentinel(clientEdgeResolverResponse)
     ) {
       data[applicationName] = clientEdgeResolverResponse;
-      return clientEdgeResolverResponse;
+      return;
     }
 
     const validClientEdgeResolverResponse =
@@ -768,24 +732,15 @@ class RelayReader {
           validClientEdgeResolverResponse.ids,
           this._resolverCache,
         );
-        let validStoreIDs: $ReadOnlyArray<?DataID> = storeIDs;
-        if (field.modelResolver != null) {
-          const modelResolver = field.modelResolver;
-          validStoreIDs = storeIDs.map(storeID => {
-            const model = this._readResolverFieldImpl(modelResolver, storeID);
-            return model != null ? storeID : null;
-          });
-        }
         this._clientEdgeTraversalPath.push(null);
-        const edgeValues = this._readLinkedIds(
+        data[applicationName] = this._readLinkedIds(
           field.linkedField,
-          validStoreIDs,
+          storeIDs,
           record,
           data,
         );
         this._clientEdgeTraversalPath.pop();
-        data[applicationName] = edgeValues;
-        return edgeValues;
+        break;
 
       case 'SingularConcrete':
         const [storeID, traversalPathSegment] =
@@ -794,18 +749,6 @@ class RelayReader {
             validClientEdgeResolverResponse.id,
             this._resolverCache,
           );
-        if (field.modelResolver != null) {
-          const model = this._readResolverFieldImpl(
-            field.modelResolver,
-            storeID,
-          );
-          if (model == null) {
-            // If the model resolver returns undefined, we should still return null
-            // to match GQL behavior.
-            data[applicationName] = null;
-            return null;
-          }
-        }
         this._clientEdgeTraversalPath.push(traversalPathSegment);
 
         const prevData = data[applicationName];
@@ -817,18 +760,51 @@ class RelayReader {
           RelayModernRecord.getDataID(record),
           prevData,
         );
-        const edgeValue = this._traverse(
+        data[applicationName] = this._traverse(
           field.linkedField,
           storeID,
           // $FlowFixMe[incompatible-variance]
           prevData,
         );
         this._clientEdgeTraversalPath.pop();
-        data[applicationName] = edgeValue;
-        return edgeValue;
+        break;
       default:
         (validClientEdgeResolverResponse.kind: empty);
     }
+  }
+
+  _readFlightField(
+    field: ReaderFlightField,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const applicationName = field.alias ?? field.name;
+    const storageKey = getStorageKey(field, this._variables);
+    const reactFlightClientResponseRecordID =
+      RelayModernRecord.getLinkedRecordID(record, storageKey);
+    if (reactFlightClientResponseRecordID == null) {
+      data[applicationName] = reactFlightClientResponseRecordID;
+      if (reactFlightClientResponseRecordID === undefined) {
+        this._markDataAsMissing();
+      }
+      return reactFlightClientResponseRecordID;
+    }
+    const reactFlightClientResponseRecord = this._recordSource.get(
+      reactFlightClientResponseRecordID,
+    );
+    this._seenRecords.add(reactFlightClientResponseRecordID);
+    if (reactFlightClientResponseRecord == null) {
+      data[applicationName] = reactFlightClientResponseRecord;
+      if (reactFlightClientResponseRecord === undefined) {
+        this._markDataAsMissing();
+      }
+      return reactFlightClientResponseRecord;
+    }
+    const clientResponse = getReactFlightClientResponse(
+      reactFlightClientResponseRecord,
+    );
+    data[applicationName] = clientResponse;
+    return clientResponse;
   }
 
   _readScalar(
@@ -839,9 +815,7 @@ class RelayReader {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
-    if (value === null) {
-      this._maybeAddErrorResponseFields(record, storageKey);
-    } else if (value === undefined) {
+    if (value === undefined) {
       this._markDataAsMissing();
     }
     data[applicationName] = value;
@@ -858,9 +832,7 @@ class RelayReader {
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
       data[applicationName] = linkedID;
-      if (linkedID === null) {
-        this._maybeAddErrorResponseFields(record, storageKey);
-      } else if (linkedID === undefined) {
+      if (linkedID === undefined) {
         this._markDataAsMissing();
       }
       return linkedID;
@@ -897,8 +869,6 @@ class RelayReader {
       data[applicationName] = externalRef;
       if (externalRef === undefined) {
         this._markDataAsMissing();
-      } else if (externalRef === null) {
-        this._maybeAddErrorResponseFields(record, storageKey);
       }
       return data[applicationName];
     }
@@ -907,9 +877,9 @@ class RelayReader {
     const fragmentRef = {};
     this._createFragmentPointer(
       field.fragmentSpread,
-      RelayModernRecord.fromObject<>({
+      {
         __id: dataID,
-      }),
+      },
       fragmentRef,
     );
     data[applicationName] = {
@@ -926,9 +896,6 @@ class RelayReader {
   ): ?mixed {
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
-    if (linkedIDs === null) {
-      this._maybeAddErrorResponseFields(record, storageKey);
-    }
     return this._readLinkedIds(field, linkedIDs, record, data);
   }
 
@@ -1056,7 +1023,7 @@ class RelayReader {
       record,
       fieldData,
     );
-    return RelayModernRecord.fromObject<>(fieldData);
+    return fieldData;
   }
 
   // Has three possible return values:
@@ -1130,7 +1097,7 @@ class RelayReader {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
       fragmentPointers = data[FRAGMENTS_KEY] = ({}: {
-        [string]: Arguments,
+        [string]: Arguments | {...},
       });
     }
     invariant(
@@ -1138,17 +1105,16 @@ class RelayReader {
       'RelayReader: Expected fragment spread data to be an object, got `%s`.',
       fragmentPointers,
     );
-
     if (data[ID_KEY] == null) {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
     // $FlowFixMe[cannot-write] - writing into read-only field
-    fragmentPointers[fragmentSpread.name] = getArgumentValues(
-      fragmentSpread.args,
-      this._variables,
-      this._isWithinUnmatchedTypeRefinement,
-    );
+    fragmentPointers[fragmentSpread.name] = fragmentSpread.args
+      ? getArgumentValues(fragmentSpread.args, this._variables)
+      : {};
     data[FRAGMENT_OWNER_KEY] = this._owner;
+    data[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] =
+      this._isWithinUnmatchedTypeRefinement;
 
     if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
       if (
@@ -1255,7 +1221,8 @@ function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
   fragmentKey: mixed,
-): [mixed, ?Error] {
+  ownerName: string,
+) {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
     typeof field.resolverModule === 'function'
@@ -1280,7 +1247,12 @@ function getResolverValue(
     if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
       resolverResult = undefined;
     } else {
-      resolverError = e;
+      // `field.path` is typed as nullable while we rollout compiler changes.
+      const path = field.path ?? '[UNKNOWN]';
+      resolverError = {
+        field: {path, owner: ownerName},
+        error: e,
+      };
     }
   }
   return [resolverResult, resolverError];

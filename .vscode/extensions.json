@@ -8,9 +8,7 @@
 		"dbaeumer.vscode-eslint",
 		"rust-lang.rust-analyzer",
 		"meta.relay",
-		"flowtype.flow-for-vscode",
-		// https://github.com/flow/flow-for-vscode#known-issues
-		"mgmcdermott.vscode-language-babel"
+		"flowtype.flow-for-vscode"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [

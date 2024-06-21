@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c733c40dafb91fbd238c7d71662885f1>>
+ * @generated SignedSource<<d5832fde92e8bfdda4c033ba90f1e113>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
   args: {|
     scale: ?number,
   |},
-) => ?mixed);
+) => mixed);
 export type RelayReaderResolverTest19Query$variables = {|
   scale?: ?number,
 |};
@@ -36,7 +36,7 @@ export type RelayReaderResolverTest19Query$data = {|
     +big_profile_picture: ?{|
       +uri: ?string,
     |},
-    +profile_picture2: ?ReturnType<typeof userUserProfilePictureUriWithScaleAndDefaultValueResolverType>,
+    +profile_picture2: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleAndDefaultValueResolverType>,
   |},
 |};
 export type RelayReaderResolverTest19Query = {|
@@ -102,7 +102,7 @@ return {
         "selections": [
           {
             "alias": "profile_picture2",
-            "args": [],
+            "args": null,
             "fragment": {
               "args": (v1/*: any*/),
               "kind": "FragmentSpread",

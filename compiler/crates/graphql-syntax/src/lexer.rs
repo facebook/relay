@@ -18,20 +18,8 @@ pub struct TokenKindExtras {
     pub error_token: Option<TokenKind>,
 }
 
-/// Lexer for the GraphQL specification: <http://spec.graphql.org/>
-#[derive(
-    Logos,
-    Copy,
-    Clone,
-    Debug,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Hash,
-    serde::Serialize
-)]
-#[serde(tag = "type")]
+/// Lexer for the GraphQL specification: http://spec.graphql.org/
+#[derive(Logos, Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[logos(extras = TokenKindExtras)]
 pub enum TokenKind {
     #[regex(r"[ \t\r\n\f,\ufeff]+|#[^\n\r]*", logos::skip)]

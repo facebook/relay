@@ -321,10 +321,7 @@ fragment providedVariableRefetchableFragment_providedVariableFragment on User {
         "node"
       ],
       "operation": require('refetchableQuery.graphql'),
-      "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
-      }
+      "identifierField": "id"
     }
   },
   "name": "providedVariableRefetchableFragment",

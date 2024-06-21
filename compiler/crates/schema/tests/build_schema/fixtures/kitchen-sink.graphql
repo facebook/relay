@@ -56,12 +56,3 @@ extend type User {
   nickname: String
   client: ClientType
 }
-
-interface HasName {
-  name: String
-}
-
-extend interface Node implements HasName {
-  name: String
-}
-extend type User implements HasName

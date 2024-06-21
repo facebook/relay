@@ -86,7 +86,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     directives: [],
                 },
             ],
-            type_condition: Object(70),
+            type_condition: Object(69),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -104,7 +104,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-arguments.graphql:131:145,
-                        item: FieldID(475),
+                        item: FieldID(474),
                     },
                     arguments: [
                         Argument {
@@ -140,7 +140,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-arguments.graphql:172:175,
-                                item: FieldID(181),
+                                item: FieldID(179),
                             },
                             arguments: [],
                             directives: [],
@@ -156,7 +156,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     ),
                     definition: WithLocation {
                         location: fragment-with-arguments.graphql:198:212,
-                        item: FieldID(475),
+                        item: FieldID(474),
                     },
                     arguments: [
                         Argument {
@@ -192,7 +192,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-arguments.graphql:232:235,
-                                item: FieldID(181),
+                                item: FieldID(179),
                             },
                             arguments: [],
                             directives: [],
@@ -265,7 +265,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(70),
+            type_condition: Object(69),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -283,7 +283,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-arguments.graphql:347:349,
-                        item: FieldID(461),
+                        item: FieldID(460),
                     },
                     arguments: [],
                     directives: [],

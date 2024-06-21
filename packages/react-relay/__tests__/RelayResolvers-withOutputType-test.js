@@ -22,8 +22,10 @@ const {
   RelayEnvironmentProvider,
   useClientQuery,
   useFragment: useFragment_LEGACY,
+  useLazyLoadQuery: useLazyLoadQuery_LEGACY,
 } = require('react-relay');
-const useFragment_EXPERIMENTAL = require('react-relay/relay-hooks/experimental/useFragment_EXPERIMENTAL');
+const useFragment_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useFragment_REACT_CACHE');
+const useLazyLoadQuery_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useLazyLoadQuery_REACT_CACHE');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -88,11 +90,20 @@ function EnvironmentWrapper({
 }
 
 describe.each([
-  ['Experimental', useFragment_EXPERIMENTAL],
-  ['Legacy', useFragment_LEGACY],
-])('Hook implementation: %s', (_hookName, useFragment) => {
+  ['React Cache', useLazyLoadQuery_REACT_CACHE, useFragment_REACT_CACHE],
+  ['Legacy', useLazyLoadQuery_LEGACY, useFragment_LEGACY],
+])('Hook implementation: %s', (_hookName, useLazyLoadQuery, useFragment) => {
+  const usingReactCache = useLazyLoadQuery === useLazyLoadQuery_REACT_CACHE;
+  // Our open-source build is still on React 17, so we need to skip these tests there:
+  if (usingReactCache) {
+    // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
+    if (React.unstable_getCacheForType === undefined) {
+      return;
+    }
+  }
   let environment;
   beforeEach(() => {
+    RelayFeatureFlags.USE_REACT_CACHE = usingReactCache;
     environment = createEnvironment();
   });
 
@@ -264,26 +275,6 @@ describe.each([
     }
 
     return data.many_todos?.map((todo, index) => {
-      return <TodoComponent key={index} fragmentKey={todo} />;
-    });
-  }
-
-  function ManyLiveTodosComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolversWithOutputTypeTestManyLiveTodosQuery {
-          many_live_todos {
-            ...RelayResolversWithOutputTypeTestFragment
-          }
-        }
-      `,
-      {},
-    );
-    if (data.many_live_todos?.length === 0) {
-      return 'No Items';
-    }
-
-    return data.many_live_todos?.map((todo, index) => {
       return <TodoComponent key={index} fragmentKey={todo} />;
     });
   }
@@ -721,46 +712,6 @@ describe.each([
       'is not completed',
       'style: bold',
       'color: color is red',
-      'Todo 3',
-      'is not completed',
-      'style: bold',
-      'color: color is red',
-    ]);
-  });
-
-  test('rendering live list', () => {
-    addTodo('Todo 1');
-    addTodo('Todo 2');
-    addTodo('Todo 3');
-
-    const renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <ManyLiveTodosComponent />
-      </EnvironmentWrapper>,
-    );
-
-    expect(renderer.toJSON()).toEqual([
-      'Todo 1',
-      'is not completed',
-      'style: bold',
-      'color: color is red',
-      'Todo 2',
-      'is not completed',
-      'style: bold',
-      'color: color is red',
-      'Todo 3',
-      'is not completed',
-      'style: bold',
-      'color: color is red',
-    ]);
-
-    TestRenderer.act(() => {
-      removeTodo('todo-1');
-      removeTodo('todo-2');
-      jest.runAllImmediates();
-    });
-
-    expect(renderer.toJSON()).toEqual([
       'Todo 3',
       'is not completed',
       'style: bold',

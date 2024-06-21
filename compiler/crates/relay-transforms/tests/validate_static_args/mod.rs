@@ -16,7 +16,7 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::validate_static_args;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
 
     if let [base, extensions] = parts.as_slice() {

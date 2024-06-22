@@ -1,6 +1,6 @@
 # defaults for any parameters that aren't specified
 parameters:
-  rust: stable
+  rust: nightly-2023-11-11
   components: []
   targets: []
 

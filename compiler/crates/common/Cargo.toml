@@ -9,6 +9,7 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
+schemars = { version = "0.8.21", features = ["indexmap2"] }
 colored = "2.1.0"
 indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
@@ -17,5 +18,8 @@ lsp-types = "0.94.1"
 md-5 = "0.10"
 rayon = "1.9.0"
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.100", features = [
+    "float_roundtrip",
+    "unbounded_depth",
+] }
 typetag = "0.2.15"

@@ -7,13 +7,14 @@
 
 use md5::Digest;
 use md5::Md5;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
 /// A utility to enable gradual rollout of large codegen changes.
 /// Can be constructed as the Default which passes or a percentage between 0 and
 /// 100.
-#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy, JsonSchema)]
 pub struct Rollout(Option<u8>);
 
 impl Rollout {

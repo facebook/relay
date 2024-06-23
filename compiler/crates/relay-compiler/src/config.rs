@@ -45,6 +45,7 @@ use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
 use relay_docblock::DocblockIr;
 use relay_transforms::CustomTransformsConfig;
+use schemars::JsonSchema;
 use serde::de::Error as DeError;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -60,6 +61,7 @@ use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 use crate::build_project::AdditionalValidations;
 use crate::compiler_state::CompilerState;
+use crate::compiler_state::DeserializableProjectSet;
 use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
@@ -654,9 +656,13 @@ fn get_default_excludes() -> Vec<String> {
 }
 
 /// Schema of the compiler configuration JSON file.
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-struct MultiProjectConfigFile {
+pub struct MultiProjectConfigFile {
+    /// The user may hard-code the JSON Schema for their version of the config.
+    #[serde(rename = "$schema")]
+    json_schema: Option<String>,
+
     /// Optional name for this config, might be used for logging or custom extra
     /// artifact generator code.
     #[serde(default)]
@@ -676,6 +682,7 @@ struct MultiProjectConfigFile {
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
+    #[schemars(with = "FnvIndexMap<PathBuf, DeserializableProjectSet>")]
     sources: FnvIndexMap<PathBuf, ProjectSet>,
 
     /// Glob patterns that should not be part of the sources even if they are
@@ -694,15 +701,20 @@ struct MultiProjectConfigFile {
     feature_flags: FeatureFlags,
 
     /// Watchman saved state config.
+    #[schemars(with = "Option<ScmAwareClockDataJsonSchemaDef>")]
     saved_state_config: Option<ScmAwareClockData>,
 
     /// Then name of the global __DEV__ variable to use in generated artifacts
     is_dev_variable_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
+    /// The user may hard-code the JSON Schema for their version of the config.
+    #[serde(rename = "$schema")]
+    pub json_schema: Option<String>,
+
     #[serde(skip)]
     pub project_name: ProjectName,
 
@@ -712,7 +724,7 @@ pub struct SingleProjectConfigFile {
     /// Root directory of application code
     pub src: PathBuf,
 
-    /// A specific directory to output all artifacts to. When enabling this '
+    /// A specific directory to output all artifacts to. When enabling this
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
@@ -772,6 +784,7 @@ pub struct SingleProjectConfigFile {
 impl Default for SingleProjectConfigFile {
     fn default() -> Self {
         Self {
+            json_schema: None,
             project_name: ProjectName::default(),
             schema: Default::default(),
             src: Default::default(),
@@ -918,9 +931,9 @@ impl SingleProjectConfigFile {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, JsonSchema)]
 #[serde(untagged)]
-enum ConfigFile {
+pub enum ConfigFile {
     /// Base case configuration (mostly of OSS) where the project
     /// have single schema, and single source directory
     SingleProject(SingleProjectConfigFile),
@@ -955,7 +968,7 @@ impl<'de> Deserialize<'de> for ConfigFile {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Deserialize, Serialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be
@@ -1061,4 +1074,38 @@ pub trait OperationPersister {
     fn finalize(&self) -> PersistResult<()> {
         Ok(())
     }
+}
+
+// Below are structs that we use as part of our config that are defined in
+// crates that are not part of Relay. We are not able to implement `JsonSchema`
+// for these structs directly, so we define these shadow structs which match the
+// deserialization shape of the original. We can then use `#[serde(with =
+// "...")]` to have JsonSchema use these shadow structs to generate the schema.
+//
+// See [Schemars docs](https://graham.cool/schemars/examples/5-remote_derive/)
+// for more context on this pattern.
+
+/// Holds extended clock data that includes source control aware
+/// query metadata.
+/// <https://facebook.github.io/watchman/docs/scm-query.html>
+#[derive(JsonSchema)]
+#[serde(remote = "ScmAwareClockData")]
+pub struct ScmAwareClockDataJsonSchemaDef {
+    pub mergebase: Option<String>,
+    #[serde(rename = "mergebase-with")]
+    pub mergebase_with: Option<String>,
+    #[serde(rename = "saved-state")]
+    pub saved_state: Option<SavedStateClockDataJsonSchemaDef>,
+}
+
+/// Holds extended clock data that includes source control aware
+/// query metadata.
+/// <https://facebook.github.io/watchman/docs/scm-query.html>
+#[derive(JsonSchema)]
+#[serde(remote = "SavedStateClockData")]
+pub struct SavedStateClockDataJsonSchemaDef {
+    pub storage: Option<String>,
+    #[serde(rename = "commit-id")]
+    pub commit: Option<String>,
+    pub config: Option<Value>,
 }

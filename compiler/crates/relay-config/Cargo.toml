@@ -9,6 +9,7 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
+schemars = { version = "0.8.21", features = ["indexmap2"] }
 common = { path = "../common" }
 fnv = "1.0"
 indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
@@ -16,5 +17,8 @@ intern = { path = "../intern" }
 pathdiff = "0.2"
 regex = "1.9.2"
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.100", features = [
+    "float_roundtrip",
+    "unbounded_depth",
+] }
 strum = { version = "0.26.2", features = ["derive"] }

@@ -19,8 +19,12 @@ path = "tests/compile_relay_artifacts_with_custom_id_test.rs"
 [[test]]
 name = "relay_compiler_relay_compiler_integration_test"
 path = "tests/relay_compiler_integration_test.rs"
+[[test]]
+name = "relay_config_schema_json_test"
+path = "tests/relay_config_schema_json_test.rs"
 
 [dependencies]
+schemars = { version = "0.8.21", features = ["indexmap2"] }
 async-trait = "0.1.71"
 bincode = "1.3.3"
 common = { path = "../common" }
@@ -63,7 +67,10 @@ schema-diff = { path = "../schema-diff" }
 schema-validate-lib = { path = "../schema-validate" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_bser = "0.3"
-serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.100", features = [
+    "float_roundtrip",
+    "unbounded_depth",
+] }
 sha1 = "0.10.5"
 sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }

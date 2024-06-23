@@ -11,6 +11,7 @@ use common::ScalarName;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 use strum::EnumIter;
@@ -25,7 +26,8 @@ type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
     Clone,
     Serialize,
     Deserialize,
-    PartialEq
+    PartialEq,
+    JsonSchema
 )]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {
@@ -44,21 +46,21 @@ impl TypegenLanguage {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum CustomScalarType {
     Name(StringKey),
     Path(CustomScalarTypeImport),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 
 pub struct CustomScalarTypeImport {
     pub name: StringKey,
     pub path: PathBuf,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".

@@ -25,7 +25,6 @@ use graphql_ir::Program;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
-use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
@@ -716,14 +715,6 @@ pub struct SingleProjectConfigFile {
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
-    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
-    /// Adding to the config, to show the warning, and not a parse error.
-    pub include: Vec<String>,
-
-    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
-    /// Adding to the config, to show the warning, and not a parse error.
-    pub extensions: Vec<String>,
-
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
     #[serde(alias = "exclude")]
@@ -776,8 +767,6 @@ impl Default for SingleProjectConfigFile {
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
-            include: vec![],
-            extensions: vec![],
             excludes: get_default_excludes(),
             schema_extensions: vec![],
             schema_config: Default::default(),
@@ -837,19 +826,6 @@ impl SingleProjectConfigFile {
     }
 
     fn create_multi_project_config(self, config_path: &Path) -> Result<MultiProjectConfigFile> {
-        if !self.include.is_empty() {
-            warn!(
-                r#"The configuration contains `include: {:#?}` section. This configuration option is no longer supported. Consider removing it."#,
-                &self.include
-            );
-        }
-        if !self.extensions.is_empty() {
-            warn!(
-                r#"The configuration contains `extensions: {:#?}` section. This configuration option is no longer supported. Consider removing it."#,
-                &self.extensions
-            );
-        }
-
         if self.typegen_phase.is_some() {
             return Err(Error::ConfigFileValidation {
                 config_path: config_path.into(),

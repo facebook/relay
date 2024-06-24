@@ -25,7 +25,6 @@ use graphql_ir::Program;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
-use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
@@ -84,6 +83,25 @@ type OperationPersisterCreator =
 type UpdateCompilerStateFromSavedState =
     Option<Box<dyn Fn(&mut CompilerState, &Config) + Send + Sync>>;
 
+type ShouldExtractFullSource = Box<dyn Fn(&str) -> bool + Send + Sync>;
+
+type GenerateVirtualIdFieldName =
+    Box<dyn Fn(&ProjectConfig, &OperationDefinition, &Program) -> Option<StringKey> + Send + Sync>;
+
+type CustomExtractRelayResolvers = Box<
+    dyn Fn(
+            ProjectName,
+            &CompilerState,
+            Option<&GraphQLAsts>,
+        ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>
+        // (Types, Fields)
+        + Send
+        + Sync,
+>;
+
+type CustomOverrideSchemaDeterminator =
+    Box<dyn Fn(&ProjectConfig, &OperationDefinition) -> Option<String> + Send + Sync>;
+
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
@@ -109,13 +127,7 @@ pub struct Config {
     pub load_saved_state_file: Option<PathBuf>,
     /// Function to generate extra
     pub generate_extra_artifacts: Option<GenerateExtraArtifactsFn>,
-    pub generate_virtual_id_file_name: Option<
-        Box<
-            dyn Fn(&ProjectConfig, &OperationDefinition, &Program) -> Option<StringKey>
-                + Send
-                + Sync,
-        >,
-    >,
+    pub generate_virtual_id_file_name: Option<GenerateVirtualIdFieldName>,
 
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
@@ -156,8 +168,7 @@ pub struct Config {
     /// and after each major transformation step (common, operations, etc)
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
-    pub custom_override_schema_determinator:
-        Option<Box<dyn Fn(&ProjectConfig, &OperationDefinition) -> Option<String> + Send + Sync>>,
+    pub custom_override_schema_determinator: Option<CustomOverrideSchemaDeterminator>,
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
 
     /// The async function is called before the compiler connects to the file
@@ -171,21 +182,10 @@ pub struct Config {
     pub has_schema_change_incremental_build: bool,
 
     /// A custom function to extract resolver Dockblock IRs from sources
-    pub custom_extract_relay_resolvers: Option<
-        Box<
-            dyn Fn(
-                    ProjectName,
-                    &CompilerState,
-                    Option<&GraphQLAsts>,
-                ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>
-                // (Types, Fields)
-                + Send
-                + Sync,
-        >,
-    >,
+    pub custom_extract_relay_resolvers: Option<CustomExtractRelayResolvers>,
 
     /// A function to determine if full file source should be extracted instead of docblock
-    pub should_extract_full_source: Option<Box<dyn Fn(&str) -> bool + Send + Sync>>,
+    pub should_extract_full_source: Option<ShouldExtractFullSource>,
 }
 
 pub enum FileSourceKind {
@@ -716,14 +716,6 @@ pub struct SingleProjectConfigFile {
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
-    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
-    /// Adding to the config, to show the warning, and not a parse error.
-    pub include: Vec<String>,
-
-    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
-    /// Adding to the config, to show the warning, and not a parse error.
-    pub extensions: Vec<String>,
-
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
     #[serde(alias = "exclude")]
@@ -776,8 +768,6 @@ impl Default for SingleProjectConfigFile {
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
-            include: vec![],
-            extensions: vec![],
             excludes: get_default_excludes(),
             schema_extensions: vec![],
             schema_config: Default::default(),
@@ -837,19 +827,6 @@ impl SingleProjectConfigFile {
     }
 
     fn create_multi_project_config(self, config_path: &Path) -> Result<MultiProjectConfigFile> {
-        if !self.include.is_empty() {
-            warn!(
-                r#"The configuration contains `include: {:#?}` section. This configuration option is no longer supported. Consider removing it."#,
-                &self.include
-            );
-        }
-        if !self.extensions.is_empty() {
-            warn!(
-                r#"The configuration contains `extensions: {:#?}` section. This configuration option is no longer supported. Consider removing it."#,
-                &self.extensions
-            );
-        }
-
         if self.typegen_phase.is_some() {
             return Err(Error::ConfigFileValidation {
                 config_path: config_path.into(),

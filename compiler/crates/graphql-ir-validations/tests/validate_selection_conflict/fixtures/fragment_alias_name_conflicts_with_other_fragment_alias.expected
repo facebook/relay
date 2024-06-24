@@ -10,18 +10,18 @@ query RelayReaderNamedFragmentsTest2Query {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Fragment alias 'myAlias' is ambiguous. It conflicts with another fragment alias with the same name.
-
-  fragment_alias_name_conflicts_with_other_fragment_alias.graphql:7:27
-    6 │   }
-    7 │   ... on Query @alias(as: "myAlias") {
-      │                           ^^^^^^^^^
-    8 │     __typename
-
-  ℹ︎ the conflicting alias
+✖︎ Fragment alias 'myAlias' is ambiguous. It conflicts with another named selection
 
   fragment_alias_name_conflicts_with_other_fragment_alias.graphql:4:27
     3 │ query RelayReaderNamedFragmentsTest2Query {
     4 │   ... on Query @alias(as: "myAlias") {
       │                           ^^^^^^^^^
     5 │     __typename
+
+  ℹ︎ the other field
+
+  fragment_alias_name_conflicts_with_other_fragment_alias.graphql:7:27
+    6 │   }
+    7 │   ... on Query @alias(as: "myAlias") {
+      │                           ^^^^^^^^^
+    8 │     __typename

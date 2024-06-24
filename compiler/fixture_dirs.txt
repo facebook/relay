@@ -4,7 +4,6 @@ crates/docblock-syntax/tests/parse
 crates/extract-graphql/tests/extract
 crates/fixture-tests/tests/uppercase
 crates/graphql-ir-validations/tests/validate_selection_conflict
-crates/graphql-ir-validations/tests/validate_fragment_alias_conflict
 crates/graphql-ir/tests/parse_with_extensions
 crates/graphql-ir/tests/parse_with_provider
 crates/graphql-ir/tests/parse

@@ -17,7 +17,7 @@ const resolverDataInjector = require('./store/experimental-live-resolvers/resolv
 
 // Annotates a strong object return type, where `A` is the GraphQL typename
 // eslint-disable-next-line no-unused-vars
-export type IdOf<A> = DataID;
+export type IdOf<A> = {id: DataID};
 
 // Annotates a `RelayResolverValue` GraphQL return type
 // eslint-disable-next-line no-unused-vars

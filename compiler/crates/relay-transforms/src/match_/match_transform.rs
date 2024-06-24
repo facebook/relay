@@ -648,6 +648,13 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             .named(MATCH_CONSTANTS.supported_arg);
         match supported_arg_definition {
             None => {
+                // `@match` can be used to add the `supported` argument as a field argument,
+                // but it can also be used to supply a `key` argument for places
+                // where there are multiple selections with `@module` in the same document.
+                //
+                // If the directive does not have a `key` argument, and is not on a field with a
+                // `supported` argument, then it is is not doing anything and is
+                // therefore an error.
                 if key_arg.is_none() {
                     return Err(Diagnostic::error(
                         ValidationMessage::InvalidMatchWithNoSupportedArgument,

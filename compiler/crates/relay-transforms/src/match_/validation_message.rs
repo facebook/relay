@@ -108,7 +108,7 @@ pub enum ValidationMessage {
     InvalidMatchNoModuleSelection,
 
     #[error(
-        "@match on a field without the `supported` argument is a no-op, please remove the `@match`."
+        "@match without a `key` argument and on a field without the `supported` argument is a no-op, please remove the `@match`."
     )]
     InvalidMatchWithNoSupportedArgument,
 }

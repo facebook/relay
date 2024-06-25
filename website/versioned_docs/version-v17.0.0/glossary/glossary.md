@@ -187,7 +187,7 @@ A directive which can be added to a fragment spread or inline fragment to avoid 
 
 <FbInternalOnly>
 See [Incremental Data Delivery](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/incremental-data-delivery/).
-<FbInternalOnly>
+</FbInternalOnly>
 
 ## Definition
 

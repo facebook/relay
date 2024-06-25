@@ -307,7 +307,7 @@ gives us
         {
           "cursor": "YXJyYXljb25uZWN0aW9uOjM=",
           "node": {
-            "name": "Millenium Falcon"
+            "name": "Millennium Falcon"
           }
         },
         {
@@ -415,7 +415,7 @@ and we get back
         },
         {
           "node": {
-            "name": "Millenium Falcon"
+            "name": "Millennium Falcon"
           }
         },
         {

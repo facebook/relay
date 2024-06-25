@@ -33,6 +33,6 @@ Today Relay Resolvers are always evaluated lazily on a per-fragment basis. This 
 
 ## Verbose/awkward docblock syntax
 
-Today defining a resolver requires defining a function with a docblock which uses special syntax and duplicates information already specified in the function's name an types. Futher, in order to enforce that these values match up, Relay emits type assertions in its generated types. While these assertions do ensure safety, they are an awkward developer experience.
+Today defining a resolver requires defining a function with a docblock which uses special syntax and duplicates information already specified in the function's name and types. Further, in order to enforce that these values match up, Relay emits type assertions in its generated types. While these assertions do ensure safety, they are an awkward developer experience.
 
 To address these issues we are exploring a more streamlined approach where names and types can be inferred from your Flow or TypeScript code similar to the approach taken by [Grats](https://grats.capt.dev/). This syntax may become available in future versions of Relay.

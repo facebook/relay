@@ -27,7 +27,7 @@ query MyQuery {
 }
 ```
 
-If `name` is null, relay would return `{ viewer: null }`. You can think of `@required` in this instance as saying "`viewer` is useless without a `name`".
+If `name` is null, Relay would return `{ viewer: null }`. You can think of `@required` in this instance as saying "`viewer` is useless without a `name`".
 
 ## Action
 

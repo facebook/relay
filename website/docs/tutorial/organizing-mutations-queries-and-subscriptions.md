@@ -2,7 +2,7 @@
 
 Relay Operations (Mutations, Queries, and Subscriptions) have strict naming requirements. The operation name must begin with the module name, and end with the GraphQL operation type. The name also must be globally unique.
 
-> Sidenote: This naming scheme originates from trying to enforce the uniqueness constraint. At Meta, Haste (a dependency management system for static resources) enforces that all module names are unique to derive sensible globally unique Relay names. Coupling the module name and Relay name also makes it easier to locate a fragment/query/mutation if you know that name. This makes sense within Meta, and may be less sensible in an OSS setting.
+> Side note: This naming scheme originates from trying to enforce the uniqueness constraint. At Meta, Haste (a dependency management system for static resources) enforces that all module names are unique to derive sensible globally unique Relay names. Coupling the module name and Relay name also makes it easier to locate a fragment/query/mutation if you know that name. This makes sense within Meta, and may be less sensible in an OSS setting.
 
 For example:
 

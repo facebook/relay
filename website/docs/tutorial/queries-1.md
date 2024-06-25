@@ -80,10 +80,10 @@ This illustrates the part of the graph that this query is asking for:
 ![Parts of the GraphQL query](/img/docs/tutorial/query-breakdown.png)
 
 Now that we’ve defined the query, we need to do two things.
-1. Run relay compiler so that it knows about the new Graphql query. [npm run relay.]
+1. Run the Relay compiler so that it knows about the new Graphql query. [npm run relay.]
 2. Modify our React component to fetch it and to use the data returned by the server.
 
-If you open package.json you will find the script `relay` is hooked up to run the relay-compiler. This is what npm run relay does. Once the compiler successfully updates/generated the new compiled query you will be able to find it in the __generated__ folder under src/components/ as NewsfeedQuery.graphql.ts. This project comes with precomputed fragments, so unless you do this step, you will not get the desired results.
+If you open package.json you will find the script `relay` is hooked up to run the Relay compiler. This is what `npm run relay` does. Once the compiler successfully updates/generated the new compiled query you will be able to find it in the __generated__ folder under src/components/ as NewsfeedQuery.graphql.ts. This project comes with precomputed fragments, so unless you do this step, you will not get the desired results.
 
 Next, turn back to the `Newsfeed` component and start by deleting the placeholder data. Then, replace it with this:
 
@@ -139,7 +139,7 @@ At this point, you should see a story fetched from the server:
 ![Screenshot](/img/docs/tutorial/queries-basic-screenshot.png)
 
 :::note
-The server's responses are artifically slowed down to make loading states perceptible, which will come in handy when we add more interactivity to the app. If you want to remove the delay, open `server/index.js` and remove the call to `sleep()`.
+The server's responses are artificially slowed down to make loading states perceptible, which will come in handy when we add more interactivity to the app. If you want to remove the delay, open `server/index.js` and remove the call to `sleep()`.
 :::
 
 The `useLazyLoadQuery` hook fetches the data when the component is first rendered. Relay also has APIs for pre-fetching the data before your app has even loaded — these are covered later. In any case, Relay uses Suspense to show a loading indicator until the data is available.

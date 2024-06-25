@@ -8,7 +8,7 @@
 use intern::string_key::StringKey;
 use thiserror::Error;
 
-use crate::JSImportType;
+use crate::find_resolver_imports::JSImportType;
 
 #[derive(
     Clone,

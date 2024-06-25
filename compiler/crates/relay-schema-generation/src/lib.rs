@@ -12,7 +12,6 @@
 mod errors;
 mod find_resolver_imports;
 
-use std::fmt;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -33,7 +32,9 @@ use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockSection;
 use errors::SchemaGenerationError;
 use find_resolver_imports::ImportExportVisitor;
-use find_resolver_imports::Imports;
+use find_resolver_imports::JSImportType;
+use find_resolver_imports::ModuleResolution;
+use find_resolver_imports::ModuleResolutionKey;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinition;
@@ -71,7 +72,6 @@ use relay_docblock::TerseRelayResolverIr;
 use relay_docblock::UnpopulatedIrField;
 use relay_docblock::WeakObjectIr;
 use rustc_hash::FxHashMap;
-use rustc_hash::FxHashSet;
 use schema_extractor::SchemaExtractor;
 
 pub static LIVE_FLOW_TYPE_NAME: &str = "LiveState";
@@ -113,40 +113,6 @@ pub struct RelayResolverExtractor {
     // Needs to keep track of source location because hermes_parser currently
     // does not embed the information
     current_location: SourceLocationKey,
-}
-
-#[derive(
-    Clone,
-    Eq,
-    PartialEq,
-    Ord,
-    PartialOrd,
-    Debug,
-    Hash,
-    Copy,
-    serde::Serialize
-)]
-pub enum JSImportType {
-    Default,
-    Named(StringKey),
-    // Note that namespace imports cannot be used for resolver types. Anything namespace
-    // imported should be a "Named" import instead
-    Namespace,
-}
-impl fmt::Display for JSImportType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            JSImportType::Default => write!(f, "default"),
-            JSImportType::Namespace => write!(f, "namespace"),
-            JSImportType::Named(_) => write!(f, "named"),
-        }
-    }
-}
-
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
-struct ModuleResolutionKey {
-    module_name: StringKey,
-    import_type: JSImportType,
 }
 
 struct UnresolvedFieldDefinition {
@@ -217,8 +183,8 @@ impl RelayResolverExtractor {
                 .collect::<Vec<_>>()
         })?;
 
-        let import_export_visitor = ImportExportVisitor::new(self.current_location);
-        let (imports, exports) = import_export_visitor.get_all(&ast)?;
+        let import_export_visitor = ImportExportVisitor::new(source_module_path);
+        let module_resolution = import_export_visitor.get_module_resolution(&ast)?;
 
         let attached_comments = find_nodes_after_comments(&ast, &comments);
 
@@ -254,9 +220,7 @@ impl RelayResolverExtractor {
                             if is_field_definition {
                                 let entity_name = self.extract_entity_name(entity_type)?;
                                 self.add_field_definition(
-                                    &imports,
-                                    &exports,
-                                    source_module_path,
+                                    &module_resolution,
                                     fragment_definitions,
                                     UnresolvedFieldDefinition {
                                         entity_name,
@@ -270,9 +234,7 @@ impl RelayResolverExtractor {
                                 )?
                             } else {
                                 self.add_type_definition(
-                                    &imports,
-                                    &exports,
-                                    source_module_path,
+                                    &module_resolution,
                                     name,
                                     return_type,
                                     source_hash,
@@ -372,37 +334,26 @@ impl RelayResolverExtractor {
 
     fn add_field_definition(
         &mut self,
-        imports: &Imports,
-        exports: &FxHashSet<StringKey>,
-        source_module_path: &str,
+        module_resolution: &ModuleResolution,
         fragment_definitions: Option<&Vec<ExecutableDefinition>>,
         field_definition: UnresolvedFieldDefinition,
     ) -> DiagnosticsResult<()> {
         let name = field_definition.entity_name.item;
-        let key = if let Some(res) = imports.get(&name) {
-            res.0.clone()
-        } else if exports.contains(&name) {
-            let haste_module_name = Path::new(source_module_path)
-                .file_stem()
-                .unwrap()
-                .to_str()
-                .unwrap();
-            ModuleResolutionKey {
-                module_name: haste_module_name.intern(),
-                import_type: JSImportType::Named(name),
-            }
-        } else {
-            return Err(vec![Diagnostic::error(
+        let key = module_resolution.get(name).ok_or_else(|| {
+            vec![Diagnostic::error(
                 SchemaGenerationError::ExpectedFlowDefinitionForType { name },
                 field_definition.entity_name.location,
-            )]);
-        };
+            )]
+        })?;
 
         if key.module_name.lookup().ends_with(".graphql") && name.lookup().ends_with("$key") {
             self.add_fragment_field_definition(fragment_definitions, field_definition)?
         } else {
-            self.unresolved_field_definitions
-                .push((key, field_definition, self.current_location));
+            self.unresolved_field_definitions.push((
+                key.clone(),
+                field_definition,
+                self.current_location,
+            ));
         }
         Ok(())
     }
@@ -476,9 +427,7 @@ impl RelayResolverExtractor {
     #[allow(clippy::too_many_arguments)]
     fn add_type_definition(
         &mut self,
-        imports: &Imports,
-        exports: &FxHashSet<StringKey>,
-        source_module_path: &str,
+        module_resolution: &ModuleResolution,
         name: WithLocation<StringKey>,
         mut return_type: FlowTypeAnnotation,
         source_hash: ResolverSourceHash,
@@ -523,34 +472,21 @@ impl RelayResolverExtractor {
                     )]);
                 }
 
-                let key = if let Some((key, import_location)) = imports.get(&name.item) {
-                    if let JSImportType::Namespace = key.import_type {
-                        return Err(vec![
-                            Diagnostic::error(
-                                SchemaGenerationError::UseNamedOrDefaultImport,
-                                name.location,
-                            )
-                            .annotate(format!("{} is imported from", name.item), *import_location),
-                        ]);
-                    };
-                    key.clone()
-                } else if exports.contains(&name.item) {
-                    let haste_module_name = Path::new(source_module_path)
-                        .file_stem()
-                        .unwrap()
-                        .to_str()
-                        .unwrap();
-                    ModuleResolutionKey {
-                        module_name: haste_module_name.intern(),
-                        import_type: JSImportType::Named(name.item),
-                    }
-                } else {
-                    return Err(vec![Diagnostic::error(
+                let key = module_resolution.get(name.item).ok_or_else(|| {
+                    vec![Diagnostic::error(
                         SchemaGenerationError::ExpectedFlowDefinitionForType { name: name.item },
                         name.location,
-                    )]);
+                    )]
+                })?;
+                if let JSImportType::Namespace(import_location) = key.import_type {
+                    return Err(vec![
+                        Diagnostic::error(
+                            SchemaGenerationError::UseNamedOrDefaultImport,
+                            name.location,
+                        )
+                        .annotate(format!("{} is imported from", name.item), import_location),
+                    ]);
                 };
-
                 self.type_definitions.insert(
                     key.clone(),
                     DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(strong_object)),

@@ -6,11 +6,12 @@
  */
 
 use intern::string_key::StringKey;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
 /// Configuration for @module.
-#[derive(Debug, Deserialize, Serialize, Default, Copy, Clone)]
+#[derive(Debug, Deserialize, Serialize, Default, Copy, Clone, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ModuleImportConfig {
     /// Defines the custom import statement to be generated on the
@@ -19,7 +20,17 @@ pub struct ModuleImportConfig {
     pub dynamic_module_provider: Option<DynamicModuleProvider>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Eq, Clone, Copy, PartialEq, Hash)]
+#[derive(
+    Debug,
+    Deserialize,
+    Serialize,
+    Eq,
+    Clone,
+    Copy,
+    PartialEq,
+    Hash,
+    JsonSchema
+)]
 #[serde(tag = "mode")]
 pub enum DynamicModuleProvider {
     /// Generates a module provider using JSResource

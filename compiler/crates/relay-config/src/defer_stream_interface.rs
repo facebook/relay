@@ -8,11 +8,12 @@
 use common::ArgumentName;
 use common::DirectiveName;
 use intern::string_key::Intern;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
 /// Configuration where Relay should expect some fields in the schema.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct DeferStreamInterface {
     pub defer_name: DirectiveName,

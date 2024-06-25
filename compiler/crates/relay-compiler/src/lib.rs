@@ -49,6 +49,7 @@ pub use build_project::ArtifactContent;
 pub use build_project::ArtifactGeneratedTypes;
 pub use build_project::BuildProjectFailure;
 pub use build_project::SourceHashes;
+pub use config::ConfigFile;
 pub use config::ConfigFileProject;
 pub use config::FileSourceKind;
 pub use config::LocalPersistConfig;

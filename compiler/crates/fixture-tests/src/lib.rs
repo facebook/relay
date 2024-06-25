@@ -155,16 +155,20 @@ pub async fn test_fixture<T, U, V>(
     };
 
     let actual = format!("{}\n", actual.trim_end());
+    let expected_file_path = workspace_root()
+        .join(source_file_path)
+        .with_file_name(expected_file_name);
+    assert_file_contains(&actual, expected_file_path, expected)
+}
+
+pub fn assert_file_contains(actual: &str, expected_file_path: PathBuf, expected: &str) {
     if actual != expected {
         {
             let _guard = LOCK.lock();
-            print_diff::print_diff(expected, &actual);
+            print_diff::print_diff(expected, actual);
         }
 
         if env::var_os("UPDATE_SNAPSHOTS").is_some() {
-            let expected_file_path = workspace_root()
-                .join(source_file_path)
-                .with_file_name(expected_file_name);
             File::create(&expected_file_path)
                 .unwrap_or_else(|e| {
                     panic!(
@@ -183,7 +187,7 @@ pub async fn test_fixture<T, U, V>(
     }
 }
 
-fn workspace_root() -> PathBuf {
+pub fn workspace_root() -> PathBuf {
     if let Ok(cargo) = std::env::var("CARGO") {
         let stdout = Command::new(cargo)
             .args(["locate-project", "--workspace", "--message-format=plain"])

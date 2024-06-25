@@ -12,12 +12,13 @@ use std::fmt::Result as FmtResult;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::Rollout;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
@@ -133,7 +134,7 @@ fn default_as_true() -> bool {
     true
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize, Default)]
+#[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature

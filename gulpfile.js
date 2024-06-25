@@ -360,6 +360,13 @@ const relayCompiler = gulp.parallel(
       })
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
   },
+  function copyCompilerConfigSchema() {
+    return gulp
+      .src(['relay-compiler-config-schema.json'], {
+        cwd: path.join('compiler/crates/relay-compiler'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
+  },
   function copyCompilerBins() {
     return gulp
       .src('**', {

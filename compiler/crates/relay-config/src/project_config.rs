@@ -23,6 +23,7 @@ use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use regex::Regex;
+use schemars::JsonSchema;
 use serde::de::Error;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -42,7 +43,7 @@ use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct RemotePersistConfig {
     /// URL to send a POST request to to persist.
@@ -81,6 +82,7 @@ where
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(JsonSchema)]
 pub enum LocalPersistAlgorithm {
     MD5,
     SHA1,
@@ -94,7 +96,7 @@ impl Default for LocalPersistAlgorithm {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct LocalPersistConfig {
     pub file: PathBuf,
@@ -106,7 +108,7 @@ pub struct LocalPersistConfig {
     pub include_query_text: bool,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum PersistConfig {
     Remote(RemotePersistConfig),
@@ -155,7 +157,7 @@ It also cannot be a local persist configuration due to:
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, JsonSchema)]
 pub enum SchemaLocation {
     File(PathBuf),
     Directory(PathBuf),
@@ -175,7 +177,7 @@ impl Debug for ExtraArtifactsConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
     #[serde(default)]

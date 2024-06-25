@@ -16,6 +16,7 @@ log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-types = "0.94.1"
 md-5 = "0.10"
 rayon = "1.9.0"
+schemars = { version = "0.8.21", features = ["indexmap2"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
 typetag = "0.2.15"

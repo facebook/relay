@@ -37,7 +37,8 @@ jobs:
   steps:
     - template: /.azure-devops/steps/install-rust.yml@self
       parameters:
-        rust: stable
+        # This should be the same as the upstream GitHub job uses, which can be found in `.github/workflows/ci.yml` under `build-compiler->steps->uses->with->toolchain`
+        rust: 1.72.0
         targets:
           - $(target)
     - script: sudo apt install musl-tools libssl-dev gcc make gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi

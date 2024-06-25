@@ -1,6 +1,6 @@
-# defaults for any parameters that aren't specified
+# Defaults for any parameters that aren't specified. Do not change these, instead specify them in the job that uses this template.
 parameters:
-  rust: nightly-2023-11-11
+  rust: stable
   components: []
   targets: []
 

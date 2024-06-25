@@ -124,7 +124,7 @@ struct UnresolvedFieldDefinition {
     is_live: Option<Location>,
     description: Option<WithLocation<StringKey>>,
     root_fragment: Option<WithLocation<FragmentDefinitionName>>,
-    fragment_type_condition: Option<WithLocation<StringKey>>,
+    entity_type: Option<WithLocation<StringKey>>,
 }
 
 impl Default for RelayResolverExtractor {
@@ -233,7 +233,7 @@ impl RelayResolverExtractor {
                                         is_live,
                                         description,
                                         root_fragment: None,
-                                        fragment_type_condition: None,
+                                        entity_type: None,
                                     },
                                 )?
                             } else {
@@ -272,8 +272,8 @@ impl RelayResolverExtractor {
     pub fn resolve(mut self) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<TerseRelayResolverIr>)> {
         try_all(self.unresolved_field_definitions.into_iter().map(
             |(key, field, source_location)| {
-                let type_ = if let Some(fragment_type_condition) = field.fragment_type_condition {
-                    fragment_type_condition
+                let type_ = if let Some(entity_type) = field.entity_type {
+                    entity_type
                 } else {
                     match self.type_definitions.get(&key) {
                         Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
@@ -363,7 +363,7 @@ impl RelayResolverExtractor {
             );
             let fragment_definition = fragment_definition_result.map_err(|err| vec![err])?;
 
-            field_definition.fragment_type_condition = Some(WithLocation::from_span(
+            field_definition.entity_type = Some(WithLocation::from_span(
                 fragment_definition.location.source_location(),
                 fragment_definition.type_condition.span,
                 fragment_definition.type_condition.type_.value,
@@ -501,32 +501,25 @@ impl RelayResolverExtractor {
                 let field_map = self.get_object_fields(&object_node)?;
                 if !field_map.is_empty() {
                     try_all(field_map.into_iter().map(|(field_name, field_type)| {
-                        let field_definition = FieldDefinition {
-                            name: string_key_to_identifier(field_name),
-                            type_: return_type_to_type_annotation(
-                                self.current_location,
-                                field_type,
-                            )?,
-                            arguments: None,
-                            directives: vec![],
-                            description: None,
-                            hack_source: None,
-                            span: field_name.location.span(),
-                        };
-
-                        self.resolved_field_definitions.push(TerseRelayResolverIr {
-                            field: field_definition,
-                            type_: weak_object
-                                .type_name
-                                .name_with_location(SourceLocationKey::Generated),
-                            root_fragment: None,
-                            location: field_name.location,
-                            deprecated: None,
-                            live: None,
-                            fragment_arguments: None,
-                            source_hash,
-                            semantic_non_null: None,
-                        });
+                        self.unresolved_field_definitions.push((
+                            key.clone(),
+                            UnresolvedFieldDefinition {
+                                entity_name: name,
+                                field_name,
+                                return_type: field_type.clone(),
+                                arguments: None,
+                                source_hash,
+                                is_live: None,
+                                description,
+                                root_fragment: None,
+                                entity_type: Some(
+                                    weak_object
+                                        .type_name
+                                        .name_with_location(SourceLocationKey::Generated),
+                                ),
+                            },
+                            self.current_location,
+                        ));
                         Ok(())
                     }))?;
                 } else {
@@ -546,7 +539,7 @@ impl RelayResolverExtractor {
 
         // Add weak object
         self.type_definitions.insert(
-            key.clone(),
+            key,
             DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(weak_object)),
         );
         Ok(())

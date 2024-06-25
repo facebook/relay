@@ -38,7 +38,7 @@ const environment = new Environment({
 
 ## Compiler
 
-You must enable the `"enable_relay_resolver_transform"` feature flag in your relay compiler config:
+You must enable the `"enable_relay_resolver_transform"` feature flag in your Relay compiler config:
 
 
 ```json title="relay.config.json"

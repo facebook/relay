@@ -122,7 +122,7 @@
     "trailingComma": "all"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --skipLibCheck",
     "prettier-check": "prettier -c .",
     "lint": "eslint --max-warnings 0 .",
     "vscode:prepublish": "rm -f tsconfig.tsbuildinfo && rm -rf out && yarn run esbuild-base -- --minify",

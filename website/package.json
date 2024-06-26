@@ -1,4 +1,6 @@
 {
+  "name": "website",
+  "version": "0.0.0",
   "repository": "facebook/relay",
   "license": "MIT",
   "private": true,

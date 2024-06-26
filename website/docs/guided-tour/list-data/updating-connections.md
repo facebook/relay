@@ -501,7 +501,7 @@ function updater(store: RecordSourceSelectorProxy) {
   const connectionRecordFriendsOnly = ConnectionHandler.getConnection(
     storyRecord,
     'StoryComponent_story_comments_connection',
-    {order_by: null, filter_mode: '*FRIENDS_ONLY*', langugage: null}
+    {order_by: null, filter_mode: '*FRIENDS_ONLY*', language: null}
   );
 }
 ```

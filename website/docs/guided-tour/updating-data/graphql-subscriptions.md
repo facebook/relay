@@ -121,7 +121,7 @@ function useFeedbackSubscription(
 
 Let's distill what's happening here.
 
-* `useSubscription` takes a `GraphlQLSubscriptionConfig` object, which includes the following fields:
+* `useSubscription` takes a `GraphQLSubscriptionConfig` object, which includes the following fields:
   * `subscription`: the GraphQL literal containing the subscription, and
   * `variables`: the variables with which to establish the subscription.
 * In addition, `useSubscription` accepts a Flow type parameter. As with queries, the Flow type of the subscription is exported from the file that the Relay compiler generates.
@@ -175,7 +175,7 @@ Spreading fragments is generally preferable to refetching the data in response t
 In addition to writing updated data to the Relay store, we may want to execute a callback whenever a subscription payload is received. We may want to execute a callback if an error is received or if an error is received or if the server ends the subscription. The `GraphQLSubscriptionConfig` can include the following fields to handle such cases:
 
 * `onNext`, a callback that is executed when a subscription payload is received. It is passed the subscription response (stopping at fragment spread boundaries).
-* `onError`, a callback that is executed when the subscription errors. It is passed the error that occured.
+* `onError`, a callback that is executed when the subscription errors. It is passed the error that occurred.
 * `onCompleted`, a callback that is executed when the server ends the subscription.
 
 ## Declarative mutation directives

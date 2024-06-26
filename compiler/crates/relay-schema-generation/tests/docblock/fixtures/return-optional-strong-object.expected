@@ -59,7 +59,7 @@ Field(
                 span: 79:85,
             },
             type_: WithLocation {
-                location: <generated>:273:276,
+                location: Cat.js:273:276,
                 item: "Cat",
             },
             root_fragment: None,

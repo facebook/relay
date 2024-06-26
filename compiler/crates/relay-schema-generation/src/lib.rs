@@ -308,12 +308,12 @@ impl RelayResolverExtractor {
                                 ResolverTypeDocblockIr::StrongObjectResolver(object),
                             )) => Ok(object
                                 .type_name
-                                .name_with_location(SourceLocationKey::Generated)),
+                                .name_with_location(object.location.source_location())),
                             Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(
                                 object,
                             ))) => Ok(object
                                 .type_name
-                                .name_with_location(SourceLocationKey::Generated)),
+                                .name_with_location(object.location.source_location())),
                             _ => Err(vec![Diagnostic::error(
                                 SchemaGenerationError::ModuleNotFound {
                                     entity_name: field.entity_name.item,
@@ -549,7 +549,7 @@ impl RelayResolverExtractor {
                                 entity_type: Some(
                                     weak_object
                                         .type_name
-                                        .name_with_location(SourceLocationKey::Generated),
+                                        .name_with_location(weak_object.location.source_location()),
                                 ),
                             },
                             self.current_location,
@@ -840,7 +840,9 @@ fn return_type_to_type_annotation(
                             identifier.location,
                         )]),
                         Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(object))) => {
-                            Ok(object.type_name)
+                            Ok(object
+                                .type_name
+                                .name_with_location(object.location.source_location()))
                         }
                         _ => Err(vec![Diagnostic::error(
                             SchemaGenerationError::ModuleNotFound {
@@ -853,9 +855,7 @@ fn return_type_to_type_annotation(
                     }?;
 
                     TypeAnnotation::Named(NamedTypeAnnotation {
-                        name: string_key_to_identifier(
-                            graphql_typename.name_with_location(SourceLocationKey::Generated),
-                        ),
+                        name: string_key_to_identifier(graphql_typename),
                     })
                 }
                 Some(type_parameters) if type_parameters.params.len() == 1 => {

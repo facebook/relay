@@ -70,7 +70,7 @@ Field(
                 span: 409:413,
             },
             type_: WithLocation {
-                location: <generated>:320:323,
+                location: module.js:320:323,
                 item: "Cat",
             },
             root_fragment: None,

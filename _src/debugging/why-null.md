@@ -99,7 +99,7 @@ Note that if the unstable field is a linked field (edge to another object), this
 <FbInternalOnly>
 
 :::note
-Because these errors existing in the code base and can cause noisy console outout, these warnings are [disabled](https://www.internalfb.com/code/www/[5b26a6bd37e8]/html/shared/core/WarningFilter.js?lines=559) in dev mode.
+Because these errors exist in the codebase and can cause noisy console output, these warnings are [disabled](https://www.internalfb.com/code/www/[5b26a6bd37e8]/html/shared/core/WarningFilter.js?lines=559) in dev mode.
 :::
 
 </FbInternalOnly>

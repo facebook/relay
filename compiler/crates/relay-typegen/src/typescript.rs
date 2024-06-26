@@ -353,9 +353,14 @@ impl TypeScriptPrinter {
         self.write(return_type)
     }
 
-    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
+    fn write_generic_type(&mut self, outer: StringKey, inner: &[AST]) -> FmtResult {
         write!(&mut self.result, "{}<", outer)?;
-        self.write(inner)?;
+        for (i, inner_type) in inner.iter().enumerate() {
+            if i > 0 {
+                write!(&mut self.result, ", ")?;
+            }
+            self.write(inner_type)?;
+        }
         write!(&mut self.result, ">")
     }
 }

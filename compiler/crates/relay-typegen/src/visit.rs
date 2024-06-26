@@ -401,7 +401,7 @@ fn generate_resolver_type(
         runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,
-            inner: Box::new(ast),
+            inner: vec![ast],
         }
     } else {
         ast
@@ -680,6 +680,7 @@ fn relay_resolver_field_type(
         } else {
             inner_value
         };
+
         if required || field_type.is_non_null() {
             AST::NonNullable(Box::new(inner_value))
         } else {

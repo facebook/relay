@@ -81,4 +81,12 @@ pub enum SchemaGenerationError {
         "A nullable strong type is provided, please make the type non-nullable. The type can't be nullable in the runtime."
     )]
     UnexpectedNullableStrongType,
+
+    #[error("Unable to find module resolution due to previous errors for source file: {path}.")]
+    UnexpectedFailedToFindModuleResolution { path: &'static str },
+
+    #[error(
+        "Returning a strong object directly in a resolver is not allowed. Please return the `id` of the strong object, and use `IdOf<'{typename}'>` as the Flow return type."
+    )]
+    StrongReturnTypeNotAllowed { typename: StringKey },
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<170a37e605a9d28292120e9ac783689b>>
+ * @generated SignedSource<<6a2cd0c98e4b1065ecda75d79ded3d13>>
  */
 
 mod docblock;
@@ -97,10 +97,24 @@ async fn primitive_types() {
 }
 
 #[tokio::test]
+async fn return_aliased_weak_object_todo() {
+    let input = include_str!("docblock/fixtures/return-aliased-weak-object.todo.input");
+    let expected = include_str!("docblock/fixtures/return-aliased-weak-object.todo.expected");
+    test_fixture(transform_fixture, file!(), "return-aliased-weak-object.todo.input", "docblock/fixtures/return-aliased-weak-object.todo.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn return_an_object() {
     let input = include_str!("docblock/fixtures/return-an-object.input");
     let expected = include_str!("docblock/fixtures/return-an-object.expected");
     test_fixture(transform_fixture, file!(), "return-an-object.input", "docblock/fixtures/return-an-object.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn return_invalid_object_error() {
+    let input = include_str!("docblock/fixtures/return-invalid-object.error.input");
+    let expected = include_str!("docblock/fixtures/return-invalid-object.error.expected");
+    test_fixture(transform_fixture, file!(), "return-invalid-object.error.input", "docblock/fixtures/return-invalid-object.error.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -122,6 +136,13 @@ async fn return_relay_resolver_value() {
     let input = include_str!("docblock/fixtures/return-relay-resolver-value.input");
     let expected = include_str!("docblock/fixtures/return-relay-resolver-value.expected");
     test_fixture(transform_fixture, file!(), "return-relay-resolver-value.input", "docblock/fixtures/return-relay-resolver-value.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn return_strong_object_directly_error() {
+    let input = include_str!("docblock/fixtures/return-strong-object-directly.error.input");
+    let expected = include_str!("docblock/fixtures/return-strong-object-directly.error.expected");
+    test_fixture(transform_fixture, file!(), "return-strong-object-directly.error.input", "docblock/fixtures/return-strong-object-directly.error.expected", input, expected).await;
 }
 
 #[tokio::test]

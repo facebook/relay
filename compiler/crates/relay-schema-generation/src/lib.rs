@@ -103,12 +103,9 @@ pub struct WeakObjectData {
 pub struct RelayResolverExtractor {
     /// Cross module states
     type_definitions: FxHashMap<ModuleResolutionKey, DocblockIr>,
-    unresolved_field_definitions: Vec<(
-        ModuleResolutionKey,
-        UnresolvedFieldDefinition,
-        SourceLocationKey,
-    )>,
+    unresolved_field_definitions: Vec<(UnresolvedFieldDefinition, SourceLocationKey)>,
     resolved_field_definitions: Vec<TerseRelayResolverIr>,
+    module_resolutions: FxHashMap<SourceLocationKey, ModuleResolution>,
 
     // Needs to keep track of source location because hermes_parser currently
     // does not embed the information
@@ -139,6 +136,7 @@ impl RelayResolverExtractor {
             type_definitions: Default::default(),
             unresolved_field_definitions: Default::default(),
             resolved_field_definitions: vec![],
+            module_resolutions: Default::default(),
             current_location: SourceLocationKey::generated(),
         }
     }
@@ -190,7 +188,7 @@ impl RelayResolverExtractor {
 
         let attached_comments = find_nodes_after_comments(&ast, &comments);
 
-        try_all(
+        let result = try_all(
             attached_comments
                 .into_iter()
                 .filter(|(comment, _, _, _)| comment.contains("@RelayResolver"))
@@ -264,76 +262,116 @@ impl RelayResolverExtractor {
                     }
                     Ok(())
                 }),
-        )?;
+        );
+
+        self.module_resolutions
+            .insert(self.current_location, module_resolution);
+
+        result?;
         Ok(())
     }
 
     /// Second pass to resolve all field definitions
     pub fn resolve(mut self) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<TerseRelayResolverIr>)> {
-        try_all(self.unresolved_field_definitions.into_iter().map(
-            |(key, field, source_location)| {
-                let type_ = if let Some(entity_type) = field.entity_type {
-                    entity_type
-                } else {
-                    match self.type_definitions.get(&key) {
-                        Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
-                            object,
-                        ))) => Ok(object
-                            .type_name
-                            .name_with_location(SourceLocationKey::Generated)),
-                        Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(object))) => {
-                            Ok(object
+        try_all(
+            self.unresolved_field_definitions
+                .into_iter()
+                .map(|(field, source_location)| {
+                    let module_resolution = self
+                        .module_resolutions
+                        .get(&source_location)
+                        .ok_or_else(|| {
+                            vec![Diagnostic::error(
+                                SchemaGenerationError::UnexpectedFailedToFindModuleResolution {
+                                    path: source_location.path(),
+                                },
+                                field.entity_name.location,
+                            )]
+                        })?;
+
+                    let type_ = if let Some(entity_type) = field.entity_type {
+                        entity_type
+                    } else {
+                        let key =
+                            module_resolution
+                                .get(field.entity_name.item)
+                                .ok_or_else(|| {
+                                    vec![Diagnostic::error(
+                                        SchemaGenerationError::ExpectedFlowDefinitionForType {
+                                            name: field.entity_name.item,
+                                        },
+                                        field.entity_name.location,
+                                    )]
+                                })?;
+                        match self.type_definitions.get(key) {
+                            Some(DocblockIr::Type(
+                                ResolverTypeDocblockIr::StrongObjectResolver(object),
+                            )) => Ok(object
                                 .type_name
-                                .name_with_location(SourceLocationKey::Generated))
-                        }
-                        _ => Err(vec![Diagnostic::error(
-                            SchemaGenerationError::ModuleNotFound {
-                                entity_name: field.entity_name.item,
-                                export_type: key.import_type,
-                                module_name: key.module_name,
-                            },
-                            field.entity_name.location,
-                        )]),
-                    }?
-                };
-                let arguments = if let Some(args) = field.arguments {
-                    Some(flow_type_to_field_arguments(source_location, &args)?)
-                } else {
-                    None
-                };
-                let description_node = field.description.map(|desc| StringNode {
-                    token: Token {
-                        span: desc.location.span(),
-                        kind: TokenKind::Empty,
-                    },
-                    value: desc.item,
-                });
-                let field_definition = FieldDefinition {
-                    name: string_key_to_identifier(field.field_name),
-                    type_: return_type_to_type_annotation(source_location, &field.return_type)?,
-                    arguments,
-                    directives: vec![],
-                    description: description_node,
-                    hack_source: None,
-                    span: field.field_name.location.span(),
-                };
-                let live = field
-                    .is_live
-                    .map(|loc| UnpopulatedIrField { key_location: loc });
-                self.resolved_field_definitions.push(TerseRelayResolverIr {
-                    field: field_definition,
-                    type_,
-                    root_fragment: field.root_fragment,
-                    location: field.field_name.location,
-                    deprecated: None,
-                    live,
-                    fragment_arguments: None, // We don't support arguments right now
-                    source_hash: field.source_hash,
-                    semantic_non_null: None,
-                });
-                Ok(())
-            },
-        ))?;
+                                .name_with_location(SourceLocationKey::Generated)),
+                            Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(
+                                object,
+                            ))) => Ok(object
+                                .type_name
+                                .name_with_location(SourceLocationKey::Generated)),
+                            _ => Err(vec![Diagnostic::error(
+                                SchemaGenerationError::ModuleNotFound {
+                                    entity_name: field.entity_name.item,
+                                    export_type: key.import_type,
+                                    module_name: key.module_name,
+                                },
+                                field.entity_name.location,
+                            )]),
+                        }?
+                    };
+                    let arguments = if let Some(args) = field.arguments {
+                        Some(flow_type_to_field_arguments(
+                            source_location,
+                            &args,
+                            module_resolution,
+                            &self.type_definitions,
+                        )?)
+                    } else {
+                        None
+                    };
+                    let description_node = field.description.map(|desc| StringNode {
+                        token: Token {
+                            span: desc.location.span(),
+                            kind: TokenKind::Empty,
+                        },
+                        value: desc.item,
+                    });
+                    let field_definition = FieldDefinition {
+                        name: string_key_to_identifier(field.field_name),
+                        type_: return_type_to_type_annotation(
+                            source_location,
+                            &field.return_type,
+                            module_resolution,
+                            &self.type_definitions,
+                        )?,
+                        arguments,
+                        directives: vec![],
+                        description: description_node,
+                        hack_source: None,
+                        span: field.field_name.location.span(),
+                    };
+                    let live = field
+                        .is_live
+                        .map(|loc| UnpopulatedIrField { key_location: loc });
+                    self.resolved_field_definitions.push(TerseRelayResolverIr {
+                        field: field_definition,
+                        type_,
+                        root_fragment: field.root_fragment,
+                        location: field.field_name.location,
+                        deprecated: None,
+                        live,
+                        fragment_arguments: None, // We don't support arguments right now
+                        source_hash: field.source_hash,
+                        semantic_non_null: None,
+                    });
+                    Ok(())
+                }),
+        )?;
         Ok((
             self.type_definitions.into_values().collect(),
             self.resolved_field_definitions,
@@ -374,11 +412,8 @@ impl RelayResolverExtractor {
                 FragmentDefinitionName(fragment_definition.name.value),
             ));
         }
-        self.unresolved_field_definitions.push((
-            key.clone(),
-            field_definition,
-            self.current_location,
-        ));
+        self.unresolved_field_definitions
+            .push((field_definition, self.current_location));
 
         Ok(())
     }
@@ -502,7 +537,6 @@ impl RelayResolverExtractor {
                 if !field_map.is_empty() {
                     try_all(field_map.into_iter().map(|(field_name, field_type)| {
                         self.unresolved_field_definitions.push((
-                            key.clone(),
                             UnresolvedFieldDefinition {
                                 entity_name: name,
                                 field_name,
@@ -775,6 +809,8 @@ fn string_key_to_identifier(name: WithLocation<StringKey>) -> Identifier {
 fn return_type_to_type_annotation(
     source_location: SourceLocationKey,
     return_type: &FlowTypeAnnotation,
+    module_resolution: &ModuleResolution,
+    type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
 ) -> DiagnosticsResult<TypeAnnotation> {
     let (return_type, mut is_optional) = schema_extractor::unwrap_nullable_type(return_type);
     let location = to_location(source_location, return_type);
@@ -785,9 +821,43 @@ fn return_type_to_type_annotation(
                 location: to_location(source_location, node.as_ref()),
             })?;
             match &node.type_parameters {
-                None => TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_to_identifier(identifier),
-                }),
+                None => {
+                    let key = module_resolution.get(identifier.item).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaGenerationError::ExpectedFlowDefinitionForType {
+                                name: identifier.item,
+                            },
+                            identifier.location,
+                        )]
+                    })?;
+                    let graphql_typename = match type_definitions.get(key) {
+                        Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
+                            object,
+                        ))) => Err(vec![Diagnostic::error(
+                            SchemaGenerationError::StrongReturnTypeNotAllowed {
+                                typename: object.type_name.value,
+                            },
+                            identifier.location,
+                        )]),
+                        Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(object))) => {
+                            Ok(object.type_name)
+                        }
+                        _ => Err(vec![Diagnostic::error(
+                            SchemaGenerationError::ModuleNotFound {
+                                entity_name: identifier.item,
+                                export_type: key.import_type,
+                                module_name: key.module_name,
+                            },
+                            identifier.location,
+                        )]),
+                    }?;
+
+                    TypeAnnotation::Named(NamedTypeAnnotation {
+                        name: string_key_to_identifier(
+                            graphql_typename.name_with_location(SourceLocationKey::Generated),
+                        ),
+                    })
+                }
                 Some(type_parameters) if type_parameters.params.len() == 1 => {
                     let identifier_name = identifier.item.lookup();
                     match identifier_name {
@@ -796,7 +866,12 @@ fn return_type_to_type_annotation(
                             TypeAnnotation::List(Box::new(ListTypeAnnotation {
                                 span: location.span(),
                                 open: generated_token(),
-                                type_: return_type_to_type_annotation(source_location, param)?,
+                                type_: return_type_to_type_annotation(
+                                    source_location,
+                                    param,
+                                    module_resolution,
+                                    type_definitions,
+                                )?,
                                 close: generated_token(),
                             }))
                         }
@@ -914,6 +989,8 @@ fn return_type_to_type_annotation(
 fn flow_type_to_field_arguments(
     source_location: SourceLocationKey,
     args_type: &FlowTypeAnnotation,
+    module_resolution: &ModuleResolution,
+    type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
 ) -> DiagnosticsResult<List<InputValueDefinition>> {
     let obj = if let FlowTypeAnnotation::ObjectTypeAnnotation(type_) = &args_type {
         // unwrap the ref then the box, then re-add the ref
@@ -953,7 +1030,12 @@ fn flow_type_to_field_arguments(
                         )]
                     })?,
                 },
-                type_: return_type_to_type_annotation(source_location, &prop.value)?,
+                type_: return_type_to_type_annotation(
+                    source_location,
+                    &prop.value,
+                    module_resolution,
+                    type_definitions,
+                )?,
                 default_value: None,
                 directives: vec![],
                 span: prop_span,

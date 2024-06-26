@@ -182,9 +182,9 @@ Field(
                         type_: Named(
                             NamedTypeAnnotation {
                                 name: Identifier {
-                                    span: 665:673,
+                                    span: 357:365,
                                     token: Token {
-                                        span: 665:673,
+                                        span: 357:365,
                                         kind: Identifier,
                                     },
                                     value: "FullName",

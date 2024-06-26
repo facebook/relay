@@ -13,14 +13,19 @@ import type CatFlowType from 'Cat';
 /**
  * @RelayResolver
  */
+ export type ClientPage = Page;
+
+/**
+ * @RelayResolver
+ */
 export function Cat(id: DataID): CatFlowType {}
 
 /**
  * @RelayResolver
  */
-export function favorite_page(cat: CatFlowType, args: {id: ID}): Page {}
+export function favorite_page(cat: CatFlowType, args: {id: number}): ClientPage {}
 
 /**
  * @RelayResolver
  */
-export function all_pages(cat: CatFlowType, args: {limit: ?number}): Array<Page> {}
+export function all_pages(cat: CatFlowType, args: {limit: ?number}): Array<ClientPage> {}

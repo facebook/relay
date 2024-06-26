@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+//- Cat.js
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+//- Cat-name.js
+
+import type CatFlowType from 'Cat';
+/**
+ * @RelayResolver
+ */
+export function friend(cat: CatFlowType): ?CatFlowType {
+  return {};
+}
+==================================== OUTPUT ===================================
+
+
+✖︎ Returning a strong object directly in a resolver is not allowed. Please return the `id` of the strong object, and use `IdOf<'Cat'>` as the Flow return type.
+
+  Cat-name.js:6:44
+    5 │  */
+    6 │ export function friend(cat: CatFlowType): ?CatFlowType {
+      │                                            ^^^^^^^^^^^
+    7 │   return {};

@@ -81,7 +81,6 @@ pub enum SchemaGenerationError {
         "A nullable strong type is provided, please make the type non-nullable. The type can't be nullable in the runtime."
     )]
     UnexpectedNullableStrongType,
-
     #[error("Unable to find module resolution due to previous errors for source file: {path}.")]
     UnexpectedFailedToFindModuleResolution { path: &'static str },
 
@@ -89,4 +88,8 @@ pub enum SchemaGenerationError {
         "Returning a strong object directly in a resolver is not allowed. Please return the `id` of the strong object, and use `IdOf<'{typename}'>` as the Flow return type."
     )]
     StrongReturnTypeNotAllowed { typename: StringKey },
+    #[error(
+        "Multiple custom scalar types found to map to `{flow_type}`. This is an error when using client side resolvers as the Flow type must map to a single GraphQL custom scalar."
+    )]
+    DuplicateCustomScalars { flow_type: StringKey },
 }

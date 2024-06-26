@@ -21,12 +21,15 @@ common = { path = "../common" }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
 errors = { path = "../errors" }
+fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 hermes_comments = { git = "https://github.com/facebook/hermes.git" }
 hermes_estree = { git = "https://github.com/facebook/hermes.git" }
 hermes_parser = { git = "https://github.com/facebook/hermes.git" }
+indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
+relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }
 rustc-hash = "1.1.0"
 schema-extractor = { path = "../schema-extractor" }
@@ -38,6 +41,5 @@ extract-graphql = { path = "../extract-graphql" }
 fixture-tests = { path = "../fixture-tests" }
 graphql-cli = { path = "../graphql-cli" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
-relay-config = { path = "../relay-config" }
 relay-test-schema = { path = "../relay-test-schema" }
 tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }

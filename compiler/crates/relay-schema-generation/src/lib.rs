@@ -13,6 +13,7 @@ mod errors;
 mod find_resolver_imports;
 
 use std::path::Path;
+use std::path::PathBuf;
 use std::str::FromStr;
 
 use ::errors::try_all;
@@ -23,6 +24,7 @@ use ::intern::Lookup;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
+use common::ScalarName;
 use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
@@ -35,6 +37,7 @@ use find_resolver_imports::ImportExportVisitor;
 use find_resolver_imports::JSImportType;
 use find_resolver_imports::ModuleResolution;
 use find_resolver_imports::ModuleResolutionKey;
+use fnv::FnvBuildHasher;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinition;
@@ -65,6 +68,9 @@ use hermes_parser::parse;
 use hermes_parser::ParseResult;
 use hermes_parser::ParserDialect;
 use hermes_parser::ParserFlags;
+use indexmap::IndexMap;
+use relay_config::CustomScalarType;
+use relay_config::CustomScalarTypeImport;
 use relay_docblock::DocblockIr;
 use relay_docblock::ResolverTypeDocblockIr;
 use relay_docblock::StrongObjectIr;
@@ -75,6 +81,8 @@ use rustc_hash::FxHashMap;
 use schema_extractor::SchemaExtractor;
 
 pub static LIVE_FLOW_TYPE_NAME: &str = "LiveState";
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 /**
  * Reprensents a subset of supported Flow type definitions
@@ -110,6 +118,9 @@ pub struct RelayResolverExtractor {
     // Needs to keep track of source location because hermes_parser currently
     // does not embed the information
     current_location: SourceLocationKey,
+
+    // Used to map Flow types in return/argument types to GraphQL custom scalars
+    custom_scalar_map: FnvIndexMap<CustomScalarTypeImport, ScalarName>,
 }
 
 struct UnresolvedFieldDefinition {
@@ -138,7 +149,16 @@ impl RelayResolverExtractor {
             resolved_field_definitions: vec![],
             module_resolutions: Default::default(),
             current_location: SourceLocationKey::generated(),
+            custom_scalar_map: FnvIndexMap::default(),
         }
+    }
+
+    pub fn set_custom_scalar_map(
+        &mut self,
+        custom_scalar_types: &FnvIndexMap<ScalarName, CustomScalarType>,
+    ) -> DiagnosticsResult<()> {
+        self.custom_scalar_map = invert_custom_scalar_map(custom_scalar_types)?;
+        Ok(())
     }
 
     /// First pass to extract all object definitions and field definitions
@@ -151,6 +171,7 @@ impl RelayResolverExtractor {
         // Assume the caller knows the text contains at least one RelayResolver decorator
 
         self.current_location = SourceLocationKey::standalone(source_module_path);
+
         let source_hash = ResolverSourceHash::new(text);
         let ParseResult { ast, comments } = parse(
             text,
@@ -327,6 +348,7 @@ impl RelayResolverExtractor {
                     let arguments = if let Some(args) = field.arguments {
                         Some(flow_type_to_field_arguments(
                             source_location,
+                            &self.custom_scalar_map,
                             &args,
                             module_resolution,
                             &self.type_definitions,
@@ -345,6 +367,7 @@ impl RelayResolverExtractor {
                         name: string_key_to_identifier(field.field_name),
                         type_: return_type_to_type_annotation(
                             source_location,
+                            &self.custom_scalar_map,
                             &field.return_type,
                             module_resolution,
                             &self.type_definitions,
@@ -808,6 +831,7 @@ fn string_key_to_identifier(name: WithLocation<StringKey>) -> Identifier {
 
 fn return_type_to_type_annotation(
     source_location: SourceLocationKey,
+    custom_scalar_map: &FnvIndexMap<CustomScalarTypeImport, ScalarName>,
     return_type: &FlowTypeAnnotation,
     module_resolution: &ModuleResolution,
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
@@ -822,7 +846,7 @@ fn return_type_to_type_annotation(
             })?;
             match &node.type_parameters {
                 None => {
-                    let key = module_resolution.get(identifier.item).ok_or_else(|| {
+                    let module_key = module_resolution.get(identifier.item).ok_or_else(|| {
                         vec![Diagnostic::error(
                             SchemaGenerationError::ExpectedFlowDefinitionForType {
                                 name: identifier.item,
@@ -830,29 +854,39 @@ fn return_type_to_type_annotation(
                             identifier.location,
                         )]
                     })?;
-                    let graphql_typename = match type_definitions.get(key) {
-                        Some(DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(
-                            object,
-                        ))) => Err(vec![Diagnostic::error(
-                            SchemaGenerationError::StrongReturnTypeNotAllowed {
-                                typename: object.type_name.value,
-                            },
-                            identifier.location,
-                        )]),
-                        Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(object))) => {
-                            Ok(object
+
+                    let scalar_key = CustomScalarTypeImport {
+                        name: identifier.item,
+                        path: PathBuf::from_str(module_key.module_name.lookup()).unwrap(),
+                    };
+                    let custom_scalar = custom_scalar_map.get(&scalar_key);
+
+                    let graphql_typename = match custom_scalar {
+                        None => match type_definitions.get(module_key) {
+                            Some(DocblockIr::Type(
+                                ResolverTypeDocblockIr::StrongObjectResolver(object),
+                            )) => Err(vec![Diagnostic::error(
+                                SchemaGenerationError::StrongReturnTypeNotAllowed {
+                                    typename: object.type_name.value,
+                                },
+                                identifier.location,
+                            )]),
+                            Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(
+                                object,
+                            ))) => Ok(object
                                 .type_name
-                                .name_with_location(object.location.source_location()))
-                        }
-                        _ => Err(vec![Diagnostic::error(
-                            SchemaGenerationError::ModuleNotFound {
-                                entity_name: identifier.item,
-                                export_type: key.import_type,
-                                module_name: key.module_name,
-                            },
-                            identifier.location,
-                        )]),
-                    }?;
+                                .name_with_location(object.location.source_location())),
+                            _ => Err(vec![Diagnostic::error(
+                                SchemaGenerationError::ModuleNotFound {
+                                    entity_name: identifier.item,
+                                    export_type: module_key.import_type,
+                                    module_name: module_key.module_name,
+                                },
+                                identifier.location,
+                            )]),
+                        }?,
+                        Some(scalar_name) => identifier.map(|_| scalar_name.0), // map identifer to keep the location
+                    };
 
                     TypeAnnotation::Named(NamedTypeAnnotation {
                         name: string_key_to_identifier(graphql_typename),
@@ -868,6 +902,7 @@ fn return_type_to_type_annotation(
                                 open: generated_token(),
                                 type_: return_type_to_type_annotation(
                                     source_location,
+                                    custom_scalar_map,
                                     param,
                                     module_resolution,
                                     type_definitions,
@@ -988,6 +1023,7 @@ fn return_type_to_type_annotation(
 
 fn flow_type_to_field_arguments(
     source_location: SourceLocationKey,
+    custom_scalar_map: &FnvIndexMap<CustomScalarTypeImport, ScalarName>,
     args_type: &FlowTypeAnnotation,
     module_resolution: &ModuleResolution,
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
@@ -1032,6 +1068,7 @@ fn flow_type_to_field_arguments(
                 },
                 type_: return_type_to_type_annotation(
                     source_location,
+                    custom_scalar_map,
                     &prop.value,
                     module_resolution,
                     type_definitions,
@@ -1101,4 +1138,26 @@ fn generated_token() -> Token {
         span: Span::empty(),
         kind: TokenKind::Empty,
     }
+}
+
+fn invert_custom_scalar_map(
+    custom_scalar_types: &FnvIndexMap<ScalarName, CustomScalarType>,
+) -> DiagnosticsResult<FnvIndexMap<CustomScalarTypeImport, ScalarName>> {
+    let mut custom_scalar_map = FnvIndexMap::default();
+    for (graphql_scalar, flow_type) in custom_scalar_types.iter() {
+        if let CustomScalarType::Path(type_import) = flow_type {
+            if custom_scalar_map.contains_key(type_import) {
+                // Multiple custom GraphQL scalars map to one Flow type
+                return Err(vec![Diagnostic::error(
+                    SchemaGenerationError::DuplicateCustomScalars {
+                        flow_type: graphql_scalar.0,
+                    },
+                    Location::generated(), // TODO is it possible to error in the config file?
+                )]);
+            } else {
+                custom_scalar_map.insert(type_import.clone(), *graphql_scalar);
+            }
+        }
+    }
+    Ok(custom_scalar_map)
 }

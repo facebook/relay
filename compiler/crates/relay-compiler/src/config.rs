@@ -17,6 +17,7 @@ use async_trait::async_trait;
 use common::DiagnosticsResult;
 use common::FeatureFlags;
 use common::Rollout;
+use common::ScalarName;
 use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
@@ -28,6 +29,7 @@ use js_config_loader::LoaderSource;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
+use relay_config::CustomScalarType;
 use relay_config::DiagnosticReportConfig;
 pub use relay_config::ExtraArtifactsConfig;
 use relay_config::JsModuleFormat;
@@ -93,6 +95,7 @@ type GenerateVirtualIdFieldName =
 type CustomExtractRelayResolvers = Box<
     dyn Fn(
             ProjectName,
+            &FnvIndexMap<ScalarName, CustomScalarType>,
             &CompilerState,
             Option<&GraphQLAsts>,
         ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>

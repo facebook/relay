@@ -6,17 +6,25 @@
  */
 
 use std::path::Path;
+use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::Arc;
 
+use ::intern::intern;
 use common::Diagnostic;
+use common::ScalarName;
 use common::SourceLocationKey;
 use common::TextSource;
 use extract_graphql::JavaScriptSourceFeature;
 use fixture_tests::Fixture;
+use fnv::FnvBuildHasher;
 use graphql_cli::DiagnosticPrinter;
 use graphql_syntax::ExecutableDefinition;
 use graphql_test_helpers::ProjectFixture;
+use indexmap::IndexMap;
 use intern::Lookup;
+use relay_config::CustomScalarType;
+use relay_config::CustomScalarTypeImport;
 use relay_config::ProjectName;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::DocblockIr;
@@ -24,14 +32,20 @@ use relay_docblock::ResolverFieldDocblockIr;
 use relay_schema_generation::RelayResolverExtractor;
 use relay_test_schema::get_test_schema_with_extensions;
 
-pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let mut extractor = RelayResolverExtractor::new();
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_name = ProjectName::default();
     let mut schema = get_test_schema_with_extensions("");
 
     let mut errors: Vec<Diagnostic> = vec![];
     let project_fixture = ProjectFixture::deserialize(fixture.content);
+
+    let custom_scalar_types = get_custom_scalar_types();
+    let mut extractor = RelayResolverExtractor::new();
+    if let Err(err) = extractor.set_custom_scalar_map(&custom_scalar_types) {
+        errors.extend(err);
+    }
 
     project_fixture.files().iter().for_each(|(path, content)| {
         let gql_operations = parse_document_definitions(content, path);
@@ -134,4 +148,16 @@ fn diagnostics_to_sorted_string(fixtures: &ProjectFixture, diagnostics: &[Diagno
         .collect::<Vec<_>>();
     printed.sort();
     printed.join("\n\n")
+}
+
+fn get_custom_scalar_types() -> FnvIndexMap<ScalarName, CustomScalarType> {
+    let mut custom_scalar_map: FnvIndexMap<ScalarName, CustomScalarType> = FnvIndexMap::default();
+    custom_scalar_map.insert(
+        ScalarName(intern!("JSON")),
+        CustomScalarType::Path(CustomScalarTypeImport {
+            name: intern!("CustomJSON"),
+            path: PathBuf::from_str("CustomScalars").unwrap(),
+        }),
+    );
+    custom_scalar_map
 }

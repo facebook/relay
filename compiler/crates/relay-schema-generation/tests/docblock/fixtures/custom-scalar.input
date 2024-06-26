@@ -1,0 +1,36 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+import type CatFlowType from 'Cat';
+import type {Other, CustomJSON} from 'CustomScalars';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function serialize(cat: CatFlowType): CustomJSON {
+  return '';
+}
+
+/**
+ * @RelayResolver
+ */
+export function deserialize_extras(cat: CatFlowType, args: {extras: CustomJSON}): string {
+  return '';
+}
+
+// CustomScalars.js
+
+export type CustomJSON = string;

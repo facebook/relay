@@ -46,15 +46,14 @@ impl TypegenLanguage {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, Hash, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum CustomScalarType {
     Name(StringKey),
     Path(CustomScalarTypeImport),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
-
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, Hash, PartialEq, Eq)]
 pub struct CustomScalarTypeImport {
     pub name: StringKey,
     pub path: PathBuf,

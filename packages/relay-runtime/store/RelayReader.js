@@ -13,7 +13,6 @@
 
 import type {
   ReaderActorChange,
-  ReaderAliasedFragmentSpread,
   ReaderCatchField,
   ReaderClientEdge,
   ReaderFragment,
@@ -496,12 +495,6 @@ class RelayReader {
         }
         case FRAGMENT_SPREAD:
           this._createFragmentPointer(selection, record, data);
-          break;
-        case ALIASED_FRAGMENT_SPREAD:
-          data[selection.name] = this._createAliasedFragmentSpread(
-            selection,
-            record,
-          );
           break;
         case ALIASED_INLINE_FRAGMENT_SPREAD: {
           let fieldValue = this._readInlineFragment(
@@ -1152,40 +1145,6 @@ class RelayReader {
     );
     data[FRAGMENT_PROP_NAME_KEY] = moduleImport.fragmentPropName;
     data[MODULE_COMPONENT_KEY] = component;
-  }
-
-  _createAliasedFragmentSpread(
-    namedFragmentSpread: ReaderAliasedFragmentSpread,
-    record: Record,
-  ): ?Record {
-    const {abstractKey} = namedFragmentSpread;
-    if (abstractKey == null) {
-      // concrete type refinement: only read data if the type exactly matches
-      if (!this._recordMatchesTypeCondition(record, namedFragmentSpread.type)) {
-        // This selection does not match the fragment spread. Do nothing.
-        return null;
-      }
-    } else {
-      const implementsInterface = this._implementsInterface(
-        record,
-        abstractKey,
-      );
-
-      if (implementsInterface === false) {
-        // Type known to not implement the interface, no data expected
-        return null;
-      } else if (implementsInterface == null) {
-        // Judgement call here. In some cases this will cause us to hide data that is actually valid.
-        return undefined;
-      }
-    }
-    const fieldData = {};
-    this._createFragmentPointer(
-      namedFragmentSpread.fragment,
-      record,
-      fieldData,
-    );
-    return RelayModernRecord.fromObject<>(fieldData);
   }
 
   // Has three possible return values:

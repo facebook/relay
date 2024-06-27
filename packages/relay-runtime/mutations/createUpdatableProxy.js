@@ -196,7 +196,6 @@ function updateProxyFromSelections<TData>(
         break;
       case CONDITION:
       case ACTOR_CHANGE:
-      case ALIASED_FRAGMENT_SPREAD:
       case INLINE_DATA_FRAGMENT_SPREAD:
       case ALIASED_INLINE_FRAGMENT_SPREAD:
       case CLIENT_EDGE_TO_CLIENT_OBJECT:

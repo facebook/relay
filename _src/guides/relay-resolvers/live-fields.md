@@ -4,12 +4,29 @@ title: "Live Fields"
 slug: /guides/relay-resolvers/live-fields/
 description: Modeling data that changes over time in Relay Resolvers
 ---
+import {FbInternalOnly, fbContent} from 'docusaurus-plugin-internaldocs-fb/internal';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 One critical difference between client state and server state is that as client state changes over time, those changes will need to be reflected in your UI. To address this, Relay Resolvers support the ability to be marked as `@live`. Live resolvers are expected to return a `LiveState` shaped object which includes methods which allow Relay to both `read()` the current value and also to `subscribe()` to changes to the value.
 
 As this value changes over time, Relay will automatically recompute any [derived fields](./derived-fields.md) that depend on this field (including transitive dependencies if the changes cascade), and also efficiently trigger the update of any components/subscribers which have read fields that updated as a result of this change.
 
 ## @live
+
+<Tabs
+  groupId="resolver"
+  defaultValue="Docblock"
+  values={fbContent({
+    internal: [
+      {label: 'Docblock', value: 'Docblock'},
+      {label: 'Flow', value: 'Flow'},
+    ],
+    external: [
+      {label: 'Docblock', value: 'Docblock'},
+    ]
+  })}>
+  <TabItem value="Docblock">
 
 To mark a resolver as live, add the `@live` docblock tag to the resolver definition. For example:
 
@@ -27,9 +44,35 @@ export function counter(): LiveState<number> {
       return store.subscribe(callback);
     },
   };
-
 }
 ```
+
+  </TabItem>
+
+  <TabItem value="Flow">
+  <FbInternalOnly>
+
+live is determined by the usage of `LiveState` in the Flow return type
+
+```tsx
+import type { LiveState } from 'relay-runtime';
+
+/**
+ * @RelayResolver
+ */
+export function counter(): LiveState<number> {
+  return {
+    read: () => store.getState().counter,
+    subscribe: (callback) => {
+      return store.subscribe(callback);
+    },
+  };
+}
+```
+
+  </FbInternalOnly>
+  </TabItem>
+</Tabs>
 
 :::note
 Both field resolvers and strong model resolvers, which map an ID to a model, may be annotated as `@live`.

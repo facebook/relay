@@ -46,6 +46,8 @@ use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
 use relay_docblock::DocblockIr;
 use relay_transforms::CustomTransformsConfig;
+use schemars::gen::SchemaSettings;
+use schemars::gen::{self};
 use schemars::JsonSchema;
 use serde::de::Error as DeError;
 use serde::Deserialize;
@@ -922,6 +924,16 @@ pub enum ConfigFile {
     /// This MultiProjectConfigFile is responsible for configuring
     /// these type of projects (complex)
     MultiProject(Box<MultiProjectConfigFile>),
+}
+
+impl ConfigFile {
+    pub fn json_schema() -> String {
+        let mut settings: SchemaSettings = Default::default();
+        settings.inline_subschemas = true;
+        let generator = gen::SchemaGenerator::from(settings);
+        let schema = generator.into_root_schema_for::<Self>();
+        serde_json::to_string_pretty(&schema).unwrap()
+    }
 }
 
 impl<'de> Deserialize<'de> for ConfigFile {

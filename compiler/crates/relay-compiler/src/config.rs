@@ -70,7 +70,7 @@ use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::source_control_for_root;
+use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
 use crate::GraphQLAsts;
@@ -428,10 +428,7 @@ impl Config {
 
         let config = Self {
             name: config_file.name,
-            artifact_writer: Box::new(ArtifactFileWriter::new(
-                source_control_for_root(&root_dir),
-                root_dir.clone(),
-            )),
+            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
             status_reporter: Box::new(ConsoleStatusReporter::new(
                 root_dir.clone(),
                 is_multi_project,

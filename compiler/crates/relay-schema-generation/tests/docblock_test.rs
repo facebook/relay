@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d59346ca2dcfcb06a14dc5cb81e82b86>>
+ * @generated SignedSource<<657bfd62871ca71e977bb6af087ef5ed>>
  */
 
 mod docblock;
@@ -101,6 +101,13 @@ async fn primitive_types() {
     let input = include_str!("docblock/fixtures/primitive-types.input");
     let expected = include_str!("docblock/fixtures/primitive-types.expected");
     test_fixture(transform_fixture, file!(), "primitive-types.input", "docblock/fixtures/primitive-types.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_functions_on_query() {
+    let input = include_str!("docblock/fixtures/resolver-functions-on-Query.input");
+    let expected = include_str!("docblock/fixtures/resolver-functions-on-Query.expected");
+    test_fixture(transform_fixture, file!(), "resolver-functions-on-Query.input", "docblock/fixtures/resolver-functions-on-Query.expected", input, expected).await;
 }
 
 #[tokio::test]

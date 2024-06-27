@@ -97,7 +97,7 @@ pub enum ResolverFlowData {
 pub struct FieldData {
     pub field_name: WithLocation<StringKey>,
     pub return_type: FlowTypeAnnotation,
-    pub entity_type: FlowTypeAnnotation,
+    pub entity_type: Option<FlowTypeAnnotation>,
     pub arguments: Option<FlowTypeAnnotation>,
     pub is_live: Option<Location>,
 }
@@ -124,7 +124,7 @@ pub struct RelayResolverExtractor {
 }
 
 struct UnresolvedFieldDefinition {
-    entity_name: WithLocation<StringKey>,
+    entity_name: Option<WithLocation<StringKey>>,
     field_name: WithLocation<StringKey>,
     return_type: FlowTypeAnnotation,
     arguments: Option<FlowTypeAnnotation>,
@@ -239,7 +239,13 @@ impl RelayResolverExtractor {
                                 is_lowercase_initial || name_str.contains('.')
                             };
                             if is_field_definition {
-                                let entity_name = self.extract_entity_name(entity_type)?;
+                                let entity_name = match entity_type {
+                                    Some(entity_type) => {
+                                        Some(self.extract_entity_name(entity_type)?)
+                                    }
+                                    None => None,
+                                };
+
                                 self.add_field_definition(
                                     &module_resolution,
                                     fragment_definitions,
@@ -306,24 +312,21 @@ impl RelayResolverExtractor {
                                 SchemaGenerationError::UnexpectedFailedToFindModuleResolution {
                                     path: source_location.path(),
                                 },
-                                field.entity_name.location,
+                                field.field_name.location,
                             )]
                         })?;
 
                     let type_ = if let Some(entity_type) = field.entity_type {
                         entity_type
-                    } else {
-                        let key =
-                            module_resolution
-                                .get(field.entity_name.item)
-                                .ok_or_else(|| {
-                                    vec![Diagnostic::error(
-                                        SchemaGenerationError::ExpectedFlowDefinitionForType {
-                                            name: field.entity_name.item,
-                                        },
-                                        field.entity_name.location,
-                                    )]
-                                })?;
+                    } else if let Some(entity_name) = field.entity_name {
+                        let key = module_resolution.get(entity_name.item).ok_or_else(|| {
+                            vec![Diagnostic::error(
+                                SchemaGenerationError::ExpectedFlowDefinitionForType {
+                                    name: entity_name.item,
+                                },
+                                entity_name.location,
+                            )]
+                        })?;
                         match self.type_definitions.get(key) {
                             Some(DocblockIr::Type(
                                 ResolverTypeDocblockIr::StrongObjectResolver(object),
@@ -337,13 +340,16 @@ impl RelayResolverExtractor {
                                 .name_with_location(object.location.source_location())),
                             _ => Err(vec![Diagnostic::error(
                                 SchemaGenerationError::ModuleNotFound {
-                                    entity_name: field.entity_name.item,
+                                    entity_name: entity_name.item,
                                     export_type: key.import_type,
                                     module_name: key.module_name,
                                 },
-                                field.entity_name.location,
+                                entity_name.location,
                             )]),
                         }?
+                    } else {
+                        // Special case: we attach the field to the `Query` type when there is no entity
+                        WithLocation::new(field.field_name.location, intern!("Query"))
                     };
                     let arguments = if let Some(args) = field.arguments {
                         Some(flow_type_to_field_arguments(
@@ -407,33 +413,35 @@ impl RelayResolverExtractor {
         fragment_definitions: Option<&Vec<ExecutableDefinition>>,
         mut field_definition: UnresolvedFieldDefinition,
     ) -> DiagnosticsResult<()> {
-        let name = field_definition.entity_name.item;
-        let key = module_resolution.get(name).ok_or_else(|| {
-            vec![Diagnostic::error(
-                SchemaGenerationError::ExpectedFlowDefinitionForType { name },
-                field_definition.entity_name.location,
-            )]
-        })?;
+        if let Some(entity_name) = field_definition.entity_name {
+            let name = entity_name.item;
+            let key = module_resolution.get(name).ok_or_else(|| {
+                vec![Diagnostic::error(
+                    SchemaGenerationError::ExpectedFlowDefinitionForType { name },
+                    entity_name.location,
+                )]
+            })?;
 
-        if key.module_name.lookup().ends_with(".graphql") && name.lookup().ends_with("$key") {
-            let fragment_name = name.lookup().strip_suffix("$key").unwrap();
-            let fragment_definition_result = relay_docblock::assert_fragment_definition(
-                field_definition.entity_name,
-                fragment_name.intern(),
-                fragment_definitions,
-            );
-            let fragment_definition = fragment_definition_result.map_err(|err| vec![err])?;
+            if key.module_name.lookup().ends_with(".graphql") && name.lookup().ends_with("$key") {
+                let fragment_name = name.lookup().strip_suffix("$key").unwrap();
+                let fragment_definition_result = relay_docblock::assert_fragment_definition(
+                    entity_name,
+                    fragment_name.intern(),
+                    fragment_definitions,
+                );
+                let fragment_definition = fragment_definition_result.map_err(|err| vec![err])?;
 
-            field_definition.entity_type = Some(WithLocation::from_span(
-                fragment_definition.location.source_location(),
-                fragment_definition.type_condition.span,
-                fragment_definition.type_condition.type_.value,
-            ));
-            field_definition.root_fragment = Some(WithLocation::from_span(
-                fragment_definition.location.source_location(),
-                fragment_definition.name.span,
-                FragmentDefinitionName(fragment_definition.name.value),
-            ));
+                field_definition.entity_type = Some(WithLocation::from_span(
+                    fragment_definition.location.source_location(),
+                    fragment_definition.type_condition.span,
+                    fragment_definition.type_condition.type_.value,
+                ));
+                field_definition.root_fragment = Some(WithLocation::from_span(
+                    fragment_definition.location.source_location(),
+                    fragment_definition.name.span,
+                    FragmentDefinitionName(fragment_definition.name.value),
+                ));
+            }
         }
         self.unresolved_field_definitions
             .push((field_definition, self.current_location));
@@ -561,7 +569,7 @@ impl RelayResolverExtractor {
                     try_all(field_map.into_iter().map(|(field_name, field_type)| {
                         self.unresolved_field_definitions.push((
                             UnresolvedFieldDefinition {
-                                entity_name: name,
+                                entity_name: Some(name),
                                 field_name,
                                 return_type: field_type.clone(),
                                 arguments: None,
@@ -663,34 +671,39 @@ impl RelayResolverExtractor {
             _ => (flow_return_type, None),
         };
 
-        if node.params.is_empty() {
-            return self.error_result(SchemaGenerationError::MissingFunctionParam, node);
-        }
-        let param = &node.params[0];
-        let entity_type = if let Pattern::Identifier(identifier) = param {
-            let type_annotation = identifier.type_annotation.as_ref().ok_or_else(|| {
-                Diagnostic::error(
-                    SchemaGenerationError::MissingParamType,
-                    self.to_location(param),
-                )
-            })?;
-            if let TypeAnnotationEnum::FlowTypeAnnotation(type_) = &type_annotation.type_annotation
-            {
-                type_
+        let entity_type = {
+            if node.params.is_empty() {
+                None
             } else {
-                return self.error_result(
-                    SchemaGenerationError::UnsupportedType { name: param.name() },
-                    param,
-                );
+                let param = &node.params[0];
+                if let Pattern::Identifier(identifier) = param {
+                    let type_annotation = identifier.type_annotation.as_ref().ok_or_else(|| {
+                        Diagnostic::error(
+                            SchemaGenerationError::MissingParamType,
+                            self.to_location(param),
+                        )
+                    })?;
+                    if let TypeAnnotationEnum::FlowTypeAnnotation(type_) =
+                        &type_annotation.type_annotation
+                    {
+                        Some(type_.clone())
+                    } else {
+                        return self.error_result(
+                            SchemaGenerationError::UnsupportedType { name: param.name() },
+                            param,
+                        );
+                    }
+                } else {
+                    return self.error_result(
+                        SchemaGenerationError::UnsupportedType { name: param.name() },
+                        param,
+                    );
+                }
             }
-        } else {
-            return self.error_result(
-                SchemaGenerationError::UnsupportedType { name: param.name() },
-                param,
-            );
         };
 
         let arguments = if node.params.len() > 1 {
+            let param = &node.params[0];
             let arg_param = &node.params[1];
             let args = if let Pattern::Identifier(identifier) = arg_param {
                 let type_annotation = identifier.type_annotation.as_ref().ok_or_else(|| {
@@ -723,7 +736,7 @@ impl RelayResolverExtractor {
         Ok(ResolverFlowData::Strong(FieldData {
             field_name,
             return_type: return_type.clone(),
-            entity_type: entity_type.clone(),
+            entity_type,
             arguments: arguments.cloned(),
             is_live,
         }))

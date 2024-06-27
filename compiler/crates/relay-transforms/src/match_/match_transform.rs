@@ -53,6 +53,7 @@ use schema::Type;
 use schema::TypeReference;
 
 use super::validation_message::ValidationMessage;
+use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
 use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
@@ -321,20 +322,22 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 ));
             }
 
-            // no other directives are allowed
-            if spread.directives.len() != 1
-                && !(spread.directives.len() == 2
-                    && spread
-                        .directives
-                        .named(self.defer_stream_interface.defer_name)
-                        .is_some())
-            {
+            let invalid_directive = spread.directives.iter().find(|directive| {
                 // allow @defer and @module in typegen transforms
+                // allow @alias in the common transform, it will be moved to its
+                // own parent inline fragment in a later transform.
+                directive.name.item != MATCH_CONSTANTS.module_directive_name
+                    && directive.name.item != self.defer_stream_interface.defer_name
+                    && directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME
+            });
+
+            // no other directives are allowed
+            if let Some(invalid_directive) = invalid_directive {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleWithAdditionalDirectives {
                         spread_name: spread.fragment.item,
                     },
-                    spread.directives[1].name.location,
+                    invalid_directive.name.location,
                 ));
             }
 

@@ -18,6 +18,7 @@ fragment Foo on Node {
   #     ),
   #     non_nullable: false,
   #     selection_type: Interface(0),
+  #     wraps_spread: false,
   # }
    @__childrenCanBubbleNull {
     name @required(action: NONE) @__RequiredMetadataDirective

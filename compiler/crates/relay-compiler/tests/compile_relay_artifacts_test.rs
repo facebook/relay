@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1cbf5b06f3aa5678cb1b1d37cea9c275>>
+ * @generated SignedSource<<5cc2da08ab503e41463b719c6707b536>>
  */
 
 mod compile_relay_artifacts;
@@ -591,6 +591,13 @@ async fn fragment_alias_on_inline_fragment_does_not_get_flattened() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.expected");
     test_fixture(transform_fixture, file!(), "fragment-alias-on-inline-fragment-does-not-get-flattened.graphql", "compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_alias_with_inline() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-alias-with-inline.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-alias-with-inline.expected");
+    test_fixture(transform_fixture, file!(), "fragment-alias-with-inline.graphql", "compile_relay_artifacts/fixtures/fragment-alias-with-inline.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -1248,26 +1248,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             name: Primitive::String(frag_spread.fragment.item.0),
         }));
 
-        if let Some(fragment_alias_metadata) = FragmentAliasMetadata::find(&frag_spread.directives)
-        {
-            let type_condition = fragment_alias_metadata.type_condition;
-            Primitive::Key(self.object(object! {
-                fragment: primitive,
-                kind: Primitive::String(CODEGEN_CONSTANTS.aliased_fragment_spread),
-                name: Primitive::String(fragment_alias_metadata.alias.item),
-                type_: match type_condition {
-                    Some(_type) => Primitive::String(self.schema.get_type_name(_type)),
-                    None => Primitive::SkippableNull
-                },
-                abstract_key: type_condition.filter(|t| t.is_abstract_type()).map_or(Primitive::SkippableNull, |t| {
-                    Primitive::String(generate_abstract_type_refinement_key(
-                        self.schema,
-                        t,
-                    ))
-                }),
-             }))
-        } else if let Some(resolver_metadata) = RelayResolverMetadata::find(&frag_spread.directives)
-        {
+        if let Some(resolver_metadata) = RelayResolverMetadata::find(&frag_spread.directives) {
             let resolver_primitive = match self.variant {
                 CodegenVariant::Reader => {
                     if self

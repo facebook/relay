@@ -50,6 +50,7 @@ pub struct FragmentAliasMetadata {
     pub type_condition: Option<Type>,
     pub non_nullable: bool,
     pub selection_type: Type,
+    pub wraps_spread: bool,
 }
 associated_data_impl!(FragmentAliasMetadata);
 
@@ -66,6 +67,51 @@ pub fn fragment_alias_directive(
         Ok(next_program)
     } else {
         Err(transform.errors)
+    }
+}
+
+pub fn remove_aliased_inline_fragments(program: &Program) -> Program {
+    let mut transform = AliasedInlineFragmentRemovalTransform {};
+    transform
+        .transform_program(program)
+        .replace_or_else(|| program.clone())
+}
+
+struct AliasedInlineFragmentRemovalTransform {}
+
+impl Transformer for AliasedInlineFragmentRemovalTransform {
+    const NAME: &'static str = "AliasedInlineFragmentRemovalTransform";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+        if let Some(metadata) = FragmentAliasMetadata::find(&fragment.directives) {
+            if metadata.wraps_spread {
+                if fragment.selections.len() != 1 {
+                    panic!(
+                        "Expected exactly one selection in an aliased inline fragment wrapping a spread. This is a bug in Relay."
+                    );
+                }
+                Transformed::Replace(fragment.selections[0].clone())
+            } else {
+                let directives = fragment
+                    .directives
+                    .iter()
+                    .filter(|directive| {
+                        directive.name.item != FragmentAliasMetadata::directive_name()
+                    })
+                    .cloned()
+                    .collect();
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    directives,
+                    type_condition: fragment.type_condition,
+                    selections: fragment.selections.clone(),
+                    spread_location: fragment.spread_location,
+                })))
+            }
+        } else {
+            Transformed::Keep
+        }
     }
 }
 
@@ -273,6 +319,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                     selection_type: self
                         .parent_type
                         .expect("Selection should be within a parent type."),
+                    wraps_spread: false,
                 };
 
                 let mut directives = fragment.directives.clone();
@@ -345,15 +392,14 @@ impl Transformer for FragmentAliasTransform<'_> {
                     selection_type: self
                         .parent_type
                         .expect("Selection should be within a parent type."),
+                    wraps_spread: true,
                 };
 
-                let mut directives = spread.directives.clone();
-                directives.push(alias_metadata.into());
-
-                Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
-                    fragment: spread.fragment,
-                    arguments: spread.arguments.clone(),
-                    directives,
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    type_condition,
+                    selections: vec![Selection::FragmentSpread(Arc::new(spread.clone()))],
+                    directives: vec![alias_metadata.into()],
+                    spread_location: alias.location,
                 })))
             }
             Ok(None) => {

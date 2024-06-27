@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<21212385ce4a862eb7cd6369f23c577d>>
+ * @generated SignedSource<<f85e09b50d729bafdefaa2d1b2c19856>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,20 +18,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { RelayReaderAliasedFragmentsTest_maybe_node_interface$fragmentType } from "./RelayReaderAliasedFragmentsTest_maybe_node_interface.graphql";
-export type RelayReaderAliasedFragmentsTest5Query$variables = {|
+import type { RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user$fragmentType } from "./RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user.graphql";
+export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$variables = {|
   id: string,
 |};
-export type RelayReaderAliasedFragmentsTest5Query$data = {|
+export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$data = {|
   +node: ?{|
     +aliased_fragment: ?{|
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTest_maybe_node_interface$fragmentType,
+      +$fragmentSpreads: RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user$fragmentType,
     |},
   |},
 |};
-export type RelayReaderAliasedFragmentsTest5Query = {|
-  response: RelayReaderAliasedFragmentsTest5Query$data,
-  variables: RelayReaderAliasedFragmentsTest5Query$variables,
+export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery = {|
+  response: RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$data,
+  variables: RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$variables,
 |};
 */
 
@@ -49,13 +49,22 @@ v1 = [
     "name": "id",
     "variableName": "id"
   }
+],
+v2 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "name",
+    "storageKey": null
+  }
 ];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "RelayReaderAliasedFragmentsTest5Query",
+    "name": "RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery",
     "selections": [
       {
         "alias": null,
@@ -70,13 +79,15 @@ return {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "kind": "InlineDataFragmentSpread",
+                  "name": "RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user",
+                  "selections": (v2/*: any*/),
                   "args": null,
-                  "kind": "FragmentSpread",
-                  "name": "RelayReaderAliasedFragmentsTest_maybe_node_interface"
+                  "argumentDefinitions": []
                 }
               ],
-              "type": "MaybeNodeInterface",
-              "abstractKey": "__isMaybeNodeInterface"
+              "type": "User",
+              "abstractKey": null
             },
             "kind": "AliasedInlineFragmentSpread",
             "name": "aliased_fragment"
@@ -92,7 +103,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "RelayReaderAliasedFragmentsTest5Query",
+    "name": "RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery",
     "selections": [
       {
         "alias": null,
@@ -111,17 +122,9 @@ return {
           },
           {
             "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ],
-            "type": "MaybeNodeInterface",
-            "abstractKey": "__isMaybeNodeInterface"
+            "selections": (v2/*: any*/),
+            "type": "User",
+            "abstractKey": null
           },
           {
             "alias": null,
@@ -136,21 +139,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a60f1beac6e4d777ae7a74ade4350e9e",
+    "cacheID": "9b52132d7d5d7e38331def439fb9ca1b",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderAliasedFragmentsTest5Query",
+    "name": "RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery",
     "operationKind": "query",
-    "text": "query RelayReaderAliasedFragmentsTest5Query(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayReaderAliasedFragmentsTest_maybe_node_interface\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTest_maybe_node_interface on MaybeNodeInterface {\n  __isMaybeNodeInterface: __typename\n  name\n}\n"
+    "text": "query RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user on User {\n  name\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "af2c6a63c8c707dff45a36bdf00e3169";
+  (node/*: any*/).hash = "78df70e98da304fff465c4dd1c836848";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  RelayReaderAliasedFragmentsTest5Query$variables,
-  RelayReaderAliasedFragmentsTest5Query$data,
+  RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$variables,
+  RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$data,
 >*/);

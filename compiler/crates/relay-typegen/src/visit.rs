@@ -305,27 +305,7 @@ fn visit_fragment_spread(
                 .is_some(),
         });
 
-        let selection = if let Some(fragment_alias_metadata) =
-            FragmentAliasMetadata::find(&fragment_spread.directives)
-        {
-            // If/when @required is supported here, we would apply that to this type reference.
-            // TODO: What about plural fragments, is that just handled by the parent?
-            let mut node_type = TypeReference::Named(fragment_alias_metadata.selection_type);
-            if fragment_alias_metadata.non_nullable {
-                node_type = TypeReference::NonNull(Box::new(node_type));
-            }
-            // We will model the types as a linked filed containing just the fragment spread.
-            TypeSelection::LinkedField(TypeSelectionLinkedField {
-                field_name_or_alias: fragment_alias_metadata.alias.item,
-                node_type,
-                node_selections: selections_to_map(vec![spread_selection].into_iter(), true),
-                conditional: false,
-                concrete_type: None,
-            })
-        } else {
-            spread_selection
-        };
-        type_selections.push(selection);
+        type_selections.push(spread_selection);
     }
 }
 

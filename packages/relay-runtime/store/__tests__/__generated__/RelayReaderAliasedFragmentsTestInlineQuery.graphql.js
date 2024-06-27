@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9717d6129a40df3904f051b6f25ab6ea>>
+ * @generated SignedSource<<73b8605ac3760044029fbbdb5d24fd6a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,27 +18,35 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { RelayReaderAliasedFragmentsTest_user$fragmentType } from "./RelayReaderAliasedFragmentsTest_user.graphql";
-export type RelayReaderAliasedFragmentsTest2Query$variables = {||};
-export type RelayReaderAliasedFragmentsTest2Query$data = {|
+import type { RelayReaderAliasedFragmentsTestInline_user$fragmentType } from "./RelayReaderAliasedFragmentsTestInline_user.graphql";
+export type RelayReaderAliasedFragmentsTestInlineQuery$variables = {||};
+export type RelayReaderAliasedFragmentsTestInlineQuery$data = {|
   +me: ?{|
     +aliased_fragment: {|
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTest_user$fragmentType,
+      +$fragmentSpreads: RelayReaderAliasedFragmentsTestInline_user$fragmentType,
     |},
   |},
 |};
-export type RelayReaderAliasedFragmentsTest2Query = {|
-  response: RelayReaderAliasedFragmentsTest2Query$data,
-  variables: RelayReaderAliasedFragmentsTest2Query$variables,
+export type RelayReaderAliasedFragmentsTestInlineQuery = {|
+  response: RelayReaderAliasedFragmentsTestInlineQuery$data,
+  variables: RelayReaderAliasedFragmentsTestInlineQuery$variables,
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "RelayReaderAliasedFragmentsTest2Query",
+    "name": "RelayReaderAliasedFragmentsTestInlineQuery",
     "selections": [
       {
         "alias": null,
@@ -53,9 +61,13 @@ var node/*: ConcreteRequest*/ = {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "kind": "InlineDataFragmentSpread",
+                  "name": "RelayReaderAliasedFragmentsTestInline_user",
+                  "selections": [
+                    (v0/*: any*/)
+                  ],
                   "args": null,
-                  "kind": "FragmentSpread",
-                  "name": "RelayReaderAliasedFragmentsTest_user"
+                  "argumentDefinitions": []
                 }
               ],
               "type": "User",
@@ -75,7 +87,7 @@ var node/*: ConcreteRequest*/ = {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayReaderAliasedFragmentsTest2Query",
+    "name": "RelayReaderAliasedFragmentsTestInlineQuery",
     "selections": [
       {
         "alias": null,
@@ -85,13 +97,7 @@ var node/*: ConcreteRequest*/ = {
         "name": "me",
         "plural": false,
         "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
+          (v0/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -105,20 +111,21 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "6da68a5ace1735b9dfd18ffc60f571d5",
+    "cacheID": "940c1f970c9b37323a52acc6f0aca305",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderAliasedFragmentsTest2Query",
+    "name": "RelayReaderAliasedFragmentsTestInlineQuery",
     "operationKind": "query",
-    "text": "query RelayReaderAliasedFragmentsTest2Query {\n  me {\n    ...RelayReaderAliasedFragmentsTest_user\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTest_user on User {\n  name\n}\n"
+    "text": "query RelayReaderAliasedFragmentsTestInlineQuery {\n  me {\n    ...RelayReaderAliasedFragmentsTestInline_user\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTestInline_user on User {\n  name\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b11ebdcd9ce6041e79c43ac0132394fd";
+  (node/*: any*/).hash = "3af78f20037ecd47cd47a2996051cb67";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  RelayReaderAliasedFragmentsTest2Query$variables,
-  RelayReaderAliasedFragmentsTest2Query$data,
+  RelayReaderAliasedFragmentsTestInlineQuery$variables,
+  RelayReaderAliasedFragmentsTestInlineQuery$data,
 >*/);

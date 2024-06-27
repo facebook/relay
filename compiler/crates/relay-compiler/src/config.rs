@@ -68,7 +68,6 @@ use crate::errors::ConfigValidationError;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::saved_state::SavedStateLoader;
-use crate::source_control_for_root;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
 
@@ -425,7 +424,7 @@ impl Config {
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(
-                source_control_for_root(&root_dir),
+                None,
                 root_dir.clone(),
             )),
             status_reporter: Box::new(ConsoleStatusReporter::new(

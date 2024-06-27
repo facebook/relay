@@ -22,6 +22,8 @@ use relay_compiler::build_project::generate_extra_artifacts::default_generate_ex
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 use relay_compiler::errors::Error as CompilerError;
+use relay_compiler::source_control_for_root;
+use relay_compiler::ArtifactFileWriter;
 use relay_compiler::FileSourceKind;
 use relay_compiler::LocalPersister;
 use relay_compiler::OperationPersister;
@@ -102,6 +104,10 @@ struct CompileCommand {
     /// writing to disk
     #[clap(long)]
     validate: bool,
+
+    /// Skip the check for presence of source control `git status` etc.
+    #[clap(long)]
+    no_source_control: bool
 }
 
 #[derive(Parser)]
@@ -281,6 +287,13 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
 
     if command.validate {
         config.artifact_writer = Box::<ArtifactValidationWriter>::default();
+    }
+
+    if !command.no_source_control {
+        config.artifact_writer = Box::new(ArtifactFileWriter::new(
+            source_control_for_root(&config.root_dir),
+            config.root_dir.clone()
+        ));
     }
 
     config.create_operation_persister = Some(Box::new(|project_config| {

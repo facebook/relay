@@ -23,7 +23,7 @@ export function Cat(id: DataID): CatFlowType {
 /**
  * @RelayResolver
  */
-export function friend(cat: CatFlowType): IdOf<"Cat"> {
+export function friend(cat: CatFlowType): ?IdOf<"Cat"> {
   return {id: '1'};
 }
 
@@ -36,7 +36,7 @@ export function Dog(id: DataID): Dog {
 /**
  * @RelayResolver
  */
-export function neighbor(cat: CatFlowType): IdOf<"Dog"> {
+export function neighbor(cat: CatFlowType): ?IdOf<"Dog"> {
   return {id: '1'};
 }
 
@@ -44,7 +44,7 @@ export function neighbor(cat: CatFlowType): IdOf<"Dog"> {
 /**
  * @RelayResolver
  */
-export function undefined(cat: CatFlowType): IdOf<"Mouse"> {
+export function undefined(cat: CatFlowType): ?IdOf<"Mouse"> {
   return {id: '1'};
 }
 ==================================== OUTPUT ===================================
@@ -60,24 +60,15 @@ Field(
                     },
                     value: "friend",
                 },
-                type_: NonNull(
-                    NonNullTypeAnnotation {
-                        span: 459:470,
-                        type_: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 464:469,
-                                    token: Token {
-                                        span: 464:469,
-                                        kind: Identifier,
-                                    },
-                                    value: "Cat",
-                                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 465:470,
+                            token: Token {
+                                span: 465:470,
+                                kind: Identifier,
                             },
-                        ),
-                        exclamation: Token {
-                            span: 0:0,
-                            kind: Empty,
+                            value: "Cat",
                         },
                     },
                 ),
@@ -98,13 +89,13 @@ Field(
             location: module.js:433:439,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "68fe0e748a29b143c69966ed811edec6",
+                "08165d712e1fcab6840e997daaebf69e",
             ),
         },
     ),
 )
 extend type Cat {
-  friend: Cat! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "friend", import_path: "module.js") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6")
+  friend: Cat @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "friend", import_path: "module.js") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e")
 }
 
 
@@ -113,31 +104,22 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 618:626,
+                    span: 619:627,
                     token: Token {
-                        span: 618:626,
+                        span: 619:627,
                         kind: Identifier,
                     },
                     value: "neighbor",
                 },
-                type_: NonNull(
-                    NonNullTypeAnnotation {
-                        span: 646:657,
-                        type_: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 651:656,
-                                    token: Token {
-                                        span: 651:656,
-                                        kind: Identifier,
-                                    },
-                                    value: "Dog",
-                                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 653:658,
+                            token: Token {
+                                span: 653:658,
+                                kind: Identifier,
                             },
-                        ),
-                        exclamation: Token {
-                            span: 0:0,
-                            kind: Empty,
+                            value: "Dog",
                         },
                     },
                 ),
@@ -145,7 +127,7 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 618:626,
+                span: 619:627,
             },
             type_: WithLocation {
                 location: module.js:344:347,
@@ -155,16 +137,16 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: module.js:618:626,
+            location: module.js:619:627,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "68fe0e748a29b143c69966ed811edec6",
+                "08165d712e1fcab6840e997daaebf69e",
             ),
         },
     ),
 )
 extend type Cat {
-  neighbor: Dog! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "neighbor", import_path: "module.js") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6")
+  neighbor: Dog @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "neighbor", import_path: "module.js") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e")
 }
 
 
@@ -193,14 +175,14 @@ Type(
             location: module.js:344:347,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "68fe0e748a29b143c69966ed811edec6",
+                "08165d712e1fcab6840e997daaebf69e",
             ),
         },
     ),
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
@@ -208,16 +190,16 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 538:541,
+                span: 539:542,
                 token: Token {
-                    span: 538:541,
+                    span: 539:542,
                     kind: Identifier,
                 },
                 value: "Dog",
             },
-            rhs_location: module.js:538:541,
+            rhs_location: module.js:539:542,
             root_fragment: WithLocation {
-                location: module.js:538:541,
+                location: module.js:539:542,
                 item: FragmentDefinitionName(
                     "Dog__id",
                 ),
@@ -226,24 +208,24 @@ Type(
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: module.js:538:541,
+            location: module.js:539:542,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "68fe0e748a29b143c69966ed811edec6",
+                "08165d712e1fcab6840e997daaebf69e",
             ),
         },
     ),
 )
 type Dog @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Dog__id", import_name: "Dog", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "68fe0e748a29b143c69966ed811edec6") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Dog__id", import_name: "Dog", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
 ✖︎ Reference to undefined type 'Mouse'.
 
-  module.js:45:51
+  module.js:45:52
    44 │  */
-   45 │ export function undefined(cat: CatFlowType): IdOf<"Mouse"> {
-      │                                                   ^^^^^^^
+   45 │ export function undefined(cat: CatFlowType): ?IdOf<"Mouse"> {
+      │                                                    ^^^^^^^
    46 │   return {id: '1'};

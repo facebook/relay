@@ -377,6 +377,7 @@ impl RelayResolverExtractor {
                             &field.return_type,
                             module_resolution,
                             &self.type_definitions,
+                            false,
                         )?,
                         arguments,
                         directives: vec![],
@@ -848,6 +849,7 @@ fn return_type_to_type_annotation(
     return_type: &FlowTypeAnnotation,
     module_resolution: &ModuleResolution,
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
+    allow_non_nullable_return: bool,
 ) -> DiagnosticsResult<TypeAnnotation> {
     let (return_type, mut is_optional) = schema_extractor::unwrap_nullable_type(return_type);
     let location = to_location(source_location, return_type);
@@ -919,6 +921,7 @@ fn return_type_to_type_annotation(
                                     param,
                                     module_resolution,
                                     type_definitions,
+                                    true,
                                 )?,
                                 close: generated_token(),
                             }))
@@ -1023,12 +1026,21 @@ fn return_type_to_type_annotation(
     };
 
     if !is_optional {
-        let non_null_annotation = TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
-            span: location.span(),
-            type_: type_annotation,
-            exclamation: generated_token(),
-        }));
-        Ok(non_null_annotation)
+        if allow_non_nullable_return {
+            let non_null_annotation = TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
+                span: location.span(),
+                type_: type_annotation,
+                exclamation: generated_token(),
+            }));
+            Ok(non_null_annotation)
+        } else {
+            Err(vec![Diagnostic::error(
+                SchemaGenerationError::UnexpectedNonNullableReturnType {
+                    name: return_type.name(),
+                },
+                location,
+            )])
+        }
     } else {
         Ok(type_annotation)
     }
@@ -1085,6 +1097,7 @@ fn flow_type_to_field_arguments(
                     &prop.value,
                     module_resolution,
                     type_definitions,
+                    true,
                 )?,
                 default_value: None,
                 directives: vec![],

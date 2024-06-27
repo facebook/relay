@@ -20,14 +20,14 @@ export function Cat(id: DataID): CatFlowType {
 /**
  * @RelayResolver
  */
-export function serialize(cat: CatFlowType): CustomJSON {
+export function serialize(cat: CatFlowType): ?CustomJSON {
   return '';
 }
 
 /**
  * @RelayResolver
  */
-export function deserialize_extras(cat: CatFlowType, args: {extras: CustomJSON}): string {
+export function deserialize_extras(cat: CatFlowType, args: {extras: CustomJSON}): ?string {
   return '';
 }
 

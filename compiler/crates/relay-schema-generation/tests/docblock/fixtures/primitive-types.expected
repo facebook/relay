@@ -43,7 +43,7 @@ export function hungry2(cat: CatFlowType): ?false {
 /**
  * @RelayResolver
  */
-export function hungry3(cat: CatFlowType): true {
+export function hungry3(cat: CatFlowType): ?true {
   return false;
 }
 ==================================== OUTPUT ===================================
@@ -88,13 +88,13 @@ Field(
             location: module.js:362:366,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "5e42d8055bf96703110b4485122e0e0f",
+                "41bd781893c904ec9352255c4f6e974e",
             ),
         },
     ),
 )
 extend type Cat {
-  ages: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "ages", import_path: "module.js") @resolver_source_hash(value: "5e42d8055bf96703110b4485122e0e0f")
+  ages: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "ages", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
 }
 
 
@@ -139,13 +139,13 @@ Field(
             location: module.js:454:461,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "5e42d8055bf96703110b4485122e0e0f",
+                "41bd781893c904ec9352255c4f6e974e",
             ),
         },
     ),
 )
 extend type Cat {
-  hungry1: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry1", import_path: "module.js") @resolver_source_hash(value: "5e42d8055bf96703110b4485122e0e0f")
+  hungry1: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry1", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
 }
 
 
@@ -190,13 +190,13 @@ Field(
             location: module.js:553:560,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "5e42d8055bf96703110b4485122e0e0f",
+                "41bd781893c904ec9352255c4f6e974e",
             ),
         },
     ),
 )
 extend type Cat {
-  hungry2: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry2", import_path: "module.js") @resolver_source_hash(value: "5e42d8055bf96703110b4485122e0e0f")
+  hungry2: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry2", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
 }
 
 
@@ -212,24 +212,15 @@ Field(
                     },
                     value: "hungry3",
                 },
-                type_: NonNull(
-                    NonNullTypeAnnotation {
-                        span: 677:681,
-                        type_: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 677:681,
-                                    token: Token {
-                                        span: 677:681,
-                                        kind: Identifier,
-                                    },
-                                    value: "Boolean",
-                                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 678:682,
+                            token: Token {
+                                span: 678:682,
+                                kind: Identifier,
                             },
-                        ),
-                        exclamation: Token {
-                            span: 0:0,
-                            kind: Empty,
+                            value: "Boolean",
                         },
                     },
                 ),
@@ -250,13 +241,13 @@ Field(
             location: module.js:650:657,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "5e42d8055bf96703110b4485122e0e0f",
+                "41bd781893c904ec9352255c4f6e974e",
             ),
         },
     ),
 )
 extend type Cat {
-  hungry3: Boolean! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry3", import_path: "module.js") @resolver_source_hash(value: "5e42d8055bf96703110b4485122e0e0f")
+  hungry3: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry3", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
 }
 
 
@@ -285,12 +276,12 @@ Type(
             location: module.js:272:275,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "5e42d8055bf96703110b4485122e0e0f",
+                "41bd781893c904ec9352255c4f6e974e",
             ),
         },
     ),
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "5e42d8055bf96703110b4485122e0e0f") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

@@ -16,32 +16,29 @@ export function Cat(id: DataID): CatFlowType {
   return {};
 }
 
+/**
+ * @RelayResolver
+ */
+export type FullName = {first: string, last: string};
 
 /**
  * @RelayResolver
  */
-export function ages(cat: CatFlowType): ?number {
-  return 2;
+export function fullName(cat: CatFlowType): FullName {
+  return {first: "Mr", last: "Cat"};
 }
 
 
 /**
  * @RelayResolver
  */
-export function hungry1(cat: CatFlowType): ?boolean {
-  return false;
+export function name(cat: CatFlowType): string {
+  return "cat";
 }
 
 /**
  * @RelayResolver
  */
-export function hungry2(cat: CatFlowType): ?false {
-  return false;
-}
-
-/**
- * @RelayResolver
- */
-export function hungry3(cat: CatFlowType): ?true {
-  return false;
+export function live_name(cat: CatFlowType): LiveState<string> {
+  return {};
 }

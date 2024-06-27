@@ -90,4 +90,9 @@ pub enum SchemaGenerationError {
         "Multiple custom scalar types found to map to `{flow_type}`. This is an error when using client side resolvers as the Flow type must map to a single GraphQL custom scalar."
     )]
     DuplicateCustomScalars { flow_type: StringKey },
+
+    #[error(
+        "Unexpected non-nullable flow return type: `{name}`. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values."
+    )]
+    UnexpectedNonNullableReturnType { name: &'static str },
 }

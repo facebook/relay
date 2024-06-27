@@ -20,14 +20,14 @@ export function Cat(id: DataID): CatFlowType {}
  * This is the age of the cat
  * in years
  */
-export function age(cat: CatFlowType): number {}
+export function age(cat: CatFlowType): ?number {}
 
 /**
  * @RelayResolver fullname
  *
  * This is the fullname of the cat
  */
-export function name(cat: CatFlowType): string {}
+export function name(cat: CatFlowType): ?string {}
 
 /**
  * @RelayResolver
@@ -38,4 +38,4 @@ export function name(cat: CatFlowType): string {}
  *
  * This extra descriptive line should error.
  */
-export function length(cat: CatFlowType): number {}
+export function length(cat: CatFlowType): ?number {}

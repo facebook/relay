@@ -1,0 +1,73 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export type FullName = {first: string, last: string};
+
+/**
+ * @RelayResolver
+ */
+export function fullName(cat: CatFlowType): FullName {
+  return {first: "Mr", last: "Cat"};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function name(cat: CatFlowType): string {
+  return "cat";
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_name(cat: CatFlowType): LiveState<string> {
+  return {};
+}
+==================================== OUTPUT ===================================
+
+
+✖︎ Unexpected non-nullable flow return type: `GenericTypeAnnotation`. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+
+  module.js:26:45
+   25 │  */
+   26 │ export function fullName(cat: CatFlowType): FullName {
+      │                                             ^^^^^^^^
+   27 │   return {first: "Mr", last: "Cat"};
+
+
+✖︎ Unexpected non-nullable flow return type: `StringTypeAnnotation`. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+
+  module.js:34:41
+   33 │  */
+   34 │ export function name(cat: CatFlowType): string {
+      │                                         ^^^^^^
+   35 │   return "cat";
+
+
+✖︎ Unexpected non-nullable flow return type: `StringTypeAnnotation`. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+
+  module.js:41:56
+   40 │  */
+   41 │ export function live_name(cat: CatFlowType): LiveState<string> {
+      │                                                        ^^^^^^
+   42 │   return {};

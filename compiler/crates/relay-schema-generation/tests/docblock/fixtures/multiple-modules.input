@@ -23,7 +23,7 @@ import type CatFlowType from 'Cat';
 /**
  * @RelayResolver
  */
-export function name(cat: CatFlowType): string {
+export function name(cat: CatFlowType): ?string {
   return "cat";
 }
 
@@ -32,7 +32,7 @@ export function name(cat: CatFlowType): string {
 /**
  * @RelayResolver is_hungry
  */
-export function hungry(cat: CatFlowType): number {
+export function hungry(cat: CatFlowType): ?number {
   return 5;
 }
 
@@ -54,6 +54,6 @@ import type DogFlowType from 'Dog.flow';
 /**
  * @RelayResolver
  */
-export function name(dog: DogFlowType): string {
+export function name(dog: DogFlowType): ?string {
   return "dog";
 }

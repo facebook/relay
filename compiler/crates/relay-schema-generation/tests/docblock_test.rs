@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<657bfd62871ca71e977bb6af087ef5ed>>
+ * @generated SignedSource<<2e23eb87ed9e6426db398e7b5f758f7f>>
  */
 
 mod docblock;
@@ -129,6 +129,13 @@ async fn return_invalid_object_error() {
     let input = include_str!("docblock/fixtures/return-invalid-object.error.input");
     let expected = include_str!("docblock/fixtures/return-invalid-object.error.expected");
     test_fixture(transform_fixture, file!(), "return-invalid-object.error.input", "docblock/fixtures/return-invalid-object.error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn return_non_optional_type() {
+    let input = include_str!("docblock/fixtures/return-non-optional-type.input");
+    let expected = include_str!("docblock/fixtures/return-non-optional-type.expected");
+    test_fixture(transform_fixture, file!(), "return-non-optional-type.input", "docblock/fixtures/return-non-optional-type.expected", input, expected).await;
 }
 
 #[tokio::test]

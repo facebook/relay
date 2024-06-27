@@ -31,7 +31,7 @@ export function name(cat: CatFlowType): ?string {
 /**
  * @RelayResolver
  */
-export function names(cat: CatFlowType): Array<?string> {
+export function names(cat: CatFlowType): ?Array<?string> {
   return 5;
 }
 ==================================== OUTPUT ===================================
@@ -47,35 +47,26 @@ Field(
                     },
                     value: "names",
                 },
-                type_: NonNull(
-                    NonNullTypeAnnotation {
-                        span: 199:213,
-                        type_: List(
-                            ListTypeAnnotation {
-                                span: 199:213,
-                                open: Token {
-                                    span: 0:0,
-                                    kind: Empty,
-                                },
-                                type_: Named(
-                                    NamedTypeAnnotation {
-                                        name: Identifier {
-                                            span: 206:212,
-                                            token: Token {
-                                                span: 206:212,
-                                                kind: Identifier,
-                                            },
-                                            value: "String",
-                                        },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 200:214,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 207:213,
+                                    token: Token {
+                                        span: 207:213,
+                                        kind: Identifier,
                                     },
-                                ),
-                                close: Token {
-                                    span: 0:0,
-                                    kind: Empty,
+                                    value: "String",
                                 },
                             },
                         ),
-                        exclamation: Token {
+                        close: Token {
                             span: 0:0,
                             kind: Empty,
                         },
@@ -98,13 +89,13 @@ Field(
             location: Cat-name.js:174:179,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "b4f1a8f1551cd4c93a9b61b8c25d2e61",
+                "78b9d79fcbb849dee2ae7a1d6d275e22",
             ),
         },
     ),
 )
 extend type Cat {
-  names: [String]! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "names", import_path: "Cat-name.js") @resolver_source_hash(value: "b4f1a8f1551cd4c93a9b61b8c25d2e61")
+  names: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "names", import_path: "Cat-name.js") @resolver_source_hash(value: "78b9d79fcbb849dee2ae7a1d6d275e22")
 }
 
 
@@ -149,13 +140,13 @@ Field(
             location: Cat-name.js:79:83,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "b4f1a8f1551cd4c93a9b61b8c25d2e61",
+                "78b9d79fcbb849dee2ae7a1d6d275e22",
             ),
         },
     ),
 )
 extend type Cat {
-  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name", import_path: "Cat-name.js") @resolver_source_hash(value: "b4f1a8f1551cd4c93a9b61b8c25d2e61")
+  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name", import_path: "Cat-name.js") @resolver_source_hash(value: "78b9d79fcbb849dee2ae7a1d6d275e22")
 }
 
 

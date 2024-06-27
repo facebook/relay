@@ -754,7 +754,11 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     artifacts.par_chunks(8).try_for_each_init(
         || Printer::with_dedupe(project_config),
         |printer, artifacts| {
-            for artifact in artifacts {
+            for artifact in artifacts
+                .iter()
+                // Check if the option for local files is on, if so, skip writing artifacts that are not local files
+                .filter(|artifact| !config.write_current_dir_only || is_local_file(artifact))
+            {
                 if should_stop_updating_artifacts() {
                     return Err(BuildProjectFailure::Cancelled);
                 }
@@ -784,4 +788,29 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
         },
     )?;
     Ok(())
+}
+
+fn is_local_file(artifact: &&Artifact) -> bool {
+    // Check if the artifact path is within the project directory
+    // This is to prevent writing artifacts outside of the project directory
+    let current_dir = std::env::current_dir().unwrap();
+    let source_path = artifact.source_file.path();
+    let last_dir = current_dir.iter().last();
+    let skip_because_of_local_only_write = if let Some(last_dir) = last_dir {
+        !last_dir
+            .to_str()
+            .map(|last_dir| source_path.starts_with(last_dir))
+            .unwrap_or(true)
+    } else {
+        true
+    };
+
+    if skip_because_of_local_only_write {
+        debug!(
+            "Skipping writing artifact {} because it's outside of the project directory",
+            artifact.path.display()
+        );
+    }
+
+    !skip_because_of_local_only_write
 }

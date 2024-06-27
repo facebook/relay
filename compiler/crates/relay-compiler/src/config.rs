@@ -188,6 +188,7 @@ pub struct Config {
 
     /// A function to determine if full file source should be extracted instead of docblock
     pub should_extract_full_source: Option<Box<dyn Fn(&str) -> bool + Send + Sync>>,
+    pub write_current_dir_only: bool,
 }
 
 pub enum FileSourceKind {
@@ -460,6 +461,7 @@ impl Config {
             has_schema_change_incremental_build: false,
             custom_extract_relay_resolvers: None,
             should_extract_full_source: None,
+            write_current_dir_only: false,
         };
 
         let mut validation_errors = Vec::new();

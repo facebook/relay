@@ -67,6 +67,12 @@ struct Opt {
     about = "Compiles Relay files and writes generated files."
 )]
 struct CompileCommand {
+    // Only write files for the current directory pass as `--writeCurrentDirOnly` flag
+    // This is helpful when you do not want the compiler to write outside of the current folder
+    // It will read files across the project but only write files for the current directory.
+    #[clap(long)]
+    write_current_dir_only: bool,
+
     /// Compile and watch for changes
     #[clap(long, short)]
     watch: bool,
@@ -249,6 +255,13 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
     Ok(())
 }
 
+fn set_only_write_local(config: &mut Config, only_write_local: bool) -> Result<(), Error> {
+    if only_write_local {
+        config.write_current_dir_only = true;
+    }
+    Ok(())
+}
+
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     configure_logger(command.output, TerminalMode::Mixed);
 
@@ -263,6 +276,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
 
     let mut config = get_config(command.config)?;
 
+    set_only_write_local(&mut config, command.write_current_dir_only)?;
     set_project_flag(&mut config, command.projects)?;
 
     if command.validate {

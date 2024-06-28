@@ -16,7 +16,7 @@ export function registerProviders(context: RelayExtensionContext) {
   let hasConfigJsonSchemaCommand = true;
   if (binaryVersion) {
     hasConfigJsonSchemaCommand =
-      semver.satisfies(binaryVersion, '>=18.0') ||
+      semver.satisfies(binaryVersion, '>17.0') ||
       semver.prerelease(binaryVersion) != null;
   }
 

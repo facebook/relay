@@ -1118,16 +1118,6 @@ describe('ReactRelayRefetchContainer', () => {
     }
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
-      // Requires the `allowConcurrentByDefault` feature flag. Only run if
-      // we detect support for `unstable_concurrentUpdatesByDefault`.
-      if (
-        !ReactTestRenderer.create
-          .toString()
-          .includes('unstable_concurrentUpdatesByDefault')
-      ) {
-        return;
-      }
-
       const Scheduler = require('scheduler');
       const YieldChild = props => {
         Scheduler.log(props.children);
@@ -1163,11 +1153,14 @@ describe('ReactRelayRefetchContainer', () => {
           // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {
             unstable_isConcurrent: true,
-            unstable_concurrentUpdatesByDefault: true,
           },
         );
         // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Zuck']);
+        expectSchedulerToFlushAndYieldThrough([
+          'Hey user,',
+          'Zuck',
+          ['with id ', '4', '!'],
+        ]);
 
         // In Concurrent mode component gets rendered even if not committed
         // so we reset our mock here
@@ -1185,7 +1178,6 @@ describe('ReactRelayRefetchContainer', () => {
 
         // Assert the component renders the updated data
         expectSchedulerToFlushAndYield([
-          ['with id ', '4', '!'],
           'Hey user,',
           'Zuck mid-render update',
           ['with id ', '4', '!'],

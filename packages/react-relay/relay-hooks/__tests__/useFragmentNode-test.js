@@ -402,7 +402,6 @@ describe.each([
           // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {
             unstable_isConcurrent: isConcurrent,
-            unstable_concurrentUpdatesByDefault: true,
           },
         );
       };
@@ -433,7 +432,6 @@ describe.each([
             // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
             {
               unstable_isConcurrent: isConcurrent,
-              unstable_concurrentUpdatesByDefault: true,
             },
           );
         }
@@ -863,16 +861,6 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when fragment pointers change', () => {
-      // Requires the `allowConcurrentByDefault` feature flag. Only run if
-      // we detect support for `unstable_concurrentUpdatesByDefault`.
-      if (
-        !TestRenderer.create
-          .toString()
-          .includes('unstable_concurrentUpdatesByDefault')
-      ) {
-        return;
-      }
-
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
@@ -932,7 +920,11 @@ describe.each([
         setSingularOwner(newQuery);
 
         // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Foo']);
+        expectSchedulerToFlushAndYieldThrough([
+          'Hey user,',
+          'Foo',
+          ['with id ', '200', '!'],
+        ]);
 
         // Trigger an update for initially rendered data while second
         // render is in progress
@@ -958,12 +950,11 @@ describe.each([
         };
         if (isUsingNewImplementation) {
           // The new implementation simply finishes the render in progress.
-          expectSchedulerToFlushAndYield([['with id ', '200', '!']]);
+          expectSchedulerToFlushAndYield([]);
           assertFragmentResults([expectedData]);
         } else {
           // The old implementation also does an extra re-render.
           expectSchedulerToFlushAndYield([
-            ['with id ', '200', '!'],
             'Hey user,',
             'Foo',
             ['with id ', '200', '!'],
@@ -1002,16 +993,6 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when fragment pointers change, but still handle updates to the new data', () => {
-      // Requires the `allowConcurrentByDefault` feature flag. Only run if
-      // we detect support for `unstable_concurrentUpdatesByDefault`.
-      if (
-        !TestRenderer.create
-          .toString()
-          .includes('unstable_concurrentUpdatesByDefault')
-      ) {
-        return;
-      }
-
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
@@ -1071,7 +1052,11 @@ describe.each([
         setSingularOwner(newQuery);
 
         // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Foo']);
+        expectSchedulerToFlushAndYieldThrough([
+          'Hey user,',
+          'Foo',
+          ['with id ', '200', '!'],
+        ]);
 
         // Trigger an update for initially rendered data and for the new data
         // while second render is in progress
@@ -1091,7 +1076,6 @@ describe.each([
           },
         };
         expectSchedulerToFlushAndYield([
-          ['with id ', '200', '!'],
           'Hey user,',
           'Foo Bar',
           ['with id ', '200', '!'],
@@ -1266,16 +1250,6 @@ describe.each([
     });
 
     it('should ignore updates to initially rendered data when variables change', () => {
-      // Requires the `allowConcurrentByDefault` feature flag. Only run if
-      // we detect support for `unstable_concurrentUpdatesByDefault`.
-      if (
-        !TestRenderer.create
-          .toString()
-          .includes('unstable_concurrentUpdatesByDefault')
-      ) {
-        return;
-      }
-
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         Scheduler.log(props.children);
@@ -1335,7 +1309,11 @@ describe.each([
         setSingularOwner(newQuery);
 
         // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'uri32']);
+        expectSchedulerToFlushAndYieldThrough([
+          'Hey user,',
+          'uri32',
+          ['with id ', '1', '!'],
+        ]);
 
         // Trigger an update for initially rendered data while second
         // render is in progress
@@ -1367,12 +1345,11 @@ describe.each([
         };
         if (isUsingNewImplementation) {
           // The new implementation simply finishes the render in progress.
-          expectSchedulerToFlushAndYield([['with id ', '1', '!']]);
+          expectSchedulerToFlushAndYield([]);
           assertFragmentResults([expectedData]);
         } else {
           // The old implementation also does an extra re-render.
           expectSchedulerToFlushAndYield([
-            ['with id ', '1', '!'],
             'Hey user,',
             'uri32',
             ['with id ', '1', '!'],
@@ -1605,16 +1582,6 @@ describe.each([
     });
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
-      // Requires the `allowConcurrentByDefault` feature flag. Only run if
-      // we detect support for `unstable_concurrentUpdatesByDefault`.
-      if (
-        !TestRenderer.create
-          .toString()
-          .includes('unstable_concurrentUpdatesByDefault')
-      ) {
-        return;
-      }
-
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
         Scheduler.log(props.children);
@@ -1637,7 +1604,11 @@ describe.each([
         renderSingularFragment({isConcurrent: true});
 
         // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'no uri']);
+        expectSchedulerToFlushAndYieldThrough([
+          'Hey user,',
+          'no uri',
+          ['with id ', '1', '!'],
+        ]);
 
         // Trigger an update while render is in progress
         environment.commitPayload(singularQuery, {
@@ -1655,7 +1626,6 @@ describe.each([
 
         // Assert the component renders the updated data
         expectSchedulerToFlushAndYield([
-          ['with id ', '1', '!'],
           'Hey user,',
           'uri16',
           ['with id ', '1', '!'],

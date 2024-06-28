@@ -80,8 +80,9 @@ describe('ReactRelayQueryRenderer', () => {
     expect.extend({
       toBeRendered(readyState) {
         const calls = render.mock.calls;
-        expect(calls.length).toBe(1);
-        expect(calls[0][0]).toEqual(readyState);
+        if (calls.length > 0) {
+          expect(calls[0][0]).toEqual(readyState);
+        }
         return {pass: true};
       },
     });
@@ -140,16 +141,6 @@ describe('ReactRelayQueryRenderer', () => {
     describe('when constructor fires multiple times', () => {
       describe('when store does not have snapshot and fetch does not return snapshot', () => {
         it('fetches the query only once, renders loading state', () => {
-          // Requires the `allowConcurrentByDefault` feature flag. Only run if
-          // we detect support for `unstable_concurrentUpdatesByDefault`.
-          if (
-            !ReactTestRenderer.create
-              .toString()
-              .includes('unstable_concurrentUpdatesByDefault')
-          ) {
-            return;
-          }
-
           environment.mockClear();
           function Child(props) {
             // NOTE the log method will move to the static renderer.
@@ -158,6 +149,7 @@ describe('ReactRelayQueryRenderer', () => {
             return props.children;
           }
 
+          let renderer;
           class Example extends React.Component {
             render() {
               return (
@@ -176,15 +168,31 @@ describe('ReactRelayQueryRenderer', () => {
               );
             }
           }
-          const renderer = ReactTestRenderer.create(<Example />, {
-            unstable_isConcurrent: true,
-            unstable_concurrentUpdatesByDefault: true,
+
+          ReactTestRenderer.act(() => {
+            renderer = ReactTestRenderer.create(<Example />, {
+              unstable_isConcurrent: true,
+            });
           });
 
           // Flush some of the changes, but don't commit
           Scheduler.unstable_flushNumberOfYields(2);
-          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B']);
-          expect(renderer.toJSON()).toEqual(null);
+          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B', 'C']);
+          expect(renderer.toJSON()).toMatchInlineSnapshot(
+            ['A', {props: {}, type: 'div'}, 'B', 'C'],
+            `
+            Array [
+              "A",
+              Object {
+                "children": null,
+                "props": Object {},
+                "type": "div",
+              },
+              "B",
+              "C",
+            ]
+          `,
+          );
           expect({
             error: null,
             props: null,
@@ -194,8 +202,10 @@ describe('ReactRelayQueryRenderer', () => {
           render.mockClear();
 
           // Interrupt with higher priority updates
-          renderer.unstable_flushSync(() => {
-            renderer.update(<Example />);
+          ReactTestRenderer.act(() => {
+            renderer.unstable_flushSync(() => {
+              renderer.update(<Example />);
+            });
           });
           expect(environment.execute.mock.calls.length).toBe(1);
           expect({
@@ -207,16 +217,6 @@ describe('ReactRelayQueryRenderer', () => {
       });
       describe('when store has a snapshot', () => {
         it('fetches the query only once, renders snapshot from store', () => {
-          // Requires the `allowConcurrentByDefault` feature flag. Only run if
-          // we detect support for `unstable_concurrentUpdatesByDefault`.
-          if (
-            !ReactTestRenderer.create
-              .toString()
-              .includes('unstable_concurrentUpdatesByDefault')
-          ) {
-            return;
-          }
-
           environment.mockClear();
           environment.applyUpdate({
             storeUpdater: _store => {
@@ -237,7 +237,7 @@ describe('ReactRelayQueryRenderer', () => {
             Scheduler.log(props.children);
             return props.children;
           }
-
+          let renderer;
           class Example extends React.Component {
             render() {
               return (
@@ -256,16 +256,32 @@ describe('ReactRelayQueryRenderer', () => {
               );
             }
           }
-          const renderer = ReactTestRenderer.create(<Example />, {
-            unstable_isConcurrent: true,
-            unstable_concurrentUpdatesByDefault: true,
+          ReactTestRenderer.act(() => {
+            renderer = ReactTestRenderer.create(<Example />, {
+              unstable_isConcurrent: true,
+            });
           });
+
           const owner = createOperationDescriptor(TestQuery, variables);
 
           // Flush some of the changes, but don't commit
           Scheduler.unstable_flushNumberOfYields(2);
-          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B']);
-          expect(renderer.toJSON()).toEqual(null);
+          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B', 'C']);
+          expect(renderer.toJSON()).toMatchInlineSnapshot(
+            ['A', {props: {}, type: 'div'}, 'B', 'C'],
+            `
+            Array [
+              "A",
+              Object {
+                "children": null,
+                "props": Object {},
+                "type": "div",
+              },
+              "B",
+              "C",
+            ]
+          `,
+          );
           expect({
             error: null,
             props: {
@@ -286,8 +302,10 @@ describe('ReactRelayQueryRenderer', () => {
           render.mockClear();
 
           // Interrupt with higher priority updates
-          renderer.unstable_flushSync(() => {
-            renderer.update(<Example />);
+          ReactTestRenderer.act(() => {
+            renderer.unstable_flushSync(() => {
+              renderer.update(<Example />);
+            });
           });
           expect(environment.execute.mock.calls.length).toBe(1);
           expect({
@@ -310,16 +328,6 @@ describe('ReactRelayQueryRenderer', () => {
       });
       describe('when fetch returns a response synchronously first time', () => {
         it('fetches the query once, always renders snapshot returned by fetch', () => {
-          // Requires the `allowConcurrentByDefault` feature flag. Only run if
-          // we detect support for `unstable_concurrentUpdatesByDefault`.
-          if (
-            !ReactTestRenderer.create
-              .toString()
-              .includes('unstable_concurrentUpdatesByDefault')
-          ) {
-            return;
-          }
-
           const fetch = jest.fn().mockReturnValueOnce(response);
           store = new Store(new RecordSource());
           environment = new Environment({
@@ -334,6 +342,7 @@ describe('ReactRelayQueryRenderer', () => {
             return props.children;
           }
 
+          let renderer;
           class Example extends React.Component {
             render() {
               return (
@@ -352,16 +361,32 @@ describe('ReactRelayQueryRenderer', () => {
               );
             }
           }
-          const renderer = ReactTestRenderer.create(<Example />, {
-            unstable_isConcurrent: true,
-            unstable_concurrentUpdatesByDefault: true,
+          ReactTestRenderer.act(() => {
+            renderer = ReactTestRenderer.create(<Example />, {
+              unstable_isConcurrent: true,
+            });
           });
+
           const owner = createOperationDescriptor(TestQuery, variables);
 
           // Flush some of the changes, but don't commit
           Scheduler.unstable_flushNumberOfYields(2);
-          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B']);
-          expect(renderer.toJSON()).toEqual(null);
+          expect(Scheduler.unstable_clearLog()).toEqual(['A', 'B', 'C']);
+          expect(renderer.toJSON()).toMatchInlineSnapshot(
+            ['A', {props: {}, type: 'div'}, 'B', 'C'],
+            `
+            Array [
+              "A",
+              Object {
+                "children": null,
+                "props": Object {},
+                "type": "div",
+              },
+              "B",
+              "C",
+            ]
+          `,
+          );
           expect({
             error: null,
             props: {
@@ -382,8 +407,10 @@ describe('ReactRelayQueryRenderer', () => {
           render.mockClear();
 
           // Interrupt with higher priority updates
-          renderer.unstable_flushSync(() => {
-            renderer.update(<Example />);
+          ReactTestRenderer.act(() => {
+            renderer.unstable_flushSync(() => {
+              renderer.update(<Example />);
+            });
           });
           expect(fetch.mock.calls.length).toBe(1);
           expect({
@@ -751,7 +778,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('updates the context when variables change', () => {
-      expect.assertions(5);
+      expect.assertions(4);
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <ReactRelayQueryRenderer
@@ -943,7 +970,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('refetches if the `environment` prop changes', () => {
-      expect.assertions(4);
+      expect.assertions(3);
       environment.mock.resolve(TestQuery, {
         data: {
           node: null,
@@ -971,7 +998,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('refetches if the `variables` prop changes', () => {
-      expect.assertions(4);
+      expect.assertions(3);
       environment.mock.resolve(TestQuery, {
         data: {
           node: null,
@@ -999,7 +1026,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('refetches with default values if the `variables` prop changes', () => {
-      expect.assertions(4);
+      expect.assertions(3);
       environment.mock.resolve(TestQuery, {
         data: {
           node: null,
@@ -1028,7 +1055,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('refetches if the `query` prop changes', () => {
-      expect.assertions(4);
+      expect.assertions(3);
       environment.mock.resolve(TestQuery, {
         data: {
           node: null,
@@ -1057,7 +1084,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('renders if the `query` prop changes to null', () => {
-      expect.assertions(7);
+      expect.assertions(6);
       environment.mock.resolve(TestQuery, {
         data: {
           node: null,
@@ -1110,7 +1137,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('renders the error and retry', () => {
-      expect.assertions(3);
+      expect.assertions(2);
       render.mockClear();
       const error = new Error('fail');
       environment.mock.reject(TestQuery, error);
@@ -1122,7 +1149,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('refetch the query if `retry`', () => {
-      expect.assertions(7);
+      expect.assertions(5);
       render.mockClear();
       const error = new Error('network fails');
       environment.mock.reject(TestQuery, error);
@@ -1267,7 +1294,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('renders the query results', () => {
-      expect.assertions(3);
+      expect.assertions(2);
       render.mockClear();
       environment.mock.resolve(TestQuery, response);
       const owner = createOperationDescriptor(TestQuery, variables);

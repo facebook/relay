@@ -112,7 +112,17 @@
           "description": "Whether or not we should automatically start the Relay Compiler in watch mode when you open a project."
         }
       }
-    }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "relay.config.json",
+        "url": "relay://relay-config-schema"
+      },
+      {
+        "fileMatch": "package.json",
+        "url": "relay://package-json-relay-config-schema"
+      }
+    ]
   },
   "prettier": {
     "arrowParens": "avoid",
@@ -124,6 +134,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "prettier-check": "prettier -c .",
+    "prettier-write": "prettier --write .",
     "lint": "eslint --max-warnings 0 .",
     "vscode:prepublish": "rm -f tsconfig.tsbuildinfo && rm -rf out && yarn run esbuild-base -- --minify",
     "build-local": "vsce package",

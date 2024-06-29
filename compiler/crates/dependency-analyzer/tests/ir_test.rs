@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c50f3afa0fc3f47f5db60498003b6a5d>>
+ * @generated SignedSource<<684765df82b0f8489afe3991a3fe0a5e>>
  */
 
 mod ir;
@@ -136,6 +136,13 @@ async fn schema_object_with_interface_change() {
     let input = include_str!("ir/fixtures/schema-object-with-interface-change.graphql");
     let expected = include_str!("ir/fixtures/schema-object-with-interface-change.expected");
     test_fixture(transform_fixture, file!(), "schema-object-with-interface-change.graphql", "ir/fixtures/schema-object-with-interface-change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_union_change() {
+    let input = include_str!("ir/fixtures/schema-union-change.graphql");
+    let expected = include_str!("ir/fixtures/schema-union-change.expected");
+    test_fixture(transform_fixture, file!(), "schema-union-change.graphql", "ir/fixtures/schema-union-change.expected", input, expected).await;
 }
 
 #[tokio::test]

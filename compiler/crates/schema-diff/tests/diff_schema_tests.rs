@@ -1111,6 +1111,69 @@ fn test_enums_safe_with_incremental_build_changes() {
 
 #[test]
 fn test_unions_safe_with_incremental_build_changes() {
+    // Remove object in union
+    assert_eq!(
+        get_safety(
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         type C {
+            C1: String
+         }
+         #",
+            r"
+            union U = A | B | C
+            type A {
+               A1: String
+            }
+            type B {
+               B1: String
+            }
+            type C {
+               C1: String
+            }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Union("U".intern()),
+        ]))
+    );
+
+    // Add object to union
+    assert_eq!(
+        get_safety(
+            r"
+         union U = A | B | C
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         type C {
+            C1: String
+         }
+         #",
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Union("U".intern()),
+        ]))
+    );
+
     // Change object in union
     assert_eq!(
         get_safety(

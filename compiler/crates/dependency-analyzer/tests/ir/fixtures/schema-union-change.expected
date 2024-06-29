@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+#
+query Q1 {
+  me {
+    userTestUnion {
+        ... on B {
+            B1
+        }
+    }
+  }
+}
+
+query QueryA {
+  me {
+    fieldA {
+        A1
+    }
+  }
+}
+
+query QueryB {
+  me {
+    fieldB {
+        B1
+    }
+  }
+}
+
+fragment F1 on U {
+    ... on B {
+        B1
+    }
+}
+
+%extensions%
+# Object: C
+# Union: U
+
+union U = A | B | C
+type A {
+   A1: String
+}
+type B {
+   B1: String
+}
+type C {
+   C1: String
+}
+
+extend type User {
+    userTestUnion: U
+    fieldA: A
+    fieldB: B
+    fieldC: C
+}
+==================================== OUTPUT ===================================
+Fragment: F1
+
+Operation: Q1

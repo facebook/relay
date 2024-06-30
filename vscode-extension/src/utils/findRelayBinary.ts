@@ -86,8 +86,8 @@ async function findRelayCompilerDirectory(
 }
 
 type RelayCompilerPackageInformation =
-  | {kind: 'compilerFound'; path: string}
-  | {kind: 'prereleaseCompilerFound'; path: string}
+  | {kind: 'compilerFound'; path: string; version: string}
+  | {kind: 'prereleaseCompilerFound'; path: string; version: string}
   | {kind: 'architectureNotSupported'}
   | {kind: 'packageNotFound'}
   | {
@@ -137,12 +137,14 @@ async function findRelayCompilerBinary(
     return {
       kind: 'prereleaseCompilerFound',
       path: relayBinaryPath,
+      version: packageManifest.version,
     };
   }
   if (isSemverRangeSatisfied) {
     return {
       kind: 'compilerFound',
       path: relayBinaryPath,
+      version: packageManifest.version,
     };
   }
 
@@ -154,9 +156,21 @@ async function findRelayCompilerBinary(
   };
 }
 
+type RelayCompilerBinary = {
+  /**
+   * The path to the binary.
+   */
+  path: string;
+  /**
+   * The version of the binary, or `undefined` if the binary
+   * wasn't resolved through the versioned relay-compiler package.
+   */
+  version?: string;
+};
+
 export async function findRelayBinaryWithWarnings(
   outputChannel: OutputChannel,
-): Promise<string | null> {
+): Promise<RelayCompilerBinary | null> {
   const config = getConfig();
 
   let rootPath = workspace.rootPath || process.cwd();
@@ -174,7 +188,7 @@ export async function findRelayBinaryWithWarnings(
       "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
     );
 
-    return config.pathToRelay;
+    return {path: config.pathToRelay};
   }
   if (relayBinaryResult.kind === 'versionDidNotMatch') {
     window.showErrorMessage(
@@ -214,11 +228,11 @@ export async function findRelayBinaryWithWarnings(
       ].join(' '),
     );
 
-    return relayBinaryResult.path;
+    return {path: relayBinaryResult.path, version: relayBinaryResult.version};
   }
 
   if (relayBinaryResult.kind === 'compilerFound') {
-    return relayBinaryResult.path;
+    return {path: relayBinaryResult.path, version: relayBinaryResult.version};
   }
 
   return null;

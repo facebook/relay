@@ -8,6 +8,7 @@
 import path = require('path');
 import {ExtensionContext, window, workspace} from 'vscode';
 import {registerCommands} from './commands/register';
+import {registerProviders} from './providers/register';
 import {createAndStartCompiler} from './compiler';
 import {getConfig} from './config';
 
@@ -36,9 +37,9 @@ async function buildRelayExtensionContext(
     rootPath = path.join(rootPath, config.rootDirectory);
   }
 
-  const binaryPath = await findRelayBinaryWithWarnings(primaryOutputChannel);
+  const binary = await findRelayBinaryWithWarnings(primaryOutputChannel);
 
-  if (binaryPath) {
+  if (binary) {
     return {
       statusBar,
       client: null,
@@ -48,7 +49,8 @@ async function buildRelayExtensionContext(
       compilerTerminal: null,
       relayBinaryExecutionOptions: {
         rootPath,
-        binaryPath,
+        binaryPath: binary.path,
+        binaryVersion: binary.version,
       },
     };
   }
@@ -73,6 +75,7 @@ export async function activate(extensionContext: ExtensionContext) {
     intializeStatusBarItem(relayExtensionContext);
     registerCommands(relayExtensionContext);
     createAndStartLanguageClient(relayExtensionContext);
+    registerProviders(relayExtensionContext);
 
     if (config.autoStartCompiler) {
       createAndStartCompiler(relayExtensionContext);

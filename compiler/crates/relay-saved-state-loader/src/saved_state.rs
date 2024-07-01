@@ -7,10 +7,12 @@
 
 use std::path::PathBuf;
 
+use async_trait::async_trait;
 use serde_bser::value::Value;
 
 use crate::config::SavedStateConfig;
 
+#[async_trait]
 pub trait SavedStateLoader {
-    fn load(&self, saved_state_info: &Value, config: &SavedStateConfig) -> Option<PathBuf>;
+    async fn load(&self, saved_state_info: &Value, config: &SavedStateConfig) -> Option<PathBuf>;
 }

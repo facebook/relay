@@ -7,3 +7,6 @@ authors = ["Facebook"]
 edition = "2021"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
+
+[dependencies]
+async-trait = "0.1.71"

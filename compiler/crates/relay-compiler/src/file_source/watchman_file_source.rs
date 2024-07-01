@@ -260,16 +260,19 @@ impl WatchmanFileSource {
             "WatchmanFileSource::saved_state_info(...) file_source_result = {:?}",
             &saved_state_info
         );
-        let saved_state_path = perf_logger_event.time("saved_state_loading_time", || {
-            saved_state_loader
-                .load(
-                    saved_state_info,
-                    &SavedStateConfig {
-                        saved_state_version: self.config.saved_state_version.clone(),
-                    },
-                )
-                .ok_or("unable to load")
-        })?;
+
+        let saved_state_load_timer = perf_logger_event.start("saved_state_loading_time");
+        let saved_state_path = saved_state_loader
+            .load(
+                saved_state_info,
+                &SavedStateConfig {
+                    saved_state_version: self.config.saved_state_version.clone(),
+                },
+            )
+            .await
+            .ok_or("unable to load")?;
+        perf_logger_event.stop(saved_state_load_timer);
+
         let mut compiler_state = perf_logger_event
             .time("deserialize_saved_state", || {
                 CompilerState::deserialize_from_file(&saved_state_path)

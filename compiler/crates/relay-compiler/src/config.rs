@@ -243,6 +243,7 @@ impl Config {
                 LoaderSource::PackageJson("relay".to_string()),
                 LoaderSource::Json("relay.config.json".to_string()),
                 LoaderSource::Js("relay.config.js".to_string()),
+                LoaderSource::Js("relay.config.cjs".to_string()),
             ],
         )
     }

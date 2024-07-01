@@ -15,6 +15,8 @@ use graphql_watchman::WatchmanFileSourceSubscription;
 use log::debug;
 use log::info;
 use log::warn;
+use relay_saved_state_loader::SavedStateConfig;
+use relay_saved_state_loader::SavedStateLoader;
 pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 
@@ -25,7 +27,6 @@ use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::saved_state::SavedStateLoader;
 
 pub struct WatchmanFileSource {
     client: Arc<Client>,
@@ -261,7 +262,12 @@ impl WatchmanFileSource {
         );
         let saved_state_path = perf_logger_event.time("saved_state_loading_time", || {
             saved_state_loader
-                .load(saved_state_info, &self.config)
+                .load(
+                    saved_state_info,
+                    &SavedStateConfig {
+                        saved_state_version: self.config.saved_state_version.clone(),
+                    },
+                )
                 .ok_or("unable to load")
         })?;
         let mut compiler_state = perf_logger_event

@@ -291,10 +291,10 @@ pub fn generate_operation(
             .as_ref()
             .map_or(false, |config| config.include_query_text())
         {
-            request_parameters.text = text.clone();
+            request_parameters.text.clone_from(text);
         }
     } else {
-        request_parameters.text = text.clone();
+        request_parameters.text.clone_from(text);
     }
 
     let operation_fragment = FragmentDefinition {

@@ -149,7 +149,7 @@ fn maybe_validate_schema(
     }
 
     validate(
-        &schema,
+        schema,
         SchemaValidationOptions {
             allow_introspection_names: true,
         },

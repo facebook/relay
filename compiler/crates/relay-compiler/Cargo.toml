@@ -58,6 +58,7 @@ regex = "1.9.2"
 relay-codegen = { path = "../relay-codegen" }
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }
+relay-saved-state-loader = { path = "../relay-saved-state-loader" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }

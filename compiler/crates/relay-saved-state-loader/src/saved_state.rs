@@ -9,8 +9,8 @@ use std::path::PathBuf;
 
 use serde_bser::value::Value;
 
-use crate::config::Config;
+use crate::config::SavedStateConfig;
 
 pub trait SavedStateLoader {
-    fn load(&self, saved_state_info: &Value, config: &Config) -> Option<PathBuf>;
+    fn load(&self, saved_state_info: &Value, config: &SavedStateConfig) -> Option<PathBuf>;
 }

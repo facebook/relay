@@ -21,7 +21,6 @@ pub mod file_source;
 mod graphql_asts;
 mod operation_persister;
 mod red_to_green;
-pub mod saved_state;
 pub mod status_reporter;
 mod utils;
 

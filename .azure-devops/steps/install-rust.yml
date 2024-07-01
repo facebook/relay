@@ -1,41 +1,42 @@
 # Defaults for any parameters that aren't specified. Do not change these, instead specify them in the job that uses this template.
 parameters:
   rust: stable
+  os: ''
   components: []
   targets: []
 
 steps:
-  - script: |
-      set -e
-      chmod +x ./.azure-devops/tools/rustup-init-linux
-      ./.azure-devops/tools/rustup-init-linux -y --profile minimal --default-toolchain $RUSTUP_TOOLCHAIN
-      echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
-    workingDirectory: $(System.DefaultWorkingDirectory)
-    env:
-      RUSTUP_TOOLCHAIN: ${{parameters.rust}}
-    displayName: "Install rust (*nix)"
-    condition: eq(variables['os'], 'ubuntu-latest')
+  - ${{ if eq(parameters['os'], 'linux') }}:
+    - script: |
+        set -e
+        chmod +x ./.azure-devops/tools/rustup-init-linux
+        ./.azure-devops/tools/rustup-init-linux -y --profile minimal --default-toolchain $RUSTUP_TOOLCHAIN
+        echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      env:
+        RUSTUP_TOOLCHAIN: ${{parameters.rust}}
+      displayName: "Install rust (*nix)"
 
-  - script: |
-      set -e
-      chmod +x ./.azure-devops/tools/rustup-init-mac
-      ./.azure-devops/tools/rustup-init-mac -y --profile minimal --default-toolchain $RUSTUP_TOOLCHAIN
-      echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
-    workingDirectory: $(System.DefaultWorkingDirectory)
-    env:
-      RUSTUP_TOOLCHAIN: ${{parameters.rust}}
-    displayName: "Install rust (MacOS)"
-    condition: eq(variables['os'], 'macos-latest')
+  - ${{ if eq(parameters['os'], 'mac') }}:
+    - script: |
+        set -e
+        chmod +x ./.azure-devops/tools/rustup-init-mac
+        ./.azure-devops/tools/rustup-init-mac -y --profile minimal --default-toolchain $RUSTUP_TOOLCHAIN
+        echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      env:
+        RUSTUP_TOOLCHAIN: ${{parameters.rust}}
+      displayName: "Install rust (MacOS)"
 
-  - script: |
-      ./.azure-devops/tools/rustup-init.exe -y --profile minimal --default-toolchain %RUSTUP_TOOLCHAIN% --default-host x86_64-pc-windows-msvc
-      set PATH=%PATH%;%USERPROFILE%\.cargo\bin
-      echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
-    workingDirectory: $(System.DefaultWorkingDirectory)
-    env:
-      RUSTUP_TOOLCHAIN: ${{parameters.rust}}
-    displayName: "Install rust (Windows)"
-    condition: eq(variables['os'], 'windows-latest')
+  - ${{ if eq(parameters['os'], 'windows') }}:
+    - script: |
+        ./.azure-devops/tools/rustup-init.exe -y --profile minimal --default-toolchain %RUSTUP_TOOLCHAIN% --default-host x86_64-pc-windows-msvc
+        set PATH=%PATH%;%USERPROFILE%\.cargo\bin
+        echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      env:
+        RUSTUP_TOOLCHAIN: ${{parameters.rust}}
+      displayName: "Install rust (Windows)"
 
   # Set correct toolchain
   - bash: |

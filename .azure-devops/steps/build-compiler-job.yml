@@ -1,0 +1,58 @@
+parameters:
+- name: "poolName"
+  type: "string"
+- name: "os"
+  type: "string"
+- name: "target"
+  type: "string"
+- name: "buildName"
+  type: "string"
+- name: "artifactName"
+  type: "string"
+- name: "features"
+  type: "string"
+  default: ''
+- name: "hostArchitecture"
+  type: "string"
+  default: 'x86_64'
+
+jobs:
+- job:
+  displayName: Build Rust Compiler (${{ parameters.target}})
+
+  templateContext:
+    outputs:
+    - output: pipelineArtifact
+      path: $(System.DefaultWorkingDirectory)/compiler/target/${{ parameters.target }}/release/${{ parameters.buildName }}
+      artifactName: ${{ parameters.artifactName }}
+ 
+  ${{ if eq(parameters['os'], 'macOS') }}:
+    pool:
+      name: ${{ parameters.poolName }}
+      image: "macOS-13"
+      os: ${{ parameters.os }}
+      hostArchitecture: ${{ parameters.hostArchitecture }}
+  ${{ if ne(parameters['os'], 'macOS') }}:
+    pool:
+      name: ${{ parameters.poolName }}
+      os: ${{ parameters.os }}
+
+  steps:
+    - template: /.azure-devops/steps/install-rust.yml@self
+      parameters:
+        # This should be the same as the upstream GitHub job uses, which can be found in `.github/workflows/ci.yml` under `build-compiler->steps->uses->with->toolchain`
+        rust: 1.72.0
+        os: ${{ parameters.os }}
+        targets:
+          - ${{ parameters.target }}
+    - ${{ if eq(parameters['os'], 'linux') }}:
+      - script: sudo apt install musl-tools libssl-dev gcc make gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
+        displayName: Install linux deps
+    - ${{ if ne(parameters['features'], '') }}:
+      - script: cargo build --release --target ${{ parameters.target }} --features ${{ parameters.features }}
+        displayName: Build project
+        workingDirectory: $(System.DefaultWorkingDirectory)/compiler
+    - ${{ if eq(parameters['features'], '') }}:
+      - script: cargo build --release --target ${{ parameters.target }}
+        displayName: Build project
+        workingDirectory: $(System.DefaultWorkingDirectory)/compiler

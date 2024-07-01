@@ -8,6 +8,8 @@ resources:
     type: git
     name: SkypeSpaces-Infra
 
+name: $(date:yyyyMMdd)$(rev:rr)-pr
+
 variables:
   - name: service_id
     value: 6cc5a4c4-d945-41d8-97b3-c63ba3226acd
@@ -26,15 +28,30 @@ trigger:
     - master
 
 extends:
-  template: azure-devops-templates/steps/coral/general_build_template.yml@SkypeSpaces-Infra
+  template: azure-devops-templates/steps/clientgbtto1espt/general_build_template.yml@SkypeSpaces-Infra
   parameters:
-    name: build
+    name: build_and_deploy
     pool:
-      vmImage: ubuntu-latest
+      name: 1ES-Teams-Ubuntu-Latest-Compliant-1ESPT
+      os: linux
+    sdl:
+      sourceAnalysisPool:
+        name: 1ES-Teams-Windows-Latest-Compliant-1ESPT
+        os: windows
+    esptsdl:
+      baseline:
+        baselineFile: $(Build.SourcesDirectory)\.sdl\.gdnbaselines
+      suppression:
+        suppressionFile: $(Build.SourcesDirectory)\.sdl\.gdnsuppress
+    featureFlags:
+      autoBaseline: false
+    jobParams:
+      displayName: Build and Publish
+      workspace:
+        clean: all
     service_tree:
       service_id: ${{ variables.service_id }}
       isProduction: false
-
     checkout:
       repo: self
       clean: true
@@ -43,9 +60,10 @@ extends:
       - stage: build_compiler
         displayName: Build Relay Compiler
         jobs:
-        - template: /.azure-devops/steps/build-compiler.yml@self
+        - template: /.azure-devops/steps/build-compiler.yml@self  
       - stage: build_javascript
         dependsOn: ["build_compiler"]
         displayName: Build Relay Javascript and Publish
         jobs:
         - template: /.azure-devops/steps/build.yml@self
+

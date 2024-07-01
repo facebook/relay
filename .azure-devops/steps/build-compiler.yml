@@ -1,56 +1,32 @@
 jobs:
-- job:
-  displayName: Build Rust Compiler
-  strategy:
-    matrix:
-      x86_64-unknown-linux-musl:
-        target: x86_64-unknown-linux-musl
-        os: ubuntu-latest
-        build-name: relay
-        artifact-name: relay-bin-linux-x64
-        features: vendored
-      # aarch64-unknown-linux-musl:
-      #   target: aarch64-unknown-linux-musl
-      #   os: ubuntu-latest
-      #   build-name: relay
-      #   artifact-name: relay-bin-linux-arm64
-      #   features: vendored
-      x86_64-apple-darwin:
-        target: x86_64-apple-darwin
-        os: macos-latest
-        build-name: relay
-        artifact-name: relay-bin-macos-x64
-      aarch64-apple-darwin: 
-        target: aarch64-apple-darwin
-        os: macos-latest
-        build-name: relay
-        artifact-name: relay-bin-macos-arm64
-      x86_64-pc-windows-msvc:
-        target: x86_64-pc-windows-msvc
-        os: windows-latest
-        build-name: relay.exe
-        artifact-name: relay-bin-win-x64
-
-  pool:
-    vmImage: $(os)
-
-  steps:
-    - template: /.azure-devops/steps/install-rust.yml@self
-      parameters:
-        # This should be the same as the upstream GitHub job uses, which can be found in `.github/workflows/ci.yml` under `build-compiler->steps->uses->with->toolchain`
-        rust: 1.72.0
-        targets:
-          - $(target)
-    - script: sudo apt install musl-tools libssl-dev gcc make gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
-      displayName: Install linux deps
-      condition: eq(variables['os'], 'ubuntu-latest')
-    - script: cargo build --release --target $(target) --features $(features)
-      displayName: Build project
-      workingDirectory: $(System.DefaultWorkingDirectory)/compiler
-      condition: ne(variables['features'], '')
-    - script: cargo build --release --target $(target)
-      displayName: Build project
-      workingDirectory: $(System.DefaultWorkingDirectory)/compiler
-      condition: eq(variables['features'], '')
-    - publish: $(System.DefaultWorkingDirectory)/compiler/target/$(target)/release/$(build-name)
-      artifact: $(artifact-name)
+- template: /.azure-devops/steps/build-compiler-job.yml
+  parameters:
+    target: x86_64-unknown-linux-musl
+    poolName: 1ES-Teams-Ubuntu-Latest-Compliant-1ESPT
+    os: linux
+    buildName: relay
+    artifactName: relay-bin-linux-x64
+    features: vendored
+- template: /.azure-devops/steps/build-compiler-job.yml
+  parameters:
+    target: x86_64-pc-windows-msvc
+    poolName: 1ES-Teams-Windows-Latest-Compliant-1ESPT
+    os: windows
+    buildName: relay.exe
+    artifactName: relay-bin-win-x64
+- template: /.azure-devops/steps/build-compiler-job.yml
+  parameters:
+    target: x86_64-apple-darwin
+    poolName: Azure Pipelines
+    buildName: relay
+    os: macOS
+    artifactName: relay-bin-macos-x64
+    hostArchitecture: x86_64
+- template: /.azure-devops/steps/build-compiler-job.yml
+  parameters:
+    target: aarch64-apple-darwin
+    poolName: Azure Pipelines
+    buildName: relay
+    os: macOS
+    artifactName: relay-bin-macos-arm64
+    hostArchitecture: ARM64

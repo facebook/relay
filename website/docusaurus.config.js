@@ -485,8 +485,8 @@ module.exports = {
       ],
     },
     algolia: {
-      appId: 'UBPJPW35NS',
-      apiKey: '26e12c1c268d99b20a16f365f8593df9',
+      appId: '',
+      apiKey: '',
       indexName: 'relay',
       contextualSearch: true,
     },

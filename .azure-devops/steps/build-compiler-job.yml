@@ -17,7 +17,7 @@ parameters:
   default: 'x86_64'
 
 jobs:
-- job:
+- job: build_rust_compiler_${{ parameters.os }}_${{ parameters.hostArchitecture }}
   displayName: Build Rust Compiler (${{ parameters.target}})
 
   templateContext:

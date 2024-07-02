@@ -14,12 +14,6 @@ variables:
   - name: service_id
     value: 6cc5a4c4-d945-41d8-97b3-c63ba3226acd
 
-parameters:
-  - name: publishPackage
-    default: false
-    displayName: Publish package?
-    type: boolean
-
 trigger:
   branches:
     exclude:
@@ -63,7 +57,9 @@ extends:
         - template: /.azure-devops/steps/build-compiler.yml@self  
       - stage: build_javascript
         dependsOn: ["build_compiler"]
-        displayName: Build Relay Javascript and Publish
+        displayName: Build Relay Javascript
         jobs:
         - template: /.azure-devops/steps/build.yml@self
+          parameters:
+            publishPackage: false
 

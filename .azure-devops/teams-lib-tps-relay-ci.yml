@@ -64,3 +64,5 @@ extends:
         displayName: Build Relay Javascript and Publish
         jobs:
         - template: /.azure-devops/steps/build.yml@self
+          parameters:
+            publishPackage: ${{ parameters.publishPackage }}

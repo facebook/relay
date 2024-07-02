@@ -5,24 +5,6 @@
     "hydrationStatus": "This file does not contain identifying data. It is safe to check into your repo. To hydrate this file with identifying data, run `guardian hydrate --help` and follow the guidance."
   },
   "version": "1.0.0",
-  "suppressionSets": {
-    "Suppressions": {
-      "name": "Suppressions",
-      "createdDate": "2023-10-05 10:49:50Z",
-      "lastUpdatedDate": "2023-10-05 10:49:50Z"
-    }
-  },
-  "results": {
-    "55ea5263beedc8a5cc219c823573cf3650a5a8ef43f169cb93b75cdd175f6ca2": {
-      "signature": "55ea5263beedc8a5cc219c823573cf3650a5a8ef43f169cb93b75cdd175f6ca2",
-      "alternativeSignatures": [
-        "295461ec917a4456f9196ca5e11186448d06c1e5fc57f51f99a8b1700bb7a105"
-      ],
-      "memberOf": [
-        "Suppressions"
-      ],
-      "createdDate": "2023-10-05 10:49:50Z",
-      "justification": "Relay test website file - not relevant"
-    }
-  }
+  "suppressionSets": {},
+  "results": {}
 }

@@ -1,7 +1,17 @@
+parameters:
+  - name: publishPackage
+    default: false
+    type: boolean
+
 jobs:
 - job:
   displayName: Build Javascript
   steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core SDK'
+      inputs:
+        packageType: 'sdk'
+        version: '2.1.x'
     - task: NodeTool@0
       inputs:
         versionSpec: "16.13.1"
@@ -47,9 +57,16 @@ jobs:
       displayName: Mark binaries as executable
       workingDirectory: "$(System.DefaultWorkingDirectory)/artifacts"
 
+    - ${{ if eq(parameters['publishPackage'], true) }}:
+      - template: azure-devops-templates/steps/ESRP-CodeSigning-253-and-135020002.yml@SkypeSpaces-Infra
+        parameters:
+          workingDirectory: "$(System.DefaultWorkingDirectory)/artifacts"
+          pattern: "*.exe"
+
     - script: yarn run gulp release
 
-    - template: /.azure-devops/steps/publish.yml@self
+    - ${{ if eq(parameters['publishPackage'], true) }}:
+      - template: /.azure-devops/steps/publish.yml@self
 
   # - script: npm run ci:precheck
   #   displayName: Run CI Pre-check

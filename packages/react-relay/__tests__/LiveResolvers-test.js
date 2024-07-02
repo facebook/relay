@@ -12,6 +12,7 @@
 'use strict';
 
 import type {IEnvironment} from 'relay-runtime';
+import type {Observer} from 'relay-runtime/network/RelayObservable';
 import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 
@@ -23,7 +24,7 @@ const {
   useLazyLoadQuery,
 } = require('react-relay');
 const TestRenderer = require('react-test-renderer');
-const {RelayFeatureFlags, getRequest} = require('relay-runtime');
+const {Observable, RelayFeatureFlags, getRequest} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -1709,5 +1710,138 @@ test('provided variables and resolvers', () => {
   expect(snapshot.relayResolverErrors).toEqual([]);
   expect(snapshot.data).toEqual({
     hello_world_with_provided_variable: 'Hello, Hello, World!!',
+  });
+});
+
+test('allows dependencies to be provided through the store', () => {
+  const FooQuery = graphql`
+    query LiveResolversTestWithContextQuery {
+      hello_world_with_context
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new LiveResolverStore(RelayRecordSource.create(), {
+      gcReleaseBufferSize: 0,
+      resolverContext: {
+        greeting: 'Hello Allemaal!',
+      },
+    }),
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+  expect(snapshot.relayResolverErrors).toEqual([]);
+  expect(snapshot.data).toEqual({
+    hello_world_with_context: 'Hello Hello Allemaal!!',
+  });
+});
+
+test('allows objects to be provided to be provided through the store', () => {
+  const FooQuery = graphql`
+    query LiveResolversTestWithContextObjectQuery {
+      hello_world_with_context_object
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new LiveResolverStore(RelayRecordSource.create(), {
+      gcReleaseBufferSize: 0,
+      resolverContext: {
+        greeting: {
+          myHello: 'Hello Allemaal!',
+        },
+      },
+    }),
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+  expect(snapshot.relayResolverErrors).toEqual([]);
+  expect(snapshot.data).toEqual({
+    hello_world_with_context_object: 'Hello Hello Allemaal!!',
+  });
+});
+
+test('ResolverContext can contain observable values', async () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
+    },
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTestCounterContextQuery {
+      counter_context
+    }
+  `;
+
+  let next: (v: number) => void = () => {
+    throw new Error('next() not initialized');
+  };
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+    resolverContext: {
+      counter: Observable.create<number>(observer => {
+        next = (value: number) => observer.next(value);
+      }),
+    },
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  let observedCounter = null;
+
+  const snapshot = environment.lookup(operation.fragment);
+  // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+  observedCounter = (snapshot.data: any).counter_context;
+
+  const environmentUpdateHandler = jest.fn(() => {
+    const s = environment.lookup(operation.fragment);
+    // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+    observedCounter = (s.data: any).counter_context;
+  });
+  const disposable = environment.subscribe(
+    snapshot,
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+    environmentUpdateHandler,
+  );
+
+  // SETUP COMPLETE
+
+  // Read the initial value
+  expect(observedCounter).toBe(0);
+  expect(environmentUpdateHandler).not.toHaveBeenCalled();
+
+  // Increment and assert we get notified of the new value
+  next(43);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(43);
+
+  // Unsubscribe then increment and assert don't get notified.
+  disposable.dispose();
+  next(1);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(43);
+
+  // Explicitly read and assert we see the incremented value
+  // missed before due to unsubscribing.
+  const nextSnapshot = environment.lookup(operation.fragment);
+
+  expect(nextSnapshot.data).toEqual({
+    counter_context: 1,
   });
 });

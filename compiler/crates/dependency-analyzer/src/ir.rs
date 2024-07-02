@@ -11,6 +11,7 @@ use std::fmt;
 
 use common::PerfLogEvent;
 use graphql_ir::*;
+use relay_config::ProjectConfig;
 use relay_transforms::get_resolver_fragment_dependency_name;
 use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
@@ -53,6 +54,7 @@ pub fn get_reachable_ir(
     changed_names: ExecutableDefinitionNameSet,
     schema: &SDLSchema,
     schema_changes: FxHashSet<check::IncrementalBuildSchemaChange>,
+    project_config: &ProjectConfig,
     log_event: &impl PerfLogEvent,
 ) -> Vec<ExecutableDefinition> {
     let timer = log_event.start("get_reachable_ir_time");
@@ -60,7 +62,12 @@ pub fn get_reachable_ir(
         vec![]
     } else {
         let mut all_changed_names: ExecutableDefinitionNameSet =
-            schema_change_analyzer::get_affected_definitions(schema, &definitions, schema_changes);
+            schema_change_analyzer::get_affected_definitions(
+                schema,
+                &definitions,
+                schema_changes,
+                project_config,
+            );
         all_changed_names.extend(changed_names);
 
         // For each executable definition, define a `Node` indicating its parents and children

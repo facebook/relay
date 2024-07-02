@@ -39,3 +39,8 @@ extend type User {
   test_object_name(test: TestEnum): String
 }
 ==================================== OUTPUT ===================================
+Fragment: F1
+
+Fragment: F2
+
+Operation: Q1

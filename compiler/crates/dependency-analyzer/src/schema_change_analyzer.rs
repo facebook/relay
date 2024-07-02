@@ -8,6 +8,7 @@
 use std::collections::HashSet;
 
 use graphql_ir::*;
+use relay_config::ProjectConfig;
 use rustc_hash::FxHashSet;
 use schema::definitions::Type;
 use schema::SDLSchema;
@@ -20,8 +21,14 @@ pub fn get_affected_definitions(
     schema: &SDLSchema,
     definitions: &[ExecutableDefinition],
     schema_changes: FxHashSet<IncrementalBuildSchemaChange>,
+    project_config: &ProjectConfig,
 ) -> ExecutableDefinitionNameSet {
-    SchemaChangeDefinitionFinder::get_definitions(schema, definitions, schema_changes)
+    SchemaChangeDefinitionFinder::get_definitions(
+        schema,
+        definitions,
+        schema_changes,
+        project_config,
+    )
 }
 
 struct SchemaChangeDefinitionFinder<'a, 'b> {
@@ -29,6 +36,7 @@ struct SchemaChangeDefinitionFinder<'a, 'b> {
     current_executable: &'a ExecutableDefinition,
     schema: &'b SDLSchema,
     schema_changes: FxHashSet<IncrementalBuildSchemaChange>,
+    project_config: &'b ProjectConfig,
 }
 
 impl SchemaChangeDefinitionFinder<'_, '_> {
@@ -36,6 +44,7 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
         schema: &SDLSchema,
         definitions: &[ExecutableDefinition],
         schema_changes: FxHashSet<IncrementalBuildSchemaChange>,
+        project_config: &ProjectConfig,
     ) -> ExecutableDefinitionNameSet {
         if definitions.is_empty() || schema_changes.is_empty() {
             return HashSet::default();
@@ -46,6 +55,7 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
             current_executable: &definitions[0],
             schema,
             schema_changes,
+            project_config,
         };
         for def in definitions.iter() {
             finder.current_executable = def;
@@ -66,6 +76,26 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
                 ExecutableDefinitionName::FragmentDefinitionName(node.name.item)
             }
         }
+    }
+
+    fn add_type_changes_from_value(&mut self, value: &Value) {
+        match value {
+            Value::Variable(variable) => self.add_type_changes(variable.type_.inner()),
+            Value::Object(object) => {
+                object
+                    .iter()
+                    .for_each(|argument| self.add_type_changes_from_argument(argument));
+            }
+            Value::List(list) => {
+                list.iter()
+                    .for_each(|value| self.add_type_changes_from_value(value));
+            }
+            Value::Constant(_) => (),
+        }
+    }
+
+    fn add_type_changes_from_argument(&mut self, argument: &Argument) {
+        self.add_type_changes_from_value(&argument.value.item);
     }
 
     fn add_type_changes(&mut self, type_: Type) {
@@ -104,9 +134,17 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
             Type::Enum(id) => {
                 let enum_type = self.schema.enum_(id);
                 let key = enum_type.name.item.0;
-                if self
-                    .schema_changes
-                    .contains(&IncrementalBuildSchemaChange::Enum(key))
+                // Enums are inlined in the generated artifact if the typegen config
+                // does not specify a module suffix.
+                let is_enum_inlined = self
+                    .project_config
+                    .typegen_config
+                    .enum_module_suffix
+                    .is_none();
+                if is_enum_inlined
+                    && self
+                        .schema_changes
+                        .contains(&IncrementalBuildSchemaChange::Enum(key))
                 {
                     self.changed_definitions
                         .insert(self.get_name_from_executable());
@@ -119,7 +157,7 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
 
 impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
     const NAME: &'static str = "DependencyAnalyzerSchemaChangeDefinitionFinder";
-    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = false;
 
     fn visit_linked_field(&mut self, field: &LinkedField) {
@@ -139,6 +177,11 @@ impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
             self.add_type_changes(type_);
         }
         self.default_visit_inline_fragment(fragment);
+    }
+
+    fn visit_argument(&mut self, argument: &Argument) {
+        self.add_type_changes_from_argument(argument);
+        self.default_visit_argument(argument);
     }
 
     fn visit_scalar_field(&mut self, field: &ScalarField) {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<684765df82b0f8489afe3991a3fe0a5e>>
+ * @generated SignedSource<<cbf75b3a347f72685bc732f1d587539a>>
  */
 
 mod ir;
@@ -94,6 +94,13 @@ async fn recursive_fragments() {
     let input = include_str!("ir/fixtures/recursive-fragments.graphql");
     let expected = include_str!("ir/fixtures/recursive-fragments.expected");
     test_fixture(transform_fixture, file!(), "recursive-fragments.graphql", "ir/fixtures/recursive-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn scalar_field_argument_enum_change() {
+    let input = include_str!("ir/fixtures/scalar-field-argument-enum-change.graphql");
+    let expected = include_str!("ir/fixtures/scalar-field-argument-enum-change.expected");
+    test_fixture(transform_fixture, file!(), "scalar-field-argument-enum-change.graphql", "ir/fixtures/scalar-field-argument-enum-change.expected", input, expected).await;
 }
 
 #[tokio::test]

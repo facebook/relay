@@ -254,7 +254,9 @@ class RecordResolverCache implements ResolverCache {
     const recordsToVisit = Array.from(updatedDataIDs);
     while (recordsToVisit.length) {
       const recordID = recordsToVisit.pop();
+      // $FlowFixMe[incompatible-call]
       updatedDataIDs.add(recordID);
+      // $FlowFixMe[incompatible-call]
       for (const fragment of this._recordIDToResolverIDs.get(recordID) ??
         emptySet) {
         if (!visited.has(fragment)) {

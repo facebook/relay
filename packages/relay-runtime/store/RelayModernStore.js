@@ -264,6 +264,7 @@ class RelayModernStore implements Store {
           // buffer have a refCount of 0.
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
+            // $FlowFixMe[incompatible-call]
             this._roots.delete(_id);
             this.scheduleGC();
           }

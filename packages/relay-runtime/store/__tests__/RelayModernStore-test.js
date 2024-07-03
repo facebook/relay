@@ -2307,6 +2307,7 @@ function cloneEventWithSets(event: LogEvent) {
       function runNextScheduledJob() {
         const job = schedulerQueue.shift();
         expect(job).toBeDefined();
+        // $FlowFixMe[not-a-function]
         job();
       }
 

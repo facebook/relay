@@ -776,6 +776,9 @@ pub struct SingleProjectConfigFile {
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+
+    #[serde(default)]
+    pub diagnostic_report_config: DiagnosticReportConfig,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -798,6 +801,7 @@ impl Default for SingleProjectConfigFile {
             feature_flags: None,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
+            diagnostic_report_config: Default::default(),
         }
     }
 }
@@ -890,6 +894,7 @@ impl SingleProjectConfigFile {
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
             resolvers_schema_module: self.resolvers_schema_module,
+            diagnostic_report_config: self.diagnostic_report_config,
             ..Default::default()
         };
 

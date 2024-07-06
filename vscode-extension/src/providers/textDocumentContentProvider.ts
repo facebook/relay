@@ -8,6 +8,7 @@
 import {TextDocumentContentProvider, Event, Uri, ProviderResult} from 'vscode';
 import {execSync} from 'child_process';
 import * as path from 'path';
+import * as semver from 'semver';
 import {RelayExtensionContext} from '../context';
 
 const RELAY_CONFIG_SCHEMA_PATH = 'relay-config-schema';
@@ -17,7 +18,17 @@ const PACKAGE_JSON_RELAY_CONFIG_SCHEMA_PATH =
 export class RelayTextDocumentContentProvider
   implements TextDocumentContentProvider
 {
-  constructor(private context: RelayExtensionContext) {}
+  private isConfigJsonSchemaCompilerCommandAvailable: boolean = true;
+
+  constructor(private context: RelayExtensionContext) {
+    const {binaryVersion} = this.context.relayBinaryExecutionOptions;
+
+    if (binaryVersion) {
+      this.isConfigJsonSchemaCompilerCommandAvailable =
+        semver.satisfies(binaryVersion, '>17.0') ||
+        semver.prerelease(binaryVersion) != null;
+    }
+  }
 
   static readonly scheme: string = 'relay';
 
@@ -33,6 +44,12 @@ export class RelayTextDocumentContentProvider
     if (uri.authority === RELAY_CONFIG_SCHEMA_PATH) {
       this.cachedJsonSchema ||= this.loadConfigJsonSchema();
 
+      if (!this.cachedJsonSchema) {
+        // We return an empty JSON schema instead of undefined to prevent
+        // an error being shown in the user's IDE.
+        return '{}';
+      }
+
       return this.cachedJsonSchema;
     }
 
@@ -40,6 +57,10 @@ export class RelayTextDocumentContentProvider
   }
 
   loadConfigJsonSchema(): string | undefined {
+    if (!this.isConfigJsonSchemaCompilerCommandAvailable) {
+      return undefined;
+    }
+
     const relayCompilerBinPath = path.resolve(
       this.context.relayBinaryExecutionOptions.rootPath,
       this.context.relayBinaryExecutionOptions.binaryPath,

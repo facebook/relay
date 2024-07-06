@@ -693,8 +693,16 @@ export type StoreRestoreLogEvent = {
   +name: 'store.restore',
 };
 
-export type StoreGcLogEvent = {
-  +name: 'store.gc',
+export type StoreGcStartEvent = {
+  +name: 'store.gc.start',
+};
+
+export type StoreGcInterruptedEvent = {
+  +name: 'store.gc.interrupted',
+};
+
+export type StoreGcEndEvent = {
+  +name: 'store.gc.end',
   +references: DataIDSet,
 };
 
@@ -757,7 +765,9 @@ export type LogEvent =
   | StorePublishLogEvent
   | StoreSnapshotLogEvent
   | StoreRestoreLogEvent
-  | StoreGcLogEvent
+  | StoreGcStartEvent
+  | StoreGcInterruptedEvent
+  | StoreGcEndEvent
   | StoreNotifyStartLogEvent
   | StoreNotifyCompleteLogEvent
   | StoreNotifySubscriptionLogEvent

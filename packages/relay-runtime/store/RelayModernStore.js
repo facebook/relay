@@ -600,7 +600,13 @@ class RelayModernStore implements Store {
 
   *_collect(): Generator<void, void, void> {
     /* eslint-disable no-labels */
+    const log = this.__log;
     top: while (true) {
+      if (log != null) {
+        log({
+          name: 'store.gc.start',
+        });
+      }
       const startEpoch = this._currentWriteEpoch;
       const references = new Set<DataID>();
 
@@ -619,16 +625,13 @@ class RelayModernStore implements Store {
 
         // If the store was updated, restart
         if (startEpoch !== this._currentWriteEpoch) {
+          if (log != null) {
+            log({
+              name: 'store.gc.interrupted',
+            });
+          }
           continue top;
         }
-      }
-
-      const log = this.__log;
-      if (log != null) {
-        log({
-          name: 'store.gc',
-          references,
-        });
       }
 
       // Sweep records without references
@@ -644,6 +647,12 @@ class RelayModernStore implements Store {
             this._recordSource.remove(dataID);
           }
         }
+      }
+      if (log != null) {
+        log({
+          name: 'store.gc.end',
+          references,
+        });
       }
       return;
     }

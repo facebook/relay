@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<57bebdb3f789e63e238d5c603847f33b>>
+ * @generated SignedSource<<a95eded87d3fe1fcee753800dd8f11eb>>
  */
 
 mod match_transform;
@@ -38,6 +38,13 @@ async fn invalid_non_empty_selections() {
     let input = include_str!("match_transform/fixtures/invalid-non-empty-selections.graphql");
     let expected = include_str!("match_transform/fixtures/invalid-non-empty-selections.expected");
     test_fixture(transform_fixture, file!(), "invalid-non-empty-selections.graphql", "match_transform/fixtures/invalid-non-empty-selections.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn invalid_non_empty_selections_conditional() {
+    let input = include_str!("match_transform/fixtures/invalid-non-empty-selections-conditional.graphql");
+    let expected = include_str!("match_transform/fixtures/invalid-non-empty-selections-conditional.expected");
+    test_fixture(transform_fixture, file!(), "invalid-non-empty-selections-conditional.graphql", "match_transform/fixtures/invalid-non-empty-selections-conditional.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -90,6 +97,13 @@ async fn no_server_supported_arg_invalid() {
 }
 
 #[tokio::test]
+async fn no_server_supported_arg_with_key() {
+    let input = include_str!("match_transform/fixtures/no-server-supported-arg-with-key.graphql");
+    let expected = include_str!("match_transform/fixtures/no-server-supported-arg-with-key.expected");
+    test_fixture(transform_fixture, file!(), "no-server-supported-arg-with-key.graphql", "match_transform/fixtures/no-server-supported-arg-with-key.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn relay_match_on_interface() {
     let input = include_str!("match_transform/fixtures/relay-match-on-interface.graphql");
     let expected = include_str!("match_transform/fixtures/relay-match-on-interface.expected");
@@ -108,4 +122,18 @@ async fn relay_match_on_union_plural() {
     let input = include_str!("match_transform/fixtures/relay-match-on-union-plural.graphql");
     let expected = include_str!("match_transform/fixtures/relay-match-on-union-plural.expected");
     test_fixture(transform_fixture, file!(), "relay-match-on-union-plural.graphql", "match_transform/fixtures/relay-match-on-union-plural.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_match_with_key() {
+    let input = include_str!("match_transform/fixtures/relay-match-with-key.graphql");
+    let expected = include_str!("match_transform/fixtures/relay-match-with-key.expected");
+    test_fixture(transform_fixture, file!(), "relay-match-with-key.graphql", "match_transform/fixtures/relay-match-with-key.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_match_with_non_literal_key_invalid() {
+    let input = include_str!("match_transform/fixtures/relay-match-with-non-literal-key.invalid.graphql");
+    let expected = include_str!("match_transform/fixtures/relay-match-with-non-literal-key.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-match-with-non-literal-key.invalid.graphql", "match_transform/fixtures/relay-match-with-non-literal-key.invalid.expected", input, expected).await;
 }

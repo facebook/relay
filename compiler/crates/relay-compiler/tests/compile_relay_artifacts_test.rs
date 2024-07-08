@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5cc2da08ab503e41463b719c6707b536>>
+ * @generated SignedSource<<c7eba94f64c41a66046e055e58dcff04>>
  */
 
 mod compile_relay_artifacts;
@@ -738,6 +738,13 @@ async fn inline_fragment_on_abstract_client_type_nested_in_resolver_client_edge(
     let input = include_str!("compile_relay_artifacts/fixtures/inline-fragment-on-abstract-client-type-nested-in-resolver-client-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/inline-fragment-on-abstract-client-type-nested-in-resolver-client-edge.expected");
     test_fixture(transform_fixture, file!(), "inline-fragment-on-abstract-client-type-nested-in-resolver-client-edge.graphql", "compile_relay_artifacts/fixtures/inline-fragment-on-abstract-client-type-nested-in-resolver-client-edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn invalid_alias_on_match_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/invalid-alias-on-match-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/invalid-alias-on-match-fragment.expected");
+    test_fixture(transform_fixture, file!(), "invalid-alias-on-match-fragment.graphql", "compile_relay_artifacts/fixtures/invalid-alias-on-match-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

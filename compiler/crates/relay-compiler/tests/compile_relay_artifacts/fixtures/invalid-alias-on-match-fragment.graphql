@@ -1,0 +1,25 @@
+# expected-to-throw
+fragment invalidAliasOnMatchFragmentNameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...invalidAliasOnMatchFragmentPlainUserNameRenderer_name
+      @module(name: "PlainUserNameRenderer.react")
+    ...invalidAliasOnMatchFragmentMarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+      @alias
+  }
+}
+
+fragment invalidAliasOnMatchFragmentPlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment invalidAliasOnMatchFragmentMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

@@ -59,6 +59,7 @@ use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
 use crate::no_inline::validate_required_no_inline_directive;
 use crate::util::get_normalization_operation_name;
+use crate::FragmentAliasMetadata;
 
 /// Transform and validate @match and @module
 pub fn transform_match(
@@ -160,6 +161,17 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 selection_location,
             )
             .annotate("in @match directive", match_location),
+        )
+    }
+
+    fn push_alias_within_match_selection_err(
+        &mut self,
+        match_location: Location,
+        alias_location: Location,
+    ) {
+        self.errors.push(
+            Diagnostic::error(ValidationMessage::InvalidAliasWithinMatch, alias_location)
+                .annotate("in @match directive", match_location),
         )
     }
 
@@ -621,9 +633,13 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let field_definition = self.program.schema.field(field.definition.item);
         let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
         if let Some(arg) = key_arg {
-            let str = arg.value.item.expect_constant().unwrap_string();
+            let maybe_valid_str = arg
+                .value
+                .item
+                .get_string_literal()
+                .filter(|str| str.lookup().starts_with(self.document_name.lookup()));
 
-            if str.lookup().starts_with(self.document_name.lookup()) {
+            if let Some(str) = maybe_valid_str {
                 self.match_directive_key_argument = Some(str);
             } else {
                 return Err(Diagnostic::error(
@@ -726,16 +742,17 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let mut seen_types = IndexSet::with_hasher(FnvBuildHasher::default());
         for selection in &field.selections {
             match selection {
-                Selection::FragmentSpread(field) => {
-                    let has_directive_with_module = field.directives.iter().any(|directive| {
-                        directive.name.item == MATCH_CONSTANTS.module_directive_name
-                    });
+                Selection::FragmentSpread(spread) => {
+                    let has_directive_with_module = spread
+                        .directives
+                        .named(MATCH_CONSTANTS.module_directive_name)
+                        .is_some();
                     if has_directive_with_module {
-                        let fragment = self.program.fragment(field.fragment.item).unwrap();
+                        let fragment = self.program.fragment(spread.fragment.item).unwrap();
                         seen_types.insert(fragment.type_condition);
                     } else {
                         self.push_fragment_spread_with_module_selection_err(
-                            field.fragment.location,
+                            spread.fragment.location,
                             match_directive.name.location,
                         );
                     }
@@ -753,11 +770,26 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                         field.definition.location,
                         match_directive.name.location,
                     ),
-                // TODO: no location on InlineFragment and Condition yet
-                _ => self.push_fragment_spread_with_module_selection_err(
-                    field.definition.location,
-                    match_directive.name.location,
-                ),
+                Selection::InlineFragment(inline_fragment) => {
+                    if let Some(alias_metadata) =
+                        FragmentAliasMetadata::find(&inline_fragment.directives)
+                    {
+                        self.push_alias_within_match_selection_err(
+                            match_directive.name.location,
+                            alias_metadata.alias.location,
+                        )
+                    } else {
+                        self.push_fragment_spread_with_module_selection_err(
+                            inline_fragment.spread_location,
+                            match_directive.name.location,
+                        )
+                    }
+                }
+                Selection::Condition(condition) => self
+                    .push_fragment_spread_with_module_selection_err(
+                        condition.location,
+                        match_directive.name.location,
+                    ),
             }
         }
         if seen_types.is_empty() {

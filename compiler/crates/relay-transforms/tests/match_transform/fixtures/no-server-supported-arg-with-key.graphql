@@ -1,0 +1,12 @@
+fragment ActorsRendererFragment on Node {
+  id
+  # Adding a key here supresses the validation that checks if this field defines
+  # a `supported` arg.
+  actors @match(key: "ActorsRendererFragment_a") {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on User {
+  __typename
+}

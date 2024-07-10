@@ -84,6 +84,7 @@ crates/relay-transforms/tests/transform_connections
 crates/relay-transforms/tests/validate_connections_schema
 crates/relay-transforms/tests/validate_connections
 crates/relay-transforms/tests/validate_deprecated_fields
+crates/relay-transforms/tests/validate_fragment_alias_conflict
 crates/relay-transforms/tests/validate_global_variables
 crates/relay-transforms/tests/validate_global_variable_names
 crates/relay-transforms/tests/validate_no_double_underscore_alias

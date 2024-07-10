@@ -20,6 +20,7 @@ use relay_transforms::disallow_reserved_aliases;
 use relay_transforms::disallow_typename_on_root;
 use relay_transforms::validate_assignable_directive;
 use relay_transforms::validate_connections;
+use relay_transforms::validate_fragment_alias_conflict;
 use relay_transforms::validate_global_variable_names;
 use relay_transforms::validate_module_names;
 use relay_transforms::validate_no_double_underscore_alias;
@@ -105,6 +106,7 @@ pub fn validate(
                 .allow_required_in_mutation_response,
             project_config.feature_flags.enable_relay_resolver_mutations,
         ),
+        validate_fragment_alias_conflict(program),
     ]);
 
     transform_errors(output, project_config)

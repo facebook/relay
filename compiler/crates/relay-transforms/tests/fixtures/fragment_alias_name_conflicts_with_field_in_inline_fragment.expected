@@ -13,18 +13,18 @@ query RelayReaderNamedFragmentsTest2Query {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Fragment alias 'name' is ambiguous. It conflicts with another named selection
-
-  fragment_alias_name_conflicts_with_field_in_inline_fragment.graphql:9:7
-    8 │     ... on User {
-    9 │       name
-      │       ^^^^
-   10 │     }
-
-  ℹ︎ the other field
+✖︎ Fragment alias 'name' is ambiguous. It conflicts with a field with the same name.
 
   fragment_alias_name_conflicts_with_field_in_inline_fragment.graphql:11:54
    10 │     }
    11 │     ...RelayReaderNamedFragmentsTest_user @alias(as: "name")
       │                                                      ^^^^^^
    12 │   }
+
+  ℹ︎ the conflicting field
+
+  fragment_alias_name_conflicts_with_field_in_inline_fragment.graphql:9:7
+    8 │     ... on User {
+    9 │       name
+      │       ^^^^
+   10 │     }

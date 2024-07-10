@@ -23,7 +23,7 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
+const {loadQuery} = require('./loadQuery');
 const useIsMountedRef = require('./useIsMountedRef');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const {useCallback, useEffect, useRef, useState} = require('react');
@@ -146,7 +146,6 @@ hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
     initialQueryReference ?? initialNullQueryReferenceState;
 
   const environment = useRelayEnvironment();
-  useTrackLoadQueryInRender();
 
   const isMountedRef = useIsMountedRef();
   const undisposedQueryReferencesRef = useRef<

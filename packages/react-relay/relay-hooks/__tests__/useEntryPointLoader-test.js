@@ -503,7 +503,7 @@ it('should dispose of entry points on unmount if the callback is called, the com
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it.only('disposes all entry points if the callback is called, the component suspends, another entry point is loaded and then the component unmounts', () => {
+it('disposes all entry points if the callback is called, the component suspends, another entry point is loaded and then the component unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});

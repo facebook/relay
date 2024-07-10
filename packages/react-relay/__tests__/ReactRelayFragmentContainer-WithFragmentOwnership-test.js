@@ -129,44 +129,52 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
 
     // Pre-populate the store with data
     ownerUser1 = createOperationDescriptor(UserQuery, {id: '4'});
-    environment.commitPayload(ownerUser1, {
-      node: {
-        id: '4',
-        __typename: 'User',
-        name: 'Zuck',
-        username: 'zuck',
-      },
-    });
+    ReactTestRenderer.act(() =>
+      environment.commitPayload(ownerUser1, {
+        node: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+          username: 'zuck',
+        },
+      }),
+    );
     ownerUser1WithCondVar = createOperationDescriptor(UserQueryWithCond, {
       id: '4',
       condGlobal: false,
     });
-    environment.commitPayload(ownerUser1, {
-      node: {
-        id: '4',
-        __typename: 'User',
-        username: 'zuck',
-      },
-    });
+    ReactTestRenderer.act(() =>
+      environment.commitPayload(ownerUser1, {
+        node: {
+          id: '4',
+          __typename: 'User',
+          username: 'zuck',
+        },
+      }),
+    );
     ownerUser2 = createOperationDescriptor(UserQuery, {id: '842472'});
-    environment.commitPayload(ownerUser2, {
-      node: {
-        id: '842472',
-        __typename: 'User',
-        name: 'Joe',
-        username: 'joe',
-      },
-    });
+    ReactTestRenderer.act(() =>
+      environment.commitPayload(ownerUser2, {
+        node: {
+          id: '842472',
+          __typename: 'User',
+          name: 'Joe',
+          username: 'joe',
+        },
+      }),
+    );
   });
 
   it('resolves & subscribes fragment props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    ReactTestRenderer.act(() =>
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      ),
     );
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -218,35 +226,39 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    ReactTestRenderer.act(() =>
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      ),
     );
     const callback = environment.subscribe.mock.calls[0][1];
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    callback({
-      dataID: '4',
-      node: UserFragment,
-      variables: {cond: true},
-      data: {
-        id: '4',
-        // !== 'Zuck'
-        name: 'Mark',
-        __id: '4',
-        __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
-            {},
+    ReactTestRenderer.act(() =>
+      callback({
+        dataID: '4',
+        node: UserFragment,
+        variables: {cond: true},
+        data: {
+          id: '4',
+          // !== 'Zuck'
+          name: 'Mark',
+          __id: '4',
+          __fragments: {
+            ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+              {},
+          },
+          __fragmentOwner: ownerUser1.request,
         },
-        __fragmentOwner: ownerUser1.request,
-      },
-      relayResolverErrors: [],
-      seenRecords: {},
-      isMissingData: false,
-    });
+        relayResolverErrors: [],
+        seenRecords: {},
+        isMissingData: false,
+      }),
+    );
 
     // No need to resolve props or resubscribe
     expect(environment.lookup).not.toBeCalled();
@@ -273,19 +285,25 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
   it('resolves new props', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={variables}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment} variables={variables}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        )),
     );
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
     userPointer = environment.lookup(ownerUser2.fragment, ownerUser2).data.node;
-    instance.getInstance().setProps({
-      user: userPointer,
-    });
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        user: userPointer,
+      }),
+    );
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -337,10 +355,14 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
   it('resolves new props when ids dont change', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        )),
     );
     render.mockClear();
     environment.lookup.mockClear();
@@ -350,9 +372,11 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
       ownerUser1WithCondVar.fragment,
       ownerUser1WithCondVar,
     ).data.node;
-    instance.getInstance().setProps({
-      user: userPointer,
-    });
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        user: userPointer,
+      }),
+    );
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);

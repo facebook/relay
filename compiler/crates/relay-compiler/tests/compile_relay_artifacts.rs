@@ -113,7 +113,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
-        emit_normalization_nodes_for_client_edges: true,
         relay_resolver_enable_interface_output_type: if fixture
             .content
             .contains("# relay-resolver-enable-interface-output-type")

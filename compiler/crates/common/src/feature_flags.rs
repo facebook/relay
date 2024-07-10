@@ -66,10 +66,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub compact_query_text: FeatureFlag,
 
-    /// Create normalization nodes for client edges to client objects
-    #[serde(default = "default_as_true")]
-    pub emit_normalization_nodes_for_client_edges: bool,
-
     /// Fully build the normalization AST for Resolvers
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
@@ -128,10 +124,6 @@ pub struct FeatureFlags {
     /// Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.
     #[serde(default)]
     pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
-}
-
-fn default_as_true() -> bool {
-    true
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

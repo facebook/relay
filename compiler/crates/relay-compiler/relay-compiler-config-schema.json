@@ -627,11 +627,6 @@
               "default": false,
               "type": "boolean"
             },
-            "emit_normalization_nodes_for_client_edges": {
-              "description": "Create normalization nodes for client edges to client objects",
-              "default": true,
-              "type": "boolean"
-            },
             "enable_3d_branch_arg_generation": {
               "default": false,
               "type": "boolean"
@@ -1729,7 +1724,6 @@
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
             "disallow_required_on_non_null_fields": false,
-            "emit_normalization_nodes_for_client_edges": false,
             "enable_3d_branch_arg_generation": false,
             "enable_catch_directive_transform": {
               "kind": "disabled"
@@ -2289,11 +2283,6 @@
             "disallow_required_on_non_null_fields": {
               "description": "Disallow the `@required` directive on fields that are already non-null in the schema.",
               "default": false,
-              "type": "boolean"
-            },
-            "emit_normalization_nodes_for_client_edges": {
-              "description": "Create normalization nodes for client edges to client objects",
-              "default": true,
               "type": "boolean"
             },
             "enable_3d_branch_arg_generation": {
@@ -3643,11 +3632,6 @@
                   "disallow_required_on_non_null_fields": {
                     "description": "Disallow the `@required` directive on fields that are already non-null in the schema.",
                     "default": false,
-                    "type": "boolean"
-                  },
-                  "emit_normalization_nodes_for_client_edges": {
-                    "description": "Create normalization nodes for client edges to client objects",
-                    "default": true,
                     "type": "boolean"
                   },
                   "enable_3d_branch_arg_generation": {

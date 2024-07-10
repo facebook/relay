@@ -1692,14 +1692,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
         let backing_field = backing_field_primitives.into_iter().next().unwrap();
 
-        if !self
-            .project_config
-            .feature_flags
-            .emit_normalization_nodes_for_client_edges
-        {
-            return backing_field;
-        }
-
         let field_type = self
             .schema
             .field(client_edge_metadata.linked_field.definition.item)

@@ -132,7 +132,9 @@ afterEach(() => {
 it('should render singular fragment without error when data is available', () => {
   // $FlowFixMe[prop-missing]
   warning.mockClear();
-  renderSingularFragment();
+  TestRenderer.act(() => {
+    renderSingularFragment();
+  });
   expect(renderSpy).toHaveBeenCalledWith(
     expect.objectContaining({
       data: {
@@ -157,7 +159,9 @@ it('should not warn on missing record when null bubbles to fragment root', () =>
   // $FlowFixMe[prop-missing]
   warning.mockClear();
 
-  renderSingularFragment();
+  TestRenderer.act(() => {
+    renderSingularFragment();
+  });
   expect(renderSpy).toHaveBeenCalledWith(
     expect.objectContaining({
       data: null,

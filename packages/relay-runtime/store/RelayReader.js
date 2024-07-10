@@ -49,7 +49,6 @@ import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
 const {
   ACTOR_CHANGE,
-  ALIASED_FRAGMENT_SPREAD,
   ALIASED_INLINE_FRAGMENT_SPREAD,
   CATCH_FIELD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,

@@ -10,7 +10,6 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use ::intern::intern;
 use common::Diagnostic;
 use common::ScalarName;
 use common::SourceLocationKey;
@@ -22,6 +21,7 @@ use graphql_cli::DiagnosticPrinter;
 use graphql_syntax::ExecutableDefinition;
 use graphql_test_helpers::ProjectFixture;
 use indexmap::IndexMap;
+use intern::string_key::Intern;
 use intern::Lookup;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
@@ -116,21 +116,25 @@ fn parse_document_definitions(content: &str, path: &Path) -> Vec<ExecutableDefin
     let features = extract_graphql::extract(content);
     features
         .into_iter()
-        .filter_map(|feature| {
+        .enumerate()
+        .filter_map(|(i, feature)| {
             if let JavaScriptSourceFeature::GraphQL(graphql_source) = feature {
-                Some(graphql_source.to_text_source().text)
+                Some(
+                    graphql_syntax::parse_executable(
+                        &graphql_source.to_text_source().text,
+                        SourceLocationKey::Embedded {
+                            path: path.to_str().unwrap().intern(),
+                            index: i as u16,
+                        },
+                    )
+                    .unwrap()
+                    .definitions,
+                )
             } else {
                 None
             }
         })
-        .flat_map(|query_text| {
-            graphql_syntax::parse_executable(
-                &query_text,
-                SourceLocationKey::standalone(path.to_str().unwrap()),
-            )
-            .unwrap()
-            .definitions
-        })
+        .flatten()
         .collect()
 }
 
@@ -140,7 +144,14 @@ fn diagnostics_to_sorted_string(fixtures: &ProjectFixture, diagnostics: &[Diagno
             let source = fixtures.files().get(Path::new(path.lookup())).unwrap();
             Some(TextSource::from_whole_document(source))
         }
-        SourceLocationKey::Embedded { .. } | SourceLocationKey::Generated => unreachable!(),
+        SourceLocationKey::Embedded { path, index } => {
+            let source = fixtures.files().get(Path::new(path.lookup())).unwrap();
+            let query = extract_graphql::extract(source)[index as usize]
+                .text_source()
+                .clone();
+            Some(query)
+        }
+        SourceLocationKey::Generated => unreachable!(),
     });
     let mut printed = diagnostics
         .iter()
@@ -153,9 +164,9 @@ fn diagnostics_to_sorted_string(fixtures: &ProjectFixture, diagnostics: &[Diagno
 fn get_custom_scalar_types() -> FnvIndexMap<ScalarName, CustomScalarType> {
     let mut custom_scalar_map: FnvIndexMap<ScalarName, CustomScalarType> = FnvIndexMap::default();
     custom_scalar_map.insert(
-        ScalarName(intern!("JSON")),
+        ScalarName("JSON".intern()),
         CustomScalarType::Path(CustomScalarTypeImport {
-            name: intern!("CustomJSON"),
+            name: "CustomJSON".intern(),
             path: PathBuf::from_str("CustomScalars").unwrap(),
         }),
     );

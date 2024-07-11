@@ -24,15 +24,16 @@ export function Cat(id: DataID): Cat {
 /**
  * @RelayResolver
  */
-export function full_name(key: CatIsHungryFragment$key): ?string {
+export function picture(key: CatIsHungryFragment$key): ?string {
   const cat = readFragment(graphql`
-    fragment CatIsHungryFragment on Cat {
-      first_name
-      last_name
+    fragment CatIsHungryFragment on Cat @argumentDefinitions(
+      size: {type: "Int"},
+    ) {
+        picture_url(size: $size)
     }
   `, key);
 
-  return `${first_name} ${last_name}`;
+  return cat.picture_url;
 }
 ==================================== OUTPUT ===================================
 Field(
@@ -40,19 +41,19 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 529:538,
+                    span: 529:536,
                     token: Token {
-                        span: 529:538,
+                        span: 529:536,
                         kind: Identifier,
                     },
-                    value: "full_name",
+                    value: "picture",
                 },
                 type_: Named(
                     NamedTypeAnnotation {
                         name: Identifier {
-                            span: 571:577,
+                            span: 569:575,
                             token: Token {
-                                span: 571:577,
+                                span: 569:575,
                                 kind: Identifier,
                             },
                             value: "String",
@@ -63,7 +64,7 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 529:538,
+                span: 529:536,
             },
             type_: WithLocation {
                 location: module.js:34:40,
@@ -80,18 +81,42 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: module.js:529:538,
+            location: module.js:529:536,
             fragment_arguments: Some(
-                [],
+                [
+                    Argument {
+                        name: Identifier {
+                            span: 69:73,
+                            token: Token {
+                                span: 69:73,
+                                kind: Identifier,
+                            },
+                            value: "size",
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 0:3,
+                                    token: Token {
+                                        span: 0:3,
+                                        kind: Identifier,
+                                    },
+                                    value: "Int",
+                                },
+                            },
+                        ),
+                        default_value: None,
+                    },
+                ],
             ),
             source_hash: ResolverSourceHash(
-                "0707351e18761dc811f8a249f18a13d8",
+                "d534da5736dd3e656f91a8593a50b413",
             ),
         },
     ),
 )
 extend type Cat {
-  full_name: String @relay_resolver(fragment_name: "CatIsHungryFragment", has_output_type: true, import_name: "full_name", import_path: "module.js") @resolver_source_hash(value: "0707351e18761dc811f8a249f18a13d8")
+  picture(size: Int): String @relay_resolver(fragment_name: "CatIsHungryFragment", has_output_type: true, import_name: "picture", import_path: "module.js") @resolver_source_hash(value: "d534da5736dd3e656f91a8593a50b413")
 }
 
 
@@ -120,12 +145,12 @@ Type(
             location: module.js:449:452,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "0707351e18761dc811f8a249f18a13d8",
+                "d534da5736dd3e656f91a8593a50b413",
             ),
         },
     ),
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "0707351e18761dc811f8a249f18a13d8") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "d534da5736dd3e656f91a8593a50b413") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

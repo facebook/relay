@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4111673f2cc2c199a0e85c5c257871b3>>
+ * @generated SignedSource<<50f1a21e5f9632756fe74df275248382>>
  */
 
 mod docblock;
@@ -178,6 +178,20 @@ async fn root_fragment() {
     let input = include_str!("docblock/fixtures/root-fragment.input");
     let expected = include_str!("docblock/fixtures/root-fragment.expected");
     test_fixture(transform_fixture, file!(), "root-fragment.input", "docblock/fixtures/root-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn root_fragment_arguments() {
+    let input = include_str!("docblock/fixtures/root-fragment-arguments.input");
+    let expected = include_str!("docblock/fixtures/root-fragment-arguments.expected");
+    test_fixture(transform_fixture, file!(), "root-fragment-arguments.input", "docblock/fixtures/root-fragment-arguments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn root_fragment_arguments_error() {
+    let input = include_str!("docblock/fixtures/root-fragment-arguments.error.input");
+    let expected = include_str!("docblock/fixtures/root-fragment-arguments.error.expected");
+    test_fixture(transform_fixture, file!(), "root-fragment-arguments.error.input", "docblock/fixtures/root-fragment-arguments.error.expected", input, expected).await;
 }
 
 #[tokio::test]

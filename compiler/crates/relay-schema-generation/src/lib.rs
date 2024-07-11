@@ -72,6 +72,7 @@ use hermes_parser::ParserFlags;
 use indexmap::IndexMap;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
+use relay_docblock::Argument;
 use relay_docblock::DocblockIr;
 use relay_docblock::ResolverTypeDocblockIr;
 use relay_docblock::StrongObjectIr;
@@ -132,7 +133,7 @@ struct UnresolvedFieldDefinition {
     source_hash: ResolverSourceHash,
     is_live: Option<Location>,
     description: Option<WithLocation<StringKey>>,
-    root_fragment: Option<WithLocation<FragmentDefinitionName>>,
+    root_fragment: Option<(WithLocation<FragmentDefinitionName>, Vec<Argument>)>,
     entity_type: Option<WithLocation<StringKey>>,
 }
 
@@ -363,6 +364,16 @@ impl RelayResolverExtractor {
                     } else {
                         None
                     };
+                    if let (Some(field_arguments), Some((root_fragment, fragment_arguments))) =
+                        (&arguments, &field.root_fragment)
+                    {
+                        relay_docblock::validate_fragment_arguments(
+                            source_location,
+                            field_arguments,
+                            root_fragment.location.source_location(),
+                            fragment_arguments,
+                        )?;
+                    }
                     let description_node = field.description.map(|desc| StringNode {
                         token: Token {
                             span: desc.location.span(),
@@ -389,14 +400,15 @@ impl RelayResolverExtractor {
                     let live = field
                         .is_live
                         .map(|loc| UnpopulatedIrField { key_location: loc });
+                    let (root_fragment, fragment_arguments) = field.root_fragment.unzip();
                     self.resolved_field_definitions.push(TerseRelayResolverIr {
                         field: field_definition,
                         type_,
-                        root_fragment: field.root_fragment,
+                        root_fragment,
                         location: field.field_name.location,
                         deprecated: None,
                         live,
-                        fragment_arguments: None, // We don't support arguments right now
+                        fragment_arguments,
                         source_hash: field.source_hash,
                         semantic_non_null: None,
                     });
@@ -438,11 +450,15 @@ impl RelayResolverExtractor {
                     fragment_definition.type_condition.span,
                     fragment_definition.type_condition.type_.value,
                 ));
-                field_definition.root_fragment = Some(WithLocation::from_span(
+                let fragment = WithLocation::from_span(
                     fragment_definition.location.source_location(),
                     fragment_definition.name.span,
                     FragmentDefinitionName(fragment_definition.name.value),
-                ));
+                );
+                let fragment_arguments =
+                    relay_docblock::extract_fragment_arguments(&fragment_definition).transpose()?;
+                field_definition.root_fragment =
+                    Some((fragment, fragment_arguments.unwrap_or(vec![])));
             }
         }
         self.unresolved_field_definitions

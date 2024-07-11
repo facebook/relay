@@ -483,7 +483,10 @@ it('should dispose of entry points on unmount if the callback is called, the com
     );
   }
 
-  const outerInstance = ReactTestRenderer.create(<Outer />);
+  let outerInstance;
+  ReactTestRenderer.act(() => {
+    outerInstance = ReactTestRenderer.create(<Outer />);
+  });
   ReactTestRenderer.act(() => jest.runAllImmediates());
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
@@ -494,7 +497,7 @@ it('should dispose of entry points on unmount if the callback is called, the com
     setShouldSuspend(true);
   });
   expect(renderCount).toEqual(2);
-  expect(outerInstance.toJSON()).toEqual('fallback');
+  expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance.unmount());
   expect(dispose).toHaveBeenCalledTimes(1);
@@ -523,7 +526,10 @@ it('disposes all entry points if the callback is called, the component suspends,
     );
   }
 
-  const outerInstance = ReactTestRenderer.create(<Outer />);
+  let outerInstance;
+  ReactTestRenderer.act(() => {
+    outerInstance = ReactTestRenderer.create(<Outer />);
+  });
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
     entryPointLoaderCallback({});
@@ -535,7 +541,7 @@ it('disposes all entry points if the callback is called, the component suspends,
   });
   expect(renderCount).toEqual(2);
   expect(firstDispose).not.toHaveBeenCalled();
-  expect(outerInstance.toJSON()).toEqual('fallback');
+  expect(outerInstance?.toJSON()).toEqual('fallback');
 
   // For some reason, calling the entryPointLoaderCallback here causes a re-render,
   // *even though the component is in a suspended state.* As such, it commits and
@@ -578,13 +584,16 @@ it('disposes all entry points if the component suspends, another entry point is 
     );
   }
 
-  const outerInstance = ReactTestRenderer.create(<Outer />);
+  let outerInstance;
+  ReactTestRenderer.act(() => {
+    outerInstance = ReactTestRenderer.create(<Outer />);
+  });
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
     setShouldSuspend(true);
   });
   expect(renderCount).toEqual(1);
-  expect(outerInstance.toJSON()).toEqual('fallback');
+  expect(outerInstance?.toJSON()).toEqual('fallback');
   ReactTestRenderer.act(() => {
     entryPointLoaderCallback({});
   });

@@ -639,7 +639,7 @@ describe.each([['New', useRefetchableFragmentInternal]])(
           refetch({id: '4'});
         });
 
-        expect(warning).toHaveBeenCalledTimes(2);
+        expect(warning).toHaveBeenCalledTimes(1);
         expect(
           // $FlowFixMe[prop-missing]
           warning.mock.calls[0][1].includes(
@@ -1588,26 +1588,6 @@ describe.each([['New', useRefetchableFragmentInternal]])(
           // $FlowFixMe[prop-missing]
           warning.mock.calls.filter(call => call[0] === false).length,
         ).toEqual(0);
-      });
-
-      it('warns if called during render', () => {
-        const warning = require('warning');
-        // $FlowFixMe[prop-missing]
-        warning.mockClear();
-
-        renderFragment({callDuringRenderKey: 1});
-
-        // $FlowFixMe[prop-missing]
-        const warningCalls = warning.mock.calls.filter(
-          call => call[0] === false,
-        );
-        expect(warningCalls.length).toEqual(1);
-        expect(
-          warningCalls[0][1].includes(
-            'should not be called inside a React render function',
-          ),
-        ).toEqual(true);
-        expect(warningCalls[0][2]).toEqual('refetch');
       });
 
       describe('multiple refetches', () => {

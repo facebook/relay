@@ -20,6 +20,7 @@ import type {
 } from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
+import {useEffect, useRef} from 'react';
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
@@ -48,12 +49,12 @@ hook useLazyLoadQuery<TVariables: Variables, TData>(
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
-    UNSTABLE_renderPolicy?: RenderPolicy,
+    UNSTABLE_renderPolicy?: RenderPolicy
   },
 ): TData {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
-  useTrackLoadQueryInRender();
+  const loadQueryCleanup = useTrackLoadQueryInRender();
 
   const environment = useRelayEnvironment();
 
@@ -64,10 +65,26 @@ hook useLazyLoadQuery<TVariables: Variables, TData>(
       ? options.networkCacheConfig
       : {force: true},
   );
+
+  // Ref to store the `fetchObservable` subscription and a ref for thhe subscription object
+  const fetchObservable = useRef(fetchQuery(environment, query));
+  const subscription = useRef(null);
+
+  // Storing the subscription inside the useEffect hook directly
+  useEffect(() => {
+    subscription.current = fetchObservable.current.subscribe({});
+    return () => {
+      loadQueryCleanup();
+      // Unsubscribe from the subscription in the cleanup function 
+      subscription.current.unsubscribe();
+    };
+  }, [query, environment]);
+
+
   const data = useLazyLoadQueryNode<$FlowFixMe>({
     componentDisplayName: 'useLazyLoadQuery()',
     fetchKey: options?.fetchKey,
-    fetchObservable: fetchQuery(environment, query),
+    fetchObservable: fetchObservable.current,
     fetchPolicy: options?.fetchPolicy,
     query,
     renderPolicy: options?.UNSTABLE_renderPolicy,

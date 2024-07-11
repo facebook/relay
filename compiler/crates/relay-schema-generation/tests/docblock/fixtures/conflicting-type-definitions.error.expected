@@ -1,0 +1,142 @@
+==================================== INPUT ====================================
+//- Cat.js
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+import type {CatFlowType} from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+//- DomesticCat.js
+
+import type {CatFlowType} from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function DomesticCat(id: DataID): CatFlowType {
+  return {};
+}
+
+//- WeakCat.js
+
+/**
+ * @RelayResolver
+ */
+export type WeakCat = {
+  name: string
+}
+
+
+//- AnotherWeakCat.js
+
+// Schema validation catches duplicated GraphQL type definitions
+/**
+ * @RelayResolver
+ */
+export type WeakCat = {
+  name: string
+}
+==================================== OUTPUT ===================================
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 82:93,
+                token: Token {
+                    span: 82:93,
+                    kind: Identifier,
+                },
+                value: "DomesticCat",
+            },
+            rhs_location: DomesticCat.js:82:93,
+            root_fragment: WithLocation {
+                location: DomesticCat.js:82:93,
+                item: FragmentDefinitionName(
+                    "DomesticCat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: DomesticCat.js:82:93,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "b5a9019aafc908b4f3bc52643a3883e0",
+            ),
+        },
+    ),
+)
+type DomesticCat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "DomesticCat__id", import_name: "DomesticCat", import_path: "DomesticCat.js", inject_fragment_data: "id") @resolver_source_hash(value: "b5a9019aafc908b4f3bc52643a3883e0") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 39:46,
+                token: Token {
+                    span: 39:46,
+                    kind: Identifier,
+                },
+                value: "WeakCat",
+            },
+            rhs_location: WeakCat.js:39:46,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: WeakCat.js:39:46,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "d87c48cc6e55a86fc69fd0d1f73d6bea",
+            ),
+        },
+    ),
+)
+scalar WeakCatModel @__RelayCustomScalar(path: "WeakCat.js", export_name: "WeakCat")
+
+
+type WeakCat @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: WeakCatModel! @resolver_source_hash(value: "d87c48cc6e55a86fc69fd0d1f73d6bea") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+✖︎ Duplicate GraphQL type definitions found for flow type `CatFlowType` from `Cat`, please make sure each GraphQL type maps to a unique flow type.
+
+  Cat.js:15:17
+   14 │  */
+   15 │ export function Cat(id: DataID): CatFlowType {
+      │                 ^^^
+   16 │   return {};
+
+  ℹ︎ Previous type definition
+
+  DomesticCat.js:7:17
+    6 │  */
+    7 │ export function DomesticCat(id: DataID): CatFlowType {
+      │                 ^^^^^^^^^^^
+    8 │   return {};
+
+
+✖︎ Duplicate definition for type 'WeakCatModel'.
+
+  AnotherWeakCat.js:6:13
+    5 │  */
+    6 │ export type WeakCat = {
+      │             ^^^^^^^
+    7 │   name: string

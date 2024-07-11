@@ -95,4 +95,12 @@ pub enum SchemaGenerationError {
         "Unexpected non-nullable flow return type: `{name}`. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values."
     )]
     UnexpectedNonNullableReturnType { name: &'static str },
+
+    #[error(
+        "Duplicate GraphQL type definitions found for flow type `{import_type}` from `{module_name}`, please make sure each GraphQL type maps to a unique flow type."
+    )]
+    DuplicateTypeDefinitions {
+        module_name: StringKey,
+        import_type: JSImportType,
+    },
 }

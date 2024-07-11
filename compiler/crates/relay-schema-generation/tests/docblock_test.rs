@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2e23eb87ed9e6426db398e7b5f758f7f>>
+ * @generated SignedSource<<4111673f2cc2c199a0e85c5c257871b3>>
  */
 
 mod docblock;
@@ -17,6 +17,13 @@ async fn arguments() {
     let input = include_str!("docblock/fixtures/arguments.input");
     let expected = include_str!("docblock/fixtures/arguments.expected");
     test_fixture(transform_fixture, file!(), "arguments.input", "docblock/fixtures/arguments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn conflicting_type_definitions_error() {
+    let input = include_str!("docblock/fixtures/conflicting-type-definitions.error.input");
+    let expected = include_str!("docblock/fixtures/conflicting-type-definitions.error.expected");
+    test_fixture(transform_fixture, file!(), "conflicting-type-definitions.error.input", "docblock/fixtures/conflicting-type-definitions.error.expected", input, expected).await;
 }
 
 #[tokio::test]

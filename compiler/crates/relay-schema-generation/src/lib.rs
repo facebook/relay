@@ -12,6 +12,7 @@
 mod errors;
 mod find_resolver_imports;
 
+use std::collections::hash_map::Entry;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -513,12 +514,11 @@ impl RelayResolverExtractor {
                         .annotate(format!("{} is imported from", name.item), import_location),
                     ]);
                 };
-                self.type_definitions.insert(
+
+                self.insert_type_definition(
                     key.clone(),
                     DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(strong_object)),
-                );
-
-                Ok(())
+                )
             }
             FlowTypeAnnotation::ObjectTypeAnnotation(object_type) => Err(vec![Diagnostic::error(
                 SchemaGenerationError::ObjectNotSupported,
@@ -604,11 +604,10 @@ impl RelayResolverExtractor {
         }
 
         // Add weak object
-        self.type_definitions.insert(
+        self.insert_type_definition(
             key,
             DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(weak_object)),
-        );
-        Ok(())
+        )
     }
 
     pub fn extract_function(&self, node: &Function) -> DiagnosticsResult<ResolverFlowData> {
@@ -817,6 +816,29 @@ impl RelayResolverExtractor {
                 },
                 self.to_location(&entity_type),
             )]),
+        }
+    }
+
+    fn insert_type_definition(
+        &mut self,
+        key: ModuleResolutionKey,
+        data: DocblockIr,
+    ) -> DiagnosticsResult<()> {
+        match self.type_definitions.entry(key) {
+            Entry::Occupied(entry) => Err(vec![
+                Diagnostic::error(
+                    SchemaGenerationError::DuplicateTypeDefinitions {
+                        module_name: entry.key().module_name,
+                        import_type: entry.key().import_type,
+                    },
+                    data.location(),
+                )
+                .annotate("Previous type definition", entry.get().location()),
+            ]),
+            Entry::Vacant(entry) => {
+                entry.insert(data);
+                Ok(())
+            }
         }
     }
 }

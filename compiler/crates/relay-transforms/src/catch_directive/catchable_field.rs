@@ -23,7 +23,9 @@ use crate::CatchTo;
 #[derive(Clone, Copy)]
 pub struct CatchMetadata {
     pub to: CatchTo,
+    #[allow(dead_code)]
     pub directive_location: Location,
+    #[allow(dead_code)]
     pub to_location: Location,
 }
 

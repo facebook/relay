@@ -19,7 +19,9 @@ pub enum DocblockResolutionInfo {
     RootFragment(FragmentDefinitionName),
     FieldName(StringKey),
     FieldArgumentName {
+        #[allow(dead_code)]
         field_name: Identifier,
+        #[allow(dead_code)]
         argument_name: Identifier,
     },
     Deprecated,

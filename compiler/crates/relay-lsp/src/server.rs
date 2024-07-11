@@ -149,7 +149,7 @@ pub async fn run<
     );
 
     let task_processor = LSPTaskProcessor;
-    let task_queue = TaskQueue::new(Arc::new(task_processor));
+    let mut task_queue = TaskQueue::new(Arc::new(task_processor));
     let task_scheduler = task_queue.get_scheduler();
 
     config.artifact_writer = Box::new(NoopArtifactWriter);
@@ -186,6 +186,12 @@ fn next_task(
     }
 }
 
+static NOTIFCATIONS_MUTATING_LSP_STATE: [&str; 3] = [
+    "textDocument/didOpen",
+    "textDocument/didChange",
+    "textDocument/didClose",
+];
+
 struct LSPTaskProcessor;
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
@@ -203,6 +209,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Task::InboundMessage(Message::Response(_)) => {
                 // TODO: handle response from the client -> cancel message, etc
             }
+        }
+    }
+
+    fn is_serial_task(&self, task: &Task) -> bool {
+        match task {
+            Task::InboundMessage(Message::Notification(notification)) => {
+                NOTIFCATIONS_MUTATING_LSP_STATE.contains(&notification.method.as_str())
+            }
+            _ => false,
         }
     }
 }

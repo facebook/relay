@@ -29,10 +29,7 @@ pub fn get_docblock_definition_description(
             // The field name _is_ the definition of the field.
             Err(LSPRuntimeError::ExpectedError)
         }
-        DocblockResolutionInfo::FieldArgumentName {
-            field_name: _,
-            argument_name: _,
-        } => {
+        DocblockResolutionInfo::FieldArgumentName => {
             // The argument name _is_ the definition of the argument.
             Err(LSPRuntimeError::ExpectedError)
         }

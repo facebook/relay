@@ -1,0 +1,35 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ * @deprecated
+ *
+ * This is a strong object resolver.
+ */
+export function Cat(id: DataID): CatFlowType {
+    return {}
+}
+
+/**
+ * @RelayResolver
+ * @deprecated Use `dateOfBirth` instead.
+ *
+ * This is the age of the cat
+ * in years
+ */
+export function age(cat: CatFlowType): ?number {}
+
+/**
+ * @RelayResolver
+ * @deprecated
+ */
+export function breed(cat: CatFlowType): ?string {}

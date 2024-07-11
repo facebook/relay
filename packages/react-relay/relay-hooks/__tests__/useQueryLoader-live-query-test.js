@@ -614,7 +614,10 @@ it('should release and cancel queries on unmount if the callback is called, the 
     );
   }
 
-  const outerInstance = ReactTestRenderer.create(<Outer />);
+  let outerInstance;
+  ReactTestRenderer.act(() => {
+    outerInstance = ReactTestRenderer.create(<Outer />);
+  });
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
     /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
@@ -626,7 +629,7 @@ it('should release and cancel queries on unmount if the callback is called, the 
     setShouldSuspend(true);
   });
   expect(renderCount).toEqual(2);
-  expect(outerInstance.toJSON()).toEqual('fallback');
+  expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance.unmount());
   expect(dispose).toHaveBeenCalledTimes(1);
@@ -654,7 +657,10 @@ it('releases and cancels all queries if a the callback is called, the component 
     );
   }
 
-  const outerInstance = ReactTestRenderer.create(<Outer />);
+  let outerInstance;
+  ReactTestRenderer.act(() => {
+    outerInstance = ReactTestRenderer.create(<Outer />);
+  });
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
     /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
@@ -668,7 +674,7 @@ it('releases and cancels all queries if a the callback is called, the component 
   });
   expect(renderCount).toEqual(2);
   expect(firstDispose).not.toHaveBeenCalled();
-  expect(outerInstance.toJSON()).toEqual('fallback');
+  expect(outerInstance?.toJSON()).toEqual('fallback');
 
   ReactTestRenderer.act(() => {
     /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
@@ -677,7 +683,7 @@ it('releases and cancels all queries if a the callback is called, the component 
   });
   const secondDispose = dispose;
   expect(renderCount).toEqual(3);
-  expect(outerInstance.toJSON()).toEqual('fallback');
+  expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(firstDispose).toHaveBeenCalledTimes(1);
   expect(secondDispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance.unmount());
@@ -706,13 +712,16 @@ it('releases and cancels all queries if the component suspends, another query is
     );
   }
 
-  const outerInstance = ReactTestRenderer.create(<Outer />);
+  let outerInstance;
+  ReactTestRenderer.act(() => {
+    outerInstance = ReactTestRenderer.create(<Outer />);
+  });
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
     setShouldSuspend(true);
   });
   expect(renderCount).toEqual(1);
-  expect(outerInstance.toJSON()).toEqual('fallback');
+  expect(outerInstance?.toJSON()).toEqual('fallback');
   ReactTestRenderer.act(() => {
     /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
      * useQueryLoader */
@@ -720,7 +729,7 @@ it('releases and cancels all queries if the component suspends, another query is
   });
 
   expect(renderCount).toEqual(2);
-  expect(outerInstance.toJSON()).toEqual('fallback');
+  expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance.unmount());
   expect(dispose).toHaveBeenCalledTimes(1);

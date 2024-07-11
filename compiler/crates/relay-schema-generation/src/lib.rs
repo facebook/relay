@@ -30,6 +30,7 @@ use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
 use docblock_shared::ResolverSourceHash;
+use docblock_shared::DEPRECATED_FIELD;
 use docblock_syntax::parse_docblock;
 use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockSection;
@@ -74,6 +75,8 @@ use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_docblock::Argument;
 use relay_docblock::DocblockIr;
+use relay_docblock::IrField;
+use relay_docblock::PopulatedIrField;
 use relay_docblock::ResolverTypeDocblockIr;
 use relay_docblock::StrongObjectIr;
 use relay_docblock::TerseRelayResolverIr;
@@ -133,6 +136,7 @@ struct UnresolvedFieldDefinition {
     source_hash: ResolverSourceHash,
     is_live: Option<Location>,
     description: Option<WithLocation<StringKey>>,
+    deprecated: Option<IrField>,
     root_fragment: Option<(WithLocation<FragmentDefinitionName>, Vec<Argument>)>,
     entity_type: Option<WithLocation<StringKey>>,
 }
@@ -219,6 +223,8 @@ impl RelayResolverExtractor {
                     // TODO: Handle unwraps
                     let docblock = parse_docblock(comment, self.current_location)?;
                     let resolver_value = docblock.find_field(intern!("RelayResolver")).unwrap();
+
+                    let deprecated = get_deprecated(&docblock);
                     let description = get_description(&docblock, comment_range)?;
 
                     match self.extract_graphql_types(&node, range)? {
@@ -259,6 +265,7 @@ impl RelayResolverExtractor {
                                         source_hash,
                                         is_live,
                                         description,
+                                        deprecated,
                                         root_fragment: None,
                                         entity_type: None,
                                     },
@@ -406,7 +413,7 @@ impl RelayResolverExtractor {
                         type_,
                         root_fragment,
                         location: field.field_name.location,
-                        deprecated: None,
+                        deprecated: field.deprecated,
                         live,
                         fragment_arguments,
                         source_hash: field.source_hash,
@@ -593,6 +600,7 @@ impl RelayResolverExtractor {
                                 source_hash,
                                 is_live: None,
                                 description,
+                                deprecated: None,
                                 root_fragment: None,
                                 entity_type: Some(
                                     weak_object
@@ -1195,6 +1203,24 @@ fn get_description(
         }
     }
     Ok(description)
+}
+
+fn get_deprecated(docblock: &DocblockAST) -> Option<IrField> {
+    let mut deprecated = None;
+    if let Some(deprecated_field) = docblock.find_field(*DEPRECATED_FIELD) {
+        let key_location = deprecated_field.field_name.location;
+        if let Some(deprecated_value) = deprecated_field.field_value {
+            deprecated = Some(IrField::PopulatedIrField(PopulatedIrField {
+                key_location,
+                value: deprecated_value,
+            }));
+        } else {
+            deprecated = Some(IrField::UnpopulatedIrField(UnpopulatedIrField {
+                key_location,
+            }));
+        }
+    }
+    deprecated
 }
 
 fn generated_token() -> Token {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<50f1a21e5f9632756fe74df275248382>>
+ * @generated SignedSource<<32fc9b598394daaf7c86d2150ead46d6>>
  */
 
 mod docblock;
@@ -31,6 +31,13 @@ async fn custom_scalar() {
     let input = include_str!("docblock/fixtures/custom-scalar.input");
     let expected = include_str!("docblock/fixtures/custom-scalar.expected");
     test_fixture(transform_fixture, file!(), "custom-scalar.input", "docblock/fixtures/custom-scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn deprecated() {
+    let input = include_str!("docblock/fixtures/deprecated.input");
+    let expected = include_str!("docblock/fixtures/deprecated.expected");
+    test_fixture(transform_fixture, file!(), "deprecated.input", "docblock/fixtures/deprecated.expected", input, expected).await;
 }
 
 #[tokio::test]

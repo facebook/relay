@@ -25,11 +25,10 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
+const {loadQuery} = require('../loadQuery');
 // Need React require for OSS build
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const {
   Network,
   Observable,
@@ -40,7 +39,6 @@ const {
   createMockEnvironment,
   disallowConsoleErrors,
   disallowWarnings,
-  expectWarningWillFire,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -890,54 +888,6 @@ describe('loadQuery', () => {
         );
         preloadedQuery.dispose();
         expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
-      });
-    });
-  });
-
-  describe('warnings', () => {
-    let Container;
-    let LoadDuringRender;
-
-    beforeEach(() => {
-      Container = (props: {children: React.Node}) => {
-        // $FlowFixMe[react-rule-hook]
-        useTrackLoadQueryInRender();
-        return props.children;
-      };
-      LoadDuringRender = (props: {name?: ?string}) => {
-        loadQuery(environment, preloadableConcreteRequest, variables, {
-          fetchPolicy: 'store-or-network',
-          __nameForWarning: props.name,
-        });
-        return null;
-      };
-    });
-
-    it('warns if called during render', () => {
-      expectWarningWillFire(
-        'Relay: `loadQuery` should not be called inside a React render function.',
-      );
-
-      ReactTestRenderer.act(() => {
-        ReactTestRenderer.create(
-          <Container>
-            <LoadDuringRender />
-          </Container>,
-        );
-      });
-    });
-
-    it('uses provided name for warning', () => {
-      expectWarningWillFire(
-        'Relay: `refetch` should not be called inside a React render function.',
-      );
-
-      ReactTestRenderer.act(() => {
-        ReactTestRenderer.create(
-          <Container>
-            <LoadDuringRender name="refetch" />
-          </Container>,
-        );
       });
     });
   });

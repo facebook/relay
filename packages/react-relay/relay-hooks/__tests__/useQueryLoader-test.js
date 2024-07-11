@@ -52,7 +52,6 @@ const loadQuery = jest.fn().mockImplementation(() => {
 
 jest.mock('../loadQuery', () => ({
   loadQuery,
-  useTrackLoadQueryInRender: () => {},
 }));
 
 describe('useQueryLoader', () => {

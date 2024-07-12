@@ -12,6 +12,7 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::NamedItem;
+use errors::try2;
 use graphql_ir::reexport::Intern;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
@@ -123,15 +124,19 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
     ) -> DiagnosticsResult<()> {
         try_all(selections.iter().map(|selection| match selection {
             Selection::LinkedField(linked_field) => {
-                if linked_field
+                let field_result = match linked_field
                     .directives()
                     .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-                    .is_none()
                 {
-                    self.validate_required_field(linked_field, is_throw_on_field_error)?;
-                }
+                    Some(_) => Ok(()),
+                    None => self.validate_required_field(linked_field, is_throw_on_field_error),
+                };
 
-                self.validate_selection_fields(&linked_field.selections, is_throw_on_field_error)
+                let selection_result = self
+                    .validate_selection_fields(&linked_field.selections, is_throw_on_field_error);
+
+                try2(field_result, selection_result)?;
+                Ok(())
             }
             Selection::ScalarField(scalar_field) => {
                 self.validate_required_field(scalar_field, is_throw_on_field_error)

@@ -86,13 +86,16 @@ impl Transformer for AliasedInlineFragmentRemovalTransform {
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(metadata) = FragmentAliasMetadata::find(&fragment.directives) {
+            let selections = self
+                .transform_selections(&fragment.selections)
+                .replace_or_else(|| fragment.selections.clone());
             if metadata.wraps_spread {
-                if fragment.selections.len() != 1 {
+                if selections.len() != 1 {
                     panic!(
                         "Expected exactly one selection in an aliased inline fragment wrapping a spread. This is a bug in Relay."
                     );
                 }
-                Transformed::Replace(fragment.selections[0].clone())
+                Transformed::Replace(selections[0].clone())
             } else {
                 let directives = fragment
                     .directives
@@ -105,12 +108,12 @@ impl Transformer for AliasedInlineFragmentRemovalTransform {
                 Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
                     directives,
                     type_condition: fragment.type_condition,
-                    selections: fragment.selections.clone(),
+                    selections,
                     spread_location: fragment.spread_location,
                 })))
             }
         } else {
-            Transformed::Keep
+            self.default_transform_inline_fragment(fragment)
         }
     }
 }

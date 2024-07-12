@@ -57,22 +57,11 @@ fragment aliasedFragmentInInlineFragmentInner on User {
         "plural": false,
         "selections": [
           {
-            "fragment": {
-              "kind": "InlineFragment",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "name",
-                  "storageKey": null
-                }
-              ],
-              "type": "User",
-              "abstractKey": null
-            },
-            "kind": "AliasedInlineFragmentSpread",
-            "name": "aliasedFragmentInInlineFragmentInner"
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
           },
           {
             "alias": null,

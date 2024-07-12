@@ -1,0 +1,160 @@
+==================================== INPUT ====================================
+query aliasedFragmentInInlineFragmentQuery {
+  me {
+    ...aliasedFragmentInInlineFragment
+  }
+}
+
+fragment aliasedFragmentInInlineFragment on User {
+  ... on User {
+    ...aliasedFragmentInInlineFragmentInner @alias
+  }
+}
+
+fragment aliasedFragmentInInlineFragmentInner on User {
+  name
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "aliasedFragmentInInlineFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "aliasedFragmentInInlineFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "aliasedFragmentInInlineFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "aliasedFragmentInInlineFragmentInner"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "25d92a24505e151812d572505d78c539",
+    "id": null,
+    "metadata": {},
+    "name": "aliasedFragmentInInlineFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query aliasedFragmentInInlineFragmentQuery {
+  me {
+    ...aliasedFragmentInInlineFragment
+    id
+  }
+}
+
+fragment aliasedFragmentInInlineFragment on User {
+  ...aliasedFragmentInInlineFragmentInner
+}
+
+fragment aliasedFragmentInInlineFragmentInner on User {
+  name
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "aliasedFragmentInInlineFragment",
+  "selections": [
+    {
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "aliasedFragmentInInlineFragmentInner"
+          }
+        ],
+        "type": "User",
+        "abstractKey": null
+      },
+      "kind": "AliasedInlineFragmentSpread",
+      "name": "aliasedFragmentInInlineFragmentInner"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "aliasedFragmentInInlineFragmentInner",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

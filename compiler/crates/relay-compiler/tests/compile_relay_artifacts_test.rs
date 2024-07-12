@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c7eba94f64c41a66046e055e58dcff04>>
+ * @generated SignedSource<<fe46cbe83a01e71ebc3c03cd792eaf55>>
  */
 
 mod compile_relay_artifacts;
@@ -115,6 +115,13 @@ async fn alias_same_as_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.expected");
     test_fixture(transform_fixture, file!(), "alias-same-as-name.graphql", "compile_relay_artifacts/fixtures/alias-same-as-name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn aliased_fragment_in_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/aliased_fragment_in_inline_fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/aliased_fragment_in_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "aliased_fragment_in_inline_fragment.graphql", "compile_relay_artifacts/fixtures/aliased_fragment_in_inline_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

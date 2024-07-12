@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2d11c317125ba80603db0a7c52cf523e>>
+ * @generated SignedSource<<58762aeeff855edc7a25f98a2b63153f>>
  */
 
 mod relay_compiler_integration;
@@ -80,6 +80,13 @@ async fn error_handling_query() {
     let input = include_str!("relay_compiler_integration/fixtures/error_handling_query.input");
     let expected = include_str!("relay_compiler_integration/fixtures/error_handling_query.expected");
     test_fixture(transform_fixture, file!(), "error_handling_query.input", "relay_compiler_integration/fixtures/error_handling_query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_alias_nested_in_inline_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/fragment_alias_nested_in_inline_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/fragment_alias_nested_in_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "fragment_alias_nested_in_inline_fragment.input", "relay_compiler_integration/fixtures/fragment_alias_nested_in_inline_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

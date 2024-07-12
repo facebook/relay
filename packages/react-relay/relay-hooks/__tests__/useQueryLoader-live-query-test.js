@@ -681,13 +681,11 @@ it('releases and cancels all queries if a the callback is called, the component 
      * useQueryLoader */
     queryLoaderCallback({});
   });
-  const secondDispose = dispose;
-  expect(renderCount).toEqual(3);
+  expect(renderCount).toEqual(2);
   expect(outerInstance?.toJSON()).toEqual('fallback');
-  expect(firstDispose).toHaveBeenCalledTimes(1);
-  expect(secondDispose).not.toHaveBeenCalled();
+  expect(firstDispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());
-  expect(secondDispose).toHaveBeenCalledTimes(1);
+  expect(firstDispose).toHaveBeenCalledTimes(1);
 });
 
 it('releases and cancels all queries if the component suspends, another query is loaded and then the component unmounts', () => {
@@ -728,7 +726,7 @@ it('releases and cancels all queries if the component suspends, another query is
     queryLoaderCallback({});
   });
 
-  expect(renderCount).toEqual(2);
+  expect(renderCount).toEqual(1);
   expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());

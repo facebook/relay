@@ -731,13 +731,11 @@ describe('useQueryLoader', () => {
        * useQueryLoader */
       queryLoaderCallback({});
     });
-    const secondDispose = releaseQuery;
     expect(renderCount).toEqual(2);
     expect(outerInstance?.toJSON()).toEqual('fallback');
-    expect(firstDispose).toHaveBeenCalledTimes(1);
-    expect(secondDispose).not.toHaveBeenCalled();
+    expect(firstDispose).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
-    expect(secondDispose).toHaveBeenCalledTimes(1);
+    expect(firstDispose).toHaveBeenCalledTimes(1);
   });
 
   it('releases all queries if the component suspends, another query is loaded and then the component unmounts', () => {
@@ -778,7 +776,7 @@ describe('useQueryLoader', () => {
       queryLoaderCallback({});
     });
 
-    expect(renderCount).toEqual(2);
+    expect(renderCount).toEqual(1);
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());

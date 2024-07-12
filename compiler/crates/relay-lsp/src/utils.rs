@@ -193,9 +193,6 @@ pub fn extract_feature_from_text(
         JavaScriptSourceFeature::Docblock(docblock_source) => {
             let text_source = &docblock_source.text_source();
             let text = &text_source.text;
-            if text.contains("relay:enable-new-relay-resolver") {
-                return Err(LSPRuntimeError::ExpectedError);
-            }
 
             let executable_definitions_in_file = extract_executable_definitions_from_text_document(
                 uri,

@@ -143,7 +143,9 @@ impl Visitor for InlayHintVisitor<'_> {
 
     fn visit_linked_field(&mut self, field: &graphql_ir::LinkedField) {
         let field_def = self.schema.field(field.definition.item);
-        self.add_field_argument_hints(field_def, &field.arguments)
+        self.add_field_argument_hints(field_def, &field.arguments);
+
+        self.default_visit_linked_field(field);
     }
 
     fn visit_fragment_spread(&mut self, spread: &FragmentSpread) {
@@ -163,7 +165,9 @@ impl Visitor for InlayHintVisitor<'_> {
 
     fn visit_inline_fragment(&mut self, fragment: &InlineFragment) {
         if let Ok(Some(alias)) = fragment.alias(self.schema) {
-            self.add_alias_hint(alias.item, fragment.spread_location)
+            self.add_alias_hint(alias.item, fragment.spread_location);
         }
+
+        self.default_visit_inline_fragment(fragment)
     }
 }

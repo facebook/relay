@@ -38,6 +38,6 @@ Relay is [MIT licensed](./LICENSE).
 
 We'd like to thank [the contributors](https://github.com/facebook/relay/graphs/contributors) that helped make Relay in open source possible.
 
-The open source project [`relay-hooks`](https://github.com/relay-tools/relay-hooks) allowed the community to experiment with Relay and React Hooks, and was a source of valuable feedback for us. The idea for the `useSubscription` hook originated in [an issue](https://github.com/relay-tools/relay-hooks/issues/5#issuecomment-603930570) on that repo. Thank you @morrys for driving this project and for playing such an important role in our open source community.
+The open source project [`relay-hooks`](https://github.com/relay-tools/relay-hooks) allowed the community to experiment with Relay and React Hooks, and was a source of valuable feedback for us. The idea for the `useSubscription` hook originated in [an issue](https://github.com/relay-tools/relay-hooks/issues/5#issuecomment-603930570) on that repo. Thank you [@morrys](https://github.com/morrys) for driving this project and for playing such an important role in our open source community.
 
 Thank you for helping make this possible!

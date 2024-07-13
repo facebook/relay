@@ -18,11 +18,8 @@ jobs:
     name: Update Cargo.lock file
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.72.0
-          override: true
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.72
       - name: cargo check
         run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
       - name: pull-request

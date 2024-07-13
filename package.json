@@ -20,6 +20,11 @@
     "test-dependencies": "node ./scripts/testDependencies.js",
     "typecheck": "flow check"
   },
+  "workspaces": [
+    "packages/*",
+    "vscode-extension",
+    "website"
+  ],
   "dependencies": {
     "@babel/core": "^7.18.6",
     "@babel/generator": "^7.18.6",

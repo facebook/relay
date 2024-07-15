@@ -10,7 +10,7 @@
     "build": "gulp dist",
     "build:clean": "gulp cleanbuild",
     "build:watch": "gulp watch",
-    "jest": "cross-env NODE_ENV=test jest \"$@\"",
+    "jest": "cross-env NODE_ENV=test OSS=true jest \"$@\"",
     "lint": "eslint --max-warnings 0 .",
     "postinstall": "npm run build",
     "prepublishOnly": "npm run build:clean",

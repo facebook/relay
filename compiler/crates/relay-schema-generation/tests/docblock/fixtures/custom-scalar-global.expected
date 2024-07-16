@@ -20,16 +20,92 @@ export function Cat(id: DataID): CatFlowType {
 /**
  * @RelayResolver
  */
-export function server_id(cat: CatFlowType): GlobalID {
+export function server_id(cat: CatFlowType): ?CustomGlobalID {
   return '';
 }
 ==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 361:370,
+                    token: Token {
+                        span: 361:370,
+                        kind: Identifier,
+                    },
+                    value: "server_id",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 391:405,
+                            token: Token {
+                                span: 391:405,
+                                kind: Identifier,
+                            },
+                            value: "GlobalID",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 361:370,
+            },
+            type_: WithLocation {
+                location: Cat.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat.js:361:370,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "dfc8ee95a857f2fd4e31a1f955c041c9",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  server_id: GlobalID @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "server_id", import_path: "Cat.js") @resolver_source_hash(value: "dfc8ee95a857f2fd4e31a1f955c041c9")
+}
 
 
-✖︎ Can't find Flow type definition for `GlobalID`. Expected the type to be imported from another module, or exported from the current module
-
-  Cat.js:21:46
-   20 │  */
-   21 │ export function server_id(cat: CatFlowType): GlobalID {
-      │                                              ^^^^^^^^
-   22 │   return '';
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 272:275,
+                token: Token {
+                    span: 272:275,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: Cat.js:272:275,
+            root_fragment: WithLocation {
+                location: Cat.js:272:275,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: Cat.js:272:275,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "dfc8ee95a857f2fd4e31a1f955c041c9",
+            ),
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "dfc8ee95a857f2fd4e31a1f955c041c9") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

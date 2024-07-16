@@ -29,6 +29,7 @@ hermes_estree = { git = "https://github.com/facebook/hermes.git" }
 hermes_parser = { git = "https://github.com/facebook/hermes.git" }
 indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
+lazy_static = "1.4"
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }
 rustc-hash = "1.1.0"

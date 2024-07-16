@@ -170,5 +170,9 @@ fn get_custom_scalar_types() -> FnvIndexMap<ScalarName, CustomScalarType> {
             path: PathBuf::from_str("CustomScalars").unwrap(),
         }),
     );
+    custom_scalar_map.insert(
+        ScalarName("GlobalID".intern()),
+        CustomScalarType::Name("CustomGlobalID".intern()),
+    );
     custom_scalar_map
 }

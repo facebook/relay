@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4d7cfd31a59eabd365ffbd0813ff3669>>
+ * @generated SignedSource<<60da5f3651308056dd8af3ed89aaea8f>>
  */
 
 mod docblock;
@@ -38,6 +38,13 @@ async fn custom_scalar_global() {
     let input = include_str!("docblock/fixtures/custom-scalar-global.input");
     let expected = include_str!("docblock/fixtures/custom-scalar-global.expected");
     test_fixture(transform_fixture, file!(), "custom-scalar-global.input", "docblock/fixtures/custom-scalar-global.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn custom_scalar_global_shadow() {
+    let input = include_str!("docblock/fixtures/custom-scalar-global-shadow.input");
+    let expected = include_str!("docblock/fixtures/custom-scalar-global-shadow.expected");
+    test_fixture(transform_fixture, file!(), "custom-scalar-global-shadow.input", "docblock/fixtures/custom-scalar-global-shadow.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -13,6 +13,7 @@ mod errors;
 mod find_resolver_imports;
 
 use std::collections::hash_map::Entry;
+use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -71,6 +72,7 @@ use hermes_parser::ParseResult;
 use hermes_parser::ParserDialect;
 use hermes_parser::ParserFlags;
 use indexmap::IndexMap;
+use lazy_static::lazy_static;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_docblock::Argument;
@@ -125,7 +127,7 @@ pub struct RelayResolverExtractor {
     current_location: SourceLocationKey,
 
     // Used to map Flow types in return/argument types to GraphQL custom scalars
-    custom_scalar_map: FnvIndexMap<CustomScalarTypeImport, ScalarName>,
+    custom_scalar_map: FnvIndexMap<CustomScalarType, ScalarName>,
 }
 
 struct UnresolvedFieldDefinition {
@@ -891,7 +893,7 @@ fn string_key_to_identifier(name: WithLocation<StringKey>) -> Identifier {
 
 fn return_type_to_type_annotation(
     source_location: SourceLocationKey,
-    custom_scalar_map: &FnvIndexMap<CustomScalarTypeImport, ScalarName>,
+    custom_scalar_map: &FnvIndexMap<CustomScalarType, ScalarName>,
     return_type: &FlowTypeAnnotation,
     module_resolution: &ModuleResolution,
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
@@ -907,46 +909,52 @@ fn return_type_to_type_annotation(
             })?;
             match &node.type_parameters {
                 None => {
-                    let module_key = module_resolution.get(identifier.item).ok_or_else(|| {
-                        vec![Diagnostic::error(
-                            SchemaGenerationError::ExpectedFlowDefinitionForType {
-                                name: identifier.item,
-                            },
-                            identifier.location,
-                        )]
-                    })?;
-
-                    let scalar_key = CustomScalarTypeImport {
-                        name: identifier.item,
-                        path: PathBuf::from_str(module_key.module_name.lookup()).unwrap(),
+                    let module_key_opt = module_resolution.get(identifier.item);
+                    let scalar_key = match module_key_opt {
+                        Some(key) => CustomScalarType::Path(CustomScalarTypeImport {
+                            name: identifier.item,
+                            path: PathBuf::from_str(key.module_name.lookup()).unwrap(),
+                        }),
+                        None => CustomScalarType::Name(identifier.item),
                     };
                     let custom_scalar = custom_scalar_map.get(&scalar_key);
 
                     let graphql_typename = match custom_scalar {
-                        None => match type_definitions.get(module_key) {
-                            Some(DocblockIr::Type(
-                                ResolverTypeDocblockIr::StrongObjectResolver(object),
-                            )) => Err(vec![Diagnostic::error(
-                                SchemaGenerationError::StrongReturnTypeNotAllowed {
-                                    typename: object.type_name.value,
-                                },
-                                identifier.location,
-                            )]),
-                            Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(
-                                object,
-                            ))) => Ok(object
-                                .type_name
-                                .name_with_location(object.location.source_location())),
-                            _ => Err(vec![Diagnostic::error(
-                                SchemaGenerationError::ModuleNotFound {
-                                    entity_name: identifier.item,
-                                    export_type: module_key.import_type,
-                                    module_name: module_key.module_name,
-                                },
-                                identifier.location,
-                            )]),
-                        }?,
                         Some(scalar_name) => identifier.map(|_| scalar_name.0), // map identifer to keep the location
+                        None => {
+                            // If there is no custom scalar, expect that the Flow type is imported
+                            let module_key = module_key_opt.ok_or_else(|| {
+                                vec![Diagnostic::error(
+                                    SchemaGenerationError::ExpectedFlowDefinitionForType {
+                                        name: identifier.item,
+                                    },
+                                    identifier.location,
+                                )]
+                            })?;
+                            match type_definitions.get(module_key) {
+                                Some(DocblockIr::Type(
+                                    ResolverTypeDocblockIr::StrongObjectResolver(object),
+                                )) => Err(vec![Diagnostic::error(
+                                    SchemaGenerationError::StrongReturnTypeNotAllowed {
+                                        typename: object.type_name.value,
+                                    },
+                                    identifier.location,
+                                )]),
+                                Some(DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(
+                                    object,
+                                ))) => Ok(object
+                                    .type_name
+                                    .name_with_location(object.location.source_location())),
+                                _ => Err(vec![Diagnostic::error(
+                                    SchemaGenerationError::ModuleNotFound {
+                                        entity_name: identifier.item,
+                                        export_type: module_key.import_type,
+                                        module_name: module_key.module_name,
+                                    },
+                                    identifier.location,
+                                )]),
+                            }?
+                        }
                     };
 
                     TypeAnnotation::Named(NamedTypeAnnotation {
@@ -1094,7 +1102,7 @@ fn return_type_to_type_annotation(
 
 fn flow_type_to_field_arguments(
     source_location: SourceLocationKey,
-    custom_scalar_map: &FnvIndexMap<CustomScalarTypeImport, ScalarName>,
+    custom_scalar_map: &FnvIndexMap<CustomScalarType, ScalarName>,
     args_type: &FlowTypeAnnotation,
     module_resolution: &ModuleResolution,
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
@@ -1230,23 +1238,31 @@ fn generated_token() -> Token {
     }
 }
 
+lazy_static! {
+    static ref FLOW_PRIMATIVES: HashSet<&'static str> = HashSet::from([
+        "boolean", "string", "number", "null", "void", "symbol", "bigint",
+    ]);
+}
 fn invert_custom_scalar_map(
     custom_scalar_types: &FnvIndexMap<ScalarName, CustomScalarType>,
-) -> DiagnosticsResult<FnvIndexMap<CustomScalarTypeImport, ScalarName>> {
+) -> DiagnosticsResult<FnvIndexMap<CustomScalarType, ScalarName>> {
     let mut custom_scalar_map = FnvIndexMap::default();
     for (graphql_scalar, flow_type) in custom_scalar_types.iter() {
-        if let CustomScalarType::Path(type_import) = flow_type {
-            if custom_scalar_map.contains_key(type_import) {
-                // Multiple custom GraphQL scalars map to one Flow type
-                return Err(vec![Diagnostic::error(
-                    SchemaGenerationError::DuplicateCustomScalars {
-                        flow_type: graphql_scalar.0,
-                    },
-                    Location::generated(), // TODO is it possible to error in the config file?
-                )]);
-            } else {
-                custom_scalar_map.insert(type_import.clone(), *graphql_scalar);
+        if let CustomScalarType::Name(scalar) = flow_type {
+            if FLOW_PRIMATIVES.contains(scalar.lookup()) {
+                continue;
             }
+        }
+        if custom_scalar_map.contains_key(flow_type) {
+            // Multiple custom GraphQL scalars map to one Flow type
+            return Err(vec![Diagnostic::error(
+                SchemaGenerationError::DuplicateCustomScalars {
+                    flow_type: graphql_scalar.0,
+                },
+                Location::generated(), // TODO is it possible to error in the config file?
+            )]);
+        } else {
+            custom_scalar_map.insert(flow_type.clone(), *graphql_scalar);
         }
     }
     Ok(custom_scalar_map)

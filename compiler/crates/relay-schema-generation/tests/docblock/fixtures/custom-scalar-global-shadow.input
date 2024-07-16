@@ -8,6 +8,7 @@
 //- Cat.js
 
 import type CatFlowType from 'Cat';
+import type {CustomGlobalID} from 'GlobalIDShadow'
 
 /**
  * @RelayResolver
@@ -22,3 +23,10 @@ export function Cat(id: DataID): CatFlowType {
 export function server_id(cat: CatFlowType): ?CustomGlobalID {
   return '';
 }
+
+//- GlobalIDShadow.js
+
+/**
+ * @RelayResolver
+ */
+export type CustomGlobalID = string;

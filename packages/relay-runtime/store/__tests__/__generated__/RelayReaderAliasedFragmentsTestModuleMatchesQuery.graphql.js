@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e4433a962e951f5172582d97d2bce930>>
+ * @generated SignedSource<<a6ed51be71b0339dad7c5301c2c90dc8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 'use strict';
 
-// @dataDrivenDependency RelayReaderAliasedFragmentsTestModuleMatchesQuery.node {"branches":{"User":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderAliasedFragmentsTestModuleMatches_user$normalization.graphql"}},"plural":false}
+// @dataDrivenDependency RelayReaderAliasedFragmentsTestModuleMatchesQuery.node.aliased_fragment {"branches":{"User":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderAliasedFragmentsTestModuleMatches_user$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
@@ -59,7 +59,7 @@ v2 = {
   "selections": [
     {
       "args": null,
-      "documentName": "RelayReaderAliasedFragmentsTestModuleMatchesQuery",
+      "documentName": "RelayReaderAliasedFragmentsTestModuleMatchesQuery_aliased_fragment",
       "fragmentName": "RelayReaderAliasedFragmentsTestModuleMatches_user",
       "fragmentPropName": "user",
       "kind": "ModuleImport"
@@ -130,12 +130,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4a7639cd62769895c4173c07bc244220",
+    "cacheID": "a94a76ec6b0f3725e7fc6b6b14c4f188",
     "id": null,
     "metadata": {},
     "name": "RelayReaderAliasedFragmentsTestModuleMatchesQuery",
     "operationKind": "query",
-    "text": "query RelayReaderAliasedFragmentsTestModuleMatchesQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      ...RelayReaderAliasedFragmentsTestModuleMatches_user\n      __module_operation_RelayReaderAliasedFragmentsTestModuleMatchesQuery: js(module: \"RelayReaderAliasedFragmentsTestModuleMatches_user$normalization.graphql\", id: \"RelayReaderAliasedFragmentsTestModuleMatchesQuery.node\")\n      __module_component_RelayReaderAliasedFragmentsTestModuleMatchesQuery: js(module: \"PlainUserNameRenderer.react\", id: \"RelayReaderAliasedFragmentsTestModuleMatchesQuery.node\")\n    }\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTestModuleMatches_user on User {\n  name\n}\n"
+    "text": "query RelayReaderAliasedFragmentsTestModuleMatchesQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      ...RelayReaderAliasedFragmentsTestModuleMatches_user\n      __module_operation_RelayReaderAliasedFragmentsTestModuleMatchesQuery_aliased_fragment: js(module: \"RelayReaderAliasedFragmentsTestModuleMatches_user$normalization.graphql\", id: \"RelayReaderAliasedFragmentsTestModuleMatchesQuery.node.aliased_fragment\")\n      __module_component_RelayReaderAliasedFragmentsTestModuleMatchesQuery_aliased_fragment: js(module: \"PlainUserNameRenderer.react\", id: \"RelayReaderAliasedFragmentsTestModuleMatchesQuery.node.aliased_fragment\")\n    }\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTestModuleMatches_user on User {\n  name\n}\n"
   }
 };
 })();

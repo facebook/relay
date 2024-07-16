@@ -173,9 +173,9 @@ describe('Fragment Spreads', () => {
       '1': {
         __id: '1',
         id: '1',
-        __module_component_RelayReaderAliasedFragmentsTestModuleMatchesQuery:
+        __module_component_RelayReaderAliasedFragmentsTestModuleMatchesQuery_aliased_fragment:
           'PlainUserNameRenderer.react',
-        __module_operation_RelayReaderAliasedFragmentsTestModuleMatchesQuery:
+        __module_operation_RelayReaderAliasedFragmentsTestModuleMatchesQuery_aliased_fragment:
           'RelayReaderAliasedFragmentsTestModuleMatches_user$normalization.graphql',
         __typename: 'User',
       },
@@ -1114,6 +1114,131 @@ describe('Inline Fragments', () => {
     });
   });
 
+  it('Multiple aliased fragments with @module on the same type', () => {
+    const userTypeID = generateTypeID('User');
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __module_component_RelayReaderAliasedFragmentsTestMultipleModulesQuery_alias_a:
+          'PlainUserNameRenderer.react',
+        __module_operation_RelayReaderAliasedFragmentsTestMultipleModulesQuery_alias_a:
+          'RelayReaderAliasedFragmentsTestModuleA_user$normalization.graphql',
+        __module_component_RelayReaderAliasedFragmentsTestMultipleModulesQuery_alias_b:
+          'PlainUserNameRenderer.react',
+        __module_operation_RelayReaderAliasedFragmentsTestMultipleModulesQuery_alias_b:
+          'RelayReaderAliasedFragmentsTestModuleB_user$normalization.graphql',
+        __typename: 'User',
+      },
+      [userTypeID]: {
+        __id: userTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+      },
+    });
+
+    graphql`
+      fragment RelayReaderAliasedFragmentsTestModuleA_user on User {
+        name
+      }
+    `;
+    graphql`
+      fragment RelayReaderAliasedFragmentsTestModuleB_user on User {
+        name
+      }
+    `;
+
+    const FooQuery = graphql`
+      query RelayReaderAliasedFragmentsTestMultipleModulesQuery(
+        $id: ID!
+        $conditionA: Boolean!
+        $conditionB: Boolean!
+      ) {
+        node(id: $id) {
+          ...RelayReaderAliasedFragmentsTestModuleA_user
+            @alias(as: "alias_a")
+            @module(name: "PlainUserNameRenderer.react")
+            @include(if: $conditionA)
+          ...RelayReaderAliasedFragmentsTestModuleB_user
+            @alias(as: "alias_b")
+            @module(name: "PlainUserNameRenderer.react")
+            @include(if: $conditionB)
+        }
+      }
+    `;
+
+    function aliasA(operation) {
+      return {
+        __id: '1',
+        __fragments: {
+          RelayReaderAliasedFragmentsTestModuleA_user: {},
+        },
+        __fragmentOwner: operation.request,
+        __fragmentPropName: 'user',
+        __module_component: 'PlainUserNameRenderer.react',
+      };
+    }
+
+    function aliasB(operation) {
+      return {
+        __id: '1',
+        __fragments: {
+          RelayReaderAliasedFragmentsTestModuleB_user: {},
+        },
+        __fragmentOwner: operation.request,
+        __fragmentPropName: 'user',
+        __module_component: 'PlainUserNameRenderer.react',
+      };
+    }
+
+    // Both
+    const both = createOperationDescriptor(FooQuery, {
+      id: '1',
+      conditionA: true,
+      conditionB: true,
+    });
+    expect(read(source, both.fragment).data).toEqual({
+      node: {alias_a: aliasA(both), alias_b: aliasB(both)},
+    });
+
+    // Only A
+    const onlyA = createOperationDescriptor(FooQuery, {
+      id: '1',
+      conditionA: true,
+      conditionB: false,
+    });
+    expect(read(source, onlyA.fragment).data).toEqual({
+      node: {alias_a: aliasA(onlyA), alias_b: undefined},
+    });
+
+    // Only B
+    const onlyB = createOperationDescriptor(FooQuery, {
+      id: '1',
+      conditionA: false,
+      conditionB: true,
+    });
+    expect(read(source, onlyB.fragment).data).toEqual({
+      node: {
+        alias_a: undefined,
+        alias_b: aliasB(onlyB),
+      },
+    });
+
+    // Neither A nor B
+    const neither = createOperationDescriptor(FooQuery, {
+      id: '1',
+      conditionA: false,
+      conditionB: false,
+    });
+    expect(read(source, neither.fragment).data).toEqual({
+      node: {alias_a: undefined, alias_b: undefined},
+    });
+  });
+
   it('Kitchen sink (compose all the directives!)', () => {
     const userTypeID = generateTypeID('User');
     const source = RelayRecordSource.create({
@@ -1125,9 +1250,9 @@ describe('Inline Fragments', () => {
       '1': {
         __id: '1',
         id: '1',
-        __module_component_RelayReaderAliasedFragmentsTestKitchenSinkQuery:
+        __module_component_RelayReaderAliasedFragmentsTestKitchenSinkQuery_aliased_fragment:
           'PlainUserNameRenderer.react',
-        __module_operation_RelayReaderAliasedFragmentsTestKitchenSinkQuery:
+        __module_operation_RelayReaderAliasedFragmentsTestKitchenSinkQuery_aliased_fragment:
           'RelayReaderAliasedFragmentsTestKitchenSink_user$normalization.graphql',
         __typename: 'User',
       },

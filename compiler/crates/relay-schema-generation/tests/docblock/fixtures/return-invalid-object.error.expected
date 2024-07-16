@@ -42,7 +42,7 @@ export function friend(cat: CatFlowType): User {
 ==================================== OUTPUT ===================================
 
 
-✖︎ Can't find flow type definition for `Page`. Expected the type to be imported from another module, or exported from the current module
+✖︎ Can't find Flow type definition for `Page`. Expected the type to be imported from another module, or exported from the current module
 
   Cat-name.js:6:41
     5 │  */
@@ -51,7 +51,7 @@ export function friend(cat: CatFlowType): User {
     7 │   return {};
 
 
-✖︎ Can't find flow type definition for `User`. Expected the type to be imported from another module, or exported from the current module
+✖︎ Can't find Flow type definition for `User`. Expected the type to be imported from another module, or exported from the current module
 
   Cat-friend.js:6:43
     5 │  */

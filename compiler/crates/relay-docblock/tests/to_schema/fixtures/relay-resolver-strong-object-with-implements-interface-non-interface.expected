@@ -32,4 +32,4 @@ interface IFoo {
   ℹ︎ the other type is defined here
 
   <generated>:1:1
-Internal error: Unable to print source, start index (19502) out of range.
+Internal error: Unable to print source, start index (19518) out of range.

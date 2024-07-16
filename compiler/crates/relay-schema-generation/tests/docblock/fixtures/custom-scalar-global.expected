@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function server_id(cat: CatFlowType): GlobalID {
+  return '';
+}
+==================================== OUTPUT ===================================
+
+
+✖︎ Can't find Flow type definition for `GlobalID`. Expected the type to be imported from another module, or exported from the current module
+
+  Cat.js:21:46
+   20 │  */
+   21 │ export function server_id(cat: CatFlowType): GlobalID {
+      │                                              ^^^^^^^^
+   22 │   return '';

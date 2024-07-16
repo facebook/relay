@@ -61,7 +61,7 @@ export function name(dog: DogFlowType): ?string {
 ==================================== OUTPUT ===================================
 
 
-✖︎ Can't find flow type definition for `CatFlowType`. Expected the type to be imported from another module, or exported from the current module
+✖︎ Can't find Flow type definition for `CatFlowType`. Expected the type to be imported from another module, or exported from the current module
 
   Cat-hungry.js:5:29
     4 │  */

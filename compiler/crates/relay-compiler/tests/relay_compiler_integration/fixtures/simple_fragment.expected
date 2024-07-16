@@ -24,7 +24,6 @@ type User { name: String }
 
 /* tslint:disable */
 /* eslint-disable */
-// @ts-nocheck
 
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";

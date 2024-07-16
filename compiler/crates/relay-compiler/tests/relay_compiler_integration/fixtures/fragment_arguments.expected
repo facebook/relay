@@ -46,7 +46,6 @@ type Post {
 
 /* tslint:disable */
 /* eslint-disable */
-// @ts-nocheck
 
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -115,7 +114,6 @@ export default node;
 
 /* tslint:disable */
 /* eslint-disable */
-// @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";

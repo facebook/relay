@@ -31,7 +31,6 @@ type Query { userName: String }
 
 /* tslint:disable */
 /* eslint-disable */
-// @ts-nocheck
 
 // @relayRequestID ae6874c86ce5db2df8d6b253a6a0ec13
 
@@ -61,7 +60,6 @@ export default node;
 
 /* tslint:disable */
 /* eslint-disable */
-// @ts-nocheck
 
 // @relayRequestID ae6874c86ce5db2df8d6b253a6a0ec13
 

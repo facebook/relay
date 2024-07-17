@@ -9,7 +9,7 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
+log = { version = "0.4.22", features = ["kv_unstable", "kv_unstable_std"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_bser = "0.3"
 watchman_client = "0.8.0"

@@ -12,7 +12,7 @@ license = "MIT"
 clap = { version = "3.2.25", features = ["derive", "env", "regex", "unicode", "wrap_help"] }
 common = { path = "../common" }
 intern = { path = "../intern" }
-log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
+log = { version = "0.4.22", features = ["kv_unstable", "kv_unstable_std"] }
 relay-compiler = { path = "../relay-compiler" }
 relay-lsp = { path = "../relay-lsp" }
 schema = { path = "../schema" }

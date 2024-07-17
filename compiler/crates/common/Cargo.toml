@@ -12,7 +12,7 @@ license = "MIT"
 colored = "2.1.0"
 indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
-log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
+log = { version = "0.4.22", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-types = "0.94.1"
 md-5 = "0.10"
 rayon = "1.9.0"

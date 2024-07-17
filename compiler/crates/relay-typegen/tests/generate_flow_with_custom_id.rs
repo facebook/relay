@@ -68,7 +68,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let mut custom_scalar_types = FnvIndexMap::default();
     custom_scalar_types.insert(
         ScalarName("Boolean".intern()),
-        relay_config::CustomScalarType::Name("CustomBoolean".intern()),
+        relay_config::CustomType::Name("CustomBoolean".intern()),
     );
     let project_config = ProjectConfig {
         name: ProjectName::default(),

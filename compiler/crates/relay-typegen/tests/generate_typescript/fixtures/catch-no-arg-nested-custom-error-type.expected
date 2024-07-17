@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# relay:custom_error_type AComedyOfErrors /all/the/worlds/a/stage
+
+query FooQuery {
+  me {
+    firstName @catch
+    lastName
+  }
+}
+==================================== OUTPUT ===================================
+import { Result } from "relay-runtime";
+import { AComedyOfErrors } from "/all/the/worlds/a/stage";
+export type FooQuery$variables = Record<PropertyKey, never>;
+export type FooQuery$data = {
+  readonly me: {
+    readonly firstName: Result<string | null | undefined, ReadonlyArray<AComedyOfErrors>>;
+    readonly lastName: string | null | undefined;
+  } | null | undefined;
+};
+export type FooQuery = {
+  response: FooQuery$data;
+  variables: FooQuery$variables;
+};

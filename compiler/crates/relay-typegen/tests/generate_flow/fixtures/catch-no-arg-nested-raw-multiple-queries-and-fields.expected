@@ -1,0 +1,57 @@
+==================================== INPUT ====================================
+query MyQuery @raw_response_type {
+  me {
+    id @catch
+    name
+    profilePicture(preset: LARGE) {
+      uri
+    }
+  }
+}
+
+
+query AnotherQuery {
+  me {
+    id @catch
+    name
+  }
+}
+==================================== OUTPUT ===================================
+import type { Result } from "relay-runtime";
+export type AnotherQuery$variables = {||};
+export type AnotherQuery$data = {|
+  +me: ?{|
+    +id: Result<string, $ReadOnlyArray<mixed>>,
+    +name: ?string,
+  |},
+|};
+export type AnotherQuery = {|
+  response: AnotherQuery$data,
+  variables: AnotherQuery$variables,
+|};
+-------------------------------------------------------------------------------
+import type { Result } from "relay-runtime";
+export type MyQuery$variables = {||};
+export type MyQuery$data = {|
+  +me: ?{|
+    +id: Result<string, $ReadOnlyArray<mixed>>,
+    +name: ?string,
+    +profilePicture: ?{|
+      +uri: ?string,
+    |},
+  |},
+|};
+export type MyQuery$rawResponse = {|
+  +me: ?{|
+    +id: string,
+    +name: ?string,
+    +profilePicture: ?{|
+      +uri: ?string,
+    |},
+  |},
+|};
+export type MyQuery = {|
+  rawResponse: MyQuery$rawResponse,
+  response: MyQuery$data,
+  variables: MyQuery$variables,
+|};

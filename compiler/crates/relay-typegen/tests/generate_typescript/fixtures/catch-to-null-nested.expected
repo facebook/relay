@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query FooQuery {
+  me {
+    firstName
+    lastName @catch(to: NULL)
+  }
+}
+==================================== OUTPUT ===================================
+export type FooQuery$variables = Record<PropertyKey, never>;
+export type FooQuery$data = {
+  readonly me: {
+    readonly firstName: string | null | undefined;
+    readonly lastName: string | null | undefined;
+  } | null | undefined;
+};
+export type FooQuery = {
+  response: FooQuery$data;
+  variables: FooQuery$variables;
+};

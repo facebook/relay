@@ -33,6 +33,25 @@
             "null"
           ]
         },
+        "customErrorType": {
+          "description": "A map from GraphQL error name to import path, example: {\"name:: \"MyErrorName\", \"path\": \"../src/MyError\"}",
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "name",
+            "path"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          }
+        },
         "customScalarTypes": {
           "description": "A map from GraphQL scalar types to a custom JS type, example: { \"Url\": \"String\" } { \"Url\": {\"name:: \"MyURL\", \"path\": \"../src/MyUrlTypes\"} }",
           "default": {},
@@ -2995,6 +3014,25 @@
                   "string",
                   "null"
                 ]
+              },
+              "customErrorType": {
+                "description": "A map from GraphQL error name to import path, example: {\"name:: \"MyErrorName\", \"path\": \"../src/MyError\"}",
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "required": [
+                  "name",
+                  "path"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                }
               },
               "customScalarTypes": {
                 "description": "A map from GraphQL scalar types to a custom JS type, example: { \"Url\": \"String\" } { \"Url\": {\"name:: \"MyURL\", \"path\": \"../src/MyUrlTypes\"} }",

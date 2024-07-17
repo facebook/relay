@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me @catch {
+    id
+    name
+  }
+}
+==================================== OUTPUT ===================================
+import type { Result } from "relay-runtime";
+export type MyQuery$variables = {||};
+export type MyQuery$data = {|
+  +me: Result<?{|
+    +id: string,
+    +name: ?string,
+  |}, $ReadOnlyArray<mixed>>,
+|};
+export type MyQuery = {|
+  response: MyQuery$data,
+  variables: MyQuery$variables,
+|};

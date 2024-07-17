@@ -7,6 +7,8 @@
 
 use std::sync::Arc;
 
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -20,8 +22,7 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
+use intern::intern;
 use lazy_static::lazy_static;
 mod catchable_field;
 mod validation_message;
@@ -34,10 +35,10 @@ use crate::catch_directive::validation_message::ValidationMessage;
 use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
-    pub static ref CATCH_DIRECTIVE_NAME: DirectiveName = DirectiveName("catch".intern());
-    pub static ref NULL_TO: StringKey = "NULL".intern();
-    pub static ref RESULT_TO: StringKey = "RESULT".intern();
-    pub static ref TO_ARGUMENT: ArgumentName = ArgumentName("to".intern());
+    pub static ref CATCH_DIRECTIVE_NAME: DirectiveName = DirectiveName(intern!("catch"));
+    pub static ref NULL_TO: StringKey = intern!("NULL");
+    pub static ref RESULT_TO: StringKey = intern!("RESULT");
+    pub static ref TO_ARGUMENT: ArgumentName = ArgumentName(intern!("to"));
 }
 
 // Possible @catch `to` enum values ordered by severity.
@@ -65,12 +66,21 @@ impl From<CatchTo> for StringKey {
         }
     }
 }
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct CatchMetadataDirective {
     pub to: CatchTo,
     pub path: StringKey,
 }
 associated_data_impl!(CatchMetadataDirective);
+
+pub fn catch_to_with_fallback(catch_to: Option<CatchTo>) -> CatchTo {
+    match catch_to {
+        Some(to) => to,
+        // @catch without an argument is always RESULT
+        None => CatchTo::Result,
+    }
+}
 
 pub fn catch_directive(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
     let mut transform = CatchDirective::new(program, enabled);
@@ -214,13 +224,13 @@ impl<'s> Transformer for CatchDirective<'s> {
 fn add_metadata_directive(
     directives: &[Directive],
     path_name: StringKey,
-    to: CatchTo,
+    to: Option<CatchTo>,
 ) -> Vec<Directive> {
     let mut next_directives: Vec<Directive> = Vec::with_capacity(directives.len() + 1);
     next_directives.extend(directives.iter().cloned());
     next_directives.push(
         CatchMetadataDirective {
-            to,
+            to: catch_to_with_fallback(to),
             path: path_name,
         }
         .into(),

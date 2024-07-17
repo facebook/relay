@@ -28,6 +28,7 @@ use crate::KEY_DATA_ID;
 use crate::LIVE_RESOLVERS_LIVE_STATE;
 use crate::LOCAL_3D_PAYLOAD;
 use crate::RELAY_RUNTIME;
+use crate::RESULT_TYPE_NAME;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
 /// contains information about whether and how to write import types.
@@ -37,6 +38,7 @@ pub(crate) struct RuntimeImports {
     pub(crate) generic_fragment_type: bool,
     pub(crate) resolver_live_state_type: bool,
     pub(crate) data_id_type: bool,
+    pub(crate) result_type: bool,
 }
 
 impl RuntimeImports {
@@ -53,6 +55,9 @@ impl RuntimeImports {
         }
         if self.data_id_type {
             runtime_import_types.push(KEY_DATA_ID.lookup());
+        }
+        if self.result_type {
+            runtime_import_types.push(RESULT_TYPE_NAME.lookup());
         }
         if !runtime_import_types.is_empty() {
             writer.write_import_type(&runtime_import_types, RELAY_RUNTIME)

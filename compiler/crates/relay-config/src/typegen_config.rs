@@ -16,6 +16,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use strum::EnumIter;
 use strum::IntoEnumIterator;
+
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 #[derive(
@@ -48,13 +49,13 @@ impl TypegenLanguage {
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, Hash, PartialEq, Eq)]
 #[serde(untagged)]
-pub enum CustomScalarType {
+pub enum CustomType {
     Name(StringKey),
-    Path(CustomScalarTypeImport),
+    Path(CustomTypeImport),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, Hash, PartialEq, Eq)]
-pub struct CustomScalarTypeImport {
+pub struct CustomTypeImport {
     pub name: StringKey,
     pub path: PathBuf,
 }
@@ -89,7 +90,7 @@ pub struct TypegenConfig {
     /// { "Url": "String" }
     /// { "Url": {"name:: "MyURL", "path": "../src/MyUrlTypes"} }
     #[serde(default)]
-    pub custom_scalar_types: FnvIndexMap<ScalarName, CustomScalarType>,
+    pub custom_scalar_types: FnvIndexMap<ScalarName, CustomType>,
 
     /// Require all GraphQL scalar types mapping to be defined, will throw
     /// if a GraphQL scalar type doesn't have a JS type
@@ -124,6 +125,10 @@ pub struct TypegenConfig {
     /// https://github.com/apollographql/specs/pull/42
     #[serde(default)]
     pub experimental_emit_semantic_nullability_types: bool,
+
+    /// A map from GraphQL error name to import path, example:
+    /// {"name:: "MyErrorName", "path": "../src/MyError"}
+    pub custom_error_type: Option<CustomTypeImport>,
 }
 
 impl Default for TypegenConfig {
@@ -139,6 +144,7 @@ impl Default for TypegenConfig {
             eager_es_modules: Default::default(),
             typescript_exclude_undefined_from_nullable_union: Default::default(),
             experimental_emit_semantic_nullability_types: Default::default(),
+            custom_error_type: None,
         }
     }
 }

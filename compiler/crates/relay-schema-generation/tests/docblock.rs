@@ -23,8 +23,8 @@ use graphql_test_helpers::ProjectFixture;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::Lookup;
-use relay_config::CustomScalarType;
-use relay_config::CustomScalarTypeImport;
+use relay_config::CustomType;
+use relay_config::CustomTypeImport;
 use relay_config::ProjectName;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::DocblockIr;
@@ -161,18 +161,18 @@ fn diagnostics_to_sorted_string(fixtures: &ProjectFixture, diagnostics: &[Diagno
     printed.join("\n\n")
 }
 
-fn get_custom_scalar_types() -> FnvIndexMap<ScalarName, CustomScalarType> {
-    let mut custom_scalar_map: FnvIndexMap<ScalarName, CustomScalarType> = FnvIndexMap::default();
+fn get_custom_scalar_types() -> FnvIndexMap<ScalarName, CustomType> {
+    let mut custom_scalar_map: FnvIndexMap<ScalarName, CustomType> = FnvIndexMap::default();
     custom_scalar_map.insert(
         ScalarName("JSON".intern()),
-        CustomScalarType::Path(CustomScalarTypeImport {
+        CustomType::Path(CustomTypeImport {
             name: "CustomJSON".intern(),
             path: PathBuf::from_str("CustomScalars").unwrap(),
         }),
     );
     custom_scalar_map.insert(
         ScalarName("GlobalID".intern()),
-        CustomScalarType::Name("CustomGlobalID".intern()),
+        CustomType::Name("CustomGlobalID".intern()),
     );
     custom_scalar_map
 }

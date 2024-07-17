@@ -24,6 +24,7 @@ use graphql_ir::Selection;
 use indexmap::IndexMap;
 use itertools::Itertools;
 use lazy_static::lazy_static;
+use relay_config::CustomTypeImport;
 use relay_config::JsModuleFormat;
 use relay_config::TypegenLanguage;
 use relay_transforms::RefetchableDerivedFromMetadata;
@@ -93,6 +94,7 @@ pub(crate) fn write_operation_type_exports_section(
     let mut imported_resolvers = Default::default();
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut runtime_imports = RuntimeImports::default();
+    let mut custom_error_import = None;
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
     let mut imported_raw_response_types = Default::default();
@@ -113,23 +115,28 @@ pub(crate) fn write_operation_type_exports_section(
         &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
+        &mut custom_error_import,
         None,
         is_throw_on_field_error,
     );
+
+    let emit_optional_type = typegen_operation
+        .directives
+        .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+        .is_some();
 
     let data_type = get_data_type(
         typegen_context,
         type_selections.into_iter(),
         MaskStatus::Masked, // Queries are never unmasked
         None,
-        typegen_operation
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-            .is_some(),
+        emit_optional_type,
         false, // Query types can never be plural
         &mut encountered_enums,
         &mut encountered_fragments,
         &mut custom_scalars,
+        &mut runtime_imports,
+        &mut custom_error_import,
     );
 
     let raw_response_type_and_match_fields =
@@ -178,6 +185,9 @@ pub(crate) fn write_operation_type_exports_section(
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
+    if custom_error_import.is_some() {
+        write_import_custom_type(custom_error_import, writer)?;
+    }
     write_relay_resolver_imports(imported_resolvers, writer)?;
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
@@ -349,6 +359,7 @@ pub(crate) fn write_fragment_type_exports_section(
         generic_fragment_type: true,
         ..Default::default()
     };
+    let mut custom_error_import: Option<CustomTypeImport> = None;
     let mut imported_raw_response_types = Default::default();
 
     let mut type_selections = visit_selections(
@@ -362,6 +373,7 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
+        &mut custom_error_import,
         None,
         is_throw_on_field_error,
     );
@@ -429,6 +441,8 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut encountered_enums,
         &mut encountered_fragments,
         &mut custom_scalars,
+        &mut runtime_imports,
+        &mut custom_error_import,
     );
 
     write_import_actor_change_point(actor_change_status, writer)?;
@@ -487,6 +501,23 @@ pub(crate) fn write_fragment_type_exports_section(
     }
 
     Ok(())
+}
+
+fn write_import_custom_type(
+    custom_type_import: Option<CustomTypeImport>,
+    writer: &mut Box<dyn Writer>,
+) -> FmtResult {
+    match custom_type_import {
+        Some(custom_type_import) => {
+            let names = &[custom_type_import.name.lookup()];
+            let path = &custom_type_import.path.to_str();
+            match path {
+                Some(path) => writer.write_import_type(names, path),
+                _ => Ok(()),
+            }
+        }
+        _ => Ok(()),
+    }
 }
 
 fn write_fragment_imports(

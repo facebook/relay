@@ -73,8 +73,8 @@ use hermes_parser::ParserDialect;
 use hermes_parser::ParserFlags;
 use indexmap::IndexMap;
 use lazy_static::lazy_static;
-use relay_config::CustomScalarType;
-use relay_config::CustomScalarTypeImport;
+use relay_config::CustomType;
+use relay_config::CustomTypeImport;
 use relay_docblock::Argument;
 use relay_docblock::DocblockIr;
 use relay_docblock::IrField;
@@ -127,7 +127,7 @@ pub struct RelayResolverExtractor {
     current_location: SourceLocationKey,
 
     // Used to map Flow types in return/argument types to GraphQL custom scalars
-    custom_scalar_map: FnvIndexMap<CustomScalarType, ScalarName>,
+    custom_scalar_map: FnvIndexMap<CustomType, ScalarName>,
 }
 
 struct UnresolvedFieldDefinition {
@@ -163,7 +163,7 @@ impl RelayResolverExtractor {
 
     pub fn set_custom_scalar_map(
         &mut self,
-        custom_scalar_types: &FnvIndexMap<ScalarName, CustomScalarType>,
+        custom_scalar_types: &FnvIndexMap<ScalarName, CustomType>,
     ) -> DiagnosticsResult<()> {
         self.custom_scalar_map = invert_custom_scalar_map(custom_scalar_types)?;
         Ok(())
@@ -893,7 +893,7 @@ fn string_key_to_identifier(name: WithLocation<StringKey>) -> Identifier {
 
 fn return_type_to_type_annotation(
     source_location: SourceLocationKey,
-    custom_scalar_map: &FnvIndexMap<CustomScalarType, ScalarName>,
+    custom_scalar_map: &FnvIndexMap<CustomType, ScalarName>,
     return_type: &FlowTypeAnnotation,
     module_resolution: &ModuleResolution,
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
@@ -911,11 +911,11 @@ fn return_type_to_type_annotation(
                 None => {
                     let module_key_opt = module_resolution.get(identifier.item);
                     let scalar_key = match module_key_opt {
-                        Some(key) => CustomScalarType::Path(CustomScalarTypeImport {
+                        Some(key) => CustomType::Path(CustomTypeImport {
                             name: identifier.item,
                             path: PathBuf::from_str(key.module_name.lookup()).unwrap(),
                         }),
-                        None => CustomScalarType::Name(identifier.item),
+                        None => CustomType::Name(identifier.item),
                     };
                     let custom_scalar = custom_scalar_map.get(&scalar_key);
 
@@ -1102,7 +1102,7 @@ fn return_type_to_type_annotation(
 
 fn flow_type_to_field_arguments(
     source_location: SourceLocationKey,
-    custom_scalar_map: &FnvIndexMap<CustomScalarType, ScalarName>,
+    custom_scalar_map: &FnvIndexMap<CustomType, ScalarName>,
     args_type: &FlowTypeAnnotation,
     module_resolution: &ModuleResolution,
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
@@ -1244,11 +1244,11 @@ lazy_static! {
     ]);
 }
 fn invert_custom_scalar_map(
-    custom_scalar_types: &FnvIndexMap<ScalarName, CustomScalarType>,
-) -> DiagnosticsResult<FnvIndexMap<CustomScalarType, ScalarName>> {
+    custom_scalar_types: &FnvIndexMap<ScalarName, CustomType>,
+) -> DiagnosticsResult<FnvIndexMap<CustomType, ScalarName>> {
     let mut custom_scalar_map = FnvIndexMap::default();
     for (graphql_scalar, flow_type) in custom_scalar_types.iter() {
-        if let CustomScalarType::Name(scalar) = flow_type {
+        if let CustomType::Name(scalar) = flow_type {
             if FLOW_PRIMATIVES.contains(scalar.lookup()) {
                 continue;
             }

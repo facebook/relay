@@ -1,0 +1,10 @@
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on ClientUser @throwOnFieldError {
+  name @catch(to: NULL)
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}

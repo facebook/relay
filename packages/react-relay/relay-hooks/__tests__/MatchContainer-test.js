@@ -55,7 +55,7 @@ describe('MatchContainer', () => {
 
     loader = jest.fn<
       [mixed],
-      React$AbstractComponent<any | {otherProp: string}, any>,
+      React.AbstractComponent<any | {otherProp: string}, any>,
     >();
     // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     UserComponent = jest.fn(props => (

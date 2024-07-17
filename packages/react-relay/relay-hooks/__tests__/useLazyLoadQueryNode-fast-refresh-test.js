@@ -29,7 +29,7 @@ const {
 const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToBeRendered(
-  renderFn: JestMockFn<Array<mixed>, any & React$Node>,
+  renderFn: JestMockFn<Array<mixed>, any & React.Node>,
   readyState: ?SelectorData,
 ) {
   // Ensure useEffect is called before other timers

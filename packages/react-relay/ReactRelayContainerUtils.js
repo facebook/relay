@@ -11,11 +11,11 @@
 
 'use strict';
 
-function getComponentName(component: React$ComponentType<any>): string {
+function getComponentName(component: React.ComponentType<any>): string {
   return component.displayName || component.name || 'Component';
 }
 
-function getContainerName(Component: React$ComponentType<any>): string {
+function getContainerName(Component: React.ComponentType<any>): string {
   return 'Relay(' + getComponentName(Component) + ')';
 }
 

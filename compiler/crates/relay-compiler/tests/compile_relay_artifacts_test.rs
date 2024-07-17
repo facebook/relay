@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fe46cbe83a01e71ebc3c03cd792eaf55>>
+ * @generated SignedSource<<dbf0f60ac4e61d6b6aebdd60653a271a>>
  */
 
 mod compile_relay_artifacts;
@@ -818,10 +818,10 @@ async fn module_overlap_across_documents() {
 }
 
 #[tokio::test]
-async fn module_overlap_within_document_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected");
-    test_fixture(transform_fixture, file!(), "module-overlap-within-document.invalid.graphql", "compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected", input, expected).await;
+async fn module_overlap_within_document() {
+    let input = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.expected");
+    test_fixture(transform_fixture, file!(), "module-overlap-within-document.graphql", "compile_relay_artifacts/fixtures/module-overlap-within-document.expected", input, expected).await;
 }
 
 #[tokio::test]

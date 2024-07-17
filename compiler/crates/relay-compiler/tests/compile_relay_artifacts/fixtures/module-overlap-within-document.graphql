@@ -1,4 +1,3 @@
-# expected-to-throw
 query moduleOverlapWithinDocument_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
     ...moduleOverlapWithinDocument_FooNameRendererFragment

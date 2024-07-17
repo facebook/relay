@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dbf0f60ac4e61d6b6aebdd60653a271a>>
+ * @generated SignedSource<<d4e65b5354b1c9ee178a587546e6d0ef>>
  */
 
 mod compile_relay_artifacts;
@@ -825,6 +825,13 @@ async fn module_overlap_within_document() {
 }
 
 #[tokio::test]
+async fn module_with_alias() {
+    let input = include_str!("compile_relay_artifacts/fixtures/module-with-alias.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/module-with-alias.expected");
+    test_fixture(transform_fixture, file!(), "module-with-alias.graphql", "compile_relay_artifacts/fixtures/module-with-alias.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn module_with_defer() {
     let input = include_str!("compile_relay_artifacts/fixtures/module-with-defer.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/module-with-defer.expected");
@@ -843,6 +850,20 @@ async fn multiple_conditions() {
     let input = include_str!("compile_relay_artifacts/fixtures/multiple_conditions.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/multiple_conditions.expected");
     test_fixture(transform_fixture, file!(), "multiple_conditions.graphql", "compile_relay_artifacts/fixtures/multiple_conditions.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_module_with_alias() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-module-with-alias.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-module-with-alias.expected");
+    test_fixture(transform_fixture, file!(), "multiple-module-with-alias.graphql", "compile_relay_artifacts/fixtures/multiple-module-with-alias.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_module_with_aliased_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-module-with-aliased-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-module-with-aliased-inline-fragment.expected");
+    test_fixture(transform_fixture, file!(), "multiple-module-with-aliased-inline-fragment.graphql", "compile_relay_artifacts/fixtures/multiple-module-with-aliased-inline-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

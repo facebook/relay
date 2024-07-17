@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<69ce567c6fdcad15ae3f85b493df8f16>>
+ * @generated SignedSource<<0f635e1223ce0a75546d8f1bcf5f6c43>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 'use strict';
 
-// @dataDrivenDependency RelayReaderAliasedFragmentsTestKitchenSinkQuery.node {"branches":{"User":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderAliasedFragmentsTestKitchenSink_user$normalization.graphql"}},"plural":false}
+// @dataDrivenDependency RelayReaderAliasedFragmentsTestKitchenSinkQuery.node.aliased_fragment {"branches":{"User":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderAliasedFragmentsTestKitchenSink_user$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
@@ -67,7 +67,7 @@ v3 = [
 v4 = [
   {
     "args": null,
-    "documentName": "RelayReaderAliasedFragmentsTestKitchenSinkQuery",
+    "documentName": "RelayReaderAliasedFragmentsTestKitchenSinkQuery_aliased_fragment",
     "fragmentName": "RelayReaderAliasedFragmentsTestKitchenSink_user",
     "fragmentPropName": "user",
     "kind": "ModuleImport"
@@ -179,12 +179,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "f3d045f03aa63d13ef58ad191df1355b",
+    "cacheID": "4f41799dae79fea7b1dd6890150a707c",
     "id": null,
     "metadata": {},
     "name": "RelayReaderAliasedFragmentsTestKitchenSinkQuery",
     "operationKind": "query",
-    "text": "query RelayReaderAliasedFragmentsTestKitchenSinkQuery(\n  $id: ID!\n  $shouldSkip: Boolean!\n  $shouldDefer: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ... @skip(if: $shouldSkip) @defer(label: \"RelayReaderAliasedFragmentsTestKitchenSinkQuery$defer$RelayReaderAliasedFragmentsTestKitchenSink_user\", if: $shouldDefer) {\n      ... on User {\n        ...RelayReaderAliasedFragmentsTestKitchenSink_user\n        __module_operation_RelayReaderAliasedFragmentsTestKitchenSinkQuery: js(module: \"RelayReaderAliasedFragmentsTestKitchenSink_user$normalization.graphql\", id: \"RelayReaderAliasedFragmentsTestKitchenSinkQuery.node\")\n        __module_component_RelayReaderAliasedFragmentsTestKitchenSinkQuery: js(module: \"PlainUserNameRenderer.react\", id: \"RelayReaderAliasedFragmentsTestKitchenSinkQuery.node\")\n      }\n    }\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTestKitchenSink_user on User {\n  name\n}\n"
+    "text": "query RelayReaderAliasedFragmentsTestKitchenSinkQuery(\n  $id: ID!\n  $shouldSkip: Boolean!\n  $shouldDefer: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ... @skip(if: $shouldSkip) @defer(label: \"RelayReaderAliasedFragmentsTestKitchenSinkQuery$defer$RelayReaderAliasedFragmentsTestKitchenSink_user\", if: $shouldDefer) {\n      ... on User {\n        ...RelayReaderAliasedFragmentsTestKitchenSink_user\n        __module_operation_RelayReaderAliasedFragmentsTestKitchenSinkQuery_aliased_fragment: js(module: \"RelayReaderAliasedFragmentsTestKitchenSink_user$normalization.graphql\", id: \"RelayReaderAliasedFragmentsTestKitchenSinkQuery.node.aliased_fragment\")\n        __module_component_RelayReaderAliasedFragmentsTestKitchenSinkQuery_aliased_fragment: js(module: \"PlainUserNameRenderer.react\", id: \"RelayReaderAliasedFragmentsTestKitchenSinkQuery.node.aliased_fragment\")\n      }\n    }\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTestKitchenSink_user on User {\n  name\n}\n"
   }
 };
 })();

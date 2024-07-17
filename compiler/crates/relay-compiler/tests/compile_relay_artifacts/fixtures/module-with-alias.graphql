@@ -1,0 +1,18 @@
+query moduleWithAliasQuery($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      nameRenderer {
+        ...moduleWithAliasFragment_propName
+          @module(name: "FooMarkdownUserNameRenderer.react")
+          @alias
+      }
+    }
+  }
+}
+
+fragment moduleWithAliasFragment_propName on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

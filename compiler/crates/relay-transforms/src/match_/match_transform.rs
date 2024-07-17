@@ -9,6 +9,9 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::sync::Arc;
 
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use ::intern::Lookup;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -41,9 +44,6 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use indexmap::IndexSet;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::Lookup;
 use relay_config::DeferStreamInterface;
 use relay_config::ModuleImportConfig;
 use schema::FieldID;
@@ -115,6 +115,7 @@ pub struct MatchTransform<'program, 'flag> {
     match_directive_key_argument: Option<StringKey>,
     errors: Vec<Diagnostic>,
     path: Vec<Path>,
+    alias_path: Vec<StringKey>,
     matches_for_path: MatchesForPath,
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
@@ -141,6 +142,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             match_directive_key_argument: None,
             errors: Vec::new(),
             path: Default::default(),
+            alias_path: Default::default(),
             matches_for_path: Default::default(),
             enable_3d_branch_arg_generation: feature_flags.enable_3d_branch_arg_generation,
             no_inline_flag: &feature_flags.no_inline,
@@ -378,9 +380,20 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             let parent_name = self.path.last();
             // self.match_directive_key_argument is the value passed to @match(key: "...") that we
             // most recently encountered while traversing the operation, or the document name
-            let match_directive_key_argument = self
+            let mut match_directive_key_argument = self
                 .match_directive_key_argument
                 .unwrap_or_else(|| self.document_name.into());
+
+            if !self.alias_path.is_empty() {
+                let alias_path_str = self
+                    .alias_path
+                    .iter()
+                    .map(|alias| alias.lookup())
+                    .collect::<Vec<&str>>()
+                    .join("_");
+                match_directive_key_argument =
+                    format!("{}_{}", match_directive_key_argument, alias_path_str).intern();
+            }
 
             // If this is the first time we are encountering @module at this path, also ensure
             // that we have not previously encountered another @module associated with the same
@@ -883,7 +896,15 @@ impl Transformer for MatchTransform<'_, '_> {
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        if let Some(type_) = fragment.type_condition {
+        let maybe_alias_metadata = FragmentAliasMetadata::find(&fragment.directives);
+        if let Some(alias_metadata) = maybe_alias_metadata {
+            self.alias_path.push(alias_metadata.alias.item);
+            self.path.push(Path {
+                location: alias_metadata.alias.location,
+                item: alias_metadata.alias.item,
+            });
+        }
+        let transformed = if let Some(type_) = fragment.type_condition {
             let previous_parent_type = self.parent_type;
             self.parent_type = type_;
             let result = self.default_transform_inline_fragment(fragment);
@@ -891,7 +912,13 @@ impl Transformer for MatchTransform<'_, '_> {
             result
         } else {
             self.default_transform_inline_fragment(fragment)
+        };
+        if maybe_alias_metadata.is_some() {
+            self.alias_path.pop();
+            self.path.pop();
         }
+
+        transformed
     }
 
     // Validate `js` field

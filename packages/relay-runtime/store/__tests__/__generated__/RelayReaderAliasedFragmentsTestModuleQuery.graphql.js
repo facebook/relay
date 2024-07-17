@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8b62361e8f91cc9a7b8f369c8fcadc07>>
+ * @generated SignedSource<<e601ab9ce3e4b6af164e20ce3b64f3e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 'use strict';
 
-// @dataDrivenDependency RelayReaderAliasedFragmentsTestModuleQuery.node {"branches":{"User":{"component":"SomeModuleName","fragment":"RelayReaderAliasedFragmentsTestModule_user$normalization.graphql"}},"plural":false}
+// @dataDrivenDependency RelayReaderAliasedFragmentsTestModuleQuery.node.aliased_fragment {"branches":{"User":{"component":"SomeModuleName","fragment":"RelayReaderAliasedFragmentsTestModule_user$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
@@ -59,7 +59,7 @@ v2 = {
   "selections": [
     {
       "args": null,
-      "documentName": "RelayReaderAliasedFragmentsTestModuleQuery",
+      "documentName": "RelayReaderAliasedFragmentsTestModuleQuery_aliased_fragment",
       "fragmentName": "RelayReaderAliasedFragmentsTestModule_user",
       "fragmentPropName": "user",
       "kind": "ModuleImport"
@@ -130,12 +130,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "747f1fdb5be4d1a2a3bfdef5dffe06da",
+    "cacheID": "590e37c92dcd029eda6bb7ffcc3920e9",
     "id": null,
     "metadata": {},
     "name": "RelayReaderAliasedFragmentsTestModuleQuery",
     "operationKind": "query",
-    "text": "query RelayReaderAliasedFragmentsTestModuleQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      ...RelayReaderAliasedFragmentsTestModule_user\n      __module_operation_RelayReaderAliasedFragmentsTestModuleQuery: js(module: \"RelayReaderAliasedFragmentsTestModule_user$normalization.graphql\", id: \"RelayReaderAliasedFragmentsTestModuleQuery.node\")\n      __module_component_RelayReaderAliasedFragmentsTestModuleQuery: js(module: \"SomeModuleName\", id: \"RelayReaderAliasedFragmentsTestModuleQuery.node\")\n    }\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTestModule_user on User {\n  name\n}\n"
+    "text": "query RelayReaderAliasedFragmentsTestModuleQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      ...RelayReaderAliasedFragmentsTestModule_user\n      __module_operation_RelayReaderAliasedFragmentsTestModuleQuery_aliased_fragment: js(module: \"RelayReaderAliasedFragmentsTestModule_user$normalization.graphql\", id: \"RelayReaderAliasedFragmentsTestModuleQuery.node.aliased_fragment\")\n      __module_component_RelayReaderAliasedFragmentsTestModuleQuery_aliased_fragment: js(module: \"SomeModuleName\", id: \"RelayReaderAliasedFragmentsTestModuleQuery.node.aliased_fragment\")\n    }\n    id\n  }\n}\n\nfragment RelayReaderAliasedFragmentsTestModule_user on User {\n  name\n}\n"
   }
 };
 })();

@@ -140,6 +140,7 @@ if (__DEV__) {
       {...record},
       {
         get(target, prop) {
+          // $FlowFixMe[invalid-computed-prop]
           const value = target[prop];
           if (value == null) {
             return value;

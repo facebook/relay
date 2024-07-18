@@ -24,6 +24,6 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "prettier": "2.8.8",
-    "prettier-plugin-hermes-parser": "0.22.0"
+    "prettier-plugin-hermes-parser": "0.23.0"
   }
 }

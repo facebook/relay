@@ -160,16 +160,20 @@ beforeEach(() => {
   };
 
   render = (env: RelayMockEnvironment, children: React.Node) => {
-    return ReactTestRenderer.create(
-      <RelayEnvironmentProvider environment={env}>
-        <ErrorBoundary
-          fallback={({error}) =>
-            `Error: ${error.message + ': ' + error.stack}`
-          }>
-          <React.Suspense fallback="Fallback">{children}</React.Suspense>
-        </ErrorBoundary>
-      </RelayEnvironmentProvider>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <RelayEnvironmentProvider environment={env}>
+          <ErrorBoundary
+            fallback={({error}) =>
+              `Error: ${error.message + ': ' + error.stack}`
+            }>
+            <React.Suspense fallback="Fallback">{children}</React.Suspense>
+          </ErrorBoundary>
+        </RelayEnvironmentProvider>,
+      );
+    });
+    return instance;
   };
 
   logs = [];
@@ -217,7 +221,7 @@ beforeEach(() => {
 it('fetches and renders the query data', () => {
   const instance = render(environment, <Container variables={variables} />);
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -244,7 +248,7 @@ it('fetches and renders the query data', () => {
 it('subscribes to query fragment results and preserves object identity', () => {
   const instance = render(environment, <Container variables={variables} />);
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -294,7 +298,7 @@ it('fetches and renders correctly even if fetched query data still has missing d
 
   const instance = render(environment, <Container variables={variables} />);
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -334,7 +338,7 @@ it('fetches and renders correctly if component unmounts before it can commit', (
 
   let instance = render(environment, <Container variables={variables} />);
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -345,7 +349,9 @@ it('fetches and renders correctly if component unmounts before it can commit', (
   });
 
   // Unmount the component before it gets to permanently retain the data
-  instance.unmount();
+  ReactTestRenderer.act(() => {
+    instance?.unmount();
+  });
   expect(renderFn).not.toBeCalled();
 
   // Running all immediates makes sure all useEffects run and GC isn't
@@ -364,7 +370,7 @@ it('fetches and renders correctly if component unmounts before it can commit', (
 
   instance = render(environment, <Container variables={variables} />);
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -396,7 +402,7 @@ it('fetches and renders correctly when switching between queries', () => {
     environment,
     <Container variables={{id: 'first-render'}} fetchPolicy="store-only" />,
   );
-  expect(instance.toJSON()).toEqual('Bob');
+  expect(instance?.toJSON()).toEqual('Bob');
   renderFn.mockClear();
 
   // Suspend on the first query
@@ -404,7 +410,7 @@ it('fetches and renders correctly when switching between queries', () => {
     setProps({variables});
   });
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   renderFn.mockClear();
@@ -420,7 +426,7 @@ it('fetches and renders correctly when switching between queries', () => {
     setProps({variables: nextVariables});
   });
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, nextQuery);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -436,7 +442,7 @@ it('fetches and renders correctly when switching between queries', () => {
     setProps({variables});
   });
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(0);
   expect(renderFn).not.toBeCalled();
@@ -458,7 +464,7 @@ it('fetches and renders correctly when switching between queries', () => {
   });
   const data = environment.lookup(query.fragment).data;
   expect(renderFn.mock.calls[0][0]).toEqual(data);
-  expect(instance.toJSON()).toEqual('Alice');
+  expect(instance?.toJSON()).toEqual('Alice');
 });
 
 it('fetches and renders correctly when re-mounting the same query (even if GC runs synchronously)', () => {
@@ -476,7 +482,7 @@ it('fetches and renders correctly when re-mounting the same query (even if GC ru
     <Container variables={variables} key={0} />,
   );
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -535,7 +541,7 @@ it('disposes the temporary retain when the component is re-rendered and switches
     <Container extraData={0} variables={variables} />,
   );
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -613,7 +619,7 @@ it('does not cancel ongoing network request when component unmounts while suspen
     <Container variables={{id: 'first-render'}} fetchPolicy="store-only" />,
   );
 
-  expect(instance.toJSON()).toEqual('Bob');
+  expect(instance?.toJSON()).toEqual('Bob');
   renderFn.mockClear();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   environment.execute.mockClear();
@@ -623,7 +629,7 @@ it('does not cancel ongoing network request when component unmounts while suspen
     setProps({variables, fetchPolicy: 'store-or-network'});
   });
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -638,7 +644,7 @@ it('does not cancel ongoing network request when component unmounts while suspen
   );
 
   ReactTestRenderer.act(() => {
-    instance.unmount();
+    instance?.unmount();
   });
 
   // Assert data is released
@@ -653,7 +659,7 @@ it('does not cancel ongoing network request when component unmounts while suspen
 it('does not cancel ongoing network request when component unmounts after committing', () => {
   const instance = render(environment, <Container variables={variables} />);
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -681,7 +687,7 @@ it('does not cancel ongoing network request when component unmounts after commit
   );
 
   ReactTestRenderer.act(() => {
-    instance.unmount();
+    instance?.unmount();
   });
 
   // Assert data is released
@@ -695,13 +701,13 @@ it('does not cancel ongoing network request when component unmounts after commit
 it('does not cancel network request when temporarily retained component that never commits is disposed of after timeout', () => {
   const instance = render(environment, <Container variables={variables} />);
 
-  expect(instance.toJSON()).toEqual('Fallback');
+  expect(instance?.toJSON()).toEqual('Fallback');
   expectToHaveFetched(environment, query);
   expect(renderFn).not.toBeCalled();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.retain).toHaveBeenCalledTimes(1);
   ReactTestRenderer.act(() => {
-    instance.unmount();
+    instance?.unmount();
   });
   // Resolve a payload but don't complete the network request
   environment.mock.nextValue(gqlQuery, {
@@ -719,7 +725,9 @@ it('does not cancel network request when temporarily retained component that nev
   );
 
   // Trigger releasing of the temporary retain
-  jest.runAllTimers();
+  ReactTestRenderer.act(() => {
+    jest.runAllTimers();
+  });
   // Assert data is released
   expect(release).toBeCalledTimes(1);
   // Assert request in flight is not cancelled
@@ -753,7 +761,7 @@ describe('with @defer and re-rendering', () => {
       <Container key={0} variables={variables} />,
     );
 
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance?.toJSON()).toEqual('Fallback');
     expect(renderFn).not.toBeCalled();
 
     const payloadError = new Error('Invalid Payload');
@@ -769,6 +777,7 @@ describe('with @defer and re-rendering', () => {
     ReactTestRenderer.act(() => {
       setProps({variables});
       setKey(1);
+      jest.runAllImmediates();
     });
 
     // This time, error boundary will render the error
@@ -782,7 +791,7 @@ describe('with @defer and re-rendering', () => {
       <Container key={0} variables={variables} />,
     );
 
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance?.toJSON()).toEqual('Fallback');
     expect(renderFn).not.toBeCalled();
 
     ReactTestRenderer.act(() => {
@@ -877,7 +886,7 @@ describe('partial rendering', () => {
     const instance = render(environment, <Renderer variables={variables} />);
 
     // Assert that we suspended at the fragment level and not at the root
-    expect(instance.toJSON()).toEqual('Fallback around fragment');
+    expect(instance?.toJSON()).toEqual('Fallback around fragment');
     expectToHaveFetched(environment, onlyFragsQuery);
     expect(renderFn).not.toBeCalled();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters

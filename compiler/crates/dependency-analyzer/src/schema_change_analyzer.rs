@@ -8,7 +8,6 @@
 use std::collections::HashSet;
 
 use graphql_ir::*;
-use relay_config::ProjectConfig;
 use rustc_hash::FxHashSet;
 use schema::definitions::Type;
 use schema::SDLSchema;
@@ -21,14 +20,8 @@ pub fn get_affected_definitions(
     schema: &SDLSchema,
     definitions: &[ExecutableDefinition],
     schema_changes: FxHashSet<IncrementalBuildSchemaChange>,
-    project_config: &ProjectConfig,
 ) -> ExecutableDefinitionNameSet {
-    SchemaChangeDefinitionFinder::get_definitions(
-        schema,
-        definitions,
-        schema_changes,
-        project_config,
-    )
+    SchemaChangeDefinitionFinder::get_definitions(schema, definitions, schema_changes)
 }
 
 struct SchemaChangeDefinitionFinder<'a, 'b> {
@@ -36,7 +29,6 @@ struct SchemaChangeDefinitionFinder<'a, 'b> {
     current_executable: &'a ExecutableDefinition,
     schema: &'b SDLSchema,
     schema_changes: FxHashSet<IncrementalBuildSchemaChange>,
-    project_config: &'b ProjectConfig,
 }
 
 impl SchemaChangeDefinitionFinder<'_, '_> {
@@ -44,7 +36,6 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
         schema: &SDLSchema,
         definitions: &[ExecutableDefinition],
         schema_changes: FxHashSet<IncrementalBuildSchemaChange>,
-        project_config: &ProjectConfig,
     ) -> ExecutableDefinitionNameSet {
         if definitions.is_empty() || schema_changes.is_empty() {
             return HashSet::default();
@@ -55,7 +46,6 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
             current_executable: &definitions[0],
             schema,
             schema_changes,
-            project_config,
         };
         for def in definitions.iter() {
             finder.current_executable = def;
@@ -134,17 +124,9 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
             Type::Enum(id) => {
                 let enum_type = self.schema.enum_(id);
                 let key = enum_type.name.item.0;
-                // Enums are inlined in the generated artifact if the typegen config
-                // does not specify a module suffix.
-                let is_enum_inlined = self
-                    .project_config
-                    .typegen_config
-                    .enum_module_suffix
-                    .is_none();
-                if is_enum_inlined
-                    && self
-                        .schema_changes
-                        .contains(&IncrementalBuildSchemaChange::Enum(key))
+                if self
+                    .schema_changes
+                    .contains(&IncrementalBuildSchemaChange::Enum(key))
                 {
                     self.changed_definitions
                         .insert(self.get_name_from_executable());

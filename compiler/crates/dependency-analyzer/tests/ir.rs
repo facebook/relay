@@ -15,7 +15,6 @@ use fixture_tests::Fixture;
 use graphql_ir::*;
 use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
-use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use rustc_hash::FxHashSet;
@@ -145,7 +144,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         changed_names,
         &schema,
         schema_changes,
-        &ProjectConfig::default(),
         &NoopPerfLoggerEvent,
     );
 

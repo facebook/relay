@@ -73,7 +73,6 @@ pub fn build_ir(
             project_asts.changed_names,
             schema,
             HashSet::default(),
-            project_config,
             log_event,
         ),
         BuildMode::IncrementalWithSchemaChanges(changes) => get_reachable_ir(
@@ -82,7 +81,6 @@ pub fn build_ir(
             project_asts.changed_names,
             schema,
             changes,
-            project_config,
             log_event,
         ),
         BuildMode::Full => ir,

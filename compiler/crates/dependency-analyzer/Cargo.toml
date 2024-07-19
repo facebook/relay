@@ -20,7 +20,6 @@ path = "tests/ir_test.rs"
 common = { path = "../common" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-relay-config = { path = "../relay-config" }
 relay-transforms = { path = "../relay-transforms" }
 rustc-hash = "1.1.0"
 schema = { path = "../schema" }

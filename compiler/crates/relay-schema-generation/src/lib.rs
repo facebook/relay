@@ -987,7 +987,10 @@ fn return_type_to_type_annotation(
                                     param,
                                     module_resolution,
                                     type_definitions,
-                                    use_semantic_non_null,
+                                    // use_semantic_non_null is false because a resolver returning an array of
+                                    // non-null items doesn't need to express that a single item will be null
+                                    // due to error. So, array items can just be regular non-null.
+                                    false,
                                 )?;
 
                             // increment each inner level by one
@@ -1156,7 +1159,7 @@ fn flow_type_to_field_arguments(
                 &prop.value,
                 module_resolution,
                 type_definitions,
-                false,
+                false, // Semantic-non-null doesn't make sense for argument types.
             )?;
             let arg = InputValueDefinition {
                 name: graphql_syntax::Identifier {

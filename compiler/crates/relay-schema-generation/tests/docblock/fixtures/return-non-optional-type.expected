@@ -120,15 +120,24 @@ Field(
                             span: 0:0,
                             kind: Empty,
                         },
-                        type_: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 1181:1187,
-                                    token: Token {
-                                        span: 1181:1187,
-                                        kind: Identifier,
+                        type_: NonNull(
+                            NonNullTypeAnnotation {
+                                span: 1181:1187,
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1181:1187,
+                                            token: Token {
+                                                span: 1181:1187,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
                                     },
-                                    value: "String",
+                                ),
+                                exclamation: Token {
+                                    span: 0:0,
+                                    kind: Empty,
                                 },
                             },
                         ),
@@ -150,77 +159,7 @@ Field(
             },
             root_fragment: None,
             deprecated: None,
-            semantic_non_null: Some(
-                ConstantDirective {
-                    span: 1122:1144,
-                    at: Token {
-                        span: 0:0,
-                        kind: Empty,
-                    },
-                    name: Identifier {
-                        span: 1122:1144,
-                        token: Token {
-                            span: 0:0,
-                            kind: Empty,
-                        },
-                        value: "semanticNonNull",
-                    },
-                    arguments: Some(
-                        List {
-                            span: 0:0,
-                            start: Token {
-                                span: 0:0,
-                                kind: OpenBrace,
-                            },
-                            items: [
-                                ConstantArgument {
-                                    span: 1122:1144,
-                                    name: Identifier {
-                                        span: 0:0,
-                                        token: Token {
-                                            span: 0:0,
-                                            kind: Empty,
-                                        },
-                                        value: "levels",
-                                    },
-                                    colon: Token {
-                                        span: 0:0,
-                                        kind: Empty,
-                                    },
-                                    value: List(
-                                        List {
-                                            span: 0:0,
-                                            start: Token {
-                                                span: 0:0,
-                                                kind: OpenBrace,
-                                            },
-                                            items: [
-                                                Int(
-                                                    IntNode {
-                                                        token: Token {
-                                                            span: 0:0,
-                                                            kind: IntegerLiteral,
-                                                        },
-                                                        value: 1,
-                                                    },
-                                                ),
-                                            ],
-                                            end: Token {
-                                                span: 0:0,
-                                                kind: CloseBrace,
-                                            },
-                                        },
-                                    ),
-                                },
-                            ],
-                            end: Token {
-                                span: 0:0,
-                                kind: CloseBrace,
-                            },
-                        },
-                    ),
-                },
-            ),
+            semantic_non_null: None,
             live: Some(
                 UnpopulatedIrField {
                     key_location: module.js:1164:1189,
@@ -235,7 +174,7 @@ Field(
     ),
 )
 extend type Cat {
-  live_maybe_plural_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_maybe_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull(levels: [1])
+  live_maybe_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_maybe_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
 }
 
 
@@ -407,15 +346,24 @@ Field(
                             span: 0:0,
                             kind: Empty,
                         },
-                        type_: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 1542:1548,
-                                    token: Token {
-                                        span: 1542:1548,
-                                        kind: Identifier,
+                        type_: NonNull(
+                            NonNullTypeAnnotation {
+                                span: 1542:1548,
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1542:1548,
+                                            token: Token {
+                                                span: 1542:1548,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
                                     },
-                                    value: "String",
+                                ),
+                                exclamation: Token {
+                                    span: 0:0,
+                                    kind: Empty,
                                 },
                             },
                         ),
@@ -437,77 +385,7 @@ Field(
             },
             root_fragment: None,
             deprecated: None,
-            semantic_non_null: Some(
-                ConstantDirective {
-                    span: 1498:1515,
-                    at: Token {
-                        span: 0:0,
-                        kind: Empty,
-                    },
-                    name: Identifier {
-                        span: 1498:1515,
-                        token: Token {
-                            span: 0:0,
-                            kind: Empty,
-                        },
-                        value: "semanticNonNull",
-                    },
-                    arguments: Some(
-                        List {
-                            span: 0:0,
-                            start: Token {
-                                span: 0:0,
-                                kind: OpenBrace,
-                            },
-                            items: [
-                                ConstantArgument {
-                                    span: 1498:1515,
-                                    name: Identifier {
-                                        span: 0:0,
-                                        token: Token {
-                                            span: 0:0,
-                                            kind: Empty,
-                                        },
-                                        value: "levels",
-                                    },
-                                    colon: Token {
-                                        span: 0:0,
-                                        kind: Empty,
-                                    },
-                                    value: List(
-                                        List {
-                                            span: 0:0,
-                                            start: Token {
-                                                span: 0:0,
-                                                kind: OpenBrace,
-                                            },
-                                            items: [
-                                                Int(
-                                                    IntNode {
-                                                        token: Token {
-                                                            span: 0:0,
-                                                            kind: IntegerLiteral,
-                                                        },
-                                                        value: 1,
-                                                    },
-                                                ),
-                                            ],
-                                            end: Token {
-                                                span: 0:0,
-                                                kind: CloseBrace,
-                                            },
-                                        },
-                                    ),
-                                },
-                            ],
-                            end: Token {
-                                span: 0:0,
-                                kind: CloseBrace,
-                            },
-                        },
-                    ),
-                },
-            ),
+            semantic_non_null: None,
             live: None,
             location: module.js:1498:1515,
             fragment_arguments: None,
@@ -518,7 +396,7 @@ Field(
     ),
 )
 extend type Cat {
-  maybe_plural_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "maybe_plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull(levels: [1])
+  maybe_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "maybe_plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
 }
 
 
@@ -813,15 +691,24 @@ Field(
                             span: 0:0,
                             kind: Empty,
                         },
-                        type_: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 802:808,
-                                    token: Token {
-                                        span: 802:808,
-                                        kind: Identifier,
+                        type_: NonNull(
+                            NonNullTypeAnnotation {
+                                span: 802:808,
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 802:808,
+                                            token: Token {
+                                                span: 802:808,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
                                     },
-                                    value: "String",
+                                ),
+                                exclamation: Token {
+                                    span: 0:0,
+                                    kind: Empty,
                                 },
                             },
                         ),
@@ -858,69 +745,7 @@ Field(
                         },
                         value: "semanticNonNull",
                     },
-                    arguments: Some(
-                        List {
-                            span: 0:0,
-                            start: Token {
-                                span: 0:0,
-                                kind: OpenBrace,
-                            },
-                            items: [
-                                ConstantArgument {
-                                    span: 765:776,
-                                    name: Identifier {
-                                        span: 0:0,
-                                        token: Token {
-                                            span: 0:0,
-                                            kind: Empty,
-                                        },
-                                        value: "levels",
-                                    },
-                                    colon: Token {
-                                        span: 0:0,
-                                        kind: Empty,
-                                    },
-                                    value: List(
-                                        List {
-                                            span: 0:0,
-                                            start: Token {
-                                                span: 0:0,
-                                                kind: OpenBrace,
-                                            },
-                                            items: [
-                                                Int(
-                                                    IntNode {
-                                                        token: Token {
-                                                            span: 0:0,
-                                                            kind: IntegerLiteral,
-                                                        },
-                                                        value: 1,
-                                                    },
-                                                ),
-                                                Int(
-                                                    IntNode {
-                                                        token: Token {
-                                                            span: 0:0,
-                                                            kind: IntegerLiteral,
-                                                        },
-                                                        value: 0,
-                                                    },
-                                                ),
-                                            ],
-                                            end: Token {
-                                                span: 0:0,
-                                                kind: CloseBrace,
-                                            },
-                                        },
-                                    ),
-                                },
-                            ],
-                            end: Token {
-                                span: 0:0,
-                                kind: CloseBrace,
-                            },
-                        },
-                    ),
+                    arguments: None,
                 },
             ),
             live: None,
@@ -933,7 +758,7 @@ Field(
     ),
 )
 extend type Cat {
-  plural_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull(levels: [1, 0])
+  plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 
@@ -956,15 +781,24 @@ Field(
                             span: 0:0,
                             kind: Empty,
                         },
-                        type_: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 925:931,
-                                    token: Token {
-                                        span: 925:931,
-                                        kind: Identifier,
+                        type_: NonNull(
+                            NonNullTypeAnnotation {
+                                span: 925:931,
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 925:931,
+                                            token: Token {
+                                                span: 925:931,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
                                     },
-                                    value: "String",
+                                ),
+                                exclamation: Token {
+                                    span: 0:0,
+                                    kind: Empty,
                                 },
                             },
                         ),
@@ -1001,69 +835,7 @@ Field(
                         },
                         value: "semanticNonNull",
                     },
-                    arguments: Some(
-                        List {
-                            span: 0:0,
-                            start: Token {
-                                span: 0:0,
-                                kind: OpenBrace,
-                            },
-                            items: [
-                                ConstantArgument {
-                                    span: 873:889,
-                                    name: Identifier {
-                                        span: 0:0,
-                                        token: Token {
-                                            span: 0:0,
-                                            kind: Empty,
-                                        },
-                                        value: "levels",
-                                    },
-                                    colon: Token {
-                                        span: 0:0,
-                                        kind: Empty,
-                                    },
-                                    value: List(
-                                        List {
-                                            span: 0:0,
-                                            start: Token {
-                                                span: 0:0,
-                                                kind: OpenBrace,
-                                            },
-                                            items: [
-                                                Int(
-                                                    IntNode {
-                                                        token: Token {
-                                                            span: 0:0,
-                                                            kind: IntegerLiteral,
-                                                        },
-                                                        value: 1,
-                                                    },
-                                                ),
-                                                Int(
-                                                    IntNode {
-                                                        token: Token {
-                                                            span: 0:0,
-                                                            kind: IntegerLiteral,
-                                                        },
-                                                        value: 0,
-                                                    },
-                                                ),
-                                            ],
-                                            end: Token {
-                                                span: 0:0,
-                                                kind: CloseBrace,
-                                            },
-                                        },
-                                    ),
-                                },
-                            ],
-                            end: Token {
-                                span: 0:0,
-                                kind: CloseBrace,
-                            },
-                        },
-                    ),
+                    arguments: None,
                 },
             ),
             live: Some(
@@ -1080,7 +852,7 @@ Field(
     ),
 )
 extend type Cat {
-  live_plural_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull(levels: [1, 0])
+  live_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 

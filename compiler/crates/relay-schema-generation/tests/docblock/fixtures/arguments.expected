@@ -149,24 +149,15 @@ Field(
                             span: 0:0,
                             kind: Empty,
                         },
-                        type_: NonNull(
-                            NonNullTypeAnnotation {
-                                span: 607:617,
-                                type_: Named(
-                                    NamedTypeAnnotation {
-                                        name: Identifier {
-                                            span: 299:309,
-                                            token: Token {
-                                                span: 299:309,
-                                                kind: Identifier,
-                                            },
-                                            value: "ClientPage",
-                                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 299:309,
+                                    token: Token {
+                                        span: 299:309,
+                                        kind: Identifier,
                                     },
-                                ),
-                                exclamation: Token {
-                                    span: 0:0,
-                                    kind: Empty,
+                                    value: "ClientPage",
                                 },
                             },
                         ),
@@ -227,7 +218,77 @@ Field(
             },
             root_fragment: None,
             deprecated: None,
-            semantic_non_null: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 547:556,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 547:556,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: Some(
+                        List {
+                            span: 0:0,
+                            start: Token {
+                                span: 0:0,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                ConstantArgument {
+                                    span: 547:556,
+                                    name: Identifier {
+                                        span: 0:0,
+                                        token: Token {
+                                            span: 0:0,
+                                            kind: Empty,
+                                        },
+                                        value: "levels",
+                                    },
+                                    colon: Token {
+                                        span: 0:0,
+                                        kind: Empty,
+                                    },
+                                    value: List(
+                                        List {
+                                            span: 0:0,
+                                            start: Token {
+                                                span: 0:0,
+                                                kind: OpenBrace,
+                                            },
+                                            items: [
+                                                Int(
+                                                    IntNode {
+                                                        token: Token {
+                                                            span: 0:0,
+                                                            kind: IntegerLiteral,
+                                                        },
+                                                        value: 1,
+                                                    },
+                                                ),
+                                            ],
+                                            end: Token {
+                                                span: 0:0,
+                                                kind: CloseBrace,
+                                            },
+                                        },
+                                    ),
+                                },
+                            ],
+                            end: Token {
+                                span: 0:0,
+                                kind: CloseBrace,
+                            },
+                        },
+                    ),
+                },
+            ),
             live: None,
             location: module.js:547:556,
             fragment_arguments: None,
@@ -238,7 +299,7 @@ Field(
     ),
 )
 extend type Cat {
-  all_pages(limit: Float): [ClientPage!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "all_pages", import_path: "module.js") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be")
+  all_pages(limit: Float): [ClientPage] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "all_pages", import_path: "module.js") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be") @semanticNonNull(levels: [1])
 }
 
 

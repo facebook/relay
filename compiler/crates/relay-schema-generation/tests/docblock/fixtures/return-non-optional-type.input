@@ -42,3 +42,60 @@ export function name(cat: CatFlowType): string {
 export function live_name(cat: CatFlowType): LiveState<string> {
   return {};
 }
+
+/**
+ * @RelayResolver
+ */
+export function plural_name(cat: CatFlowType): Array<string> {
+  return "cat";
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_plural_name(cat: CatFlowType): LiveState<Array<string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_plural_maybe_name(cat: CatFlowType): LiveState<Array<?string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_maybe_plural_name(cat: CatFlowType): LiveState<?Array<string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_maybe_plural_maybe_name(cat: CatFlowType): LiveState<?Array<?string>> {
+  return {};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function plural_maybe_name(cat: CatFlowType): Array<?string> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function maybe_plural_name(cat: CatFlowType): ?Array<string> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function maybe_plural_maybe_name(cat: CatFlowType): ?Array<?string> {
+  return {};
+}

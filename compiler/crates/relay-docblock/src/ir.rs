@@ -84,8 +84,6 @@ lazy_static! {
         DirectiveName("deprecated".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
-    static ref SEMANTIC_NON_NULL_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("semanticNonNull".intern());
 }
 
 #[derive(Debug, Clone, PartialEq)]

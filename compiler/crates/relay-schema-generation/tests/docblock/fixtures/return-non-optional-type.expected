@@ -43,31 +43,1194 @@ export function name(cat: CatFlowType): string {
 export function live_name(cat: CatFlowType): LiveState<string> {
   return {};
 }
+
+/**
+ * @RelayResolver
+ */
+export function plural_name(cat: CatFlowType): Array<string> {
+  return "cat";
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_plural_name(cat: CatFlowType): LiveState<Array<string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_plural_maybe_name(cat: CatFlowType): LiveState<Array<?string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_maybe_plural_name(cat: CatFlowType): LiveState<?Array<string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_maybe_plural_maybe_name(cat: CatFlowType): LiveState<?Array<?string>> {
+  return {};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function plural_maybe_name(cat: CatFlowType): Array<?string> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function maybe_plural_name(cat: CatFlowType): ?Array<string> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function maybe_plural_maybe_name(cat: CatFlowType): ?Array<?string> {
+  return {};
+}
 ==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 1122:1144,
+                    token: Token {
+                        span: 1122:1144,
+                        kind: Identifier,
+                    },
+                    value: "live_maybe_plural_name",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 1175:1188,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 1181:1187,
+                                    token: Token {
+                                        span: 1181:1187,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 1122:1144,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 1122:1144,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 1122:1144,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: Some(
+                        List {
+                            span: 0:0,
+                            start: Token {
+                                span: 0:0,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                ConstantArgument {
+                                    span: 1122:1144,
+                                    name: Identifier {
+                                        span: 0:0,
+                                        token: Token {
+                                            span: 0:0,
+                                            kind: Empty,
+                                        },
+                                        value: "levels",
+                                    },
+                                    colon: Token {
+                                        span: 0:0,
+                                        kind: Empty,
+                                    },
+                                    value: List(
+                                        List {
+                                            span: 0:0,
+                                            start: Token {
+                                                span: 0:0,
+                                                kind: OpenBrace,
+                                            },
+                                            items: [
+                                                Int(
+                                                    IntNode {
+                                                        token: Token {
+                                                            span: 0:0,
+                                                            kind: IntegerLiteral,
+                                                        },
+                                                        value: 1,
+                                                    },
+                                                ),
+                                            ],
+                                            end: Token {
+                                                span: 0:0,
+                                                kind: CloseBrace,
+                                            },
+                                        },
+                                    ),
+                                },
+                            ],
+                            end: Token {
+                                span: 0:0,
+                                kind: CloseBrace,
+                            },
+                        },
+                    ),
+                },
+            ),
+            live: Some(
+                UnpopulatedIrField {
+                    key_location: module.js:1164:1189,
+                },
+            ),
+            location: module.js:1122:1144,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  live_maybe_plural_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_maybe_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull(levels: [1])
+}
 
 
-✖︎ Unexpected non-nullable flow return type: `GenericTypeAnnotation`. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 1250:1278,
+                    token: Token {
+                        span: 1250:1278,
+                        kind: Identifier,
+                    },
+                    value: "live_maybe_plural_maybe_name",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 1309:1323,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 1316:1322,
+                                    token: Token {
+                                        span: 1316:1322,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 1250:1278,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: Some(
+                UnpopulatedIrField {
+                    key_location: module.js:1298:1324,
+                },
+            ),
+            location: module.js:1250:1278,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  live_maybe_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_maybe_plural_maybe_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
+}
 
-  module.js:26:45
-   25 │  */
-   26 │ export function fullName(cat: CatFlowType): FullName {
-      │                                             ^^^^^^^^
-   27 │   return {first: "Mr", last: "Cat"};
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 1386:1403,
+                    token: Token {
+                        span: 1386:1403,
+                        kind: Identifier,
+                    },
+                    value: "plural_maybe_name",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 1423:1437,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 1430:1436,
+                                    token: Token {
+                                        span: 1430:1436,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 1386:1403,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 1386:1403,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 1386:1403,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: module.js:1386:1403,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "plural_maybe_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+}
 
 
-✖︎ Unexpected non-nullable flow return type: `StringTypeAnnotation`. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 1498:1515,
+                    token: Token {
+                        span: 1498:1515,
+                        kind: Identifier,
+                    },
+                    value: "maybe_plural_name",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 1536:1549,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 1542:1548,
+                                    token: Token {
+                                        span: 1542:1548,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 1498:1515,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 1498:1515,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 1498:1515,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: Some(
+                        List {
+                            span: 0:0,
+                            start: Token {
+                                span: 0:0,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                ConstantArgument {
+                                    span: 1498:1515,
+                                    name: Identifier {
+                                        span: 0:0,
+                                        token: Token {
+                                            span: 0:0,
+                                            kind: Empty,
+                                        },
+                                        value: "levels",
+                                    },
+                                    colon: Token {
+                                        span: 0:0,
+                                        kind: Empty,
+                                    },
+                                    value: List(
+                                        List {
+                                            span: 0:0,
+                                            start: Token {
+                                                span: 0:0,
+                                                kind: OpenBrace,
+                                            },
+                                            items: [
+                                                Int(
+                                                    IntNode {
+                                                        token: Token {
+                                                            span: 0:0,
+                                                            kind: IntegerLiteral,
+                                                        },
+                                                        value: 1,
+                                                    },
+                                                ),
+                                            ],
+                                            end: Token {
+                                                span: 0:0,
+                                                kind: CloseBrace,
+                                            },
+                                        },
+                                    ),
+                                },
+                            ],
+                            end: Token {
+                                span: 0:0,
+                                kind: CloseBrace,
+                            },
+                        },
+                    ),
+                },
+            ),
+            live: None,
+            location: module.js:1498:1515,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  maybe_plural_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "maybe_plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull(levels: [1])
+}
 
-  module.js:34:41
-   33 │  */
-   34 │ export function name(cat: CatFlowType): string {
-      │                                         ^^^^^^
-   35 │   return "cat";
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 1610:1633,
+                    token: Token {
+                        span: 1610:1633,
+                        kind: Identifier,
+                    },
+                    value: "maybe_plural_maybe_name",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 1654:1668,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 1661:1667,
+                                    token: Token {
+                                        span: 1661:1667,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 1610:1633,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: module.js:1610:1633,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  maybe_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "maybe_plural_maybe_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
+}
 
 
-✖︎ Unexpected non-nullable flow return type: `StringTypeAnnotation`. Relay expects all Resolver fields to be nullable since errors thrown by Resolvers are turned into `null` values.
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 442:450,
+                    token: Token {
+                        span: 442:450,
+                        kind: Identifier,
+                    },
+                    value: "fullName",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 357:365,
+                            token: Token {
+                                span: 357:365,
+                                kind: Identifier,
+                            },
+                            value: "FullName",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 442:450,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 442:450,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 442:450,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: module.js:442:450,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  fullName: FullName @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+}
 
-  module.js:41:56
-   40 │  */
-   41 │ export function live_name(cat: CatFlowType): LiveState<string> {
-      │                                                        ^^^^^^
-   42 │   return {};
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 564:568,
+                    token: Token {
+                        span: 564:568,
+                        kind: Identifier,
+                    },
+                    value: "name",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 588:594,
+                            token: Token {
+                                span: 588:594,
+                                kind: Identifier,
+                            },
+                            value: "String",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 564:568,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 564:568,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 564:568,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: module.js:564:568,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 658:667,
+                    token: Token {
+                        span: 658:667,
+                        kind: Identifier,
+                    },
+                    value: "live_name",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 697:703,
+                            token: Token {
+                                span: 697:703,
+                                kind: Identifier,
+                            },
+                            value: "String",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 658:667,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 658:667,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 658:667,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: Some(
+                UnpopulatedIrField {
+                    key_location: module.js:687:704,
+                },
+            ),
+            location: module.js:658:667,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  live_name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 765:776,
+                    token: Token {
+                        span: 765:776,
+                        kind: Identifier,
+                    },
+                    value: "plural_name",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 796:809,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 802:808,
+                                    token: Token {
+                                        span: 802:808,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 765:776,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 765:776,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 765:776,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: Some(
+                        List {
+                            span: 0:0,
+                            start: Token {
+                                span: 0:0,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                ConstantArgument {
+                                    span: 765:776,
+                                    name: Identifier {
+                                        span: 0:0,
+                                        token: Token {
+                                            span: 0:0,
+                                            kind: Empty,
+                                        },
+                                        value: "levels",
+                                    },
+                                    colon: Token {
+                                        span: 0:0,
+                                        kind: Empty,
+                                    },
+                                    value: List(
+                                        List {
+                                            span: 0:0,
+                                            start: Token {
+                                                span: 0:0,
+                                                kind: OpenBrace,
+                                            },
+                                            items: [
+                                                Int(
+                                                    IntNode {
+                                                        token: Token {
+                                                            span: 0:0,
+                                                            kind: IntegerLiteral,
+                                                        },
+                                                        value: 1,
+                                                    },
+                                                ),
+                                                Int(
+                                                    IntNode {
+                                                        token: Token {
+                                                            span: 0:0,
+                                                            kind: IntegerLiteral,
+                                                        },
+                                                        value: 0,
+                                                    },
+                                                ),
+                                            ],
+                                            end: Token {
+                                                span: 0:0,
+                                                kind: CloseBrace,
+                                            },
+                                        },
+                                    ),
+                                },
+                            ],
+                            end: Token {
+                                span: 0:0,
+                                kind: CloseBrace,
+                            },
+                        },
+                    ),
+                },
+            ),
+            live: None,
+            location: module.js:765:776,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  plural_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull(levels: [1, 0])
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 873:889,
+                    token: Token {
+                        span: 873:889,
+                        kind: Identifier,
+                    },
+                    value: "live_plural_name",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 919:932,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 925:931,
+                                    token: Token {
+                                        span: 925:931,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 873:889,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 873:889,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 873:889,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: Some(
+                        List {
+                            span: 0:0,
+                            start: Token {
+                                span: 0:0,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                ConstantArgument {
+                                    span: 873:889,
+                                    name: Identifier {
+                                        span: 0:0,
+                                        token: Token {
+                                            span: 0:0,
+                                            kind: Empty,
+                                        },
+                                        value: "levels",
+                                    },
+                                    colon: Token {
+                                        span: 0:0,
+                                        kind: Empty,
+                                    },
+                                    value: List(
+                                        List {
+                                            span: 0:0,
+                                            start: Token {
+                                                span: 0:0,
+                                                kind: OpenBrace,
+                                            },
+                                            items: [
+                                                Int(
+                                                    IntNode {
+                                                        token: Token {
+                                                            span: 0:0,
+                                                            kind: IntegerLiteral,
+                                                        },
+                                                        value: 1,
+                                                    },
+                                                ),
+                                                Int(
+                                                    IntNode {
+                                                        token: Token {
+                                                            span: 0:0,
+                                                            kind: IntegerLiteral,
+                                                        },
+                                                        value: 0,
+                                                    },
+                                                ),
+                                            ],
+                                            end: Token {
+                                                span: 0:0,
+                                                kind: CloseBrace,
+                                            },
+                                        },
+                                    ),
+                                },
+                            ],
+                            end: Token {
+                                span: 0:0,
+                                kind: CloseBrace,
+                            },
+                        },
+                    ),
+                },
+            ),
+            live: Some(
+                UnpopulatedIrField {
+                    key_location: module.js:909:933,
+                },
+            ),
+            location: module.js:873:889,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  live_plural_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull(levels: [1, 0])
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 994:1016,
+                    token: Token {
+                        span: 994:1016,
+                        kind: Identifier,
+                    },
+                    value: "live_plural_maybe_name",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 1046:1060,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 1053:1059,
+                                    token: Token {
+                                        span: 1053:1059,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 994:1016,
+            },
+            type_: WithLocation {
+                location: module.js:272:275,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 994:1016,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 994:1016,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: Some(
+                UnpopulatedIrField {
+                    key_location: module.js:1036:1061,
+                },
+            ),
+            location: module.js:994:1016,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  live_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_plural_maybe_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 272:275,
+                token: Token {
+                    span: 272:275,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:272:275,
+            root_fragment: WithLocation {
+                location: module.js:272:275,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:272:275,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 357:365,
+                token: Token {
+                    span: 357:365,
+                    kind: Identifier,
+                },
+                value: "FullName",
+            },
+            rhs_location: module.js:357:365,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: module.js:357:365,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "b97d5d4b012e01a0c3070bd919062a36",
+            ),
+        },
+    ),
+)
+scalar FullNameModel @__RelayCustomScalar(path: "module.js", export_name: "FullName")
+
+
+type FullName @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: FullNameModel! @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

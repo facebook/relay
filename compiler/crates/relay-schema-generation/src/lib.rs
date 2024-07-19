@@ -42,10 +42,14 @@ use find_resolver_imports::ModuleResolution;
 use find_resolver_imports::ModuleResolutionKey;
 use fnv::FnvBuildHasher;
 use graphql_ir::FragmentDefinitionName;
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantDirective;
+use graphql_syntax::ConstantValue;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::InputValueDefinition;
+use graphql_syntax::IntNode;
 use graphql_syntax::List;
 use graphql_syntax::ListTypeAnnotation;
 use graphql_syntax::NamedTypeAnnotation;
@@ -390,16 +394,18 @@ impl RelayResolverExtractor {
                         },
                         value: desc.item,
                     });
-                    let field_definition = FieldDefinition {
-                        name: string_key_to_identifier(field.field_name),
-                        type_: return_type_to_type_annotation(
+                    let (type_annotation, semantic_non_null_levels) =
+                        return_type_to_type_annotation(
                             source_location,
                             &self.custom_scalar_map,
                             &field.return_type,
                             module_resolution,
                             &self.type_definitions,
-                            false,
-                        )?,
+                            true,
+                        )?;
+                    let field_definition = FieldDefinition {
+                        name: string_key_to_identifier(field.field_name),
+                        type_: type_annotation,
                         arguments,
                         directives: vec![],
                         description: description_node,
@@ -419,7 +425,10 @@ impl RelayResolverExtractor {
                         live,
                         fragment_arguments,
                         source_hash: field.source_hash,
-                        semantic_non_null: None,
+                        semantic_non_null: semantic_non_null_levels_to_directive(
+                            semantic_non_null_levels,
+                            field.field_name.location,
+                        ),
                     });
                     Ok(())
                 }),
@@ -891,15 +900,20 @@ fn string_key_to_identifier(name: WithLocation<StringKey>) -> Identifier {
     }
 }
 
+/// Converts a Flow type annotation to a GraphQL type annotation.
+/// The second return value is a list of semantic non-null levels.
+/// If empty, the value is not semantically non-null.
 fn return_type_to_type_annotation(
     source_location: SourceLocationKey,
     custom_scalar_map: &FnvIndexMap<CustomType, ScalarName>,
     return_type: &FlowTypeAnnotation,
     module_resolution: &ModuleResolution,
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
-    allow_non_nullable_return: bool,
-) -> DiagnosticsResult<TypeAnnotation> {
+    use_semantic_non_null: bool,
+) -> DiagnosticsResult<(TypeAnnotation, Vec<i64>)> {
     let (return_type, mut is_optional) = schema_extractor::unwrap_nullable_type(return_type);
+    let mut semantic_non_null_levels: Vec<i64> = vec![];
+
     let location = to_location(source_location, return_type);
     let type_annotation = match return_type {
         FlowTypeAnnotation::GenericTypeAnnotation(node) => {
@@ -966,17 +980,25 @@ fn return_type_to_type_annotation(
                     match identifier_name {
                         "Array" | "$ReadOnlyArray" => {
                             let param = &type_parameters.params[0];
-                            TypeAnnotation::List(Box::new(ListTypeAnnotation {
-                                span: location.span(),
-                                open: generated_token(),
-                                type_: return_type_to_type_annotation(
+                            let (type_annotation, inner_semantic_non_null_levels) =
+                                return_type_to_type_annotation(
                                     source_location,
                                     custom_scalar_map,
                                     param,
                                     module_resolution,
                                     type_definitions,
-                                    true,
-                                )?,
+                                    use_semantic_non_null,
+                                )?;
+
+                            // increment each inner level by one
+                            semantic_non_null_levels.extend(
+                                inner_semantic_non_null_levels.iter().map(|level| level + 1),
+                            );
+
+                            TypeAnnotation::List(Box::new(ListTypeAnnotation {
+                                span: location.span(),
+                                open: generated_token(),
+                                type_: type_annotation,
                                 close: generated_token(),
                             }))
                         }
@@ -1080,24 +1102,21 @@ fn return_type_to_type_annotation(
     };
 
     if !is_optional {
-        if allow_non_nullable_return {
+        if use_semantic_non_null {
+            // Special case to add self (level 0)
+            semantic_non_null_levels.push(0);
+        } else {
+            // Normal GraphQL non-null (`!``)
             let non_null_annotation = TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
                 span: location.span(),
                 type_: type_annotation,
                 exclamation: generated_token(),
             }));
-            Ok(non_null_annotation)
-        } else {
-            Err(vec![Diagnostic::error(
-                SchemaGenerationError::UnexpectedNonNullableReturnType {
-                    name: return_type.name(),
-                },
-                location,
-            )])
+            return Ok((non_null_annotation, vec![]));
         }
-    } else {
-        Ok(type_annotation)
     }
+
+    Ok((type_annotation, semantic_non_null_levels))
 }
 
 fn flow_type_to_field_arguments(
@@ -1131,6 +1150,14 @@ fn flow_type_to_field_arguments(
 
             let ident_node: &hermes_estree::Identifier = ident;
             let name_span = to_location(source_location, ident_node).span();
+            let (type_annotation, _) = return_type_to_type_annotation(
+                source_location,
+                custom_scalar_map,
+                &prop.value,
+                module_resolution,
+                type_definitions,
+                false,
+            )?;
             let arg = InputValueDefinition {
                 name: graphql_syntax::Identifier {
                     span: name_span,
@@ -1145,14 +1172,7 @@ fn flow_type_to_field_arguments(
                         )]
                     })?,
                 },
-                type_: return_type_to_type_annotation(
-                    source_location,
-                    custom_scalar_map,
-                    &prop.value,
-                    module_resolution,
-                    type_definitions,
-                    true,
-                )?,
+                type_: type_annotation,
                 default_value: None,
                 directives: vec![],
                 span: prop_span,
@@ -1266,4 +1286,66 @@ fn invert_custom_scalar_map(
         }
     }
     Ok(custom_scalar_map)
+}
+
+fn generate_int_value(value: i64) -> ConstantValue {
+    ConstantValue::Int(IntNode {
+        token: Token {
+            kind: TokenKind::IntegerLiteral,
+            span: Span::new(0, 0),
+        },
+        value,
+    })
+}
+
+fn generate_int_values(values: Vec<i64>) -> ConstantValue {
+    let mut items = Vec::new();
+    for value in values {
+        items.push(generate_int_value(value))
+    }
+    ConstantValue::List(List::generated(items))
+}
+
+fn as_identifier(value: WithLocation<StringKey>) -> Identifier {
+    let span = value.location.span();
+    Identifier {
+        span,
+        token: generated_token(),
+        value: value.item,
+    }
+}
+
+/// Generate a semantic non-null directive from a list of levels.
+/// Empty list is equivalent to no directive.
+fn semantic_non_null_levels_to_directive(
+    levels: Vec<i64>,
+    location: Location,
+) -> Option<ConstantDirective> {
+    match levels.len() {
+        0 => None,
+        _ => {
+            let arguments = if levels.len() == 1 && levels[0] == 0 {
+                // Special case where levels argument can be omitted
+                None
+            } else {
+                Some(List::generated(vec![ConstantArgument {
+                    name: as_identifier(WithLocation::generated(intern!("levels"))),
+                    value: generate_int_values(levels),
+                    colon: generated_token(),
+                    span: location.span(),
+                }]))
+            };
+
+            Some(ConstantDirective {
+                name: Identifier {
+                    span: location.span(),
+                    value: intern!("semanticNonNull"),
+                    token: generated_token(),
+                },
+                span: location.span(),
+                arguments,
+                at: generated_token(),
+            })
+        }
+    }
 }

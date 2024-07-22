@@ -24,20 +24,15 @@ const invariant = require('invariant');
 // `readFragment`, but that's a global function -- it needs information
 // about what resolver is being executed, which is supplied by putting the
 // info on this stack before we call the resolver function.
-export type ResolverContext<T> = {
+type ResolverContext = {
   getDataForResolverFragment: (
     SingularReaderSelector,
     FragmentType,
   ) => ResolverFragmentResult,
-  resolverContext: T,
 };
-// $FlowFixMe[unclear-type]
-const contextStack: Array<ResolverContext<any>> = [];
+const contextStack: Array<ResolverContext> = [];
 
-function withResolverContext<T, D = mixed>(
-  context: ResolverContext<D>,
-  cb: () => T,
-): T {
+function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
   contextStack.push(context);
   try {
     return cb();
@@ -128,27 +123,10 @@ function readFragment(
   return data;
 }
 
-function resolverContext<T = mixed>(): T {
-  if (!contextStack.length) {
-    throw new Error(
-      'resolverContext should be called only from within a Relay Resolver function.',
-    );
-  }
-  const context = contextStack[contextStack.length - 1];
-
-  invariant(
-    context.resolverContext !== undefined,
-    `Expected resolverContext to be defined, but it was not. Make sure to provide the resolverContext when creating the Store`,
-  );
-
-  return context.resolverContext;
-}
-
 const RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL: mixed = {};
 
 module.exports = {
   readFragment,
-  resolverContext,
   withResolverContext,
   RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
 };

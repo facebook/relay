@@ -706,36 +706,22 @@ class RelayReader {
               : {},
           },
         };
-        const resolverContext: ResolverContext<mixed> = {
-          getDataForResolverFragment,
-          resolverContext: this._resolverContext,
-        };
+        const resolverContext = {getDataForResolverFragment};
         return withResolverContext(resolverContext, () => {
           const [resolverResult, resolverError] = getResolverValue(
             field,
             this._variables,
             key,
+            this._resolverContext,
           );
           return {resolverResult, snapshot, error: resolverError};
-        });
-      } else if (this._resolverContext !== undefined) {
-        const resolverContext: ResolverContext<mixed> = {
-          resolverContext: this._resolverContext,
-          getDataForResolverFragment,
-        };
-        return withResolverContext(resolverContext, () => {
-          const [resolverResult, resolverError] = getResolverValue(
-            field,
-            this._variables,
-            null,
-          );
-          return {resolverResult, snapshot: undefined, error: resolverError};
         });
       } else {
         const [resolverResult, resolverError] = getResolverValue(
           field,
           this._variables,
           null,
+          this._resolverContext,
         );
         return {resolverResult, snapshot: undefined, error: resolverError};
       }
@@ -1428,6 +1414,7 @@ function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
   fragmentKey: mixed,
+  resolverContext: mixed,
 ): [mixed, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
@@ -1447,6 +1434,7 @@ function getResolverValue(
       : undefined;
 
     resolverFunctionArgs.push(args);
+    resolverFunctionArgs.push(resolverContext);
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {

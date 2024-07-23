@@ -359,17 +359,6 @@ class RelayModernStore implements Store {
         invalidateStore === true,
       );
     });
-    if (log != null) {
-      log({
-        name: 'store.notify.complete',
-        sourceOperation,
-        updatedRecordIDs: this._updatedRecordIDs,
-        invalidatedRecordIDs: this._invalidatedRecordIDs,
-      });
-    }
-
-    this._updatedRecordIDs.clear();
-    this._invalidatedRecordIDs.clear();
 
     // If a source operation was provided (indicating the operation
     // that produced this update to the store), record the current epoch
@@ -402,6 +391,18 @@ class RelayModernStore implements Store {
         this._roots.set(id, temporaryRootEntry);
       }
     }
+
+    if (log != null) {
+      log({
+        name: 'store.notify.complete',
+        sourceOperation,
+        updatedRecordIDs: this._updatedRecordIDs,
+        invalidatedRecordIDs: this._invalidatedRecordIDs,
+      });
+    }
+
+    this._updatedRecordIDs.clear();
+    this._invalidatedRecordIDs.clear();
 
     return updatedOwners;
   }

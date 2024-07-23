@@ -343,12 +343,24 @@ class LiveResolverStore implements Store {
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {
+    const log = this.__log;
+    if (log != null) {
+      log({
+        name: 'store.lookup.start',
+        selector,
+      });
+    }
     const source = this.getSource();
     const snapshot = RelayReader.read(source, selector, this._resolverCache);
     if (__DEV__) {
       deepFreeze(snapshot);
     }
-
+    if (log != null) {
+      log({
+        name: 'store.lookup.end',
+        selector,
+      });
+    }
     return snapshot;
   }
 

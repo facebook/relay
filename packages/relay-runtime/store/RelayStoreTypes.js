@@ -689,6 +689,16 @@ export type StoreSnapshotLogEvent = {
   +name: 'store.snapshot',
 };
 
+export type StoreLookupStartEvent = {
+  +name: 'store.lookup.start',
+  +selector: SingularReaderSelector,
+};
+
+export type StoreLookupEndEvent = {
+  +name: 'store.lookup.end',
+  +selector: SingularReaderSelector,
+};
+
 export type StoreRestoreLogEvent = {
   +name: 'store.restore',
 };
@@ -764,6 +774,8 @@ export type LogEvent =
   | ExecuteCompleteLogEvent
   | StorePublishLogEvent
   | StoreSnapshotLogEvent
+  | StoreLookupStartEvent
+  | StoreLookupEndEvent
   | StoreRestoreLogEvent
   | StoreGcStartEvent
   | StoreGcInterruptedEvent

@@ -677,6 +677,11 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
+        expect(logEvents).toMatchObject([
+          {name: 'store.lookup.start'},
+          {name: 'store.lookup.end'},
+        ]);
+        logEvents.length = 0;
         const callback = jest.fn((nextSnapshot: Snapshot) => {
           logEvents.push({
             kind: 'test_only_callback',
@@ -740,6 +745,11 @@ function cloneEventWithSets(event: LogEvent) {
             owner.request,
           );
           const snapshot = store.lookup(selector);
+          expect(logEvents).toMatchObject([
+            {name: 'store.lookup.start'},
+            {name: 'store.lookup.end'},
+          ]);
+          logEvents.length = 0;
           const callback = jest.fn((nextSnapshot: Snapshot) => {
             logEvents.push({
               kind: 'test_only_callback',

@@ -67,7 +67,7 @@ pub fn generate_preloadable_query_parameters(
 
     // -- Begin Disable Lint Section --
     content_sections.push(ContentSection::Generic(generate_disable_lint_section(
-        &project_config.typegen_config.language,
+        &project_config,
     )?));
     // -- End Disable Lint Section --
 
@@ -181,7 +181,7 @@ pub fn generate_updatable_query(
 
     // -- Begin Disable Lint Section --
     content_sections.push(ContentSection::Generic(generate_disable_lint_section(
-        &project_config.typegen_config.language,
+        &project_config,
     )?));
     // -- End Disable Lint Section --
 
@@ -322,7 +322,7 @@ pub fn generate_operation(
 
     // -- Begin Disable Lint Section --
     content_sections.push(ContentSection::Generic(generate_disable_lint_section(
-        &project_config.typegen_config.language,
+        &project_config,
     )?));
     // -- End Disable Lint Section --
 
@@ -513,7 +513,7 @@ pub fn generate_split_operation(
 
     // -- Begin Disable Lint Section --
     content_sections.push(ContentSection::Generic(generate_disable_lint_section(
-        &project_config.typegen_config.language,
+        &project_config,
     )?));
     // -- End Disable Lint Section --
 
@@ -665,7 +665,7 @@ fn generate_read_only_fragment(
 
     // -- Begin Disable Lint Section --
     content_sections.push(ContentSection::Generic(generate_disable_lint_section(
-        &project_config.typegen_config.language,
+        &project_config,
     )?));
     // -- End Disable Lint Section --
 
@@ -787,7 +787,7 @@ fn generate_assignable_fragment(
 
     // -- Begin Disable Lint Section --
     content_sections.push(ContentSection::Generic(generate_disable_lint_section(
-        &project_config.typegen_config.language,
+        &project_config,
     )?));
     // -- End Disable Lint Section --
 
@@ -888,12 +888,15 @@ fn write_variable_value_with_type(
     }
 }
 
-fn generate_disable_lint_section(language: &TypegenLanguage) -> Result<GenericSection, FmtError> {
+fn generate_disable_lint_section(project_config: &ProjectConfig) -> Result<GenericSection, FmtError> {
     let mut section = GenericSection::default();
-    match language {
+    match project_config.typegen_config.language {
         TypegenLanguage::TypeScript => {
             writeln!(section, "/* tslint:disable */")?;
             writeln!(section, "/* eslint-disable */")?;
+            if !project_config.typegen_config.typescript_check_generated_files {
+                writeln!(section, "// @ts-nocheck")?;
+            }
         }
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             writeln!(section, "/* eslint-disable */")?;
@@ -1065,7 +1068,7 @@ pub fn generate_resolvers_schema_module_content(
 
     // -- Begin Disable Lint Section --
     content_sections.push(ContentSection::Generic(generate_disable_lint_section(
-        &project_config.typegen_config.language,
+        &project_config,
     )?));
     // -- End Disable Lint Section --
 

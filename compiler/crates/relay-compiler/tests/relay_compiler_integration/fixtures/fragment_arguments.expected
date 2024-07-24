@@ -21,7 +21,8 @@ graphql`
    "schema": "./schema.graphql",
    "featureFlags": {
       "enable_fragment_argument_transform": true
-   }
+   },
+   "typescriptCheckGeneratedFiles": true
 }
 
 //- schema.graphql

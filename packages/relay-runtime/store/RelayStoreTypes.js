@@ -679,6 +679,16 @@ export type ExecuteCompleteLogEvent = {
   +executeId: number,
 };
 
+export type StoreDataCheckerStartEvent = {
+  +name: 'store.datachecker.start',
+  +selector: NormalizationSelector,
+};
+
+export type StoreDataCheckerEndEvent = {
+  +name: 'store.datachecker.end',
+  +selector: NormalizationSelector,
+};
+
 export type StorePublishLogEvent = {
   +name: 'store.publish',
   +source: RecordSource,
@@ -772,6 +782,8 @@ export type LogEvent =
   | ExecuteAsyncModuleLogEvent
   | ExecuteErrorLogEvent
   | ExecuteCompleteLogEvent
+  | StoreDataCheckerStartEvent
+  | StoreDataCheckerEndEvent
   | StorePublishLogEvent
   | StoreSnapshotLogEvent
   | StoreLookupStartEvent

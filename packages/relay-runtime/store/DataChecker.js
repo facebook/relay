@@ -24,6 +24,7 @@ import type {
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  LogFunction,
   MissingFieldHandler,
   MutableRecordSource,
   NormalizationSelector,
@@ -91,7 +92,14 @@ function check(
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
   shouldProcessClientComponents: ?boolean,
+  log: ?LogFunction,
 ): Availability {
+  if (log != null) {
+    log({
+      name: 'store.datachecker.start',
+      selector,
+    });
+  }
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
     getSourceForActor,
@@ -103,7 +111,14 @@ function check(
     getDataID,
     shouldProcessClientComponents,
   );
-  return checker.check(node, dataID);
+  const result = checker.check(node, dataID);
+  if (log != null) {
+    log({
+      name: 'store.datachecker.end',
+      selector,
+    });
+  }
+  return result;
 }
 
 /**

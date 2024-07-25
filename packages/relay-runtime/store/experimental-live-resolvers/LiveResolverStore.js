@@ -265,6 +265,7 @@ class LiveResolverStore implements Store {
       this._operationLoader,
       this._getDataID,
       this._shouldProcessClientComponents,
+      this.__log,
     );
 
     return getAvailabilityStatus(

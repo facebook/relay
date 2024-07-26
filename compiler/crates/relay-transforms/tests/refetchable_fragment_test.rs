@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f88987026e2f5d28171c524fb14f859f>>
+ * @generated SignedSource<<63626487811055e17831fb93aee7ca44>>
  */
 
 mod refetchable_fragment;
@@ -31,6 +31,13 @@ async fn fragment_on_interface_without_id() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-on-interface-without-id.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-on-interface-without-id.expected");
     test_fixture(transform_fixture, file!(), "fragment-on-interface-without-id.graphql", "refetchable_fragment/fixtures/fragment-on-interface-without-id.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_on_interface_without_implementations_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-interface-without-implementations.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-interface-without-implementations.invalid.expected");
+    test_fixture(transform_fixture, file!(), "fragment-on-interface-without-implementations.invalid.graphql", "refetchable_fragment/fixtures/fragment-on-interface-without-implementations.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

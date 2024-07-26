@@ -66,18 +66,17 @@ fn build_refetch_operation(
         Some(node_interface_id) => {
             let eligible = match fragment.type_condition {
                 Type::Interface(id) => {
-                    id == node_interface_id
-                        || schema
-                            .interface(id)
-                            .implementing_objects
-                            .iter()
-                            .all(|&object_id| {
+                    id == node_interface_id || {
+                        let implementing_objects = &schema.interface(id).implementing_objects;
+                        !implementing_objects.is_empty()
+                            && implementing_objects.iter().all(|&object_id| {
                                 schema
                                     .object(object_id)
                                     .interfaces
                                     .iter()
                                     .any(|interface_id| *interface_id == node_interface_id)
                             })
+                    }
                 }
                 Type::Object(id) => schema
                     .object(id)

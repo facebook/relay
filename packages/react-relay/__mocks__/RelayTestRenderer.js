@@ -57,7 +57,7 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
     this.setState({data: snapshot.data});
   };
 
-  render(): React.Element<typeof ReactRelayContext.Provider> {
+  render(): React.MixedElement {
     // $FlowFixMe[prop-missing] Suppressed after making React.Element fully opaque
     const childProps = this.props.children.props;
     const newProps = {...childProps, ...this.state.data};

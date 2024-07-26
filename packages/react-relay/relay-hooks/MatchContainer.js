@@ -106,7 +106,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
   match,
   props,
 }: MatchContainerProps<TProps, TFallback>):
-  | React.Element<React.ComponentType<TProps>>
+  | React.MixedElement
   | TFallback
   | null {
   if (match != null && typeof match !== 'object') {

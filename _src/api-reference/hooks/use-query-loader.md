@@ -75,7 +75,7 @@ function NameDisplay({ queryReference }) {
 A tuple containing the following values:
 
 * `queryReference`: the query reference, or `null`.
-* `loadQuery`: a callback that, when executed, will load a query, which will be accessible as `queryReference`. If a previous query was loaded, it will dispose of it. It will throw an error if called during React's render phase.
+* `loadQuery`: a callback that, when executed, will load a query, which will be accessible as `queryReference`. If a previous query was loaded, it will dispose of it. It should not be called during React's render phase.
     * Parameters
         * `variables`: the variables with which the query is loaded.
         * `options`: `LoadQueryOptions`. An optional options object, containing the following keys:
@@ -90,6 +90,6 @@ A tuple containing the following values:
 
 * The `loadQuery` callback will fetch data if passed a query, or data and the query if passed a preloadable concrete request. Once both the query and data are available, the data from the query will be written to the store. This differs from the behavior of `preloadQuery_DEPRECATED`, which would only write data to the store if the query was passed to `usePreloadedQuery`.
 * This query reference will be retained by the Relay store, preventing the data from being garbage collected. Once `.dispose()` is called on the query reference, the data is liable to be garbage collected.
-* The `loadQuery` callback will throw an error if it is called during React's render phase.
+* The `loadQuery` callback should not be called during React's render phase.
 
 <DocsRating />

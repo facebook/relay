@@ -16,7 +16,7 @@ const useQueryLoader = require('../useQueryLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {getRequest, graphql} = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {createMockEnvironment, skipIf} = require('relay-test-utils-internal');
 
 const query = graphql`
   query useQueryLoaderLiveQueryTestQuery($id: ID!)
@@ -635,105 +635,113 @@ it('should release and cancel queries on unmount if the callback is called, the 
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('releases and cancels all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
-  let shouldSuspend;
-  let setShouldSuspend;
-  const suspensePromise = new Promise(() => {});
-  function SuspendingComponent() {
-    [shouldSuspend, setShouldSuspend] = React.useState(false);
-    if (shouldSuspend) {
-      throw suspensePromise;
+skipIf(
+  process.env.OSS,
+  'releases and cancels all queries if a the callback is called, the component suspends, another query is called and then the component unmounts',
+  () => {
+    let shouldSuspend;
+    let setShouldSuspend;
+    const suspensePromise = new Promise(() => {});
+    function SuspendingComponent() {
+      [shouldSuspend, setShouldSuspend] = React.useState(false);
+      if (shouldSuspend) {
+        throw suspensePromise;
+      }
+      return null;
     }
-    return null;
-  }
-  function Outer() {
-    return (
-      <RelayEnvironmentProvider environment={environment}>
-        <React.Suspense fallback="fallback">
-          <SuspendingComponent />
-          <Container />
-        </React.Suspense>
-      </RelayEnvironmentProvider>
-    );
-  }
-
-  let outerInstance;
-  ReactTestRenderer.act(() => {
-    outerInstance = ReactTestRenderer.create(<Outer />);
-  });
-  expect(renderCount).toEqual(1);
-  ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
-    queryLoaderCallback({});
-  });
-  expect(renderCount).toEqual(2);
-  const firstDispose = dispose;
-  ReactTestRenderer.act(() => {
-    setShouldSuspend(true);
-  });
-  expect(renderCount).toEqual(2);
-  expect(firstDispose).not.toHaveBeenCalled();
-  expect(outerInstance?.toJSON()).toEqual('fallback');
-
-  ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
-    queryLoaderCallback({});
-  });
-  const secondDispose = dispose;
-  expect(renderCount).toEqual(3);
-  expect(outerInstance?.toJSON()).toEqual('fallback');
-  expect(firstDispose).toHaveBeenCalledTimes(1);
-  expect(secondDispose).not.toHaveBeenCalled();
-  ReactTestRenderer.act(() => outerInstance?.unmount());
-  expect(secondDispose).toHaveBeenCalledTimes(1);
-});
-
-it('releases and cancels all queries if the component suspends, another query is loaded and then the component unmounts', () => {
-  let shouldSuspend;
-  let setShouldSuspend;
-  const suspensePromise = new Promise(() => {});
-  function SuspendingComponent() {
-    [shouldSuspend, setShouldSuspend] = React.useState(false);
-    if (shouldSuspend) {
-      throw suspensePromise;
+    function Outer() {
+      return (
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="fallback">
+            <SuspendingComponent />
+            <Container />
+          </React.Suspense>
+        </RelayEnvironmentProvider>
+      );
     }
-    return null;
-  }
-  function Outer() {
-    return (
-      <RelayEnvironmentProvider environment={environment}>
-        <React.Suspense fallback="fallback">
-          <SuspendingComponent />
-          <Container />
-        </React.Suspense>
-      </RelayEnvironmentProvider>
-    );
-  }
 
-  let outerInstance;
-  ReactTestRenderer.act(() => {
-    outerInstance = ReactTestRenderer.create(<Outer />);
-  });
-  expect(renderCount).toEqual(1);
-  ReactTestRenderer.act(() => {
-    setShouldSuspend(true);
-  });
-  expect(renderCount).toEqual(1);
-  expect(outerInstance?.toJSON()).toEqual('fallback');
-  ReactTestRenderer.act(() => {
-    /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-     * useQueryLoader */
-    queryLoaderCallback({});
-  });
+    let outerInstance;
+    ReactTestRenderer.act(() => {
+      outerInstance = ReactTestRenderer.create(<Outer />);
+    });
+    expect(renderCount).toEqual(1);
+    ReactTestRenderer.act(() => {
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * useQueryLoader */
+      queryLoaderCallback({});
+    });
+    expect(renderCount).toEqual(2);
+    const firstDispose = dispose;
+    ReactTestRenderer.act(() => {
+      setShouldSuspend(true);
+    });
+    expect(renderCount).toEqual(2);
+    expect(firstDispose).not.toHaveBeenCalled();
+    expect(outerInstance?.toJSON()).toEqual('fallback');
 
-  expect(renderCount).toEqual(2);
-  expect(outerInstance?.toJSON()).toEqual('fallback');
-  expect(dispose).not.toHaveBeenCalled();
-  ReactTestRenderer.act(() => outerInstance?.unmount());
-  expect(dispose).toHaveBeenCalledTimes(1);
-});
+    ReactTestRenderer.act(() => {
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * useQueryLoader */
+      queryLoaderCallback({});
+    });
+    const secondDispose = dispose;
+    expect(renderCount).toEqual(3);
+    expect(outerInstance?.toJSON()).toEqual('fallback');
+    expect(firstDispose).toHaveBeenCalledTimes(1);
+    expect(secondDispose).not.toHaveBeenCalled();
+    ReactTestRenderer.act(() => outerInstance?.unmount());
+    expect(secondDispose).toHaveBeenCalledTimes(1);
+  },
+);
+
+skipIf(
+  process.env.OSS,
+  'releases and cancels all queries if the component suspends, another query is loaded and then the component unmounts',
+  () => {
+    let shouldSuspend;
+    let setShouldSuspend;
+    const suspensePromise = new Promise(() => {});
+    function SuspendingComponent() {
+      [shouldSuspend, setShouldSuspend] = React.useState(false);
+      if (shouldSuspend) {
+        throw suspensePromise;
+      }
+      return null;
+    }
+    function Outer() {
+      return (
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="fallback">
+            <SuspendingComponent />
+            <Container />
+          </React.Suspense>
+        </RelayEnvironmentProvider>
+      );
+    }
+
+    let outerInstance;
+    ReactTestRenderer.act(() => {
+      outerInstance = ReactTestRenderer.create(<Outer />);
+    });
+    expect(renderCount).toEqual(1);
+    ReactTestRenderer.act(() => {
+      setShouldSuspend(true);
+    });
+    expect(renderCount).toEqual(1);
+    expect(outerInstance?.toJSON()).toEqual('fallback');
+    ReactTestRenderer.act(() => {
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * useQueryLoader */
+      queryLoaderCallback({});
+    });
+
+    expect(renderCount).toEqual(2);
+    expect(outerInstance?.toJSON()).toEqual('fallback');
+    expect(dispose).not.toHaveBeenCalled();
+    ReactTestRenderer.act(() => outerInstance?.unmount());
+    expect(dispose).toHaveBeenCalledTimes(1);
+  },
+);
 
 it('releases and cancels the query on unmount if the component unmounts and then the callback is called before rendering', () => {
   // Case 1: unmount, then loadQuery

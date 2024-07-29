@@ -59,19 +59,62 @@ const GuidesRescuedFromOldTutorial = [
     ],
   },
 ];
-
-const Guides = fbContent({
-  internal: [
-    'guides/graphql-server-specification',
-    'guides/compiler',
-    'guides/fb/updating-the-graphql-schema',
-    'guides/fb/flow-typing',
-    'guides/fb/writing-subscriptions',
-    'guides/testing-relay-components',
-    'guides/testing-relay-with-preloaded-queries',
-    'guides/required-directive',
+const InternalGuides = {
+  'Fetching Data': [
+    {
+      Pagination: [
+        'guided-tour/list-data/advanced-pagination',
+        'guided-tour/list-data/fb/blocking-pagination',
+      ],
+      Subscriptions: [
+        'guided-tour/updating-data/graphql-subscriptions',
+        'guides/fb/writing-subscriptions',
+      ],
+      EntryPoints: [
+        'guides/fb/entrypoints/entrypoints',
+        'guides/fb/entrypoints/using-entrypoints',
+        'guides/fb/entrypoints/using-entrypoints-at-facebook',
+        'guides/fb/entrypoints/migrating-from-lazy-fetching',
+        'guides/fb/entrypoints/entrypoints-faq',
+      ],
+    },
     'guides/alias-directive',
-    'guides/client-schema-extensions',
+    {
+      'Web-Only': [
+        'guides/fb/incremental-data-delivery',
+        'guides/fb/data-driven-dependencies',
+        'guides/fb/image-prefetching',
+        'guides/fb/comet-route-prefetching',
+        'guides/fb/web-query-preloading',
+        'guides/fb/production-graphql-endpoint-in-sandboxes',
+        'guides/fb/react-flight',
+      ],
+      'React-Native-Only': ['guides/fb/native-fetch'],
+    },
+  ],
+  'Error Handling': [
+    'guides/required-directive',
+    'guided-tour/rendering/error-states',
+  ],
+  'Updating Data': [
+    'guided-tour/list-data/updating-connections',
+    'guided-tour/updating-data/imperatively-modifying-store-data',
+    'guided-tour/updating-data/imperatively-modifying-linked-fields',
+    'guided-tour/updating-data/typesafe-updaters-faq',
+    'guided-tour/updating-data/local-data-updates',
+    'guided-tour/updating-data/client-only-data',
+    'guides/fb/client-mutation-id-and-actor-id',
+  ],
+  Caching: [
+    'guided-tour/reusing-cached-data/introduction',
+    'guided-tour/reusing-cached-data/fetch-policies',
+    'guided-tour/reusing-cached-data/presence-of-data',
+    'guided-tour/reusing-cached-data/staleness-of-data',
+    'guided-tour/reusing-cached-data/rendering-partially-cached-data',
+    'guided-tour/reusing-cached-data/filling-in-missing-data',
+    'guided-tour/managing-data-outside-react/retaining-queries',
+  ],
+  'Client Side Data': [
     {
       'Relay Resolvers': [
         'guides/relay-resolvers/introduction',
@@ -89,33 +132,19 @@ const Guides = fbContent({
         'guides/relay-resolvers/limitations',
       ],
     },
-    'guides/type-emission',
-    'guided-tour/rendering/error-states',
-    'guides/fb/client-mutation-id-and-actor-id',
-    GuidesRescuedFromOldTutorial,
-    {
-      EntryPoints: [
-        'guides/fb/entrypoints/entrypoints',
-        'guides/fb/entrypoints/using-entrypoints',
-        'guides/fb/entrypoints/using-entrypoints-at-facebook',
-        'guides/fb/entrypoints/migrating-from-lazy-fetching',
-        'guides/fb/entrypoints/entrypoints-faq',
-      ],
-      'Web-Only': [
-        'guides/fb/incremental-data-delivery',
-        'guides/fb/data-driven-dependencies',
-        'guides/fb/image-prefetching',
-        'guides/fb/comet-route-prefetching',
-        'guides/fb/web-query-preloading',
-        'guides/fb/production-graphql-endpoint-in-sandboxes',
-        'guides/fb/react-flight',
-      ],
-      'React-Native-Only': ['guides/fb/native-fetch'],
-    },
+    'guides/client-schema-extensions',
   ],
+  'GraphQL Server': [
+    'guides/graphql-server-specification',
+    'guides/fb/updating-the-graphql-schema',
+  ],
+  Typing: ['guides/fb/flow-typing', 'guides/type-emission'],
+};
+
+const Guides = fbContent({
+  internal: [InternalGuides],
   external: [
     'guides/graphql-server-specification',
-    'guides/compiler',
     'guides/type-emission',
     'guides/persisted-queries',
     'guides/network-layer',
@@ -137,8 +166,6 @@ const Guides = fbContent({
         'guides/relay-resolvers/limitations',
       ],
     },
-    'guides/testing-relay-components',
-    'guides/testing-relay-with-preloaded-queries',
     'guides/required-directive',
     'guides/alias-directive',
     'guided-tour/rendering/error-states',
@@ -157,6 +184,12 @@ module.exports = {
   docs: [
     'home',
     {
+      Installation: [
+        'getting-started/prerequisites',
+        'getting-started/installation-and-setup',
+        'editor-support',
+        'getting-started/compiler',
+      ],
       Tutorial: [
         'tutorial/intro',
         'tutorial/graphql',
@@ -174,12 +207,7 @@ module.exports = {
         'tutorial/mutations-updates',
         'tutorial/organizing-mutations-queries-and-subscriptions',
       ],
-      Installation: [
-        'getting-started/prerequisites',
-        'getting-started/installation-and-setup',
-        'editor-support',
-      ],
-      Guides,
+      'Feature Guides': Guides,
       'API Reference': [
         {
           'Relay Hooks': [
@@ -223,14 +251,9 @@ module.exports = {
         'api-reference/graphql/graphql-directives',
         'api-reference/legacy-apis/legacy-apis',
       ],
-      'Migration and Compatibility': [
-        'migration-and-compatibility/upgrading-to-relay-hooks',
-        'migration-and-compatibility/suspense-compatibility',
-        'migration-and-compatibility/relay-hooks-and-legacy-container-apis',
-      ],
-    },
-    {
-      Debugging: [
+      'Testing and Debugging': [
+        'guides/testing-relay-components',
+        'guides/testing-relay-with-preloaded-queries',
         ...fbContent({
           internal: [
             'debugging/fb/debugging-and-troubleshooting',
@@ -251,6 +274,12 @@ module.exports = {
             'debugging/why-null',
           ],
         }),
+        'error-reference/unknown-field',
+      ],
+      'Migration and Compatibility': [
+        'migration-and-compatibility/upgrading-to-relay-hooks',
+        'migration-and-compatibility/suspense-compatibility',
+        'migration-and-compatibility/relay-hooks-and-legacy-container-apis',
       ],
       'Principles and Architecture': [
         'principles-and-architecture/thinking-in-graphql',
@@ -260,7 +289,6 @@ module.exports = {
         'principles-and-architecture/runtime-architecture',
         'principles-and-architecture/videos',
       ],
-      'Error reference': ['error-reference/unknown-field'],
     },
     'community/learning-resources',
     'glossary/glossary',

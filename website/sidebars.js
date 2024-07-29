@@ -12,85 +12,61 @@
 
 const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
+// Note for files from "guided-tour/":
 // Some advanced information not covered in the new tutorial that
 // we need to stick somewhere until the rest of the Guides and API
 // Reference are rewritten.
-const GuidesRescuedFromOldTutorial = [
-  {
-    'Reusing Cached Data for Rendering': [
-      'guided-tour/reusing-cached-data/introduction',
-      'guided-tour/reusing-cached-data/fetch-policies',
-      'guided-tour/reusing-cached-data/presence-of-data',
-      'guided-tour/reusing-cached-data/staleness-of-data',
-      'guided-tour/reusing-cached-data/rendering-partially-cached-data',
-      'guided-tour/reusing-cached-data/filling-in-missing-data',
-    ],
-  },
-  ...fbContent({
-    internal: ['guided-tour/list-data/fb/blocking-pagination'],
-    external: [],
-  }),
-  'guided-tour/list-data/advanced-pagination',
-  ...fbContent({
-    internal: ['guided-tour/fb/advanced-data-fetching'],
-    external: [
-      // TODO(T85915654): Release entrypoints guide externally
-    ],
-  }),
-  {
-    'Managing Data Outside React': [
-      // These were already commented out
-      // 'guided-tour/managing-data-outside-react/prefetching-queries',
-      // 'guided-tour/managing-data-outside-react/subscribing-to-queries',
-      // 'guided-tour/managing-data-outside-react/reading-queries',
-      // 'guided-tour/managing-data-outside-react/reading-fragments',
-      'guided-tour/managing-data-outside-react/retaining-queries',
-    ],
-  },
-  'guided-tour/updating-data/graphql-subscriptions',
-  {
-    'Updating Data': [
-      'guided-tour/list-data/updating-connections',
-      'guided-tour/updating-data/imperatively-modifying-store-data',
-      'guided-tour/updating-data/imperatively-modifying-linked-fields',
-      'guided-tour/updating-data/typesafe-updaters-faq',
-      'guided-tour/updating-data/local-data-updates',
-      'guided-tour/updating-data/client-only-data',
-    ],
-  },
-];
-const InternalGuides = {
+
+const Guides = {
   'Fetching Data': [
-    {
-      Pagination: [
-        'guided-tour/list-data/advanced-pagination',
-        'guided-tour/list-data/fb/blocking-pagination',
+    ...fbContent({
+      internal: [
+        {
+          Pagination: [
+            'guided-tour/list-data/advanced-pagination',
+            'guided-tour/list-data/fb/blocking-pagination',
+          ],
+        },
       ],
-      Subscriptions: [
-        'guided-tour/updating-data/graphql-subscriptions',
-        'guides/fb/writing-subscriptions',
+      external: ['guided-tour/list-data/advanced-pagination'],
+    }),
+    ...fbContent({
+      internal: [
+        {
+          Subscriptions: [
+            'guided-tour/updating-data/graphql-subscriptions',
+            'guides/fb/writing-subscriptions',
+          ],
+        },
       ],
-      EntryPoints: [
-        'guides/fb/entrypoints/entrypoints',
-        'guides/fb/entrypoints/using-entrypoints',
-        'guides/fb/entrypoints/using-entrypoints-at-facebook',
-        'guides/fb/entrypoints/migrating-from-lazy-fetching',
-        'guides/fb/entrypoints/entrypoints-faq',
-      ],
-    },
+      external: ['guided-tour/updating-data/graphql-subscriptions'],
+    }),
     'guides/alias-directive',
-    {
-      'Web-Only': [
-        'guides/fb/incremental-data-delivery',
-        'guides/fb/data-driven-dependencies',
-        'guides/fb/image-prefetching',
-        'guides/fb/comet-route-prefetching',
-        'guides/fb/web-query-preloading',
-        'guides/fb/production-graphql-endpoint-in-sandboxes',
-        'guides/fb/react-flight',
+    ...fbContent({
+      internal: [
+        {
+          // TODO(T85915654): Release entrypoints guide externally
+          EntryPoints: [
+            'guides/fb/entrypoints/entrypoints',
+            'guides/fb/entrypoints/using-entrypoints',
+            'guides/fb/entrypoints/using-entrypoints-at-facebook',
+            'guides/fb/entrypoints/migrating-from-lazy-fetching',
+            'guides/fb/entrypoints/entrypoints-faq',
+          ],
+          'Web-Only': [
+            'guides/fb/incremental-data-delivery',
+            'guides/fb/data-driven-dependencies',
+            'guides/fb/image-prefetching',
+            'guides/fb/comet-route-prefetching',
+            'guides/fb/web-query-preloading',
+            'guides/fb/production-graphql-endpoint-in-sandboxes',
+            'guides/fb/react-flight',
+          ],
+          'React-Native-Only': ['guides/fb/native-fetch'],
+        },
       ],
-      'React-Native-Only': ['guides/fb/native-fetch'],
-    },
+      external: [],
+    }),
   ],
   'Error Handling': [
     'guides/required-directive',
@@ -103,7 +79,10 @@ const InternalGuides = {
     'guided-tour/updating-data/typesafe-updaters-faq',
     'guided-tour/updating-data/local-data-updates',
     'guided-tour/updating-data/client-only-data',
-    'guides/fb/client-mutation-id-and-actor-id',
+    ...fbContent({
+      internal: ['guides/fb/client-mutation-id-and-actor-id'],
+      external: [],
+    }),
   ],
   Caching: [
     'guided-tour/reusing-cached-data/introduction',
@@ -113,6 +92,11 @@ const InternalGuides = {
     'guided-tour/reusing-cached-data/rendering-partially-cached-data',
     'guided-tour/reusing-cached-data/filling-in-missing-data',
     'guided-tour/managing-data-outside-react/retaining-queries',
+    // These were already commented out
+    // 'guided-tour/managing-data-outside-react/prefetching-queries',
+    // 'guided-tour/managing-data-outside-react/subscribing-to-queries',
+    // 'guided-tour/managing-data-outside-react/reading-queries',
+    // 'guided-tour/managing-data-outside-react/reading-fragments',
   ],
   'Client Side Data': [
     {
@@ -134,49 +118,25 @@ const InternalGuides = {
     },
     'guides/client-schema-extensions',
   ],
-  'GraphQL Server': [
+  'GraphQL Server and Network': [
     'guides/graphql-server-specification',
-    'guides/fb/updating-the-graphql-schema',
+    ...fbContent({
+      internal: ['guides/fb/updating-the-graphql-schema'],
+      external: ['guides/persisted-queries', 'guides/network-layer'],
+    }),
   ],
-  Typing: ['guides/fb/flow-typing', 'guides/type-emission'],
-};
-
-const Guides = fbContent({
-  internal: [InternalGuides],
-  external: [
-    'guides/graphql-server-specification',
+  Typing: [
+    ...fbContent({
+      internal: ['guides/fb/flow-typing'],
+    }),
     'guides/type-emission',
-    'guides/persisted-queries',
-    'guides/network-layer',
-    'guides/client-schema-extensions',
-    {
-      'Relay Resolvers': [
-        'guides/relay-resolvers/introduction',
-        'guides/relay-resolvers/enabling',
-        'guides/relay-resolvers/defining-types',
-        'guides/relay-resolvers/defining-fields',
-        'guides/relay-resolvers/return-types',
-        'guides/relay-resolvers/field-arguments',
-        'guides/relay-resolvers/derived-fields',
-        'guides/relay-resolvers/live-fields',
-        'guides/relay-resolvers/suspense',
-        'guides/relay-resolvers/errors',
-        'guides/relay-resolvers/descriptions',
-        'guides/relay-resolvers/deprecated',
-        'guides/relay-resolvers/limitations',
-      ],
-    },
-    'guides/required-directive',
-    'guides/alias-directive',
-    'guided-tour/rendering/error-states',
-    GuidesRescuedFromOldTutorial,
-    // TODO(T84797602) release incremental data delivery externally
-    // 'guides/incremental-data-delivery',
-    // TODO release these in OSS
-    // 'guides/data-driven-dependencies',
-    // 'guides/image-prefetching',
   ],
-});
+  // TODO(T84797602) release incremental data delivery externally
+  // 'guides/incremental-data-delivery',
+  // TODO release these in OSS
+  // 'guides/data-driven-dependencies',
+  // 'guides/image-prefetching',
+};
 
 // N.B. these IDs are path relative to the docs root + id.
 // They do not always correspond to the slug, e.g. with /fb/ in the id.

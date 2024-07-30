@@ -19,6 +19,7 @@ const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnv
 const useFragment = require('../../react-relay/relay-hooks/useFragment');
 const useLazyLoadQuery = require('../../react-relay/relay-hooks/useLazyLoadQuery');
 const usePreloadedQuery = require('../../react-relay/relay-hooks/usePreloadedQuery');
+const invariant = require('invariant');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {act} = require('react-test-renderer');
@@ -74,13 +75,22 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
       data = usePreloadedQuery(query, props.prefetched);
       return data.node?.name;
     }
-    const renderer = TestRenderer.create(
-      <RelayEnvironmentProvider environment={mockEnvironment}>
-        <React.Suspense fallback="Fallback">
-          <Component prefetched={prefetched} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <RelayEnvironmentProvider environment={mockEnvironment}>
+          <React.Suspense fallback="Fallback">
+            <Component prefetched={prefetched} />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+        // $FlowFixMe[prop-missing]
+        {
+          unstable_isConcurrent: true,
+        },
+      );
+    });
+    invariant(renderer != null, 'should have been rendered');
+
     if (condition === SUSPENDED) {
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBeUndefined();
@@ -173,13 +183,21 @@ describe('when generating multiple payloads for deferred data', () => {
       const data = useFragment(fragment, props.user);
       return data?.name;
     }
-    const renderer = TestRenderer.create(
-      <RelayEnvironmentProvider environment={mockEnvironment}>
-        <React.Suspense fallback="Fallback">
-          <Component />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <RelayEnvironmentProvider environment={mockEnvironment}>
+          <React.Suspense fallback="Fallback">
+            <Component />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+        // $FlowFixMe[prop-missing]
+        {
+          unstable_isConcurrent: true,
+        },
+      );
+    });
+    invariant(renderer != null, 'should have been rendered');
 
     const isSuspended = () => renderer.toJSON() === 'Fallback';
 

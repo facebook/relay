@@ -961,7 +961,11 @@ describe('logging', () => {
         networkRequestId: 100000,
       },
       {
-        name: 'execute.next',
+        name: 'execute.next.start',
+        executeId: 100001,
+      },
+      {
+        name: 'execute.next.end',
         executeId: 100001,
       },
       {
@@ -1141,7 +1145,11 @@ describe('logging', () => {
         networkRequestId: 100001,
       },
       {
-        name: 'execute.next',
+        name: 'execute.next.start',
+        executeId: 100002,
+      },
+      {
+        name: 'execute.next.end',
         executeId: 100002,
       },
       {

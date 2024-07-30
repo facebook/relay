@@ -652,12 +652,17 @@ export type ExecuteStartLogEvent = {
   +cacheConfig: CacheConfig,
 };
 
-export type ExecuteNextLogEvent = {
-  +name: 'execute.next',
+export type ExecuteNextStartLogEvent = {
+  +name: 'execute.next.start',
   +executeId: number,
   +response: GraphQLResponse,
-  +duration: number,
-  +start: number,
+  +operation: OperationDescriptor,
+};
+
+export type ExecuteNextEndLogEvent = {
+  +name: 'execute.next.end',
+  +executeId: number,
+  +response: GraphQLResponse,
   +operation: OperationDescriptor,
 };
 
@@ -778,7 +783,8 @@ export type LogEvent =
   | NetworkCompleteLogEvent
   | NetworkUnsubscribeLogEvent
   | ExecuteStartLogEvent
-  | ExecuteNextLogEvent
+  | ExecuteNextStartLogEvent
+  | ExecuteNextEndLogEvent
   | ExecuteAsyncModuleLogEvent
   | ExecuteErrorLogEvent
   | ExecuteCompleteLogEvent

@@ -375,16 +375,18 @@ class Executor<TMutation: MutationParameters> {
   // Handle a raw GraphQL response.
   _next(_id: number, response: GraphQLResponse): void {
     this._schedule(() => {
-      const [start, duration] = withStartAndDuration(() => {
-        this._handleNext(response);
-        this._maybeCompleteSubscriptionOperationTracking();
-      });
       this._log({
-        name: 'execute.next',
+        name: 'execute.next.start',
         executeId: this._executeId,
         response,
-        duration,
-        start,
+        operation: this._operation,
+      });
+      this._handleNext(response);
+      this._maybeCompleteSubscriptionOperationTracking();
+      this._log({
+        name: 'execute.next.end',
+        executeId: this._executeId,
+        response,
         operation: this._operation,
       });
     });

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2c48473c046371240563533927d884d3>>
+ * @generated SignedSource<<3c61408eb4141517713b08049fac2b27>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,14 +19,14 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type ModuleAutoBindTestFragment_user$fragmentType: FragmentType;
-export type ModuleAutoBindTestFragment_user$data = {|
+declare export opaque type UserNameComponentFragment_user$fragmentType: FragmentType;
+export type UserNameComponentFragment_user$data = {|
   +name: ?string,
-  +$fragmentType: ModuleAutoBindTestFragment_user$fragmentType,
+  +$fragmentType: UserNameComponentFragment_user$fragmentType,
 |};
-export type ModuleAutoBindTestFragment_user$key = {
-  +$data?: ModuleAutoBindTestFragment_user$data,
-  +$fragmentSpreads: ModuleAutoBindTestFragment_user$fragmentType,
+export type UserNameComponentFragment_user$key = {
+  +$data?: UserNameComponentFragment_user$data,
+  +$fragmentSpreads: UserNameComponentFragment_user$fragmentType,
   ...
 };
 */
@@ -35,7 +35,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "ModuleAutoBindTestFragment_user",
+  "name": "UserNameComponentFragment_user",
   "selections": [
     {
       "alias": null,
@@ -50,10 +50,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e9d12e81d55414721e8b7f51db3693b8";
+  (node/*: any*/).hash = "445d4f6b40ae8f7cb3c46226199820e9";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<
-  ModuleAutoBindTestFragment_user$fragmentType,
-  ModuleAutoBindTestFragment_user$data,
+  UserNameComponentFragment_user$fragmentType,
+  UserNameComponentFragment_user$data,
 >*/);

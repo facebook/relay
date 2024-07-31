@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a246a474024ca58b7f8015b204391641>>
+ * @generated SignedSource<<c73b3ad0783ce1d794109665d15624ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import type { NormalizationSplitOperation } from 'relay-runtime';
 var node/*: NormalizationSplitOperation*/ = {
   "kind": "SplitOperation",
   "metadata": {},
-  "name": "ModuleAutoBindTestFragment_user$normalization",
+  "name": "UserNameComponentFragment_user$normalization",
   "selections": [
     {
       "alias": null,
@@ -37,7 +37,7 @@ var node/*: NormalizationSplitOperation*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e9d12e81d55414721e8b7f51db3693b8";
+  (node/*: any*/).hash = "445d4f6b40ae8f7cb3c46226199820e9";
 }
 
 module.exports = node;

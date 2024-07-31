@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<558930766ba6f8463b1f2ba2dde8b7ef>>
+ * @generated SignedSource<<9e57a8ca72114faed80cc22fb7936cd5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,17 +16,21 @@
 
 'use strict';
 
-// @dataDrivenDependency ModuleAutoBindTestQuery.me {"branches":{"User":{"component":"ModuleAutoBindTestFragment","fragment":"ModuleAutoBindTestFragment_user$normalization.graphql"}},"plural":false}
+// @dataDrivenDependency ModuleAutoBindTestQuery.me.UserNameComponent {"branches":{"User":{"component":"UserNameComponent","fragment":"UserNameComponentFragment_user$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { ModuleAutoBindTestFragment_user$fragmentType } from "./ModuleAutoBindTestFragment_user.graphql";
+import type { UserNameComponentFragment_user$fragmentType } from "./UserNameComponentFragment_user.graphql";
+
+// HACKED: If we enforce fragment colocation, Relay can know where this module is defined.
+import typeof UserNameComponent from "../UserNameComponent";
 export type ModuleAutoBindTestQuery$variables = {||};
 export type ModuleAutoBindTestQuery$data = {|
   +me: ?{|
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: ModuleAutoBindTestFragment_user$fragmentType,
+    // HACKED: We know the prop name, so we can infer the type of a React component with the fragment prop pre-bound.
+    // CONCERN: This type magic is clever and correct, but makes for lousy type errors.
+    // CONCERN: Would this work for component syntax?
+    +UserNameComponent: (Omit<Parameters<UserNameComponent>[0], "user">) => ReturnType<UserNameComponent>,
   |},
 |};
 export type ModuleAutoBindTestQuery = {|
@@ -38,8 +42,8 @@ export type ModuleAutoBindTestQuery = {|
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
   "args": null,
-  "documentName": "ModuleAutoBindTestQuery",
-  "fragmentName": "ModuleAutoBindTestFragment_user",
+  "documentName": "ModuleAutoBindTestQuery_UserNameComponent",
+  "fragmentName": "UserNameComponentFragment_user",
   "fragmentPropName": "user",
   "kind": "ModuleImport"
 };
@@ -58,7 +62,25 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          {
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                // HACKED: This is just a ModuleImport node with a different name.
+                {
+                  "args": null,
+                  "documentName": "ModuleAutoBindTestQuery_UserNameComponent",
+                  "fragmentName": "UserNameComponentFragment_user",
+                  "fragmentPropName": "user",
+                  "kind": "AutoBindModuleImport"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "UserNameComponent"
+          }
         ],
         "storageKey": null
       }
@@ -94,18 +116,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1a92b2cbf65ce3ab050ff3365c0ef1b6",
+    "cacheID": "e24ef18e086aa7de574571390450c41a",
     "id": null,
     "metadata": {},
     "name": "ModuleAutoBindTestQuery",
     "operationKind": "query",
-    "text": "query ModuleAutoBindTestQuery {\n  me {\n    ...ModuleAutoBindTestFragment_user\n    __module_operation_ModuleAutoBindTestQuery: js(module: \"ModuleAutoBindTestFragment_user$normalization.graphql\", id: \"ModuleAutoBindTestQuery.me\")\n    __module_component_ModuleAutoBindTestQuery: js(module: \"ModuleAutoBindTestFragment\", id: \"ModuleAutoBindTestQuery.me\")\n    id\n  }\n}\n\nfragment ModuleAutoBindTestFragment_user on User {\n  name\n}\n"
+    "text": "query ModuleAutoBindTestQuery {\n  me {\n    ...UserNameComponentFragment_user\n    __module_operation_ModuleAutoBindTestQuery_UserNameComponent: js(module: \"UserNameComponentFragment_user$normalization.graphql\", id: \"ModuleAutoBindTestQuery.me.UserNameComponent\")\n    __module_component_ModuleAutoBindTestQuery_UserNameComponent: js(module: \"UserNameComponent\", id: \"ModuleAutoBindTestQuery.me.UserNameComponent\")\n    id\n  }\n}\n\nfragment UserNameComponentFragment_user on User {\n  name\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c7c696cc0f66ba15ba76e40e841fc2a1";
+  (node/*: any*/).hash = "fb1c8809fb144cba23abafa0ad8103a1";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

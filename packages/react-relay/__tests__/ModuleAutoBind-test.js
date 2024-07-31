@@ -11,17 +11,16 @@
 
 'use strict';
 
-import type {ModuleAutoBindTestFragment_user$key} from './__generated__/ModuleAutoBindTestFragment_user.graphql';
+import type {ModuleAutoBindTestQuery$data} from './__generated__/ModuleAutoBindTestQuery.graphql';
 import type {OperationLoader} from 'relay-runtime/store/RelayStoreTypes';
 import type {NormalizationRootNode} from 'relay-runtime/util/NormalizationNode';
 import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnvironment';
 
-import ModuleAutoBindTestFragment_user$normalization from './__generated__/ModuleAutoBindTestFragment_user$normalization.graphql';
-
-const MatchContainer = require('../relay-hooks/MatchContainer');
 const useLazyLoadQuery = require('../relay-hooks/useLazyLoadQuery');
+const UserNameComponentFragment_user$normalization = require('./__generated__/UserNameComponentFragment_user$normalization.graphql');
+const UserNameComponent = require('./UserNameComponent').default;
 const React = require('react');
-const {RelayEnvironmentProvider, useFragment} = require('react-relay');
+const {RelayEnvironmentProvider} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
 const {createOperationDescriptor} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
@@ -55,8 +54,8 @@ describe('AutoBind', () => {
   const operationLoader: OperationLoader = {
     get(reference: mixed): ?NormalizationRootNode {
       switch (reference) {
-        case 'ModuleAutoBindTestFragment_user$normalization.graphql':
-          return ModuleAutoBindTestFragment_user$normalization;
+        case 'UserNameComponentFragment_user$normalization.graphql':
+          return UserNameComponentFragment_user$normalization;
         default:
           throw new Error(`Loader not configured for reference: ${reference}`);
       }
@@ -65,12 +64,15 @@ describe('AutoBind', () => {
       throw new Error('OperationLoader.load not implemented');
     },
   };
+
   const loader = moduleReference => {
     return UserNameComponent;
   };
+
   beforeEach(() => {
     const store = new RelayModernStore(new RelayRecordSource({}), {
       operationLoader,
+      loader,
     });
     environment = createMockEnvironment({
       operationLoader,
@@ -78,43 +80,24 @@ describe('AutoBind', () => {
     });
   });
 
-  function UserNameComponent(props: {
-    user: ModuleAutoBindTestFragment_user$key,
-  }) {
-    const data = useFragment(
-      graphql`
-        fragment ModuleAutoBindTestFragment_user on User {
-          name
-        }
-      `,
-      props.user,
-    );
-
-    return data.name;
-  }
-
   const QUERY = graphql`
     query ModuleAutoBindTestQuery {
       me {
-        ...ModuleAutoBindTestFragment_user
-          @module(name: "ModuleAutoBindTestFragment")
+        ...UserNameComponentFragment_user
+          # NOTE: I think there's a path toward making the name optional
+          @module(name: "UserNameComponent")
+          @alias(as: "UserNameComponent")
       }
     }
   `;
 
   function TodoRootComponent() {
-    const data = useLazyLoadQuery(QUERY, {});
+    const data = useLazyLoadQuery<{}, ModuleAutoBindTestQuery$data>(QUERY, {});
     if (data.me == null) {
       return null;
     }
 
-    return (
-      <MatchContainer
-        fallback={<h1>FALLBACK</h1>}
-        loader={loader}
-        match={data.me}
-      />
-    );
+    return <data.me.UserNameComponent greeting="Hello" />;
   }
 
   test('should read title of the model', () => {
@@ -124,10 +107,10 @@ describe('AutoBind', () => {
         __typename: 'User',
         id: '1',
         name: 'Alice',
-        __module_operation_ModuleAutoBindTestQuery:
-          'ModuleAutoBindTestFragment_user$normalization.graphql',
-        __module_component_ModuleAutoBindTestQuery:
-          'ModuleAutoBindTestFragment',
+        __module_operation_ModuleAutoBindTestQuery_UserNameComponent:
+          'UserNameComponentFragment_user$normalization.graphql',
+        __module_component_ModuleAutoBindTestQuery_UserNameComponent:
+          'UserNameComponentFragment_user',
       },
     });
     let renderer;
@@ -138,6 +121,6 @@ describe('AutoBind', () => {
         </EnvironmentWrapper>,
       );
     });
-    expect(renderer.toJSON()).toEqual('Alice');
+    expect(renderer.toJSON()).toEqual('Hello Alice');
   });
 });

@@ -90,7 +90,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         source,
         snapshot.selector,
         this._resolverCache,
-        this._liveResolverContext,
+        this._liveResolverContext || undefined,
       );
       const nextData = recycleNodesInto(snapshot.data, backup.data);
       (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
@@ -176,7 +176,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
             source,
             snapshot.selector,
             this._resolverCache,
-            this._liveResolverContext,
+            this._liveResolverContext || undefined,
           )
         : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);

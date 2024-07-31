@@ -11,9 +11,6 @@ graphql`
   "eagerEsModules": true,
   "persistConfig": { 
     "file": "./operations.json" 
-  },
-  "featureFlags": {
-    "typescript_check_generated_files": true
   }
 }
 

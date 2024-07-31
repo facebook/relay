@@ -14,8 +14,7 @@ graphql`fragment barFragment on User {
    "schema": "./schema.graphql",
    "eagerEsModules": true,
    "featureFlags": {
-      "enable_relay_resolver_transform": true,
-      "typescript_check_generated_files": true
+      "enable_relay_resolver_transform": true
    }
 }
 

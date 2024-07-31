@@ -19,8 +19,7 @@ graphql`
    "language": "typescript",
    "schema": "./schema.graphql",
    "featureFlags": {
-      "enable_fragment_argument_transform": true,
-      "typescript_check_generated_files": true
+      "enable_fragment_argument_transform": true
    }
 }
 

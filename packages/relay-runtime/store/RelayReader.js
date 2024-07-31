@@ -34,6 +34,7 @@ import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
   ErrorResponseFields,
+  LiveResolverContext,
   MissingClientEdgeRequestInfo,
   MissingLiveResolverField,
   MissingRequiredFields,
@@ -47,7 +48,6 @@ import type {
 } from './RelayStoreTypes';
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
-import type {ResolverContext} from './ResolverFragments';
 
 const {
   ACTOR_CHANGE,
@@ -102,13 +102,13 @@ function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
   resolverCache?: ResolverCache,
-  resolverContext?: mixed,
+  liveResolverContext?: LiveResolverContext,
 ): Snapshot {
   const reader = new RelayReader(
     recordSource,
     selector,
     resolverCache ?? new NoopResolverCache(),
-    resolverContext,
+    liveResolverContext,
   );
   return reader.read();
 }
@@ -133,13 +133,13 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
-  _resolverContext: mixed;
+  _liveResolverContext: ?LiveResolverContext;
 
   constructor(
     recordSource: RecordSource,
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
-    resolverContext: mixed,
+    liveResolverContext: ?LiveResolverContext,
   ) {
     this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
       ? [...selector.clientEdgeTraversalPath]
@@ -159,7 +159,7 @@ class RelayReader {
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
-    this._resolverContext = resolverContext;
+    this._liveResolverContext = liveResolverContext;
   }
 
   read(): Snapshot {
@@ -712,7 +712,7 @@ class RelayReader {
             field,
             this._variables,
             key,
-            this._resolverContext,
+            this._liveResolverContext,
           );
           return {resolverResult, snapshot, error: resolverError};
         });
@@ -721,7 +721,7 @@ class RelayReader {
           field,
           this._variables,
           null,
-          this._resolverContext,
+          this._liveResolverContext,
         );
         return {resolverResult, snapshot: undefined, error: resolverError};
       }
@@ -1414,7 +1414,7 @@ function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
   fragmentKey: mixed,
-  resolverContext: mixed,
+  liveResolverContext: ?LiveResolverContext,
 ): [mixed, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
@@ -1424,17 +1424,29 @@ function getResolverValue(
 
   let resolverResult = null;
   let resolverError = null;
+
+  const shouldPassContextToLiveResolver =
+    liveResolverContext && field.kind === 'RelayLiveResolver';
   try {
     const resolverFunctionArgs = [];
     if (field.fragment != null) {
       resolverFunctionArgs.push(fragmentKey);
+    } else {
+      // Set first argument to `null` in case we have resolver context
+      // to make sure the context object is always the 3rd argument.
+      if (shouldPassContextToLiveResolver) {
+        resolverFunctionArgs.push(null);
+      }
     }
     const args = field.args
       ? getArgumentValues(field.args, variables)
       : undefined;
 
     resolverFunctionArgs.push(args);
-    resolverFunctionArgs.push(resolverContext);
+
+    if (shouldPassContextToLiveResolver) {
+      resolverFunctionArgs.push(liveResolverContext);
+    }
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {

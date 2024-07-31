@@ -14,11 +14,11 @@
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
   DataIDSet,
+  LiveResolverContext,
   LogFunction,
   OperationDescriptor,
   RecordSource,
   RequestDescriptor,
-  ResolverContext,
   Snapshot,
   StoreSubscriptions,
 } from './RelayStoreTypes';
@@ -42,17 +42,17 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
   __log: ?LogFunction;
   _resolverCache: ResolverCache;
-  _resolverContext: ?ResolverContext;
+  _liveResolverContext: ?LiveResolverContext;
 
   constructor(
     log?: ?LogFunction,
     resolverCache: ResolverCache,
-    resolverContext?: ResolverContext,
+    liveResolverContext?: LiveResolverContext,
   ) {
     this._subscriptions = new Set();
     this.__log = log;
     this._resolverCache = resolverCache;
-    this._resolverContext = resolverContext;
+    this._liveResolverContext = liveResolverContext;
   }
 
   subscribe(
@@ -90,7 +90,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         source,
         snapshot.selector,
         this._resolverCache,
-        this._resolverContext,
+        this._liveResolverContext,
       );
       const nextData = recycleNodesInto(snapshot.data, backup.data);
       (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
@@ -176,7 +176,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
             source,
             snapshot.selector,
             this._resolverCache,
-            this._resolverContext,
+            this._liveResolverContext,
           )
         : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);

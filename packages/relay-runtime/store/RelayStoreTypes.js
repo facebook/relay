@@ -1330,6 +1330,11 @@ export type LiveState<+T> = {
   subscribe(cb: () => void): () => void,
 };
 
-export type ResolverContext = {
+/**
+ * Context that will be provided to live resolvers if
+ * `liveResolverContext` is set on the Relay Store.
+ * This context will be passed as the third argument to the live resolver
+ */
+export type LiveResolverContext = {
   [key: string]: mixed,
 };

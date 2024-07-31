@@ -13,20 +13,16 @@
 
 import type {LiveState} from 'relay-runtime';
 
-const {resolverContext} = require('relay-runtime/store/ResolverFragments');
-
 /**
  * @RelayResolver Query.hello_world_with_context_object: String
  * @live
  *
  * Say `Hello ${world}!`
  */
-function hello_world_with_context_object(): LiveState<string> {
-  const dependency = resolverContext<{greeting: {myHello: string}}>();
-
+function hello_world_with_context_object(_, __, context): LiveState<string> {
   return {
     read() {
-      return `Hello ${dependency.greeting.myHello}!`;
+      return `Hello ${context.greeting.myHello}!`;
     },
 
     subscribe(callback) {

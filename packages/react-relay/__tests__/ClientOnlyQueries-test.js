@@ -252,57 +252,6 @@ test('hello-world query', () => {
   expect(renderer?.toJSON()).toBe('Hello, World!');
 });
 
-test('hello-world context query', () => {
-  const environment = new Environment({
-    network: Network.create(() => {
-      const error = new Error('Unexpected Network Error');
-      throw error;
-    }),
-    store: new Store(RecordSource.create(), {
-      resolverContext: {world: 'World'},
-    }),
-  });
-
-  function InnerTestComponent() {
-    const data = useClientQuery(
-      graphql`
-        query ClientOnlyQueriesTestContextQuery {
-          hello_context
-        }
-      `,
-      {},
-    );
-    return data.hello_context ?? 'MISSING';
-  }
-
-  function TestComponent({
-    environment: relayEnvironment,
-    ...rest
-  }: {
-    environment: IEnvironment,
-    fetchPolicy?: FetchPolicy,
-  }) {
-    return (
-      <RelayEnvironmentProvider environment={relayEnvironment}>
-        <React.Suspense fallback="Loading...">
-          <InnerTestComponent {...rest} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>
-    );
-  }
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <TestComponent
-        environment={environment}
-        fetchPolicy="store-or-network"
-      />,
-    );
-  });
-
-  expect(renderer?.toJSON()).toBe('Hello, World!');
-});
-
 test('hello user query with client-edge query', () => {
   const environment = createEnvironment(
     RecordSource.create({

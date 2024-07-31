@@ -1725,7 +1725,7 @@ test('allows dependencies to be provided through the store', () => {
     network: RelayNetwork.create(jest.fn()),
     store: new LiveResolverStore(RelayRecordSource.create(), {
       gcReleaseBufferSize: 0,
-      resolverContext: {
+      liveResolverContext: {
         greeting: 'Hello Allemaal!',
       },
     }),
@@ -1750,7 +1750,7 @@ test('allows objects to be provided to be provided through the store', () => {
     network: RelayNetwork.create(jest.fn()),
     store: new LiveResolverStore(RelayRecordSource.create(), {
       gcReleaseBufferSize: 0,
-      resolverContext: {
+      liveResolverContext: {
         greeting: {
           myHello: 'Hello Allemaal!',
         },
@@ -1791,7 +1791,7 @@ test('ResolverContext can contain observable values', async () => {
   const operation = createOperationDescriptor(FooQuery, {});
   const store = new LiveResolverStore(source, {
     gcReleaseBufferSize: 0,
-    resolverContext: {
+    liveResolverContext: {
       counter: Observable.create<number>(observer => {
         next = (value: number) => observer.next(value);
       }),

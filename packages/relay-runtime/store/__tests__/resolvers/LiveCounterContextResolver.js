@@ -11,9 +11,7 @@
 
 'use strict';
 
-import type {LiveState, Observable} from 'relay-runtime';
-
-const {resolverContext} = require('relay-runtime/store/ResolverFragments');
+import type {LiveState} from 'relay-runtime';
 
 /**
  * @RelayResolver Query.counter_context: Int
@@ -22,9 +20,8 @@ const {resolverContext} = require('relay-runtime/store/ResolverFragments');
  * A Relay Resolver that returns an object implementing the External State
  * Resolver interface.
  */
-function counter_context(): LiveState<number> {
+function counter_context(_, __, context): LiveState<number> {
   let value = 0;
-  const context = resolverContext<{counter: Observable<number>}>();
 
   return {
     read() {

@@ -194,7 +194,7 @@ pub fn generate_updatable_query(
     // -- Begin Types Section --
     let mut section = GenericSection::default();
     let generated_types =
-        ArtifactGeneratedTypes::from_updatable_query(typegen_operation, skip_types);
+        ArtifactGeneratedTypes::from_updatable_query(typegen_operation, skip_types, project_config);
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;
@@ -358,6 +358,7 @@ pub fn generate_operation(
         typegen_operation,
         skip_types,
         request_parameters.is_client_request(),
+        project_config
     );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -687,7 +688,7 @@ fn generate_read_only_fragment(
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types = ArtifactGeneratedTypes::from_fragment(typegen_fragment, skip_types);
+    let generated_types = ArtifactGeneratedTypes::from_fragment(typegen_fragment, skip_types, project_config);
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;

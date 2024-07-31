@@ -429,7 +429,6 @@ dependencies = [
  "graphql-ir",
  "graphql-syntax",
  "intern",
- "relay-config",
  "relay-test-schema",
  "relay-transforms",
  "rustc-hash",

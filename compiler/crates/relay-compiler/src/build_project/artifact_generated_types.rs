@@ -9,10 +9,13 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_syntax::OperationKind;
+use relay_config::ProjectConfig;
+use relay_config::TypegenLanguage;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::INLINE_DIRECTIVE_NAME;
 use relay_transforms::UPDATABLE_DIRECTIVE;
 use relay_typegen::has_raw_response_type_directive;
+
 
 /// Specifies the imported and exported generated types of an
 /// artifact.
@@ -27,8 +30,9 @@ impl ArtifactGeneratedTypes {
         operation: &OperationDefinition,
         skip_types: bool,
         is_client_only: bool,
+        project_config: &ProjectConfig,
     ) -> Self {
-        if skip_types {
+        if skip_types || project_config.typegen_config.language == TypegenLanguage::TypeScript {
             Self {
                 imported_types: "ConcreteRequest",
                 ast_type: "ConcreteRequest",
@@ -80,8 +84,8 @@ impl ArtifactGeneratedTypes {
         }
     }
 
-    pub fn from_updatable_query(typegen_operation: &OperationDefinition, skip_types: bool) -> Self {
-        if skip_types {
+    pub fn from_updatable_query(typegen_operation: &OperationDefinition, skip_types: bool,  project_config: &ProjectConfig) -> Self {
+        if skip_types || project_config.typegen_config.language == TypegenLanguage::TypeScript {
             Self {
                 imported_types: "ConcreteUpdatableQuery",
                 ast_type: "ConcreteUpdatableQuery",
@@ -100,11 +104,11 @@ impl ArtifactGeneratedTypes {
         }
     }
 
-    pub fn from_fragment(fragment: &FragmentDefinition, skip_types: bool) -> Self {
+    pub fn from_fragment(fragment: &FragmentDefinition, skip_types: bool,  project_config: &ProjectConfig) -> Self {
         let is_inline_data_fragment = fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_some();
         let is_updatable_fragment = fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some();
 
-        if skip_types {
+        if skip_types || project_config.typegen_config.language == TypegenLanguage::TypeScript {
             if is_inline_data_fragment {
                 Self {
                     imported_types: "ReaderInlineDataFragment",

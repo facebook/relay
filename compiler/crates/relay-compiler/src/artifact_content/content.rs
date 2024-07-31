@@ -888,13 +888,18 @@ fn write_variable_value_with_type(
     }
 }
 
-fn generate_disable_lint_section(project_config: &ProjectConfig) -> Result<GenericSection, FmtError> {
+fn generate_disable_lint_section(
+    project_config: &ProjectConfig,
+) -> Result<GenericSection, FmtError> {
     let mut section = GenericSection::default();
     match project_config.typegen_config.language {
         TypegenLanguage::TypeScript => {
             writeln!(section, "/* tslint:disable */")?;
             writeln!(section, "/* eslint-disable */")?;
-            if !project_config.feature_flags.typescript_check_generated_files {
+            if !project_config
+                .feature_flags
+                .typescript_check_generated_files
+            {
                 writeln!(section, "// @ts-nocheck")?;
             }
         }

@@ -14,7 +14,7 @@ graphql`fragment barFragment on User {
    "schema": "./schema.graphql",
    "eagerEsModules": true,
    "featureFlags": {
-      "typescript_check_generated_files": true
+      "typescript_disable_checking_generated_files": false
    }
 }
 

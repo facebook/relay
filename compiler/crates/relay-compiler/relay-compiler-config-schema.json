@@ -1278,8 +1278,9 @@
                 }
               ]
             },
-            "typescript_check_generated_files": {
-              "default": false,
+            "typescript_disable_checking_generated_files": {
+              "description": "Adds @ts-nocheck to generated Typescript Files",
+              "default": true,
               "type": "boolean"
             }
           },
@@ -1775,7 +1776,7 @@
             "text_artifacts": {
               "kind": "disabled"
             },
-            "typescript_check_generated_files": false
+            "typescript_disable_checking_generated_files": true
           },
           "type": "object",
           "properties": {
@@ -2941,8 +2942,9 @@
                 }
               ]
             },
-            "typescript_check_generated_files": {
-              "default": false,
+            "typescript_disable_checking_generated_files": {
+              "description": "Adds @ts-nocheck to generated Typescript Files",
+              "default": true,
               "type": "boolean"
             }
           },
@@ -4313,8 +4315,9 @@
                       }
                     ]
                   },
-                  "typescript_check_generated_files": {
-                    "default": false,
+                  "typescript_disable_checking_generated_files": {
+                    "description": "Adds @ts-nocheck to generated Typescript Files",
+                    "default": true,
                     "type": "boolean"
                   }
                 },

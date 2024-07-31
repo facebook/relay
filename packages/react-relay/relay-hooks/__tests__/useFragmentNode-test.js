@@ -26,6 +26,7 @@ import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 const {act: internalAct} = require('../../jest-react');
 const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
 const useFragmentInternal = require('../useFragmentInternal');
+const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -386,13 +387,11 @@ describe.each([
         );
       };
 
-      renderSingularFragment = (args?: {
-        isConcurrent?: boolean,
+      renderSingularFragment = (props?: {
         owner?: $FlowFixMe,
         userRef?: $FlowFixMe,
         ...
       }) => {
-        const {isConcurrent = false, ...props} = args ?? {};
         return TestRenderer.create(
           <React.Suspense fallback="Singular Fallback">
             <ContextProvider>
@@ -401,21 +400,19 @@ describe.each([
           </React.Suspense>,
           // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {
-            unstable_isConcurrent: isConcurrent,
+            unstable_isConcurrent: true,
           },
         );
       };
 
       renderPluralFragment = (
-        args?: {
-          isConcurrent?: boolean,
+        props?: {
           owner?: $FlowFixMe,
           usersRef?: $FlowFixMe,
           ...
         },
         existing: any,
       ) => {
-        const {isConcurrent = false, ...props} = args ?? {};
         const elements = (
           <React.Suspense fallback="Plural Fallback">
             <ContextProvider>
@@ -431,7 +428,7 @@ describe.each([
             elements,
             // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
             {
-              unstable_isConcurrent: isConcurrent,
+              unstable_isConcurrent: true,
             },
           );
         }
@@ -512,8 +509,11 @@ describe.each([
     });
 
     it('should render plural fragment with a constant reference when plural field is empty', () => {
-      const container = renderPluralFragment({usersRef: []});
-      internalAct(() => {
+      let container;
+      TestRenderer.act(() => {
+        container = renderPluralFragment({usersRef: []});
+      });
+      TestRenderer.act(() => {
         renderPluralFragment({usersRef: []}, container);
       });
 
@@ -880,7 +880,7 @@ describe.each([
       // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
       internalAct(() => {
-        renderSingularFragment({isConcurrent: true});
+        renderSingularFragment();
       });
       expectSchedulerToHaveYielded([
         'Hey user,',
@@ -1012,7 +1012,7 @@ describe.each([
       // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
       internalAct(() => {
-        renderSingularFragment({isConcurrent: true});
+        renderSingularFragment();
       });
       expectSchedulerToHaveYielded([
         'Hey user,',
@@ -1126,9 +1126,7 @@ describe.each([
       const startTransition = React.startTransition;
       if (startTransition != null) {
         internalAct(() => {
-          renderSingularFragment({
-            isConcurrent: true,
-          });
+          renderSingularFragment();
         });
         assertFragmentResults([
           {
@@ -1267,7 +1265,7 @@ describe.each([
       // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
       internalAct(() => {
-        renderSingularFragment({isConcurrent: true});
+        renderSingularFragment();
       });
       expectSchedulerToHaveYielded([
         'Hey user,',
@@ -1479,7 +1477,11 @@ describe.each([
       // Make sure query is in flight
       fetchQuery(environment, missingDataQuery).subscribe({});
 
-      const renderer = renderSingularFragment({owner: missingDataQuery});
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = renderSingularFragment({owner: missingDataQuery});
+      });
+      invariant(renderer != null, 'Expected renderer to be initialized');
       expect(renderer.toJSON()).toEqual('Singular Fallback');
     });
 
@@ -1601,7 +1603,7 @@ describe.each([
       // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
       internalAct(() => {
-        renderSingularFragment({isConcurrent: true});
+        renderSingularFragment();
 
         // Flush some of the changes, but don't commit
         expectSchedulerToFlushAndYieldThrough([
@@ -1689,8 +1691,12 @@ describe.each([
     });
 
     it('should not suspend when data goes missing due to store changes after it has committed (starting with no data missing)', () => {
-      const renderer = renderSingularFragment();
-      internalAct(() => {
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = renderSingularFragment();
+      });
+      invariant(renderer != null, 'Expected renderer to be initialized');
+      TestRenderer.act(() => {
         // Let there be an operation in flight:
         fetchQuery(environment, singularQuery).subscribe({});
         // And let there be missing data:
@@ -1724,9 +1730,13 @@ describe.each([
         },
       );
 
-      const renderer = renderPluralFragment({owner: missingDataQuery});
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = renderPluralFragment({owner: missingDataQuery});
+      });
+      invariant(renderer != null, 'Expected renderer to be initialized');
 
-      internalAct(() => {
+      TestRenderer.act(() => {
         // Let there be an operation in flight:
         fetchQuery(environment, missingDataQuery).subscribe({});
         // And let there be missing data:

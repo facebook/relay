@@ -894,7 +894,7 @@ fn generate_disable_lint_section(project_config: &ProjectConfig) -> Result<Gener
         TypegenLanguage::TypeScript => {
             writeln!(section, "/* tslint:disable */")?;
             writeln!(section, "/* eslint-disable */")?;
-            if !project_config.typegen_config.typescript_check_generated_files {
+            if !project_config.feature_flags.typescript_check_generated_files {
                 writeln!(section, "// @ts-nocheck")?;
             }
         }

@@ -13,7 +13,9 @@ graphql`
   "persistConfig": { 
     "file": "./operations.json" 
   },
-  "typescriptCheckGeneratedFiles": true
+  "featureFlags": {
+    "typescript_check_generated_files": true
+  }
 }
 
 //- operations.json

@@ -8,7 +8,9 @@ graphql`
 {
    "language": "typescript",
    "schema": "./schema.graphql",
-   "typescriptCheckGeneratedFiles": true
+   "featureFlags": {
+      "typescript_check_generated_files": true
+   }
 }
 
 //- schema.graphql

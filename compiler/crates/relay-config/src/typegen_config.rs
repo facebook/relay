@@ -114,10 +114,6 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub typescript_exclude_undefined_from_nullable_union: bool,
 
-    // todo: should this go here or in a feature flag? Above flag is discussed here: https://github.com/facebook/relay/pull/4380
-    #[serde(default)]
-    pub typescript_check_generated_files: bool,
-
     /// EXPERIMENTAL: If your environment is configured to handles errors out of band, either via
     /// a network layer which discards responses with errors, or via enabling strict
     /// error handling in the runtime, you can enable this flag to have Relay generate
@@ -149,7 +145,6 @@ impl Default for TypegenConfig {
             typescript_exclude_undefined_from_nullable_union: Default::default(),
             experimental_emit_semantic_nullability_types: Default::default(),
             custom_error_type: None,
-            typescript_check_generated_files: Default::default(),
         }
     }
 }

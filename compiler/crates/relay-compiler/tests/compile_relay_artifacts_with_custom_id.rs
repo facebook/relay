@@ -39,7 +39,6 @@ use relay_test_schema::get_test_schema_with_custom_id;
 use relay_test_schema::get_test_schema_with_custom_id_with_extensions;
 use relay_transforms::apply_transforms;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
-use relay_typegen::TypegenConfig;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -108,10 +107,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             node_interface_id_variable_name: node_interface_query_variable_name
                 .unwrap_or(default_schema_config.node_interface_id_variable_name),
             ..default_schema_config
-        },
-        typegen_config: TypegenConfig {
-            typescript_check_generated_files: true,
-            ..Default::default()
         },
         js_module_format: JsModuleFormat::Haste,
         ..Default::default()

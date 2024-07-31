@@ -124,6 +124,10 @@ pub struct FeatureFlags {
     /// Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.
     #[serde(default)]
     pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
+
+    // Removes the @ts-nocheck pragma from generated Typescript Files
+    #[serde(default)]
+    pub typescript_check_generated_files: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

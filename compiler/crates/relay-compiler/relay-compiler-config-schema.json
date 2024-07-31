@@ -1277,6 +1277,10 @@
                   }
                 }
               ]
+            },
+            "typescript_check_generated_files": {
+              "default": false,
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -1672,10 +1676,6 @@
           "description": "Added in 13.1.1 to customize Final/Compat mode in the single project config file Removed in 14.0.0",
           "default": null
         },
-        "typescriptCheckGeneratedFiles": {
-          "default": false,
-          "type": "boolean"
-        },
         "typescriptExcludeUndefinedFromNullableUnion": {
           "description": "Keep the previous compiler behavior by outputting an union of the raw type and null, and not the **correct** behavior of an union with the raw type, null and undefined.",
           "default": false,
@@ -1774,7 +1774,8 @@
             },
             "text_artifacts": {
               "kind": "disabled"
-            }
+            },
+            "typescript_check_generated_files": false
           },
           "type": "object",
           "properties": {
@@ -2939,6 +2940,10 @@
                   }
                 }
               ]
+            },
+            "typescript_check_generated_files": {
+              "default": false,
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -4307,6 +4312,10 @@
                         }
                       }
                     ]
+                  },
+                  "typescript_check_generated_files": {
+                    "default": false,
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -4729,10 +4738,6 @@
                   "string",
                   "null"
                 ]
-              },
-              "typescriptCheckGeneratedFiles": {
-                "default": false,
-                "type": "boolean"
               },
               "typescriptExcludeUndefinedFromNullableUnion": {
                 "description": "Keep the previous compiler behavior by outputting an union of the raw type and null, and not the **correct** behavior of an union with the raw type, null and undefined.",

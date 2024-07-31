@@ -38,21 +38,21 @@ impl ArtifactGeneratedTypes {
             let (kind, imported_types) = match operation.kind {
                 OperationKind::Query => {
                     if is_client_only {
-                        ("ClientQuery", "ClientRequest")
+                        ("ClientQuery", "ClientRequest, ClientQuery")
                     } else {
-                        ("Query", "ConcreteRequest")
+                        ("Query", "ConcreteRequest, Query")
                     }
                 }
                 OperationKind::Mutation => {
                     if is_client_only {
-                        ("Mutation", "ClientRequest")
+                        ("Mutation", "ClientRequest, Mutation")
                     } else {
-                        ("Mutation", "ConcreteRequest")
+                        ("Mutation", "ConcreteRequest, Mutation")
                     }
                 }
                 OperationKind::Subscription => (
                     "GraphQLSubscription",
-                    "ConcreteRequest",
+                    "ConcreteRequest, GraphQLSubscription",
                 ),
             };
             let exported_type = if has_raw_response_type_directive(operation) {

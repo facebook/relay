@@ -111,7 +111,7 @@ impl<'a> InlayHintVisitor<'a> {
         self.inlay_hints.push(Hint {
                 location,
                 label: format!("{}:", alias),
-                tooltip: Some("Fragment alias from the attached `@alias` directive. [Read More](https://relay.dev/docs/next/guides/alias-directive/).".to_string()),
+                tooltip: Some("Fragment alias from the attached `@alias` directive. [Read More](https://relay.dev/docs/guides/alias-directive/).".to_string()),
             });
     }
 

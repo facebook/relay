@@ -176,7 +176,7 @@ declare how null values should be handled at runtime. You can think of it as
 saying "if this field is ever null, its parent field is invalid and should be
 null".
 
-[Read More](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/required-directive/) (FB only)
+[Read More](https://relay.dev/docs/guides/required-directive/)
 """
 directive @required(action: RequiredFieldAction! @static) on FIELD
 
@@ -215,7 +215,7 @@ directive @deleteEdge(connections: [ID!]!) on FIELD
 For use within mutations. After the mutation request is complete, this edge
 will be appended to its parent connection.
 
-[Read More](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/#updating-data-once-a-request-is-complete)
+[Read More](https://relay.dev/docs/guided-tour/list-data/updating-connections/#appendedge--prependedge)
 """
 directive @appendEdge(connections: [ID!]!) on FIELD
 
@@ -225,7 +225,7 @@ directive @appendEdge(connections: [ID!]!) on FIELD
 For use within mutations. After the mutation request is complete, this edge
 will be prepended to its parent connection.
 
-[Read More](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/#updating-data-once-a-request-is-complete)
+[Read More](https://relay.dev/docs/guided-tour/list-data/updating-connections/#appendedge--prependedge)
 """
 directive @prependEdge(connections: [ID!]!) on FIELD
 
@@ -235,7 +235,7 @@ directive @prependEdge(connections: [ID!]!) on FIELD
 For use within mutations. After the mutation request is complete, this node
 will be appended to its parent connection.
 
-[Read More](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/#updating-data-once-a-request-is-complete)
+[Read More](https://relay.dev/docs/guided-tour/list-data/updating-connections/#appendnode--prependnode)
 """
 directive @appendNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 
@@ -245,7 +245,7 @@ directive @appendNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 For use within mutations. After the mutation request is complete, this node
 will be prepended to its parent connection.
 
-[Read More](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/#updating-data-once-a-request-is-complete)
+[Read More](https://relay.dev/docs/guided-tour/list-data/updating-connections/#appendnode--prependnode)
 """
 directive @prependNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 
@@ -271,7 +271,7 @@ A special scalar type which can be used as the return type of a Relay Resolver.
 When used, the resolver field will derive its TypeScript/Flow type from the
 return value of the Resolver function.
 
-[Learn More](https://relay.dev/docs/next/guides/relay-resolvers/)
+[Learn More](https://relay.dev/docs/guides/relay-resolvers/return-types/#javascript-values)
 """
 scalar RelayResolverValue
 
@@ -292,7 +292,7 @@ directive @RelayOutputType on OBJECT
 
 Marks a given query or fragment as updatable.
 
-[Read More](https://relay.dev/docs/next/guided-tour/updating-data/imperatively-modifying-linked-fields/)
+[Read More](https://relay.dev/docs/guided-tour/updating-data/imperatively-modifying-linked-fields/)
 """
 directive @updatable on QUERY | FRAGMENT_DEFINITION
 
@@ -301,7 +301,7 @@ directive @updatable on QUERY | FRAGMENT_DEFINITION
 
 Marks a given fragment as assignable.
 
-[Read More](https://relay.dev/docs/next/guided-tour/updating-data/imperatively-modifying-linked-fields/)
+[Read More](https://relay.dev/docs/guided-tour/updating-data/imperatively-modifying-linked-fields/)
 """
 directive @assignable on FRAGMENT_DEFINITION
 
@@ -311,7 +311,7 @@ directive @assignable on FRAGMENT_DEFINITION
 Exposes a fragment's data as a new field which can be null checked to ensure it
 matches the parent selection.
 
-[Read More](https://relay.dev/docs/next/guides/alias-directive/)
+[Read More](https://relay.dev/docs/guides/alias-directive/)
 """
 directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 
@@ -324,7 +324,7 @@ escape hatch for incremental adoption of enforcing `@alias`.
 
 DO NOT ADD NEW USES OF THIS DIRECTIVE.
 
-[Read More](https://relay.dev/docs/next/guides/alias-directive/)
+[Read More](https://relay.dev/docs/guides/alias-directive/)
 """
 directive @dangerously_unaliased_fixme on FRAGMENT_SPREAD
 

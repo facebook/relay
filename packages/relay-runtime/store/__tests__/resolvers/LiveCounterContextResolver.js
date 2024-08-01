@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {LiveState} from 'relay-runtime';
+import type {LiveState, Observable} from 'relay-runtime';
 
 /**
  * @RelayResolver Query.counter_context: Int
@@ -20,7 +20,11 @@ import type {LiveState} from 'relay-runtime';
  * A Relay Resolver that returns an object implementing the External State
  * Resolver interface.
  */
-function counter_context(_, __, context): LiveState<number> {
+function counter_context(
+  _: void,
+  __: void,
+  context: {counter: Observable<number>},
+): LiveState<number> {
   let value = 0;
 
   return {

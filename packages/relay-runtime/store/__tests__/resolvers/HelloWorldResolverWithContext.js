@@ -19,7 +19,11 @@ import type {LiveState} from 'relay-runtime';
  *
  * Say `Hello ${world}!`
  */
-function hello_world_with_context(_, __, context): LiveState<string> {
+function hello_world_with_context(
+  _: void,
+  __: void,
+  context: {greeting: string},
+): LiveState<string> {
   return {
     read() {
       return `Hello ${context.greeting}!`;

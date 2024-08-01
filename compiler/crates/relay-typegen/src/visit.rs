@@ -554,6 +554,16 @@ fn get_resolver_arguments(
             optional: false,
         });
     }
+
+    // this should only be run if we're in a liveresolver
+    // resolver_arguments.push(KeyValuePairProp {
+    //     key: "context".intern(),
+    //     value: AST::RawType("contexttype".intern()), // todo get the context type from the project config and this should be an import
+    //     read_only: true,
+    //     optional: false,
+    // });
+
+
     resolver_arguments
 }
 

@@ -176,13 +176,17 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
     };
 
     render = function (props: $FlowFixMe) {
-      return ReactTestRenderer.create(
-        <React.Suspense fallback="Singular Fallback">
-          <ContextProvider>
-            <Container {...props} />
-          </ContextProvider>
-        </React.Suspense>,
-      );
+      let instance;
+      ReactTestRenderer.act(() => {
+        instance = ReactTestRenderer.create(
+          <React.Suspense fallback="Singular Fallback">
+            <ContextProvider>
+              <Container {...props} />
+            </ContextProvider>
+          </React.Suspense>,
+        );
+      });
+      return instance;
     };
   });
 

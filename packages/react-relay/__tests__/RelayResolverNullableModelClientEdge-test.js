@@ -244,12 +244,15 @@ test('client edge to plural IDs, none have corresponding live object', () => {
       .join(',');
   }
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoNullComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('unknown,unknown');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('unknown,unknown');
 });
 
 test('client edge to plural IDs, some with no corresponding live object', () => {
@@ -278,12 +281,15 @@ test('client edge to plural IDs, some with no corresponding live object', () => 
   }
 
   addTodo('Test todo');
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoNullComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('todo-1 - Test todo,unknown');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('todo-1 - Test todo,unknown');
 });
 
 test('client edge to ID with no corresponding live object', () => {
@@ -313,12 +319,15 @@ test('client edge to ID with no corresponding live object', () => {
         return 'Todo was not null or undefined';
     }
   }
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoNullComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('Todo was null');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Todo was null');
 });
 
 test('client edge to ID with no corresponding weak object', () => {
@@ -345,12 +354,15 @@ test('client edge to ID with no corresponding weak object', () => {
         return 'Weak model was not null or undefined';
     }
   }
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <NullWeakModelComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('Weak model was null');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <NullWeakModelComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Weak model was null');
 });
 
 test('client edge to ID with no corresponding strong object', () => {
@@ -377,12 +389,15 @@ test('client edge to ID with no corresponding strong object', () => {
         return 'strong model was not null or undefined';
     }
   }
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <NullStrongModelComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('strong model was null');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <NullStrongModelComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('strong model was null');
 });
 
 test('client edge to server ID with no corresponding server object', () => {
@@ -410,18 +425,21 @@ test('client edge to server ID with no corresponding server object', () => {
     }
   }
   const mock_environment = createMockEnvironment();
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={mock_environment}>
-      <NullServerObjectComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('Loading...');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <NullServerObjectComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Loading...');
   TestRenderer.act(() => {
     mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
     jest.runAllImmediates();
   });
   // TODO T169274655 should this be 'server object was null'?
-  expect(renderer.toJSON()).toEqual('server object was undefined');
+  expect(renderer?.toJSON()).toEqual('server object was undefined');
 });
 
 test('client edge to server ID with no corresponding server object (read only id)', () => {
@@ -449,18 +467,21 @@ test('client edge to server ID with no corresponding server object (read only id
     }
   }
   const mock_environment = createMockEnvironment();
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={mock_environment}>
-      <NullServerObjectComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('Loading...');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <NullServerObjectComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Loading...');
   TestRenderer.act(() => {
     mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
     jest.runAllImmediates();
   });
   // TODO T169274655 should this be 'server object was null'?
-  expect(renderer.toJSON()).toEqual('server object was undefined');
+  expect(renderer?.toJSON()).toEqual('server object was undefined');
 });
 
 test('Errors thrown when reading the model a client edge points to are caught as resolver errors', () => {

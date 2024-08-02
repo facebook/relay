@@ -176,13 +176,17 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
     };
 
     render = function (props: $FlowFixMe) {
-      return ReactTestRenderer.create(
-        <React.Suspense fallback="Singular Fallback">
-          <ContextProvider>
-            <Container {...props} />
-          </ContextProvider>
-        </React.Suspense>,
-      );
+      let instance;
+      ReactTestRenderer.act(() => {
+        instance = ReactTestRenderer.create(
+          <React.Suspense fallback="Singular Fallback">
+            <ContextProvider>
+              <Container {...props} />
+            </ContextProvider>
+          </React.Suspense>,
+        );
+      });
+      return instance;
     };
   });
 
@@ -228,7 +232,7 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
     };
 
     const renderer = render({userRef: fragmentRef});
-    expect(renderer.toJSON()).toBe('Alice'); // should show the name
+    expect(renderer?.toJSON()).toBe('Alice'); // should show the name
 
     ReactTestRenderer.act(() => {
       environment
@@ -243,7 +247,7 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       jest.runAllImmediates();
     });
 
-    expect(renderer.toJSON()).toBe('Singular Fallback'); // Component is suspended now for optimistic update
+    expect(renderer?.toJSON()).toBe('Singular Fallback'); // Component is suspended now for optimistic update
     ReactTestRenderer.act(() => {
       environment.mock.nextValue(nodeOperation, {
         data: {
@@ -257,7 +261,7 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       environment.mock.complete(nodeOperation.request.node);
     });
 
-    expect(renderer.toJSON()).toBe('Alice222');
+    expect(renderer?.toJSON()).toBe('Alice222');
   });
 
   it('should throw promise for plural fragment', () => {
@@ -314,7 +318,7 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
     ];
 
     const rendererPlural = render({userRef: fragmentPluralRef});
-    expect(rendererPlural.toJSON()).toEqual(['Alice', 'Bob']);
+    expect(rendererPlural?.toJSON()).toEqual(['Alice', 'Bob']);
 
     ReactTestRenderer.act(() => {
       // Execute the nodeOperation query with executeMutation and set the record as undefined in optimistic updater
@@ -330,7 +334,7 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       jest.runAllImmediates();
     });
 
-    expect(rendererPlural.toJSON()).toEqual(['Singular Fallback']);
+    expect(rendererPlural?.toJSON()).toEqual(['Singular Fallback']);
 
     ReactTestRenderer.act(() => {
       environment.mock.nextValue(nodeOperation, {
@@ -345,6 +349,6 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       environment.mock.complete(nodeOperation.request.node);
     });
 
-    expect(rendererPlural.toJSON()).toEqual(['Alice222', 'Bob']);
+    expect(rendererPlural?.toJSON()).toEqual(['Alice222', 'Bob']);
   });
 });

@@ -214,16 +214,18 @@ describe('ActorChange', () => {
     });
     const renderViewerActorName = jest.fn<[?string], void>();
 
-    ReactTestRenderer.create(
-      <ComponentWrapper
-        environment={environment}
-        multiActorEnvironment={multiActorEnvironment}>
-        <MainComponent
-          renderViewerActorName={renderViewerActorName}
-          renderActorInTheList={renderFn}
-        />
-      </ComponentWrapper>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ComponentWrapper
+          environment={environment}
+          multiActorEnvironment={multiActorEnvironment}>
+          <MainComponent
+            renderViewerActorName={renderViewerActorName}
+            renderActorInTheList={renderFn}
+          />
+        </ComponentWrapper>,
+      );
+    });
 
     dataSource.next({
       data: {

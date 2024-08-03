@@ -104,6 +104,42 @@ test('it should preload entry point with queries', () => {
   expect(preloadedEntryPoint.entryPoints).toEqual({});
 });
 
+test('it should ignore handle null/undefined queries', () => {
+  const env = createMockEnvironment();
+  const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
+  const entryPoint = {
+    getPreloadProps(params: {id: string}) {
+      return {
+        queries: {
+          myNullTestQuery: null,
+          myUndefinedTestQuery: null,
+        },
+      };
+    },
+    root: (new FakeJSResource(null): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {...},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  expect(entryPoint.root.load).toBeCalledTimes(1);
+  expect(networkSpy).toBeCalledTimes(0);
+  expect(preloadedEntryPoint.queries).toEqual({});
+  expect(preloadedEntryPoint.entryPoints).toEqual({});
+});
+
 test('it should unwrap an entry point wrapping a module with default exports', () => {
   const env = createMockEnvironment();
   const fakeModule = {

@@ -351,7 +351,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Ok(_) => (),
             Err(raw_diagnostics) => {
                 diagnostics.extend(raw_diagnostics.iter().map(|diagnostic| {
-                    // TODO: The very last character is problematic for some reason
                     self.diagnostic_reporter
                         .convert_diagnostic(text_source, diagnostic)
                 }));

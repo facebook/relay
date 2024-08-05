@@ -8,8 +8,10 @@
 use common::Location;
 use common::Span;
 use graphql_ir::Argument;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
+use graphql_ir::Program;
 use graphql_ir::Visitor;
 use intern::string_key::StringKey;
 use lsp_types::request::InlayHintRequest;
@@ -40,9 +42,10 @@ pub fn on_inlay_hint_request(
 
     let project_name = state.extract_project_name_from_url(&uri)?;
     let schema = state.get_schema(&project_name)?;
+    let program = state.get_program(&project_name)?;
     let asts = state.resolve_executable_definitions(&uri)?;
     let irs = build_ir_for_lsp(&schema, &asts).map_err(|_| LSPRuntimeError::ExpectedError)?;
-    let mut visitor = InlayHintVisitor::new(&schema);
+    let mut visitor = InlayHintVisitor::new(&program, &schema);
     for executable_definition in irs {
         visitor.visit_executable_definition(&executable_definition);
     }
@@ -95,13 +98,15 @@ impl Hint {
 }
 
 struct InlayHintVisitor<'a> {
+    program: &'a Program,
     schema: &'a SDLSchema,
     inlay_hints: Vec<Hint>,
 }
 
 impl<'a> InlayHintVisitor<'a> {
-    fn new(schema: &'a SDLSchema) -> Self {
+    fn new(program: &'a Program, schema: &'a SDLSchema) -> Self {
         Self {
+            program,
             schema,
             inlay_hints: vec![],
         }
@@ -124,6 +129,29 @@ impl<'a> InlayHintVisitor<'a> {
                     label: arg_type,
                     tooltip: None,
                 });
+            }
+        }
+    }
+
+    fn add_fragment_argument_hints(
+        &mut self,
+        fragment_name: FragmentDefinitionName,
+        arguments: &[Argument],
+    ) {
+        if let Some(fragment) = self.program.fragment(fragment_name) {
+            for arg in arguments {
+                if let Some(variable_def) = fragment
+                    .variable_definitions
+                    .iter()
+                    .find(|variable| variable.name.item.0 == arg.name.item.0)
+                {
+                    let arg_type = self.schema.get_type_string(&variable_def.type_);
+                    self.inlay_hints.push(Hint {
+                        location: arg.value.location,
+                        label: arg_type,
+                        tooltip: None,
+                    });
+                }
             }
         }
     }
@@ -159,8 +187,10 @@ impl Visitor for InlayHintVisitor<'_> {
                 &spread.fragment.location,
                 Span::new(initial_span.start - 3, initial_span.end),
             );
-            self.add_alias_hint(alias.item, adjusted_location)
+            self.add_alias_hint(alias.item, adjusted_location);
         }
+
+        self.add_fragment_argument_hints(spread.fragment.item, &spread.arguments);
     }
 
     fn visit_inline_fragment(&mut self, fragment: &InlineFragment) {

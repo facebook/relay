@@ -112,7 +112,7 @@ test('it should ignore handle null/undefined queries', () => {
       return {
         queries: {
           myNullTestQuery: null,
-          myUndefinedTestQuery: null,
+          myUndefinedTestQuery: undefined,
         },
       };
     },

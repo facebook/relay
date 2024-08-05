@@ -445,6 +445,8 @@ class LiveResolverStore implements Store {
         sourceOperation,
         updatedRecordIDs: this._updatedRecordIDs,
         invalidatedRecordIDs: this._invalidatedRecordIDs,
+        subscriptionsSize: this._storeSubscriptions.size(),
+        updatedOwners,
       });
     }
 

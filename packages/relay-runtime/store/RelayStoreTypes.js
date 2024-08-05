@@ -434,6 +434,11 @@ export interface StoreSubscriptions {
     updatedOwners: Array<RequestDescriptor>,
     sourceOperation?: OperationDescriptor,
   ): void;
+
+  /**
+   * returns the number of subscriptions
+   */
+  size(): number;
 }
 
 /**
@@ -741,6 +746,8 @@ export type StoreNotifyCompleteLogEvent = {
   +sourceOperation: ?OperationDescriptor,
   +updatedRecordIDs: DataIDSet,
   +invalidatedRecordIDs: DataIDSet,
+  +subscriptionsSize: number,
+  +updatedOwners: Array<RequestDescriptor>,
 };
 
 export type StoreNotifySubscriptionLogEvent = {

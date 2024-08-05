@@ -1037,6 +1037,8 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'store.notify.complete',
             updatedRecordIDs: new Set(['client:1']),
             invalidatedRecordIDs: new Set(),
+            updatedOwners: [owner.request],
+            subscriptionsSize: 1,
           },
         ]);
         expect(callback).toBeCalledTimes(1);
@@ -1127,6 +1129,8 @@ function cloneEventWithSets(event: LogEvent) {
               sourceOperation: owner,
               updatedRecordIDs: new Set(['client:1']),
               invalidatedRecordIDs: new Set(),
+              updatedOwners: [owner.request],
+              subscriptionsSize: 1,
             },
           ]);
           expect(callback).toBeCalledTimes(1);

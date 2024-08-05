@@ -37,7 +37,7 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings, skipIf} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 function ComponentWrapper(
   props: $ReadOnly<{
@@ -148,7 +148,7 @@ describe('ActorChange with @stream', () => {
     );
   });
 
-  skipIf(process.env.OSS, 'should render a fragment for actor', () => {
+  test('should render a fragment for actor', () => {
     fetchFnForActor = (
       ...args: Array<?(
         | LogRequestInfoFunction

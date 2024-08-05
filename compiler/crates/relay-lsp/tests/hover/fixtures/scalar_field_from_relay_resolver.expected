@@ -21,4 +21,4 @@ My Resolver Description
 --
 Type: **[RelayResolverValue](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22User%22,%22RelayResolverValue%22],%22schemaName%22:%22Some%20Schema%20Name%22})**
 --
-**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/next/guides/relay-resolvers/).
+**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/guides/relay-resolvers/introduction/).

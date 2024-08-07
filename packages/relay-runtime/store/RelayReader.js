@@ -1436,7 +1436,7 @@ function getResolverValue(
       // Set first argument to `null` in case we have resolver context
       // to make sure the context object is always the 3rd argument.
       if (shouldPassContextToLiveResolver) {
-        resolverFunctionArgs.push(null);
+        resolverFunctionArgs.push(undefined);
       }
     }
     const args = field.args

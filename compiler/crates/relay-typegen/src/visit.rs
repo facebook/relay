@@ -38,6 +38,7 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
+use relay_config::LiveResolverContextTypeInput;
 use relay_config::TypegenLanguage;
 use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
@@ -86,6 +87,7 @@ use crate::typegen_state::ImportedResolver;
 use crate::typegen_state::ImportedResolverName;
 use crate::typegen_state::ImportedResolvers;
 use crate::typegen_state::InputObjectTypes;
+use crate::typegen_state::LiveResolverContextType;
 use crate::typegen_state::MatchFields;
 use crate::typegen_state::RuntimeImports;
 use crate::write::CustomScalarsImports;
@@ -340,6 +342,7 @@ fn generate_resolver_type(
     resolver_function_name: StringKey,
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
+    context_import: Option<LiveResolverContextType>,
 ) -> AST {
     // For the purposes of function type assertion, we always use the semantic type.
     let schema_field = resolver_metadata.field(typegen_context.schema);
@@ -354,6 +357,7 @@ fn generate_resolver_type(
         encountered_enums,
         custom_scalars,
         schema_field,
+        context_import,
     );
 
     let inner_ast = match &resolver_metadata.output_type_info {
@@ -473,7 +477,13 @@ fn get_resolver_arguments(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut std::collections::HashSet<(StringKey, PathBuf)>,
     schema_field: &Field,
+    context_import: Option<LiveResolverContextType>,
 ) -> Vec<KeyValuePairProp> {
+    let void_type = match typegen_context.project_config.typegen_config.language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => AST::RawType(intern!("void")),
+        TypegenLanguage::TypeScript => AST::RawType(intern!("undefined")),
+    };
+
     let mut resolver_arguments = vec![];
     if let Some(Type::Interface(interface_id)) = schema_field.parent_type {
         let interface = typegen_context.schema.interface(interface_id);
@@ -529,6 +539,13 @@ fn get_resolver_arguments(
                 optional: false,
             });
         }
+    } else if resolver_metadata.live {
+        resolver_arguments.push(KeyValuePairProp {
+            key: "_".intern(),
+            value: AST::RawType("void".intern()),
+            read_only: true,
+            optional: false,
+        });
     }
 
     let mut args = vec![];
@@ -546,6 +563,10 @@ fn get_resolver_arguments(
             ),
         }));
     }
+
+    // since context is always the third argument, if we don't have args we still need to add it as the second argument here
+    // but again only if it's a liveresolver. The open question being should we keep the ordering consistent
+    // between liveresolvers and non-live resolvers to be consistent or do we make this split
     if !args.is_empty() {
         resolver_arguments.push(KeyValuePairProp {
             key: "args".intern(),
@@ -553,16 +574,25 @@ fn get_resolver_arguments(
             read_only: true,
             optional: false,
         });
+    } else if resolver_metadata.live {
+        resolver_arguments.push(KeyValuePairProp {
+            key: "_".intern(),
+            value: void_type,
+            read_only: true,
+            optional: false,
+        });
     }
 
-    // this should only be run if we're in a liveresolver
-    // resolver_arguments.push(KeyValuePairProp {
-    //     key: "context".intern(),
-    //     value: AST::RawType("contexttype".intern()), // todo get the context type from the project config and this should be an import
-    //     read_only: true,
-    //     optional: false,
-    // });
-
+    if resolver_metadata.live {
+        if let Some(context_import) = context_import {
+            resolver_arguments.push(KeyValuePairProp {
+                key: "context".intern(),
+                value: AST::RawType(context_import.name),
+                read_only: true,
+                optional: false,
+            });
+        }
+    }
 
     resolver_arguments
 }
@@ -598,6 +628,35 @@ fn import_relay_resolver_function_type(
         &PathBuf::from(resolver_metadata.import_path.lookup()),
     );
 
+    let context_import = if resolver_metadata.live {
+        match &typegen_context
+            .project_config
+            .typegen_config
+            .live_resolver_context_type
+        {
+            Some(LiveResolverContextTypeInput::Path(context_import)) => {
+                Some(LiveResolverContextType {
+                    name: context_import.name.clone().intern(),
+                    import_path: typegen_context.project_config.js_module_import_identifier(
+                        &typegen_context.project_config.artifact_path_for_definition(
+                            typegen_context.definition_source_location,
+                        ),
+                        &PathBuf::from(&context_import.path),
+                    ),
+                })
+            }
+            Some(LiveResolverContextTypeInput::Package(context_import)) => {
+                Some(LiveResolverContextType {
+                    name: context_import.name.clone().intern(),
+                    import_path: context_import.package.clone().intern(),
+                })
+            }
+            None => None,
+        }
+    } else {
+        None
+    };
+
     let imported_resolver = ImportedResolver {
         resolver_name,
         resolver_type: generate_resolver_type(
@@ -611,8 +670,10 @@ fn import_relay_resolver_function_type(
             local_resolver_name,
             fragment_name,
             resolver_metadata,
+            context_import,
         ),
         import_path,
+        context_import,
     };
 
     imported_resolvers

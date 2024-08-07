@@ -58,6 +58,25 @@ pub struct CustomScalarTypeImport {
     pub path: PathBuf,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum LiveResolverContextTypeInput {
+    Path(LiveResolverContextTypeInputPath),
+    Package(LiveResolverContextTypeInputPackage),
+}
+
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+pub struct LiveResolverContextTypeInputPath {
+    pub name: String,
+    pub path: PathBuf,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+pub struct LiveResolverContextTypeInputPackage {
+    pub name: String,
+    pub package: String,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
@@ -123,6 +142,10 @@ pub struct TypegenConfig {
     /// https://github.com/apollographql/specs/pull/42
     #[serde(default)]
     pub experimental_emit_semantic_nullability_types: bool,
+
+    // Indicates the type to import and use as the context for live resolvers.
+    #[serde(default)]
+    pub live_resolver_context_type: Option<LiveResolverContextTypeInput>,
 }
 
 impl Default for TypegenConfig {
@@ -138,6 +161,7 @@ impl Default for TypegenConfig {
             eager_es_modules: Default::default(),
             typescript_exclude_undefined_from_nullable_union: Default::default(),
             experimental_emit_semantic_nullability_types: Default::default(),
+            live_resolver_context_type: Default::default(),
         }
     }
 }

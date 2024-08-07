@@ -178,7 +178,10 @@ pub(crate) fn write_operation_type_exports_section(
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
-    write_relay_resolver_imports(imported_resolvers, writer)?;
+    // TODO: Add proper support for Resolver type generation in typescript
+    if typegen_context.project_config.typegen_config.language == TypegenLanguage::Flow {
+        write_relay_resolver_imports(imported_resolvers, writer)?;
+    }
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();
@@ -449,7 +452,11 @@ pub(crate) fn write_fragment_type_exports_section(
     write_custom_scalar_imports(custom_scalars, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
-    write_relay_resolver_imports(imported_resolvers, writer)?;
+
+    // TODO: Add proper support for Resolver type generation in typescript
+    if typegen_context.project_config.typegen_config.language == TypegenLanguage::Flow {
+        write_relay_resolver_imports(imported_resolvers, writer)?;
+    }
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
     let fragment_type_name = format!("{}$fragmentType", fragment_name);
@@ -582,6 +589,10 @@ fn write_relay_resolver_imports(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     imported_resolvers.0.sort_keys();
+
+    // Context import will be the same for each resolver, so this flag is used to ensure it is only written once
+    let mut live_resolver_context_import_written = false;
+
     for resolver in imported_resolvers.0.values() {
         match resolver.resolver_name {
             ImportedResolverName::Default(name) => {
@@ -595,6 +606,17 @@ fn write_relay_resolver_imports(
                 )?;
             }
         }
+
+        if let Some(ref live_resolver_context_import) = resolver.context_import {
+            if !live_resolver_context_import_written {
+                writer.write_import_type(
+                    &[live_resolver_context_import.name.lookup()],
+                    &live_resolver_context_import.import_path.lookup(),
+                )?;
+                live_resolver_context_import_written = true;
+            }
+        }
+
         if let AST::AssertFunctionType(_) = &resolver.resolver_type {
             writer.write(&resolver.resolver_type)?;
         }

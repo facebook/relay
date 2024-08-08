@@ -353,12 +353,6 @@ impl FlowPrinter {
             "// A type error here indicates that the type signature of the resolver module is incorrect."
         )?;
         if arguments.is_empty() {
-            // todo in the case that arguments is empty we're falling to this case and causing a type error between
-            // the resolver type and the expected type which is written below
-            // output: (queryCounterContextResolverType: () => LiveState<?number>);
-            // expected: (queryCounterContextResolverType: (_: void, __:void, context: ContextType) => LiveState<?number>);
-            // actually what I think is happening is that we're not hitting the right case, we should fail is_empty check and jump to the else.
-            // so this means that the arguments is empty and we need to add context to that arguments list
             write!(&mut self.result, "({}: (", function_name)?;
         } else {
             writeln!(&mut self.result, "({}: (", function_name)?;

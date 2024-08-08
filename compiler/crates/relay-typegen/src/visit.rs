@@ -564,9 +564,6 @@ fn get_resolver_arguments(
         }));
     }
 
-    // since context is always the third argument, if we don't have args we still need to add it as the second argument here
-    // but again only if it's a liveresolver. The open question being should we keep the ordering consistent
-    // between liveresolvers and non-live resolvers to be consistent or do we make this split
     if !args.is_empty() {
         resolver_arguments.push(KeyValuePairProp {
             key: "args".intern(),

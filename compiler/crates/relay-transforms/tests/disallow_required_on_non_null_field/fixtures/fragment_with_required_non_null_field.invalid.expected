@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
-# relay:disallow_required_on_non_null_fields
 # expected-to-throw
-fragment MyFragment on User {
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on User @throwOnFieldError {
   some_field @required(action: THROW)
 }
 
@@ -13,7 +13,7 @@ extend type User {
 ✖︎ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
 
   fragment_with_required_non_null_field.invalid.graphql:4:14
-    3 │ fragment MyFragment on User {
+    3 │ fragment MyFragment on User @throwOnFieldError {
     4 │   some_field @required(action: THROW)
       │              ^^^^^^^^^
     5 │ }

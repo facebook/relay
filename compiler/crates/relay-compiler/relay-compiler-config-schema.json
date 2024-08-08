@@ -641,11 +641,6 @@
               "default": false,
               "type": "boolean"
             },
-            "disallow_required_on_non_null_fields": {
-              "description": "Disallow the `@required` directive on fields that are already non-null in the schema.",
-              "default": false,
-              "type": "boolean"
-            },
             "enable_3d_branch_arg_generation": {
               "default": false,
               "type": "boolean"
@@ -1742,7 +1737,6 @@
             },
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
-            "disallow_required_on_non_null_fields": false,
             "enable_3d_branch_arg_generation": false,
             "enable_catch_directive_transform": {
               "kind": "disabled"
@@ -2296,11 +2290,6 @@
             },
             "disable_schema_validation": {
               "description": "Disable validating the composite schema (server, client schema extensions, Relay Resolvers) after its built.",
-              "default": false,
-              "type": "boolean"
-            },
-            "disallow_required_on_non_null_fields": {
-              "description": "Disallow the `@required` directive on fields that are already non-null in the schema.",
               "default": false,
               "type": "boolean"
             },
@@ -3664,11 +3653,6 @@
                   },
                   "disable_schema_validation": {
                     "description": "Disable validating the composite schema (server, client schema extensions, Relay Resolvers) after its built.",
-                    "default": false,
-                    "type": "boolean"
-                  },
-                  "disallow_required_on_non_null_fields": {
-                    "description": "Disallow the `@required` directive on fields that are already non-null in the schema.",
                     "default": false,
                     "type": "boolean"
                   },

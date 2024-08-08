@@ -1,6 +1,6 @@
-# relay:disallow_required_on_non_null_fields
 # expected-to-throw
-fragment MyFragment on User {
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on User @throwOnFieldError {
   some_field @required(action: THROW)
 }
 

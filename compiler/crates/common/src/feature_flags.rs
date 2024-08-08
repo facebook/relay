@@ -111,11 +111,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub disable_schema_validation: bool,
 
-    /// Disallow the `@required` directive on fields that are already non-null
-    /// in the schema.
-    #[serde(default)]
-    pub disallow_required_on_non_null_fields: bool,
-
     /// Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator
     /// in @refetchable transform
     #[serde(default)]

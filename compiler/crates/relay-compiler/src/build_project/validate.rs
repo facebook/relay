@@ -48,9 +48,6 @@ pub fn validate_reader(
         disallow_required_on_non_null_field(
             program,
             project_config
-                .feature_flags
-                .disallow_required_on_non_null_fields,
-            project_config
                 .typegen_config
                 .experimental_emit_semantic_nullability_types,
         ),

@@ -11,7 +11,8 @@
 
 'use strict';
 
-import type {LiveState, Observable} from 'relay-runtime';
+import type {LiveResolverContextType} from '../../../mutations/__tests__/LiveResolverContextType';
+import type {LiveState} from 'relay-runtime';
 
 /**
  * @RelayResolver Query.counter_context: Int
@@ -23,7 +24,7 @@ import type {LiveState, Observable} from 'relay-runtime';
 function counter_context(
   _: void,
   __: void,
-  context: {counter: Observable<number>},
+  context: LiveResolverContextType,
 ): LiveState<number> {
   let value = 0;
 

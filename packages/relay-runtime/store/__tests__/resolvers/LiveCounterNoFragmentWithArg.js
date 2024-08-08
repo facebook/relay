@@ -22,9 +22,12 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
  * A Relay Resolver that returns an object implementing the External State
  * Resolver interface.
  */
-function counter_no_fragment_with_arg(args: {
-  prefix: string,
-}): LiveState<string> {
+function counter_no_fragment_with_arg(
+  _: void,
+  args: {
+    prefix: string,
+  },
+): LiveState<string> {
   return {
     read() {
       return `${args.prefix} ${Selectors.getNumber(GLOBAL_STORE.getState())}`;

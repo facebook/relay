@@ -12,7 +12,6 @@
 'use strict';
 
 import type {IEnvironment} from 'relay-runtime';
-import type {Observer} from 'relay-runtime/network/RelayObservable';
 import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 
@@ -1726,7 +1725,7 @@ test('allows dependencies to be provided through the store', () => {
     store: new LiveResolverStore(RelayRecordSource.create(), {
       gcReleaseBufferSize: 0,
       liveResolverContext: {
-        greeting: 'Hello Allemaal!',
+        greeting: {myHello: 'Hello Allemaal!'},
       },
     }),
   });

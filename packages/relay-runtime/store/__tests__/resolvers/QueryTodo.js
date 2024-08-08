@@ -22,7 +22,7 @@ const {
  * @RelayResolver Query.todo(todoID: ID!): Todo
  * @live
  */
-function todo(args: {todoID: string}): LiveState<?ReturnType> {
+function todo(_: void, args: {todoID: string}): LiveState<?ReturnType> {
   return {
     read() {
       const todo = Selectors.getTodo(TODO_STORE.getState(), args.todoID);

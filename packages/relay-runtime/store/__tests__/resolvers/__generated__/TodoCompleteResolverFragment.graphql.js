@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<06be9606e2d922971a1baa73de79fddb>>
+ * @generated SignedSource<<76afa46a3b2b91e802db9f7b3ec580a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoSelfResolverFragment$key } from "./TodoSelfResolverFragment.graphql";
 import type { LiveState, FragmentType } from "relay-runtime";
 import {self as todoSelfResolverType} from "../TodoSelfResolver.js";
+import type { LiveResolverContextType } from "../../../../mutations/__tests__/LiveResolverContextType";
 // Type assertion validating that `todoSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoSelfResolverType: (
   rootKey: TodoSelfResolverFragment$key,
+  _: void,
+  context: LiveResolverContextType,
 ) => LiveState<?mixed>);
 declare export opaque type TodoCompleteResolverFragment$fragmentType: FragmentType;
 export type TodoCompleteResolverFragment$data = {|

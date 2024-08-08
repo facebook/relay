@@ -23,7 +23,10 @@ const {
  * @RelayResolver Query.todos(first: Int, last: Int): TodoConnection
  * @live
  */
-function todos(args: {first: ?number, last: ?number}): LiveState<?ReturnType> {
+function todos(
+  _: void,
+  args: {first: ?number, last: ?number},
+): LiveState<?ReturnType> {
   return {
     read() {
       const todoIDs = Selectors.getTodoIDs(TODO_STORE.getState());

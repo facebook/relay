@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {LiveResolverContextType} from '../../../mutations/__tests__/LiveResolverContextType';
 import type {LiveState} from 'relay-runtime';
 
 /**
@@ -22,11 +23,11 @@ import type {LiveState} from 'relay-runtime';
 function hello_world_with_context(
   _: void,
   __: void,
-  context: {greeting: string},
+  context: LiveResolverContextType,
 ): LiveState<string> {
   return {
     read() {
-      return `Hello ${context.greeting}!`;
+      return `Hello ${context.greeting.myHello}!`;
     },
 
     subscribe(callback) {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d49dd3e02c7564f1b46948b06cac65b9>>
+ * @generated SignedSource<<18886aef7dbd1e024baaa18dd218ab13>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,14 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {hello_world_with_context_object as queryHelloWorldWithContextObjectResolverType} from "../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithContextObject.js";
+import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
 // Type assertion validating that `queryHelloWorldWithContextObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloWorldWithContextObjectResolverType: () => LiveState<?string>);
+(queryHelloWorldWithContextObjectResolverType: (
+  _: void,
+  _: void,
+  context: LiveResolverContextType,
+) => LiveState<?string>);
 export type LiveResolversTestWithContextObjectQuery$variables = {||};
 export type LiveResolversTestWithContextObjectQuery$data = {|
   +hello_world_with_context_object: ?string,

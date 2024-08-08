@@ -1425,9 +1425,7 @@ function getResolverValue(
   let resolverResult = null;
   let resolverError = null;
 
-  const shouldPassContextToLiveResolver = !!(
-    liveResolverContext && field.kind === 'RelayLiveResolver'
-  );
+  const shouldPassContextToLiveResolver = field.kind === 'RelayLiveResolver';
   try {
     const resolverFunctionArgs = [];
     if (field.fragment != null) {

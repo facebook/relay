@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<84dd07289f52b49c224048d9caeb07fb>>
+ * @generated SignedSource<<561812d844d668bece7b9e1cd3a83dca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,14 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {counter_throws_when_odd as queryCounterThrowsWhenOddResolverType} from "../QueryLiveResolverThrowsOnRead.js";
+import type { LiveResolverContextType } from "../../../../mutations/__tests__/LiveResolverContextType";
 // Type assertion validating that `queryCounterThrowsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterThrowsWhenOddResolverType: () => LiveState<?number>);
+(queryCounterThrowsWhenOddResolverType: (
+  _: void,
+  _: void,
+  context: LiveResolverContextType,
+) => LiveState<?number>);
 export type LiveResolversTestHandlesErrorOnUpdateQuery$variables = {||};
 export type LiveResolversTestHandlesErrorOnUpdateQuery$data = {|
   +counter_throws_when_odd: ?number,

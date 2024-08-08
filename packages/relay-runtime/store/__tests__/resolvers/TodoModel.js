@@ -158,9 +158,12 @@ function todo_model_null(): ?ConcreteClientEdgeResolverReturnType<> {
  * @live
  *
  */
-function live_todo_description(args: {
-  todoID: string,
-}): LiveState<?TodoDescription> {
+function live_todo_description(
+  _: void,
+  args: {
+    todoID: string,
+  },
+): LiveState<?TodoDescription> {
   return {
     read() {
       const todo = Selectors.getTodo(TODO_STORE.getState(), args.todoID);

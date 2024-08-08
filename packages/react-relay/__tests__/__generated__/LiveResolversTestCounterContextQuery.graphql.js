@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cdae3851002fe056f5d4b9ecea0769f0>>
+ * @generated SignedSource<<0b678b2baa677776abf9ddcfd58c80ec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,14 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {counter_context as queryCounterContextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver.js";
+import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
 // Type assertion validating that `queryCounterContextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterContextResolverType: () => LiveState<?number>);
+(queryCounterContextResolverType: (
+  _: void,
+  _: void,
+  context: LiveResolverContextType,
+) => LiveState<?number>);
 export type LiveResolversTestCounterContextQuery$variables = {||};
 export type LiveResolversTestCounterContextQuery$data = {|
   +counter_context: ?number,

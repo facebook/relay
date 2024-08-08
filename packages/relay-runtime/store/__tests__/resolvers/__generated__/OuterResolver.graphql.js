@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5f534b7564467882d48081cac840d8c9>>
+ * @generated SignedSource<<09b1c20ab7891c7590a39d71fb088791>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { InnerResolver$key } from "./InnerResolver.graphql";
 import type { LiveState, FragmentType } from "relay-runtime";
 import {inner as queryInnerResolverType} from "../InnerResolver.js";
+import type { LiveResolverContextType } from "../../../../mutations/__tests__/LiveResolverContextType";
 // Type assertion validating that `queryInnerResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolverType: (
   rootKey: InnerResolver$key,
+  _: void,
+  context: LiveResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type OuterResolver$fragmentType: FragmentType;
 export type OuterResolver$data = {|

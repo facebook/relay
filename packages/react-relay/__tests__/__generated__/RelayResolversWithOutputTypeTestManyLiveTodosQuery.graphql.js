@@ -21,13 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {many_live_todos as queryManyLiveTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryManyLiveTodos.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryManyLiveTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryManyLiveTodosResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?$ReadOnlyArray<?Query__many_live_todos$normalization>>);
 import type { Query__many_live_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_live_todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables = {||};

@@ -20,13 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState, DataID } from "relay-runtime";
 import {live_user_resolver_always_suspend as queryLiveUserResolverAlwaysSuspendResolverType} from "../resolvers/LiveUserAlwaysSuspendResolver.js";
-import type { LiveResolverContextType } from "../../../mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryLiveUserResolverAlwaysSuspendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveUserResolverAlwaysSuspendResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?{|
   +id: DataID,
 |}>);

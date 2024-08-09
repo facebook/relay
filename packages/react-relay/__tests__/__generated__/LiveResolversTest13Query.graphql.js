@@ -20,13 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState, DataID } from "relay-runtime";
 import {live_constant_client_edge as queryLiveConstantClientEdgeResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryLiveConstantClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveConstantClientEdgeResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?{|
   +id: DataID,
 |}>);

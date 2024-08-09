@@ -41,13 +41,13 @@ import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../
   |},
 ) => ?string);
 import {fancy_description_suspends as todoModelFancyDescriptionSuspendsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `todoModelFancyDescriptionSuspendsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionSuspendsResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?TodoDescription>);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestSuspendedWeakClientEdgeQuery$variables = {|

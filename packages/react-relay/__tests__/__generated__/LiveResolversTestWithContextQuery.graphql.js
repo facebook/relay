@@ -20,13 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {hello_world_with_context as queryHelloWorldWithContextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithContext.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryHelloWorldWithContextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloWorldWithContextResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?string>);
 export type LiveResolversTestWithContextQuery$variables = {||};
 export type LiveResolversTestWithContextQuery$data = {|

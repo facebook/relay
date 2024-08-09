@@ -21,13 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { LiveCounterResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LiveCounterResolver.graphql";
 import {counter as queryCounterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterResolver.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolverType: (
   rootKey: LiveCounterResolver$key,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 export type LiveResolversTest2Query$variables = {||};
 export type LiveResolversTest2Query$data = {|

@@ -21,7 +21,7 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryTodoResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoResolverType: (
@@ -29,7 +29,7 @@ import type { LiveResolverContextType } from "../../../relay-runtime/mutations/_
   args: {|
     todoID: string,
   |},
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?Query__todo$normalization>);
 import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoQuery$variables = {|

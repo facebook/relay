@@ -541,7 +541,7 @@ fn get_resolver_arguments(
         }
     } else if resolver_metadata.live {
         resolver_arguments.push(KeyValuePairProp {
-            key: "_".intern(),
+            key: "key".intern(),
             value: AST::RawType("void".intern()),
             read_only: true,
             optional: false,
@@ -573,7 +573,7 @@ fn get_resolver_arguments(
         });
     } else if resolver_metadata.live {
         resolver_arguments.push(KeyValuePairProp {
-            key: "_".intern(),
+            key: "args".intern(),
             value: void_type,
             read_only: true,
             optional: false,

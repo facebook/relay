@@ -20,13 +20,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { LiveState, FragmentType, DataID } from "relay-runtime";
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
-import type { LiveResolverContextType } from "../../../../mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveUserSuspendsWhenOddResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?{|
   +id: DataID,
 |}>);

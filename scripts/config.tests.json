@@ -58,7 +58,7 @@
       },
       "language": "flow",
       "experimentalEmitSemanticNullabilityTypes": true,
-      "liveResolverContextType": { "name": "LiveResolverContextType", "path": "packages/relay-runtime/mutations/__tests__/LiveResolverContextType" }
+      "liveResolverContextType": { "name": "TestLiveResolverContextType", "path": "packages/relay-runtime/mutations/__tests__/TestLiveResolverContextType" }
     }
   },
   "isDevVariableName": "__DEV__"

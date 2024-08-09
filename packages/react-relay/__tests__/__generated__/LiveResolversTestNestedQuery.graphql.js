@@ -22,13 +22,13 @@ import type { LiveState } from "relay-runtime";
 import type { InnerResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/InnerResolver.graphql";
 import type { OuterResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/OuterResolver.graphql";
 import {inner as queryInnerResolverType} from "../../../relay-runtime/store/__tests__/resolvers/InnerResolver.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryInnerResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolverType: (
   rootKey: InnerResolver$key,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 import {outer as queryOuterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
 // Type assertion validating that `queryOuterResolverType` resolver is correctly implemented.

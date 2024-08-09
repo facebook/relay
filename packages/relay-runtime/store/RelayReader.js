@@ -1431,7 +1431,7 @@ function getResolverValue(
     if (field.fragment != null) {
       resolverFunctionArgs.push(fragmentKey);
     } else {
-      // Set first argument to `null` in case we have resolver context
+      // Set first argument to `undefined` in case we have resolver context
       // to make sure the context object is always the 3rd argument.
       if (shouldPassContextToLiveResolver) {
         resolverFunctionArgs.push(undefined);

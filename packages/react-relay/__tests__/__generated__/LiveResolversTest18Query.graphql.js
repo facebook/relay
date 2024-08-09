@@ -20,13 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {live_resolver_throws as queryLiveResolverThrowsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryLiveResolverThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveResolverThrowsResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?mixed>);
 export type LiveResolversTest18Query$variables = {||};
 export type LiveResolversTest18Query$data = {|

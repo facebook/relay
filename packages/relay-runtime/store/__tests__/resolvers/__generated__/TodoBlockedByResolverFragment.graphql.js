@@ -21,13 +21,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoSelfResolverFragment$key } from "./TodoSelfResolverFragment.graphql";
 import type { LiveState, FragmentType } from "relay-runtime";
 import {self as todoSelfResolverType} from "../TodoSelfResolver.js";
-import type { LiveResolverContextType } from "../../../../mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `todoSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoSelfResolverType: (
   rootKey: TodoSelfResolverFragment$key,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?mixed>);
 declare export opaque type TodoBlockedByResolverFragment$fragmentType: FragmentType;
 export type TodoBlockedByResolverFragment$data = {|

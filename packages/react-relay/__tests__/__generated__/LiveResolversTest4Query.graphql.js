@@ -21,13 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { LivePingPongResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LivePingPongResolver.graphql";
 import {ping as queryPingResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryPingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryPingResolverType: (
   rootKey: LivePingPongResolver$key,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?string>);
 export type LiveResolversTest4Query$variables = {||};
 export type LiveResolversTest4Query$data = {|

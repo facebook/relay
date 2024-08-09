@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql";
 import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType: (
@@ -29,7 +29,7 @@ import type { LiveResolverContextType } from "../../../relay-runtime/mutations/_
   args: {|
     scale: ?number,
   |},
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?string>);
 export type LiveResolversTest9Query$variables = {|
   id: string,

@@ -21,13 +21,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoModel__id$data } from "./TodoModel__id.graphql";
 import type { LiveState, FragmentType } from "relay-runtime";
 import {TodoModel as todoModelRelayModelInstanceResolverType} from "../TodoModel.js";
-import type { LiveResolverContextType } from "../../../../mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `todoModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelRelayModelInstanceResolverType: (
   id: TodoModel__id$data['id'],
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<mixed>);
 declare export opaque type TodoModel____relay_model_instance$fragmentType: FragmentType;
 export type TodoModel____relay_model_instance$data = {|

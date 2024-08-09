@@ -20,13 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {counter_throws_when_odd as queryCounterThrowsWhenOddResolverType} from "../QueryLiveResolverThrowsOnRead.js";
-import type { LiveResolverContextType } from "../../../../mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryCounterThrowsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterThrowsWhenOddResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 export type LiveResolversTestHandlesErrorOnUpdateQuery$variables = {||};
 export type LiveResolversTestHandlesErrorOnUpdateQuery$data = {|

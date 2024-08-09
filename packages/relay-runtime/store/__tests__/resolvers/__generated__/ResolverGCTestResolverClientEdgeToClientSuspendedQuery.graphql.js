@@ -27,13 +27,13 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
   rootKey: AstrologicalSignNameResolver$key,
 ) => ?string);
 import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOddResolverType} from "../QueryVirgoLiveSuspendsWhenOddResolver.js";
-import type { LiveResolverContextType } from "../../../../mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryVirgoSuspendsWhenCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryVirgoSuspendsWhenCounterIsOddResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?{|
   +id: DataID,
 |}>);

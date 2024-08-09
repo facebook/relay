@@ -21,13 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { ResolverThatThrows$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/ResolverThatThrows.graphql";
 import {resolver_that_throws as userResolverThatThrowsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userResolverThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userResolverThatThrowsResolverType: (
   rootKey: ResolverThatThrows$key,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?mixed>);
 export type LiveResolversTest8Query$variables = {|
   id: string,

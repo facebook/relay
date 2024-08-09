@@ -21,13 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { LiveCounterWithPossibleMissingFragmentDataResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LiveCounterWithPossibleMissingFragmentDataResolverFragment.graphql";
 import {live_counter_with_possible_missing_fragment_data as queryLiveCounterWithPossibleMissingFragmentDataResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryLiveCounterWithPossibleMissingFragmentDataResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveCounterWithPossibleMissingFragmentDataResolverType: (
   rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 export type LiveResolversTestWithGCQuery$variables = {||};
 export type LiveResolversTestWithGCQuery$data = {|

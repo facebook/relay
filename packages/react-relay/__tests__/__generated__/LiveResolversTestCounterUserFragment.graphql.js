@@ -20,13 +20,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { LiveState, FragmentType } from "relay-runtime";
 import {counter_suspends_when_odd as userCounterSuspendsWhenOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/CounterSuspendsWhenOddOnUser.js";
-import type { LiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/LiveResolverContextType";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCounterSuspendsWhenOddResolverType: (
   _: void,
   _: void,
-  context: LiveResolverContextType,
+  context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type LiveResolversTestCounterUserFragment$fragmentType: FragmentType;
 export type LiveResolversTestCounterUserFragment$data = {|

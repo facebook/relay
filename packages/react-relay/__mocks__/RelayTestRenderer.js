@@ -22,7 +22,7 @@ type Props = {
   environment: $FlowFixMe,
   query: $FlowFixMe,
   variables: Variables,
-  children: React.Element<$FlowFixMe>,
+  children: ExactReactElement_DEPRECATED<$FlowFixMe>,
   ...
 };
 

@@ -10,6 +10,7 @@ use graphql_syntax::Argument;
 use graphql_syntax::Directive;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::ExecutableDocument;
+use graphql_syntax::FieldDefinition;
 use graphql_syntax::FragmentDefinition;
 use graphql_syntax::FragmentSpread;
 use graphql_syntax::InlineFragment;
@@ -17,9 +18,11 @@ use graphql_syntax::LinkedField;
 use graphql_syntax::List;
 use graphql_syntax::OperationDefinition;
 use graphql_syntax::ScalarField;
+use graphql_syntax::SchemaDocument;
 use graphql_syntax::Selection;
 use graphql_syntax::TypeCondition;
 use intern::string_key::StringKey;
+use schema::TypeSystemDefinition;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -30,6 +33,7 @@ pub use type_path::TypePathItem;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
+    SchemaDocument,
     OperationDefinition(OperationDefinition),
     FragmentDefinition(FragmentDefinition),
     FieldName,
@@ -91,6 +95,94 @@ fn type_condition_at_position(
     }
 
     Some(NodeKind::TypeCondition(type_condition.type_.value))
+}
+
+pub fn create_node_resolution_info_for_schema_document(
+    document: SchemaDocument,
+    position_span: Span,
+) -> LSPRuntimeResult<NodeResolutionInfo> {
+    let definition = document
+        .definitions
+        .iter()
+        .find(|definition| definition.span().contains(position_span))
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    let mut node_resolution_info = NodeResolutionInfo::new(NodeKind::SchemaDocument);
+
+    match definition {
+        TypeSystemDefinition::ObjectTypeDefinition(object_type) => {
+            build_node_resolution_info_from_field_definitions(
+                &object_type.fields,
+                TypePathItem::ObjectType {
+                    name: object_type.name.value,
+                },
+                position_span,
+                &mut node_resolution_info,
+            );
+
+            Ok(node_resolution_info)
+        }
+        TypeSystemDefinition::ObjectTypeExtension(object_type) => {
+            build_node_resolution_info_from_field_definitions(
+                &object_type.fields,
+                TypePathItem::ObjectType {
+                    name: object_type.name.value,
+                },
+                position_span,
+                &mut node_resolution_info,
+            );
+
+            Ok(node_resolution_info)
+        }
+        TypeSystemDefinition::InterfaceTypeDefinition(interface_type) => {
+            build_node_resolution_info_from_field_definitions(
+                &interface_type.fields,
+                TypePathItem::InterfaceType {
+                    name: interface_type.name.value,
+                },
+                position_span,
+                &mut node_resolution_info,
+            );
+
+            Ok(node_resolution_info)
+        }
+        TypeSystemDefinition::InterfaceTypeExtension(interface_type) => {
+            build_node_resolution_info_from_field_definitions(
+                &interface_type.fields,
+                TypePathItem::InterfaceType {
+                    name: interface_type.name.value,
+                },
+                position_span,
+                &mut node_resolution_info,
+            );
+
+            Ok(node_resolution_info)
+        }
+        _ => Err(LSPRuntimeError::ExpectedError),
+    }
+}
+
+fn build_node_resolution_info_from_field_definitions(
+    fields: &Option<List<FieldDefinition>>,
+    type_path_item: TypePathItem,
+    position_span: Span,
+    node_resolution_info: &mut NodeResolutionInfo,
+) {
+    if let Some(fields) = &fields {
+        if let Some(field) = fields
+            .items
+            .iter()
+            .find(|item| item.span.contains(position_span))
+        {
+            node_resolution_info.kind = NodeKind::FieldName;
+            node_resolution_info.type_path.add_type(type_path_item);
+            node_resolution_info
+                .type_path
+                .add_type(TypePathItem::FieldDefinition {
+                    name: field.name.value,
+                });
+        }
+    }
 }
 
 pub fn create_node_resolution_info(
@@ -306,17 +398,19 @@ mod test {
     use common::SourceLocationKey;
     use common::Span;
     use graphql_syntax::parse_executable;
+    use graphql_syntax::parse_schema_document;
     use intern::string_key::Intern;
 
     use super::create_node_resolution_info;
+    use super::create_node_resolution_info_for_schema_document;
     use super::NodeKind;
     use super::NodeResolutionInfo;
 
-    fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
+    fn parse_and_get_node_info(source: &str, sub_str: &str) -> NodeResolutionInfo {
         let document =
             parse_executable(source, SourceLocationKey::standalone("/test/file")).unwrap();
 
-        // Select the `uri` field
+        let pos = source.find(sub_str).unwrap() as u32;
         let position_span = Span {
             start: pos,
             end: pos,
@@ -325,19 +419,59 @@ mod test {
         create_node_resolution_info(document, position_span).unwrap()
     }
 
+    fn parse_and_get_schema_document_node_info(source: &str, sub_str: &str) -> NodeResolutionInfo {
+        let document =
+            parse_schema_document(source, SourceLocationKey::standalone("/test/file")).unwrap();
+
+        let pos = source.find(sub_str).unwrap() as u32;
+        let position_span = Span {
+            start: pos,
+            end: pos,
+        };
+
+        create_node_resolution_info_for_schema_document(document, position_span).unwrap()
+    }
+
+    #[test]
+    fn create_node_resolution_info_for_schema_document_object_type_field() {
+        let node_resolution_info = parse_and_get_schema_document_node_info(
+            r#"
+                type Object {
+                    uri: String
+                }
+            "#,
+            "uri",
+        );
+
+        assert_eq!(node_resolution_info.kind, NodeKind::FieldName);
+    }
+
+    #[test]
+    fn create_node_resolution_info_for_schema_document_interface_field() {
+        let node_resolution_info = parse_and_get_schema_document_node_info(
+            r#"
+                interface Interface {
+                    uri: String
+                }
+            "#,
+            "uri",
+        );
+
+        assert_eq!(node_resolution_info.kind, NodeKind::FieldName);
+    }
+
     #[test]
     fn create_node_resolution_info_test() {
         let node_resolution_info = parse_and_get_node_info(
             r#"
-            fragment User_data on User {
-                name
-                profile_picture {
-                    uri
+                fragment User_data on User {
+                    name
+                    profile_picture {
+                        uri
+                    }
                 }
-            }
-        "#,
-            // Select the `uri` field
-            117,
+            "#,
+            "uri",
         );
 
         assert_eq!(node_resolution_info.kind, NodeKind::FieldName);
@@ -347,15 +481,18 @@ mod test {
     fn create_node_resolution_info_test_position_outside() {
         let document = parse_executable(
             r#"
-            fragment User_data on User {
-                name
-            }
-        "#,
+                fragment User_data on User {
+                    name
+                }
+            "#,
             SourceLocationKey::standalone("/test/file"),
         )
         .unwrap();
         // Position is outside of the document
-        let position_span = Span { start: 86, end: 87 };
+        let position_span = Span {
+            start: 1000,
+            end: 1001,
+        };
         let result = create_node_resolution_info(document, position_span);
         assert!(result.is_err());
     }
@@ -364,12 +501,11 @@ mod test {
     fn create_node_resolution_info_fragment_def_name() {
         let node_resolution_info = parse_and_get_node_info(
             r#"
-            fragment User_data on User {
-                name
-            }
-        "#,
-            // Select the `User_data` fragment name
-            26,
+                fragment User_data on User {
+                    name
+                }
+            "#,
+            "User_data",
         );
 
         match node_resolution_info.kind {
@@ -384,12 +520,11 @@ mod test {
     fn create_node_resolution_info_fragment_def_type_condition() {
         let node_resolution_info = parse_and_get_node_info(
             r#"
-            fragment User_data on User {
-                name
-            }
-        "#,
-            // Select the `User` type in fragment declaration
-            35,
+                fragment Test on User {
+                    name
+                }
+            "#,
+            "User",
         );
 
         assert_eq!(
@@ -402,15 +537,14 @@ mod test {
     fn create_node_resolution_info_inline_fragment_type_condition() {
         let node_resolution_info = parse_and_get_node_info(
             r#"
-            fragment User_data on User {
-                name
-                ... on User {
-                    id
+                fragment Test on Person {
+                    name
+                    ... on User {
+                        id
+                    }
                 }
-            }
-        "#,
-            // Select the `User` type in fragment declaration
-            84,
+            "#,
+            "User",
         );
 
         assert_eq!(

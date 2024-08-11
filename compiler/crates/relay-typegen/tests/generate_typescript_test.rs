@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<40ee37b571f2844f07f55ccb1407a04a>>
+ * @generated SignedSource<<8470963a2d052ea22040d9f2e6c14c2e>>
  */
 
 mod generate_typescript;
@@ -325,6 +325,48 @@ async fn relay_client_id_field() {
     let input = include_str!("generate_typescript/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("generate_typescript/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, file!(), "relay-client-id-field.graphql", "generate_typescript/fixtures/relay-client-id-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_custom_scalar_type_boolean_argument() {
+    let input = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_boolean_argument.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_boolean_argument.expected");
+    test_fixture(transform_fixture, file!(), "relay_custom_scalar_type_boolean_argument.graphql", "generate_typescript/fixtures/relay_custom_scalar_type_boolean_argument.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_custom_scalar_type_multiple_arguments() {
+    let input = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_multiple_arguments.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_multiple_arguments.expected");
+    test_fixture(transform_fixture, file!(), "relay_custom_scalar_type_multiple_arguments.graphql", "generate_typescript/fixtures/relay_custom_scalar_type_multiple_arguments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_custom_scalar_type_multiple_arguments_union() {
+    let input = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_multiple_arguments_union.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_multiple_arguments_union.expected");
+    test_fixture(transform_fixture, file!(), "relay_custom_scalar_type_multiple_arguments_union.graphql", "generate_typescript/fixtures/relay_custom_scalar_type_multiple_arguments_union.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_custom_scalar_type_no_arguments() {
+    let input = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_no_arguments.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_no_arguments.expected");
+    test_fixture(transform_fixture, file!(), "relay_custom_scalar_type_no_arguments.graphql", "generate_typescript/fixtures/relay_custom_scalar_type_no_arguments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_custom_scalar_type_number_arguments() {
+    let input = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_number_arguments.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_number_arguments.expected");
+    test_fixture(transform_fixture, file!(), "relay_custom_scalar_type_number_arguments.graphql", "generate_typescript/fixtures/relay_custom_scalar_type_number_arguments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_custom_scalar_type_single_argument() {
+    let input = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_single_argument.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay_custom_scalar_type_single_argument.expected");
+    test_fixture(transform_fixture, file!(), "relay_custom_scalar_type_single_argument.graphql", "generate_typescript/fixtures/relay_custom_scalar_type_single_argument.expected", input, expected).await;
 }
 
 #[tokio::test]

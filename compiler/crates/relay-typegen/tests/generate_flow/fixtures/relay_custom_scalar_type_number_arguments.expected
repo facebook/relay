@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+fragment foo on ViewData {
+    number @__RelayTypegenTypeOverride(
+      path: "all-the-numbers",
+      name: "SpecialNumbers",
+      generic_arguments: [
+        1,
+        1.5,
+        2,
+        3.9,
+        42
+      ],
+      union: true
+    )
+}
+
+# %extensions%
+
+extend type Query {
+  viewData: ViewData
+}
+
+type ViewData {
+  number: Float
+}
+
+# Custom scalar as the code transform could put several ConstantValue types here
+scalar Argument
+directive @__RelayTypegenTypeOverride(
+  path: String!, 
+  name: String!,
+  generic_arguments: [Argument!]
+  union: Boolean
+) on FIELD
+==================================== OUTPUT ===================================
+import type { SpecialNumbers } from "all-the-numbers";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type foo$fragmentType: FragmentType;
+export type foo$data = {|
+  +number: ?SpecialNumbers<1 | 1.5 | 2 | 3.9 | 42>,
+  +$fragmentType: foo$fragmentType,
+|};
+export type foo$key = {
+  +$data?: foo$data,
+  +$fragmentSpreads: foo$fragmentType,
+  ...
+};

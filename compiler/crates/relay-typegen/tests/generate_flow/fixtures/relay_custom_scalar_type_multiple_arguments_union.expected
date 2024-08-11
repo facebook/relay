@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+fragment foo on ViewData {
+    usernameLabel @__RelayTypegenTypeOverride(
+      path: "@i18n/localization",
+      name: "LocalizedString",
+      generic_arguments: [
+        "name",
+        "age"
+      ],
+      union: true
+    )
+}
+
+# %extensions%
+
+extend type Query {
+  viewData: ViewData
+}
+
+type ViewData {
+  usernameLabel: String
+}
+
+directive @__RelayTypegenTypeOverride(
+  path: String!, 
+  name: String!,
+  generic_arguments: [String!]
+  union: Boolean
+) on FIELD
+==================================== OUTPUT ===================================
+import type { LocalizedString } from "@i18n/localization";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type foo$fragmentType: FragmentType;
+export type foo$data = {|
+  +usernameLabel: ?LocalizedString<"age" | "name">,
+  +$fragmentType: foo$fragmentType,
+|};
+export type foo$key = {
+  +$data?: foo$data,
+  +$fragmentSpreads: foo$fragmentType,
+  ...
+};

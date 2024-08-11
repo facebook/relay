@@ -68,6 +68,7 @@ use crate::explore_schema_for_type::on_explore_schema_for_type;
 use crate::explore_schema_for_type::ExploreSchemaForType;
 use crate::find_field_usages::on_find_field_usages;
 use crate::find_field_usages::FindFieldUsages;
+use crate::folding::on_get_folding_ranges;
 use crate::goto_definition::on_get_source_location_of_type_definition;
 use crate::goto_definition::on_goto_definition;
 use crate::goto_definition::GetSourceLocationOfTypeDefinition;
@@ -116,6 +117,9 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
         references_provider: Some(lsp_types::OneOf::Left(true)),
         code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
         inlay_hint_provider: Some(lsp_types::OneOf::Left(true)),
+        folding_range_provider: Some(lsp_types::FoldingRangeProviderCapability::FoldingProvider(
+            FoldingProviderOptions {},
+        )),
         ..Default::default()
     };
 
@@ -259,6 +263,7 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .on_request_sync::<HeartbeatRequest>(on_heartbeat)?
             .on_request_sync::<FindFieldUsages>(on_find_field_usages)?
             .on_request_sync::<InlayHintRequest>(on_inlay_hint_request)?
+            .on_request_sync::<FoldingRangeRequest>(on_get_folding_ranges)?
             .request();
 
         // If we have gotten here, we have not handled the request

@@ -105,6 +105,8 @@ jobs:
         run: cargo fetch --manifest-path=compiler/Cargo.toml
       - name: "Check free disk space"
         run: df -h
+      - name: "pwd"
+        run: pwd
       - name: "Run tests"
         run: CARGO_TARGET_DIR=/cargo-test-artifacts cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
 

@@ -16,7 +16,7 @@
  *
  * Say `Hello ${world}!` with a fallback if world is null
  */
-function hello_optional_world(args: {world: ?string}): string {
+function hello_optional_world(_: void, args: {world: ?string}): string {
   return `Hello, ${args.world ?? 'Default'}!`;
 }
 

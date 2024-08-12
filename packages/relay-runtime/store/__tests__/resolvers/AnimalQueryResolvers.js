@@ -70,7 +70,7 @@ function animals(
   id: DataID,
 }> {
   return args.requests.map(request => {
-    return animal({request});
+    return animal(undefined, {request});
   });
 }
 

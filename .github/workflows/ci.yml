@@ -101,6 +101,10 @@ jobs:
         run: df -h
       - name: "Check disk usage (including . files)"
         run: du -sh .[^.]* *
+      - name: "Fetch cargo dependencies"
+        run: cargo fetch
+      - name: "Check free disk space"
+        run: df -h
       - name: "Run tests"
         run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
 

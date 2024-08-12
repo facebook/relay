@@ -67,7 +67,7 @@ function weak_animals(
   },
 ): Array<Query__weak_animal$normalization> {
   return args.requests.map(request => {
-    return weak_animal({request});
+    return weak_animal(undefined, {request});
   });
 }
 

@@ -39,6 +39,7 @@ crates/relay-docblock/tests/parse
 crates/relay-docblock/tests/to_schema
 crates/relay-lsp/tests/find_field_usages
 crates/relay-lsp/tests/hover
+crates/relay-lsp/tests/rename
 crates/relay-schema-generation/tests/docblock
 crates/relay-schema-generation/tests/extract
 crates/relay-transforms/tests/apply_fragment_arguments

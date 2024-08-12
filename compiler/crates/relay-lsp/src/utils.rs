@@ -7,6 +7,7 @@
 
 use std::path::PathBuf;
 
+use common::Location;
 use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
@@ -124,7 +125,7 @@ pub fn extract_feature_from_text(
     schema_source_cache: &DashMap<Url, GraphQLSource>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
-) -> LSPRuntimeResult<(Feature, Span)> {
+) -> LSPRuntimeResult<(Feature, Location)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 
@@ -141,7 +142,10 @@ pub fn extract_feature_from_text(
                 LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
             })?;
 
-        return Ok((Feature::SchemaDocument(schema_document), position_span));
+        return Ok((
+            Feature::SchemaDocument(schema_document),
+            Location::new(source_location_key, position_span),
+        ));
     }
 
     let source_features = js_source_feature_cache
@@ -157,7 +161,7 @@ pub fn extract_feature_from_text(
         })
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let source_location_key = SourceLocationKey::embedded(uri.as_ref(), index);
+    let source_location_key = SourceLocationKey::embedded(uri.path(), index);
 
     let parser_features = get_parser_features(project_config);
 
@@ -188,7 +192,10 @@ pub fn extract_feature_from_text(
             // since the change event fires before completion.
             debug!("position_span: {:?}", position_span);
 
-            Ok((Feature::ExecutableDocument(document), position_span))
+            Ok((
+                Feature::ExecutableDocument(document),
+                Location::new(source_location_key, position_span),
+            ))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
             let text_source = &docblock_source.text_source();
@@ -231,7 +238,10 @@ pub fn extract_feature_from_text(
                         )
                     })?;
 
-            Ok((Feature::DocblockIr(docblock_ir), position_span))
+            Ok((
+                Feature::DocblockIr(docblock_ir),
+                Location::new(source_location_key, position_span),
+            ))
         }
     }
 }

@@ -65,16 +65,16 @@ pub enum LiveResolverContextTypeInput {
     Package(LiveResolverContextTypeInputPackage),
 }
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LiveResolverContextTypeInputPath {
-    pub name: String,
+    pub name: StringKey,
     pub path: PathBuf,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LiveResolverContextTypeInputPackage {
-    pub name: String,
-    pub package: String,
+    pub name: StringKey,
+    pub package: StringKey,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

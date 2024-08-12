@@ -629,7 +629,7 @@ fn import_relay_resolver_function_type(
         .live_resolver_context_type
     {
         Some(LiveResolverContextTypeInput::Path(context_import)) => Some(LiveResolverContextType {
-            name: context_import.name.clone().intern(),
+            name: context_import.name,
             import_path: typegen_context.project_config.js_module_import_identifier(
                 &typegen_context
                     .project_config
@@ -639,8 +639,8 @@ fn import_relay_resolver_function_type(
         }),
         Some(LiveResolverContextTypeInput::Package(context_import)) => {
             Some(LiveResolverContextType {
-                name: context_import.name.clone().intern(),
-                import_path: context_import.package.clone().intern(),
+                name: context_import.name,
+                import_path: context_import.package,
             })
         }
         None => None,

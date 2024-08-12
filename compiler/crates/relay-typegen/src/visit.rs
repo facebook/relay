@@ -533,7 +533,7 @@ fn get_resolver_arguments(
                 .0
                 .insert(EncounteredFragment::Key(fragment_name));
             resolver_arguments.push(KeyValuePairProp {
-                key: "rootKey".intern(),
+                key: intern!("rootKey"),
                 value: AST::RawType(format!("{fragment_name}$key").intern()),
                 read_only: false,
                 optional: false,
@@ -542,7 +542,7 @@ fn get_resolver_arguments(
     } else {
         resolver_arguments.push(KeyValuePairProp {
             key: "key".intern(),
-            value: AST::RawType("void".intern()),
+            value: AST::RawType(intern!("void")),
             read_only: true,
             optional: false,
         });
@@ -566,14 +566,14 @@ fn get_resolver_arguments(
 
     if !args.is_empty() {
         resolver_arguments.push(KeyValuePairProp {
-            key: "args".intern(),
+            key: intern!("args"),
             value: AST::ExactObject(ExactObject::new(args)),
             read_only: true,
             optional: false,
         });
     } else {
         resolver_arguments.push(KeyValuePairProp {
-            key: "args".intern(),
+            key: intern!("args"),
             value: void_type,
             read_only: true,
             optional: false,
@@ -582,7 +582,7 @@ fn get_resolver_arguments(
 
     if let Some(context_import) = context_import {
         resolver_arguments.push(KeyValuePairProp {
-            key: "context".intern(),
+            key: intern!("context"),
             value: AST::RawType(context_import.name),
             read_only: true,
             optional: false,

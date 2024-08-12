@@ -1425,7 +1425,6 @@ function getResolverValue(
   let resolverResult = null;
   let resolverError = null;
 
-  const shouldPassContextToLiveResolver = field.kind === 'RelayLiveResolver';
   try {
     const resolverFunctionArgs = [];
     if (field.fragment != null) {
@@ -1433,9 +1432,7 @@ function getResolverValue(
     } else {
       // Set first argument to `undefined` in case we have resolver context
       // to make sure the context object is always the 3rd argument.
-      if (shouldPassContextToLiveResolver) {
-        resolverFunctionArgs.push(undefined);
-      }
+      resolverFunctionArgs.push(undefined);
     }
     const args = field.args
       ? getArgumentValues(field.args, variables)
@@ -1443,9 +1440,7 @@ function getResolverValue(
 
     resolverFunctionArgs.push(args);
 
-    if (shouldPassContextToLiveResolver) {
-      resolverFunctionArgs.push(liveResolverContext);
-    }
+    resolverFunctionArgs.push(liveResolverContext);
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {

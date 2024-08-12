@@ -539,7 +539,7 @@ fn get_resolver_arguments(
                 optional: false,
             });
         }
-    } else if resolver_metadata.live {
+    } else {
         resolver_arguments.push(KeyValuePairProp {
             key: "key".intern(),
             value: AST::RawType("void".intern()),
@@ -571,7 +571,7 @@ fn get_resolver_arguments(
             read_only: true,
             optional: false,
         });
-    } else if resolver_metadata.live {
+    } else {
         resolver_arguments.push(KeyValuePairProp {
             key: "args".intern(),
             value: void_type,
@@ -580,15 +580,13 @@ fn get_resolver_arguments(
         });
     }
 
-    if resolver_metadata.live {
-        if let Some(context_import) = context_import {
-            resolver_arguments.push(KeyValuePairProp {
-                key: "context".intern(),
-                value: AST::RawType(context_import.name),
-                read_only: true,
-                optional: false,
-            });
-        }
+    if let Some(context_import) = context_import {
+        resolver_arguments.push(KeyValuePairProp {
+            key: "context".intern(),
+            value: AST::RawType(context_import.name),
+            read_only: true,
+            optional: false,
+        });
     }
 
     resolver_arguments
@@ -625,33 +623,27 @@ fn import_relay_resolver_function_type(
         &PathBuf::from(resolver_metadata.import_path.lookup()),
     );
 
-    let context_import = if resolver_metadata.live {
-        match &typegen_context
-            .project_config
-            .typegen_config
-            .live_resolver_context_type
-        {
-            Some(LiveResolverContextTypeInput::Path(context_import)) => {
-                Some(LiveResolverContextType {
-                    name: context_import.name.clone().intern(),
-                    import_path: typegen_context.project_config.js_module_import_identifier(
-                        &typegen_context.project_config.artifact_path_for_definition(
-                            typegen_context.definition_source_location,
-                        ),
-                        &PathBuf::from(&context_import.path),
-                    ),
-                })
-            }
-            Some(LiveResolverContextTypeInput::Package(context_import)) => {
-                Some(LiveResolverContextType {
-                    name: context_import.name.clone().intern(),
-                    import_path: context_import.package.clone().intern(),
-                })
-            }
-            None => None,
+    let context_import = match &typegen_context
+        .project_config
+        .typegen_config
+        .live_resolver_context_type
+    {
+        Some(LiveResolverContextTypeInput::Path(context_import)) => Some(LiveResolverContextType {
+            name: context_import.name.clone().intern(),
+            import_path: typegen_context.project_config.js_module_import_identifier(
+                &typegen_context
+                    .project_config
+                    .artifact_path_for_definition(typegen_context.definition_source_location),
+                &PathBuf::from(&context_import.path),
+            ),
+        }),
+        Some(LiveResolverContextTypeInput::Package(context_import)) => {
+            Some(LiveResolverContextType {
+                name: context_import.name.clone().intern(),
+                import_path: context_import.package.clone().intern(),
+            })
         }
-    } else {
-        None
+        None => None,
     };
 
     let imported_resolver = ImportedResolver {

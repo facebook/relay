@@ -1335,6 +1335,4 @@ export type LiveState<+T> = {
  * `liveResolverContext` is set on the Relay Store.
  * This context will be passed as the third argument to the live resolver
  */
-export type LiveResolverContext = {
-  [key: string]: mixed,
-};
+export type LiveResolverContext = Object;
